@@ -1,1 +1,1 @@
-import .scripts
+from . import scripts
