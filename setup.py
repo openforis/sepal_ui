@@ -3,20 +3,20 @@ from distutils.core import setup
 setup(
     name = 'sepal_ui',      
     packages = ['sepal_ui'],   
-    version = '0.1.6-alpha',   
+    version = '0.1.7-alpha',   
     license='MIT',        
     description = 'wrapper for ipyvuetify widgets to unify the display of voila dashboards in the sepal plateform',  
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.1.6-alpha.tar.gz',
+    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.1.7-alpha.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',
         'ipyvuetify',
         'geemap',
         'ipyvuetify',
-        'ee',
+        'earthengine-api',
         'bqplot',
     ],
     classifiers=[

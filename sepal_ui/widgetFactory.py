@@ -4,8 +4,8 @@ import traitlets
 
 import ipyvuetify as v
 
-from toto.sepal_ui import widgetBinding as wb
-from toto.sepal_ui.scripts import mapping, utils
+from sepal_ui import widgetBinding as wb
+from sepal_ui.scripts import mapping, utils
 
 
 sepal_main = '#2e7d32'
