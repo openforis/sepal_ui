@@ -2,3 +2,8 @@
 setup.py
 sepal_ui/widgetBinding.py
 sepal_ui/widgetFactory.py
+sepal_ui/scripts/gee.py
+sepal_ui/scripts/mapping.py
+sepal_ui/scripts/messages.py
+sepal_ui/scripts/run_aoi_selection.py
+sepal_ui/scripts/utils.py

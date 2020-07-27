@@ -3,13 +3,14 @@ from distutils.core import setup
 setup(
     name = 'sepal_ui',      
     packages = ['sepal_ui', 'sepal_ui.scripts'],   
-    version = '0.1.11-alpha',   
+    package_data={'sepal_ui': ['scripts/*.csv']},
+    version = '0.2',   
     license='MIT',        
     description = 'wrapper for ipyvuetify widgets to unify the display of voila dashboards in the sepal plateform',  
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.1.11-alpha.tar.gz',
+    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.2.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',

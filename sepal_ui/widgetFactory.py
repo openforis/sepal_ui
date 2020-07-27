@@ -278,9 +278,6 @@ def TileAbout(pathname):
     
     return Tile('about_widget', 'About', inputs=[content])
     
-        
-    
-    
 
 #create downloadable links button 
 def DownloadBtn(text, url="#"):
@@ -291,6 +288,24 @@ def DownloadBtn(text, url="#"):
         href=url,
         children=[
             v.Icon(left=True, children=['mdi-download']),
+            text
+        ]
+    )
+    
+    return btn
+
+#create a process button 
+def ProcessBtn(text="Launch process"):
+    """
+    create a process button filled with the provided text
+    
+    Returns: 
+        btn (v.Btn) : the btn
+    """
+    btn = v.Btn(
+        color='primary', 
+        children=[
+            v.Icon(left=True, children=['mdi-map-marker-check']),
             text
         ]
     )
@@ -392,13 +407,7 @@ def TileAOI(io):
     
 
     #create the validation button 
-    aoi_select_btn = v.Btn(
-        color='primary', 
-        children=[
-            v.Icon(left=True, children=['mdi-map-marker-check']),
-            'Select these inputs'
-        ]
-    )
+    aoi_select_btn = ProcessBtn('Select these inputs')
     wb.bindAoiProcess(aoi_select_btn, io, m, dc, aoi_output, selection_method)
     
     #assemble everything on a tile 
