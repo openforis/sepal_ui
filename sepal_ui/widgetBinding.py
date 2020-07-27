@@ -1,6 +1,6 @@
 import ipyvuetify as v
 from functools import partial
-from .scripts import utils, run_aoi_selection, mapping
+from scripts import utils, run_aoi_selection, mapping
 import geemap
 import ee 
 

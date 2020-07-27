@@ -2,8 +2,8 @@ import ipyvuetify as v
 from markdown import markdown
 import ipywidgets as w
 from datetime import datetime
-from .scripts import mapping, utils
-from ..sepal_ui import widgetBinding as wb
+from scripts import mapping, utils
+from sepal_ui import widgetBinding as wb
 import traitlets
 
 sepal_main = '#2e7d32'

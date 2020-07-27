@@ -1,7 +1,7 @@
 import ee
 import time
-from ..scripts import utils
-from ..scripts import messages as ms
+from scripts import utils
+from scripts import messages as ms
 
 ee.Initialize()
 

@@ -4,8 +4,8 @@ import sys
 import re
 import os
 import geemap
-from ..scripts import utils, gee
-from ..scripts import messages as ms
+from scripts import utils, gee
+from scripts import messages as ms
 
 #initialize earth engine
 ee.Initialize()
