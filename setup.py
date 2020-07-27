@@ -7,10 +7,10 @@ setup(
   description = 'wrapper for ipyvuetify widgets to unify the display of voila dashboards in the sepal plateform',   
   author = 'Pierrick Rambaud',                   
   author_email = 'pierrick.rambaud49@gmail.com',  
-  url = 'https://github.com/12rambau',
-  download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
+  url = 'https://github.com/12rambau/sepal_ui',
+  download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.0.tar.gz',
   keywords = ['UI', 'Python', 'widget', 'sepal'], 
-  install_requires=[            # I get to this in a second
+  install_requires=[
           'haversine',
           'ipyvuetify',
           'geemap',
