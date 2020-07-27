@@ -1,10 +1,12 @@
 import time
-import ipyvuetify as v
 from datetime import datetime
 import os
 import glob
 from pathlib import Path
 import csv
+
+import ipyvuetify as v
+
 
 def displayIO(widget_alert, message, alert_type='info'):
     """ Display the message in a vuetify alert DOM object with specific coloring

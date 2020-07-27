@@ -1,10 +1,12 @@
-import ipyvuetify as v
 from markdown import markdown
-import ipywidgets as w
 from datetime import datetime
-from scripts import mapping, utils
-from sepal_ui import widgetBinding as wb
 import traitlets
+
+import ipyvuetify as v
+
+from toto.sepal_ui import widgetBinding as wb
+from toto.sepal_ui.scripts import mapping, utils
+
 
 sepal_main = '#2e7d32'
 sepal_darker = '#005005'

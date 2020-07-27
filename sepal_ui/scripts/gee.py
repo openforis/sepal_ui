@@ -1,7 +1,9 @@
-import ee
 import time
-from scripts import utils
-from scripts import messages as ms
+
+import ee
+
+from sepal_ui.scripts import utils
+from sepal_ui.scripts import messages as ms
 
 ee.Initialize()
 

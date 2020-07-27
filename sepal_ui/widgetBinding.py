@@ -1,8 +1,11 @@
-import ipyvuetify as v
 from functools import partial
-from scripts import utils, run_aoi_selection, mapping
+
+import ipyvuetify as v
 import geemap
-import ee 
+import ee
+
+from sepal_ui.scripts import utils, run_aoi_selection, mapping
+ 
 
 ee.Initialize()
 

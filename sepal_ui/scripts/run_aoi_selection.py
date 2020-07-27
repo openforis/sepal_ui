@@ -1,11 +1,13 @@
-import ee
 import time
 import sys
 import re
 import os
+
+import ee
 import geemap
-from scripts import utils, gee
-from scripts import messages as ms
+
+from sepal_ui.scripts import utils, gee
+from sepal_ui.scripts import messages as ms
 
 #initialize earth engine
 ee.Initialize()
