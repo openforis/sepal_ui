@@ -362,7 +362,7 @@ def TileAOI(io):
     AOI_MESSAGE='Click on "Selet these inputs" to validate your AOI'
     
     #create the output
-    aoi_output = v.Alert(children=[AOI_MESSAGE], type='info', text=True, class_="mt-5")
+    aoi_output = OutputWidget(AOI_MESSAGE)
     
     #create the inputs widgets 
     aoi_file_input = v.Select(
@@ -453,7 +453,16 @@ def TileAOI(io):
     )
     
     return AOI_content_main
+
+#create an alert 
+def OutputWidget(text='Click it'):
+    """
+    create an output alert that can be used to display the process outputs
+    """
     
+    alert = v.Alert(children=[text], type='info', text=True, class_="mt-5")
+    
+    return alert
     
     
     

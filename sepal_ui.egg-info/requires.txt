@@ -1,0 +1,6 @@
+haversine
+ipyvuetify
+geemap
+ipyvuetify
+earthengine-api
+bqplot
