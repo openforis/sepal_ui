@@ -1,6 +1,7 @@
 from markdown import markdown
 from datetime import datetime
 import traitlets
+import os
 
 import ipyvuetify as v
 
@@ -277,15 +278,48 @@ def TileAbout(pathname):
     #content = w.HTML(value=about)
     
     return Tile('about_widget', 'About', inputs=[content])
+
+#create the disclaimer tile 
+def TileDisclaimer():
+    """
+    create a about tile using a md file. This tile will have the "about_widget" id and "Disclaimer" title. It will be display at the same time as the about section
+        
+    Returns:
+        tile (v.Layout) : a about tile
+    """
     
+    pathname = os.path.join(os.path.dirname(__file__), 'scripts', 'disclaimer.md')
+    
+    #read the content and transform it into a html
+    f = open(pathname, 'r')
+    if f.mode == 'r':
+        about = f.read()
+    else :
+        about = '**No Disclaimer File**'
+        
+    about = markdown(about, extensions=['fenced_code', 'sane_lists'])
+    
+    #need to be nested in a div to be displayed
+    about = '<div>\n' + about + '\n</div>'
+    
+    #create a Html widget
+    class MyHTML(v.VuetifyTemplate):
+        template = traitlets.Unicode(about).tag(sync=True)
+    
+    
+    content = MyHTML()
+    
+    #content = w.HTML(value=about)
+    
+    return Tile('about_widget', 'Disclaimer', inputs=[content])
 
 #create downloadable links button 
-def DownloadBtn(text, url="#"):
+def DownloadBtn(text, path="#"):
     btn = v.Btn(
         class_='ma-2',
         xs5=True,
         color='success',
-        href=url,
+        href=utils.create_download_link(path),
         children=[
             v.Icon(left=True, children=['mdi-download']),
             text

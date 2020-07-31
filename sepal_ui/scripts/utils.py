@@ -77,3 +77,14 @@ def get_shp_files():
             shp_list.append(pathname)
 
     return shp_list
+
+def create_download_link(pathname):
+    """return a clickable link to download the pathname target"""
+    
+    result_path = os.path.expanduser(pathname)
+    home_path = os.path.expanduser('~')
+    download_path='/'+os.path.relpath(result_path,home_path)
+    
+    link = "/api/files/download?path={}".format(download_path)
+    
+    return link

@@ -2,6 +2,8 @@
 setup.py
 sepal_ui/widgetBinding.py
 sepal_ui/widgetFactory.py
+sepal_ui/scripts/FIPS_code_to_country.csv
+sepal_ui/scripts/disclaimer.md
 sepal_ui/scripts/gee.py
 sepal_ui/scripts/mapping.py
 sepal_ui/scripts/messages.py
