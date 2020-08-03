@@ -19,6 +19,7 @@ setup(
         'ipyvuetify',
         'earthengine-api',
         'bqplot',
+        'markdown'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
