@@ -227,3 +227,27 @@ def bindAoiProcess(btn, io, m, dc, output, list_method):
     ))
     
     return
+
+def checkInput(input_, output=None, output_message=None):
+    """
+    Check if the inpupt value is initialised return false if not and display an error message
+    
+    Args:
+        input_ : the input to check
+        output (v.Alert, optional): the output where we write the message
+        output_message (str, optionnal): the message to display if the input is not set
+        
+    Returns:
+        (bool): check if the value is initialized
+    """
+    default_message = "The value has not been initialized"
+    init = True 
+    
+    if not input_:
+        init= False
+        if output:
+            message = output_message if output_message else output_message
+            utils.displayIO(output, message, 'error')
+    
+    return init
+            

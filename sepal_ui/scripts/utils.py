@@ -4,6 +4,7 @@ import os
 import glob
 from pathlib import Path
 import csv
+from urllib.parse import urlparse
 
 import ipyvuetify as v
 
@@ -88,3 +89,7 @@ def create_download_link(pathname):
     link = "/api/files/download?path={}".format(download_path)
     
     return link
+
+def is_absolute(url):
+    """ check if the given url is an absolute or relative path"""
+    return bool(urlparse(url).netloc)

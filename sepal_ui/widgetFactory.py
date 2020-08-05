@@ -315,11 +315,27 @@ def TileDisclaimer():
 
 #create downloadable links button 
 def DownloadBtn(text, path="#"):
+    """
+    Create a green downloading button with the user text
+    
+    Args:
+        text (str): the text to display in the downloading button
+        path (str): the path to the asset, can be a relative path to your sepal folder or an absolute url
+        
+    Returns:
+        btn (v.Btn) : the btn that will pop a new downloadable link
+    """
+    #create the url
+    if utils.is_absolute(path):
+        url = path
+    else: 
+        url = utils.create_download_link(path)
+    
     btn = v.Btn(
         class_='ma-2',
         xs5=True,
         color='success',
-        href=utils.create_download_link(path),
+        href=url,
         children=[
             v.Icon(left=True, children=['mdi-download']),
             text
