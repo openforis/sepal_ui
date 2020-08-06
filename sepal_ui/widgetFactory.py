@@ -505,12 +505,19 @@ def TileAOI(io):
     return AOI_content_main
 
 #create an alert 
-def OutputWidget(text='Click it'):
+def OutputWidget(text='Click it', type_='info'):
     """
     create an output alert that can be used to display the process outputs
-    """
     
-    alert = v.Alert(children=[text], type='info', text=True, class_="mt-5")
+    Args:
+        text (str, optionnal): the text to display in the output
+        type (str, optionnal): the initial color of the alert
+    """
+    list_color = ['info', 'success', 'warning', 'error']
+    if not type_ in list_color:
+        type_ = 'info'
+        
+    alert = v.Alert(children=[text], type=type_, text=True, class_="mt-5")
     
     return alert
     
