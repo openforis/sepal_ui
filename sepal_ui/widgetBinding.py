@@ -243,8 +243,8 @@ def checkInput(input_, output=None, output_message=None):
     default_message = "The value has not been initialized"
     init = True 
     
-    if not input_:
-        init= False
+    if input_ == None:
+        init = False
         if output:
             message = output_message if output_message else output_message
             utils.displayIO(output, message, 'error')
