@@ -54,3 +54,21 @@ The `UI.ipynb` will be the entry point of you're app and it will call all the di
 
 For more specific and customized app. you can directly create your own component using the [ipyvuetify lib](https://github.com/mariobuikhuizen/ipyvuetify).
 
+## Contribute 
+
+If you want to contribute you can fork the project in you own repository and then use it. 
+
+To validate you modification go to the root folder of the package and run 
+```py
+python3 setup.py sdist
+```
+
+then make sure to uninstall the package from Pipy with 
+```py
+pip uninstall sepal_ui
+```
+
+and install instead the one from your local folder 
+```py
+pip install [your_sepal_ui_folder]
+```
