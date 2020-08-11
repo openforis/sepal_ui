@@ -10,7 +10,7 @@ setup(
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.4-beta.tar.gz',
+    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_0.5-beta.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',
