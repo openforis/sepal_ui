@@ -1,4 +1,5 @@
 # sepal_ui
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 wrapper for ipyvuetify widgets to unify the display of voila dashboards in the sepal plateform.
 
