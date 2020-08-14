@@ -57,7 +57,7 @@ For more specific and customized app. you can directly create your own component
 
 ## Contribute 
 
-If you want to contribute you can fork the project in you own repository and then use it. 
+If you want to contribute you can fork the project in you own repository and then use it. Please follow the [contributing guidelines](./CONTRIBUTE.md) if you consider working with us. 
 
 To validate you modification go to the root folder of the package and run 
 ```py
