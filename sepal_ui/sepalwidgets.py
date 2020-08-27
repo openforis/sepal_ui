@@ -222,4 +222,24 @@ class App (v.App, SepalWidget):
 
             self.children = app_children
             
+class Tile(v.Card, SepalWidget):
+    """create a customizable tile for the sepal UI framework"""
+    
+    def __init__(id_, title, inputs=[''], btn=None, output=None, **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        if btn:
+            inputs.append(btn)
+        
+        if output:
+            inputs.append(output)
             
+        children = [v.Html(xs12=True, tag='h2', children=[title])]
+        children += [v.Flex(xs12=True, children=[widget]) for widget in inputs]
+            
+        self._metadata={'mount_id': id_}
+        self.class_="pa-5 ma-5"
+        self.raised=True,
+        self.xs12=True,
+        self.children = children
