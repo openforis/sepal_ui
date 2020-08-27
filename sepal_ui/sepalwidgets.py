@@ -79,3 +79,36 @@ class Btn(v.Btn, SepalWidget):
         """disable and start loading or reverse"""
         self.loading = not self.loading
         self.disabled = self.loading
+
+class AppBar (v.AppBar, SepalWidget):
+    """create an appBar widget with the provided title using the sepal color framework"""
+    def __init__(self, title='SEPAL module', **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        self.title = title
+        self.toolBarButton = v.Btn(
+            icon = True, 
+            children=[
+                v.Icon(class_="white--text", children=['mdi-dots-vertical'])
+            ]
+        )
+        
+        self.color=self.MAIN_COLOR,
+        self.class_="white--text",
+        self.dense=True,
+        self.app = True,
+        self.children = [
+            self.toolBarButton, 
+            v.ToolbarTitle(children=[title])
+        ]
+        
+        def setTitle(self, title):
+            """set the title in the appbar"""
+            self.title = title
+            
+            self.children = [
+                self.toolBarButton, 
+                v.ToolbarTitle(children=[title])
+            ]
+            
