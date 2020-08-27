@@ -4,6 +4,9 @@ import ipyvuetify as v
 
 class SepalWidget(v.VuetifyWidget):
     
+    MAIN_COLOR = '#2e7d32'
+    DARKER_COLOR = '#005005'
+    
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
@@ -51,7 +54,7 @@ class Btn(v.Btn, SepalWidget):
     """
     
 
-    def __init__(self, text='Button', icon =None, **kwargs):
+    def __init__(self, text='Click', icon =None, **kwargs):
         super().__init__(**kwargs)
         self.color='primary'
         
