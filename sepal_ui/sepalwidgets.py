@@ -20,7 +20,7 @@ class SepalWidget(v.VuetifyWidget):
             self.class_ = self.class_.replace('d-none', '')
 
 class Alert(v.Alert, SepalWidget):
-    """"""
+    """create an alert widget that can be used to display the process outputs"""
     
     TYPES = ('info', 'error', 'warning', 'success')
     
@@ -71,13 +71,8 @@ class Btn(v.Btn, SepalWidget):
             icon = 'default'
         
         return v.Icon(left=True, children=[common_icons[icon]])    
-
-    def disable(self):
-        self.disabled = True
         
-    def activate(self):
-        self.loading = False
-        self.disabled = False
-        
-    def on_loading(self):
-        self.loading = True
+    def toggleLoading(self):
+        """disable and start loading or reverse"""
+        self.loading = not self.loading
+        self.disabled = self.loading
