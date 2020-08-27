@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
+from markdown import markdown
+from datetime import datetime
+import traitlets
+import os
 
 import ipyvuetify as v
+
+from sepal_ui.scripts import utils
 
 class SepalWidget(v.VuetifyWidget):
     
@@ -301,4 +307,27 @@ class TileDisclaimer(Tile):
         super().__init__('about_widget', 'Disclaimer', inputs=[content], **kwargs)
 
         
+class DownloadBtn(v.Btn, SepalWidget):
+    """Create a green downloading button with the user text"""
+    
+    def __init__(text, path='#', **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        #create the url
+        if utils.is_absolute(path):
+            url = path
+        else: 
+            url = utils.create_download_link(path)
+    
+        self.class_='ma-2',
+        self.xs5=True,
+        self.color='success',
+        self.href=url,
+        self.children=[
+            v.Icon(left=True, children=['mdi-download']),
+            text
+        ]
+        
+
         
