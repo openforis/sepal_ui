@@ -10,9 +10,6 @@ from sepal_ui.scripts import utils
 
 class SepalWidget(v.VuetifyWidget):
     
-    MAIN_COLOR = '#2e7d32'
-    DARKER_COLOR = '#005005'
-    
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
@@ -24,6 +21,8 @@ class SepalWidget(v.VuetifyWidget):
             self.hide()
         else:
             self.show()
+        
+        return self
     
     def hide(self):
         """add the d-none html class to the widget"""
@@ -31,11 +30,15 @@ class SepalWidget(v.VuetifyWidget):
             self.class_ = self.class_.strip() + ' d-none'
         self.viz = False
         
+        return self
+        
     def show(self):
         """ remove the d-none html class to the widget"""
         if 'd-none' in self.class_:
             self.class_ = self.class_.replace('d-none', '')
         self.viz = True
+        
+        return self
 
 class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
@@ -55,9 +58,13 @@ class Alert(v.Alert, SepalWidget):
         self.type = type_ if (type_ in self.TYPES) else self.TYPES[0]
         self.children = [msg]
         
+        return self
+        
     def clear(self):
         self.hide()
         self.children = ['']
+        
+        return self 
 
 
 class Btn(v.Btn, SepalWidget):
@@ -78,6 +85,7 @@ class Btn(v.Btn, SepalWidget):
         else:
             self.children=[text]
 
+    #todo real seticon
     def set_icon(self, icon):
 
         common_icons = {
@@ -94,6 +102,8 @@ class Btn(v.Btn, SepalWidget):
         """disable and start loading or reverse"""
         self.loading = not self.loading
         self.disabled = self.loading
+        
+        return self
 
 class AppBar (v.AppBar, SepalWidget):
     """create an appBar widget with the provided title using the sepal color framework"""
@@ -126,6 +136,8 @@ class AppBar (v.AppBar, SepalWidget):
                 self.toolBarButton, 
                 v.ToolbarTitle(children=[title])
             ]
+            
+            return self
             
 class DrawerItem(v.ListItem, SepalWidget):
     """create a drawer item using the user input"""
@@ -275,6 +287,8 @@ class Tile(v.Layout, SepalWidget):
         
         if 'd-inline' in self.class_:
             self.class_ = self.class_.replace('d-inline','')
+            
+        return self
         
     def show(self):
         """ remove the d-none html class to the widget"""
@@ -283,6 +297,8 @@ class Tile(v.Layout, SepalWidget):
         
         if not 'd-inline' in self.class_:
             self.class_ = self.class_.strip() + ' d-inline'
+            
+        return self
         
 class TileAbout(Tile):
     """
