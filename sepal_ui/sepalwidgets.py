@@ -315,7 +315,7 @@ class TileDisclaimer(Tile):
     """
     create a about tile using a md file. This tile will have the "about_widget" id and "About" title."""
     
-    def __init__(**kwargs):
+    def __init__(self, **kwargs):
         
         pathname = os.path.join(os.path.dirname(__file__), 'scripts', 'disclaimer.md')
         
