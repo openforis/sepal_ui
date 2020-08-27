@@ -146,4 +146,35 @@ class DrawerItem(v.ListItem, SepalWidget):
         
         if not card == '':
             self._metadata = {'card_id': card }
+            
+class NavDrawer(v.NavigationDrawer, SepalWidget):
+        """ 
+    create a navdrawer using the different items of the user and the sepal color framework. The drawer can include links to the github page of the project for wiki, bugs and repository.
+    """
         
+        def __init__(self, items, code=None, wiki=None, issue=None, **kwargs):
+            
+            super().__init__(**kwargs)
+            
+            
+            code_link = []
+            if code:
+                item_code = DrawerItem('Source code', icon='mdi-file-code', href=code)
+                code_link.append(item_code)
+            if wiki:
+                item_wiki = DrawerItem('Wiki', icon='mdi-book-open-page-variant', href=wiki)
+                code_link.append(item_wiki)
+            if issue:
+                item_bug = DrawerItem('Bug report', icon='mdi-bug', href=issue)
+                code_link.append(item_bug)
+                
+            self.v_model=True
+            self.app=True,
+            self.color = self.DARKER_COLOR
+            self.children = [
+                v.List(dense=True, children=items),
+                v.Divider(),
+                v.List(dense=True, children=code_link),
+            ]
+            
+            
