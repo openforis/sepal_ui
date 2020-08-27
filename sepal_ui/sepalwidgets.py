@@ -21,6 +21,8 @@ class SepalWidget(v.VuetifyWidget):
 
 class Alert(v.Alert, SepalWidget):
     
+    TYPES = ('info', 'error', 'warning', 'success')
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
@@ -31,7 +33,7 @@ class Alert(v.Alert, SepalWidget):
     
     def add_msg(self, msg, type_='info'):
         self.show()
-        self.type = type_
+        self.type = type_ if (type_ in self.TYPES) else self.TYPES[0]
         self.children = [msg]
         
     def clear(self):
