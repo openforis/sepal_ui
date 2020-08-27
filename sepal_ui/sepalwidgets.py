@@ -43,7 +43,7 @@ class SepalWidget(v.VuetifyWidget):
 class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
     
-    TYPES = ('info', 'error', 'warning', 'success')
+    TYPES = ('secondary', 'primary', 'info', 'error', 'warning', 'success')
     
     def __init__(self, **kwargs):
         
