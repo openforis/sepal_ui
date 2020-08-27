@@ -64,6 +64,20 @@ class Alert(v.Alert, SepalWidget):
         self.children = [msg]
         
         return self
+    
+    def add_output(self, msg, type_='info'):
+        
+        current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
+
+        self.show()
+        self.type = type_ if (type_ in self.TYPES) else self.TYPES[0]
+    
+        self.children = [
+            v.Html(tag='p', children=['[{}]'.format(current_time)]),
+            v.Html(tag='p', children=[msg])
+       ]
+        
+        return self
         
     def reset(self):
         self.children = ['']
