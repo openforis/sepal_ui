@@ -45,11 +45,13 @@ class Alert(v.Alert, SepalWidget):
     
     TYPES = ('secondary', 'primary', 'info', 'error', 'warning', 'success')
     
-    def __init__(self, **kwargs):
+    def __init__(self, type_='info', **kwargs):
+        
+        type_ = type_ if (type_ in self.TYPES) else self.TYPES[0]
         
         super().__init__(
             children = [''],
-            type = 'info',
+            type = type_,
             text = True,
             class_="mt-5",
             **kwargs
@@ -275,15 +277,15 @@ class Tile(v.Layout, SepalWidget):
         
         if output:
             inputs.append(output)
-            
-        children = [v.Html(xs12=True, tag='h2', children=[title])]
-        children += [v.Flex(xs12=True, children=[widget]) for widget in inputs]
+        
+        title = v.Html(xs12=True, tag='h2', children=[title])
+        content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         
         card = v.Card(
-            class_="pa-5",
-            raised=True,
-            xs12=True,
-            children=children
+            class_ = "pa-5",
+            raised = True,
+            xs12 = True,
+            children = [title] + content
         )
         
         super().__init__(
@@ -295,6 +297,20 @@ class Tile(v.Layout, SepalWidget):
             children = [card],
             **kwargs
         )
+        
+    def set_content(self, content):
+        
+        self.children[0].children = [self.children[0].children[0]] + content
+        
+        return self 
+    
+    def set_title(self, title):
+        
+        title = v.Html(xs12=True, tag='h2', children=[title])
+        
+        self.children[0].children = [title] + self.children[0].children[1:]
+        
+        return self
         
     def hide(self):
         """hide the widget"""
