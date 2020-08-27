@@ -16,7 +16,7 @@ class SepalWidget(v.VuetifyWidget):
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
-        self.class_ = "mt-5"
+        #self.class_ = "mt-5"
     
     def hide(self):
         """add the d-none html class to the widget"""
@@ -228,12 +228,10 @@ class App (v.App, SepalWidget):
 
             self.children = app_children
             
-class Tile(v.Card, SepalWidget):
+class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""
     
-    def __init__(id_, title, inputs=[''], btn=None, output=None, **kwargs):
-        
-        super().__init__(**kwargs)
+    def __init__(self, id_, title, inputs=[''], btn=None, output=None, **kwargs):
         
         if btn:
             inputs.append(btn)
@@ -243,18 +241,29 @@ class Tile(v.Card, SepalWidget):
             
         children = [v.Html(xs12=True, tag='h2', children=[title])]
         children += [v.Flex(xs12=True, children=[widget]) for widget in inputs]
-            
-        self._metadata={'mount_id': id_}
-        self.class_="pa-5 ma-5"
-        self.raised=True,
-        self.xs12=True,
-        self.children = children
+        
+        card = v.Card(
+            class_="pa-5",
+            raised=True,
+            xs12=True,
+            children=children
+        )
+        
+        super().__init__(
+            _metadata={'mount_id': id_},
+            row=True,
+            align_center=True,
+            class_="ma-5 d-inline",
+            xs12=True,
+            children = [card],
+            **kwargs
+        )
         
 class TileAbout(Tile):
     """
     create a about tile using a md file. This tile will have the "about_widget" id and "About" title."""
     
-    def __init__(pathname, **kwargs):
+    def __init__(self, pathname, **kwargs):
         
         #read the content and transform it into a html
         f = open(pathname, 'r')
