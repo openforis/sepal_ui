@@ -7,7 +7,18 @@ import os
 import ipyvuetify as v
 
 from sepal_ui.scripts import utils
+from sepal_ui.scripts import messages as ms
 
+############################
+##   hard coded colors    ##
+############################
+
+sepal_main = '#2e7d32'
+sepal_darker = '#005005'
+
+###########################
+##       classes         ##
+###########################
 class SepalWidget(v.VuetifyWidget):
     
     def __init__(self, **kwargs):
@@ -127,28 +138,24 @@ class AppBar (v.AppBar, SepalWidget):
     """create an appBar widget with the provided title using the sepal color framework"""
     def __init__(self, title='SEPAL module', **kwargs):
         
-        super().__init__(**kwargs)
-        
-        self.title = title
-        self.toolBarButton = v.Btn(
+        self.toggle_button = v.Btn(
             icon = True, 
             children=[
                 v.Icon(class_="white--text", children=['mdi-dots-vertical'])
             ]
         )
         
-        self.color=self.MAIN_COLOR,
-        self.class_="white--text",
-        self.dense=True,
-        self.app = True,
-        self.children = [
-            self.toolBarButton, 
-            v.ToolbarTitle(children=[title])
-        ]
+        super().__init__(
+            color=sepal_main,
+            class_="white--text",
+            dense=True,
+            app = True,
+            children = [self.toggle_button, v.ToolbarTitle(children=[title])],
+            **kwargs
+        )
         
         def setTitle(self, title):
             """set the title in the appbar"""
-            self.title = title
             
             self.children = [
                 self.toolBarButton, 
@@ -162,12 +169,9 @@ class DrawerItem(v.ListItem, SepalWidget):
     
     def __init__(self, title, icon=None, card='', href='', **kwargs):
         
-        super().__init__(**kwargs)
-        
         icon = icon if icon else 'mdi-folder-outline'
         
-        self.link=True
-        self.children = [
+        children = [
             v.ListItemAction(
                 children=[
                     v.Icon(
@@ -185,6 +189,11 @@ class DrawerItem(v.ListItem, SepalWidget):
             )
         ]
         
+        super().__init__(
+            link=True,
+            children=children,
+            **kwargs)        
+        
         if not href == '':
             self.href=href
             self.target="_blank"
@@ -199,9 +208,6 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         
         def __init__(self, items, code=None, wiki=None, issue=None, **kwargs):
             
-            super().__init__(**kwargs)
-            
-            
             code_link = []
             if code:
                 item_code = DrawerItem('Source code', icon='mdi-file-code', href=code)
@@ -213,37 +219,39 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
                 item_bug = DrawerItem('Bug report', icon='mdi-bug', href=issue)
                 code_link.append(item_bug)
                 
-            self.v_model=True
-            self.app=True,
-            self.color = self.DARKER_COLOR
-            self.children = [
-                v.List(dense=True, children=items),
-                v.Divider(),
-                v.List(dense=True, children=code_link)
-            ]
-            
+            super().__init__(
+                v_model=True,
+                app=True,
+                color = sepal_darker,
+                children = [
+                    v.List(dense=True, children=items),
+                    v.Divider(),
+                    v.List(dense=True, children=code_link)
+                ],
+                **kwargs
+            )
+
 class Footer(v.Footer, SepalWidget):
     """create a footer with cuzomizable text. Not yet capable of displaying logos"""
-    def __init__(text="", **kwargs):
+    def __init__(self, text="", **kwargs):
         
-        super().__init__(text ='', **kwargs)
+        text = text if text != '' else 'SEPAL \u00A9 {}'.format(datetime.date.today().year)
         
-        text = text if text != '' else 'SEPAL \u00A9 2020'
-        
-        self.color = self.MAIN_COLOR
-        self.class_ = "white--text"
-        self.app=True
-        self.children = [text]
+        super().__init__(
+            color = sepal_main,
+            class_ = "white--text",
+            app=True,
+            children = [text],
+            **kwargs
+        )
         
 class App (v.App, SepalWidget):
         """Create an app display with the tiles created by the user. Display false footer and appBar if not filled. navdrawer is fully optionnal
         """
         
-        def __init__(tiles=[''], appBar=None, footer=None, navDrawer=None, **kwargs):
+        def __init__(self, tiles=[''], appBar=None, footer=None, navDrawer=None, **kwargs):
             
-            super().__init__(**kwarg)
-            
-            self.v_model=None
+            app_children = []
             
             #add the navDrawer if existing
             if navDrawer:
@@ -264,8 +272,11 @@ class App (v.App, SepalWidget):
             if not footer:
                 footer = Footer()
             app_children.append(footer)
-
-            self.children = app_children
+            
+            super().__init__(
+                v_model=None,
+                children = app_children,
+                **kwargs)
             
 class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""
@@ -392,24 +403,23 @@ class TileDisclaimer(Tile):
 class DownloadBtn(v.Btn, SepalWidget):
     """Create a green downloading button with the user text"""
     
-    def __init__(text, path='#', **kwargs):
-        
-        super().__init__(**kwargs)
+    def __init__(self, text, path='#', **kwargs):
         
         #create the url
         if utils.is_absolute(path):
             url = path
         else: 
             url = utils.create_download_link(path)
-    
-        self.class_='ma-2',
-        self.xs5=True,
-        self.color='success',
-        self.href=url,
-        self.children=[
-            v.Icon(left=True, children=['mdi-download']),
-            text
-        ]
         
-
+        super().__init__(
+            class_='ma-2',
+            xs5=True,
+            color='success',
+            href=url,
+            children=[
+                v.Icon(left=True, children=['mdi-download']),
+                text
+            ],
+            **kwargs
+        )
         

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
 from . import mapping
+from . import sepalwidgets as sw
+from . import widgetBinding as wb
 
 import ee
 
+ee.Initialize()
 
 
-class Aoi_IO:
+
+class Aoi_io:
     
     def __init__(self, alert_widget=None):
         """Initiate the Aoi object.
@@ -15,8 +19,6 @@ class Aoi_IO:
             alert_widget (SepalAlert): Widget to display alerts.
 
         """
-        # Not sure if left the Initialize method inside the class
-        ee.Initialize()
 
         # GEE parameters
         self.assetId = 'users/dafguerrerom/ReducedAreas_107PHU'
@@ -162,3 +164,97 @@ class Aoi_IO:
             return tl, bl, tr, br
 
         return min_lon, min_lat, max_lon, max_lat
+    
+class TileAoi(sw.Tile):
+    """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
+    
+    #constants
+    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset')
+    
+    def __init__(io, **kwargs):
+        
+        #create the output
+        aoi_output = Alert().add_msg(ms.AOI_MESSAGE)
+        
+        #create the inputs widgets 
+        aoi_file_input = v.Select(
+            items=utils.get_shp_files(), 
+            label='Select a file', 
+            v_model=None,
+            class_='d-none'
+        )
+        wb.bind(aoi_file_input, io, 'file_input', aoi_output)
+    
+        aoi_file_name = v.TextField(
+            label='Select a filename', 
+            v_model=io.file_name,
+            class_='d-none'
+        )
+        wb.bind(aoi_file_name, io, 'file_name', aoi_output)
+    
+        aoi_country_selection = v.Select(
+            items=[*utils.create_FIPS_dic()], 
+            label='Country/Province', 
+            v_model=None,
+            class_='d-none'
+        )
+        wb.bind(aoi_country_selection, io, 'country_selection', aoi_output)
+    
+        aoi_asset_name = v.TextField(
+            label='Select a GEE asset', 
+            v_model=None,
+            class_='d-none'
+        )
+        wb.bind(aoi_asset_name, io, 'assetId', aoi_output)
+    
+        widget_list = [
+            aoi_file_input, 
+            aoi_file_name, 
+            aoi_country_selection, 
+            aoi_asset_name
+        ]
+        
+        #create the map 
+        dc, m = mapping.init_map()
+        wb.handle_draw(dc, io, 'drawn_feat', aoi_output)
+    
+        #bind the input to the selected method 
+        aoi_select_method = v.Select(items=selection_method, label='AOI selection method', v_model=None)
+        wb.bindAoiMethod(aoi_select_method, widget_list, io, m, dc, selection_method)
+    
+
+        #create the validation button 
+        aoi_select_btn = ProcessBtn('Select these inputs')
+        wb.bindAoiProcess(aoi_select_btn, io, m, dc, aoi_output, selection_method)
+    
+        #assemble everything on a tile 
+        inputs = v.Layout(
+            _metadata={'mount-id': 'data-input'},
+            class_="pa-5",
+            row=True,
+            align_center=True, 
+            children=[
+                v.Flex(xs12=True, children=[aoi_select_method]),
+                v.Flex(xs12=True, children=[aoi_country_selection]),
+                v.Flex(xs12=True, children=[aoi_file_input]),
+                v.Flex(xs12=True, children=[aoi_file_name]),
+                v.Flex(xs12=True, children=[aoi_asset_name]),
+                v.Flex(xs12=True, children=[aoi_select_btn]),
+                v.Flex(xs12=True, children=[aoi_output]),
+            ]
+        )
+        
+        aoi_content_main = v.Layout(
+            row=True,
+            xs12=True,
+            children = [
+                v.Flex(xs12=True, md6=True, children=[inputs]),
+                v.Flex(class_="pa-5", xs12=True, md6=True, children=[m])
+            ]
+        )
+        
+        super().__init__(
+            id_='aoi_widget',
+            title='AOI selection', 
+            inputs=[aoi_content_main]
+        )
