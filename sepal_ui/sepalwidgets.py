@@ -174,7 +174,20 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             self.children = [
                 v.List(dense=True, children=items),
                 v.Divider(),
-                v.List(dense=True, children=code_link),
+                v.List(dense=True, children=code_link)
             ]
             
+class Footer(v.Footer, SepalWidget):
+    """create a footer with cuzomizable text. Not yet capable of displaying logos"""
+    def __init__(text="", **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        text = text if text != "" else 'SEPAL \u00A9 2020'
+        
+        self.color = self.MAIN_COLOR
+        self.class_ = "white--text"
+        self.app=True
+        self.children = [text]
+        
             
