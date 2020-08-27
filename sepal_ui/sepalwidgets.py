@@ -10,12 +10,12 @@ class SepalWidget(v.VuetifyWidget):
         self.class_ = "mt-5"
     
     def hide(self):
-        
+        """add the d-none html class to the widget"""
         if not 'd-none' in self.class_:
             self.class_ = self.class_.strip() + ' d-none'
         
     def show(self):
-        
+        """ remove the d-none html class to the widget"""
         if 'd-none' in self.class_:
             self.class_ = self.class_.replace('d-none', '')
 
