@@ -46,12 +46,17 @@ class Alert(v.Alert, SepalWidget):
     TYPES = ('info', 'error', 'warning', 'success')
     
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         
-        self.children = ['']
-        self.type = 'info'
-        self.text = True
-        self.clear()
+        super().__init__(
+            children = [''],
+            type = 'info',
+            text = True,
+            class_="mt-5",
+            **kwargs
+        )
+        
+        self.hide()
+        
     
     def add_msg(self, msg, type_='info'):
         self.show()
@@ -60,9 +65,9 @@ class Alert(v.Alert, SepalWidget):
         
         return self
         
-    def clear(self):
-        self.hide()
+    def reset(self):
         self.children = ['']
+        self.hide()
         
         return self 
 
