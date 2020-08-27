@@ -16,16 +16,26 @@ class SepalWidget(v.VuetifyWidget):
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
+        self.viz = True
+        
+    def toggle_viz(self):
+        """toogle the visibility of the widget"""
+        if self.viz:
+            self.hide()
+        else:
+            self.show()
     
     def hide(self):
         """add the d-none html class to the widget"""
         if not 'd-none' in self.class_:
             self.class_ = self.class_.strip() + ' d-none'
+        self.viz = False
         
     def show(self):
         """ remove the d-none html class to the widget"""
         if 'd-none' in self.class_:
             self.class_ = self.class_.replace('d-none', '')
+        self.viz = True
 
 class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
@@ -257,6 +267,22 @@ class Tile(v.Layout, SepalWidget):
             children = [card],
             **kwargs
         )
+        
+    def hide(self):
+        """hide the widget"""
+        
+        super().hide()
+        
+        if 'd-inline' in self.class_:
+            self.class_ = self.class_.replace('d-inline','')
+        
+    def show(self):
+        """ remove the d-none html class to the widget"""
+        
+        super().show()
+        
+        if not 'd-inline' in self.class_:
+            self.class_ = self.class_.strip() + ' d-inline'
         
 class TileAbout(Tile):
     """
