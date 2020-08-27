@@ -20,6 +20,7 @@ class SepalWidget(v.VuetifyWidget):
             self.class_ = self.class_.replace('d-none', '')
 
 class Alert(v.Alert, SepalWidget):
+    """"""
     
     TYPES = ('info', 'error', 'warning', 'success')
     
