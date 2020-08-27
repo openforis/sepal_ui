@@ -76,27 +76,24 @@ class Btn(v.Btn, SepalWidget):
     """
     
 
-    def __init__(self, text='Click', icon =None, **kwargs):
+    def __init__(self, text='Click', icon=None, **kwargs):
         super().__init__(**kwargs)
         self.color='primary'
+        self.v_icon = None
+        self.children=[text]
         
         if icon:
-            self.children=[self.set_icon(icon), text]
-        else:
-            self.children=[text]
+            self.set_icon(icon)
 
-    #todo real seticon
     def set_icon(self, icon):
-
-        common_icons = {
-            'default' : 'mdi-adjust',
-            'download' : 'mdi-download'
-        }
         
-        if not icon in common_icons.keys():
-            icon = 'default'
-        
-        return v.Icon(left=True, children=[common_icons[icon]])    
+        if self.v_icon:
+            self.v_icon.children = [icon]
+        else:
+            self.v_icon = v.Icon(left=True, children=[icon])
+            self.children = [self.v_icon] + self.children
+            
+        return self
         
     def toggle_loading(self):
         """disable and start loading or reverse"""
