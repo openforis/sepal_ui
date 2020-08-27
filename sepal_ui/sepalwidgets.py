@@ -75,7 +75,7 @@ class Btn(v.Btn, SepalWidget):
         
         return v.Icon(left=True, children=[common_icons[icon]])    
         
-    def toggleLoading(self):
+    def toggle_loading(self):
         """disable and start loading or reverse"""
         self.loading = not self.loading
         self.disabled = self.loading
