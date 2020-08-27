@@ -243,3 +243,32 @@ class Tile(v.Card, SepalWidget):
         self.raised=True,
         self.xs12=True,
         self.children = children
+        
+class TileAbout(Tile):
+    """
+    create a about tile using a md file. This tile will have the "about_widget" id and "About" title."""
+    
+    def __init__(pathname, **kwargs):
+        
+        #read the content and transform it into a html
+        f = open(pathname, 'r')
+        if f.mode == 'r':
+            about = f.read()
+        else :
+            about = '**No About File**'
+        
+        about = markdown(about, extensions=['fenced_code','sane_lists'])
+    
+        #need to be nested in a div to be displayed
+        about = '<div>\n' + about + '\n</div>'
+    
+        #create a Html widget
+        class MyHTML(v.VuetifyTemplate):
+            template = traitlets.Unicode(about).tag(sync=True)
+    
+    
+        content = MyHTML()
+        
+        super().__init__('about_widget', 'About', inputs=[content], **kwargs)
+        
+        
