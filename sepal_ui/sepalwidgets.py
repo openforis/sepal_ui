@@ -181,13 +181,45 @@ class Footer(v.Footer, SepalWidget):
     """create a footer with cuzomizable text. Not yet capable of displaying logos"""
     def __init__(text="", **kwargs):
         
-        super().__init__(**kwargs)
+        super().__init__(text ='', **kwargs)
         
-        text = text if text != "" else 'SEPAL \u00A9 2020'
+        text = text if text != '' else 'SEPAL \u00A9 2020'
         
         self.color = self.MAIN_COLOR
         self.class_ = "white--text"
         self.app=True
         self.children = [text]
         
+class App (v.App, SepalWidget):
+        """Create an app display with the tiles created by the user. Display false footer and appBar if not filled. navdrawer is fully optionnal
+        """
+        
+        def __init__(tiles=[''], appBar=None, footer=None, navDrawer=None, **kwargs):
+            
+            super().__init__(**kwarg)
+            
+            self.v_model=None
+            
+            #add the navDrawer if existing
+            if navDrawer:
+                app_children.append(navDrawer)
+    
+            #create a false appBar if necessary
+            if not appBar:
+                appBar = AppBar()
+            app_children.append(appBar)
+
+            #add the content of the app
+            content = v.Content(children=[
+                v.Container(fluid=True,children = tiles)
+            ])
+            app_children.append(content)
+    
+            #create a false footer if necessary
+            if not footer:
+                footer = Footer()
+            app_children.append(footer)
+
+            self.children = app_children
+            
             
