@@ -16,7 +16,6 @@ class SepalWidget(v.VuetifyWidget):
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
-        #self.class_ = "mt-5"
     
     def hide(self):
         """add the d-none html class to the widget"""
