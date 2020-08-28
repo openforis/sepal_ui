@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from functools import partial
 from markdown import markdown
 from datetime import datetime
 import traitlets
@@ -97,7 +98,37 @@ class Alert(v.Alert, SepalWidget):
         self.hide()
         
         return self 
-
+    
+    def bind(self, widget, obj, variable, msg='The selected variable is: '):
+        """ 
+        bind the variable to the widget and display it in the alert
+    
+        Args:
+            widget (v.XX) : an ipyvuetify input element
+            obj : the process_io object
+            variable (str) : the name of the member in process_io object
+            output_message (str, optionnal) : the output message before the variable display
+        """
+    
+        def on_change(widget, event, data, obj, variable, output, msg):
+        
+            setattr(obj, variable, widget.v_model)
+            
+            msg += str(widget.v_model)
+            output.add_msg(msg)
+        
+            return
+        
+        widget.on_event('change', partial(
+            on_change,
+            obj=obj,
+            variable=variable, 
+            output=self, 
+            msg=msg
+        ))
+    
+        return self
+    
 
 class Btn(v.Btn, SepalWidget):
     """
