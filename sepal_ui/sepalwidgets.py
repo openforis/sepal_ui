@@ -253,6 +253,24 @@ class DrawerItem(v.ListItem, SepalWidget):
         if not card == '':
             self._metadata = {'card_id': card }
             
+    def display_tile(self, tiles):
+        """
+        display the apropriate tiles when the item is clicked
+    
+        Args:
+            tiles ([v.Layout]) : the list of all the available tiles in the app
+        """
+        def on_click(widget, event, data, tiles):
+            for tile in tiles:
+                if widget._metadata['card_id'] == tile._metadata['mount_id']:
+                    tile.show()
+                else:
+                    tile.hide()
+    
+        self.on_event('click', partial(on_click, tiles=tiles))
+        
+        return self
+            
 class NavDrawer(v.NavigationDrawer, SepalWidget):
         """ 
     create a navdrawer using the different items of the user and the sepal color framework. The drawer can include links to the github page of the project for wiki, bugs and repository.
@@ -282,6 +300,21 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
                 ],
                 **kwargs
             )
+            
+        def display_drawer(self, toggleButton):
+            """
+            bind the drawer to it's toggleButton
+
+            Args:
+                drawer (v.navigationDrawer) : the drawer tobe displayed
+                toggleButton(v.Btn) : the button that activate the drawer
+            """
+            def on_click(widget, event, data, drawer):
+                drawer.v_model = not drawer.v_model
+        
+            toggleButton.on_event('click', partial(on_click, drawer=self))
+                
+            return self
 
 class Footer(v.Footer, SepalWidget):
     """create a footer with cuzomizable text. Not yet capable of displaying logos"""
@@ -302,6 +335,8 @@ class App (v.App, SepalWidget):
         """
         
         def __init__(self, tiles=[''], appBar=None, footer=None, navDrawer=None, **kwargs):
+            
+            self.tiles = None if tiles == [''] else tiles
             
             app_children = []
             
@@ -329,6 +364,17 @@ class App (v.App, SepalWidget):
                 v_model=None,
                 children = app_children,
                 **kwargs)
+            
+        def show_tile(self, name):
+            """select the tile to display using its mount-id"""
+            for tile in self.tiles:
+                if name == tile._metadata['mount_id']:
+                    tile.show()
+                else:
+                    tile.hide()
+            
+            return self
+            
             
 class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""
