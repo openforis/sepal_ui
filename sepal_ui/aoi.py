@@ -286,7 +286,7 @@ class TileAoi(sw.Tile):
             feature = ee.Feature(geom)
             setattr(obj, variable, ee.FeatureCollection(feature)) 
             
-            output.add_output('A shape have been drawn')
+            output.add_live_msg('A shape have been drawn')
 
             return 
         

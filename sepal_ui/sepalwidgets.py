@@ -78,7 +78,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
     
-    def add_output(self, msg, type_='info'):
+    def add_live_msg(self, msg, type_='info'):
         
         current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
 
