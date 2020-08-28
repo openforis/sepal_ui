@@ -394,6 +394,25 @@ class Tile(v.Layout, SepalWidget):
             self.class_ = self.class_.strip() + ' d-inline'
             
         return self
+    
+    def toggle_inputs(self, fields_2_show, fields):
+        """
+        display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
+    
+        Args:
+            fields_2_show ([v.widget]) : the list of input to be display
+            fields ([v.widget]) : the list of the tile widget
+        """
+    
+        for field in fields:
+            if field in fields_2_show: 
+                if 'd-none' in field.class_:
+                    field.class_ = field.class_.replace('d-none', '')
+            else:
+                if not 'd-none' in field.class_:
+                    field.class_ = field.class_.strip() + ' d-none'
+
+        return self
         
 class TileAbout(Tile):
     """

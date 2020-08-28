@@ -387,14 +387,14 @@ class TileAoi(sw.Tile):
                 pass
             #toogle the appropriate inputs
             if widget.v_model == selection_method[0]: #country selection
-                wb.toggle_inputs([aoi_country_selection], list_input)
+                self.toggle_inputs([aoi_country_selection], list_input)
             elif widget.v_model == selection_method[1]: #drawing
-                wb.toggle_inputs([aoi_file_name], list_input)
+                self.toggle_inputs([aoi_file_name], list_input)
                 m.add_control(dc)
             elif widget.v_model == selection_method[2]: #shp file
-                wb.toggle_inputs([aoi_file_input], list_input)
+                self.toggle_inputs([aoi_file_input], list_input)
             elif widget.v_model == selection_method[3]: #gee asset
-                wb.toggle_inputs([aoi_asset_name], list_input)
+                self.toggle_inputs([aoi_asset_name], list_input)
         
         
         
