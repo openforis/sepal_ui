@@ -99,7 +99,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self 
     
-    def bind(self, widget, obj, variable, msg='The selected variable is: '):
+    def bind(self, widget, obj, variable, msg=None):
         """ 
         bind the variable to the widget and display it in the alert
     
@@ -109,7 +109,8 @@ class Alert(v.Alert, SepalWidget):
             variable (str) : the name of the member in process_io object
             output_message (str, optionnal) : the output message before the variable display
         """
-    
+        if not msg: msg = 'The selected variable is: '
+            
         def on_change(widget, event, data, obj, variable, output, msg):
         
             setattr(obj, variable, widget.v_model)
@@ -128,6 +129,26 @@ class Alert(v.Alert, SepalWidget):
         ))
     
         return self
+    
+    def check_input(self, input_, msg=None):
+        """
+        Check if the inpupt value is initialized. If not return false and display an error message else return True
+        
+        Args:
+            input_ : the input to check
+            msg (str, optionnal): the message to display if the input is not set
+            
+        Returns:
+            (bool): check if the value is initialized
+        """
+        if not msg: msg = "The value has not been initialized"
+        init = True 
+        
+        if input_ == None:
+            init = False
+            self.add_msg(msg, 'error')
+        
+        return init
     
 
 class Btn(v.Btn, SepalWidget):
