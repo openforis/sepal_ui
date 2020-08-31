@@ -38,16 +38,16 @@ class SepalWidget(v.VuetifyWidget):
     
     def hide(self):
         """add the d-none html class to the widget"""
-        if not 'd-none' in self.class_:
-            self.class_ = self.class_.strip() + ' d-none'
+        if not 'd-none' in str(self.class_):
+            self.class_ = str(self.class_).strip() + ' d-none'
         self.viz = False
         
         return self
         
     def show(self):
         """ remove the d-none html class to the widget"""
-        if 'd-none' in self.class_:
-            self.class_ = self.class_.replace('d-none', '')
+        if 'd-none' in str(self.class_):
+            self.class_ = str(self.class_).replace('d-none', '')
         self.viz = True
         
         return self
@@ -426,7 +426,7 @@ class Tile(v.Layout, SepalWidget):
         
         super().hide()
         
-        if 'd-inline' in self.class_:
+        if 'd-inline' in str(self.class_):
             self.class_ = self.class_.replace('d-inline','')
             
         return self
@@ -436,8 +436,8 @@ class Tile(v.Layout, SepalWidget):
         
         super().show()
         
-        if not 'd-inline' in self.class_:
-            self.class_ = self.class_.strip() + ' d-inline'
+        if not 'd-inline' in str(self.class_):
+            self.class_ = str(self.class_).strip() + ' d-inline'
             
         return self
     
@@ -452,11 +452,11 @@ class Tile(v.Layout, SepalWidget):
     
         for field in fields:
             if field in fields_2_show: 
-                if 'd-none' in field.class_:
+                if 'd-none' in str(field.class_):
                     field.class_ = field.class_.replace('d-none', '')
             else:
-                if not 'd-none' in field.class_:
-                    field.class_ = field.class_.strip() + ' d-none'
+                if not 'd-none' in str(field.class_):
+                    field.class_ = str(field.class_).strip() + ' d-none'
 
         return self
         
