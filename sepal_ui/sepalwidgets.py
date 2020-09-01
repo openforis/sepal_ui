@@ -55,9 +55,9 @@ class SepalWidget(v.VuetifyWidget):
 class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
     
-    TYPES = ('secondary', 'primary', 'info', 'error', 'warning', 'success')
+    TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success')
     
-    def __init__(self, type_='info', **kwargs):
+    def __init__(self, type_=None, **kwargs):
         
         type_ = type_ if (type_ in self.TYPES) else self.TYPES[0]
         
@@ -457,6 +457,7 @@ class Tile(v.Layout, SepalWidget):
             else:
                 if not 'd-none' in str(field.class_):
                     field.class_ = str(field.class_).strip() + ' d-none'
+                    
 
         return self
         
