@@ -320,7 +320,7 @@ class Footer(v.Footer, SepalWidget):
     """create a footer with cuzomizable text. Not yet capable of displaying logos"""
     def __init__(self, text="", **kwargs):
         
-        text = text if text != '' else 'SEPAL \u00A9 {}'.format(datetime.date.today().year)
+        text = text if text != '' else 'SEPAL \u00A9 {}'.format(datetime.today().year)
         
         super().__init__(
             color = sepal_main,
