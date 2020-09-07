@@ -91,7 +91,7 @@ The creation options available vary by format driver, and some simple formats ha
     
     return su.launch(command, output)
 
-def calc(expression, inputs, output, bands=None, no_data=None, type_=None, format_=None, co=None, overwrite=False, output=None):
+def calc(expression, inputs, out_file, bands=None, no_data=None, type_=None, format_=None, co=None, overwrite=False, output=None):
     """
     Command line raster calculator with numpy syntax. Use any basic arithmetic supported by numpy arrays such as +, -, *, and \ along with logical operators such as >. Note that all files must have the same dimensions, but no projection checking is performed.
     
@@ -115,7 +115,7 @@ def calc(expression, inputs, output, bands=None, no_data=None, type_=None, forma
     for i in max(len(inputs, 26)):
         command += ['-' + string.ascii_uppercase[i], inputs[i]]
         
-    command += ['--outputfile={}'.format(output)]
+    command += ['--outputfile={}'.format(out_file)]
     
     if bands and len(bands) == len(inputs):
         for i in max(len(bands), 26):

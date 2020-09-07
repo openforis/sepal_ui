@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 from functools import partial
 from datetime import datetime
+from pathlib import Path
+import os
 
 import ee
 import ipyvuetify as v
+import geemap
+import shapely.geometry as sg
+from osgeo import osr, ogr
 
 from .mapping import SepalMap
 from . import sepalwidgets as sw
@@ -175,6 +180,54 @@ class Aoi_io:
             return tl, bl, tr, br
 
         return min_lon, min_lat, max_lon, max_lat
+    
+    def get_aoi_shp(self, dwnDir=''):
+
+        aoi_name = Path(self.assetId).stem.replace('aoi_', '')
+        filename = '{0}{1}.shp'.format(dwnDir, aoi_name)
+    
+        if os.path.isfile(filename):
+            return filename
+    
+        # verify that the asset exist
+        aoi = ee.FeatureCollection(self.assetId)
+    
+        # convert into shapely
+        aoiJson = geemap.ee_to_geojson(aoi)
+        aoiShp = sg.shape(aoiJson['features'][0]['geometry'])
+    
+        # Now convert it to a shapefile with OGR    
+        driver = ogr.GetDriverByName('Esri Shapefile')
+        ds = driver.CreateDataSource(filename)
+        layer = ds.CreateLayer('', None, ogr.wkbPolygon)
+
+        # Add one attribute
+        layer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
+        defn = layer.GetLayerDefn()
+
+        # Create a new feature (attribute and geometry)
+        feat = ogr.Feature(defn)
+        feat.SetField('id', 123)
+    
+        # Make a geometry, from Shapely object
+        geom = ogr.CreateGeometryFromWkb(aoiShp.wkb)
+        feat.SetGeometry(geom)
+    
+        layer.CreateFeature(feat)
+    
+        # Save and close everything
+        ds = layer = feat = geom = None
+    
+        #add the spatial referecence
+        spatialRef = osr.SpatialReference()
+        spatialRef.ImportFromEPSG(4326)
+    
+        spatialRef.MorphToESRI()
+        file = open('{0}{1}.prj'.format(dwnDir, aoi_name), 'w')
+        file.write(spatialRef.ExportToWkt())
+        file.close()
+    
+        return filename
     
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
