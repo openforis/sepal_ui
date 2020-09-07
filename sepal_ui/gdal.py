@@ -1,4 +1,5 @@
 from sepal_ui.scripts import utils as su
+import string
 
 def merge(input_files, out_filename=None, out_format=None, co=None, pixelsize=None, tap=False, separate=False, v=False, pct=False, extents=None, nodata_value=None, output_nodata_value=None, datatype=None, output=None):      
     """
@@ -89,3 +90,53 @@ The creation options available vary by format driver, and some simple formats ha
     command += input_files
     
     return su.launch(command, output)
+
+def calc(expression, inputs, out_file, bands=None, no_data=None, type_=None, format_=None, co=None, overwrite=False, output=None):
+    """
+    Command line raster calculator with numpy syntax. Use any basic arithmetic supported by numpy arrays such as +, -, *, and \ along with logical operators such as >. Note that all files must have the same dimensions, but no projection checking is performed.
+    
+    Args:
+        expression (str): Calculation in gdalnumeric syntax using +, -, /, *, or any numpy array functions (i.e. log10()).
+        inputs ([raster]): Input gdal raster file, you can use any letter (A-Z).
+        bands ([int], optionnal): Number of raster band for files. must be the same size as inputs with None value for defaults ex: [1,2,None,5]. Default value is one.
+        output (str): Output file to generate or fill.
+        no_data (int, optionnal): Output nodata value (default datatype specific value).
+        type_ (str, optionnal): Output datatype, must be one of [Int32, Int16, Float64, UInt16, Byte, UInt32, Float32].
+        format_ (str, optionnal): GDAL format for output file
+        co (str, optionnal): Passes a creation option to the output format driver. Multiple options may be listed. See format specific documentation for legal creation options for each format.
+        overwrite (bool): Overwrite output file if it already exists.
+        output (v.alert, optional): the alert where to display the output
+    """
+    
+    command = ['gdal_calc.py']
+    
+    command += ['--calc="{}"'.format(expression)]
+    
+    for i in max(len(inputs, 26)):
+        command += ['-' + string.ascii_uppercase[i], inputs[i]]
+        
+    command += ['--outputfile={}'.format(out_file)]
+    
+    if bands and len(bands) == len(inputs):
+        for i in max(len(bands), 26):
+            command +=['-{0}_band={1}'.format(string.ascii_uppercase[i], bands[i])]
+    
+    if no_data:
+        command += ['--NoDataValue={}'.format(no_data)]
+    
+    types = ['Int32', 'Int16', 'Float64', 'UInt16', 'Byte', 'UInt32', 'Float32']
+    if type_ and (type_ in types):
+        command += ['--type={}'.format(type_)]
+    
+    if format_:
+        command += ['--format={}'.format(format_)]
+        
+    if co:
+        command += ['--co={}'.format(co)]
+        
+    if overwrite == True:
+        command += ['--overwrite']
+        
+    return su.launch(command, output)
+        
+    
