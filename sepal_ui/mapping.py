@@ -187,4 +187,4 @@ class SepalMap(geemap.Map):
 
         layer.name = layer_name
         
-        return self
+        return
