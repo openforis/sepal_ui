@@ -10,6 +10,7 @@ import numpy as np
 import rioxarray
 import xarray as xr
 import matplotlib.pyplot as plt
+from sepal_ui.scripts import utils as su
 
 #initialize earth engine
 ee.Initialize()
@@ -139,7 +140,7 @@ class SepalMap(geemap.Map):
         return self
     
     #copy of the geemap add_raster function to prevent a bug from sepal 
-    def add_raster(self, image, bands=None, layer_name=None, colormap=None, x_dim='x', y_dim='y'):
+    def add_raster(self, image, bands=None, layer_name=None, colormap=None, x_dim='x', y_dim='y', opacity=1.0):
         """Adds a local raster dataset to the map.
         Args:
             image (str): The image file path.
@@ -157,7 +158,7 @@ class SepalMap(geemap.Map):
             colormap = plt.cm.inferno
 
         if layer_name is None:
-            layer_name = 'Layer_' + random_string()
+            layer_name = 'Layer_' + su.random_string()
 
         if isinstance(colormap, str):
             colormap = plt.cm.get_cmap(name=colormap)
@@ -187,4 +188,7 @@ class SepalMap(geemap.Map):
 
         layer.name = layer_name
         
-        return
+        layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
+        
+        
+        return self
