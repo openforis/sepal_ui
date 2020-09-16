@@ -33,7 +33,7 @@ def isTask(task_descripsion):
         task (ee.Task) : return the found task else None
     """
     
-    tasks_list = ee.batch.Task.list()
+    tasks_list = ee.data.listOperations()
     current_task = None
     for task in tasks_list:
         if task.config['description'] == task_descripsion:
