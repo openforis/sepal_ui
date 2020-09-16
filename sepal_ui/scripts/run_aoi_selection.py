@@ -124,15 +124,12 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
             utils.displayIO(widget_alert, ms.CHECK_IF_ASSET, 'info')
             
     elif drawing_method == list_method[2]: #upload file
-        home_path = os.path.expanduser('~')
-        file_input = home_path + '/' + file_input
-        print(file_input)
-        try:
-            ee_object = geemap.shp_to_ee(file_input)
-        except:
+        if not os.path.isfile(file_input):
             utils.displayIO(widget_alert, ms.ERROR_OCCURED, 'error')
             asset = None
             return asset
+        
+        ee_object = geemap.shp_to_ee(file_input)           
         
         name = os.path.split(file_input)[1]
         

@@ -330,7 +330,7 @@ class Footer(v.Footer, SepalWidget):
             **kwargs
         )
         
-class App (v.App, SepalWidget):
+class App(v.App, SepalWidget):
         """Create an app display with the tiles created by the user. Display false footer and appBar if not filled. navdrawer is fully optionnal
         """
         
