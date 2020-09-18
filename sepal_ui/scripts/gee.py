@@ -2,7 +2,6 @@ import time
 
 import ee
 
-from sepal_ui.scripts import utils
 from sepal_ui.scripts import messages as ms
 
 ee.Initialize()
@@ -16,7 +15,7 @@ def wait_for_completion(task_descripsion, widget_alert):
     """
     state = 'UNSUBMITTED'
     while state != 'COMPLETED':
-        utils.displayIO(widget_alert, ms.STATUS.format(state))
+        widget_alert.add_live_msg(ms.STATUS.format(state))
         time.sleep(5)
                     
         #search for the task in task_list
@@ -33,9 +32,8 @@ def isTask(task_descripsion):
         task (ee.Task) : return the found task else None
     """
     
-    tasks_list = ee.data.listOperations()
     current_task = None
-    for task in tasks_list:
+    for task in ee.batch.Task.list():
         if task.config['description'] == task_descripsion:
             current_task = task
             break
