@@ -112,13 +112,13 @@ def calc(expression, inputs, out_file, bands=None, no_data=None, type_=None, for
     
     command += ['--calc="{}"'.format(expression)]
     
-    for i in max(len(inputs, 26)):
+    for i in range(min(len(inputs), 26)):
         command += ['-' + string.ascii_uppercase[i], inputs[i]]
         
-    command += ['--outputfile={}'.format(out_file)]
+    command += ['--outfile={}'.format(out_file)]
     
     if bands and len(bands) == len(inputs):
-        for i in max(len(bands), 26):
+        for i in range(min(len(bands), 26)):
             command +=['-{0}_band={1}'.format(string.ascii_uppercase[i], bands[i])]
     
     if no_data:
@@ -136,6 +136,8 @@ def calc(expression, inputs, out_file, bands=None, no_data=None, type_=None, for
         
     if overwrite == True:
         command += ['--overwrite']
+        
+    print(' '.join(command))
         
     return su.launch(command, output)
         
