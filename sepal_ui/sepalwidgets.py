@@ -738,3 +738,27 @@ class FileInput(v.Layout, SepalWidget):
         ))
     
         return self
+    
+class Markdown(v.Layout, SepalWidget):
+    """create a v.layout based on the markdown text given"""
+    
+    def __init__(self, mkd_str="", **kwargs):
+        
+        mkd = markdown(mkd_str, extensions=['fenced_code','sane_lists'])
+    
+        #need to be nested in a div to be displayed
+        mkd = '<div>\n' + mkd + '\n</div>'
+    
+        #create a Html widget
+        class MyHTML(v.VuetifyTemplate):
+            template = traitlets.Unicode(mkd).tag(sync=True)
+    
+        content = MyHTML()
+        
+        super().__init__(
+            row=True,
+            class_='pa-5',
+            align_center=True,
+            children=[v.Flex(xs12=True, children=[content])],
+            **kwargs
+        )
