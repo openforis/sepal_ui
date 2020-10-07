@@ -229,6 +229,14 @@ class Aoi_io:
     
         return filename
     
+    def get_aoi_name(self):
+        
+        if not self.assetId: return None
+        
+        path = Path(self.assetId).stem
+        
+        return path.replace('aoi_', '')
+    
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
     
