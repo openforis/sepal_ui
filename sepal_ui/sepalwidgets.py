@@ -589,7 +589,7 @@ class DatePicker(v.Layout, SepalWidget):
         
 class FileInput(v.Layout, SepalWidget):
     
-    def __init__(self, extentions=['.txt'], folder=os.path.expanduser('~'), **kwargs):
+    def __init__(self, extentions=['.txt'], folder=os.path.expanduser('~'), label='select file', **kwargs):
         
         self.extentions = extentions
         
@@ -614,7 +614,7 @@ class FileInput(v.Layout, SepalWidget):
         self.file_menu = v.Menu(children=[self.file_list], max_height='300px', v_slots=[{
             'name': 'activator',
             'variable': 'x',
-            'children': v.Btn(v_on='x.on', children=['select content'])
+            'children': v.Btn(v_on='x.on', children=[label])
         }])
         
         super().__init__(
