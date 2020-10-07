@@ -23,7 +23,7 @@ ee.Initialize()
 
 class Aoi_io:
     
-    def __init__(self, alert_widget=None):
+    def __init__(self, alert_widget=None, default_asset=None):
         """Initiate the Aoi object.
 
         Args:
@@ -32,7 +32,7 @@ class Aoi_io:
         """
 
         # GEE parameters
-        self.assetId = 'users/dafguerrerom/ReducedAreas_107PHU'
+        self.assetId = default_asset
         self.column = None
         self.field = None
         self.selected_feature = None
