@@ -642,12 +642,19 @@ class FileInput(v.Layout, SepalWidget):
     
         list_item = []
         for el in list_dir:
-            if os.path.isfile(el):
-                icon = 'mdi-file-outline'
-                color = 'light-blue'
-            else:
+            extention = Path(el).suffix
+            if extention == '':
                 icon = 'mdi-folder-outline'
                 color = 'amber'
+            elif extention in ['.csv', '.txt']:
+                icon = 'mdi-border-all'
+                color = 'green accent-4'
+            elif extention in ['.tiff', '.tif']:
+                icon = "mdi-image-outline"
+                color = "deep-purple"
+            else:
+                icon = 'mdi-file-outline'
+                color = 'light-blue'
         
             children = [
                 v.ListItemAction(children=[v.Icon(color= color,children=[icon])]),
