@@ -589,7 +589,7 @@ class DatePicker(v.Layout, SepalWidget):
         
 class FileInput(v.Layout, SepalWidget):
     
-    def __init__(self, extentions=['.txt'], folder=os.getcwd(), **kwargs):
+    def __init__(self, extentions=['.txt'], folder=os.path.expanduser('~'), **kwargs):
         
         self.extentions = extentions
         
