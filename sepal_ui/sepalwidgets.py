@@ -591,6 +591,8 @@ class FileInput(v.Layout, SepalWidget):
     
     def __init__(self, extentions=['.txt'], folder=os.getcwd(), **kwargs):
         
+        self.extentions = extentions
+        
         self.folder_select = v.Select(
             items=__class__.get_parent_path(folder), 
             label='folder', 
@@ -603,21 +605,26 @@ class FileInput(v.Layout, SepalWidget):
             flat=True,
             children=[
                 v.ListItemGroup(
-                    children=__class__.get_items(folder),
+                    children=__class__.get_items(folder, self.extentions),
                     v_model=None
                 )
             ]
         )
+        
+        self.file_menu = v.Menu(children=[self.file_list], max_height='300px', v_slots=[{
+            'name': 'activator',
+            'variable': 'x',
+            'children': v.Btn(v_on='x.on', children=['select content'])
+        }])
         
         super().__init__(
             v_model=None,
             row=True,
             class_='pa-5',
             align_center=True,
-            style_='height: 300px',
             children=[
                 v.Flex(xs12=True, children=[self.folder_select]),
-                v.Flex(xs12=True, children=[self.file_list])
+                v.Flex(xs12=True, children=[self.file_menu])
             ],
             **kwargs
         )
@@ -676,8 +683,6 @@ class FileInput(v.Layout, SepalWidget):
             path = widget.v_model
     
             if not os.path.isfile(path):
-                #obj.v_model = path
-            #else:
                 obj.change_folder(path)
                 
             return 
@@ -697,7 +702,7 @@ class FileInput(v.Layout, SepalWidget):
         self.folder_select.v_model = path
     
         #reset the files 
-        self.file_list.children[0].children = __class__.get_items(path)
+        self.file_list.children[0].children = __class__.get_items(path, self.extentions)
         self.file_list.children[0].v_model = None
     
         return 
