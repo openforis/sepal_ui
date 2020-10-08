@@ -24,7 +24,6 @@ class SepalMap(geemap.Map):
 
     loaded_rasters = {}
 
-
     def __init__(self, basemaps=[], dc=False, **kwargs):
 
         super().__init__(
