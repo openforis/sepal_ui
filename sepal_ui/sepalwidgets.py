@@ -4,8 +4,11 @@ from markdown import markdown
 from datetime import datetime
 import traitlets
 import os
+from pathlib import Path
+from glob import glob
 
 import ipyvuetify as v
+from ipywidgets import jslink
 
 from sepal_ui.scripts import utils
 from sepal_ui.scripts import messages as ms
@@ -541,3 +544,228 @@ class DownloadBtn(v.Btn, SepalWidget):
             **kwargs
         )
         
+class DatePicker(v.Layout, SepalWidget):
+    
+    def __init__(self, label="Date", **kwargs):
+        
+        date_picker = v.DatePicker(
+            no_title=True, 
+            v_model=None, 
+            scrollable=True
+        )
+
+        date_text =  v.TextField(
+            v_model=None,
+            label=label,
+            hint="YYYY-MM-DD format",
+            persistent_hint=True, 
+            prepend_icon="event",
+            readonly=True,
+            v_on='menuData.on'
+        )
+
+        menu = v.Menu(
+            transition="scale-transition",
+            offset_y=True,       
+            v_slots=[{
+                'name': 'activator',
+                'variable': 'menuData',
+                'children': date_text,
+            }], 
+            children=[date_picker]
+        )
+
+        super().__init__(
+            v_model=None,
+            row=True,
+            class_='pa-5',
+            align_center=True,
+            children=[v.Flex(xs10=True, children=[menu])],
+            **kwargs
+        )
+
+        jslink((date_picker, 'v_model'), (date_text, 'v_model'))
+        jslink((date_picker, 'v_model'), (self, 'v_model'))
+        
+class FileInput(v.Layout, SepalWidget):
+    
+    def __init__(self, extentions=['.txt'], folder=os.path.expanduser('~'), label='select file', **kwargs):
+        
+        self.extentions = extentions
+        
+        self.folder_select = v.Select(
+            items=__class__.get_parent_path(folder), 
+            label='folder', 
+            v_model=folder
+        )
+        
+        self.file_list = v.List(
+            dense=True, 
+            color='grey lighten-4',
+            flat=True,
+            children=[
+                v.ListItemGroup(
+                    children=__class__.get_items(folder, self.extentions),
+                    v_model=None
+                )
+            ]
+        )
+        
+        self.file_menu = v.Menu(children=[self.file_list], max_height='300px', v_slots=[{
+            'name': 'activator',
+            'variable': 'x',
+            'children': v.Btn(v_on='x.on', children=[label])
+        }])
+        
+        super().__init__(
+            v_model=None,
+            row=True,
+            class_='pa-5',
+            align_center=True,
+            children=[
+                v.Flex(xs12=True, children=[self.folder_select]),
+                v.Flex(xs12=True, children=[self.file_menu])
+            ],
+            **kwargs
+        )
+        
+        self.bind()
+        
+    @staticmethod
+    def get_items(path='/', extentions=['.txt']):
+        """return the list of items inside the folder"""
+        
+        list_dir = glob(os.path.join(path, '*/'))
+    
+        for extention in extentions:
+            list_dir.extend(glob(os.path.join(path, '*'+extention)))
+    
+        list_item = []
+        for el in list_dir:
+            extention = Path(el).suffix
+            if extention == '':
+                icon = 'mdi-folder-outline'
+                color = 'amber'
+            elif extention in ['.csv', '.txt']:
+                icon = 'mdi-border-all'
+                color = 'green accent-4'
+            elif extention in ['.tiff', '.tif']:
+                icon = "mdi-image-outline"
+                color = "deep-purple"
+            else:
+                icon = 'mdi-file-outline'
+                color = 'light-blue'
+        
+            children = [
+                v.ListItemAction(children=[v.Icon(color= color,children=[icon])]),
+                v.ListItemContent(children=[v.ListItemTitle(children=[Path(el).stem])])
+            ]
+        
+            list_item.append(v.ListItem(value=el, children=children))
+        
+        return list_item
+    
+    @staticmethod
+    def get_parent_path(path='/'):
+        """return the list of all the parents of a given path"""
+        path_list = [path]
+        path = Path(path)
+        while  str(path.parent) != path_list[-1]:
+            path = path.parent
+            path_list.append(str(path))
+        
+        return path_list
+        
+    def bind(self):
+        
+        def on_folder_change(widget, event, data, obj):
+            obj.change_folder(widget.v_model)
+    
+            return 
+
+        def on_file_select(widget, event, data, obj):
+            
+            if widget.v_model == None: return 
+    
+            path = widget.v_model
+    
+            if not os.path.isfile(path):
+                obj.change_folder(path)
+                
+            return 
+        
+        self.folder_select.on_event('change', partial(on_folder_change, obj=self))
+        self.file_list.children[0].on_event('change', partial(on_file_select, obj=self))
+        
+        jslink((self.file_list.children[0], 'v_model'), (self, 'v_model'))
+        
+        return
+        
+    def change_folder(self, path='/'):
+        """change the target folder"""
+        
+        #reset the folders 
+        self.folder_select.items=__class__.get_parent_path(path)
+        self.folder_select.v_model = path
+    
+        #reset the files 
+        self.file_list.children[0].children = __class__.get_items(path, self.extentions)
+        self.file_list.children[0].v_model = None
+    
+        return 
+    
+    def bind_io(self, alert, obj, variable, msg=None):
+        """ 
+        bind the variable to the widget and display it in the alert
+    
+        Args:
+            widget (v.XX) : an ipyvuetify input element
+            obj : the process_io object
+            variable (str) : the name of the member in process_io object
+            output_message (str, optionnal) : the output message before the variable display
+        """
+        if not msg: msg = 'The selected variable is: '
+            
+        def on_change(widget, event, data, obj, variable, output, msg):
+        
+            setattr(obj, variable, widget.v_model)
+            
+            msg += str(widget.v_model)
+            output.add_msg(msg)
+        
+            return
+        
+        # conflict between several listener forbid to use the 'change' => the regular binding
+        self.on_event('click', partial(
+            on_change,
+            obj=obj,
+            variable=variable, 
+            output=alert, 
+            msg=msg
+        ))
+    
+        return self
+    
+class Markdown(v.Layout, SepalWidget):
+    """create a v.layout based on the markdown text given"""
+    
+    def __init__(self, mkd_str="", **kwargs):
+        
+        mkd = markdown(mkd_str, extensions=['fenced_code','sane_lists'])
+    
+        #need to be nested in a div to be displayed
+        mkd = '<div>\n' + mkd + '\n</div>'
+    
+        #create a Html widget
+        class MyHTML(v.VuetifyTemplate):
+            template = traitlets.Unicode(mkd).tag(sync=True)
+    
+        content = MyHTML()
+        
+        super().__init__(
+            row=True,
+            class_='pa-5',
+            align_center=True,
+            children=[v.Flex(xs12=True, children=[content])],
+            **kwargs
+        )

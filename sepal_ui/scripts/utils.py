@@ -100,8 +100,6 @@ def is_absolute(url):
 def launch(command, output=None):
     """launch the command and exit the output in a su.displayIO"""
     
-    print(os.environ['GDAL_DATA'])
-    
     kwargs = {
         'args' : command,
         'cwd' : os.path.expanduser('~'),

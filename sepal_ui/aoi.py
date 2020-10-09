@@ -23,7 +23,7 @@ ee.Initialize()
 
 class Aoi_io:
     
-    def __init__(self, alert_widget=None):
+    def __init__(self, alert_widget=None, default_asset=None):
         """Initiate the Aoi object.
 
         Args:
@@ -32,7 +32,7 @@ class Aoi_io:
         """
 
         # GEE parameters
-        self.assetId = 'users/dafguerrerom/ReducedAreas_107PHU'
+        self.assetId = default_asset
         self.column = None
         self.field = None
         self.selected_feature = None
@@ -229,6 +229,14 @@ class Aoi_io:
     
         return filename
     
+    def get_aoi_name(self):
+        
+        if not self.assetId: return None
+        
+        path = Path(self.assetId).stem
+        
+        return path.replace('aoi_', '')
+    
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
     
@@ -241,20 +249,15 @@ class TileAoi(sw.Tile):
         aoi_output = sw.Alert().add_msg(ms.AOI_MESSAGE)
         
         #create the inputs widgets 
-        aoi_file_input = v.Select(
-            items=su.get_shp_files(), 
-            label='Select a file', 
-            v_model=None,
-            class_='d-none'
-        )
-        wb.bind(aoi_file_input, io, 'file_input', aoi_output)
+        aoi_file_input = sw.FileInput(['.shp']).hide()
+        aoi_file_input.bind_io(aoi_output, io, 'file_input')
     
         aoi_file_name = v.TextField(
             label='Select a filename', 
             v_model=io.file_name,
             class_='d-none'
         )
-        wb.bind(aoi_file_name, io, 'file_name', aoi_output)
+        aoi_output.bind(aoi_file_name, io, 'file_name')
     
         aoi_country_selection = v.Select(
             items=[*su.create_FIPS_dic()], 
@@ -262,14 +265,14 @@ class TileAoi(sw.Tile):
             v_model=None,
             class_='d-none'
         )
-        wb.bind(aoi_country_selection, io, 'country_selection', aoi_output)
+        aoi_output.bind(aoi_country_selection, io, 'country_selection')
     
         aoi_asset_name = v.TextField(
             label='Select a GEE asset', 
             v_model=None,
             class_='d-none'
         )
-        wb.bind(aoi_asset_name, io, 'assetId', aoi_output)
+        aoi_output.bind(aoi_asset_name, io, 'assetId')
     
         widget_list = [
             aoi_file_input, 
