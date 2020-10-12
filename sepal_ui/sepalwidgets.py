@@ -639,6 +639,9 @@ class FileInput(v.Layout, SepalWidget):
     
         for extention in extentions:
             list_dir.extend(glob(os.path.join(path, '*'+extention)))
+            
+        #sort by a-z the resulting list
+        list_dir = sorted(list_dir, key=str.lower)
     
         list_item = []
         for el in list_dir:
@@ -660,7 +663,7 @@ class FileInput(v.Layout, SepalWidget):
                 v.ListItemAction(children=[v.Icon(color= color,children=[icon])]),
                 v.ListItemContent(children=[v.ListItemTitle(children=[Path(el).stem])])
             ]
-        
+            
             list_item.append(v.ListItem(value=el, children=children))
         
         return list_item
