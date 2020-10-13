@@ -602,6 +602,8 @@ class FileInput(v.Layout, SepalWidget):
         self.file_list = v.List(
             dense=True, 
             color='grey lighten-4',
+            max_height='300px',
+            style_='overflow: auto', 
             flat=True,
             children=[
                 v.ListItemGroup(
@@ -611,12 +613,6 @@ class FileInput(v.Layout, SepalWidget):
             ]
         )
         
-        self.file_menu = v.Menu(children=[self.file_list], max_height='300px', v_slots=[{
-            'name': 'activator',
-            'variable': 'x',
-            'children': v.Btn(v_on='x.on', children=[label])
-        }])
-        
         super().__init__(
             v_model=None,
             row=True,
@@ -624,7 +620,7 @@ class FileInput(v.Layout, SepalWidget):
             align_center=True,
             children=[
                 v.Flex(xs12=True, children=[self.folder_select]),
-                v.Flex(xs12=True, children=[self.file_menu])
+                v.Flex(xs12=True, children=[self.file_list])
             ],
             **kwargs
         )
@@ -655,13 +651,16 @@ class FileInput(v.Layout, SepalWidget):
             elif extention in ['.tiff', '.tif']:
                 icon = "mdi-image-outline"
                 color = "deep-purple"
+            elif extention == '.shp':
+                icon = 'mdi-vector-polyline'
+                color = 'deep-purple'
             else:
                 icon = 'mdi-file-outline'
                 color = 'light-blue'
         
             children = [
                 v.ListItemAction(children=[v.Icon(color= color,children=[icon])]),
-                v.ListItemContent(children=[v.ListItemTitle(children=[Path(el).stem])])
+                v.ListItemContent(children=[v.ListItemTitle(children=[Path(el).stem + Path(el).suffix])])
             ]
             
             list_item.append(v.ListItem(value=el, children=children))
@@ -728,18 +727,26 @@ class FileInput(v.Layout, SepalWidget):
             output_message (str, optionnal) : the output message before the variable display
         """
         if not msg: msg = 'The selected variable is: '
-            
-        def on_change(widget, event, data, obj, variable, output, msg):
         
-            setattr(obj, variable, widget.v_model)
+        #erase the default change behaviour to connect it to the output and object
+        def on_change(widget, event, data, obj, variable, output, msg):
             
-            msg += str(widget.v_model)
-            output.add_msg(msg)
+            if widget.v_model == None: return 
+    
+            path = widget.v_model
+    
+            if not os.path.isfile(path):
+                self.change_folder(path)
+            else:
+                self.v_model = widget.v_model
+                setattr(obj, variable, widget.v_model)
+                msg += str(widget.v_model)
+                output.add_msg(msg)
         
             return
         
         # conflict between several listener forbid to use the 'change' => the regular binding
-        self.on_event('click', partial(
+        self.file_list.children[0].on_event('change', partial(
             on_change,
             obj=obj,
             variable=variable, 
