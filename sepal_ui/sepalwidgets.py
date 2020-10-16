@@ -115,22 +115,24 @@ class Alert(v.Alert, SepalWidget):
         """
         if not msg: msg = 'The selected variable is: '
             
-        def on_change(widget, event, data, obj, variable, output, msg):
+        def on_change(change, obj, variable, msg):
         
-            setattr(obj, variable, widget.v_model)
+            setattr(obj, variable, change['new'])
             
-            msg += str(widget.v_model)
-            output.add_msg(msg)
+            msg += str(change['new'])
+            self.add_msg(msg)
         
             return
         
-        widget.on_event('change', partial(
-            on_change,
-            obj=obj,
-            variable=variable, 
-            output=self, 
-            msg=msg
-        ))
+        widget.observe(
+            partial(
+                on_change, 
+                obj=obj,
+                variable=variable, 
+                msg=msg
+            ),
+            'v_model'
+        )
     
         return self
     
@@ -596,6 +598,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         extentions=[], 
         folder=os.path.expanduser('~'), 
         label='search file', 
+        v_model = None,
         **kwargs):
 
         self.extentions = extentions
@@ -649,6 +652,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         )
         
         link((self.selected_file, 'v_model'), (self, 'file'))
+        link((self.selected_file, 'v_model'), (self, 'v_model'))
 
         def on_file_select(change):
             new_value = change['new']
@@ -751,20 +755,15 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
             
             if widget.v_model == None: return 
     
-            path = widget.v_model
-    
-            if not os.path.isfile(path):
-                self.change_folder(path)
-            else:
-                self.v_model = widget.v_model
-                setattr(obj, variable, widget.v_model)
-                msg += str(widget.v_model)
-                output.add_msg(msg)
+            self.v_model = widget.v_model
+            setattr(obj, variable, widget.v_model)
+            msg += str(widget.v_model)
+            output.add_msg(msg)
         
             return
         
         # conflict between several listener forbid to use the 'change' => the regular binding
-        self.file_list.children[0].on_event('change', partial(
+        self.on_event('change', partial(
             on_change,
             obj=obj,
             variable=variable, 
