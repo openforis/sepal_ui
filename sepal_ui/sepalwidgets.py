@@ -2,7 +2,7 @@
 from functools import partial
 from markdown import markdown
 from datetime import datetime
-import traitlets
+from traitlets import HasTraits, Unicode, List, observe, link
 import os
 from pathlib import Path
 from glob import glob
@@ -12,6 +12,7 @@ from ipywidgets import jslink
 
 from sepal_ui.scripts import utils
 from sepal_ui.scripts import messages as ms
+from .styles.styles import *
 
 ############################
 ##   hard coded colors    ##
@@ -484,7 +485,7 @@ class TileAbout(Tile):
     
         #create a Html widget
         class MyHTML(v.VuetifyTemplate):
-            template = traitlets.Unicode(about).tag(sync=True)
+            template = Unicode(about).tag(sync=True)
     
     
         content = MyHTML()
@@ -513,7 +514,7 @@ class TileDisclaimer(Tile):
     
         #create a Html widget
         class MyHTML(v.VuetifyTemplate):
-            template = traitlets.Unicode(about).tag(sync=True)
+            template = Unicode(about).tag(sync=True)
     
     
         content = MyHTML()
@@ -587,134 +588,149 @@ class DatePicker(v.Layout, SepalWidget):
         jslink((date_picker, 'v_model'), (date_text, 'v_model'))
         jslink((date_picker, 'v_model'), (self, 'v_model'))
         
-class FileInput(v.Layout, SepalWidget):
+class FileInput(v.Flex, SepalWidget, HasTraits):
+
+    file = Unicode('')
     
-    def __init__(self, extentions=['.txt'], folder=os.path.expanduser('~'), label='select file', **kwargs):
-        
+    def __init__(self, 
+        extentions=['.txt'], 
+        folder=os.path.expanduser('~'), 
+        label='search file', 
+        **kwargs):
+
         self.extentions = extentions
+        self.folder = folder
         
-        self.folder_select = v.Select(
-            items=__class__.get_parent_path(folder), 
-            label='folder', 
-            v_model=folder
+        self.selected_file = v.TextField(
+            label='Selected file', 
+            class_='ml-5 mt-5',
+            v_model=self.file
         )
+
+        self.loading = v.ProgressLinear(
+            indeterminate=False, 
+            color= COMPONENTS['PROGRESS_BAR']['color']
+            )
         
         self.file_list = v.List(
             dense=True, 
             color='grey lighten-4',
-            max_height='300px',
-            style_='overflow: auto', 
             flat=True,
             children=[
+                self.loading, 
                 v.ListItemGroup(
-                    children=__class__.get_items(folder, self.extentions),
-                    v_model=None
+                    children=self.get_items(),
+                    v_model=''
                 )
             ]
         )
+
+        self.file_menu = v.Menu(
+
+            min_width=300,
+            children=[self.file_list], 
+            close_on_content_click=False,
+            max_height='300px', 
+            v_slots=[{
+                'name': 'activator',
+                'variable': 'x',
+                'children': Btn(icon='mdi-file-search', v_model=False, v_on='x.on', text=label)
+        }])
         
         super().__init__(
-            v_model=None,
             row=True,
-            class_='pa-5',
+            class_='d-flex align-center mb-2',
             align_center=True,
             children=[
-                v.Flex(xs12=True, children=[self.folder_select]),
-                v.Flex(xs12=True, children=[self.file_list])
+                self.file_menu,
+                self.selected_file,
             ],
             **kwargs
         )
         
-        self.bind()
-        
-    @staticmethod
-    def get_items(path='/', extentions=['.txt']):
+        link((self.selected_file, 'v_model'), (self, 'file'))
+
+        def on_file_select(change):
+            new_value = change['new']
+            if new_value:
+                if os.path.isdir(new_value):
+                    self.folder = new_value
+                    self.change_folder()
+                
+                elif os.path.isfile(new_value):
+                    self.file = new_value
+
+        self.file_list.children[1].observe(on_file_select, 'v_model')
+                
+    def change_folder(self):
+        """change the target folder"""
+        #reset files 
+        self.file_list.children[1].children = self.get_items()
+    
+
+    def get_items(self):
         """return the list of items inside the folder"""
+
+        self.loading.indeterminate = not self.loading.indeterminate
         
-        list_dir = glob(os.path.join(path, '*/'))
-    
-        for extention in extentions:
-            list_dir.extend(glob(os.path.join(path, '*'+extention)))
-            
-        #sort by a-z the resulting list
-        list_dir = sorted(list_dir, key=str.lower)
-    
-        list_item = []
+        folder = Path(self.folder)
+
+        list_dir = [el for el in folder.glob('*/') 
+                        if el.suffix in self.extentions or el.is_dir() 
+                        and not el.name.startswith('.')]
+
+        folder_list = []
+        file_list = []
+
         for el in list_dir:
-            extention = Path(el).suffix
-            if extention == '':
-                icon = 'mdi-folder-outline'
-                color = 'amber'
-            elif extention in ['.csv', '.txt']:
-                icon = 'mdi-border-all'
-                color = 'green accent-4'
-            elif extention in ['.tiff', '.tif']:
-                icon = "mdi-image-outline"
-                color = "deep-purple"
-            elif extention == '.shp':
-                icon = 'mdi-vector-polyline'
-                color = 'deep-purple'
+            
+            if el.suffix in ICON_TYPES.keys():
+                icon = ICON_TYPES[el.suffix]['icon']
+                color = ICON_TYPES[el.suffix]['color']
             else:
-                icon = 'mdi-file-outline'
-                color = 'light-blue'
-        
+                icon = ICON_TYPES['DEFAULT']['icon']
+                color = ICON_TYPES['DEFAULT']['color']
+            
             children = [
                 v.ListItemAction(children=[v.Icon(color= color,children=[icon])]),
-                v.ListItemContent(children=[v.ListItemTitle(children=[Path(el).stem + Path(el).suffix])])
-            ]
-            
-            list_item.append(v.ListItem(value=el, children=children))
-        
-        return list_item
+                v.ListItemContent(children=[v.ListItemTitle(children=[el.stem + el.suffix])]),
+            ] 
+
+            if el.is_dir():
+                folder_list.append(v.ListItem(value=str(el), children=children))
+            else:
+                file_size = str(round(Path(el).stat().st_size/(1024*1024),2)) + ' MB'
+                children.append(v.ListItemActionText(children=[file_size]))
+                file_list.append(v.ListItem(value=str(el), children=children))
+
+        folder_list = sorted(folder_list, key=lambda x: x.value)
+        file_list = sorted(file_list, key=lambda x: x.value)
+
+        parent_path = str(folder.parent)
+        parent_item = v.ListItem(value=parent_path, children=[
+                v.ListItemAction(children=[
+                    v.Icon(color=ICON_TYPES['PARENT']['color'],
+                           children=[ICON_TYPES['PARENT']['icon']])]),
+                v.ListItemContent(children=[v.ListItemTitle(children=[f'..{parent_path}'])]),
+
+            ])
+
+        folder_list.extend(file_list)
+        folder_list.insert(0,parent_item)
+
+        self.loading.indeterminate = not self.loading.indeterminate
+        return folder_list
     
-    @staticmethod
-    def get_parent_path(path='/'):
+    def get_parent_path(self):
         """return the list of all the parents of a given path"""
-        path_list = [path]
-        path = Path(path)
+        path_list = [self.folder]
+        path = Path(self.folder)
+
         while  str(path.parent) != path_list[-1]:
             path = path.parent
             path_list.append(str(path))
         
         return path_list
-        
-    def bind(self):
-        
-        def on_folder_change(widget, event, data, obj):
-            obj.change_folder(widget.v_model)
-    
-            return 
-
-        def on_file_select(widget, event, data, obj):
-            
-            if widget.v_model == None: return 
-    
-            path = widget.v_model
-    
-            if not os.path.isfile(path):
-                obj.change_folder(path)
-                
-            return 
-        
-        self.folder_select.on_event('change', partial(on_folder_change, obj=self))
-        self.file_list.children[0].on_event('change', partial(on_file_select, obj=self))
-        
-        jslink((self.file_list.children[0], 'v_model'), (self, 'v_model'))
-        
-        return
-        
-    def change_folder(self, path='/'):
-        """change the target folder"""
-        
-        #reset the folders 
-        self.folder_select.items=__class__.get_parent_path(path)
-        self.folder_select.v_model = path
-    
-        #reset the files 
-        self.file_list.children[0].children = __class__.get_items(path, self.extentions)
-        self.file_list.children[0].v_model = None
-    
-        return 
     
     def bind_io(self, alert, obj, variable, msg=None):
         """ 
@@ -768,7 +784,7 @@ class Markdown(v.Layout, SepalWidget):
     
         #create a Html widget
         class MyHTML(v.VuetifyTemplate):
-            template = traitlets.Unicode(mkd).tag(sync=True)
+            template = Unicode(mkd).tag(sync=True)
     
         content = MyHTML()
         
