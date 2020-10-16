@@ -738,6 +738,26 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         
         return path_list
     
+    def hide(self):
+        """hide the widget"""
+        
+        super().hide()
+        
+        if 'd-flex' in str(self.class_):
+            self.class_ = self.class_.replace('d-flex','')
+            
+        return self
+        
+    def show(self):
+        """ remove the d-none html class to the widget"""
+        
+        super().show()
+        
+        if not 'd-flex' in str(self.class_):
+            self.class_ = str(self.class_).strip() + ' d-flex'
+            
+        return self
+    
 class Markdown(v.Layout, SepalWidget):
     """create a v.layout based on the markdown text given"""
     
