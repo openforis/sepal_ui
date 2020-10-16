@@ -611,16 +611,18 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         )
 
         self.loading = v.ProgressLinear(
-            indeterminate=False, 
-            color= COMPONENTS['PROGRESS_BAR']['color']
+            indeterminate = False, 
+            background_color = 'grey lighten-4',
+            color = COMPONENTS['PROGRESS_BAR']['color']
             )
         
         self.file_list = v.List(
             dense=True, 
             color='grey lighten-4',
             flat=True,
-            children=[
-                self.loading, 
+            max_height = '300px',
+            style_='overflow: auto',
+            children=[ 
                 v.ListItemGroup(
                     children=self.get_items(),
                     v_model=''
@@ -629,11 +631,9 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         )
 
         self.file_menu = v.Menu(
-
             min_width=300,
-            children=[self.file_list], 
+            children=[self.loading, self.file_list], 
             close_on_content_click=False,
-            max_height='300px', 
             v_slots=[{
                 'name': 'activator',
                 'variable': 'x',
@@ -664,12 +664,12 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
                 elif os.path.isfile(new_value):
                     self.file = new_value
 
-        self.file_list.children[1].observe(on_file_select, 'v_model')
+        self.file_list.children[0].observe(on_file_select, 'v_model')
                 
     def change_folder(self):
         """change the target folder"""
-        #reset files 
-        self.file_list.children[1].children = self.get_items()
+        #reset files
+        self.file_list.children[0].children = self.get_items()
     
 
     def get_items(self):
