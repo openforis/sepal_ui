@@ -738,41 +738,6 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         
         return path_list
     
-    def bind_io(self, alert, obj, variable, msg=None):
-        """ 
-        bind the variable to the widget and display it in the alert
-    
-        Args:
-            widget (v.XX) : an ipyvuetify input element
-            obj : the process_io object
-            variable (str) : the name of the member in process_io object
-            output_message (str, optionnal) : the output message before the variable display
-        """
-        if not msg: msg = 'The selected variable is: '
-        
-        #erase the default change behaviour to connect it to the output and object
-        def on_change(widget, event, data, obj, variable, output, msg):
-            
-            if widget.v_model == None: return 
-    
-            self.v_model = widget.v_model
-            setattr(obj, variable, widget.v_model)
-            msg += str(widget.v_model)
-            output.add_msg(msg)
-        
-            return
-        
-        # conflict between several listener forbid to use the 'change' => the regular binding
-        self.on_event('change', partial(
-            on_change,
-            obj=obj,
-            variable=variable, 
-            output=alert, 
-            msg=msg
-        ))
-    
-        return self
-    
 class Markdown(v.Layout, SepalWidget):
     """create a v.layout based on the markdown text given"""
     
