@@ -250,7 +250,7 @@ class TileAoi(sw.Tile):
         
         #create the inputs widgets 
         aoi_file_input = sw.FileInput(['.shp']).hide()
-        aoi_file_input.bind_io(aoi_output, io, 'file_input')
+        aoi_output.bind(aoi_file_input, io, 'file_input')
     
         aoi_file_name = v.TextField(
             label='Select a filename', 
