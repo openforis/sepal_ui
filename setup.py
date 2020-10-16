@@ -2,7 +2,7 @@ from distutils.core import setup
     
 setup(
     name = 'sepal_ui',      
-    packages = ['sepal_ui', 'sepal_ui.scripts'],   
+    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.styles'],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md']},
     version = '0.7.2-beta',   
     license='MIT',        
