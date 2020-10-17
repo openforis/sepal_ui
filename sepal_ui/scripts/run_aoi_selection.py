@@ -30,7 +30,7 @@ def isAsset(asset_descripsion, folder):
             break
     return exist    
 
-def run_aoi_selection(file_input, file_name, country_selection, asset_name, drawing_method, widget_alert, list_method, drawn_feat):
+def run_aoi_selection(file_input, file_name, country_selection, asset_name, drawing_method, output, list_method, drawn_feat):
     """ create an gee asset according to the user inputs
 
     Args:
@@ -39,7 +39,7 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
         country_selection (str): a country name in english available in LSIB 2017
         asset_name (str): the assetId of a existing asset
         drawing_method (str): the name of the method selected to create the asset
-        widget_alert (v.Alert): the widget used to display the process informations
+        output (v.Alert): the widget used to display the process informations
         list_method ([str]): list of the method use to select an AOI
         drawn_feat (ee.FeatureCollection): the last drawn object on the map
         
@@ -51,12 +51,12 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
     
     #check the drawing method
     if drawing_method == None: #not selected
-        utils.displayIO(widget_alert, ms.NO_SELECTION, 'warning')    
+        output.add_msg(ms.NO_SELECTION, 'warning')    
         asset = None
         
     elif drawing_method == list_method[0]: #use a country boundary
         if country_selection == None:
-            utils.displayIO(widget_alert, ms.NO_COUNTRY, 'warning') 
+            output.add_msg(ms.NO_COUNTRY, 'warning') 
             asset = None
             return asset
         country_code = utils.create_FIPS_dic()[country_selection] 
@@ -65,7 +65,7 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
             
         #check asset existence
         if isAsset(asset_descripsion, folder):
-            utils.displayIO(widget_alert, ms.ASSET_ALREADY_EXIST.format(asset), 'success')
+            output.add_msg(ms.ASSET_ALREADY_EXIST.format(asset), 'success')
             return asset
         
         country = ee.FeatureCollection('USDOS/LSIB_SIMPLE/2017').filter(ee.Filter.eq('country_co', country_code))
@@ -78,9 +78,9 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
         }
         task = ee.batch.Export.table.toAsset(**task_config)
         task.start()
-        gee.wait_for_completion(asset_descripsion, widget_alert)
+        gee.wait_for_completion(asset_descripsion, output)
           
-        utils.displayIO(widget_alert, ms.ASSET_CREATED.format(asset), 'success')
+        output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
                 
     elif drawing_method == list_method[1]: #draw a shape
              
@@ -90,13 +90,13 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
         #check if something is drawn 
         if drawn_feat == None:
             asset = None
-            utils.displayIO(widget_alert, ms.NO_SHAPE, 'error')
+            output.add_msg(ms.NO_SHAPE, 'error')
             return asset
               
         #check asset existence
         if isAsset(asset_name, folder):
             asset = None
-            utils.displayIO(widget_alert, ms.NAME_USED, 'error')
+            output.add_msg(ms.NAME_USED, 'error')
             return asset 
         
         asset = folder + asset_name
@@ -109,23 +109,23 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
         }
         task = ee.batch.Export.table.toAsset(**task_config)
         task.start()
-        gee.wait_for_completion(asset_name, widget_alert)
+        gee.wait_for_completion(asset_name, output)
            
-        utils.displayIO(widget_alert, ms.ASSET_CREATED.format(asset), 'success')           
+        output.add_msg(ms.ASSET_CREATED.format(asset), 'success')           
             
     elif drawing_method == list_method[3]: #use GEE asset
         
         #verify that there is an asset
         if asset_name == '' or asset_name == None:
             asset = None
-            utils.displayIO(widget_alert, ms.NO_ASSET, 'error') 
+            output.add_msg(ms.NO_ASSET, 'error') 
         else:
             asset = asset_name
-            utils.displayIO(widget_alert, ms.CHECK_IF_ASSET, 'info')
+            output.add_msg(ms.CHECK_IF_ASSET, 'info')
             
     elif drawing_method == list_method[2]: #upload file
         if not os.path.isfile(file_input):
-            utils.displayIO(widget_alert, ms.ERROR_OCCURED, 'error')
+            output.add_msg(ms.ERROR_OCCURED, 'error')
             asset = None
             return asset
         
@@ -138,7 +138,7 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
         #check asset's name
         if isAsset(asset_name, folder):
             asset = None
-            utils.displayIO(widget_alert, ms.NAME_USED, 'error')
+            output.add_msg(ms.NAME_USED, 'error')
         else:
             asset = folder + asset_name
             
@@ -150,8 +150,8 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
             }
             task = ee.batch.Export.table.toAsset(**task_config)
             task.start()
-            gee.wait_for_completion(asset_name, widget_alert)
+            gee.wait_for_completion(asset_name, output)
                    
-            utils.displayIO(widget_alert, ms.ASSET_CREATED.format(asset), 'success')
+            outptu.add_msg(ms.ASSET_CREATED.format(asset), 'success')
             
     return asset

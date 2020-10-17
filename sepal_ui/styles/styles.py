@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 from ipywidgets import HTML
 
+#fixed colors 
+sepal_main = '#2e7d32'
+sepal_darker = '#005005'
+
 # Fixed styles to avoid leaflet maps overlap sepal widgets
 STYLES = """
 <style>

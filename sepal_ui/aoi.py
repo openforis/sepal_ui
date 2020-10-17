@@ -381,7 +381,7 @@ class TileAoi(sw.Tile):
                 asset_name        = io.assetId, 
                 drawn_feat        = io.drawn_feat,
                 drawing_method    = io.selection_method,
-                widget_alert      = output, 
+                output            = output, 
                 list_method       = list_method, 
             )
             

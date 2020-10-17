@@ -12,18 +12,8 @@ from ipywidgets import jslink
 
 from sepal_ui.scripts import utils
 from sepal_ui.scripts import messages as ms
-from .styles.styles import *
+from sepal_ui.styles.styles import *
 
-############################
-##   hard coded colors    ##
-############################
-
-sepal_main = '#2e7d32'
-sepal_darker = '#005005'
-
-###########################
-##       classes         ##
-###########################
 class SepalWidget(v.VuetifyWidget):
     
     def __init__(self, **kwargs):
