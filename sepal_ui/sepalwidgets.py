@@ -447,11 +447,15 @@ class Tile(v.Layout, SepalWidget):
         """
     
         for field in fields:
-            if field in fields_2_show: 
-                if 'd-none' in str(field.class_):
+            if field in fields_2_show:
+                if isinstance(field, SepalWidget):
+                    field.show()
+                elif 'd-none' in str(field.class_):
                     field.class_ = field.class_.replace('d-none', '')
             else:
-                if not 'd-none' in str(field.class_):
+                if isinstance(field, SepalWidget):
+                    field.hide()
+                elif not 'd-none' in str(field.class_):
                     field.class_ = str(field.class_).strip() + ' d-none'
                     
 
