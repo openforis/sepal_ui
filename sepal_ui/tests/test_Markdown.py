@@ -9,9 +9,9 @@ class TestMarkdown(unittest.TestCase):
     
     def test_init(self):
         
-        ##############################################
-        ##      don't know how to test the txt      ##
-        ##############################################
+        ###################################################
+        ##      TODO don't know how to test the txt      ##
+        ###################################################
         
         #default init
         mkd_widget = sw.Markdown()

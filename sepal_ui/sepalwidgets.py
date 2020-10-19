@@ -215,7 +215,7 @@ class AppBar (v.AppBar, SepalWidget):
 class DrawerItem(v.ListItem, SepalWidget):
     """create a drawer item using the user input"""
     
-    def __init__(self, title, icon=None, card='', href='', **kwargs):
+    def __init__(self, title, icon=None, card=None, href=None, **kwargs):
         
         icon = icon if icon else 'mdi-folder-outline'
         
@@ -240,13 +240,13 @@ class DrawerItem(v.ListItem, SepalWidget):
         super().__init__(
             link=True,
             children=children,
-            **kwargs)        
+            **kwargs) 
+
         
-        if not href == '':
+        if href:
             self.href=href
             self.target="_blank"
-        
-        if not card == '':
+        elif card:
             self._metadata = {'card_id': card }
             
     def display_tile(self, tiles):
