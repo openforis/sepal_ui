@@ -202,15 +202,15 @@ class AppBar (v.AppBar, SepalWidget):
             **kwargs
         )
         
-        def setTitle(self, title):
-            """set the title in the appbar"""
+    def set_title(self, title):
+        """set the title in the appbar"""
             
-            self.children = [
-                self.toolBarButton, 
-                v.ToolbarTitle(children=[title])
-            ]
+        self.children = [
+            self.toggle_button, 
+            v.ToolbarTitle(children=[title])
+        ]
             
-            return self
+        return self
             
 class DrawerItem(v.ListItem, SepalWidget):
     """create a drawer item using the user input"""
