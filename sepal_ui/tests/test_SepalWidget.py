@@ -9,8 +9,9 @@ class TestSepalWidget(unittest.TestCase):
         self.assertTrue(widget.viz, 'widget not visible')
         
     def test_show(self):
-        widget = sw.SepalWidget().show()
+        widget = sw.SepalWidget()
         widget.class_ = 'd-none'
+        widget.show()
         self.assertTrue(widget.viz, 'widget not visible')
         self.assertNotIn('d-none', str(widget.class_).strip(), 'widget has d-none class')
         
