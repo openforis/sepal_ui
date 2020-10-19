@@ -4,6 +4,7 @@ import os
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
 
 import collections
+
 import geemap
 import ee 
 from haversine import haversine
@@ -12,9 +13,11 @@ import numpy as np
 import rioxarray
 import xarray as xr
 import matplotlib.pyplot as plt
-from sepal_ui.scripts import utils as su
 import ipywidgets as widgets
 from ipyleaflet import WidgetControl, LocalTileLayer
+
+from sepal_ui.scripts import utils as su
+
 #initialize earth engine
 ee.Initialize() 
 

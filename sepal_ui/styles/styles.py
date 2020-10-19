@@ -15,7 +15,7 @@ STYLES = """
 .leaflet-top, .leaflet-bottom {
     z-index : 6 !important;
 }
-.v-toolbar {
+.v-toolbar, v-footer {
     z-index: 7 !important;
 }
 </style>
