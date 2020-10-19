@@ -10,13 +10,10 @@ sepal_darker = '#005005'
 STYLES = """
 <style>
 .leaflet-pane {
-    z-index : 6 !important;
+    z-index : 2 !important;
 }
 .leaflet-top, .leaflet-bottom {
-    z-index : 6 !important;
-}
-.v-toolbar, v-footer {
-    z-index: 7 !important;
+    z-index : 2 !important;
 }
 </style>
 """
