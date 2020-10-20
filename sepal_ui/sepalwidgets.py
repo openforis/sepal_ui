@@ -2,7 +2,7 @@
 from functools import partial
 from markdown import markdown
 from datetime import datetime
-from traitlets import HasTraits, Unicode, List, observe, link
+from traitlets import HasTraits, Unicode, List, observe, link, directional_link
 import os
 from pathlib import Path
 from glob import glob
@@ -13,6 +13,8 @@ from ipywidgets import jslink
 from sepal_ui.scripts import utils
 from sepal_ui.scripts import messages as ms
 from sepal_ui.styles.styles import *
+
+TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success')
 
 class SepalWidget(v.VuetifyWidget):
     
@@ -46,14 +48,33 @@ class SepalWidget(v.VuetifyWidget):
         
         return self
 
+class Divider(v.Divider, SepalWidget):
+
+    # Added type_ trait to specify default divider color
+    type_ = Unicode('').tag(sync=True)
+
+    def __init__(self, class_='', **kwargs):
+        self.class_= class_
+        super().__init__(**kwargs)
+
+    @observe('type_')
+    def add_class_type(self, change):
+
+        type_= change['new']
+        classes = self.class_.split(' ')
+        existing = list(set(classes) & set(TYPES))
+        if existing:
+            classes[classes.index(existing[0])] = type_
+            self.class_ = " ".join(classes)
+        else:
+            self.class_ += f' {type_}'
+
 class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
     
-    TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success')
-    
     def __init__(self, type_=None, **kwargs):
         
-        type_ = type_ if (type_ in self.TYPES) else self.TYPES[0]
+        type_ = type_ if (type_ in TYPES) else TYPES[0]
         
         super().__init__(
             children = [''],
@@ -68,30 +89,65 @@ class Alert(v.Alert, SepalWidget):
     
     def add_msg(self, msg, type_='info'):
         self.show()
-        self.type = type_ if (type_ in self.TYPES) else self.TYPES[0]
+        self.type = type_ if (type_ in TYPES) else TYPES[0]
         self.children = [msg]
         
-        return self
     
     def add_live_msg(self, msg, type_='info'):
         
         current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
 
         self.show()
-        self.type = type_ if (type_ in self.TYPES) else self.TYPES[0]
+        self.type = type_ if (type_ in TYPES) else TYPES[0]
     
         self.children = [
             v.Html(tag='p', children=['[{}]'.format(current_time)]),
             v.Html(tag='p', children=[msg])
        ]
-        
-        return self
-        
+
+    def append_msg(self, msg, section=False):
+        """ Append a message in a new parragraph
+
+        Args: 
+            msg (text): Text to display
+            section (boolean): Append message with section Divider
+        """
+        self.show()
+        if self.children[0]:
+            current_children = self.children[:]
+            if section:
+                # As the list is mutable, and the trait is only triggered when
+                # the children is changed, so have to create a copy.
+                divider = Divider(class_='my-4', style='opacity: 0.22')
+
+                # link Alert type with divider type
+                directional_link((self, 'type'), (divider, 'type_'))
+                current_children.extend(
+                    [divider,msg]
+                )
+                self.children = current_children
+
+            else:
+                current_children.append(
+                    v.Html(tag='p', children=[msg])
+                )
+                self.children = current_children
+        else:
+            self.add_msg(msg)
+
+
+    def remove_last_msg(self):
+
+        if self.children[0]:
+            current_children = self.children[:]
+            self.children = current_children[:-1]
+        else:
+            self.reset()
+
     def reset(self):
         self.children = ['']
         self.hide()
         
-        return self 
     
     def bind(self, widget, obj, variable, msg=None):
         """ 
@@ -124,7 +180,6 @@ class Alert(v.Alert, SepalWidget):
             'v_model'
         )
     
-        return self
     
     def check_input(self, input_, msg=None):
         """
