@@ -16,10 +16,10 @@ setup(
         'haversine',
         'ipyvuetify',
         'geemap',
-        'ipyvuetify',
         'earthengine-api',
         'bqplot',
-        'markdown'
+        'markdown',
+        'xarray_leaflet'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
