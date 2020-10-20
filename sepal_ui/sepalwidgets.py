@@ -105,37 +105,44 @@ class Alert(v.Alert, SepalWidget):
             v.Html(tag='p', children=[msg])
        ]
 
-    def append_msg(self, msg):
+    def append_msg(self, msg, section=False):
         """ Append a message in a new parragraph
+
+        Args: 
+            msg (text): Text to display
+            section (boolean): Append message with section Divider
         """
         self.show()
         if self.children[0]:
             current_children = self.children[:]
-            current_children.append(
-                v.Html(tag='p', children=[msg])
-            )
-            self.children = current_children
+            if section:
+                # As the list is mutable, and the trait is only triggered when
+                # the children is changed, so have to create a copy.
+                divider = Divider(class_='my-4', style='opacity: 0.22')
+
+                # link Alert type with divider type
+                directional_link((self, 'type'), (divider, 'type_'))
+                current_children.extend(
+                    [divider,msg]
+                )
+                self.children = current_children
+
+            else:
+                current_children.append(
+                    v.Html(tag='p', children=[msg])
+                )
+                self.children = current_children
         else:
             self.add_msg(msg)
 
-    def append_section(self, msg):
 
-        """ Append new message with a section Divider
-        """
-        self.show()
+    def remove_last_msg(self):
+
         if self.children[0]:
-            # As the list is mutable, and the trait is only triggered when
-            # the children is changed, so have to create a copy.
             current_children = self.children[:]
-            divider = Divider(class_='my-4', style='opacity: 0.22')
-            directional_link((self, 'type'), (divider, 'type_'))
-            current_children.extend(
-                [divider,msg]
-            )
-            self.children = current_children
-
+            self.children = current_children[:-1]
         else:
-            self.add_msg(msg)
+            self.reset()
 
     def reset(self):
         self.children = ['']
