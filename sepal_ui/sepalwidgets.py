@@ -403,8 +403,9 @@ class Tile(v.Layout, SepalWidget):
             **kwargs
         )
         
-    def set_content(self, content):
+    def set_content(self, inputs):
         
+        content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         self.children[0].children = [self.children[0].children[0]] + content
         
         return self 
@@ -468,10 +469,9 @@ class TileAbout(Tile):
     def __init__(self, pathname, **kwargs):
         
         #read the content and transform it into a html
-        f = open(pathname, 'r')
-        if f.mode == 'r':
+        with open(pathname, 'r') as f:
             about = f.read()
-        else :
+        if not about:
             about = '**No About File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
@@ -497,10 +497,9 @@ class TileDisclaimer(Tile):
         pathname = os.path.join(os.path.dirname(__file__), 'scripts', 'disclaimer.md')
         
         #read the content and transform it into a html
-        f = open(pathname, 'r')
-        if f.mode == 'r':
+        with open(pathname, 'r') as f:
             about = f.read()
-        else :
+        if not about:
             about = '**No Disclaimer File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
