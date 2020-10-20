@@ -257,20 +257,20 @@ class AppBar (v.AppBar, SepalWidget):
             **kwargs
         )
         
-        def setTitle(self, title):
-            """set the title in the appbar"""
+    def set_title(self, title):
+        """set the title in the appbar"""
             
-            self.children = [
-                self.toolBarButton, 
-                v.ToolbarTitle(children=[title])
-            ]
+        self.children = [
+            self.toggle_button, 
+            v.ToolbarTitle(children=[title])
+        ]
             
-            return self
+        return self
             
 class DrawerItem(v.ListItem, SepalWidget):
     """create a drawer item using the user input"""
     
-    def __init__(self, title, icon=None, card='', href='', **kwargs):
+    def __init__(self, title, icon=None, card=None, href=None, **kwargs):
         
         icon = icon if icon else 'mdi-folder-outline'
         
@@ -295,13 +295,13 @@ class DrawerItem(v.ListItem, SepalWidget):
         super().__init__(
             link=True,
             children=children,
-            **kwargs)        
+            **kwargs) 
+
         
-        if not href == '':
+        if href:
             self.href=href
             self.target="_blank"
-        
-        if not card == '':
+        elif card:
             self._metadata = {'card_id': card }
             
     def display_tile(self, tiles):
@@ -458,8 +458,9 @@ class Tile(v.Layout, SepalWidget):
             **kwargs
         )
         
-    def set_content(self, content):
+    def set_content(self, inputs):
         
+        content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         self.children[0].children = [self.children[0].children[0]] + content
         
         return self 
@@ -523,10 +524,9 @@ class TileAbout(Tile):
     def __init__(self, pathname, **kwargs):
         
         #read the content and transform it into a html
-        f = open(pathname, 'r')
-        if f.mode == 'r':
+        with open(pathname, 'r') as f:
             about = f.read()
-        else :
+        if not about:
             about = '**No About File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
@@ -552,10 +552,9 @@ class TileDisclaimer(Tile):
         pathname = os.path.join(os.path.dirname(__file__), 'scripts', 'disclaimer.md')
         
         #read the content and transform it into a html
-        f = open(pathname, 'r')
-        if f.mode == 'r':
+        with open(pathname, 'r') as f:
             about = f.read()
-        else :
+        if not about:
             about = '**No Disclaimer File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])

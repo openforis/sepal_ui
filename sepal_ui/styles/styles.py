@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from ipywidgets import HTML
+from IPython.display import display
 
 #fixed colors 
 sepal_main = '#2e7d32'
