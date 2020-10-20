@@ -12,7 +12,6 @@ from osgeo import osr, ogr
 
 from .mapping import SepalMap
 from . import sepalwidgets as sw
-from . import widgetBinding as wb
 from .scripts import run_aoi_selection
 from .scripts import messages as ms
 from .scripts import utils as su
@@ -246,7 +245,7 @@ class TileAoi(sw.Tile):
     def __init__(self, io, **kwargs):
         
         #create the output
-        aoi_output = sw.Alert().add_msg(ms.AOI_MESSAGE)
+        aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
         
         #create the inputs widgets 
         aoi_file_input = sw.FileInput(['.shp']).hide()
