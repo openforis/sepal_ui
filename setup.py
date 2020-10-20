@@ -6,7 +6,7 @@ setup(
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md']},
     version = '0.7.3-beta',   
     license='MIT',        
-    description = 'wrapper for ipyvuetify widgets to unify the display of voila dashboards in the sepal plateform',  
+    description = 'Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform',  
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
