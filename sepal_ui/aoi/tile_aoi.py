@@ -197,6 +197,7 @@ class TileAoi(sw.Tile):
             selection_method ([str]) : the available selection methods
         """
         
+        
         def on_change(widget, event, data, list_input, obj, m, dc, selection_method):
             
             #clearly identify the differents widgets 
@@ -209,10 +210,9 @@ class TileAoi(sw.Tile):
             
             #remove the dc 
             dc.clear()
-            try:
+            if dc in m.controls:
                 m.remove_control(dc)
-            except:
-                pass
+                
             #toogle the appropriate inputs
             if widget.v_model == selection_method[0]: #country selection
                 self.toggle_inputs([aoi_country_selection], list_input)

@@ -120,9 +120,7 @@ class SepalMap(geemap.Map):
         return self
 
     def remove_local_layer(self, local_layer):
-
-        """ Remove local layer from memory
-        """
+        """Remove local layer from memory"""
         if local_layer.name in self.loaded_rasters.keys():
             self.loaded_rasters.pop(local_layer.name)
 
@@ -167,7 +165,6 @@ class SepalMap(geemap.Map):
         Get the proper zoom to the given bounds.
 
         Args:
-
             bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
             zoom_out (int) (optional): Zoom out the bounding zoom
         """

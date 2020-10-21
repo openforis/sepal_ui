@@ -117,11 +117,6 @@ class Aoi_io:
         if map_.dc in map_.controls:
             map_.remove_control(map_.dc)
         
-        #try:
-        #    map_.remove_control(map_.dc)
-        #except:
-        #    pass
-        
         return self
 
 
