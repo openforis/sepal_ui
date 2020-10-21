@@ -152,6 +152,6 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
             task.start()
             gee.wait_for_completion(asset_name, output)
                    
-            outptu.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+            output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
             
     return asset
