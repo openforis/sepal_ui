@@ -20,7 +20,8 @@ setup(
         'bqplot',
         'markdown',
         'xarray_leaflet',
-        'shapely'
+        'shapely',
+        'GDAL'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
