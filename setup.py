@@ -19,7 +19,8 @@ setup(
         'earthengine-api',
         'bqplot',
         'markdown',
-        'xarray_leaflet'
+        'xarray_leaflet',
+        'shapely'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

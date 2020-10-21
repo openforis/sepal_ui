@@ -5,6 +5,7 @@ from traitlets import Unicode
 import ipyvuetify as v
 
 from .sepalwidget import SepalWidget
+from ..scripts import utils as su
 
 class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""
@@ -83,17 +84,10 @@ class Tile(v.Layout, SepalWidget):
     
         for field in fields:
             if field in fields_2_show:
-                if isinstance(field, SepalWidget):
-                    field.show()
-                elif 'd-none' in str(field.class_):
-                    field.class_ = field.class_.replace('d-none', '')
+                su.show_component(field)
             else:
-                if isinstance(field, SepalWidget):
-                    field.hide()
-                elif not 'd-none' in str(field.class_):
-                    field.class_ = str(field.class_).strip() + ' d-none'
+                su.hide_component(field)
                     
-
         return self
         
 class TileAbout(Tile):

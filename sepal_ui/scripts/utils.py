@@ -11,7 +11,27 @@ import random
 import math
 
 import ipyvuetify as v
-    
+
+from ..sepalwidgets import SepalWidget
+
+def hide_component(widget):
+    """hide a vuetify based component"""
+    if isinstance(widget, SepalWidget):
+        widget.hide()
+    elif not 'd-none' in str(widget.class_):
+        widget.class_ = str(widget.class_).strip() + ' d-none'
+        
+    return
+
+def show_component(widget):
+    """show a vuetify based component"""
+    if isinstance(widget, SepalWidget):
+        widget.show()
+    elif 'd-none' in str(field.class_):
+        widget.class_ = widget.class_.replace('d-none', '')
+        
+    return 
+
 def create_FIPS_dic():
     """create the list of the country code in the FIPS norm using the CSV file provided in utils
         
