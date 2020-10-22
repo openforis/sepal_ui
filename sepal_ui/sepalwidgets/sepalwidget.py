@@ -6,10 +6,12 @@ TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success')
 
 class SepalWidget(v.VuetifyWidget):
     
+    
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
         self.viz = True
+        self.old_class = ''
         
     def toggle_viz(self):
         """toogle the visibility of the widget"""
@@ -17,24 +19,24 @@ class SepalWidget(v.VuetifyWidget):
             self.hide()
         else:
             self.show()
-        
-        return self
     
     def hide(self):
         """add the d-none html class to the widget"""
-        if not 'd-none' in str(self.class_):
-            self.class_ = str(self.class_).strip() + ' d-none'
-        self.viz = False
         
-        return self
+        if not 'd-none' in str(self.class_):
+            self.old_class = self.class_
+            self.class_ = 'd-none'
+            
+        self.viz = False
         
     def show(self):
         """ remove the d-none html class to the widget"""
-        if 'd-none' in str(self.class_):
-            self.class_ = str(self.class_).replace('d-none', '')
+        if self.old_class:
+            self.class_ = self.old_class
+        else:
+            if 'd-none' in str(self.class_):
+                self.class_ = str(self.class_).replace('d-none', '')
         self.viz = True
-        
-        return self
     
 class Markdown(v.Layout, SepalWidget):
     """create a v.layout based on the markdown text given"""
