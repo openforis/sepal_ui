@@ -19,6 +19,8 @@ class SepalWidget(v.VuetifyWidget):
             self.hide()
         else:
             self.show()
+        
+        return self
     
     def hide(self):
         """add the d-none html class to the widget"""
@@ -29,6 +31,8 @@ class SepalWidget(v.VuetifyWidget):
             
         self.viz = False
         
+        return self
+        
     def show(self):
         """ remove the d-none html class to the widget"""
         if self.old_class:
@@ -37,6 +41,8 @@ class SepalWidget(v.VuetifyWidget):
             if 'd-none' in str(self.class_):
                 self.class_ = str(self.class_).replace('d-none', '')
         self.viz = True
+        
+        return self
     
 class Markdown(v.Layout, SepalWidget):
     """create a v.layout based on the markdown text given"""
