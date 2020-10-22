@@ -4,4 +4,5 @@ python:
 install:
   - pip install -r requirements.txt
 script:
+  - printf $GEE_KEY > keys.json
   - python -m unittest discover -s tests

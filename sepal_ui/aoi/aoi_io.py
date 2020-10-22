@@ -7,7 +7,7 @@ import geemap
 import shapely.geometry as sg
 import geopandas as gpd
 
-ee.Initialize()
+if not ee.data._credentials: ee.Initialize()
 
 class Aoi_io:
     

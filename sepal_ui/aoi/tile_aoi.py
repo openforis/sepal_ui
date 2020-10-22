@@ -9,7 +9,7 @@ from .. import sepalwidgets as sw
 from ..scripts import utils as su, run_aoi_selection
 from ..mapping import SepalMap
 
-ee.Initialize()
+if not ee.data._credentials: ee.Initialize()
 
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
