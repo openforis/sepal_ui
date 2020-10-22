@@ -1,10 +1,11 @@
 from datetime import datetime
 from pathlib import Path
+import os
 
 import ee
 import geemap
 import shapely.geometry as sg
-from osgeo import osr, ogr
+import geopandas as gpd
 
 ee.Initialize()
 
@@ -163,37 +164,10 @@ class Aoi_io:
         # convert into shapely
         aoiJson = geemap.ee_to_geojson(aoi)
         aoiShp = sg.shape(aoiJson['features'][0]['geometry'])
-    
-        # Now convert it to a shapefile with OGR    
-        driver = ogr.GetDriverByName('Esri Shapefile')
-        ds = driver.CreateDataSource(filename)
-        layer = ds.CreateLayer('', None, ogr.wkbPolygon)
-
-        # Add one attribute
-        layer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
-        defn = layer.GetLayerDefn()
-
-        # Create a new feature (attribute and geometry)
-        feat = ogr.Feature(defn)
-        feat.SetField('id', 123)
-    
-        # Make a geometry, from Shapely object
-        geom = ogr.CreateGeometryFromWkb(aoiShp.wkb)
-        feat.SetGeometry(geom)
-    
-        layer.CreateFeature(feat)
-    
-        # Save and close everything
-        ds = layer = feat = geom = None
-    
-        #add the spatial referecence
-        spatialRef = osr.SpatialReference()
-        spatialRef.ImportFromEPSG(4326)
-    
-        spatialRef.MorphToESRI()
-        file = open('{0}{1}.prj'.format(dwnDir, aoi_name), 'w')
-        file.write(spatialRef.ExportToWkt())
-        file.close()
+        
+        #convert it to shapefile with geopandas
+        df = gpd.GeoDataFrame({"id":1,"geometry":[aoiShp]}, crs="EPSG:4326")
+        df.to_file(filename)
     
         return filename
     

@@ -27,7 +27,7 @@ def show_component(widget):
     """show a vuetify based component"""
     if isinstance(widget, SepalWidget):
         widget.show()
-    elif 'd-none' in str(field.class_):
+    elif 'd-none' in str(widget.class_):
         widget.class_ = widget.class_.replace('d-none', '')
         
     return 

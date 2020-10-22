@@ -21,7 +21,7 @@ setup(
         'markdown',
         'xarray_leaflet',
         'shapely',
-        'GDAL'
+        'geopandas'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
