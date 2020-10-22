@@ -200,22 +200,22 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         
         return path_list
     
-    def hide(self):
-        """hide the widget"""
+#     def hide(self):
+#         """hide the widget"""
         
-        super().hide()
+#         super().hide()
         
-        if 'd-flex' in str(self.class_):
-            self.class_ = self.class_.replace('d-flex','')
+#         if 'd-flex' in str(self.class_):
+#             self.class_ = self.class_.replace('d-flex','')
             
-        return self
+#         return self
         
-    def show(self):
-        """ remove the d-none html class to the widget"""
+#     def show(self):
+#         """ remove the d-none html class to the widget"""
         
-        super().show()
+#         super().show()
         
-        if not 'd-flex' in str(self.class_):
-            self.class_ = str(self.class_).strip() + ' d-flex'
+#         if not 'd-flex' in str(self.class_):
+#             self.class_ = str(self.class_).strip() + ' d-flex'
             
-        return self
+#         return self
