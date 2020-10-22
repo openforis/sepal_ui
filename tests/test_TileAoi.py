@@ -1,10 +1,7 @@
 ####################################
 ##      init ee with service      ##
 ####################################
-import ee   
-
-import os 
-print(os.environ(['GEE_KEY']))
+import ee
                                    
 service_account = 'sepal-ui@aesthetic-site-125712.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'keys.json')
