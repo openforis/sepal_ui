@@ -19,7 +19,7 @@ from ipyleaflet import WidgetControl, LocalTileLayer
 from sepal_ui.scripts import utils as su
 
 #initialize earth engine
-ee.Initialize() 
+if not ee.data._credentials: ee.Initialize()
 
 
 class SepalMap(geemap.Map):
