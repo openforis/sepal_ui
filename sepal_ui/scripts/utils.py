@@ -84,7 +84,7 @@ def launch(command, output=None):
         for line in p.stdout:
             output_txt += line + '\n'
             if output:
-                displayIO(output, line)
+                output.add_live_msg(line)
     
     return output_txt
 
