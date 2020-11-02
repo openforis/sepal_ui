@@ -2,7 +2,7 @@ from distutils.core import setup
     
 setup(
     name = 'sepal_ui',      
-    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.styles', 'sepal_ui.sepalwidgets'],   
+    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.styles', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi'],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md']},
     version = '0.7.3-beta',   
     license='MIT',        
@@ -19,7 +19,9 @@ setup(
         'earthengine-api',
         'bqplot',
         'markdown',
-        'xarray_leaflet'
+        'xarray_leaflet',
+        'shapely',
+        'geopandas'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

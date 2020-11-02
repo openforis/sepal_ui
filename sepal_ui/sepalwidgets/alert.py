@@ -121,8 +121,8 @@ class Alert(v.Alert, SepalWidget):
             output_message (str, optionnal) : the output message before the variable display
         """
         if not msg: msg = 'The selected variable is: '
-            
-        def on_change(change, obj, variable, msg):
+        
+        def on_change(change, obj=obj, variable=variable, msg=msg):
         
             setattr(obj, variable, change['new'])
             
@@ -131,15 +131,7 @@ class Alert(v.Alert, SepalWidget):
         
             return
         
-        widget.observe(
-            partial(
-                on_change, 
-                obj=obj,
-                variable=variable, 
-                msg=msg
-            ),
-            'v_model'
-        )
+        widget.observe(on_change, 'v_model')
     
     
     def check_input(self, input_, msg=None):

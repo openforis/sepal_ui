@@ -7,6 +7,7 @@ from ipywidgets import jslink
 
 from .sepalwidget import SepalWidget
 from ..styles.styles import *
+from ..scripts import utils as su
 from .btn import Btn
 
 class DatePicker(v.Layout, SepalWidget):
@@ -141,8 +142,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         
         folder = Path(self.folder)
 
-        list_dir = [el for el in folder.glob('*/') 
-                        if not el.name.startswith('.')]
+        list_dir = [el for el in folder.glob('*/') if not el.name.startswith('.')]
 
         if self.extentions:
             list_dir = [el for el in list_dir if el.is_dir() or el.suffix in self.extentions]
@@ -167,7 +167,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
             if el.is_dir():
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
-                file_size = str(round(Path(el).stat().st_size/(1024*1024),2)) + ' MB'
+                file_size = su.get_file_size(el)
                 children.append(v.ListItemActionText(children=[file_size]))
                 file_list.append(v.ListItem(value=str(el), children=children))
 
@@ -175,18 +175,19 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         file_list = sorted(file_list, key=lambda x: x.value)
 
         parent_path = str(folder.parent)
-        parent_item = v.ListItem(value=parent_path, children=[
-                v.ListItemAction(children=[
-                    v.Icon(color=ICON_TYPES['PARENT']['color'],
-                           children=[ICON_TYPES['PARENT']['icon']])]),
+        parent_item = v.ListItem(
+            value=parent_path, 
+            children=[
+                v.ListItemAction(children=[v.Icon(color=ICON_TYPES['PARENT']['color'], children=[ICON_TYPES['PARENT']['icon']])]),
                 v.ListItemContent(children=[v.ListItemTitle(children=[f'..{parent_path}'])]),
-
-            ])
+            ]
+        )
 
         folder_list.extend(file_list)
         folder_list.insert(0,parent_item)
 
         self.loading.indeterminate = not self.loading.indeterminate
+        
         return folder_list
     
     def get_parent_path(self):

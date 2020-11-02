@@ -5,3 +5,5 @@ haversine>=2.3.0
 ipyvuetify>=1.5.1
 markdown>=3.3.2
 xarray_leaflet>=0.1.12
+shapely>=1.7.1
+geopandas>=0.8.1
