@@ -4,6 +4,7 @@ import os
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
 
 import collections
+
 import geemap
 import ee 
 from haversine import haversine
@@ -12,11 +13,13 @@ import numpy as np
 import rioxarray
 import xarray as xr
 import matplotlib.pyplot as plt
-from sepal_ui.scripts import utils as su
 import ipywidgets as widgets
 from ipyleaflet import WidgetControl, LocalTileLayer
+
+from sepal_ui.scripts import utils as su
+
 #initialize earth engine
-ee.Initialize() 
+if not ee.data._credentials: ee.Initialize()
 
 
 class SepalMap(geemap.Map):
@@ -117,9 +120,7 @@ class SepalMap(geemap.Map):
         return self
 
     def remove_local_layer(self, local_layer):
-
-        """ Remove local layer from memory
-        """
+        """Remove local layer from memory"""
         if local_layer.name in self.loaded_rasters.keys():
             self.loaded_rasters.pop(local_layer.name)
 
@@ -164,7 +165,6 @@ class SepalMap(geemap.Map):
         Get the proper zoom to the given bounds.
 
         Args:
-
             bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
             zoom_out (int) (optional): Zoom out the bounding zoom
         """

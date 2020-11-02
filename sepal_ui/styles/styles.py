@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from ipywidgets import HTML
+from IPython.display import display
+
+#fixed colors 
+sepal_main = '#2e7d32'
+sepal_darker = '#005005'
 
 # Fixed styles to avoid leaflet maps overlap sepal widgets
 STYLES = """
 <style>
 .leaflet-pane {
-    z-index : 6 !important;
+    z-index : 2 !important;
 }
 .leaflet-top, .leaflet-bottom {
-    z-index : 6 !important;
-}
-.v-toolbar {
-    z-index: 7 !important;
+    z-index : 2 !important;
 }
 </style>
 """
