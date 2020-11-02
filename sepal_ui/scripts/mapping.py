@@ -4,7 +4,7 @@ import shapely.geometry as sg
 from haversine import haversine
 
 #initialize earth engine
-ee.Initialize()
+if not ee.data._credentials: ee.Initialize()
 
 def init_map():
     '''Initialize a map centered on the point [0,0] with zoom at 1

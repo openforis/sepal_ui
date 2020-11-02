@@ -42,7 +42,7 @@ The creation options available vary by format driver, and some simple formats ha
         #check the integrity 
         if not isinstance(pixelsize, list):
             if output:
-                su.displayIo(output, 'pixelsize is not an array ignoring option', 'error')
+                output.add_live_msg('pixelsize is not an array ignoring option', 'error')
         else:
             command += ['-ps', str(pixelsize[0]), str(pixelsize[1])]
             
@@ -62,7 +62,7 @@ The creation options available vary by format driver, and some simple formats ha
         #check the integrity 
         if not isinstance(extents, list):
             if output:
-                su.displayIo(output, 'extents is not an array ignoring option', 'error')
+                output.add_msg('extents is not an array ignoring option', 'error')
         else:
             command += [
                 '-ul_lr', 
@@ -83,7 +83,7 @@ The creation options available vary by format driver, and some simple formats ha
         types = ['Byte', 'UInt16', 'Int16', 'UInt32', 'Int32', 'Float32', 'Float64', 'CInt16', 'CInt32', 'CFloat32', 'CFloat64']
         if not datatype in types:
             if output:
-                su.displayIo(output, 'datatype not recognize ignoring option', 'error')
+                outptu.add_msg('datatype not recognize ignoring option', 'error')
         else:
             command += ['-ot', datatype]
             

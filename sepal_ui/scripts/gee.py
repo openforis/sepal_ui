@@ -4,7 +4,7 @@ import ee
 
 from sepal_ui.scripts import messages as ms
 
-ee.Initialize()
+if not ee.data._credentials: ee.Initialize()
 
 def wait_for_completion(task_descripsion, widget_alert):
     """Wait until the selected process is finished. Display some output information

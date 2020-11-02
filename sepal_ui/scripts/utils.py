@@ -8,40 +8,30 @@ from urllib.parse import urlparse
 import subprocess
 import string 
 import random
+import math
 
 import ipyvuetify as v
 
+from ..sepalwidgets import SepalWidget
 
-def displayIO(widget_alert, message, alert_type='info'):
-    """ Display the message in a vuetify alert DOM object with specific coloring
-    Args: 
-        widget_alert (v.Alert) : the vuetify alert to modify
-        alert_type (str) : the alert color
-        message (v.Children) : a DOM element or a string to fill the message 
-    """
-    
-    list_color = ['info', 'success', 'warning', 'error']
-    if not alert_type in list_color:
-        alert_type = 'info'
+def hide_component(widget):
+    """hide a vuetify based component"""
+    if isinstance(widget, SepalWidget):
+        widget.hide()
+    elif not 'd-none' in str(widget.class_):
+        widget.class_ = str(widget.class_).strip() + ' d-none'
         
-    widget_alert.type = alert_type
-     
-    current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
-    widget_alert.children = [
-        v.Html(tag='p', children=['[{0}]'.format(current_time)]),
-        v.Html(tag='p', children=[message])
-   ]
-    
-def toggleLoading(btn):
-    """Toggle the loading state for a given btn in the ipyvutify lib
-    
-    Args:
-        btn (v.Btn) : the btn to toggle
-    """
-    
-    btn.loading = not btn.loading
-    btn.disabled = btn.loading
-    
+    return
+
+def show_component(widget):
+    """show a vuetify based component"""
+    if isinstance(widget, SepalWidget):
+        widget.show()
+    elif 'd-none' in str(widget.class_):
+        widget.class_ = widget.class_.replace('d-none', '')
+        
+    return 
+
 def create_FIPS_dic():
     """create the list of the country code in the FIPS norm using the CSV file provided in utils
         
@@ -62,25 +52,6 @@ def create_FIPS_dic():
             fips_sorted[key] = fips_dic[key]
         
     return fips_sorted
-
-def get_shp_files():
-    """return all the .shp files available in the user directories. Will verify if the .dbf and .shx exists and are located at the same place
-    
-    Returns: 
-        shp_list (str[]): the path to every .shp complete and available, empty list if none
-    """
-    
-    root_dir = os.path.expanduser('~')
-    raw_list = glob.glob(root_dir + "/**/*.shp", recursive=True)
-    
-    #check if the file is complete
-    shp_list = []
-    for pathname in raw_list:
-        path = Path(pathname)
-        if os.path.isfile(path.with_suffix('.dbf')) and os.path.isfile(path.with_suffix('.shx')):
-            shp_list.append(pathname)
-
-    return shp_list
 
 def create_download_link(pathname):
     """return a clickable link to download the pathname target"""
@@ -127,3 +98,18 @@ def random_string(string_length=3):
     # random.seed(1001)
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(string_length))
+
+def get_file_size(filename):
+    """return the file size as string of 2 digit in the adapted scale (B, KB, MB....)"""
+    
+    file_size = Path(filename).stat().st_size
+    
+    if file_size == 0:
+        return "0B"
+    
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    
+    i = int(math.floor(math.log(file_size, 1024)))
+    s = file_size / math.pow(1024, i)
+        
+    return '{:.1f} {}'.format(s, size_name[i])

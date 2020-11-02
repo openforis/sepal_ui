@@ -14,3 +14,4 @@ sepal_ui/scripts/mapping.py
 sepal_ui/scripts/messages.py
 sepal_ui/scripts/run_aoi_selection.py
 sepal_ui/scripts/utils.py
+sepal_ui/styles/styles.py
