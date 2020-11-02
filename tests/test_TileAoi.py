@@ -13,7 +13,7 @@ import unittest
 
 import ipyvuetify as v
 
-from sepal_ui import aoi as sw
+#from sepal_ui import aoi as sw
 
 @unittest.skip('impossible to automatically test EE API')
 class TestAoiTile(unittest.TestCase):
