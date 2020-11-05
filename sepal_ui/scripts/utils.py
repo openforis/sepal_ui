@@ -40,14 +40,34 @@ def create_FIPS_dic():
         fips_dic (dic): the country FIPS_codes labelled with english country names
     """
     
+    # file path
     path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
     
-    df = pd.read_csv(path)
-    df = df.sort_values(by=['country_na'])    
+    # get the df and sort by country name
+    df = pd.read_csv(path).sort_values(by=['country_na'])
+    
+    # create the dict
     fip_dic = {row['country_na'] : row['FIPS 10-4'] for i, row in df.iterrows()}
         
     return fip_dic
 
+def get_iso_3(fips_code):
+    """return the iso_3 code of a fips country code use the fips_code if the iso-3 is not available"""
+    
+    #file path
+    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    
+    # get the df
+    df = pd.read_csv(path)
+    
+    row = df[df['FIPS 10-4'] == fips_code]
+    
+    code = fips_code
+    if len(row):
+        code = row['ISO 3166-1 alpha-3'].values[0]
+        
+    return code
+    
 def create_download_link(pathname):
     """return a clickable link to download the pathname target"""
     
