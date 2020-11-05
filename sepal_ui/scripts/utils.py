@@ -11,6 +11,7 @@ import random
 import math
 
 import ipyvuetify as v
+import pandas as pd
 
 from ..sepalwidgets import SepalWidget
 
@@ -39,19 +40,13 @@ def create_FIPS_dic():
         fips_dic (dic): the country FIPS_codes labelled with english country names
     """
     
-    pathname = os.path.join(os.path.dirname(__file__), 'FIPS_code_to_country.csv')
-    fips_dic = {}
-    with open(pathname, newline='') as f:
-        reader = csv.reader(f, delimiter=';')
-        next(reader)
-        for row in reader:
-            fips_dic[row[1]] = row[3]
-            
-        fips_sorted = {}
-        for key in sorted(fips_dic):
-            fips_sorted[key] = fips_dic[key]
+    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    
+    df = pd.read_csv(path)
+    df = df.sort_values(by=['country_na'])    
+    fip_dic = {row['country_na'] : row['FIPS 10-4'] for i, row in df.iterrows()}
         
-    return fips_sorted
+    return fip_dic
 
 def create_download_link(pathname):
     """return a clickable link to download the pathname target"""
