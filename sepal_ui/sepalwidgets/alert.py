@@ -51,7 +51,9 @@ class Alert(v.Alert, SepalWidget):
     def add_msg(self, msg, type_='info'):
         self.show()
         self.type = type_ if (type_ in TYPES) else TYPES[0]
-        self.children = [msg]
+        self.children = [v.Html(tag='p', children=[msg])]
+        
+        return self
         
     
     def add_live_msg(self, msg, type_='info'):
@@ -64,7 +66,9 @@ class Alert(v.Alert, SepalWidget):
         self.children = [
             v.Html(tag='p', children=['[{}]'.format(current_time)]),
             v.Html(tag='p', children=[msg])
-       ]
+        ]
+        
+        return self
 
     def append_msg(self, msg, section=False):
         """ Append a message in a new parragraph
@@ -83,9 +87,10 @@ class Alert(v.Alert, SepalWidget):
 
                 # link Alert type with divider type
                 directional_link((self, 'type'), (divider, 'type_'))
-                current_children.extend(
-                    [divider,msg]
-                )
+                current_children.extend([
+                    divider,
+                    v.Html(tag='p', children=[msg])
+                ])
                 self.children = current_children
 
             else:
@@ -95,6 +100,8 @@ class Alert(v.Alert, SepalWidget):
                 self.children = current_children
         else:
             self.add_msg(msg)
+            
+        return self
 
 
     def remove_last_msg(self):
@@ -104,11 +111,14 @@ class Alert(v.Alert, SepalWidget):
             self.children = current_children[:-1]
         else:
             self.reset()
+            
+        return self
 
     def reset(self):
         self.children = ['']
         self.hide()
         
+        return self
     
     def bind(self, widget, obj, variable, msg=None):
         """ 
@@ -132,6 +142,8 @@ class Alert(v.Alert, SepalWidget):
             return
         
         widget.observe(on_change, 'v_model')
+        
+        return self
     
     
     def check_input(self, input_, msg=None):
