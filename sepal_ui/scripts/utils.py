@@ -11,6 +11,7 @@ import random
 import math
 
 import ipyvuetify as v
+import pandas as pd
 
 from ..sepalwidgets import SepalWidget
 
@@ -38,21 +39,35 @@ def create_FIPS_dic():
     Returns:
         fips_dic (dic): the country FIPS_codes labelled with english country names
     """
-     
-    pathname = os.path.join(os.path.dirname(__file__), 'FIPS_code_to_country.csv')
-    fips_dic = {}
-    with open(pathname, newline='') as f:
-        reader = csv.reader(f, delimiter=';')
-        next(reader)
-        for row in reader:
-            fips_dic[row[1]] = row[3]
-            
-        fips_sorted = {}
-        for key in sorted(fips_dic):
-            fips_sorted[key] = fips_dic[key]
+    
+    # file path
+    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    
+    # get the df and sort by country name
+    df = pd.read_csv(path).sort_values(by=['country_na'])
+    
+    # create the dict
+    fip_dic = {row['country_na'] : row['FIPS 10-4'] for i, row in df.iterrows()}
         
-    return fips_sorted
+    return fip_dic
 
+def get_iso_3(fips_code):
+    """return the iso_3 code of a fips country code use the fips_code if the iso-3 is not available"""
+    
+    #file path
+    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    
+    # get the df
+    df = pd.read_csv(path)
+    
+    row = df[df['FIPS 10-4'] == fips_code]
+    
+    code = fips_code
+    if len(row):
+        code = row['ISO 3166-1 alpha-3'].values[0]
+        
+    return code
+    
 def create_download_link(pathname):
     """return a clickable link to download the pathname target"""
     
