@@ -132,8 +132,7 @@ class Aoi_io:
             If cardinal True: returns cardinal points tl, bl, tr, br
             If cardinal False: returns bounding box
         """
-
-        # 
+            
         ee_bounds = ee.FeatureCollection(ee_asset).geometry().bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
         ll, ur = coords[0], coords[2]

@@ -38,7 +38,8 @@ def get_country_asset(country_selection, folder, output):
         return None
     
     country_code = utils.create_FIPS_dic()[country_selection] 
-    asset_descripsion = ms.FILE_PATTERN.format(country_code) 
+    iso_3 = utils.get_iso_3(country_code)
+    asset_descripsion = ms.FILE_PATTERN.format(iso_3) 
     asset = folder + asset_descripsion
             
     #check asset existence

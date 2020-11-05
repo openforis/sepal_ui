@@ -7,3 +7,4 @@ markdown>=3.3.2
 xarray_leaflet>=0.1.12
 shapely>=1.7.1
 geopandas>=0.8.1
+pandas>=1.1.3
