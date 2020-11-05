@@ -21,7 +21,8 @@ setup(
         'markdown',
         'xarray_leaflet',
         'shapely',
-        'geopandas'
+        'geopandas',
+        'pandas'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

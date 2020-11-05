@@ -38,7 +38,7 @@ def create_FIPS_dic():
     Returns:
         fips_dic (dic): the country FIPS_codes labelled with english country names
     """
-     
+    
     pathname = os.path.join(os.path.dirname(__file__), 'FIPS_code_to_country.csv')
     fips_dic = {}
     with open(pathname, newline='') as f:
