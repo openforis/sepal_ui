@@ -267,4 +267,25 @@ class SepalMap(geemap.Map):
         
         layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
         
+        return self
+    
+    def show_dc(self):
+        """add the drawing control on the map"""
+        
+        self.dc.clear()
+        
+        if not self.dc in self.controls:
+            self.add_control(self.dc)
+            
+        return self
+    
+    def hide_dc(self):
+        """remove the drawing control from the map"""
+        
+        self.dc.clear()
+        
+        if self.dc in self.controls:
+            self.remove_control(self.dc)
+        
+        
         
