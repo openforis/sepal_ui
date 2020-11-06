@@ -15,12 +15,7 @@ class SepalWidget(v.VuetifyWidget):
         
     def toggle_viz(self):
         """toogle the visibility of the widget"""
-        if self.viz:
-            self.hide()
-        else:
-            self.show()
-        
-        return self
+        return self.hide() if self.viz else self.show()
     
     def hide(self):
         """add the d-none html class to the widget"""
