@@ -237,11 +237,12 @@ class SepalMap(geemap.Map):
 
 
         multi_band = False
-        bands = 1 # default for one band raster 
         if len(da.band) > 1:
             multi_band = True
             if not bands:
                 bands = [3, 2, 1]
+        else 
+            bands = 1
 
         if multi_band:
             da = da.rio.write_nodata(0)
