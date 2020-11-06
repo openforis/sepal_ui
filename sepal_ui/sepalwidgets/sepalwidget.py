@@ -10,6 +10,7 @@ class SepalWidget(v.VuetifyWidget):
     def __init__(self, **kwargs):
         
         super().__init__(**kwargs)
+        
         self.viz = True
         self.old_class = ''
         
@@ -32,9 +33,10 @@ class SepalWidget(v.VuetifyWidget):
         """ remove the d-none html class to the widget"""
         if self.old_class:
             self.class_ = self.old_class
-        else:
-            if 'd-none' in str(self.class_):
-                self.class_ = str(self.class_).replace('d-none', '')
+        
+        if 'd-none' in str(self.class_):
+            self.class_ = str(self.class_).replace('d-none', '')
+                
         self.viz = True
         
         return self

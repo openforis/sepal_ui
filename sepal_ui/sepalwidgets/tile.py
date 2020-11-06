@@ -52,26 +52,6 @@ class Tile(v.Layout, SepalWidget):
         self.children[0].children = [title] + self.children[0].children[1:]
         
         return self
-        
-    def hide(self):
-        """hide the widget"""
-        
-        super().hide()
-        
-        if 'd-inline' in str(self.class_):
-            self.class_ = self.class_.replace('d-inline','')
-            
-        return self
-        
-    def show(self):
-        """ remove the d-none html class to the widget"""
-        
-        super().show()
-        
-        if not 'd-inline' in str(self.class_):
-            self.class_ = str(self.class_).strip() + ' d-inline'
-            
-        return self
     
     def toggle_inputs(self, fields_2_show, fields):
         """
