@@ -62,47 +62,42 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
     file = Unicode('')
     
-    def __init__(self, 
-        extentions=[], 
-        folder=os.path.expanduser('~'), 
-        label='search file', 
-        v_model = None,
-        **kwargs):
+    def __init__(self, extentions = [], folder=os.path.expanduser('~'), label='search file', v_model = None, **kwargs):
 
         self.extentions = extentions
         self.folder = folder
         
         self.selected_file = v.TextField(
-            label='Selected file', 
-            class_='ml-5 mt-5',
-            v_model=self.file
+            label   = 'Selected file', 
+            class_  = 'ml-5 mt-5',
+            v_model = self.file
         )
 
         self.loading = v.ProgressLinear(
-            indeterminate = False, 
+            indeterminate    = False, 
             background_color = 'grey lighten-4',
-            color = COMPONENTS['PROGRESS_BAR']['color']
+            color            = COMPONENTS['PROGRESS_BAR']['color']
             )
         
         self.file_list = v.List(
-            dense=True, 
-            color='grey lighten-4',
-            flat=True,
+            dense      = True, 
+            color      = 'grey lighten-4',
+            flat       = True,
             max_height = '300px',
-            style_='overflow: auto',
-            children=[ 
+            style_     = 'overflow: auto',
+            children   = [ 
                 v.ListItemGroup(
-                    children=self.get_items(),
-                    v_model=''
+                    children = self.get_items(),
+                    v_model  = ''
                 )
             ]
         )
 
         self.file_menu = v.Menu(
-            min_width=300,
-            children=[self.loading, self.file_list], 
-            close_on_content_click=False,
-            v_slots=[{
+            min_width              = 300,
+            children               = [self.loading, self.file_list], 
+            close_on_content_click = False,
+            v_slots                = [{
                 'name': 'activator',
                 'variable': 'x',
                 'children': Btn(icon='mdi-file-search', v_model=False, v_on='x.on', text=label)
