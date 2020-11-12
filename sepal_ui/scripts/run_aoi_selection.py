@@ -30,37 +30,21 @@ def isAsset(asset_descripsion, folder):
             break
     return exist 
 
-def get_country_asset(country_selection, folder, output):
+def get_country_asset(country_selection, output):
     """send a request to GEE to create an asset based on the country name"""
     
     if country_selection == None:
         output.add_msg(ms.NO_COUNTRY, 'warning')
-        return None
+        return (None, None)
     
     country_code = utils.create_FIPS_dic()[country_selection] 
     iso_3 = utils.get_iso_3(country_code)
-    asset_descripsion = ms.FILE_PATTERN.format(iso_3) 
-    asset = folder + asset_descripsion
             
-    #check asset existence
-    if isAsset(asset_descripsion, folder):
-        output.add_msg(ms.ASSET_ALREADY_EXIST.format(asset), 'success')
-    else:  
-        country = ee.FeatureCollection('USDOS/LSIB_SIMPLE/2017').filter(ee.Filter.eq('country_co', country_code))
-                
-        #create and launch the task
-        task_config = {
-            'collection': country, 
-            'description':asset_descripsion,
-            'assetId': asset
-        }
-        task = ee.batch.Export.table.toAsset(**task_config)
-        task.start()
-        gee.wait_for_completion(asset_descripsion, output)
+    country = ee.FeatureCollection('USDOS/LSIB_SIMPLE/2017').filter(ee.Filter.eq('country_co', country_code))
           
-        output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+    output.add_msg(ms.ASSET_CREATED.format(iso_3), 'success')
     
-    return asset
+    return country, iso_3
 
 def get_drawn_shape(drawn_feat, file_name, folder, output):
     """send the requested drawn feature to GEE to create an asset"""
@@ -140,7 +124,7 @@ def get_shp_aoi(file_input, folder, output):
     
     return asset
     
-def run_aoi_selection(file_input, file_name, country_selection, asset_name, drawing_method, output, list_method, drawn_feat):
+def run_aoi_selection(output, list_method, io):
     """ create an gee asset according to the user inputs
 
     Args:
@@ -159,21 +143,27 @@ def run_aoi_selection(file_input, file_name, country_selection, asset_name, draw
     #go to the glad folder in gee assets 
     folder = ee.data.getAssetRoots()[0]['id'] + '/'
     
+    #clean all but the selected method
+    if io.country_selection:
+        io.assetId = None
+    else:
+        io.feature_collection, io.country_code = (None, None)
+    
+    
     #check the drawing method
-    if drawing_method == None: #not selected
-        output.add_msg(ms.NO_SELECTION, 'warning')    
-        asset = None
+    if io.selection_method == None: #not selected
+        output.add_msg(ms.NO_SELECTION, 'error')   
         
-    elif drawing_method == list_method[0]: #use a country boundary
-        asset = get_country_asset(country_selection, folder, output)
+    elif io.selection_method == list_method[0]: #use a country boundary
+        io.feature_collection, io.country_code = get_country_asset(io.country_selection, output)
              
-    elif drawing_method == list_method[1]: #draw a shape
-        asset = get_drawn_shape(drawn_feat, file_name, folder, output)
+    elif io.selection_method == list_method[1]: #draw a shape
+        io.assetId = get_drawn_shape(io.drawn_feat, io.file_name, folder, output)
         
-    elif drawing_method == list_method[3]: #use GEE asset
-        asset = get_gee_asset(asset_name, output)
+    elif io.selection_method == list_method[3]: #use GEE asset
+        io.assetId = get_gee_asset(io.assetId, output)
             
-    elif drawing_method == list_method[2]: #upload file
-        asset = get_shp_aoi(file_input, folder, output)
+    elif io.selection_method == list_method[2]: #upload file
+        io.assetId = get_shp_aoi(io.file_input, folder, output)
          
-    return asset
+    return
