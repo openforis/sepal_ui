@@ -2,9 +2,11 @@ from functools import partial
 from datetime import datetime
 
 import ipyvuetify as v
+import traitlets
 
 from .sepalwidget import SepalWidget
-from ..styles.styles import *
+from ..frontend.styles import *
+from ..frontend.js import *
 
 class AppBar (v.AppBar, SepalWidget):
     """create an appBar widget with the provided title using the sepal color framework"""
@@ -74,6 +76,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         elif card:
             self._metadata = {'card_id': card }
             
+        self.rt = ResizeTrigger()
+            
     def display_tile(self, tiles):
         """
         display the apropriate tiles when the item is clicked
@@ -87,6 +91,9 @@ class DrawerItem(v.ListItem, SepalWidget):
                     tile.show()
                 else:
                     tile.hide()
+                    
+            #trigger the risize event 
+            rt.resize += 1
     
         self.on_event('click', partial(on_click, tiles=tiles))
         

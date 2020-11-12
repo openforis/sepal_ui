@@ -241,7 +241,7 @@ class SepalMap(geemap.Map):
             multi_band = True
             if not bands:
                 bands = [3, 2, 1]
-        else 
+        else:
             bands = 1
 
         if multi_band:
