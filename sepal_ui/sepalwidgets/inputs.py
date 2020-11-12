@@ -6,7 +6,7 @@ from traitlets import HasTraits, Unicode, link
 from ipywidgets import jslink
 
 from .sepalwidget import SepalWidget
-from ..styles.styles import *
+from ..frontend.styles import *
 from ..scripts import utils as su
 from .btn import Btn
 
