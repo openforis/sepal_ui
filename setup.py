@@ -22,7 +22,8 @@ setup(
         'xarray_leaflet',
         'shapely',
         'geopandas',
-        'pandas'
+        'pandas',
+        'coverage'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
