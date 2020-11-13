@@ -64,11 +64,11 @@ class TileAoi(sw.Tile):
         self.bind_aoi_method(aoi_select_method, widget_list, io, m, self.SELECTION_METHOD)
     
 
-        #create the validation button 
+        # create the validation button 
         aoi_select_btn = sw.Btn('Select these inputs')
         self.bind_aoi_process(aoi_select_btn, io, m, aoi_output, self.SELECTION_METHOD)
     
-        #assemble everything on a tile 
+        # assemble everything on a tile 
         inputs = v.Layout(
             _metadata={'mount-id': 'data-input'},
             class_="pa-5",
@@ -145,26 +145,19 @@ class TileAoi(sw.Tile):
     
         def on_click(widget, event, data, io, m, output, list_method):
         
-            widget.toggle_loading()
+            widget.toggle_loading()            
         
-            #create the aoi asset
-            assetId = run_aoi_selection.run_aoi_selection(
-                file_input        = io.file_input, 
-                file_name         = io.file_name, 
-                country_selection = io.country_selection, 
-                asset_name        = io.assetId, 
-                drawn_feat        = io.drawn_feat,
-                drawing_method    = io.selection_method,
-                output            = output, 
-                list_method       = list_method, 
+            # create the aoi asset
+            run_aoi_selection.run_aoi_selection(
+                output      = output, 
+                list_method = list_method, 
+                io          = io
             )
             
             m.hide_dc()
         
-            #display it on the map
-            if assetId:
-                io.assetId = assetId
-                io.display_on_map(m)
+            # display it on the map
+            io.display_on_map(m)
             
             widget.toggle_loading()
         
