@@ -135,13 +135,13 @@ class Aoi_io:
         """ Returns the min(lon,lat) and max(lon, lat) from the given asset
 
         Args:
-            ee_asset (ee.object): GEE asset (FeatureCollection, Geometry)
+            ee_asset (ee.object): GEE asset (FeatureCollection, Geometry or str)
             cardinal (boolean) (optional)
 
         Returns:
             If cardinal True: returns cardinal points tl, bl, tr, br
             If cardinal False: returns bounding box
-        """
+        """ 
             
         ee_bounds = ee.FeatureCollection(ee_asset).geometry().bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
