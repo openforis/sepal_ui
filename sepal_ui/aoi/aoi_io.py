@@ -18,6 +18,8 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
+        self.country_code = None # to name the asset coming from country selection
+        self.feature_collection = None # to access the country
 
         #set up your inputs
         self.file_input = None
@@ -29,9 +31,15 @@ class Aoi_io:
         
     def get_aoi_ee(self):
 
-        """ Returns an ee.asset from self"""
+        """ Returns an ee.asset from self, None if no aoi set"""
         
-        return ee.FeatureCollection(self.assetId)
+        obj = None
+        if self.feature_collection:
+            obj = self.feature_collection
+        elif self.assetId:
+            obj = ee.FeatureCollection(self.assetId)
+            
+        return obj
     
     def get_columns(self):
 
@@ -92,6 +100,8 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
+        self.country_code = None
+        self.feature_collection = None
 
         #set up your inputs
         self.file_input = None
@@ -109,7 +119,7 @@ class Aoi_io:
         Args:
             map_ (SepalMap): Map to display the element
         """
-        aoi = ee.FeatureCollection(self.assetId)
+        aoi = self.get_aoi_ee()
         map_.zoom_ee_object(aoi.geometry())
         map_.addLayer(aoi, {'color': 'green'}, name='aoi')
         
@@ -125,13 +135,13 @@ class Aoi_io:
         """ Returns the min(lon,lat) and max(lon, lat) from the given asset
 
         Args:
-            ee_asset (ee.object): GEE asset (FeatureCollection, Geometry)
+            ee_asset (ee.object): GEE asset (FeatureCollection, Geometry or str)
             cardinal (boolean) (optional)
 
         Returns:
             If cardinal True: returns cardinal points tl, bl, tr, br
             If cardinal False: returns bounding box
-        """
+        """ 
             
         ee_bounds = ee.FeatureCollection(ee_asset).geometry().bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
@@ -150,30 +160,35 @@ class Aoi_io:
         return (tl, bl, tr, br) if cardinal else (min_lon, min_lat, max_lon, max_lat)
     
     def get_aoi_shp(self, dwnDir=''):
-
-        aoi_name = Path(self.assetId).stem.replace('aoi_', '')
-        filename = '{0}{1}.shp'.format(dwnDir, aoi_name)
+        """ create the .shp file corresponding to the selected aoi"""
+        
+        aoi_name = self.get_aoi_name()
+            
+        filename = f'{dwnDir}{aoi_name}.shp'
     
         if os.path.isfile(filename):
             return filename
     
         # verify that the asset exist
-        aoi = ee.FeatureCollection(self.assetId)
+        aoi = self.get_aoi_ee()
     
         # convert into shapely
         aoiJson = geemap.ee_to_geojson(aoi)
         aoiShp = sg.shape(aoiJson['features'][0]['geometry'])
         
         #convert it to shapefile with geopandas
-        df = gpd.GeoDataFrame({"id":1,"geometry":[aoiShp]}, crs="EPSG:4326")
+        df = gpd.GeoDataFrame({"id":1, "geometry":[aoiShp]}, crs="EPSG:4326")
         df.to_file(filename)
     
         return filename
     
     def get_aoi_name(self):
         """ remove the aoi_ before the nam of the created asset"""
+        
         path = None
-        if self.assetId:
+        if self.country_code:
+            path = self.country_code
+        else:
             path = Path(self.assetId).stem.replace('aoi_', '')
         
         return path

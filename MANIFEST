@@ -7,6 +7,7 @@ sepal_ui/aoi/__init__.py
 sepal_ui/aoi/aoi_io.py
 sepal_ui/aoi/tile_aoi.py
 sepal_ui/scripts/FIPS_code_to_country.csv
+sepal_ui/scripts/country_code.csv
 sepal_ui/scripts/disclaimer.md
 sepal_ui/scripts/gee.py
 sepal_ui/scripts/mapping.py

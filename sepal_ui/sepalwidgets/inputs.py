@@ -6,7 +6,7 @@ from traitlets import HasTraits, Unicode, link
 from ipywidgets import jslink
 
 from .sepalwidget import SepalWidget
-from ..styles.styles import *
+from ..frontend.styles import *
 from ..scripts import utils as su
 from .btn import Btn
 
@@ -15,89 +15,89 @@ class DatePicker(v.Layout, SepalWidget):
     def __init__(self, label="Date", **kwargs):
         
         date_picker = v.DatePicker(
-            no_title=True, 
-            v_model=None, 
-            scrollable=True
+            no_title   = True, 
+            v_model    = None, 
+            scrollable = True
         )
 
-        date_text =  v.TextField(
-            v_model=None,
-            label=label,
-            hint="YYYY-MM-DD format",
-            persistent_hint=True, 
-            prepend_icon="event",
-            readonly=True,
-            v_on='menuData.on'
+        date_text = v.TextField(
+            v_model         = None,
+            label           = label,
+            hint            = "YYYY-MM-DD format",
+            persistent_hint = True, 
+            prepend_icon    = "event",
+            readonly        = True,
+            v_on            = 'menuData.on'
         )
 
-        menu = v.Menu(
-            transition="scale-transition",
-            offset_y=True,       
-            v_slots=[{
+        self.menu = v.Menu(
+            transition             = "scale-transition",
+            offset_y               = True, 
+            value                  = False,
+            close_on_content_click = False,
+            children               = [date_picker],
+            v_slots                = [{
                 'name': 'activator',
                 'variable': 'menuData',
                 'children': date_text,
-            }], 
-            children=[date_picker]
+            }]
         )
 
         super().__init__(
-            v_model=None,
-            row=True,
-            class_='pa-5',
-            align_center=True,
-            children=[v.Flex(xs10=True, children=[menu])],
+            v_model      = None,
+            row          = True,
+            class_       = 'pa-5',
+            align_center = True,
+            children     = [v.Flex(xs10=True, children=[self.menu])],
             **kwargs
         )
 
         jslink((date_picker, 'v_model'), (date_text, 'v_model'))
         jslink((date_picker, 'v_model'), (self, 'v_model'))
         
+        #close the datepicker on click
+        #date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
+        
 class FileInput(v.Flex, SepalWidget, HasTraits):
 
     file = Unicode('')
     
-    def __init__(self, 
-        extentions=[], 
-        folder=os.path.expanduser('~'), 
-        label='search file', 
-        v_model = None,
-        **kwargs):
+    def __init__(self, extentions = [], folder=os.path.expanduser('~'), label='search file', v_model = None, **kwargs):
 
         self.extentions = extentions
         self.folder = folder
         
         self.selected_file = v.TextField(
-            label='Selected file', 
-            class_='ml-5 mt-5',
-            v_model=self.file
+            label   = 'Selected file', 
+            class_  = 'ml-5 mt-5',
+            v_model = self.file
         )
 
         self.loading = v.ProgressLinear(
-            indeterminate = False, 
+            indeterminate    = False, 
             background_color = 'grey lighten-4',
-            color = COMPONENTS['PROGRESS_BAR']['color']
+            color            = COMPONENTS['PROGRESS_BAR']['color']
             )
         
         self.file_list = v.List(
-            dense=True, 
-            color='grey lighten-4',
-            flat=True,
+            dense      = True, 
+            color      = 'grey lighten-4',
+            flat       = True,
             max_height = '300px',
-            style_='overflow: auto',
-            children=[ 
+            style_     = 'overflow: auto',
+            children   = [ 
                 v.ListItemGroup(
-                    children=self.get_items(),
-                    v_model=''
+                    children = self.get_items(),
+                    v_model  = ''
                 )
             ]
         )
 
         self.file_menu = v.Menu(
-            min_width=300,
-            children=[self.loading, self.file_list], 
-            close_on_content_click=False,
-            v_slots=[{
+            min_width              = 300,
+            children               = [self.loading, self.file_list], 
+            close_on_content_click = False,
+            v_slots                = [{
                 'name': 'activator',
                 'variable': 'x',
                 'children': Btn(icon='mdi-file-search', v_model=False, v_on='x.on', text=label)

@@ -205,7 +205,7 @@ class SepalMap(geemap.Map):
         return self
     
     #copy of the geemap add_raster function to prevent a bug from sepal 
-    def add_raster(self, image, bands=None, layer_name=None, colormap=None, x_dim='x', y_dim='y', opacity=1.0):
+    def add_raster(self, image, bands=None, layer_name='Layer_' + su.random_string(), colormap=plt.cm.inferno, x_dim='x', y_dim='y', opacity=1.0):
         """Adds a local raster dataset to the map.
         Args:
             image (str): The image file path.
@@ -216,15 +216,10 @@ class SepalMap(geemap.Map):
             y_dim (str, optional): The y dimension. Defaults to 'y'.
         """
         if not os.path.exists(image):
-            print('The image file does not exist.')
-            return
+            return print('The image file does not exist.')
+            
 
-        if colormap is None:
-            colormap = plt.cm.inferno
-
-        if layer_name is None:
-            layer_name = 'Layer_' + su.random_string()
-
+        # check inputs
         if layer_name in self.loaded_rasters.keys():
             layer_name = layer_name+su.random_string()
 
@@ -244,7 +239,7 @@ class SepalMap(geemap.Map):
         multi_band = False
         if len(da.band) > 1:
             multi_band = True
-            if bands is None:
+            if not bands:
                 bands = [3, 2, 1]
         else:
             bands = 1
@@ -256,15 +251,34 @@ class SepalMap(geemap.Map):
         da = da.sel(band=bands)
 
         if multi_band:
-            layer = da.leaflet.plot(
-                self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band')
+            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band')
         else:
-            layer = da.leaflet.plot(
-                self, x_dim=x_dim, y_dim=y_dim, colormap=colormap)
+            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, colormap=colormap)
 
         layer.name = layer_name
 
         
         layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
+        
+        return
+    
+    def show_dc(self):
+        """add the drawing control on the map"""
+        
+        self.dc.clear()
+        
+        if not self.dc in self.controls:
+            self.add_control(self.dc)
+            
+        return self
+    
+    def hide_dc(self):
+        """remove the drawing control from the map"""
+        
+        self.dc.clear()
+        
+        if self.dc in self.controls:
+            self.remove_control(self.dc)
+        
         
         
