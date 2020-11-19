@@ -10,6 +10,37 @@ from ..scripts import utils as su, run_aoi_selection
 from ..mapping import SepalMap
 
 if not ee.data._credentials: ee.Initialize()
+    
+class FileNameField(v.TextField, sw.SepalWidget):
+    
+    def __init__(self, default_name = ''):
+        
+        super().__init__(
+            label   = 'Select a filename', 
+            v_model = default_name,
+            class_  = 'd-none'
+        )
+        
+class CountrySelect(v.Select, sw.SepalWidget):
+    
+    def __init__(self):
+        
+        super().__init__(
+            items   = [*su.create_FIPS_dic()], 
+            label   = 'Country/Province', 
+            v_model = None,
+            class_  = 'd-none'
+        )
+        
+class AssetNameField(v.TextField, sw.SepalWidget):
+    
+    def __init__(self):
+        
+        super().__init__(
+            label   = 'Select a GEE asset', 
+            v_model = None,
+            class_  = 'd-none
+        )
 
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
@@ -26,26 +57,13 @@ class TileAoi(sw.Tile):
         aoi_file_input = sw.FileInput(['.shp']).hide()
         aoi_output.bind(aoi_file_input, io, 'file_input')
     
-        aoi_file_name = v.TextField(
-            label   = 'Select a filename', 
-            v_model = io.file_name,
-            class_  = 'd-none'
-        )
+        aoi_file_name = FileNameField(io.file_name).hide()
         aoi_output.bind(aoi_file_name, io, 'file_name')
     
-        aoi_country_selection = v.Select(
-            items   = [*su.create_FIPS_dic()], 
-            label   = 'Country/Province', 
-            v_model = None,
-            class_  = 'd-none'
-        )
+        aoi_country_selection = CountrySelect().hide()
         aoi_output.bind(aoi_country_selection, io, 'country_selection')
     
-        aoi_asset_name = v.TextField(
-            label   = 'Select a GEE asset', 
-            v_model = None,
-            class_  = 'd-none'
-        )
+        aoi_asset_name = AssetNameField().hide()
         aoi_output.bind(aoi_asset_name, io, 'assetId')
     
         widget_list = [
