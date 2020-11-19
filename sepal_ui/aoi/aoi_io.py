@@ -18,6 +18,7 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
+        self.json_csv = None # information that will be use to transform the csv into asset 
         self.country_code = None # to name the asset coming from country selection
         self.feature_collection = None # to access the country
 
@@ -100,6 +101,7 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
+        self.json_csv = None
         self.country_code = None
         self.feature_collection = None
 
@@ -131,7 +133,7 @@ class Aoi_io:
         return self
 
 
-    def get_bounds(self, ee_asset, cardinal=False):
+    def get_bounds(self, ee_object, cardinal=False):
         """ Returns the min(lon,lat) and max(lon, lat) from the given asset
 
         Args:
@@ -143,7 +145,7 @@ class Aoi_io:
             If cardinal False: returns bounding box
         """ 
             
-        ee_bounds = ee.FeatureCollection(ee_asset).geometry().bounds().coordinates()
+        ee_bounds = ee.FeatureCollection(ee_object).geometry().bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
         ll, ur = coords[0], coords[2]
 
@@ -172,13 +174,12 @@ class Aoi_io:
         # verify that the asset exist
         aoi = self.get_aoi_ee()
     
-        # convert into shapely
-        aoiJson = geemap.ee_to_geojson(aoi)
-        aoiShp = sg.shape(aoiJson['features'][0]['geometry'])
+        # convert into json
+        aoi_json = geemap.ee_to_geojson(aoi)
         
-        #convert it to shapefile with geopandas
-        df = gpd.GeoDataFrame({"id":1, "geometry":[aoiShp]}, crs="EPSG:4326")
-        df.to_file(filename)
+        # convert to geopandas gdf
+        gdf = gpd.GeoDataFrame.from_features(aoi_json)
+        gdf.to_file(filename)
     
         return filename
     

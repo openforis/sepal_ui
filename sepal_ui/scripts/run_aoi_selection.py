@@ -2,14 +2,18 @@ import time
 import sys
 import re
 import os
+import json
+from pathlib import Path
 
 import ee
 import geemap
+import pandas as pd
+import geopandas as gpd
 
 from sepal_ui.scripts import utils, gee
 from sepal_ui.scripts import messages as ms
 
-#initialize earth engine
+# initialize earth engine
 if not ee.data._credentials: ee.Initialize()
 
 def isAsset(asset_descripsion, folder):
@@ -28,6 +32,7 @@ def isAsset(asset_descripsion, folder):
         if asset['name'] == folder + asset_descripsion:
             exist = True
             break
+            
     return exist 
 
 def get_country_asset(country_selection, output):
@@ -86,6 +91,53 @@ def get_gee_asset(asset_name, output):
         asset = asset_name
         
     return asset
+
+def get_csv_asset(json_csv, folder, output):
+    """Send a request to GEE to create an asset based on the local shapefile"""
+    
+    #read the json 
+    load_df = json.loads(json_csv)
+    
+    # check that the columns are well set 
+    tmp_list = [load_df[i] for i in load_df]
+    if not len(tmp_list) == len(set(tmp_list)):
+        output.add_msg(ms.DUPLICATE_KEY, 'error') 
+        return None
+    
+    # check asset existence
+    asset_name = f"aoi_{Path(load_df['pathname']).stem}"
+    if isAsset(asset_name, folder):
+        output.add_msg(ms.NAME_USED, 'error')
+        return None
+    
+    # create a tmp gdf
+    df = pd.read_csv(load_df['pathname'])
+    gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[load_df['lng_column']], df[load_df['lat_column']]))
+    
+    # convert it into geo-json 
+    json_df = json.loads(gdf.to_json())
+    
+    # create a gee object with geemap
+    output.add_msg(ms.GEOJSON_TO_EE, 'success')
+    ee_object = geemap.geojson_to_ee(json_df)
+    
+    # upload this object to earthengine
+    asset = folder + asset_name
+            
+    #create and launch the task
+    task_config = {
+        'collection': ee_object, 
+        'description':asset_name,
+        'assetId': asset
+    }
+    task = ee.batch.Export.table.toAsset(**task_config)
+    task.start()
+    gee.wait_for_completion(asset_name, output)
+           
+    output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+    
+    return asset
+    
             
 def get_shp_aoi(file_input, folder, output):
     """send a request to GEE to create an asset based on the local shapefile"""
@@ -93,10 +145,17 @@ def get_shp_aoi(file_input, folder, output):
     if not os.path.isfile(file_input):
         output.add_msg(ms.ERROR_OCCURED, 'error')
         return None
+    
+    # convert the .shp in gdf in epsg:4326
+    gdf = gpd.read_file(file_input).to_crs('EPSG:4326')
+    
+    # convert gdf to geo json 
+    json_gdf = json.loads(gdf.to_json())
+    
+    # create ee_object based on the json dict
+    ee_object = geemap.geojson_to_ee(json_gdf)           
         
-    ee_object = geemap.shp_to_ee(file_input)           
-        
-    name = os.path.split(file_input)[1]
+    name = Path(file_input).stem
         
     asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]','_',name))
         
@@ -154,16 +213,19 @@ def run_aoi_selection(output, list_method, io):
     if io.selection_method == None: #not selected
         output.add_msg(ms.NO_SELECTION, 'error')   
         
-    elif io.selection_method == list_method[0]: #use a country boundary
+    elif io.selection_method == list_method[0]: # use a country boundary
         io.feature_collection, io.country_code = get_country_asset(io.country_selection, output)
              
-    elif io.selection_method == list_method[1]: #draw a shape
+    elif io.selection_method == list_method[1]: # draw a shape
         io.assetId = get_drawn_shape(io.drawn_feat, io.file_name, folder, output)
         
-    elif io.selection_method == list_method[3]: #use GEE asset
+    elif io.selection_method == list_method[3]: # use GEE asset
         io.assetId = get_gee_asset(io.assetId, output)
             
-    elif io.selection_method == list_method[2]: #upload file
+    elif io.selection_method == list_method[2]: # upload file
         io.assetId = get_shp_aoi(io.file_input, folder, output)
-         
+        
+    elif io.selection_method == list_method[4]: # csv point file
+        io.assetId = get_csv_asset(io.json_csv, folder, output)
+            
     return
