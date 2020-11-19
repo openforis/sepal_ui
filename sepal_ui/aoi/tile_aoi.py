@@ -17,8 +17,7 @@ class FileNameField(v.TextField, sw.SepalWidget):
         
         super().__init__(
             label   = 'Select a filename', 
-            v_model = default_name,
-            class_  = 'd-none'
+            v_model = default_name
         )
         
 class CountrySelect(v.Select, sw.SepalWidget):
@@ -28,8 +27,7 @@ class CountrySelect(v.Select, sw.SepalWidget):
         super().__init__(
             items   = [*su.create_FIPS_dic()], 
             label   = 'Country/Province', 
-            v_model = None,
-            class_  = 'd-none'
+            v_model = None
         )
         
 class AssetNameField(v.TextField, sw.SepalWidget):
@@ -38,8 +36,25 @@ class AssetNameField(v.TextField, sw.SepalWidget):
         
         super().__init__(
             label   = 'Select a GEE asset', 
-            v_model = None,
-            class_  = 'd-none
+            v_model = None
+        )
+        
+class LoadTableField(v.Col, sw.SepalWidget):
+    
+    def __init__(self):
+        
+        self.fileInput = sw.FileInput(['.csv'])
+        self.IdSelect = v.Select(items = [], label = 'Id', v_model = None)
+        self.LngSelect = v.Select(items = [], label = 'Longitude', v_model = None)
+        self.LatSelect = v.Select(items = [], label = 'Latitude', v_model = None)
+        
+        super().__init__(
+            children = [
+                self.fileInput,
+                self.IdSelect,
+                self.LngSelect,
+                self.LatSelect
+            ]
         )
 
 class TileAoi(sw.Tile):
@@ -65,12 +80,15 @@ class TileAoi(sw.Tile):
     
         aoi_asset_name = AssetNameField().hide()
         aoi_output.bind(aoi_asset_name, io, 'assetId')
+        
+        aoi_load_table = LoadTableField().hide()
     
         widget_list = [
             aoi_file_input, 
             aoi_file_name, 
             aoi_country_selection, 
-            aoi_asset_name
+            aoi_asset_name,
+            aoi_load_table
         ]
         
         #create the map 
@@ -88,24 +106,20 @@ class TileAoi(sw.Tile):
     
         # assemble everything on a tile 
         inputs = v.Layout(
-            _metadata={'mount-id': 'data-input'},
-            class_="pa-5",
-            row=True,
-            align_center=True, 
-            children=[
-                v.Flex(xs12=True, children=[aoi_select_method]),
-                v.Flex(xs12=True, children=[aoi_country_selection]),
-                v.Flex(xs12=True, children=[aoi_file_input]),
-                v.Flex(xs12=True, children=[aoi_file_name]),
-                v.Flex(xs12=True, children=[aoi_asset_name]),
-                v.Flex(xs12=True, children=[aoi_select_btn]),
-                v.Flex(xs12=True, children=[aoi_output]),
-            ]
+            _metadata    = {'mount-id': 'data-input'},
+            class_       = "pa-5",
+            row          = True,
+            align_center = True, 
+            children     = (
+                [v.Flex(xs12 = True, children =[aoi_select_method])] 
+                + [v.Flex(xs12 = True, children = [widget]) for widget in widget_list]
+                + [v.Flex(xs12 = True, children =[aoi_select_btn])] 
+            )
         )
         
         aoi_content_main = v.Layout(
-            row=True,
-            xs12=True,
+            row      = True,
+            xs12     = True,
             children = [
                 v.Flex(xs12=True, md6=True, children=[inputs]),
                 v.Flex(class_="pa-5", xs12=True, md6=True, children=[m])
@@ -207,29 +221,32 @@ class TileAoi(sw.Tile):
         
         def on_change(widget, event, data, list_input, obj, m, selection_method):
             
-            #clearly identify the differents widgets 
-            aoi_file_input = list_input[0]
-            aoi_file_name = list_input[1]
+            # clearly identify the differents widgets 
+            aoi_file_input        = list_input[0]
+            aoi_file_name         = list_input[1]
             aoi_country_selection = list_input[2]
-            aoi_asset_name = list_input[3]
+            aoi_asset_name        = list_input[3]
+            aoi_load_table        = list_input[4]
             
             setattr(obj, 'selection_method', widget.v_model)
             
             m.hide_dc()
                 
-            #toogle the appropriate inputs
-            if widget.v_model == selection_method[0]: #country selection
+            # toogle the appropriate inputs
+            if widget.v_model == selection_method[0]: # country selection
                 self.toggle_inputs([aoi_country_selection], list_input)
-            elif widget.v_model == selection_method[1]: #drawing
+            elif widget.v_model == selection_method[1]: # drawing
                 self.toggle_inputs([aoi_file_name], list_input)
                 m.show_dc()
-            elif widget.v_model == selection_method[2]: #shp file
+            elif widget.v_model == selection_method[2]: # shp file
                 self.toggle_inputs([aoi_file_input], list_input)
-            elif widget.v_model == selection_method[3]: #gee asset
+            elif widget.v_model == selection_method[3]: # gee asset
                 self.toggle_inputs([aoi_asset_name], list_input)
-        
-        
-        
+            elif widget.v_model == selection_method[4]: # Point file (.csv)
+                self.toggle_inputs([aoi_load_table], list_input)
+            else:
+                self.toggle_inputs([], list_input)
+                
         method_widget.on_event('change', partial(
             on_change,
             list_input       = list_input,
