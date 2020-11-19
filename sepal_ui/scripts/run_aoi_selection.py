@@ -13,7 +13,7 @@ import geopandas as gpd
 from sepal_ui.scripts import utils, gee
 from sepal_ui.scripts import messages as ms
 
-#initialize earth engine
+# initialize earth engine
 if not ee.data._credentials: ee.Initialize()
 
 def isAsset(asset_descripsion, folder):
@@ -32,6 +32,7 @@ def isAsset(asset_descripsion, folder):
         if asset['name'] == folder + asset_descripsion:
             exist = True
             break
+            
     return exist 
 
 def get_country_asset(country_selection, output):

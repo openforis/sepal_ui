@@ -30,15 +30,6 @@ class CountrySelect(v.Select, sw.SepalWidget):
             v_model = None
         )
         
-class AssetNameField(v.TextField, sw.SepalWidget):
-    
-    def __init__(self):
-        
-        super().__init__(
-            label   = 'Select a GEE asset', 
-            v_model = None
-        )
-        
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId.
     
@@ -63,7 +54,7 @@ class TileAoi(sw.Tile):
         aoi_country_selection = CountrySelect().hide()
         aoi_output.bind(aoi_country_selection, io, 'country_selection')
     
-        aoi_asset_name = AssetNameField().hide()
+        aoi_asset_name = sw.AssetSelect().hide()
         aoi_output.bind(aoi_asset_name, io, 'assetId')
         
         aoi_load_table = sw.LoadTableField().hide()
