@@ -145,10 +145,17 @@ def get_shp_aoi(file_input, folder, output):
     if not os.path.isfile(file_input):
         output.add_msg(ms.ERROR_OCCURED, 'error')
         return None
+    
+    # convert the .shp in gdf in epsg:4326
+    gdf = gpd.read_file(file_input).to_crs('EPSG:4326')
+    
+    # convert gdf to geo json 
+    json_gdf = json.loads(gdf.to_json())
+    
+    # create ee_object based on the json dict
+    ee_object = geemap.geojson_to_ee(json_gdf)           
         
-    ee_object = geemap.shp_to_ee(file_input)           
-        
-    name = os.path.split(file_input)[1]
+    name = Path(file_input).stem
         
     asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]','_',name))
         

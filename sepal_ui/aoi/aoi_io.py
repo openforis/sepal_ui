@@ -174,13 +174,12 @@ class Aoi_io:
         # verify that the asset exist
         aoi = self.get_aoi_ee()
     
-        # convert into shapely
-        aoiJson = geemap.ee_to_geojson(aoi)
-        aoiShp = sg.shape(aoiJson['features'][0]['geometry'])
+        # convert into json
+        aoi_json = geemap.ee_to_geojson(aoi)
         
-        #convert it to shapefile with geopandas
-        df = gpd.GeoDataFrame({"id":1, "geometry":[aoiShp]}, crs="EPSG:4326")
-        df.to_file(filename)
+        # convert to geopandas gdf
+        gdf = gpd.GeoDataFrame.from_features(aoi_json)
+        gdf.to_file(filename)
     
         return filename
     
