@@ -250,13 +250,15 @@ class LoadTableField(v.Col, SepalWidget):
         path = change['new']
         df = pd.read_csv(path)
         
-        if len(df.columns) < 3: return 
+        if len(df.columns) < 3: 
+            self.__clear_select()
+            return 
         
         self.__set_value('pathname', path)
         
         # clear the selects
-        self.IdSelect.items = df.columns.tolist()
         self.__clear_select()
+        self.IdSelect.items = df.columns.tolist()
         
         # pre load values that sounds like what we are looking for 
         # it will only keep the first occurence of each one 
@@ -271,6 +273,7 @@ class LoadTableField(v.Col, SepalWidget):
                 
     def __clear_select(self):
         """clear the select v_model"""
+        self.IdSelect.items = [] # all the others are listening to this one 
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
         
         return 
