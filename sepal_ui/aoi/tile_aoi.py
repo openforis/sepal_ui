@@ -40,12 +40,15 @@ class AssetNameField(v.TextField, sw.SepalWidget):
         )
         
 class TileAoi(sw.Tile):
-    """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
+    """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId.
+    
+    available selection methods : 'Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file'
+    """
     
     # constants
     SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file')
     
-    def __init__(self, io, **kwargs):
+    def __init__(self, io, methods = SELECTION_METHOD, **kwargs):
         
         # create the output
         aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
@@ -79,7 +82,8 @@ class TileAoi(sw.Tile):
         self.handle_draw(m.dc, io, 'drawn_feat', aoi_output)
     
         #bind the input to the selected method 
-        aoi_select_method = v.Select(items=self.SELECTION_METHOD, label='AOI selection method', v_model=None)
+        method_items = [m for m in methods if m in self.SELECTION_METHOD] 
+        aoi_select_method = v.Select(items = method_items, label = 'AOI selection method', v_model = None)
         self.bind_aoi_method(aoi_select_method, widget_list, io, m, self.SELECTION_METHOD)
     
 
