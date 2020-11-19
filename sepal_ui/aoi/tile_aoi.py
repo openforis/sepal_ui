@@ -3,13 +3,11 @@ from functools import partial
 import ipyvuetify as v
 import geemap
 import ee
-import json
 
 from .aoi_io import Aoi_io
 from .. import sepalwidgets as sw
 from ..scripts import utils as su, run_aoi_selection
 from ..mapping import SepalMap
-import pandas
 
 if not ee.data._credentials: ee.Initialize()
     
@@ -66,6 +64,7 @@ class TileAoi(sw.Tile):
         aoi_output.bind(aoi_asset_name, io, 'assetId')
         
         aoi_load_table = sw.LoadTableField().hide()
+        aoi_output.bind(aoi_load_table, io, 'json_csv')
     
         widget_list = [
             aoi_file_input, 
@@ -98,6 +97,7 @@ class TileAoi(sw.Tile):
                 [v.Flex(xs12 = True, children =[aoi_select_method])] 
                 + [v.Flex(xs12 = True, children = [widget]) for widget in widget_list]
                 + [v.Flex(xs12 = True, children =[aoi_select_btn])] 
+                + [v.Flex(xs12 = True, children = [aoi_output])]
             )
         )
         
@@ -105,16 +105,12 @@ class TileAoi(sw.Tile):
             row      = True,
             xs12     = True,
             children = [
-                v.Flex(xs12=True, md6=True, children=[inputs]),
-                v.Flex(class_="pa-5", xs12=True, md6=True, children=[m])
+                v.Flex(xs12 = True, md6 = True, children = [inputs]),
+                v.Flex(xs12 = True, md6 = True, class_ = "pa-5", children = [m])
             ]
         )
         
-        super().__init__(
-            id_='aoi_widget',
-            title='AOI selection', 
-            inputs=[aoi_content_main]
-        )
+        super().__init__(id_ = 'aoi_widget', title = 'AOI selection', inputs = [aoi_content_main])
         
     def handle_draw(self, dc, io, variable, output):
         """ 
@@ -135,7 +131,6 @@ class TileAoi(sw.Tile):
             output.add_live_msg('A shape have been drawn')
 
             return 
-        
         
         dc.on_draw(partial(
             on_draw,
@@ -162,18 +157,23 @@ class TileAoi(sw.Tile):
         def on_click(widget, event, data, io, m, output, list_method):
         
             widget.toggle_loading()            
-        
-            # create the aoi asset
-            run_aoi_selection.run_aoi_selection(
-                output      = output, 
-                list_method = list_method, 
-                io          = io
-            )
             
-            m.hide_dc()
+            try:
+                # create the aoi asset
+                run_aoi_selection.run_aoi_selection(
+                    output      = output, 
+                    list_method = list_method, 
+                    io          = io
+                )
+                
+                # hide the drawing control 
+                m.hide_dc()
         
-            # display it on the map
-            io.display_on_map(m)
+                # display the resulting aoi on the map
+                io.display_on_map(m)
+                
+            except Exception as e: 
+                output.add_live_msg(str(e), 'error') 
             
             widget.toggle_loading()
         

@@ -15,4 +15,6 @@ CHECK_IF_ASSET = "Check carefully that your string is an assetId"
 NOT_AVAILABLE = "This function is not yet available"
 NO_SHAPE = "No shape have been drawn on the map"
 ERROR_OCCURED = "An error occured with provided .shp file"
-AOI_MESSAGE='click on "selet these inputs" to validate your AOI'
+AOI_MESSAGE ='click on "selet these inputs" to validate your AOI'
+DUPLICATE_KEY = "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters"
+GEOJSON_TO_EE = "Convert your .csv file into a ee_object"

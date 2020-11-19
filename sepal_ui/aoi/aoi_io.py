@@ -18,7 +18,7 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
-        self.load_df = None
+        self.json_csv = None # information that will be use to transform the csv into asset 
         self.country_code = None # to name the asset coming from country selection
         self.feature_collection = None # to access the country
 
@@ -101,7 +101,7 @@ class Aoi_io:
         self.column = None
         self.field = None
         self.selected_feature = None
-        self.load_df = None
+        self.json_csv = None
         self.country_code = None
         self.feature_collection = None
 

@@ -1,8 +1,9 @@
-import ipyvuetify as v 
-from sepal_ui import sepalwidgets as sw
-import pandas as pd
 import json
+
+import pandas as pd
+import ipyvuetify as v 
 from ipywidgets import jslink
+from sepal_ui import sepalwidgets as sw
 
 class LoadTableField(v.Col, sw.SepalWidget):
     
