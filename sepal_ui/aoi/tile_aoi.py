@@ -3,11 +3,13 @@ from functools import partial
 import ipyvuetify as v
 import geemap
 import ee
+import json
 
 from .aoi_io import Aoi_io
 from .. import sepalwidgets as sw
 from ..scripts import utils as su, run_aoi_selection
 from ..mapping import SepalMap
+import pandas
 
 if not ee.data._credentials: ee.Initialize()
     
@@ -39,24 +41,6 @@ class AssetNameField(v.TextField, sw.SepalWidget):
             v_model = None
         )
         
-class LoadTableField(v.Col, sw.SepalWidget):
-    
-    def __init__(self):
-        
-        self.fileInput = sw.FileInput(['.csv'])
-        self.IdSelect = v.Select(items = [], label = 'Id', v_model = None)
-        self.LngSelect = v.Select(items = [], label = 'Longitude', v_model = None)
-        self.LatSelect = v.Select(items = [], label = 'Latitude', v_model = None)
-        
-        super().__init__(
-            children = [
-                self.fileInput,
-                self.IdSelect,
-                self.LngSelect,
-                self.LatSelect
-            ]
-        )
-
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
     
@@ -81,7 +65,7 @@ class TileAoi(sw.Tile):
         aoi_asset_name = AssetNameField().hide()
         aoi_output.bind(aoi_asset_name, io, 'assetId')
         
-        aoi_load_table = LoadTableField().hide()
+        aoi_load_table = sw.LoadTableField().hide()
     
         widget_list = [
             aoi_file_input, 
