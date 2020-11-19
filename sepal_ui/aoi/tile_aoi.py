@@ -14,37 +14,37 @@ if not ee.data._credentials: ee.Initialize()
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
     
-    #constants
-    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset')
+    # constants
+    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file')
     
     def __init__(self, io, **kwargs):
         
-        #create the output
+        # create the output
         aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
         
-        #create the inputs widgets 
+        # create the inputs widgets 
         aoi_file_input = sw.FileInput(['.shp']).hide()
         aoi_output.bind(aoi_file_input, io, 'file_input')
     
         aoi_file_name = v.TextField(
-            label='Select a filename', 
-            v_model=io.file_name,
-            class_='d-none'
+            label   = 'Select a filename', 
+            v_model = io.file_name,
+            class_  = 'd-none'
         )
         aoi_output.bind(aoi_file_name, io, 'file_name')
     
         aoi_country_selection = v.Select(
-            items=[*su.create_FIPS_dic()], 
-            label='Country/Province', 
-            v_model=None,
-            class_='d-none'
+            items   = [*su.create_FIPS_dic()], 
+            label   = 'Country/Province', 
+            v_model = None,
+            class_  = 'd-none'
         )
         aoi_output.bind(aoi_country_selection, io, 'country_selection')
     
         aoi_asset_name = v.TextField(
-            label='Select a GEE asset', 
-            v_model=None,
-            class_='d-none'
+            label   = 'Select a GEE asset', 
+            v_model = None,
+            class_  = 'd-none'
         )
         aoi_output.bind(aoi_asset_name, io, 'assetId')
     
