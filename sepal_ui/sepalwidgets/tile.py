@@ -53,6 +53,10 @@ class Tile(v.Layout, SepalWidget):
         
         return self
     
+    def get_title(self):
+        
+        return self.children[0].children[0].children[0]
+    
     def toggle_inputs(self, fields_2_show, fields):
         """
         display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
