@@ -13,8 +13,14 @@ from ..frontend.styles import *
 from ..scripts import utils as su
 from .btn import Btn
 
-#initialize earth engine
-if not ee.data._credentials: ee.Initialize()
+# initialize earth engine
+# it's the only file in sepalwidget that use ee
+# I escaped it to allow the test to proceed on travis 
+# it will be easyer once i get how to initialize() programatically 
+try : 
+    if not ee.data._credentials: ee.Initialize()
+except:
+    pass
 
 class DatePicker(v.Layout, SepalWidget):
     
