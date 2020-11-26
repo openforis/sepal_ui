@@ -6,6 +6,7 @@ import ee
 import geemap
 import shapely.geometry as sg
 import geopandas as gpd
+import ipyvuetify as v 
 
 if not ee.data._credentials: ee.Initialize()
 
@@ -123,7 +124,7 @@ class Aoi_io:
         """
         aoi = self.get_aoi_ee()
         map_.zoom_ee_object(aoi.geometry())
-        map_.addLayer(aoi, {'color': 'green'}, name='aoi')
+        map_.addLayer(aoi, {'color': v.theme.themes.dark.success}, name='aoi')
         
         #the aoi map have a dc
         map_.dc.clear()
