@@ -184,9 +184,8 @@ class App(v.App, SepalWidget):
             app_children.append(content)
     
             #create a false footer if necessary
-            if not footer:
-                footer = Footer()
-            app_children.append(footer)
+            if footer:
+                app_children.append(footer)
             
             super().__init__(
                 v_model=None,
