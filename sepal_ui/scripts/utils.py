@@ -51,8 +51,26 @@ def create_FIPS_dic():
         
     return fip_dic
 
-def get_iso_3(fips_code):
-    """return the iso_3 code of a fips country code use the fips_code if the iso-3 is not available"""
+def get_gaul_dic():
+    """create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
+        
+    Returns:
+        fao_gaul (dic): the countries FAO_GAUL codes labelled with english country names
+    """
+    
+    # file path
+    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    
+    # get the df and sort by country name
+    df = pd.read_csv(path).sort_values(by=['country_na'])
+    
+    # create the dict
+    fao_gaul = {row['country_na'] : row['GAUL'] for i, row in df.iterrows()}
+        
+    return fao_gaul
+
+def get_iso_3(country_name):
+    """return the iso_3 code of a country_selection. Uses the fips_code if the iso-3 is not available"""
     
     #file path
     path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
@@ -60,9 +78,8 @@ def get_iso_3(fips_code):
     # get the df
     df = pd.read_csv(path)
     
-    row = df[df['FIPS 10-4'] == fips_code]
+    row = df[df['country_na'] == country_name]
     
-    code = fips_code
     if len(row):
         code = row['ISO 3166-1 alpha-3'].values[0]
         

@@ -36,16 +36,16 @@ def isAsset(asset_descripsion, folder):
     return exist 
 
 def get_country_asset(country_selection, output):
-    """send a request to GEE to create an asset based on the country name"""
+    """send a request to GEE to get a featurecollection based on the country selected"""
     
     if country_selection == None:
         output.add_msg(ms.NO_COUNTRY, 'warning')
         return (None, None)
     
-    country_code = utils.create_FIPS_dic()[country_selection] 
-    iso_3 = utils.get_iso_3(country_code)
-            
-    country = ee.FeatureCollection('USDOS/LSIB_SIMPLE/2017').filter(ee.Filter.eq('country_co', country_code))
+    country_code = utils.get_gaul_dic()[country_selection] 
+    iso_3 = utils.get_iso_3(country_selection)
+    
+    country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', country_code))
           
     output.add_msg(ms.ASSET_CREATED.format(iso_3), 'success')
     
