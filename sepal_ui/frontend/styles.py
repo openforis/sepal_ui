@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 from ipywidgets import HTML
 from IPython.display import display
+import ipyvuetify as v 
+
+# change vuetify theming 
+v.theme.dark = True
 
 #fixed colors 
 sepal_main = '#2e7d32'
