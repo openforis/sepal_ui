@@ -3,6 +3,7 @@
 ####################################
 import ee
 import os 
+import base64
 
 if 'EE_PRIVATE_KEY' in os.environ:
     # key need to be decoded in a file
