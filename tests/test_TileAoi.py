@@ -4,18 +4,28 @@
 import ee
 import os 
 
-#service_account = 'sepal-ui@aesthetic-site-125712.iam.gserviceaccount.com'
-#credentials = ee.ServiceAccountCredentials(service_account, 'keys.json')
-#ee.Initialize(credentials) 
+if 'EE_PRIVATE_KEY' in os.environ:
+    # key need to be decoded in a file
+    content = base64.b64decode(os.environ['EE_PRIVATE_KEY']).decode()
+    with open('ee_private_key.json', 'w') as f:
+        f.write(content)
+    
+    # connection to the service account
+    service_account = 'test-sepal-ui@sepal-ui.iam.gserviceaccount.com'
+    credentials = ee.ServiceAccountCredentials(service_account, 'test.json')
+    ee.Initialize(credentials)
+
+else:
+    ee.Initialize()
 ####################################
 
 import unittest
 
 import ipyvuetify as v
 
-#from sepal_ui import aoi as sw
+from sepal_ui import aoi
 
-@unittest.skip('impossible to automatically test EE API')
+#@unittest.skip('impossible to automatically test EE API')
 class TestAoiTile(unittest.TestCase):
 
     def test_init(self):
@@ -24,12 +34,12 @@ class TestAoiTile(unittest.TestCase):
         ##      impossible to automatically test EE      ##
         ###################################################
         
-        aoi_io = sw.Aoi_io()
+        aoi_io = aoi.Aoi_io()
         
         #default init
-        tile = sw.TileAoi(aoi_io)
+        tile = aoi.TileAoi(aoi_io)
         
-        self.assertIsInstance(tile, sw.TileAoi)        
+        self.assertIsInstance(tile, aoi.TileAoi)        
         
         return
         
