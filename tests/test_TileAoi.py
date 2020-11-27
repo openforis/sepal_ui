@@ -13,7 +13,7 @@ if 'EE_PRIVATE_KEY' in os.environ:
     
     # connection to the service account
     service_account = 'test-sepal-ui@sepal-ui.iam.gserviceaccount.com'
-    credentials = ee.ServiceAccountCredentials(service_account, 'test.json')
+    credentials = ee.ServiceAccountCredentials(service_account, 'ee_private_key.json')
     ee.Initialize(credentials)
 
 else:
