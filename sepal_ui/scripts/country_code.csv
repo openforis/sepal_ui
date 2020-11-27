@@ -1,8 +1,8 @@
 abbreviati,country_na,wld_rgn,FIPS 10-4,ISO 3166-1 alpha-2,ISO 3166-1 alpha-3,GAUL
-,Abyei Area,Africa,UU,-,-,-
+,Abyei Area,Africa,UU,-,-,
 Afg.,Afghanistan,S Asia,AF,AF,AFG,1
-,Akrotiri,SW Asia,AX,-,-,-
-,Aksai Chin,S Asia,UU,-,-,-
+,Akrotiri,SW Asia,AX,-,-,
+,Aksai Chin,S Asia,UU,-,-,
 Alb.,Albania,Europe,AL,AL,ALB,3
 Alg.,Algeria,Africa,AG,DZ,DZA,4
 Am. Sam.,American Samoa,Oceania,AQ,AS,ASM,5
@@ -17,7 +17,7 @@ Anti. & Barb.,Antigua & Barbuda,Caribbean,AC,AG,ATG,11
 Arg.,Argentina,South America,AR,AR,ARG,12
 Arm.,Armenia,SW Asia,AM,AM,ARM,13
 ,Aruba,Caribbean,AA,AW,ABW,14
-Ash. & Cart. Is.,Ashmore & Cartier Is,SE Asia,AT,-,-,-
+Ash. & Cart. Is.,Ashmore & Cartier Is,SE Asia,AT,-,-,
 Austl.,Australia,Australia,AS,AU,AUS,17
 Aus.,Austria,Europe,AU,AT,AUT,18
 Azer.,Azerbaijan,SW Asia,AJ,AZ,AZE,19
@@ -64,29 +64,29 @@ Cen. Afr. Rep.,Central African Rep,Africa,CT,CF,CAF,49
 ,China,E Asia,CH,CN,CHN,53
 ,China,E Asia,CH,CN,CHN,53
 Christ. I.,Christmas I,Indian Ocean,KT,CX,CXR,54
-Clip. I.,Clipperton Island,North America,IP,-,-,-
+Clip. I.,Clipperton Island,North America,IP,-,-,
 Cocos Is.,Cocos (Keeling) Is,Indian Ocean,CK,CC,CCK,56
 Col.,Colombia,South America,CO,CO,COL,57
 Como.,Comoros,Africa,CN,KM,COM,58
 Cook Is.,Cook Is,Oceania,CW,CK,COK,60
-Coral Sea Is.,Coral Sea Is,Australia,CR,-,-,-
+Coral Sea Is.,Coral Sea Is,Australia,CR,-,-,
 C.R.,Costa Rica,Central America,CS,CR,CRI,61
 C. d Iv.,Cote d'Ivoire,Africa,IV,CI,CIV,66
 Cro.,Croatia,Europe,HR,HR,HRV,62
 ,Cuba,Caribbean,CU,CU,CUB,63
 ,Cuba,Caribbean,CU,CU,CUB,63
-Cur.,Curacao,Caribbean,UC,CW,CUW,-
+Cur.,Curacao,Caribbean,UC,CW,CUW,
 Cyp.,Cyprus,SW Asia,CY,CY,CYP,64
 Czech.,Czechia,Europe,EZ,CZ,CZE,65
 Dem. Rep. of the Congo,Dem Rep of the Congo,Africa,CG,CD,COD,68
-,Demchok Area,S Asia,UU,-,-,-
-Den.,Denmark,Europe,DA,-,-,-
-,Dhekelia,SW Asia,DX,-,-,-
+,Demchok Area,S Asia,UU,-,-,
+Den.,Denmark,Europe,DA,-,-,
+,Dhekelia,SW Asia,DX,-,-,
 Dji.,Djibouti,Africa,DJ,DJ,DJI,70
 Dom.,Dominica,Caribbean,DO,DM,DMA,71
 Dom. Rep.,Dominican Republic,Caribbean,DR,DO,DOM,72
-,Dragonja River Mouth,Europe,UU,-,-,-
-,Dramana-Shakatoe Area,S Asia,UU,-,-,-
+,Dragonja River Mouth,Europe,UU,-,-,
+,Dramana-Shakatoe Area,S Asia,UU,-,-,
 Ecua.,Ecuador,South America,EC,EC,ECU,73
 ,Egypt,Africa,EG,EG,EGY,40765
 El Sal.,El Salvador,Central America,ES,SV,SLV,75
@@ -94,7 +94,7 @@ Equa. Gui.,Equatorial Guinea,Africa,EK,GQ,GNQ,76
 Erit.,Eritrea,Africa,ER,ER,ERI,77
 Est.,Estonia,Europe,EN,EE,EST,78
 Eth.,Ethiopia,Africa,ET,ET,ETH,79
-Falk. Is.,Falkland Islands,South America,FA,-,-,-
+Falk. Is.,Falkland Islands,South America,FA,-,-,
 Faroe Is.,Faroe Is,Europe,FO,FO,FRO,82
 Micro.,Fed States of Micronesia,Oceania,FM,FM,FSM,163
 ,Fiji,Oceania,FJ,FJ,FJI,83
@@ -105,7 +105,7 @@ Fr. Poly.,French Polynesia,Oceania,FP,PF,PYF,87
 Fr. S. & Ant. Lands,French S & Antarctic Lands,Indian Ocean,FS,TF,ATF,88
 ,Gabon,Africa,GB,GA,GAB,89
 Gam.,"Gambia, The",Africa,GA,GM,GMB,90
-Gaz. Str.,Gaza Strip,SW Asia,GZ,-,-,-
+Gaz. Str.,Gaza Strip,SW Asia,GZ,-,-,
 Geo.,Georgia,SW Asia,GG,GE,GEO,92
 Ger.,Germany,Europe,GM,DE,DEU,93
 ,Ghana,Africa,GH,GH,GHA,94
@@ -126,7 +126,7 @@ He. I. & McD. Is.,Heard I & McDonald Is,Indian Ocean,HM,HM,HMD,109
 Hond.,Honduras,Central America,HO,HN,HND,111
 H.K.,Hong Kong,E Asia,HK,HK,HKG,33364
 Hung.,Hungary,Europe,HU,HU,HUN,113
-,IN-CH Small Disputed Areas,S Asia,UU,-,-,-
+,IN-CH Small Disputed Areas,S Asia,UU,-,-,
 Ice.,Iceland,Europe,IC,IS,ISL,114
 ,India,S Asia,IN,IN,IND,115
 Indo.,Indonesia,SE Asia,ID,ID,IDN,116
@@ -134,32 +134,32 @@ Indo.,Indonesia,SE Asia,ID,ID,IDN,116
 ,Iran,SW Asia,IR,IR,IRN,117
 ,Iraq,SW Asia,IZ,IQ,IRQ,118
 Ire.,Ireland,Europe,EI,IE,IRL,119
-,Isla Brasilera,South America,UU,-,-,-
+,Isla Brasilera,South America,UU,-,-,
 I. of Man,Isle of Man,Europe,IM,IM,IMN,120
 Is.,Israel,SW Asia,IS,IL,ISR,121
 Is.,Israel,SW Asia,IS,IL,ISR,121
 ,Italy,Europe,IT,IT,ITA,122
 Jam.,Jamaica,Caribbean,JM,JM,JAM,123
-J. May.,Jan Mayen,Europe,JN,-,-,-
+J. May.,Jan Mayen,Europe,JN,-,-,
 ,Japan,E Asia,JA,JP,JPN,126
 Jer.,Jersey,Europe,JE,JE,JEY,128
 Jor.,Jordan,SW Asia,JO,JO,JOR,130
-,Kalapani Area,S Asia,UU,-,-,-
+,Kalapani Area,S Asia,UU,-,-,
 Kaz.,Kazakhstan,Central Asia,KZ,KZ,KAZ,132
 ,Kenya,Africa,KE,KE,KEN,133
 Kiri.,Kiribati,Oceania,KR,KI,KIR,135
 N. Kor.,"Korea, North",E Asia,KN,KP,PRK,67
 S. Kor.,"Korea, South",E Asia,KS,KR,KOR,202
-,Korean Is. (UN Jurisdiction),E Asia,UU,-,-,-
-Kos.,Kosovo,Europe,KV,-,-,-
-,Koualou Area,Africa,UU,-,-,-
+,Korean Is. (UN Jurisdiction),E Asia,UU,-,-,
+Kos.,Kosovo,Europe,KV,-,-,
+,Koualou Area,Africa,UU,-,-,
 Kuw.,Kuwait,SW Asia,KU,KW,KWT,137
 Kyr.,Kyrgyzstan,Central Asia,KG,KG,KGZ,138
 ,Laos,SE Asia,LA,LA,LAO,139
 Lat.,Latvia,Europe,LG,LV,LVA,140
 Leb.,Lebanon,SW Asia,LE,LB,LBN,141
 Leso.,Lesotho,Africa,LT,LS,LSO,142
-,Liancourt Rocks,E Asia,UU,-,-,-
+,Liancourt Rocks,E Asia,UU,-,-,
 Liber.,Liberia,Africa,LI,LR,LBR,144
 ,Libya,Africa,LY,LY,LBY,145
 Liech.,Liechtenstein,Europe,LS,LI,LIE,146
@@ -186,9 +186,9 @@ Mont.,Montenegro,Europe,MJ,ME,MNE,2647
 Monts.,Montserrat,Caribbean,MH,MS,MSR,168
 Mor.,Morocco,Africa,MO,MA,MAR,169
 Moz.,Mozambique,Africa,MZ,MZ,MOZ,170
-Nam.,Namibia,Africa,WA,,-,-
+Nam.,Namibia,Africa,WA,,-,
 ,Nauru,Oceania,NR,NR,NRU,173
-Nav. I.,Navassa I,Caribbean,BQ,-,-,-
+Nav. I.,Navassa I,Caribbean,BQ,-,-,
 ,Nepal,S Asia,NP,NP,NPL,175
 Neth.,Netherlands,Europe,NL,NL,NLD,177
 Neth.,Netherlands (Caribbean),Caribbean,NL,NL,NLD,177
@@ -198,7 +198,7 @@ Nic.,Nicaragua,Central America,NU,NI,NIC,180
 ,Niger,Africa,NG,NE,NER,181
 Nig.,Nigeria,Africa,NI,NG,NGA,182
 ,Niue,Oceania,NE,NU,NIU,183
-,No Man's Land,SW Asia,NM,-,-,-
+,No Man's Land,SW Asia,NM,-,-,
 Norf. I.,Norfolk I,Oceania,NF,NF,NFK,184
 N. Mar. Is.,Northern Mariana Is,Oceania,CQ,MP,MNP,185
 Nor.,Norway,Europe,NO,NO,NOR,186
@@ -207,7 +207,7 @@ Pak.,Pakistan,S Asia,PK,PK,PAK,188
 ,Palau,Oceania,PS,PW,PLW,189
 Pan.,Panama,Central America,PM,PA,PAN,191
 Pap. N. Gui.,Papua New Guinea,Oceania,PP,PG,PNG,192
-Parc. Is.,Paracel Is,SE Asia,PF,-,-,-
+Parc. Is.,Paracel Is,SE Asia,PF,-,-,
 Para.,Paraguay,South America,PA,PY,PRY,194
 ,Peru,South America,PE,PE,PER,195
 Phil.,Philippines,SE Asia,RP,PH,PHL,196
@@ -235,29 +235,29 @@ S. Mar.,San Marino,Europe,SM,SM,SMR,213
 S. To. & Prin.,Sao Tome & Principe,Africa,TP,ST,STP,214
 Sau. Ar.,Saudi Arabia,SW Asia,SA,SA,SAU,215
 Sen.,Senegal,Africa,SG,SN,SEN,217
-,Senkakus,E Asia,UU,-,-,-
+,Senkakus,E Asia,UU,-,-,
 Ser.,Serbia,Europe,RI,RS,SRB,2648
 Sey.,Seychelles,Indian Ocean,SE,SC,SYC,220
-,Siachen-Saltoro Area,S Asia,UU,-,-,-
+,Siachen-Saltoro Area,S Asia,UU,-,-,
 S. Leo.,Sierra Leone,Africa,SL,SL,SLE,221
-,Sinafir & Tiran Is.,SW Asia,UU,-,-,-
+,Sinafir & Tiran Is.,SW Asia,UU,-,-,
 Sing.,Singapore,SE Asia,SN,SG,SGP,222
-St. Maar.,Sint Maarten,Caribbean,NN,SX,SXM,-
+St. Maar.,Sint Maarten,Caribbean,NN,SX,SXM,
 Slov.,Slovakia,Europe,LO,SK,SVK,223
 Slo.,Slovenia,Europe,SI,SI,SVN,224
 Sol. Is.,Solomon Is,Oceania,BP,SB,SLB,225
 Som.,Somalia,Africa,SO,SO,SOM,226
 S. Afr.,South Africa,Africa,SF,ZA,ZAF,227
-S. Sudan,South Sudan,Africa,OD,SS,SSD,-
+S. Sudan,South Sudan,Africa,OD,SS,SSD,
 Sp.,Spain,Europe,SP,ES,ESP,229
 Sp.,Spain (Africa),Africa,SP,ES,ESP,229
 Sp.,Spain (Canary Is),Africa,SP,ES,ESP,229
-Spr. Is.,Spratly Is,SE Asia,PG,-,-,-
+Spr. Is.,Spratly Is,SE Asia,PG,-,-,
 Sri Lan.,Sri Lanka,S Asia,CE,LK,LKA,231
-St. Barth.,St Barthelemy,Caribbean,TB,BL,BLM,-
+St. Barth.,St Barthelemy,Caribbean,TB,BL,BLM,
 St. Hel.,St Helena,S Atlantic,SH,SH,SHN,207
 St. Kitts & Nev.,St Kitts & Nevis,Caribbean,SC,KN,KNA,208
-St. Mar.,St Martin,Caribbean,RN,MF,MAF,-
+St. Mar.,St Martin,Caribbean,RN,MF,MAF,
 St. Pier. & Miq.,St Pierre & Miquelon,North America,SB,PM,SPM,210
 St. Vin. & Gren.,St Vincent & the Grenadines,Caribbean,VC,VC,VCT,211
 ,Sudan,Africa,SU,SD,SDN,40764
@@ -285,10 +285,10 @@ Turk.,Turkey,SW Asia,TU,TR,TUR,249
 Turkm.,Turkmenistan,Central Asia,TX,TM,TKM,250
 Tur. & Cai. Is.,Turks & Caicos Is,North America,TK,TC,TCA,251
 Tuv.,Tuvalu,Oceania,TV,TV,TUV,252
-,US Minor Pacific Is. Refuges,Oceania,UM,-,-,-
+,US Minor Pacific Is. Refuges,Oceania,UM,-,-,
 Vir. Is.,US Virgin Is,Caribbean,VQ,VI,VIR,258
 Ug.,Uganda,Africa,UG,UG,UGA,253
-Ukr.,Ukraine,Europe,UP,-,-,-
+Ukr.,Ukraine,Europe,UP,-,-,
 U.A.E.,United Arab Emirates,SW Asia,AE,AE,ARE,255
 U.K.,United Kingdom,Europe,UK,GB,GBR,256
 U.S.,United States,North America,US,US,USA,259
@@ -302,8 +302,8 @@ Uzb.,Uzbekistan,Central Asia,UZ,UZ,UZB,261
 Vanu.,Vanuatu,Oceania,NH,VU,VUT,262
 Vat. C.,Vatican City,Europe,VT,VA,VAT,110
 Ven.,Venezuela,South America,VE,VE,VEN,263
-Viet.,Vietnam,SE Asia,VM,-,-,-
-Wake I.,Wake I,Oceania,WQ,-,-,-
+Viet.,Vietnam,SE Asia,VM,-,-,
+Wake I.,Wake I,Oceania,WQ,-,-,
 Wal. & Fut.,Wallis & Futuna,Oceania,WF,WF,WLF,266
 W. Bank,West Bank,SW Asia,WE,PS,PSE,91
 W. Bank,West Bank,SW Asia,WE,PS,PSE,91

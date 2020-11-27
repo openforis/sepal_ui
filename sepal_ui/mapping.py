@@ -15,6 +15,7 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import WidgetControl, LocalTileLayer
+import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
 
@@ -103,14 +104,16 @@ class SepalMap(geemap.Map):
         self.on_interaction(raster_interaction)
 
     def set_drawing_controls(self, bool_=False):
+        
+        color = v.theme.themes.dark.info
         if bool_:
             dc = geemap.DrawControl(
                 marker={},
                 circlemarker={},
                 polyline={},
-                rectangle={'shapeOptions': {'color': '#0000FF'}},
-                circle={'shapeOptions': {'color': '#0000FF'}},
-                polygon={'shapeOptions': {'color': '#0000FF'}},
+                rectangle={'shapeOptions': {'color': color}},
+                circle={'shapeOptions': {'color': color}},
+                polygon={'shapeOptions': {'color': color}},
             )
         else:
             dc = None
