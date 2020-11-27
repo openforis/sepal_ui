@@ -33,24 +33,6 @@ def show_component(widget):
         
     return 
 
-def create_FIPS_dic():
-    """create the list of the country code in the FIPS norm using the CSV file provided in utils
-        
-    Returns:
-        fips_dic (dic): the country FIPS_codes labelled with english country names
-    """
-    
-    # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
-    
-    # get the df and sort by country name
-    df = pd.read_csv(path).sort_values(by=['country_na'])
-    
-    # create the dict
-    fip_dic = {row['country_na'] : row['FIPS 10-4'] for i, row in df.iterrows()}
-        
-    return fip_dic
-
 def get_gaul_dic():
     """create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
         

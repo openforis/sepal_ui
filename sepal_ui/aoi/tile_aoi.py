@@ -25,7 +25,7 @@ class CountrySelect(v.Select, sw.SepalWidget):
     def __init__(self):
         
         super().__init__(
-            items   = [*su.create_FIPS_dic()], 
+            items   = [*su.get_gaul_dic()], 
             label   = 'Country/Province', 
             v_model = None
         )
