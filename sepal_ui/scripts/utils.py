@@ -154,4 +154,4 @@ def init_ee():
         else:
             ee.Initialize()
             
-    return
+    return 0
