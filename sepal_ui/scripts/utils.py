@@ -9,14 +9,17 @@ import subprocess
 import string 
 import random
 import math
+import base64
 
 import ipyvuetify as v
 import pandas as pd
+import ee
 
 from ..sepalwidgets import SepalWidget
 
 def hide_component(widget):
     """hide a vuetify based component"""
+    
     if isinstance(widget, SepalWidget):
         widget.hide()
     elif not 'd-none' in str(widget.class_):
@@ -127,3 +130,28 @@ def get_file_size(filename):
     s = file_size / math.pow(1024, i)
         
     return '{:.1f} {}'.format(s, size_name[i])
+
+def init_ee():
+    """Initialize earth engine according to the environment"""
+    
+    # only do the initialization if the credential are missing
+    if not ee.data._credentials:
+        
+        # if in test env use the private key
+        if 'EE_PRIVATE_KEY' in os.environ:
+            
+            # key need to be decoded in a file
+            content = base64.b64decode(os.environ['EE_PRIVATE_KEY']).decode()
+            with open('ee_private_key.json', 'w') as f:
+                f.write(content)
+    
+            # connection to the service account
+            service_account = 'test-sepal-ui@sepal-ui.iam.gserviceaccount.com'
+            credentials = ee.ServiceAccountCredentials(service_account, 'ee_private_key.json')
+            ee.Initialize(credentials)
+        
+        # if in local env use the local user credential
+        else:
+            ee.Initialize()
+            
+    return

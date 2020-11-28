@@ -8,8 +8,9 @@ from .aoi_io import Aoi_io
 from .. import sepalwidgets as sw
 from ..scripts import utils as su, run_aoi_selection
 from ..mapping import SepalMap
-
-if not ee.data._credentials: ee.Initialize()
+    
+# initialize earth engine
+su.init_ee()
     
 class FileNameField(v.TextField, sw.SepalWidget):
     

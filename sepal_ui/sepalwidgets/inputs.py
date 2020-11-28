@@ -14,13 +14,7 @@ from ..scripts import utils as su
 from .btn import Btn
 
 # initialize earth engine
-# it's the only file in sepalwidget that use ee
-# I escaped it to allow the test to proceed on travis 
-# it will be easyer once i get how to initialize() programatically 
-try : 
-    if not ee.data._credentials: ee.Initialize()
-except:
-    pass
+su.init_ee()
 
 class DatePicker(v.Layout, SepalWidget):
     
@@ -116,10 +110,10 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         }])
         
         super().__init__(
-            row=True,
-            class_='d-flex align-center mb-2',
-            align_center=True,
-            children=[
+            row          = True,
+            class_       = 'd-flex align-center mb-2',
+            align_center = True,
+            children     = [
                 self.file_menu,
                 self.selected_file,
             ],

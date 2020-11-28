@@ -8,7 +8,10 @@ import shapely.geometry as sg
 import geopandas as gpd
 import ipyvuetify as v 
 
-if not ee.data._credentials: ee.Initialize()
+from ..scripts import utils as su
+    
+# initialize earth engine
+su.init_ee()
 
 class Aoi_io:
     
