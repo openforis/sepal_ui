@@ -2,7 +2,7 @@ import ipyvuetify as v
 from markdown import markdown
 from traitlets import Unicode
 
-TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success')
+TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success', 'accent')
 
 class SepalWidget(v.VuetifyWidget):
     

@@ -12,9 +12,10 @@ import geopandas as gpd
 
 from sepal_ui.scripts import utils, gee
 from sepal_ui.scripts import messages as ms
-
+from sepal_ui.scripts import utils as su
+    
 # initialize earth engine
-if not ee.data._credentials: ee.Initialize()
+su.init_ee()
 
 def isAsset(asset_descripsion, folder):
     """Check if the asset already exist in the user asset folder

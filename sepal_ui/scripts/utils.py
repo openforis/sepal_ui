@@ -9,14 +9,17 @@ import subprocess
 import string 
 import random
 import math
+import base64
 
 import ipyvuetify as v
 import pandas as pd
+import ee
 
 from ..sepalwidgets import SepalWidget
 
 def hide_component(widget):
     """hide a vuetify based component"""
+    
     if isinstance(widget, SepalWidget):
         widget.hide()
     elif not 'd-none' in str(widget.class_):
@@ -32,24 +35,6 @@ def show_component(widget):
         widget.class_ = widget.class_.replace('d-none', '')
         
     return 
-
-def create_FIPS_dic():
-    """create the list of the country code in the FIPS norm using the CSV file provided in utils
-        
-    Returns:
-        fips_dic (dic): the country FIPS_codes labelled with english country names
-    """
-    
-    # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
-    
-    # get the df and sort by country name
-    df = pd.read_csv(path).sort_values(by=['country_na'])
-    
-    # create the dict
-    fip_dic = {row['country_na'] : row['FIPS 10-4'] for i, row in df.iterrows()}
-        
-    return fip_dic
 
 def get_gaul_dic():
     """create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
@@ -145,3 +130,28 @@ def get_file_size(filename):
     s = file_size / math.pow(1024, i)
         
     return '{:.1f} {}'.format(s, size_name[i])
+
+def init_ee():
+    """Initialize earth engine according to the environment"""
+    
+    # only do the initialization if the credential are missing
+    if not ee.data._credentials:
+        
+        # if in test env use the private key
+        if 'EE_PRIVATE_KEY' in os.environ:
+            
+            # key need to be decoded in a file
+            content = base64.b64decode(os.environ['EE_PRIVATE_KEY']).decode()
+            with open('ee_private_key.json', 'w') as f:
+                f.write(content)
+    
+            # connection to the service account
+            service_account = 'test-sepal-ui@sepal-ui.iam.gserviceaccount.com'
+            credentials = ee.ServiceAccountCredentials(service_account, 'ee_private_key.json')
+            ee.Initialize(credentials)
+        
+        # if in local env use the local user credential
+        else:
+            ee.Initialize()
+            
+    return 0

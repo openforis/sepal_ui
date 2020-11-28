@@ -3,8 +3,10 @@ import ee
 import shapely.geometry as sg
 from haversine import haversine
 
-#initialize earth engine
-if not ee.data._credentials: ee.Initialize()
+from sepal_ui.scripts import utils as su
+    
+# initialize earth engine
+su.init_ee()
 
 def init_map():
     '''Initialize a map centered on the point [0,0] with zoom at 1
