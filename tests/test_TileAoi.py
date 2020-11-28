@@ -26,14 +26,9 @@ import ipyvuetify as v
 
 from sepal_ui import aoi
 
-#@unittest.skip('impossible to automatically test EE API')
 class TestAoiTile(unittest.TestCase):
 
     def test_init(self):
-        
-        ###################################################
-        ##      impossible to automatically test EE      ##
-        ###################################################
         
         aoi_io = aoi.Aoi_io()
         
