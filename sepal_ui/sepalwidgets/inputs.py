@@ -81,13 +81,13 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
         self.loading = v.ProgressLinear(
             indeterminate    = False, 
-            background_color = 'grey lighten-4',
+            background_color = 'grey darken-3',
             color            = COMPONENTS['PROGRESS_BAR']['color']
             )
         
         self.file_list = v.List(
             dense      = True, 
-            color      = 'grey lighten-4',
+            color      = 'grey darken-3',
             flat       = True,
             max_height = '300px',
             style_     = 'overflow: auto',
