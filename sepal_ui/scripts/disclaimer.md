@@ -3,26 +3,20 @@ FAO also declines any responsibility for updating the data and assumes no respon
 Users are, however, kindly asked to report any errors or deficiencies in this product to FAO.  
 
 <img
-    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/FAO.png"
+    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/dark/fao.png"
     alt="FAO_logo" 
     height="100" 
     class="ma-3"
 />
 <img 
-    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/Open-Foris.png" 
+    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/dark/open-foris.png" 
     alt="Open-Foris_logo" 
     height="100" 
     class="ma-3"
 />
 <img 
-    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/SEPAL.png" 
+    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/dark/sepal.png" 
     alt="SEPAL_logo" 
-    height="100" 
-    class="ma-3"
-/>
-<img 
-    src="https://raw.githubusercontent.com/12rambau/sepal_ui/develop/sepal_ui/frontend/images/UN-REDD.gif" 
-    alt="UN-REDD_logo"
     height="100" 
     class="ma-3"
 />
