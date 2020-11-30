@@ -90,7 +90,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
             color      = 'grey darken-3',
             flat       = True,
             max_height = '300px',
-            style_     = 'overflow: auto',
+            style_     = 'overflow: auto; border-radius: 0 0 0 0;',
             children   = [ 
                 v.ListItemGroup(
                     children = self.get_items(),
