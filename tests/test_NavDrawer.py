@@ -60,11 +60,18 @@ class TestNavDrawer(unittest.TestCase):
     
     def test_display_drawer(self):
         
-        ##############################################
-        ##      how to test the on click event      ##
-        ##############################################
+        # create the items 
+        nav_drawer = sw.NavDrawer()
+        app_bar = sw.AppBar()
         
-        self.assertEqual(True, True)
+        previous = nav_drawer.v_model
+        nav_drawer.display_drawer(app_bar.toggle_button)
+        
+        # fake the click 
+        _ = None
+        nav_drawer._on_drawer_click(_, _, _)
+        
+        self.assertEqual(nav_drawer.v_model, not previous)
         
         return
         

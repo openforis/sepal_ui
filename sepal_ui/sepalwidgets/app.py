@@ -104,7 +104,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
     create a navdrawer using the different items of the user and the sepal color framework. The drawer can include links to the github page of the project for wiki, bugs and repository.
     """
         
-        def __init__(self, items, code=None, wiki=None, issue=None, **kwargs):
+        def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
             
             code_link = []
             if code:
@@ -137,12 +137,12 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
                 drawer (v.navigationDrawer) : the drawer tobe displayed
                 toggleButton(v.Btn) : the button that activate the drawer
             """
-            def on_click(widget, event, data, drawer):
-                drawer.v_model = not drawer.v_model
-        
-            toggleButton.on_event('click', partial(on_click, drawer=self))
+            toggleButton.on_event('click', self._on_drawer_click)
                 
             return self
+        
+        def _on_drawer_click(self, widget, event, data):
+            self.v_model = not self.v_model
 
 class Footer(v.Footer, SepalWidget):
     """create a footer with cuzomizable text. Not yet capable of displaying logos"""
@@ -168,24 +168,27 @@ class App(v.App, SepalWidget):
             
             app_children = []
             
-            #add the navDrawer if existing
+            # add the navDrawer if existing
             if navDrawer:
-                app_children.append(navDrawer)
+                self.navDrawer = navDrawer
+                app_children.append(self.navDrawer)
     
-            #create a false appBar if necessary
+            # create a false appBar if necessary
             if not appBar:
                 appBar = AppBar()
-            app_children.append(appBar)
+            self.appBar = appBar
+            app_children.append(self.appBar)
 
-            #add the content of the app
-            content = v.Content(children=[
+            # add the content of the app
+            self.content = v.Content(children=[
                 v.Container(fluid=True,children = tiles)
             ])
-            app_children.append(content)
+            app_children.append(self.content)
     
-            #create a false footer if necessary
+            # add the footer if existing
             if footer:
-                app_children.append(footer)
+                self.footer = footer
+                app_children.append(self.footer)
             
             super().__init__(
                 v_model=None,
