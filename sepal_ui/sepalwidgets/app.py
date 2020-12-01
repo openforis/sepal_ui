@@ -84,18 +84,22 @@ class DrawerItem(v.ListItem, SepalWidget):
     
         Args:
             tiles ([v.Layout]) : the list of all the available tiles in the app
-        """
-        def on_click(widget, event, data, tiles):
-            for tile in tiles:
-                if widget._metadata['card_id'] == tile._metadata['mount_id']:
-                    tile.show()
-                else:
-                    tile.hide()
-                    
-            #trigger the risize event 
-            rt.resize += 1
+        """            
     
-        self.on_event('click', partial(on_click, tiles=tiles))
+        self.on_event('click', partial(self._on_click, tiles=tiles))
+        
+        return self
+    
+    def _on_click(self, widget, event, data, tiles):
+        
+        for tile in tiles:
+            if self._metadata['card_id'] == tile._metadata['mount_id']:
+                tile.show()
+            else:
+                tile.hide()
+                    
+        # trigger the risize event 
+        rt.resize += 1
         
         return self
             

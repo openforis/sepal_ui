@@ -83,8 +83,6 @@ class TileAbout(Tile):
         #read the content and transform it into a html
         with open(pathname, 'r') as f:
             about = f.read()
-        if not about:
-            about = '**No About File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
     
@@ -111,8 +109,6 @@ class TileDisclaimer(Tile):
         #read the content and transform it into a html
         with open(pathname, 'r') as f:
             about = f.read()
-        if not about:
-            about = '**No Disclaimer File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
     

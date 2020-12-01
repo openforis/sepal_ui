@@ -65,12 +65,13 @@ class TestNavDrawer(unittest.TestCase):
         app_bar = sw.AppBar()
         
         previous = nav_drawer.v_model
-        nav_drawer.display_drawer(app_bar.toggle_button)
+        res = nav_drawer.display_drawer(app_bar.toggle_button)
         
         # fake the click 
         _ = None
         nav_drawer._on_drawer_click(_, _, _)
         
+        self.assertEqual(nav_drawer, res)
         self.assertEqual(nav_drawer.v_model, not previous)
         
         return
