@@ -6,7 +6,6 @@ import requests
 import ee 
 import geemap
 from ipyleaflet import basemaps, basemap_to_tiles
-import tqdm
 
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
