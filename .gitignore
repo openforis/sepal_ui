@@ -1,5 +1,6 @@
 # custom 
 .coverage
+ee_private_key.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
