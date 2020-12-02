@@ -1,5 +1,6 @@
 import unittest
 import random
+from unittest.mock import patch
 
 import ipyvuetify as v
 
@@ -90,7 +91,20 @@ class TestUtils(unittest.TestCase):
     
     def test_get_file_size(self):
         
-        # mock several file size and check the display 
+        # init test values
+        test_value = 7.5
+        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        
+        # mock 0 B file 
+        with patch('os.path.getsize', return_value=0):
+            txt = su.get_file_size('random')
+            self.assertEqual(txt, '0B')
+        
+        # mock every pow of 1024 to YB
+        for i in range(9):
+            with patch('os.path.getsize', return_value=test_value*(1024**i)):
+                txt = su.get_file_size('random')
+                self.assertEqual(txt, f'7.5 {size_name[i]}')
         
         return 
     

@@ -2,6 +2,7 @@ import unittest
 import zipfile
 import os
 import requests
+import sys
 
 import ee 
 import geemap
@@ -12,7 +13,7 @@ from sepal_ui.scripts import utils as su
 
 su.init_ee()
 
-@unittest.skip('at the moment geemap is forcing the authentification using credentials')
+# @unittest.skip('at the moment geemap is forcing the authentification using credentials')
 class TestSepalMap(unittest.TestCase):
     
     def test_init(self):
@@ -33,13 +34,16 @@ class TestSepalMap(unittest.TestCase):
         # check that the map start with several basemaps
         m = sm.SepalMap(['CartoDB.DarkMatter', 'CartoDB.Positron'])
         self.assertEqual(len(m.layers), 2)
-        self.assertEqual(m.layers[0].name, 'CartoDB.DarkMatter')
-        self.assertEqual(m.layers[1].name, 'CartoDB.Positron')
+        layers_name = [layer.name for layer in m.layers]
+        self.assertIn('CartoDB.DarkMatter', layers_name)
+        self.assertIn('CartoDB.Positron', layers_name)
         
         # check that the map refuses to display basmap if not 
         # part of the leaflet basemap list
+        sys.stdout = open(os.devnull, 'w')
         m = sm.SepalMap(['TOTO'])
         self.assertEqual(len(m.layers), 0)
+        sys.stdout = sys.__stdout__
         
         return
     
@@ -80,7 +84,7 @@ class TestSepalMap(unittest.TestCase):
         m.add_raster(dem, colormap='terrain', layer_name='DEM')
         
         # remove it using its name
-        res = m.__remove_local_raster('DEM')
+        res = m._remove_local_raster('DEM')
         
         self.assertEqual(res, m)
         self.assertEqual(len(m.loaded_rasters), 0)
@@ -197,13 +201,13 @@ class TestSepalMap(unittest.TestCase):
         m.update_map(italy, bounds)
         
         self.assertEqual(len(m.layers), 2)
-        self.assertEqual(m.center, [46.5135930048161, 2.574509802526499])
+        self.assertEqual(m.center, [42.707535806409155, 12.205774930297773])
         self.assertEqual(m.zoom, 13)
         
         # add a new one removing the one before 
         m = sm.SepalMap().update_map(france, bounds).update_map(italy, bounds, True)
         
-        self.assertEqual(len(m.layers), 1)
+        self.assertEqual(len(m.layers), 2)
         
         return 
     

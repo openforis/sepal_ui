@@ -129,7 +129,7 @@ class SepalMap(geemap.Map):
         
         return self
 
-    def __remove_local_raster(self, local_layer):
+    def _remove_local_raster(self, local_layer):
         """Remove local layer from memory"""
         
         if type(local_layer) == TileLayer:
@@ -150,7 +150,7 @@ class SepalMap(geemap.Map):
 
             # If last layer is local_layer, remove it
             if isinstance(last_layer, LocalTileLayer):
-                self.remove_local_layer(last_layer)
+                self.__remove_local_raster(last_layer)
                 
         return self
             

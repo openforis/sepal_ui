@@ -119,7 +119,8 @@ def random_string(string_length=3):
 def get_file_size(filename):
     """return the file size as string of 2 digit in the adapted scale (B, KB, MB....)"""
     
-    file_size = Path(filename).stat().st_size
+    #file_size = Path(filename).stat().st_size
+    file_size = os.path.getsize(filename)
     
     if file_size == 0:
         return "0B"
@@ -127,7 +128,7 @@ def get_file_size(filename):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     
     i = int(math.floor(math.log(file_size, 1024)))
-    s = file_size / math.pow(1024, i)
+    s = file_size / (1024 ** i)
         
     return '{:.1f} {}'.format(s, size_name[i])
 
