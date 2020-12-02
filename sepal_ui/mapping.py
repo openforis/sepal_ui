@@ -218,7 +218,7 @@ class SepalMap(geemap.Map):
         if remove_last:
             self.remove_last_layer()
 
-        self.set_zoom(bounds, zoom_out=2)
+        self.zoom_bounds(bounds, zoom_out=2)
         self.centerObject(ee.FeatureCollection(assetId), zoom=self.zoom)
         self.addLayer(ee.FeatureCollection(assetId), {'color': 'green'}, name='aoi')
         

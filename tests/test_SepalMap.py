@@ -177,46 +177,75 @@ class TestSepalMap(unittest.TestCase):
     
     def test_update_map(self):
         
-        # create a map 
+        # create a map
+        m = sm.SepalMap()
+        
+        # bounds around the city of lyon
+        bounds = (
+            (45.73871293893269, 4.804066607988262), # tl
+            (45.73871293893269, 4.9050034976367),   # bl
+            (45.7746437385302, 4.9050034976367),    # tr
+            (45.7746437385302, 4.804066607988262),  # br
+        )
         
         # add a false layer 
+        france = 'users/bornToBeAlive/sepal_ui_test/france'
+        m.update_map(france, bounds)
         
-        # update with a new one 
+        # update with a new one
+        italy = 'users/bornToBeAlive/sepal_ui_test/italy'
+        m.update_map(italy, bounds)
         
-        # check layers 
-        
-        # check center 
-        
-        # check zoom level 
+        self.assertEqual(len(m.layers), 2)
+        self.assertEqual(m.center, [46.5135930048161, 2.574509802526499])
+        self.assertEqual(m.zoom, 13)
         
         # add a new one removing the one before 
+        m = sm.SepalMap().update_map(france, bounds).update_map(italy, bounds, True)
         
-        # check that the previous one has bee removed 
+        self.assertEqual(len(m.layers), 1)
         
         return 
     
+    @unittest.skip("problem dealing with local rasters")
     def test_add_raster(self):
-        
+            
         # create a map 
+        m = sm.SepalMap()
         
-        # load a 1 band raster 
-        
-        # check response when the image doesn't exist 
+        # load a 1 band raster
+        name = 'dem'
+        dem = os.path.join(out_dir, 'dem.tif')
+        if not os.path.exists(dem):
+            dem_url = 'https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing'
+            geemap.download_from_gdrive(dem_url, 'dem.tif', out_dir, unzip=False)
+        m.add_raster(dem, layer_name = name)
         
         # check name 
-        
+        self.asertIn(name, m.loaded_layers)
         # check the colormap 
-        
         # check opacity 
+ 
+        # add the same one 
+        m.add_raster(dem, layer_name = name)
         
         # check that repeated name lead to specific strings 
         
+        
         # load a multiband file 
+        name = 'landsat'
+        opacity = .5
+        landsat = os.path.join(out_dir, 'landsat.tif')
+        if not os.path.exists(landsat):
+            landsat_url = 'https://drive.google.com/file/d/1EV38RjNxdwEozjc9m0FcO3LFgAoAX1Uw/view?usp=sharing'
+            geemap.download_from_gdrive(landsat_url, 'landsat.tif', out_dir, unzip=False)
+        m.add_raster(landsat, layer_name = name, opacity = opacity)
         
         # check that it's displayed 
-        
         # force opacity of the layer 
         
+        m.add_raster(landsat, layer_name = name, opacity = 14)
+            
         # test > 1 opacity settings 
         
         return 
