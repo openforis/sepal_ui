@@ -129,7 +129,7 @@ class SepalMap(geemap.Map):
         
         return self
 
-    def remove_local_raster(self, local_layer):
+    def __remove_local_raster(self, local_layer):
         """Remove local layer from memory"""
         
         if type(local_layer) == TileLayer:

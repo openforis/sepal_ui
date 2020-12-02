@@ -80,7 +80,7 @@ class TestSepalMap(unittest.TestCase):
         m.add_raster(dem, colormap='terrain', layer_name='DEM')
         
         # remove it using its name
-        res = m.remove_local_raster('DEM')
+        res = m.__remove_local_raster('DEM')
         
         self.assertEqual(res, m)
         self.assertEqual(len(m.loaded_rasters), 0)
