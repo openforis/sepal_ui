@@ -94,7 +94,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
             style_     = 'overflow: auto; border-radius: 0 0 0 0;',
             children   = [ 
                 v.ListItemGroup(
-                    children = self.get_items(),
+                    children = self._get_items(),
                     v_model  = ''
                 )
             ]
@@ -124,25 +124,27 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         link((self.selected_file, 'v_model'), (self, 'file'))
         link((self.selected_file, 'v_model'), (self, 'v_model'))
 
-        def on_file_select(change):
-            new_value = change['new']
-            if new_value:
-                if os.path.isdir(new_value):
-                    self.folder = new_value
-                    self.change_folder()
+        self.file_list.children[0].observe(self._on_file_select, 'v_model')
+        
+    def _on_file_select(self, change):
+        new_value = change['new']
+        if new_value:
+            if os.path.isdir(new_value):
+                self.folder = new_value
+                self._change_folder()
                 
-                elif os.path.isfile(new_value):
-                    self.file = new_value
-
-        self.file_list.children[0].observe(on_file_select, 'v_model')
+            elif os.path.isfile(new_value):
+                self.file = new_value
+            
+            return
                 
-    def change_folder(self):
+    def _change_folder(self):
         """change the target folder"""
         #reset files
-        self.file_list.children[0].children = self.get_items()
+        self.file_list.children[0].children = self._get_items()
     
 
-    def get_items(self):
+    def _get_items(self):
         """return the list of items inside the folder"""
 
         self.loading.indeterminate = not self.loading.indeterminate

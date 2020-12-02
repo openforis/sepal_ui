@@ -18,11 +18,12 @@ class TestAlert(unittest.TestCase):
         
         # create a fake exportation task 
         description = 'test_travis'
+        asset_id = f'users/bornToBeAlive/sepal_ui_test/{description}'
         point = ee.Geometry.Point([1.5, 1.5])
         task_config = {
             'collection': point, 
             'description': description,
-            'assetId': f'users/bornToBeAlive/sepal_ui_test/{description}'
+            'assetId': asset_id
         }
         task = ee.batch.Export.table.toAsset(**task_config)
         task.start()
@@ -33,6 +34,7 @@ class TestAlert(unittest.TestCase):
         self.assertEqual(res, alert.children[1].children[0])
         
         # remove the asset 
+        ee.data.deleteAsset(asset_id)
         
         return 
     
@@ -40,6 +42,7 @@ class TestAlert(unittest.TestCase):
         
         # create a fake exportation task 
         description = 'test_travis'
+        asset_id = f'users/bornToBeAlive/sepal_ui_test/{description}'
         point = ee.Geometry.Point([1.5, 1.5])
         task_config = {
             'collection': point, 
@@ -56,6 +59,9 @@ class TestAlert(unittest.TestCase):
         res = gee.isTask(description)
         
         self.assertNotEqual(res, None)
+        
+        # delete the asset 
+        ee.data.deleteAsset(asset_id)
         
         return
         
