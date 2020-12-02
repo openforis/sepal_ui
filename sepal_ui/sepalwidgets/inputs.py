@@ -21,28 +21,29 @@ class DatePicker(v.Layout, SepalWidget):
     def __init__(self, label="Date", **kwargs):
         
         date_picker = v.DatePicker(
-            no_title   = True, 
-            v_model    = None, 
+            no_title = True, 
+            v_model = None, 
             scrollable = True
         )
 
         date_text = v.TextField(
-            v_model         = None,
-            label           = label,
-            hint            = "YYYY-MM-DD format",
+            v_model = None,
+            label = label,
+            hint = "YYYY-MM-DD format",
             persistent_hint = True, 
-            prepend_icon    = "event",
-            readonly        = True,
-            v_on            = 'menuData.on'
+            prepend_icon = "event",
+            readonly = True,
+            v_on = 'menuData.on'
         )
 
         self.menu = v.Menu(
-            transition             = "scale-transition",
-            offset_y               = True, 
-            value                  = False,
+            min_width="290px",
+            transition = "scale-transition",
+            offset_y = True, 
+            value = False,
             close_on_content_click = False,
-            children               = [date_picker],
-            v_slots                = [{
+            children = [date_picker],
+            v_slots = [{
                 'name': 'activator',
                 'variable': 'menuData',
                 'children': date_text,
@@ -50,11 +51,11 @@ class DatePicker(v.Layout, SepalWidget):
         )
 
         super().__init__(
-            v_model      = None,
-            row          = True,
-            class_       = 'pa-5',
+            v_model = None,
+            row = True,
+            class_ = 'pa-5',
             align_center = True,
-            children     = [v.Flex(xs10=True, children=[self.menu])],
+            children = [v.Flex(xs10=True, children=[self.menu])],
             **kwargs
         )
 
