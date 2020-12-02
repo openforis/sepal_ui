@@ -79,6 +79,7 @@ class TestSepalMap(unittest.TestCase):
         if not os.path.exists(dem):
             dem_url = 'https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing'
             geemap.download_from_gdrive(dem_url, 'dem.tif', out_dir, unzip=False)
+            
         
         # add a raster 
         m.add_raster(dem, colormap='terrain', layer_name='DEM')
