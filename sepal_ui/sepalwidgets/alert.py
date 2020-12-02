@@ -4,7 +4,7 @@ from datetime import datetime
 import ipyvuetify as v
 from traitlets import Unicode, observe, directional_link, List
 
-from .sepalwidget import SepalWidget, TYPES
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
 class Divider(v.Divider, SepalWidget):
 

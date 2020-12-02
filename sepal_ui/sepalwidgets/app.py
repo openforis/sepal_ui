@@ -4,9 +4,9 @@ from datetime import datetime
 import ipyvuetify as v
 import traitlets
 
-from .sepalwidget import SepalWidget
-from ..frontend.styles import *
-from ..frontend.js import *
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.frontend.styles import *
+from sepal_ui.frontend.js import *
 
 class AppBar (v.AppBar, SepalWidget):
     """create an appBar widget with the provided title using the sepal color framework"""

@@ -8,10 +8,10 @@ from ipywidgets import jslink
 import pandas as pd
 import ee
 
-from .sepalwidget import SepalWidget
-from ..frontend.styles import *
-from ..scripts import utils as su
-from .btn import Btn
+from sepal_ui.frontend.styles import *
+from sepal_ui.scripts import utils as su
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.btn import Btn
 
 # initialize earth engine
 su.init_ee()

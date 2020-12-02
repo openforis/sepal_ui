@@ -1,6 +1,6 @@
 import ipyvuetify as v 
 
-from .sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from ..scripts import utils
 
 class Btn(v.Btn, SepalWidget):

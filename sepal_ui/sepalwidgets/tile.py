@@ -4,8 +4,8 @@ from traitlets import Unicode
 
 import ipyvuetify as v
 
-from .sepalwidget import SepalWidget
-from ..scripts import utils as su
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts import utils as su
 
 class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""

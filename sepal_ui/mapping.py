@@ -14,7 +14,7 @@ import rioxarray
 import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
-from ipyleaflet import WidgetControl, LocalTileLayer
+from ipyleaflet import WidgetControl, LocalTileLayer, TileLayer
 import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
@@ -26,7 +26,7 @@ if not ee.data._credentials: ee.Initialize()
 class SepalMap(geemap.Map):
     """initialize differents maps and tools"""
 
-    loaded_rasters = {}
+    # loaded_rasters = {}
 
     def __init__(self, basemaps=[], dc=False, **kwargs):
 
@@ -36,22 +36,25 @@ class SepalMap(geemap.Map):
             zoom = 2,
             **kwargs)
         
-        #add the basemaps
+        # init the rasters
+        self.loaded_rasters = {}
+        
+        # add the basemaps
         self.clear_layers()
         if len(basemaps):
-            for basemap in basemaps:
+            for basemap in set(basemaps):
                 self.add_basemap(basemap)
         else:
             self.add_basemap('CartoDB.DarkMatter')
         
-        #add the base controls
+        # add the base controls
         self.clear_controls()
         self.add_control(geemap.ZoomControl(position='topright'))
         self.add_control(geemap.LayersControl(position='topright'))
         self.add_control(geemap.AttributionControl(position='bottomleft'))
         self.add_control(geemap.ScaleControl(position='bottomleft', imperial=False))
         
-        #specific drawing control
+        # specific drawing control
         self.set_drawing_controls(dc)
 
         # Create output space for raster interaction
@@ -59,73 +62,85 @@ class SepalMap(geemap.Map):
         output_control_r = WidgetControl(widget=output_r, position='bottomright')
         self.add_control(output_control_r)
 
-        # Define a behavior when ispector checked and map clicked
-        def raster_interaction(**kwargs):
+        # define interaction with rasters
+        self.on_interaction(self.raster_interaction)
+        
+    def raster_interaction(self, **kwargs):
+        """Define a behavior when ispector checked and map clicked"""
+        
+        if kwargs.get('type') == 'click' and self.inspector_checked:
+            latlon = kwargs.get('coordinates')
+            self.default_style = {'cursor': 'wait'}
 
-            if kwargs.get('type') == 'click' and self.inspector_checked:
-                latlon = kwargs.get('coordinates')
-                self.default_style = {'cursor': 'wait'}
+            local_rasters = [lr.name for lr in self.layers if isinstance(lr, LocalTileLayer)]
 
-                local_rasters = [lr.name for lr in self.layers if isinstance(lr, LocalTileLayer)]
+            if local_rasters:
 
-                if local_rasters:
-
-                    with output_r: 
-                        output_r.clear_output(wait=True)
+                with output_r: 
+                    output_r.clear_output(wait=True)
                     
-                        for lr_name in local_rasters:
+                    for lr_name in local_rasters:
 
-                            lr = self.loaded_rasters[lr_name]
-                            lat, lon = latlon
+                        lr = self.loaded_rasters[lr_name]
+                        lat, lon = latlon
 
-                            # Verify if the selected latlon is the image bounds
-                            if any([lat<lr.bottom, lat>lr.top, lon<lr.left, lon>lr.right]):
-                                print('Location out of raster bounds')
-                            else:
-                                #row in pixel coordinates
-                                y = int(((lr.top - lat) / abs(lr.y_res)))
+                        # Verify if the selected latlon is the image bounds
+                        if any([lat<lr.bottom, lat>lr.top, lon<lr.left, lon>lr.right]):
+                            print('Location out of raster bounds')
+                        else:
+                            # row in pixel coordinates
+                            y = int(((lr.top - lat) / abs(lr.y_res)))
 
-                                #column in pixel coordinates
-                                x = int(((lon - lr.left) / abs(lr.x_res)))
+                            # column in pixel coordinates
+                            x = int(((lon - lr.left) / abs(lr.x_res)))
 
-                                #get height and width
-                                h, w = lr.data.shape
-                                value = lr.data[y][x]
-                                print(f'{lr_name}')
-                                print(f'Lat: {round(lat,4)}, Lon: {round(lon,4)}')
-                                print(f'x:{x}, y:{y}')
-                                print(f'Pixel value: {value}')
-                else:
-                    with output_r:
-                        output_r.clear_output()
+                            # get height and width
+                            h, w = lr.data.shape
+                            value = lr.data[y][x]
+                            print(f'{lr_name}')
+                            print(f'Lat: {round(lat,4)}, Lon: {round(lon,4)}')
+                            print(f'x:{x}, y:{y}')
+                            print(f'Pixel value: {value}')
+            else:
+                with output_r:
+                    output_r.clear_output()
 
-                self.default_style = {'cursor': 'crosshair'}
-
-        self.on_interaction(raster_interaction)
+            self.default_style = {'cursor': 'crosshair'}
+            
+            return
 
     def set_drawing_controls(self, bool_=False):
+        """create a drawing control for the map"""
         
         color = v.theme.themes.dark.info
+        
+        dc = None
         if bool_:
             dc = geemap.DrawControl(
-                marker={},
-                circlemarker={},
-                polyline={},
-                rectangle={'shapeOptions': {'color': color}},
-                circle={'shapeOptions': {'color': color}},
-                polygon={'shapeOptions': {'color': color}},
+                marker       = {},
+                circlemarker = {},
+                polyline     = {},
+                rectangle    = {'shapeOptions': {'color': color}},
+                circle       = {'shapeOptions': {'color': color}},
+                polygon      = {'shapeOptions': {'color': color}},
             )
-        else:
-            dc = None
             
         self.dc = dc
         
         return self
 
-    def remove_local_layer(self, local_layer):
+    def remove_local_raster(self, local_layer):
         """Remove local layer from memory"""
-        if local_layer.name in self.loaded_rasters.keys():
-            self.loaded_rasters.pop(local_layer.name)
+        
+        if type(local_layer) == TileLayer:
+            name = local_layer.name
+        else:
+            name = local_layer
+        
+        if name in self.loaded_rasters.keys():
+            self.loaded_rasters.pop(name)
+            
+        return self
 
     def remove_last_layer(self):
         
@@ -136,6 +151,8 @@ class SepalMap(geemap.Map):
             # If last layer is local_layer, remove it
             if isinstance(last_layer, LocalTileLayer):
                 self.remove_local_layer(last_layer)
+                
+        return self
             
             
     def zoom_ee_object(self, ee_geometry, zoom_out=1):

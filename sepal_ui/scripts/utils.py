@@ -15,7 +15,7 @@ import ipyvuetify as v
 import pandas as pd
 import ee
 
-from ..sepalwidgets import SepalWidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 def hide_component(widget):
     """hide a vuetify based component"""
