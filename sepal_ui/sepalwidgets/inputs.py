@@ -198,17 +198,6 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.loading.indeterminate = not self.loading.indeterminate
         
         return folder_list
-    
-    def get_parent_path(self):
-        """return the list of all the parents of a given path"""
-        path_list = [self.folder]
-        path = Path(self.folder)
-
-        while  str(path.parent) != path_list[-1]:
-            path = path.parent
-            path_list.append(str(path))
-        
-        return path_list
 
 class LoadTableField(v.Col, SepalWidget):
     
@@ -331,10 +320,11 @@ class LoadTableField(v.Col, SepalWidget):
 
 class AssetSelect(v.Combobox, SepalWidget):
     
-    def __init__(self, label = 'Select an asset'):
+    def __init__(self, label = 'Select an asset', folder = None):
         
-        # get the root folder of my earthengine account 
-        folder = ee.data.getAssetRoots()[0]['id'] + '/'
+        # if folder is not set use the root one 
+        if not folder: 
+            folder = ee.data.getAssetRoots()[0]['id'] + '/'
         
         # get the list of user asset
         assets = ee.data.listAssets({'parent': folder})['assets']
