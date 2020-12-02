@@ -12,6 +12,7 @@ from sepal_ui.scripts import utils as su
 
 su.init_ee()
 
+@unittest.skip('at the moment geemap is forcing the authentification using credentials')
 class TestSepalMap(unittest.TestCase):
     
     def test_init(self):
@@ -62,6 +63,7 @@ class TestSepalMap(unittest.TestCase):
         
         return 
     
+    
     def test_remove_local_raster(self):
         # init 
         m = sm.SepalMap()        
@@ -87,7 +89,7 @@ class TestSepalMap(unittest.TestCase):
         os.remove(dem)
         
         return
-    
+
     def test_remove_last_layer(self):
         
         # init 
