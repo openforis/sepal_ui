@@ -85,26 +85,6 @@ def is_absolute(url):
     """ check if the given url is an absolute or relative path"""
     return bool(urlparse(url).netloc)
 
-def launch(command, output=None):
-    """launch the command and exit the output in a su.displayIO"""
-    
-    kwargs = {
-        'args' : command,
-        'cwd' : os.path.expanduser('~'),
-        'stdout' : subprocess.PIPE,
-        'stderr' : subprocess.PIPE,
-        'universal_newlines' : True
-    }
-    
-    output_txt = ''
-    with subprocess.Popen(**kwargs) as p:
-        for line in p.stdout:
-            output_txt += line + '\n'
-            if output:
-                output.add_live_msg(line)
-    
-    return output_txt
-
 def random_string(string_length=3):
     """Generates a random string of fixed length. 
     Args:
