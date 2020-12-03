@@ -1,6 +1,7 @@
 import unittest
 import random
 from unittest.mock import patch
+import os
 
 import ipyvuetify as v
 
@@ -58,6 +59,13 @@ class TestUtils(unittest.TestCase):
     def test_download_link(self):
         
         # check the url for a 'toto/tutu.png' path
+        path = 'toto/tutu.png'
+        
+        expected_link = f'/api/files/download?path=/sepal_ui/{path}'
+        
+        res = su.create_download_link(path)
+        
+        self.assertEqual(res, expected_link)
         
         return 
     

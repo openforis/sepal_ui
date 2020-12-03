@@ -71,7 +71,7 @@ class TileAoi(sw.Tile):
         
         #create the map 
         m = SepalMap(['Esri Satellite', 'CartoDB.DarkMatter'], dc=True)
-        self.handle_draw(m.dc, io, 'drawn_feat', aoi_output)
+        #self.handle_draw(m.dc, io, 'drawn_feat', aoi_output)
     
         #bind the input to the selected method 
         method_items = [m for m in methods if m in self.SELECTION_METHOD] 

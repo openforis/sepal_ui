@@ -77,7 +77,7 @@ def create_download_link(pathname):
     home_path = os.path.expanduser('~')
     download_path='/'+os.path.relpath(result_path,home_path)
     
-    link = "/api/files/download?path={}".format(download_path)
+    link = f'/api/files/download?path={download_path}'
     
     return link
 

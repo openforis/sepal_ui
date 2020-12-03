@@ -77,8 +77,15 @@ class TestAoi_io(unittest.TestCase):
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
         aoi_io = aoi.Aoi_io(default_asset = asset_id)
+        column = 'ADM0_CODE'
         
-        res = aoi_io.get_fields('ADM0_CODE')
+        res = aoi_io.get_fields(column)
+        
+        self.assertEqual(res, [85])
+        
+        # use a self defined column 
+        aoi_io.column = column
+        res = aoi_io.get_fields()
         
         self.assertEqual(res, [85])
         
@@ -157,7 +164,7 @@ class TestAoi_io(unittest.TestCase):
 
         return 
     
-    def get_not_null_attrs(self):
+    def test_get_not_null_attrs(self):
         
         aoi_io = aoi.Aoi_io()
         
@@ -221,8 +228,13 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(filename, f'{out_dir}/france.shp')
         self.assertEqual(os.path.getsize(filename), 236)
         
+        #check if the filename is return when already exist
+        filename = aoi_io.get_aoi_shp(out_dir)
+        
+        self.assertEqual(filename, f'{out_dir}/france.shp')
+        
         # remove the files 
-        for file in glob(f'{out_dir}.france.*'):
+        for file in glob(f'{out_dir}/france.*'):
             os.remove(file)
         
         return 

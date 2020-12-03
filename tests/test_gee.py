@@ -7,8 +7,8 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import messages as ms
 
-#@unittest.skip('too long')
-@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
+@unittest.skip('too long')
+#@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
 class TestGee(unittest.TestCase):
     
     DESCRIPTION = 'test_travis'

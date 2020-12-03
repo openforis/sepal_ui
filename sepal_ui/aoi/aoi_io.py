@@ -120,7 +120,10 @@ class Aoi_io:
         self.drawn_feat = None
 
     def get_not_null_attrs(self):
-        return dict((k, v) for k, v in self.__dict__.items() if v is not None)
+        
+        attrs = dict((k, v) for k, v in self.__dict__.items() if v is not None)
+        
+        return attrs
 
     def display_on_map(self, map_):
         """ Display the current aoi on a map and remove the dc
