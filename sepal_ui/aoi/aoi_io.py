@@ -8,7 +8,7 @@ import shapely.geometry as sg
 import geopandas as gpd
 import ipyvuetify as v 
 
-from ..scripts import utils as su
+from sepal_ui.scripts import utils as su
     
 # initialize earth engine
 su.init_ee()
@@ -70,7 +70,7 @@ class Aoi_io:
         return: sorted list of fields
 
         """
-
+        
         if not column:
             column = self.column
 

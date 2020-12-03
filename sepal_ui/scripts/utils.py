@@ -15,12 +15,12 @@ import ipyvuetify as v
 import pandas as pd
 import ee
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+import sepal_ui
 
 def hide_component(widget):
     """hide a vuetify based component"""
     
-    if isinstance(widget, SepalWidget):
+    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
     elif not 'd-none' in str(widget.class_):
         widget.class_ = str(widget.class_).strip() + ' d-none'
@@ -29,7 +29,7 @@ def hide_component(widget):
 
 def show_component(widget):
     """show a vuetify based component"""
-    if isinstance(widget, SepalWidget):
+    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
     elif 'd-none' in str(widget.class_):
         widget.class_ = widget.class_.replace('d-none', '')
