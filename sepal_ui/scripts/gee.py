@@ -29,6 +29,9 @@ def wait_for_completion(task_descripsion, widget_alert=None):
         current_task = isTask(task_descripsion)
         state = current_task.state
         
+        if state == 'FAILED':
+            raise Exception(ms.STATUS.format(state))
+        
     # print in a widget
     if widget_alert: 
         widget_alert.add_live_msg(ms.STATUS.format(state), 'success')

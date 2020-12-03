@@ -9,11 +9,7 @@ import geemap
 from ipyleaflet import basemaps, basemap_to_tiles
 
 from sepal_ui import mapping as sm
-from sepal_ui.scripts import utils as su
 
-su.init_ee()
-
-# @unittest.skip('at the moment geemap is forcing the authentification using credentials')
 class TestSepalMap(unittest.TestCase):
     
     def test_init(self):

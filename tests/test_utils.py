@@ -50,7 +50,8 @@ class TestUtils(unittest.TestCase):
     def get_iso_3(self):
         
         # search for France ISO-3 code
-        self.assertEqual(su.get_iso_3('Fance'), 'FRA')
+        iso_code = su.get_iso_3('Fance') 
+        self.assertEqual(iso_code, 'FRA')
         
         return
     

@@ -201,6 +201,13 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
 class LoadTableField(v.Col, SepalWidget):
     
+    default_v_model = {
+            'pathname'  : None, 
+            'id_column' : None, 
+            'lat_column': None, 
+            'lng_column': None
+    }
+    
     def __init__(self):
         
         self.fileInput = FileInput(['.csv'])
@@ -209,16 +216,8 @@ class LoadTableField(v.Col, SepalWidget):
         self.LngSelect = self._LocalSelect('lng_column', 'Longitude')
         self.LatSelect = self._LocalSelect('lat_column', 'Latitude')
         
-        
-        default_v_model = {
-            'pathname'  : None, 
-            'id_column' : None, 
-            'lat_column': None, 
-            'lng_column': None
-        }
-        
         super().__init__(
-            v_model = json.dumps(default_v_model),
+            v_model = json.dumps(self.default_v_model),
             children = [
                 self.fileInput,
                 self.IdSelect,
@@ -232,24 +231,24 @@ class LoadTableField(v.Col, SepalWidget):
         jslink((self.IdSelect, 'items'),(self.LatSelect, 'items'))
         
         # link the widget with v_model 
-        self.fileInput.observe(self.__on_file_input_change, 'v_model')
-        self.IdSelect.observe(self.__on_select_change, 'v_model')
-        self.LngSelect.observe(self.__on_select_change, 'v_model')
-        self.LatSelect.observe(self.__on_select_change, 'v_model')
+        self.fileInput.observe(self._on_file_input_change, 'v_model')
+        self.IdSelect.observe(self._on_select_change, 'v_model')
+        self.LngSelect.observe(self._on_select_change, 'v_model')
+        self.LatSelect.observe(self._on_select_change, 'v_model')
         
-    def __on_file_input_change(self, change):
+    def _on_file_input_change(self, change):
         
         path = change['new']
         df = pd.read_csv(path)
         
         if len(df.columns) < 3: 
-            self.__clear_select()
+            self._clear_select()
             return 
         
-        self.__set_value('pathname', path)
+        self._set_value('pathname', path)
         
         # clear the selects
-        self.__clear_select()
+        self._clear_select()
         self.IdSelect.items = df.columns.tolist()
         
         # pre load values that sounds like what we are looking for 
@@ -263,21 +262,21 @@ class LoadTableField(v.Col, SepalWidget):
             elif any(ext in lname for ext in ['lat', 'latitude', 'y_coord', 'ycoord']):
                 self.LatSelect.v_model = name
                 
-    def __clear_select(self):
+    def _clear_select(self):
         """clear the select v_model"""
         self.IdSelect.items = [] # all the others are listening to this one 
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
         
         return 
     
-    def __on_select_change(self, change):
+    def _on_select_change(self, change):
         
         name = change['owner']._metadata['name']
-        self.__set_value(name, change['new'])
+        self._set_value(name, change['new'])
         
         return
         
-    def __set_value(self, name, value):
+    def _set_value(self, name, value):
         
         """ set the value in the json dictionary"""
         tmp = json.loads(self.v_model)
