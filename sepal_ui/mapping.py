@@ -58,9 +58,9 @@ class SepalMap(geemap.Map):
         self.set_drawing_controls(dc)
 
         # Create output space for raster interaction
-        output_r = widgets.Output(layout={'border': '1px solid black'})
-        output_control_r = WidgetControl(widget=output_r, position='bottomright')
-        self.add_control(output_control_r)
+        self.output_r = widgets.Output(layout={'border': '1px solid black'})
+        self.output_control_r = WidgetControl(widget=self.output_r, position='bottomright')
+        self.add_control(self.output_control_r)
 
         # define interaction with rasters
         self.on_interaction(self.raster_interaction)
@@ -76,8 +76,8 @@ class SepalMap(geemap.Map):
 
             if local_rasters:
 
-                with output_r: 
-                    output_r.clear_output(wait=True)
+                with self.output_r: 
+                    self.output_r.clear_output(wait=True)
                     
                     for lr_name in local_rasters:
 
@@ -102,8 +102,8 @@ class SepalMap(geemap.Map):
                             print(f'x:{x}, y:{y}')
                             print(f'Pixel value: {value}')
             else:
-                with output_r:
-                    output_r.clear_output()
+                with self.output_r:
+                    self.output_r.clear_output()
 
             self.default_style = {'cursor': 'crosshair'}
             
@@ -130,29 +130,40 @@ class SepalMap(geemap.Map):
         return self
 
     def _remove_local_raster(self, local_layer):
-        """Remove local layer from memory"""
-        
-        if type(local_layer) == TileLayer:
-            name = local_layer.name
-        else:
-            name = local_layer
-        
-        if name in self.loaded_rasters.keys():
-            self.loaded_rasters.pop(name)
-            
-        return self
 
-    def remove_last_layer(self):
-        
+        """ Remove local layer from memory
+        """
+        if local_layer.name in self.loaded_rasters.keys():
+            self.loaded_rasters.pop(local_layer.name)
+
+    def remove_last_layer(self, local=False):
+
+        """Remove last layer from Map
+
+        Args:
+            local (boolean): Specify True to only remove local last layers,
+                                otherwise will remove every last layer.
+
+        """
         if len(self.layers) > 1:
-            last_layer = self.layers[-1]
-            self.remove_layer(last_layer)
 
-            # If last layer is local_layer, remove it
-            if isinstance(last_layer, LocalTileLayer):
-                self.__remove_local_raster(last_layer)
-                
-        return self
+            last_layer = self.layers[-1]
+
+            if local:
+                local_rasters = [lr for lr in self.layers if isinstance(lr, LocalTileLayer)]
+                if local_rasters:
+                    last_layer = local_rasters[-1]
+                    self.remove_layer(last_layer)
+
+                    # If last layer is local_layer, remove it from memory
+                    if isinstance(last_layer, LocalTileLayer):
+                        self._remove_local_raster(last_layer)
+            else:
+                self.remove_layer(last_layer)
+
+                # If last layer is local_layer, remove it from memory
+                if isinstance(last_layer, LocalTileLayer):
+                    self._remove_local_raster(last_layer)
             
             
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
