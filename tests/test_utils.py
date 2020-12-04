@@ -61,11 +61,11 @@ class TestUtils(unittest.TestCase):
         # check the url for a 'toto/tutu.png' path
         path = 'toto/tutu.png'
         
-        expected_link = f'/api/files/download?path=/sepal_ui/{path}'
+        expected_link = '/api/files/download?path='
         
         res = su.create_download_link(path)
         
-        self.assertEqual(res, expected_link)
+        self.assertIn(expected_link, res)
         
         return 
     

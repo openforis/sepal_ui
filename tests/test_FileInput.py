@@ -1,5 +1,6 @@
 import unittest
 import os
+from pathlib import Path
 
 from sepal_ui import sepalwidgets as sw
 
@@ -8,7 +9,7 @@ class TestFileInput(unittest.TestCase):
     def test_init(self):
         
         # default init
-        file_input = sw.FileInput()
+        file_input = sw.FileInput(folder=self._get_sepal_parent())
 
         self.assertIsInstance(file_input, sw.FileInput)
         self.assertEqual(file_input.v_model, '')
@@ -23,7 +24,7 @@ class TestFileInput(unittest.TestCase):
         self.assertIn('sepal_ui', list_names)
         
         # default init
-        file_input = sw.FileInput(['.shp'])
+        file_input = sw.FileInput(['.shp'], folder=self._get_sepal_parent())
         
         return
     
@@ -50,10 +51,10 @@ class TestFileInput(unittest.TestCase):
     
     def test_on_file_select(self):
         
-        file_input = sw.FileInput()
+        sepal_ui = self._get_sepal_parent()
+        file_input = sw.FileInput(folder=sepal_ui)
         
         # move into sepal_ui folders 
-        sepal_ui = os.path.join(os.path.expanduser('~'), 'sepal_ui')
         readme = os.path.join(sepal_ui, 'README.md')
         
         file_input._on_file_select({'new' : sepal_ui})
@@ -73,6 +74,11 @@ class TestFileInput(unittest.TestCase):
         self.assertEqual(file_input.v_model, readme)
         
         return
+    
+    def _get_sepal_parent(self):
+        
+        path = Path(__file__).parent.parent.absolute()
+        return path
         
         
 if __name__ == '__main__':
