@@ -68,11 +68,6 @@ To validate you modification go to the root folder of the package and run
 python3 setup.py sdist
 ```
 
-then make sure to uninstall the package from Pipy with 
-```py
-pip uninstall sepal_ui
-```
-
 and install instead the one from your local folder 
 ```py
 pip install [your_sepal_ui_folder]
