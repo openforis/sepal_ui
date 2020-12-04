@@ -240,7 +240,7 @@ class SepalMap(geemap.Map):
         return self
     
     #copy of the geemap add_raster function to prevent a bug from sepal 
-    def add_raster(self, image, bands=None, layer_name='Layer_' + su.random_string(), colormap=plt.cm.inferno, x_dim='x', y_dim='y', opacity=1.0):
+    def add_raster(self, image, bands=None, layer_name=None, colormap=plt.cm.inferno, x_dim='x', y_dim='y', opacity=1.0, inspector=False):
         """Adds a local raster dataset to the map.
         Args:
             image (str): The image file path.
@@ -252,7 +252,8 @@ class SepalMap(geemap.Map):
         """
         if not os.path.exists(image):
             return print('The image file does not exist.')
-            
+           
+        if not layer_name: layer_name = 'Layer_' + su.random_string()
 
         # check inputs
         if layer_name in self.loaded_rasters.keys():
@@ -262,13 +263,19 @@ class SepalMap(geemap.Map):
             colormap = plt.cm.get_cmap(name=colormap)
 
         da = rioxarray.open_rasterio(image, masked=True)
+        
+        if inspector:
+            
+            # Add inspector control, as geemap is written, we have to add draw_control before.
+            if not self.draw_control in self.controls: self.add_control(self.draw_control)
+            if not self.inspector_control in self.controls: self.add_control(self.inspector_control)
+            
+            # Create a named tuple with raster bounds and resolution
+            local_raster = collections.namedtuple(
+                'LocalRaster', ('name', 'left', 'bottom', 'right', 'top', 'x_res', 'y_res', 'data')
+                )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
 
-        # Create a named tuple with raster bounds and resolution
-        local_raster = collections.namedtuple(
-            'LocalRaster', ('name', 'left', 'bottom', 'right', 'top', 'x_res', 'y_res', 'data')
-            )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
-
-        self.loaded_rasters[layer_name] = local_raster
+            self.loaded_rasters[layer_name] = local_raster
 
 
         multi_band = False
