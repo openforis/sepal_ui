@@ -40,13 +40,16 @@ class TileAoi(sw.Tile):
     # constants
     SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file')
     
-    def __init__(self, io, methods = SELECTION_METHOD, **kwargs):
+    def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
         # load the io 
         self.io = io
         
         # create the output
         self.output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
+        
+        # save the folder (mainly for testing purposes)
+        self.folder = folder
         
         # create the inputs widgets 
         self.aoi_file_input = sw.FileInput(['.shp']).hide()
@@ -58,7 +61,7 @@ class TileAoi(sw.Tile):
         self.aoi_country_selection = CountrySelect().hide()
         self.output.bind(self.aoi_country_selection, self.io, 'country_selection')
     
-        self.aoi_asset_name = sw.AssetSelect().hide()
+        self.aoi_asset_name = sw.AssetSelect(folder = self.folder).hide()
         self.output.bind(self.aoi_asset_name, self.io, 'assetId')
         
         self.aoi_load_table = sw.LoadTableField().hide()
@@ -131,14 +134,14 @@ class TileAoi(sw.Tile):
             run_aoi_selection.run_aoi_selection(
                 output      = self.output, 
                 list_method = self.SELECTION_METHOD, 
-                io          = self.io
+                io          = self.io,
+                folder      = self.folder
             )
-                
-            # hide the drawing control 
-            self.m.hide_dc()
-        
+            
             # display the resulting aoi on the map
-            self.io.display_on_map(self.m)
+            if self.io.assetId or self.io.feature_collection:
+                    self.m.hide_dc()
+                    self.io.display_on_map(self.m)
                 
         except Exception as e: 
             self.output.add_live_msg(str(e), 'error') 

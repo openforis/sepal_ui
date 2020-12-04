@@ -185,7 +185,7 @@ class Aoi_io:
         aoi_json = geemap.ee_to_geojson(aoi)
         
         # convert to geopandas gdf
-        gdf = gpd.GeoDataFrame.from_features(aoi_json)
+        gdf = gpd.GeoDataFrame.from_features(aoi_json).set_crs('EPSG:4326')
         
         # FAO GAUL geometries are full of linestring which cannot be converted into shapefile so some filtering needs to be done first 
         gdf_filtered = gdf.copy()

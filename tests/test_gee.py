@@ -7,8 +7,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import messages as ms
 
-@unittest.skip('too long')
-#@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
+@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
 class TestGee(unittest.TestCase):
     
     DESCRIPTION = 'test_travis'
@@ -26,6 +25,8 @@ class TestGee(unittest.TestCase):
         self.assertEqual(res, 'COMPLETED')
         self.assertEqual(alert.type, 'success')
         self.assertEqual(ms.STATUS.format('COMPLETED'), alert.children[1].children[0])
+        
+        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
         
         #check that an error is raised when trying to overwrite a existing asset
         description = 'france'
@@ -51,16 +52,12 @@ class TestGee(unittest.TestCase):
         
         self.assertNotEqual(res, None)
         
+        # delete the asset 
+        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
+        
         return
     
     def _create_fake_task(self, description = DESCRIPTION, delete = True):
-        
-        # check the asset does not already exist 
-        if delete:
-            try:
-                ee.data.deleteAsset(self.ASSET_ID.format(description))
-            except:
-                pass
         
         # create a fake exportation task 
         point = ee.FeatureCollection(ee.Geometry.Point([1.5, 1.5]))

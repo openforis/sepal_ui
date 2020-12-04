@@ -7,6 +7,8 @@ from sepal_ui.scripts import messages as ms
 
 class TestAoiTile(unittest.TestCase):
     
+    FOLDER = 'projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test'
+    
     def test_FileName(self):
         
         file_name_field = aoi.FileNameField()
@@ -28,7 +30,7 @@ class TestAoiTile(unittest.TestCase):
         aoi_io = aoi.Aoi_io()
         
         #default init
-        tile = aoi.TileAoi(aoi_io)
+        tile = aoi.TileAoi(aoi_io, folder = self.FOLDER)
         
         self.assertIsInstance(tile, aoi.TileAoi)        
         
@@ -38,7 +40,7 @@ class TestAoiTile(unittest.TestCase):
         
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
         aoi_io = aoi.Aoi_io(default_asset = asset_id)
-        tile_aoi = aoi.TileAoi(aoi_io)
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
         
         # launch the click without any entry 
         tile_aoi.bind_aoi_process(tile_aoi.aoi_select_btn, None, None)
@@ -66,7 +68,7 @@ class TestAoiTile(unittest.TestCase):
     def test_bind_aoi_method(self):
         
         aoi_io = aoi.Aoi_io()
-        tile_aoi = aoi.TileAoi(aoi_io)
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
         
         # select country selection 
         tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[0]
@@ -113,7 +115,7 @@ class TestAoiTile(unittest.TestCase):
     def test_handle_draw(self):
         
         aoi_io = aoi.Aoi_io()
-        tile_aoi = aoi.TileAoi(aoi_io)
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
         
         # test data 
         geojson = {

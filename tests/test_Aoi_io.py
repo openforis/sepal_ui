@@ -6,8 +6,6 @@ import ee
 from sepal_ui import aoi
 from sepal_ui import mapping as sm
 
-
-#@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
 class TestAoi_io(unittest.TestCase):
     
     def test_init(self):
