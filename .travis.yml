@@ -10,7 +10,6 @@ before_script:
   - ./cc-test-reporter before-build
   
 script:
-  - pip freeze | grep six
   - coverage run -m unittest discover -s tests
   - coverage report -m
   
