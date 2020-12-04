@@ -12,9 +12,10 @@ import geopandas as gpd
 
 from sepal_ui.scripts import utils, gee
 from sepal_ui.scripts import messages as ms
-
+from sepal_ui.scripts import utils as su
+    
 # initialize earth engine
-if not ee.data._credentials: ee.Initialize()
+su.init_ee()
 
 def isAsset(asset_descripsion, folder):
     """Check if the asset already exist in the user asset folder
@@ -29,23 +30,23 @@ def isAsset(asset_descripsion, folder):
     exist = False
     liste = ee.data.listAssets({'parent': folder})['assets']
     for asset in liste:
-        if asset['name'] == folder + asset_descripsion:
+        if asset['name'] == os.path.join(folder,asset_descripsion):
             exist = True
             break
             
     return exist 
 
 def get_country_asset(country_selection, output):
-    """send a request to GEE to create an asset based on the country name"""
+    """send a request to GEE to get a featurecollection based on the country selected"""
     
     if country_selection == None:
         output.add_msg(ms.NO_COUNTRY, 'warning')
         return (None, None)
     
-    country_code = utils.create_FIPS_dic()[country_selection] 
-    iso_3 = utils.get_iso_3(country_code)
-            
-    country = ee.FeatureCollection('USDOS/LSIB_SIMPLE/2017').filter(ee.Filter.eq('country_co', country_code))
+    country_code = utils.get_gaul_dic()[country_selection] 
+    iso_3 = utils.get_iso_3(country_selection)
+    
+    country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', country_code))
           
     output.add_msg(ms.ASSET_CREATED.format(iso_3), 'success')
     
@@ -64,7 +65,7 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
         output.add_msg(ms.NAME_USED, 'error')
         return None 
         
-    asset = folder + asset_name
+    asset = os.path.join(folder, asset_name)
             
     #create and launch the task
     task_config = {
@@ -122,7 +123,7 @@ def get_csv_asset(json_csv, folder, output):
     ee_object = geemap.geojson_to_ee(json_df)
     
     # upload this object to earthengine
-    asset = folder + asset_name
+    asset = os.path.join(folder, asset_name)
             
     #create and launch the task
     task_config = {
@@ -167,7 +168,7 @@ def get_shp_aoi(file_input, folder, output):
         
     else:
         
-        asset = folder + asset_name
+        asset = os.path.join(folder, asset_name)
             
         #launch the task
         task_config = {
@@ -183,7 +184,7 @@ def get_shp_aoi(file_input, folder, output):
     
     return asset
     
-def run_aoi_selection(output, list_method, io):
+def run_aoi_selection(output, list_method, io, folder):
     """ create an gee asset according to the user inputs
 
     Args:
@@ -200,7 +201,8 @@ def run_aoi_selection(output, list_method, io):
         asset (str) : the AssetId of the AOI
     """
     #go to the glad folder in gee assets 
-    folder = ee.data.getAssetRoots()[0]['id'] + '/'
+    if not folder: 
+        folder = ee.data.getAssetRoots()[0]['id'] + '/'
     
     #clean all but the selected method
     if io.country_selection:
@@ -209,23 +211,25 @@ def run_aoi_selection(output, list_method, io):
         io.feature_collection, io.country_code = (None, None)
     
     
-    #check the drawing method
-    if io.selection_method == None: #not selected
+    # check the aoi method used
+    
+    # not selected
+    if io.selection_method == None:
         output.add_msg(ms.NO_SELECTION, 'error')   
-        
-    elif io.selection_method == list_method[0]: # use a country boundary
+    # use a country boundary
+    elif io.selection_method == list_method[0]: 
         io.feature_collection, io.country_code = get_country_asset(io.country_selection, output)
-             
-    elif io.selection_method == list_method[1]: # draw a shape
+    # draw a shape
+    elif io.selection_method == list_method[1]: 
         io.assetId = get_drawn_shape(io.drawn_feat, io.file_name, folder, output)
-        
-    elif io.selection_method == list_method[3]: # use GEE asset
+    # use GEE asset
+    elif io.selection_method == list_method[3]: 
         io.assetId = get_gee_asset(io.assetId, output)
-            
-    elif io.selection_method == list_method[2]: # upload file
+    # upload file
+    elif io.selection_method == list_method[2]: 
         io.assetId = get_shp_aoi(io.file_input, folder, output)
-        
-    elif io.selection_method == list_method[4]: # csv point file
+    # csv point file
+    elif io.selection_method == list_method[4]: 
         io.assetId = get_csv_asset(io.json_csv, folder, output)
             
     return

@@ -11,10 +11,9 @@ class TestApp(unittest.TestCase):
         #default init
         app = sw.App()
         self.assertIsInstance(app, sw.App)
-        self.assertEqual(len(app.children), 3)
+        self.assertEqual(len(app.children), 2)
         self.assertIsInstance(app.children[0], sw.AppBar)
         self.assertIsInstance(app.children[1], v.Content)
-        self.assertIsInstance(app.children[2], sw.Footer)
         
         #exhaustive 
         navDrawer = sw.NavDrawer([])
@@ -54,7 +53,8 @@ class TestApp(unittest.TestCase):
             if tile == main_tile:
                 self.assertTrue(tile.viz)
             else:
-                self.assertFalse(tile.viz)
+                self.assertFalse(tile.viz)        
+        
         
 if __name__ == '__main__':
     unittest.main()

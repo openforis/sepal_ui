@@ -4,8 +4,8 @@ from traitlets import Unicode
 
 import ipyvuetify as v
 
-from .sepalwidget import SepalWidget
-from ..scripts import utils as su
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts import utils as su
 
 class Tile(v.Layout, SepalWidget):
     """create a customizable tile for the sepal UI framework"""
@@ -83,8 +83,6 @@ class TileAbout(Tile):
         #read the content and transform it into a html
         with open(pathname, 'r') as f:
             about = f.read()
-        if not about:
-            about = '**No About File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
     
@@ -111,8 +109,6 @@ class TileDisclaimer(Tile):
         #read the content and transform it into a html
         with open(pathname, 'r') as f:
             about = f.read()
-        if not about:
-            about = '**No Disclaimer File**'
         
         about = markdown(about, extensions=['fenced_code','sane_lists'])
     

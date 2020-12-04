@@ -6,13 +6,19 @@ import ee
 import geemap
 import shapely.geometry as sg
 import geopandas as gpd
+import ipyvuetify as v 
 
-if not ee.data._credentials: ee.Initialize()
+from sepal_ui.scripts import utils as su
+    
+# initialize earth engine
+su.init_ee()
 
 class Aoi_io:
     
     def __init__(self, alert_widget=None, default_asset=None):
-
+        
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        
         # GEE parameters
         self.assetId = default_asset
         self.column = None
@@ -24,7 +30,7 @@ class Aoi_io:
 
         #set up your inputs
         self.file_input = None
-        self.file_name = 'Manual_{0}'.format(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        self.file_name = f'Manual_{date}'
         self.country_selection = None
         self.selection_method = None
         self.drawn_feat = None
@@ -64,7 +70,7 @@ class Aoi_io:
         return: sorted list of fields
 
         """
-
+        
         if not column:
             column = self.column
 
@@ -81,8 +87,7 @@ class Aoi_io:
         """
 
         if not self.column or not self.field:
-            self.alert.add_msg('error', f'You must first select a column and a field.')
-            raise 
+            raise Exception('You must first select a column and a field.')
 
         ee_asset = self.get_aoi_ee()
         select_feature = ee_asset.filterMetadata(self.column, 'equals', self.field).geometry()
@@ -96,6 +101,8 @@ class Aoi_io:
         self.selected_feature = None
 
     def clear_attributes(self):
+        
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         # GEE parameters
         self.column = None
@@ -105,15 +112,18 @@ class Aoi_io:
         self.country_code = None
         self.feature_collection = None
 
-        #set up your inputs
+        # set up your inputs
         self.file_input = None
-        self.file_name = 'Manual_{0}'.format(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        self.file_name = f'Manual_{date}'
         self.country_selection = None
         self.selection_method = None
         self.drawn_feat = None
 
     def get_not_null_attrs(self):
-        return dict((k, v) for k, v in self.__dict__.items() if v is not None)
+        
+        attrs = dict((k, v) for k, v in self.__dict__.items() if v is not None)
+        
+        return attrs
 
     def display_on_map(self, map_):
         """ Display the current aoi on a map and remove the dc
@@ -123,12 +133,9 @@ class Aoi_io:
         """
         aoi = self.get_aoi_ee()
         map_.zoom_ee_object(aoi.geometry())
-        map_.addLayer(aoi, {'color': 'green'}, name='aoi')
+        map_.addLayer(aoi, {'color': v.theme.themes.dark.success}, name='aoi')
         
-        #the aoi map have a dc
-        map_.dc.clear()
-        if map_.dc in map_.controls:
-            map_.remove_control(map_.dc)
+        map_.hide_dc()
         
         return self
 
@@ -166,7 +173,7 @@ class Aoi_io:
         
         aoi_name = self.get_aoi_name()
             
-        filename = f'{dwnDir}{aoi_name}.shp'
+        filename = os.path.join(dwnDir, f'{aoi_name}.shp')
     
         if os.path.isfile(filename):
             return filename
@@ -178,18 +185,31 @@ class Aoi_io:
         aoi_json = geemap.ee_to_geojson(aoi)
         
         # convert to geopandas gdf
-        gdf = gpd.GeoDataFrame.from_features(aoi_json)
-        gdf.to_file(filename)
+        gdf = gpd.GeoDataFrame.from_features(aoi_json).set_crs('EPSG:4326')
+        
+        # FAO GAUL geometries are full of linestring which cannot be converted into shapefile so some filtering needs to be done first 
+        gdf_filtered = gdf.copy()
+
+        for i, row in gdf.iterrows():
+            if type(row.geometry) == sg.collection.GeometryCollection:
+
+                # get the polygon and only keep the polygon 
+                for shape in row.geometry:
+                    if type(shape) == sg.polygon.Polygon:
+                        gdf_filtered.at[i, 'geometry'] = shape
+                        break
+        
+        gdf_filtered.to_file(filename)
     
         return filename
     
     def get_aoi_name(self):
         """ remove the aoi_ before the nam of the created asset"""
         
-        path = None
+        name = None
         if self.country_code:
-            path = self.country_code
+            name = self.country_code
         else:
-            path = Path(self.assetId).stem.replace('aoi_', '')
+            name = Path(self.assetId).stem.replace('aoi_', '')
         
-        return path
+        return name
