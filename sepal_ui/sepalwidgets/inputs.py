@@ -8,10 +8,10 @@ from ipywidgets import jslink
 import pandas as pd
 import ee
 
-from .sepalwidget import SepalWidget
-from ..frontend.styles import *
-from ..scripts import utils as su
-from .btn import Btn
+from sepal_ui.frontend.styles import *
+from sepal_ui.scripts import utils as su
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.btn import Btn
 
 # initialize earth engine
 su.init_ee()
@@ -21,28 +21,29 @@ class DatePicker(v.Layout, SepalWidget):
     def __init__(self, label="Date", **kwargs):
         
         date_picker = v.DatePicker(
-            no_title   = True, 
-            v_model    = None, 
+            no_title = True, 
+            v_model = None, 
             scrollable = True
         )
 
         date_text = v.TextField(
-            v_model         = None,
-            label           = label,
-            hint            = "YYYY-MM-DD format",
+            v_model = None,
+            label = label,
+            hint = "YYYY-MM-DD format",
             persistent_hint = True, 
-            prepend_icon    = "event",
-            readonly        = True,
-            v_on            = 'menuData.on'
+            prepend_icon = "event",
+            readonly = True,
+            v_on = 'menuData.on'
         )
 
         self.menu = v.Menu(
-            transition             = "scale-transition",
-            offset_y               = True, 
-            value                  = False,
+            min_width="290px",
+            transition = "scale-transition",
+            offset_y = True, 
+            value = False,
             close_on_content_click = False,
-            children               = [date_picker],
-            v_slots                = [{
+            children = [date_picker],
+            v_slots = [{
                 'name': 'activator',
                 'variable': 'menuData',
                 'children': date_text,
@@ -50,11 +51,11 @@ class DatePicker(v.Layout, SepalWidget):
         )
 
         super().__init__(
-            v_model      = None,
-            row          = True,
-            class_       = 'pa-5',
+            v_model = None,
+            row = True,
+            class_ = 'pa-5',
             align_center = True,
-            children     = [v.Flex(xs10=True, children=[self.menu])],
+            children = [v.Flex(xs10=True, children=[self.menu])],
             **kwargs
         )
 
@@ -81,19 +82,19 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
         self.loading = v.ProgressLinear(
             indeterminate    = False, 
-            background_color = 'grey lighten-4',
+            background_color = 'grey darken-3',
             color            = COMPONENTS['PROGRESS_BAR']['color']
             )
         
         self.file_list = v.List(
             dense      = True, 
-            color      = 'grey lighten-4',
+            color      = 'grey darken-3',
             flat       = True,
             max_height = '300px',
-            style_     = 'overflow: auto',
+            style_     = 'overflow: auto; border-radius: 0 0 0 0;',
             children   = [ 
                 v.ListItemGroup(
-                    children = self.get_items(),
+                    children = self._get_items(),
                     v_model  = ''
                 )
             ]
@@ -123,25 +124,27 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         link((self.selected_file, 'v_model'), (self, 'file'))
         link((self.selected_file, 'v_model'), (self, 'v_model'))
 
-        def on_file_select(change):
-            new_value = change['new']
-            if new_value:
-                if os.path.isdir(new_value):
-                    self.folder = new_value
-                    self.change_folder()
+        self.file_list.children[0].observe(self._on_file_select, 'v_model')
+        
+    def _on_file_select(self, change):
+        new_value = change['new']
+        if new_value:
+            if os.path.isdir(new_value):
+                self.folder = new_value
+                self._change_folder()
                 
-                elif os.path.isfile(new_value):
-                    self.file = new_value
-
-        self.file_list.children[0].observe(on_file_select, 'v_model')
+            elif os.path.isfile(new_value):
+                self.file = new_value
+            
+            return
                 
-    def change_folder(self):
+    def _change_folder(self):
         """change the target folder"""
         #reset files
-        self.file_list.children[0].children = self.get_items()
+        self.file_list.children[0].children = self._get_items()
     
 
-    def get_items(self):
+    def _get_items(self):
         """return the list of items inside the folder"""
 
         self.loading.indeterminate = not self.loading.indeterminate
@@ -195,19 +198,15 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.loading.indeterminate = not self.loading.indeterminate
         
         return folder_list
-    
-    def get_parent_path(self):
-        """return the list of all the parents of a given path"""
-        path_list = [self.folder]
-        path = Path(self.folder)
-
-        while  str(path.parent) != path_list[-1]:
-            path = path.parent
-            path_list.append(str(path))
-        
-        return path_list
 
 class LoadTableField(v.Col, SepalWidget):
+    
+    default_v_model = {
+            'pathname'  : None, 
+            'id_column' : None, 
+            'lat_column': None, 
+            'lng_column': None
+    }
     
     def __init__(self):
         
@@ -217,16 +216,8 @@ class LoadTableField(v.Col, SepalWidget):
         self.LngSelect = self._LocalSelect('lng_column', 'Longitude')
         self.LatSelect = self._LocalSelect('lat_column', 'Latitude')
         
-        
-        default_v_model = {
-            'pathname'  : None, 
-            'id_column' : None, 
-            'lat_column': None, 
-            'lng_column': None
-        }
-        
         super().__init__(
-            v_model = json.dumps(default_v_model),
+            v_model = json.dumps(self.default_v_model),
             children = [
                 self.fileInput,
                 self.IdSelect,
@@ -240,24 +231,24 @@ class LoadTableField(v.Col, SepalWidget):
         jslink((self.IdSelect, 'items'),(self.LatSelect, 'items'))
         
         # link the widget with v_model 
-        self.fileInput.observe(self.__on_file_input_change, 'v_model')
-        self.IdSelect.observe(self.__on_select_change, 'v_model')
-        self.LngSelect.observe(self.__on_select_change, 'v_model')
-        self.LatSelect.observe(self.__on_select_change, 'v_model')
+        self.fileInput.observe(self._on_file_input_change, 'v_model')
+        self.IdSelect.observe(self._on_select_change, 'v_model')
+        self.LngSelect.observe(self._on_select_change, 'v_model')
+        self.LatSelect.observe(self._on_select_change, 'v_model')
         
-    def __on_file_input_change(self, change):
+    def _on_file_input_change(self, change):
         
         path = change['new']
         df = pd.read_csv(path)
         
         if len(df.columns) < 3: 
-            self.__clear_select()
+            self._clear_select()
             return 
         
-        self.__set_value('pathname', path)
+        self._set_value('pathname', path)
         
         # clear the selects
-        self.__clear_select()
+        self._clear_select()
         self.IdSelect.items = df.columns.tolist()
         
         # pre load values that sounds like what we are looking for 
@@ -271,21 +262,21 @@ class LoadTableField(v.Col, SepalWidget):
             elif any(ext in lname for ext in ['lat', 'latitude', 'y_coord', 'ycoord']):
                 self.LatSelect.v_model = name
                 
-    def __clear_select(self):
+    def _clear_select(self):
         """clear the select v_model"""
         self.IdSelect.items = [] # all the others are listening to this one 
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
         
         return 
     
-    def __on_select_change(self, change):
+    def _on_select_change(self, change):
         
         name = change['owner']._metadata['name']
-        self.__set_value(name, change['new'])
+        self._set_value(name, change['new'])
         
         return
         
-    def __set_value(self, name, value):
+    def _set_value(self, name, value):
         
         """ set the value in the json dictionary"""
         tmp = json.loads(self.v_model)
@@ -328,10 +319,11 @@ class LoadTableField(v.Col, SepalWidget):
 
 class AssetSelect(v.Combobox, SepalWidget):
     
-    def __init__(self, label = 'Select an asset'):
+    def __init__(self, label = 'Select an asset', folder = None):
         
-        # get the root folder of my earthengine account 
-        folder = ee.data.getAssetRoots()[0]['id'] + '/'
+        # if folder is not set use the root one 
+        if not folder: 
+            folder = ee.data.getAssetRoots()[0]['id'] + '/'
         
         # get the list of user asset
         assets = ee.data.listAssets({'parent': folder})['assets']

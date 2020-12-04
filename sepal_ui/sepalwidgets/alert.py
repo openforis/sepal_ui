@@ -4,7 +4,7 @@ from datetime import datetime
 import ipyvuetify as v
 from traitlets import Unicode, observe, directional_link, List
 
-from .sepalwidget import SepalWidget, TYPES
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
 class Divider(v.Divider, SepalWidget):
 
@@ -105,8 +105,9 @@ class Alert(v.Alert, SepalWidget):
 
 
     def remove_last_msg(self):
-
-        if self.children[0]:
+        """ remove the last msg printed in the Aler widget"""
+        
+        if len(self.children) > 1:
             current_children = self.children[:]
             self.children = current_children[:-1]
         else:
@@ -115,6 +116,8 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     def reset(self):
+        """reset the alert attribute : empty the messages and hide it"""
+        
         self.children = ['']
         self.hide()
         

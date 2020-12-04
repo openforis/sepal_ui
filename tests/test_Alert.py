@@ -98,6 +98,10 @@ class TestAlert(unittest.TestCase):
         self.assertIsInstance(alert.children[1], sw.Divider)
         self.assertEqual(alert.children[2].children[0], msg)
         
+        # check that the divider is changing color 
+        alert.type = 'success'
+        self.assertIn(alert.children[1].type_, 'success')
+        
         
     def test_bind(self):
         
@@ -148,8 +152,47 @@ class TestAlert(unittest.TestCase):
         res = alert.check_input(var_test)
         self.assertTrue(res)
         
-        return         
+        return 
+    
+    def test_reset(self):
         
+        alert = sw.Alert().add_msg('toto').reset()
+        
+        self.assertFalse(alert.viz)
+        self.assertEqual(len(alert.children), 1)
+        self.assertEqual(alert.children[0], '')
+        
+        return
+        
+    def test_rmv_last_msg(self):
+        
+        # check with a no msg alert 
+        alert = sw.Alert().remove_last_msg()
+        
+        self.assertFalse(alert.viz)
+        self.assertEqual(alert.children[0], '')
+        
+        # check with a 1 msg alert
+        alert = sw.Alert().add_msg('toto').remove_last_msg()
+        
+        self.assertFalse(alert.viz)
+        self.assertEqual(alert.children[0], '')
+        
+        # check with a multiple msg alert 
+        alert = sw.Alert()
+        
+        string = 'toto'
+        nb_msg = 5
+        for i in range(nb_msg):
+            alert.append_msg(f'{string}{i}')
+            
+        alert.remove_last_msg()
+        
+        self.assertTrue(alert.viz)
+        self.assertEqual(len(alert.children), 4)
+        self.assertEqual(alert.children[nb_msg-2].children[0], f'{string}{nb_msg-2}')
+        
+        return
         
 if __name__ == '__main__':
     unittest.main()

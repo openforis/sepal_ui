@@ -15,12 +15,12 @@ import ipyvuetify as v
 import pandas as pd
 import ee
 
-from ..sepalwidgets import SepalWidget
+import sepal_ui
 
 def hide_component(widget):
     """hide a vuetify based component"""
     
-    if isinstance(widget, SepalWidget):
+    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
     elif not 'd-none' in str(widget.class_):
         widget.class_ = str(widget.class_).strip() + ' d-none'
@@ -29,7 +29,7 @@ def hide_component(widget):
 
 def show_component(widget):
     """show a vuetify based component"""
-    if isinstance(widget, SepalWidget):
+    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
     elif 'd-none' in str(widget.class_):
         widget.class_ = widget.class_.replace('d-none', '')
@@ -77,33 +77,13 @@ def create_download_link(pathname):
     home_path = os.path.expanduser('~')
     download_path='/'+os.path.relpath(result_path,home_path)
     
-    link = "/api/files/download?path={}".format(download_path)
+    link = f'/api/files/download?path={download_path}'
     
     return link
 
 def is_absolute(url):
     """ check if the given url is an absolute or relative path"""
     return bool(urlparse(url).netloc)
-
-def launch(command, output=None):
-    """launch the command and exit the output in a su.displayIO"""
-    
-    kwargs = {
-        'args' : command,
-        'cwd' : os.path.expanduser('~'),
-        'stdout' : subprocess.PIPE,
-        'stderr' : subprocess.PIPE,
-        'universal_newlines' : True
-    }
-    
-    output_txt = ''
-    with subprocess.Popen(**kwargs) as p:
-        for line in p.stdout:
-            output_txt += line + '\n'
-            if output:
-                output.add_live_msg(line)
-    
-    return output_txt
 
 def random_string(string_length=3):
     """Generates a random string of fixed length. 
@@ -119,7 +99,8 @@ def random_string(string_length=3):
 def get_file_size(filename):
     """return the file size as string of 2 digit in the adapted scale (B, KB, MB....)"""
     
-    file_size = Path(filename).stat().st_size
+    #file_size = Path(filename).stat().st_size
+    file_size = os.path.getsize(filename)
     
     if file_size == 0:
         return "0B"
@@ -127,7 +108,7 @@ def get_file_size(filename):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     
     i = int(math.floor(math.log(file_size, 1024)))
-    s = file_size / math.pow(1024, i)
+    s = file_size / (1024 ** i)
         
     return '{:.1f} {}'.format(s, size_name[i])
 

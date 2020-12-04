@@ -53,7 +53,8 @@ class TestApp(unittest.TestCase):
             if tile == main_tile:
                 self.assertTrue(tile.viz)
             else:
-                self.assertFalse(tile.viz)
+                self.assertFalse(tile.viz)        
+        
         
 if __name__ == '__main__':
     unittest.main()

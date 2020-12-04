@@ -35,29 +35,35 @@ class TestDrawerItem(unittest.TestCase):
         
         return
     
-    @unittest.skip("crash in travis")
     def test_display_tile(self):
         
+        # build fake tiles
         tiles = []
         for i in range(5):
             title = 'name_{}'.format(i)
             id_ = 'id_{}'.format(i)
             tiles.append(sw.Tile(id_, title))
-            
+        
+        # create the real tile
         title = 'toto'
         id_ = 'toto_id'
-        
         real_tile = sw.Tile(id_, title)
         tiles.append(real_tile)
         
-        drawerItem = sw.DrawerItem(title, None, id_)
         
-        res = drawerItem.display_tile(tiles)
-        self.assertEqual(res, drawerItem)
+        # create the drawer item and bind it to the tiles
+        drawer_item = sw.DrawerItem(title, card=id_).display_tile(tiles)
         
-        ##############################################################
-        ##      TODO cannot test the javascript on_click event      ##
-        ##############################################################
+        # fake the click
+        drawer_item._on_click(None, None, None, tiles)
+        
+        # check the viz parameter of each tiles 
+        for tile in tiles:
+            if tile.get_title() == title:
+                self.assertTrue(tile.viz)
+            else:
+                self.assertFalse(tile.viz)
+        
         return
         
 if __name__ == '__main__':

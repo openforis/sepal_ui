@@ -1,5 +1,7 @@
 import unittest
 import random
+from unittest.mock import patch
+import os
 
 import ipyvuetify as v
 
@@ -49,13 +51,21 @@ class TestUtils(unittest.TestCase):
     def get_iso_3(self):
         
         # search for France ISO-3 code
-        self.assertEqual(su.get_iso_3('Fance'), 'FRA')
+        iso_code = su.get_iso_3('Fance') 
+        self.assertEqual(iso_code, 'FRA')
         
         return
     
     def test_download_link(self):
         
         # check the url for a 'toto/tutu.png' path
+        path = 'toto/tutu.png'
+        
+        expected_link = '/api/files/download?path='
+        
+        res = su.create_download_link(path)
+        
+        self.assertIn(expected_link, res)
         
         return 
     
@@ -90,7 +100,20 @@ class TestUtils(unittest.TestCase):
     
     def test_get_file_size(self):
         
-        # mock several file size and check the display 
+        # init test values
+        test_value = 7.5
+        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        
+        # mock 0 B file 
+        with patch('os.path.getsize', return_value=0):
+            txt = su.get_file_size('random')
+            self.assertEqual(txt, '0B')
+        
+        # mock every pow of 1024 to YB
+        for i in range(9):
+            with patch('os.path.getsize', return_value=test_value*(1024**i)):
+                txt = su.get_file_size('random')
+                self.assertEqual(txt, f'7.5 {size_name[i]}')
         
         return 
     

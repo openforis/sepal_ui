@@ -35,7 +35,7 @@ class TestDatePicker(unittest.TestCase):
         self.assertEqual(test_io.out, date)
         self.assertTrue(output.viz)
         
-        return        
+        return 
         
 if __name__ == '__main__':
     unittest.main()

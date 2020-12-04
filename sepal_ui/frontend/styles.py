@@ -71,7 +71,7 @@ ICON_TYPES = {
     },
     # Icon for parent folder
     'PARENT':{ 
-        'color':'black',
+        'color':'white',
         'icon':'mdi-folder-upload-outline'
     },
 
