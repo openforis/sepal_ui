@@ -131,10 +131,13 @@ class SepalMap(geemap.Map):
 
     def _remove_local_raster(self, local_layer):
 
-        """ Remove local layer from memory
-        """
-        if local_layer.name in self.loaded_rasters.keys():
-            self.loaded_rasters.pop(local_layer.name)
+        """ Remove local layer from memory"""
+        name = local_layer if type(local_layer) == str else local_layer.name
+        
+        if name in self.loaded_rasters.keys():
+            self.loaded_rasters.pop(name)
+            
+        return self
 
     def remove_last_layer(self, local=False):
 
@@ -164,8 +167,9 @@ class SepalMap(geemap.Map):
                 # If last layer is local_layer, remove it from memory
                 if isinstance(last_layer, LocalTileLayer):
                     self._remove_local_raster(last_layer)
-            
-            
+                    
+        return self
+              
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
         
         #center the image
