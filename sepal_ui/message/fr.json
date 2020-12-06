@@ -1,0 +1,19 @@
+{
+    "status": "Status: {}",
+    "aoi_sel": {
+        "file_pattern"        : "aoi_{}",
+        "no_slection"         : "Aucune methode de selection n'a été choise",
+        "no_country"          : "Aucun pays selectionné",
+        "asset_already_exist" : "L'asset existe déjà, vous pouvez continuer de l'utiliser. Il est disponible ici : {}",
+        "asset_created"       : "L'asset a été créée sous le nom : {}",
+        "name_used"           : "L'asset est déjà utilisé. Vous pouvez changer le nom de fichier ou supprimer celui déjà présent de votre compte GEE",
+        "no_asset"            : "Aucun asset n'a été renseigné",
+        "check_if_asset"      : "Check carefully that your string is an assetId",
+        "not_available"       : "This function is not yet available",
+        "no_shape"            : "No shape have been drawn on the map",
+        "shp_error"           : "An error occured with provided .shp file",
+        "aoi_message"         : "click on \"selet these inputs\" to validate your AOI",
+        "duplicate_key"       : "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
+        "geojson_to_ee"       : "Convert your .csv file into a ee_object"
+    }
+}
