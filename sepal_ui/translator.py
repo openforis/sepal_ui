@@ -2,6 +2,7 @@ import json
 from types import SimpleNamespace
 from pathlib import Path
 from collections import abc
+from deepdiff import DeepDiff
 
 
 class Translator(SimpleNamespace):
@@ -14,11 +15,11 @@ class Translator(SimpleNamespace):
             json_folder = Path(json_folder)
         
         # reading both the default and the language dictionnaire
-        default_dict = json.loads(json_folder.joinpath(f'{default_lan}.json').read_text())
-        target_dict = json.loads(json_folder.joinpath(f'{target_lan}.json').read_text())
+        self.default_dict = json.loads(json_folder.joinpath(f'{default_lan}.json').read_text())
+        self.target_dict = json.loads(json_folder.joinpath(f'{target_lan}.json').read_text())
 
         # create a composite dict replaceing all the default keys with the one availabel in the target lan
-        ms_dict = self.update(default_dict, target_dict)
+        ms_dict = self.update(self.default_dict, self.target_dict)
         
         print(ms_dict)
         
@@ -41,4 +42,15 @@ class Translator(SimpleNamespace):
                 d[k] = v
         
         return d
+    
+    def missing_keys(self):
+        """this function is intended for developper use only
+           print the list of the missing keys in the target dictionnairie
+        """
+        
+        # find all the missing keys
+        ddiff = DeepDiff(self.default_dict, self.target_dict)['dictionary_item_removed']
+        
+        return  print('\n'.join(ddiff))
+        
         

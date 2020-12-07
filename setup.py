@@ -23,7 +23,8 @@ setup(
         'shapely',
         'geopandas',
         'pandas',
-        'coverage'
+        'coverage',
+        'deepdiff'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
