@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import time
 from datetime import datetime
 import os
@@ -136,3 +139,8 @@ def init_ee():
             ee.Initialize()
             
     return 0
+
+def load_template(file_vue_name):
+
+    with open(os.path.join(str(Path(os.path.dirname(__file__)).parent/'sepalwidgets/templates/'), file_vue_name)) as f:
+        return f.read()
