@@ -2,8 +2,8 @@ from distutils.core import setup
     
 setup(
     name = 'sepal_ui',      
-    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.frontend', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi'],   
-    package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md']},
+    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.frontend', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi', 'sepal_ui.message'],   
+    package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json']},
     version = '1.0.0',   
     license='MIT',        
     description = 'Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform',  
@@ -23,7 +23,8 @@ setup(
         'shapely',
         'geopandas',
         'pandas',
-        'coverage'
+        'coverage',
+        'deepdiff'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
