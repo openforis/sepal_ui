@@ -1,11 +1,15 @@
-import os 
-from pathlib import Path
-import json
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import ipyvuetify as v
-from traitlets import HasTraits, Unicode, link
-from ipywidgets import jslink
+import os 
+import json
+import datetime
+from pathlib import Path
+
 import pandas as pd
+from traitlets import HasTraits, Unicode, link, Bool
+from ipywidgets import jslink
+import ipyvuetify as v
 import ee
 
 from sepal_ui.frontend.styles import *
@@ -15,6 +19,18 @@ from sepal_ui.sepalwidgets.btn import Btn
 
 # initialize earth engine
 su.init_ee()
+
+class DatePickert(v.VuetifyTemplate):
+    
+    v_model = Unicode(str(datetime.date.today())).tag(sync=True)
+    template = Unicode(su.load_template('datepicker.vue')).tag(sync=True)
+    
+    menu = Bool(False).tag(sync=True)
+    label = Unicode('Select date').tag(sync=True)
+
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+
 
 class DatePicker(v.Layout, SepalWidget):
     
