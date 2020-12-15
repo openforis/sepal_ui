@@ -2,7 +2,7 @@ import time
 
 import ee
 
-from sepal_ui.scripts import messages as ms
+from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
     
 # initialize earth engine
@@ -20,7 +20,7 @@ def wait_for_completion(task_descripsion, widget_alert=None):
         
         # print in a widget
         if widget_alert: 
-            widget_alert.add_live_msg(ms.STATUS.format(state))
+            widget_alert.add_live_msg(ms.status.format(state))
             
         # wait 5 seconds
         time.sleep(5)
@@ -30,11 +30,11 @@ def wait_for_completion(task_descripsion, widget_alert=None):
         state = current_task.state
         
         if state == 'FAILED':
-            raise Exception(ms.STATUS.format(state))
+            raise Exception(ms.status.format(state))
         
     # print in a widget
     if widget_alert: 
-        widget_alert.add_live_msg(ms.STATUS.format(state), 'success')
+        widget_alert.add_live_msg(ms.status.format(state), 'success')
         
     return state
         

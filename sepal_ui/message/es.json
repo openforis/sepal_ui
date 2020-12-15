@@ -2,7 +2,7 @@
     "status": "Status: {}",
     "aoi_sel": {
         "file_pattern"        : "aoi_{}",
-        "no_slection"         : "No se ha elegido ningún método de selección",
+        "no_selection"         : "No se ha elegido ningún método de selección",
         "no_country"          : "No se ha seleccionado ningún país",
         "asset_already_exist" : "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
         "asset_created"       : "El Asset ya ha sido creado bajo el nombre: {}",
