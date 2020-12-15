@@ -35,15 +35,15 @@ class Alert(v.Alert, SepalWidget):
     
     def __init__(self, type_=None, **kwargs):
         
-        type_ = type_ if (type_ in TYPES) else TYPES[0]
+        type_ = type_ if type_ in TYPES else TYPES[0]
         
-        super().__init__(
-            children = [''],
-            type = type_,
-            text = True,
-            class_="mt-5",
-            **kwargs
-        )
+
+        self.children = ['']
+        self.type = type_
+        self.text = True
+        self.class_="mt-5"
+        
+        super().__init__(**kwargs)
         
         self.hide()
         
