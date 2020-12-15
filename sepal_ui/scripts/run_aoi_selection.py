@@ -184,7 +184,7 @@ def get_shp_aoi(file_input, folder, output):
     
     return asset
     
-def run_aoi_selection(output, list_method, io, folder):
+def run_aoi_selection(output, list_method, io, folder=None):
     """ create an gee asset according to the user inputs
 
     Args:
@@ -202,7 +202,8 @@ def run_aoi_selection(output, list_method, io, folder):
     """
     #go to the glad folder in gee assets 
     if not folder: 
-        folder = ee.data.getAssetRoots()[0]['id'] + '/'
+        folder = ee.data.getAssetRoots()[0]['id']
+        folder = folder.replace('projects/earthengine-legacy/assets/', '')
     
     #clean all but the selected method
     if io.country_selection:
