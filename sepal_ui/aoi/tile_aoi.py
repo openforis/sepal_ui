@@ -140,9 +140,9 @@ class TileAoi(sw.Tile):
             
             # display the resulting aoi on the map
             if self.io.assetId or self.io.feature_collection:
-                    self.m.hide_dc()
-                    self.io.display_on_map(self.m)
-                
+                self.m.hide_dc()
+                self.io.display_on_map(self.m)
+            
         except Exception as e: 
             self.output.add_live_msg(str(e), 'error') 
             

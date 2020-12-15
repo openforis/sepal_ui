@@ -211,7 +211,7 @@ class LoadTableField(v.Col, SepalWidget):
     
     def __init__(self):
         
-        self.fileInput = FileInput(['.csv'])
+        self.fileInput = FileInput(['.csv', '.txt'])
                 
         self.IdSelect = self._LocalSelect('id_column', 'Id')
         self.LngSelect = self._LocalSelect('lng_column', 'Longitude')
@@ -240,7 +240,8 @@ class LoadTableField(v.Col, SepalWidget):
     def _on_file_input_change(self, change):
         
         path = change['new']
-        df = pd.read_csv(path)
+            
+        df = pd.read_csv(path, sep=None, engine='python')
         
         if len(df.columns) < 3: 
             self._clear_select()

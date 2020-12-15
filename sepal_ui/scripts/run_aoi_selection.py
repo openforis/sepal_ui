@@ -112,7 +112,7 @@ def get_csv_asset(json_csv, folder, output):
         return None
     
     # create a tmp gdf
-    df = pd.read_csv(load_df['pathname'])
+    df = pd.read_csv(load_df['pathname'], sep=None, engine='python')
     gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[load_df['lng_column']], df[load_df['lat_column']]))
     
     # convert it into geo-json 
@@ -203,7 +203,6 @@ def run_aoi_selection(output, list_method, io, folder=None):
     #go to the glad folder in gee assets 
     if not folder: 
         folder = ee.data.getAssetRoots()[0]['id']
-        folder = folder.replace('projects/earthengine-legacy/assets/', '')
     
     #clean all but the selected method
     if io.country_selection:
