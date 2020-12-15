@@ -73,6 +73,11 @@ class Tile(v.Layout, SepalWidget):
                 su.hide_component(field)
                     
         return self
+    
+    def get_id(self):
+        """return the mount_id value"""
+        
+        return self._metadata['mount_id']
         
 class TileAbout(Tile):
     """
