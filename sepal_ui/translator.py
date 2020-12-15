@@ -7,7 +7,7 @@ from deepdiff import DeepDiff
 
 class Translator(SimpleNamespace):
     
-    def __init__(self, json_folder, default_lan, target_lan):
+    def __init__(self, json_folder, target_lan, default_lan='en'):
         
         super().__init__()
         
@@ -27,7 +27,7 @@ class Translator(SimpleNamespace):
             print(f'No json file is provided for "{target_lan}", fallback to "en"')
 
         
-        ms_dict = self.update(self.default_dict, self.target_dict)
+        ms_dict = self._update(self.default_dict, self.target_dict)
         
         # transform it into a json str
         ms_json = json.dumps(ms_dict)
@@ -39,14 +39,14 @@ class Translator(SimpleNamespace):
             setattr(self, k, getattr(ms, k))
         
         
-    def update(self, d, u):
+    def _update(self, d, u):
         """update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire"""
         
         ms = d.copy()
         
         for k, v in u.items():
             if isinstance(v, abc.Mapping):
-                ms[k] = self.update(d.get(k, {}), v)
+                ms[k] = self._update(d.get(k, {}), v)
             else:
                 ms[k] = v
         
@@ -63,6 +63,6 @@ class Translator(SimpleNamespace):
         except:
             ddiff = ['All messages are translated']
         
-        return  print('\n'.join(ddiff))
+        return  '\n'.join(ddiff)
         
         

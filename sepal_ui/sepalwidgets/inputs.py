@@ -75,9 +75,10 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.folder = folder
         
         self.selected_file = v.TextField(
-            label   = 'Selected file', 
-            class_  = 'ml-5 mt-5',
-            v_model = self.file
+            readonly = True,
+            label    = 'Selected file', 
+            class_   = 'ml-5 mt-5',
+            v_model  = self.file
         )
 
         self.loading = v.ProgressLinear(
