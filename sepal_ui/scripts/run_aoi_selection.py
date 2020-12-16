@@ -11,7 +11,7 @@ import pandas as pd
 import geopandas as gpd
 
 from sepal_ui.scripts import utils, gee
-from sepal_ui.scripts import messages as ms
+from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
     
 # initialize earth engine
@@ -22,7 +22,7 @@ def display_asset(output, asset):
     
     asset = asset.replace('projects/earthengine-legacy/assets/', '')
     
-    output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+    output.add_msg(ms.aoi_sel.asset_created.format(asset), 'success')
     
     return
 
@@ -49,7 +49,7 @@ def get_country_asset(country_selection, output):
     """send a request to GEE to get a featurecollection based on the country selected"""
     
     if country_selection == None:
-        output.add_msg(ms.NO_COUNTRY, 'warning')
+        output.add_msg(ms.aoi_sel.no_country, 'warning')
         return (None, None)
     
     country_code = utils.get_gaul_dic()[country_selection] 
@@ -65,13 +65,13 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
     """send the requested drawn feature to GEE to create an asset"""
     
     aoi = drawn_feat 
-    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
+    asset_name = ms.aoi_sel.file_pattern.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
         
     if drawn_feat == None: #check if something is drawn 
-        output.add_msg(ms.NO_SHAPE, 'error')
+        output.add_msg(ms.aoi_sel.no_shape, 'error')
         return None
     elif isAsset(asset_name, folder): #check asset existence
-        output.add_msg(ms.NAME_USED, 'error')
+        output.add_msg(ms.aoi_sel.name_used, 'error')
         return None 
         
     asset = os.path.join(folder, asset_name)
@@ -94,10 +94,10 @@ def get_gee_asset(asset_name, output):
     """check that the asset exist return None if not"""
     
     if asset_name == '' or asset_name == None:
-        output.add_msg(ms.NO_ASSET, 'error') 
+        output.add_msg(ms.aoi_sel.no_asset, 'error') 
         asset = None
     else:
-        output.add_msg(ms.CHECK_IF_ASSET, 'success')
+        output.add_msg(ms.aoi_sel.check_if_asset, 'success')
         asset = asset_name
         
     return asset
@@ -111,13 +111,13 @@ def get_csv_asset(json_csv, file_name, folder, output):
     # check that the columns are well set 
     tmp_list = [load_df[i] for i in load_df]
     if not len(tmp_list) == len(set(tmp_list)):
-        output.add_msg(ms.DUPLICATE_KEY, 'error') 
+        output.add_msg(ms.aoi_sel.duplicate_key, 'error') 
         return None
     
     # check asset existence
     asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
     if isAsset(asset_name, folder):
-        output.add_msg(ms.NAME_USED, 'error')
+        output.add_msg(ms.aoi_sel.name_used, 'error')
         return None
     
     # create a tmp gdf
@@ -128,7 +128,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
     json_df = json.loads(gdf.to_json())
     
     # create a gee object with geemap
-    output.add_msg(ms.GEOJSON_TO_EE, 'success')
+    output.add_msg(ms.aoi_sel.geojson_to_ee, 'success')
     ee_object = geemap.geojson_to_ee(json_df)
     
     # upload this object to earthengine
@@ -153,7 +153,7 @@ def get_shp_aoi(file_input, file_name, folder, output):
     """send a request to GEE to create an asset based on the local shapefile"""
     
     if not os.path.isfile(file_input):
-        output.add_msg(ms.ERROR_OCCURED, 'error')
+        output.add_msg(ms.aoi_sel.error_occured, 'error')
         return None
     
     # convert the .shp in gdf in epsg:4326
@@ -164,13 +164,13 @@ def get_shp_aoi(file_input, file_name, folder, output):
     
     # create ee_object based on the json dict
     ee_object = geemap.geojson_to_ee(json_gdf)           
-        
-    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]','_',file_name))
+       
+    asset_name = ms.aoi_sel.file_pattern.format(re.sub('[^a-zA-Z\d\-\_]','_',file_name))
         
     #check asset's name
     if isAsset(asset_name, folder):
         
-        output.add_msg(ms.NAME_USED, 'error')
+        output.add_msg(ms.aoi_sel.name_used, 'error')
         asset = None
         
     else:
@@ -222,7 +222,7 @@ def run_aoi_selection(output, list_method, io, folder=None):
     
     # not selected
     if io.selection_method == None:
-        output.add_msg(ms.NO_SELECTION, 'error')   
+        output.add_msg(ms.aoi_sel.no_selection, 'error')   
     # use a country boundary
     elif io.selection_method == list_method[0]: 
         io.feature_collection, io.country_code = get_country_asset(io.country_selection, output)

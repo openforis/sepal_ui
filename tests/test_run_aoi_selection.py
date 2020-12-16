@@ -10,7 +10,7 @@ import sepal_ui
 from sepal_ui import sepalwidgets as sw
 from sepal_ui import aoi
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts import messages as ms
+from sepal_ui.message import ms
 from sepal_ui.scripts.run_aoi_selection import * 
 
 su.init_ee()
@@ -85,7 +85,7 @@ class TestRunAoiSelection(unittest.TestCase):
         # send no drawn_feat 
         asset = get_drawn_shape(None, 'corsica', folder, alert)
         self.assertFalse(asset)
-        self.assertEqual(alert.children[0].children[0], ms.NO_SHAPE)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.no_shape)
         
         # send the drawn feat to EE
         corsica = get_drawn_shape(ee_feature, 'corsica', folder, alert)
@@ -95,7 +95,7 @@ class TestRunAoiSelection(unittest.TestCase):
         # send no already existing
         asset = get_drawn_shape(ee_feature, 'corsica', folder, alert)
         self.assertFalse(asset)
-        self.assertEqual(alert.children[0].children[0], ms.NAME_USED)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.name_used)
         
         ee.data.deleteAsset(corsica)
         
@@ -108,13 +108,13 @@ class TestRunAoiSelection(unittest.TestCase):
         # check with nothing 
         asset = get_gee_asset('', alert)
         self.assertFalse(asset)
-        self.assertEqual(alert.children[0].children[0], ms.NO_ASSET)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.no_asset)
         
         # check with a real asset 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
         asset = get_gee_asset(asset_id, alert)
         self.assertEqual(asset, asset_id)
-        self.assertEqual(alert.children[0].children[0], ms.CHECK_IF_ASSET)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.check_if_asset)
         
         return 
     
@@ -138,7 +138,7 @@ class TestRunAoiSelection(unittest.TestCase):
         
         asset = get_csv_asset(json_csv, folder, alert)
         self.assertFalse(asset)
-        self.assertEqual(alert.children[0].children[0], ms.DUPLICATE_KEY)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.duplicate_key)
         
         # launch with a real asset
         json_csv = json.dumps({
@@ -196,7 +196,7 @@ class TestRunAoiSelection(unittest.TestCase):
         
         # with no method 
         run_aoi_selection(alert, None, aoi_io)
-        self.assertEqual(alert.children[0].children[0], ms.NO_SELECTION)
+        self.assertEqual(alert.children[0].children[0], ms.aoi_sel.no_selection)
         
         # mock country asset 
         with patch(' sepal_ui.scripts.run_aoi_selection.get_country_asset'):
