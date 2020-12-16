@@ -111,11 +111,18 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
                 'children': Btn(icon='mdi-file-search', v_model=False, v_on='x.on', text=label)
         }])
         
+        self.reload = v.Btn(
+            icon = True,
+            color = 'primary',
+            children = [v.Icon(children=['mdi-cached'])]
+        )
+        
         super().__init__(
             row          = True,
             class_       = 'd-flex align-center mb-2',
             align_center = True,
             children     = [
+                self.reload,
                 self.file_menu,
                 self.selected_file,
             ],
@@ -126,6 +133,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         link((self.selected_file, 'v_model'), (self, 'v_model'))
 
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
+        self.reload.on_event('click', self._on_reload)
         
     def _on_file_select(self, change):
         new_value = change['new']
@@ -199,6 +207,13 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.loading.indeterminate = not self.loading.indeterminate
         
         return folder_list
+    
+    def _on_reload(self, widget, event, data):
+        
+        # force the update of the current folder
+        self._change_folder()
+        
+        return
 
 class LoadTableField(v.Col, SepalWidget):
     
