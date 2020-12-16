@@ -1,4 +1,7 @@
 from functools import partial
+from pathlib import Path
+import json
+from datetime import datetime
 
 import ipyvuetify as v
 import geemap
@@ -17,7 +20,7 @@ class FileNameField(v.TextField, sw.SepalWidget):
     def __init__(self, default_name = ''):
         
         super().__init__(
-            label   = 'Select a filename', 
+            label   = 'Select an asset name', 
             v_model = default_name
         )
         
@@ -52,12 +55,13 @@ class TileAoi(sw.Tile):
         self.folder = folder
         
         # create the inputs widgets 
-        self.aoi_file_input = sw.FileInput(['.shp']).hide()
-        self.output.bind(self.aoi_file_input, self.io, 'file_input')
-    
         self.aoi_file_name = FileNameField(io.file_name).hide()
         self.output.bind(self.aoi_file_name, self.io, 'file_name')
-    
+        
+        self.aoi_file_input = sw.FileInput(['.shp']).hide()
+        self.output.bind(self.aoi_file_input, self.io, 'file_input')
+        self.aoi_file_input.observe(self._on_file_change, 'v_model')
+        
         self.aoi_country_selection = CountrySelect().hide()
         self.output.bind(self.aoi_country_selection, self.io, 'country_selection')
     
@@ -66,10 +70,11 @@ class TileAoi(sw.Tile):
         
         self.aoi_load_table = sw.LoadTableField().hide()
         self.output.bind(self.aoi_load_table, self.io, 'json_csv')
+        self.aoi_load_table.observe(self._on_table_change, 'v_model')
     
         widget_list = [
-            self.aoi_file_input, 
             self.aoi_file_name, 
+            self.aoi_file_input, 
             self.aoi_country_selection, 
             self.aoi_asset_name,
             self.aoi_load_table
@@ -116,6 +121,11 @@ class TileAoi(sw.Tile):
     def handle_draw(self, dc, action, geo_json):
         """handle the drawing of a geometry on a map. The geometry is transform into a ee.featurecollection and send to the variable attribute of self.io"""
         
+        # change the date 
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.aoi_file_name.v_model = f'Manual_{date}'
+        
+        # add the feature
         geom = geemap.geojson_to_ee(geo_json, False)
         feature = ee.Feature(geom)
         self.io.drawn_feat = ee.FeatureCollection(feature)
@@ -154,11 +164,14 @@ class TileAoi(sw.Tile):
         """change the display of the AOI selector according to the method selected. will only display the useful one"""
             
         # clearly identify the differents widgets 
-        aoi_file_input        = list_input[0]
-        aoi_file_name         = list_input[1]
+        aoi_file_input        = list_input[1]
+        aoi_file_name         = list_input[0]
         aoi_country_selection = list_input[2]
         aoi_asset_name        = list_input[3]
         aoi_load_table        = list_input[4]
+        
+        # clear the file_name
+        aoi_file_name.v_model = None
         
         # extract the selecion_method
         method = self.SELECTION_METHOD
@@ -168,8 +181,10 @@ class TileAoi(sw.Tile):
             
         # hide the dc
         self.m.hide_dc()
-                
-        # toogle the appropriate inputs
+        
+        #############################################
+        ##      toogle the appropriate inputs      ##
+        #############################################
             
         # country selection
         if change['new'] == method[0]: 
@@ -180,15 +195,32 @@ class TileAoi(sw.Tile):
             self.m.show_dc()
         # shp file
         elif change['new'] == method[2]: 
-            self.toggle_inputs([aoi_file_input], list_input)
+            self.toggle_inputs([aoi_file_name, aoi_file_input], list_input)
         # gee asset
         elif change['new'] == method[3]: 
             self.toggle_inputs([aoi_asset_name], list_input)
         # Point file (.csv)
         elif change['new'] == method[4]: 
-            self.toggle_inputs([aoi_load_table], list_input)
+            self.toggle_inputs([aoi_file_name, aoi_load_table], list_input)
         # display nothing 
         else:
             self.toggle_inputs([], list_input)
         
         return self 
+    
+    def _on_file_change(self, change):
+        
+        name = Path(change['new']).stem
+        self.aoi_file_name.v_model = name
+        
+        return
+    
+    def _on_table_change(self, change):
+        
+        load_df = json.loads(change['new'])
+        
+        name = Path(load_df['pathname']).stem
+        self.aoi_file_name.v_model = name
+        
+        return
+    

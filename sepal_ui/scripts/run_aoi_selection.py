@@ -102,7 +102,7 @@ def get_gee_asset(asset_name, output):
         
     return asset
 
-def get_csv_asset(json_csv, folder, output):
+def get_csv_asset(json_csv, file_name, folder, output):
     """Send a request to GEE to create an asset based on the local shapefile"""
     
     #read the json 
@@ -115,7 +115,7 @@ def get_csv_asset(json_csv, folder, output):
         return None
     
     # check asset existence
-    asset_name = f"aoi_{Path(load_df['pathname']).stem}"
+    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
     if isAsset(asset_name, folder):
         output.add_msg(ms.NAME_USED, 'error')
         return None
@@ -149,7 +149,7 @@ def get_csv_asset(json_csv, folder, output):
     return asset
     
             
-def get_shp_aoi(file_input, folder, output):
+def get_shp_aoi(file_input, file_name, folder, output):
     """send a request to GEE to create an asset based on the local shapefile"""
     
     if not os.path.isfile(file_input):
@@ -165,9 +165,7 @@ def get_shp_aoi(file_input, folder, output):
     # create ee_object based on the json dict
     ee_object = geemap.geojson_to_ee(json_gdf)           
         
-    name = Path(file_input).stem
-        
-    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]','_',name))
+    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]','_',file_name))
         
     #check asset's name
     if isAsset(asset_name, folder):
@@ -236,9 +234,9 @@ def run_aoi_selection(output, list_method, io, folder=None):
         io.assetId = get_gee_asset(io.assetId, output)
     # upload file
     elif io.selection_method == list_method[2]: 
-        io.assetId = get_shp_aoi(io.file_input, folder, output)
+        io.assetId = get_shp_aoi(io.file_input, io.file_name, folder, output)
     # csv point file
     elif io.selection_method == list_method[4]: 
-        io.assetId = get_csv_asset(io.json_csv, folder, output)
+        io.assetId = get_csv_asset(io.json_csv, io.file_name, folder, output)
             
     return

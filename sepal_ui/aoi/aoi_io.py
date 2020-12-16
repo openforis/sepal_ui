@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 import os
 
@@ -17,8 +16,6 @@ class Aoi_io:
     
     def __init__(self, alert_widget=None, default_asset=None):
         
-        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        
         # GEE parameters
         self.assetId = default_asset
         self.column = None
@@ -30,7 +27,7 @@ class Aoi_io:
 
         #set up your inputs
         self.file_input = None
-        self.file_name = f'Manual_{date}'
+        self.file_name = None
         self.country_selection = None
         self.selection_method = None
         self.drawn_feat = None
@@ -101,8 +98,6 @@ class Aoi_io:
         self.selected_feature = None
 
     def clear_attributes(self):
-        
-        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         # GEE parameters
         self.column = None
@@ -114,7 +109,7 @@ class Aoi_io:
 
         # set up your inputs
         self.file_input = None
-        self.file_name = f'Manual_{date}'
+        self.file_name = None
         self.country_selection = None
         self.selection_method = None
         self.drawn_feat = None
