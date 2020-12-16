@@ -17,6 +17,15 @@ from sepal_ui.scripts import utils as su
 # initialize earth engine
 su.init_ee()
 
+def display_asset(output, asset):
+    """remove the manifest from the asset name and display it to the user"""
+    
+    asset = asset.replace('projects/earthengine-legacy/assets/', '')
+    
+    output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+    
+    return
+
 def isAsset(asset_descripsion, folder):
     """Check if the asset already exist in the user asset folder
     
@@ -48,7 +57,7 @@ def get_country_asset(country_selection, output):
     
     country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', country_code))
           
-    output.add_msg(ms.ASSET_CREATED.format(iso_3), 'success')
+    display_asset(output, iso_3)
     
     return country, iso_3
 
@@ -77,7 +86,7 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
     task.start()
     gee.wait_for_completion(asset_name, output)
            
-    output.add_msg(ms.ASSET_CREATED.format(asset), 'success') 
+    display_asset(output, asset)
     
     return asset
 
@@ -135,7 +144,7 @@ def get_csv_asset(json_csv, folder, output):
     task.start()
     gee.wait_for_completion(asset_name, output)
            
-    output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+    display_asset(output, asset)
     
     return asset
     
@@ -180,7 +189,7 @@ def get_shp_aoi(file_input, folder, output):
         task.start()
         gee.wait_for_completion(asset_name, output)
                    
-        output.add_msg(ms.ASSET_CREATED.format(asset), 'success')
+        display_asset(output, asset)
     
     return asset
     
