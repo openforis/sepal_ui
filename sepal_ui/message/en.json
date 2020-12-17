@@ -3,7 +3,7 @@
     "status": "Status: {}",
     "aoi_sel": {
         "file_pattern"        : "aoi_{}",
-        "no_slection"         : "No selection method have been picked up",
+        "no_selection"         : "No selection method have been picked up",
         "no_country"          : "No Country have been selected",
         "asset_already_exist" : "The asset was already existing you can continue to use it. It's also available at :{}",
         "asset_created"       : "The asset has been created under the name : {}",
