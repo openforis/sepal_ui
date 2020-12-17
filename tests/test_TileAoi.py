@@ -89,7 +89,6 @@ class TestAoiTile(unittest.TestCase):
         # select shp file
         tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[2]
         self.assertNotIn('d-none', tile_aoi.aoi_file_input.class_)
-        self.assertIn('d-none', tile_aoi.aoi_file_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
@@ -105,7 +104,6 @@ class TestAoiTile(unittest.TestCase):
         # select point file
         tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[4]
         self.assertIn('d-none', tile_aoi.aoi_file_input.class_)
-        self.assertIn('d-none', tile_aoi.aoi_file_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertNotIn('d-none', tile_aoi.aoi_load_table.class_)

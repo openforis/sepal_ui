@@ -115,7 +115,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
         return None
     
     # check asset existence
-    asset_name = ms.FILE_PATTERN.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
+    asset_name = ms.aoi_sel.file_pattern.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
     if isAsset(asset_name, folder):
         output.add_msg(ms.aoi_sel.name_used, 'error')
         return None

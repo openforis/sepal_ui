@@ -127,6 +127,7 @@ class TestRunAoiSelection(unittest.TestCase):
         
         # create the fake file
         filename = self._create_fake_table()
+        asset_name = Path(filename).stem
         
         # launch one with duplicate keys
         json_csv = json.dumps({
@@ -136,7 +137,7 @@ class TestRunAoiSelection(unittest.TestCase):
             "lng_column": "lat"
         })
         
-        asset = get_csv_asset(json_csv, folder, alert)
+        asset = get_csv_asset(json_csv, asset_name, folder, alert)
         self.assertFalse(asset)
         self.assertEqual(alert.children[0].children[0], ms.aoi_sel.duplicate_key)
         
@@ -148,7 +149,7 @@ class TestRunAoiSelection(unittest.TestCase):
             "lng_column": "lng"
         })
         
-        asset = get_csv_asset(json_csv, folder, alert)
+        asset = get_csv_asset(json_csv, asset_name, folder, alert)
         self.assertEqual(asset, f'{folder}/aoi_test')
         
         ee.data.deleteAsset(asset)
@@ -175,8 +176,10 @@ class TestRunAoiSelection(unittest.TestCase):
             
         filename = str(Path(file).with_suffix('')) + name_ext + Path(filename).suffix
         
+        asset_name = Path(filename).stem
+        
         # load the shp in gee 
-        asset = get_shp_aoi(filename, folder, alert)
+        asset = get_shp_aoi(filename, asset_name, folder, alert)
         self.assertEqual(asset, f'{folder}/aoi_france_test')
         
         # remove the files 
