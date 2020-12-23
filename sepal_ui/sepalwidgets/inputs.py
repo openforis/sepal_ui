@@ -339,20 +339,23 @@ class AssetSelect(v.Combobox, SepalWidget):
     def __init__(self, label = 'Select an asset', folder = None):
         
         # if folder is not set use the root one 
-        if not folder: 
-            folder = ee.data.getAssetRoots()[0]['id'] + '/'
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
         
         # get the list of user asset
-        assets = ee.data.listAssets({'parent': folder})['assets']
+        assets = ee.data.listAssets({'parent': self.folder})['assets']
+        
+        # would be interesting when it will work
+        #items = [{'text': asset['name'].replace(self.folder, ''), 'value': asset['name']} for asset in assets]
+        items = [asset['name'] for asset in assets]
         
         super().__init__(
             clearable       = True,
             class_          = 'mb-5',
             label           = label,
-            placeholder     = 'projects/earthengine-legacy/assets/users/someCustomUser/customAsset',
+            placeholder     = 'users/someCustomUser/customAsset',
             hint            = "select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it",
             persistent_hint = True,
-            items           = [asset['name'] for asset in assets],
+            items           = items,
             v_model         = None
         )
         
