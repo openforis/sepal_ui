@@ -16,8 +16,11 @@ class Aoi_io:
     
     def __init__(self, alert_widget=None, default_asset=None):
         
+        # keep the default asset in memory
+        self.default_asset = default_asset
+        
         # GEE parameters
-        self.assetId = default_asset
+        self.assetId = self.default_asset
         self.column = None
         self.field = None
         self.selected_feature = None
@@ -100,6 +103,7 @@ class Aoi_io:
     def clear_attributes(self):
 
         # GEE parameters
+        self.assetId = self.default_asset
         self.column = None
         self.field = None
         self.selected_feature = None
