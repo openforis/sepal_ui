@@ -7,7 +7,7 @@ import ipyvuetify as v
 # change vuetify theming 
 v.theme.dark = True
 v.theme.themes.dark.primary = "#B3842E"
-v.theme.themes.dark.accent = "#392f37"
+v.theme.themes.dark.accent = "#a1458e"
 v.theme.themes.dark.secondary = "#324a88"
 v.theme.themes.dark.success = "#3F802A"
 v.theme.themes.dark.info = "#79B1C9"
