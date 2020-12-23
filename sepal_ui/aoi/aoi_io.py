@@ -208,7 +208,7 @@ class Aoi_io:
         name = None
         if self.country_code:
             name = self.country_code
-        else:
+        elif self.assetId:
             name = Path(self.assetId).stem.replace('aoi_', '')
         
         return name
