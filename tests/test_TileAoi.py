@@ -146,7 +146,36 @@ class TestAoiTile(unittest.TestCase):
         
         self.assertIsInstance(aoi_io.drawn_feat, ee.FeatureCollection)
         
-        return       
+        return     
+    
+    def test_on_file_change(self):
+        
+        # init 
+        aoi_io = aoi.Aoi_io()
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
+        
+        # fake a file change
+        fake_file = 'a_fake_file'
+        tile_aoi._on_file_change({'new': fake_file})
+        
+        self.assertEqual(tile_aoi.aoi_file_name.v_model, fake_file)
+        
+        return 
+    
+    def test_on_table_change(self):
+        
+        # init 
+        aoi_io = aoi.Aoi_io()
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
+        
+        # fake a table change
+        fake_file = 'a_fake_file'
+        fake_json = '{"pathname": "' + fake_file + '"}'
+        tile_aoi._on_table_change({'new': fake_json})
+        
+        self.assertEqual(tile_aoi.aoi_file_name.v_model, fake_file)
+        
+        return 
         
 if __name__ == '__main__':
     unittest.main()

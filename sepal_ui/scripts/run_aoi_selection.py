@@ -169,7 +169,6 @@ def get_shp_aoi(file_input, file_name, folder, output):
         
     #check asset's name
     if isAsset(asset_name, folder):
-        
         output.add_msg(ms.aoi_sel.name_used, 'error')
         asset = None
         
