@@ -111,11 +111,18 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
                 'children': Btn(icon='mdi-file-search', v_model=False, v_on='x.on', text=label)
         }])
         
+        self.reload = v.Btn(
+            icon = True,
+            color = 'primary',
+            children = [v.Icon(children=['mdi-cached'])]
+        )
+        
         super().__init__(
             row          = True,
             class_       = 'd-flex align-center mb-2',
             align_center = True,
             children     = [
+                self.reload,
                 self.file_menu,
                 self.selected_file,
             ],
@@ -126,6 +133,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         link((self.selected_file, 'v_model'), (self, 'v_model'))
 
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
+        self.reload.on_event('click', self._on_reload)
         
     def _on_file_select(self, change):
         new_value = change['new']
@@ -199,6 +207,13 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.loading.indeterminate = not self.loading.indeterminate
         
         return folder_list
+    
+    def _on_reload(self, widget, event, data):
+        
+        # force the update of the current folder
+        self._change_folder()
+        
+        return
 
 class LoadTableField(v.Col, SepalWidget):
     
@@ -211,7 +226,7 @@ class LoadTableField(v.Col, SepalWidget):
     
     def __init__(self):
         
-        self.fileInput = FileInput(['.csv'])
+        self.fileInput = FileInput(['.csv', '.txt'])
                 
         self.IdSelect = self._LocalSelect('id_column', 'Id')
         self.LngSelect = self._LocalSelect('lng_column', 'Longitude')
@@ -240,7 +255,8 @@ class LoadTableField(v.Col, SepalWidget):
     def _on_file_input_change(self, change):
         
         path = change['new']
-        df = pd.read_csv(path)
+            
+        df = pd.read_csv(path, sep=None, engine='python')
         
         if len(df.columns) < 3: 
             self._clear_select()
@@ -323,20 +339,23 @@ class AssetSelect(v.Combobox, SepalWidget):
     def __init__(self, label = 'Select an asset', folder = None):
         
         # if folder is not set use the root one 
-        if not folder: 
-            folder = ee.data.getAssetRoots()[0]['id'] + '/'
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
         
         # get the list of user asset
-        assets = ee.data.listAssets({'parent': folder})['assets']
+        assets = ee.data.listAssets({'parent': self.folder})['assets']
+        
+        # would be interesting when it will work
+        #items = [{'text': asset['name'].replace(self.folder, ''), 'value': asset['name']} for asset in assets]
+        items = [asset['name'] for asset in assets]
         
         super().__init__(
             clearable       = True,
             class_          = 'mb-5',
             label           = label,
-            placeholder     = 'projects/earthengine-legacy/assets/users/someCustomUser/customAsset',
+            placeholder     = 'users/someCustomUser/customAsset',
             hint            = "select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it",
             persistent_hint = True,
-            items           = [asset['name'] for asset in assets],
+            items           = items,
             v_model         = None
         )
         

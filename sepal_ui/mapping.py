@@ -26,8 +26,6 @@ if not ee.data._credentials: ee.Initialize()
 class SepalMap(geemap.Map):
     """initialize differents maps and tools"""
 
-    # loaded_rasters = {}
-
     def __init__(self, basemaps=[], dc=False, **kwargs):
 
         super().__init__(

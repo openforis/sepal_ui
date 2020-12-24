@@ -3,7 +3,7 @@ import unittest
 import ee
 
 from sepal_ui import aoi
-from sepal_ui.scripts import messages as ms
+from sepal_ui.message import ms
 
 class TestAoiTile(unittest.TestCase):
     
@@ -44,7 +44,7 @@ class TestAoiTile(unittest.TestCase):
         
         # launch the click without any entry 
         tile_aoi.bind_aoi_process(tile_aoi.aoi_select_btn, None, None)
-        self.assertEqual(tile_aoi.output.children[0].children[0], ms.NO_SELECTION)
+        self.assertEqual(tile_aoi.output.children[0].children[0], ms.aoi_sel.no_selection)
         
         # launch with a coutry entry
         aoi_io.clear_attributes()
@@ -89,7 +89,6 @@ class TestAoiTile(unittest.TestCase):
         # select shp file
         tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[2]
         self.assertNotIn('d-none', tile_aoi.aoi_file_input.class_)
-        self.assertIn('d-none', tile_aoi.aoi_file_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
@@ -105,7 +104,6 @@ class TestAoiTile(unittest.TestCase):
         # select point file
         tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[4]
         self.assertIn('d-none', tile_aoi.aoi_file_input.class_)
-        self.assertIn('d-none', tile_aoi.aoi_file_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertNotIn('d-none', tile_aoi.aoi_load_table.class_)
@@ -148,7 +146,36 @@ class TestAoiTile(unittest.TestCase):
         
         self.assertIsInstance(aoi_io.drawn_feat, ee.FeatureCollection)
         
-        return       
+        return     
+    
+    def test_on_file_change(self):
+        
+        # init 
+        aoi_io = aoi.Aoi_io()
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
+        
+        # fake a file change
+        fake_file = 'a_fake_file'
+        tile_aoi._on_file_change({'new': fake_file})
+        
+        self.assertEqual(tile_aoi.aoi_file_name.v_model, fake_file)
+        
+        return 
+    
+    def test_on_table_change(self):
+        
+        # init 
+        aoi_io = aoi.Aoi_io()
+        tile_aoi = aoi.TileAoi(aoi_io, folder = self.FOLDER)
+        
+        # fake a table change
+        fake_file = 'a_fake_file'
+        fake_json = '{"pathname": "' + fake_file + '"}'
+        tile_aoi._on_table_change({'new': fake_json})
+        
+        self.assertEqual(tile_aoi.aoi_file_name.v_model, fake_file)
+        
+        return 
         
 if __name__ == '__main__':
     unittest.main()
