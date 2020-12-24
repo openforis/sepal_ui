@@ -1,0 +1,20 @@
+{
+    "test_key": "Clef test",
+    "status": "Status: {}",
+    "aoi_sel": {
+        "file_pattern"        : "aoi_{}",
+        "no_selection"         : "Aucune methode de selection n'a été choisie",
+        "no_country"          : "Aucun pays selectionné",
+        "asset_already_exist" : "L'asset existe déjà, vous pouvez continuer de l'utiliser. Il est disponible ici : {}",
+        "asset_created"       : "L'asset a été créée sous le nom : {}",
+        "name_used"           : "L'asset est déjà utilisé. Vous pouvez changer le nom de fichier ou supprimer celui déjà présent de votre compte GEE",
+        "no_asset"            : "Aucun asset n'a été renseigné",
+        "check_if_asset"      : "Verifier attentivement que vous avez utiliser une asset ID valide",
+        "not_available"       : "Cette fonction n'est pas encore disponible",
+        "no_shape"            : "Aucune figure n'a été dessiné sur la carte",
+        "shp_error"           : "Une erreur est survenue avec le fichier .shp utilisé",
+        "aoi_message"         : "Cliquer sur le boutton pour valider votre AOI",
+        "duplicate_key"       : "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'identifiant",
+        "geojson_to_ee"       : "Convertir votre fichier .csv en object Google Earth Engine"
+    }
+}

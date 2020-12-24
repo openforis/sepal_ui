@@ -111,6 +111,15 @@ class TestTile(unittest.TestCase):
         
         return
     
+    def test_get_id(self):
+        
+        id_ = "id"
+        tile = sw.Tile(id_, "title", [''])
+        
+        self.assertEqual(tile.get_id(), id_)
+        
+        return
+    
     def test_tile_about(self):
         
         pathname = os.path.join(os.path.dirname(__file__), '..', 'sepal_ui', 'scripts', 'disclaimer.md')

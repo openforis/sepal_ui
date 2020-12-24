@@ -155,7 +155,7 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(aoi_io.country_code, None)
         self.assertEqual(aoi_io.feature_collection, None)
         self.assertEqual(aoi_io.file_input, None)
-        self.assertIn('Manual_', aoi_io.file_name)
+        self.assertEqual(aoi_io.file_name, None)
         self.assertEqual(aoi_io.country_selection, None)
         self.assertEqual(aoi_io.selection_method, None)
         self.assertEqual(aoi_io.drawn_feat, None)
@@ -168,8 +168,7 @@ class TestAoi_io(unittest.TestCase):
         
         attrs = aoi_io.get_not_null_attrs()
         
-        self.assertEqual(len(attrs), 1)
-        self.assertEqual(list(attrs.keys())[0], 'file_name')
+        self.assertEqual(len(attrs), 0)
         
         return 
     
