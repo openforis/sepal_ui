@@ -34,12 +34,15 @@ class TestSepalMap(unittest.TestCase):
         self.assertIn('CartoDB.DarkMatter', layers_name)
         self.assertIn('CartoDB.Positron', layers_name)
         
-        # check that the map refuses to display basmap if not 
-        # part of the leaflet basemap list
-        sys.stdout = open(os.devnull, 'w')
-        m = sm.SepalMap(['TOTO'])
-        self.assertEqual(len(m.layers), 0)
-        sys.stdout = sys.__stdout__
+        # check that a wrong layer raise an error if it's not part of the leaflet basemap list
+        # work until I get how to use assertRaises
+        error = False
+        try:
+            m = sm.SepalMap(['TOTO'])
+        except Exception as e:
+            error = True
+            
+        self.assertTrue(error)
         
         return
     
