@@ -37,20 +37,29 @@ class DownloadBtn(v.Btn, SepalWidget):
     
     def __init__(self, text, path='#', **kwargs):
         
-        #create the url
-        if utils.is_absolute(path):
-            url = path
-        else: 
-            url = utils.create_download_link(path)
-        
         super().__init__(
-            class_='ma-2',
-            xs5=True,
-            color='success',
-            href=url,
-            children=[
+            class_   = 'ma-2',
+            xs5      = True,
+            color    = 'success',
+            children = [
                 v.Icon(left=True, children=['mdi-download']),
                 text
             ],
             **kwargs
         )
+        
+        # create the url 
+        self.set_url(path)
+        
+    def set_url(self, path='#'):
+        '''Set the url of the download btn'''
+        
+        if utils.is_absolute(path):
+            url = path
+        else: 
+            url = utils.create_download_link(path)
+            
+        self.href = url
+        self.disabled = (path =='#')
+        
+        return self
