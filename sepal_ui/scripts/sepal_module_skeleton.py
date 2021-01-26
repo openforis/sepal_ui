@@ -86,7 +86,7 @@ if __name__ == "__main__":
         
     # set the module github url 
     github_url = input(f'{Fore.CYAN}Provide the url of an empty github repository: \n{Fore.RESET}')
-    if not module_name:
+    if not github_url:
         raise Exception(f"{Fore.RED}A module name should be set with an asociated github repository")
         
     # ask for a short description 
