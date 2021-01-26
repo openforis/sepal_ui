@@ -26,7 +26,6 @@ setup(
         'coverage',
         'deepdiff',
         'colorama',
-        'termcolor'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

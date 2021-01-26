@@ -6,7 +6,6 @@ import subprocess
 import json
 
 from colorama import init, Fore, Style
-from termcolor import colored
 
 #init colors for all plateforms
 init()
@@ -81,17 +80,17 @@ if __name__ == "__main__":
     print()
     
     # ask the name of the module 
-    module_name = input(colored('Provide a module name: \n', 'cyan'))
+    module_name = input(f'{Fore.CYAN}Provide a module name: \n{Fore.RESET}')
     if not module_name:
-        raise Exception(colored("A module name should be set", 'red'))
+        raise Exception(f"{Fore.RED}A module name should be set")
         
     # set the module github url 
-    github_url = input(colored('Provide the url of an empty github repository: \n', 'cyan'))
+    github_url = input(f'{Fore.CYAN}Provide the url of an empty github repository: \n{Fore.RESET}')
     if not module_name:
-        raise Exception(colored("A module name should be set with an asociated github repository", "red"))
+        raise Exception(f"{Fore.RED}A module name should be set with an asociated github repository")
         
     # ask for a short description 
-    description = input(colored('Provide a short description for your module(optional): \n', 'cyan'))
+    description = input(f'{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}')
     
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub('[^a-zA-Z\d\-\_]', '_', module_name)
