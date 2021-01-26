@@ -54,7 +54,7 @@ def set_module_name(folder, module_name):
         data['app']['title'] = module_name
 
         with open(file, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
             
     return
     
