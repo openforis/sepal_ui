@@ -5,6 +5,12 @@ from pathlib import Path
 import subprocess
 import json
 
+from colorama import init, Fore, Style
+from termcolor import colored
+
+#init colors for all plateforms
+init()
+
 def set_default_readme(folder, module_name, description):
     """write a default README.md file and overwrite the existing one"""
     
@@ -57,14 +63,14 @@ def set_module_name(folder, module_name):
 if __name__ == "__main__":
     
     # welcome the user 
-    print()
+    print(Fore.YELLOW)
     print("##################################")
     print("#                                #")
     print("#      SEPAL MODULE FACTORY      #")
     print("#                                #")
     print("##################################")
-    print()
-    print("Welcome in the module factory interface.")
+    print(Fore.RESET)
+    print(f"Welcome in the {Style.BRIGHT}module factory{Style.NORMAL} interface.")
     print("This interface will help you building a dashboard app based on the sepal_ui librairy")
     print("Please read the documentation of the librairy before launching this script")
     print()
@@ -75,17 +81,17 @@ if __name__ == "__main__":
     print()
     
     # ask the name of the module 
-    module_name = input('Please provide you module name: \n')
+    module_name = input(colored('Provide a module name: \n', 'cyan'))
     if not module_name:
-        raise Exception("A module name should be set")
+        raise Exception(colored("A module name should be set", 'red'))
         
     # set the module github url 
-    github_url = input('Provide the url of an empty github repository: \n')
+    github_url = input(colored('Provide the url of an empty github repository: \n', 'cyan'))
     if not module_name:
-        raise Exception("A module name should be set with an asociated github repository")
+        raise Exception(colored("A module name should be set with an asociated github repository", "red"))
         
     # ask for a short description 
-    description = input('Provide a short description for your module(optional) \n(it can be the same as the one you provided on github): \n')
+    description = input(colored('Provide a short description for your module(optional): \n', 'cyan'))
     
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub('[^a-zA-Z\d\-\_]', '_', module_name)
@@ -135,14 +141,15 @@ if __name__ == "__main__":
     res = subprocess.run(command, cwd=folder)
     
     # exit message
-    print()
+    print(Fore.YELLOW)
     print('WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created')
     print("If thats the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues")
-    print()
-    print(f"Congratulation you created a new module named: {module_name}")
-    print(f"You can find its code in {folder} inside your sepal environment.")
+    print(Fore.GREEN)
+    print(f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}")
+    print(f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment.")
     print("To go further in the development of your application you can have a look at the sepalizing documentation.")
     print()
     print("Let's code !")
+    print(Fore.RESET)
     
     

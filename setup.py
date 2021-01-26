@@ -24,7 +24,9 @@ setup(
         'geopandas',
         'pandas',
         'coverage',
-        'deepdiff'
+        'deepdiff',
+        'colorama',
+        'termcolor'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
