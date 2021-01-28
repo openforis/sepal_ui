@@ -56,7 +56,6 @@ By the end, you will have an overview of the librairie usage and you'll be able 
     :maxdepth: 1
     :caption: Content
 
-    modules/modules
     modules/sepal_ui
 
 
