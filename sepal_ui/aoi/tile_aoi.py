@@ -34,6 +34,35 @@ class CountrySelect(v.Select, sw.SepalWidget):
             v_model = None
         )
         
+class MethodSelect(v.Select, sw.SepalWidget):
+    
+    def __init__(self, default_methods, methods=None):
+        
+        # get all the methods if none 
+        methods = methods or default_methods
+        
+        # create a custom item list 
+        items = []
+        custom_header = False
+        for m in methods:
+            
+            if m in default_methods:
+                
+                if m == default_methods[0]: # country selection 
+                    items.append({'header': 'Administrative definitions'})
+                elif not custom_header:
+                    items.append({'header': 'Custom geometries'})
+                    custom_header = True
+                        
+                items.append({'text': m, 'value': m})
+                
+        # create the input 
+        super().__init__(
+            label = 'AOI selection method',
+            items = items,
+            v_model = None
+        )
+        
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId.
     
@@ -41,7 +70,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file')
+    SELECTION_METHOD =['Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
     
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
@@ -81,8 +110,8 @@ class TileAoi(sw.Tile):
         self.m = SepalMap(['Esri Satellite', 'CartoDB.DarkMatter'], dc=True)
     
         # bind the input to the selected method 
-        method_items = [m for m in methods if m in self.SELECTION_METHOD] 
-        self.aoi_select_method = v.Select(items = method_items, label = 'AOI selection method', v_model = None)
+        #method_items = [m for m in methods if m in self.SELECTION_METHOD] 
+        self.aoi_select_method = MethodSelect(self.SELECTION_METHOD, methods)
         
         # create the validation button 
         self.aoi_select_btn = sw.Btn('Select these inputs')
