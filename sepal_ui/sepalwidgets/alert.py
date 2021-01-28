@@ -133,7 +133,7 @@ class Alert(v.Alert, SepalWidget):
             variable (str) : the name of the member in process_io object
             output_message (str, optionnal) : the output message before the variable display
         """
-        if not msg: msg = 'The selected variable is: {}'
+        if not msg: msg = 'The selected variable is: '
         
         def on_change(change, obj=obj, variable=variable, msg=msg):
             
