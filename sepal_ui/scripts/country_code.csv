@@ -48,21 +48,11 @@ C. Ver.,Cabo Verde,Africa,CV,CV,CPV,47
 Camb.,Cambodia,SE Asia,CB,KH,KHM,44
 Camer.,Cameroon,Africa,CM,CM,CMR,45
 Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
-Can.,Canada,North America,CA,CA,CAN,46
 Cay. Is.,Cayman Is,Caribbean,CJ,KY,CYM,48
 Cen. Afr. Rep.,Central African Rep,Africa,CT,CF,CAF,49
 ,Chad,Africa,CD,TD,TCD,50
 ,Chile,South America,CI,CL,CHL,51
-,China,E Asia,CH,CN,CHN,53
-,China,E Asia,CH,CN,CHN,53
-,China,E Asia,CH,CN,CHN,53
-,China,E Asia,CH,CN,CHN,53
+,China,E Asia,CH,CN,CHN,147295
 Christ. I.,Christmas I,Indian Ocean,KT,CX,CXR,54
 Clip. I.,Clipperton Island,North America,IP,-,-,
 Cocos Is.,Cocos (Keeling) Is,Indian Ocean,CK,CC,CCK,56
@@ -73,7 +63,6 @@ Coral Sea Is.,Coral Sea Is,Australia,CR,-,-,
 C.R.,Costa Rica,Central America,CS,CR,CRI,61
 C. d Iv.,Cote d'Ivoire,Africa,IV,CI,CIV,66
 Cro.,Croatia,Europe,HR,HR,HRV,62
-,Cuba,Caribbean,CU,CU,CUB,63
 ,Cuba,Caribbean,CU,CU,CUB,63
 Cur.,Curacao,Caribbean,UC,CW,CUW,
 Cyp.,Cyprus,SW Asia,CY,CY,CYP,64
@@ -137,7 +126,6 @@ Ire.,Ireland,Europe,EI,IE,IRL,119
 ,Isla Brasilera,South America,UU,-,-,
 I. of Man,Isle of Man,Europe,IM,IM,IMN,120
 Is.,Israel,SW Asia,IS,IL,ISR,121
-Is.,Israel,SW Asia,IS,IL,ISR,121
 ,Italy,Europe,IT,IT,ITA,122
 Jam.,Jamaica,Caribbean,JM,JM,JAM,123
 J. May.,Jan Mayen,Europe,JN,-,-,
@@ -186,7 +174,7 @@ Mont.,Montenegro,Europe,MJ,ME,MNE,2647
 Monts.,Montserrat,Caribbean,MH,MS,MSR,168
 Mor.,Morocco,Africa,MO,MA,MAR,169
 Moz.,Mozambique,Africa,MZ,MZ,MOZ,170
-Nam.,Namibia,Africa,WA,,-,
+Nam.,Namibia,Africa,WA,NA,NAM,172
 ,Nauru,Oceania,NR,NR,NRU,173
 Nav. I.,Navassa I,Caribbean,BQ,-,-,
 ,Nepal,S Asia,NP,NP,NPL,175
@@ -214,19 +202,12 @@ Phil.,Philippines,SE Asia,RP,PH,PHL,196
 Pit. Is.,Pitcairn Is,Oceania,PC,PN,PCN,197
 Pol.,Poland,Europe,PL,PL,POL,198
 Port.,Portugal,Europe,PO,PT,PRT,199
-Port.,Portugal (Azores),Europe,PO,PT,PRT,199
-Port.,Portugal (Madeira Is),Africa,PO,PT,PRT,199
 P.R.,Puerto Rico,Caribbean,RQ,PR,PRI,200
 ,Qatar,SW Asia,QA,QA,QAT,201
 Rep. of the Congo,Rep of the Congo,Africa,CF,CG,COG,59
 Reu.,Reunion,Indian Ocean,RE,RE,REU,206
 Rom.,Romania,Europe,RO,RO,ROU,203
 Rus.,Russia,N Asia,RS,RU,RUS,204
-Rus.,Russia,N Asia,RS,RU,RUS,204
-Rus.,Russia,N Asia,RS,RU,RUS,204
-Rus.,Russia,N Asia,RS,RU,RUS,204
-Rus.,Russia,Europe,RS,RU,RUS,204
-Rus.,Russia,Europe,RS,RU,RUS,204
 Rw.,Rwanda,Africa,RW,RW,RWA,205
 S. Ga. & S. Sdwch. Is.,S Georgia & S Sandwich Is,S Atlantic,SX,GS,SGS,228
 St. Luc.,Saint Lucia,Caribbean,ST,LC,LCA,209
@@ -267,10 +248,6 @@ Swaz.,Swaziland,Africa,WZ,SZ,SWZ,235
 Swe.,Sweden,Europe,SW,SE,SWE,236
 Switz.,Switzerland,Europe,SZ,CH,CHE,237
 Syr.,Syria,SW Asia,SY,SY,SYR,238
-Syr.,Syria,SW Asia,SY,SY,SYR,238
-Syr.,Syria,SW Asia,SY,SY,SYR,238
-Syr.,Syria,SW Asia,SY,SY,SYR,238
-Syr.,Syria,SW Asia,SY,SY,SYR,238
 Tai.,Taiwan,E Asia,TW,TW,TWN,925
 Taj.,Tajikistan,Central Asia,TI,TJ,TJK,239
 Tanz.,Tanzania,Africa,TZ,TZ,TZA,257
@@ -288,24 +265,18 @@ Tuv.,Tuvalu,Oceania,TV,TV,TUV,252
 ,US Minor Pacific Is. Refuges,Oceania,UM,-,-,
 Vir. Is.,US Virgin Is,Caribbean,VQ,VI,VIR,258
 Ug.,Uganda,Africa,UG,UG,UGA,253
-Ukr.,Ukraine,Europe,UP,-,-,
+Ukr.,Ukraine,Europe,UP,UA,UKR, 254
 U.A.E.,United Arab Emirates,SW Asia,AE,AE,ARE,255
 U.K.,United Kingdom,Europe,UK,GB,GBR,256
 U.S.,United States,North America,US,US,USA,259
-U.S.,United States,North America,US,US,USA,259
-U.S.,United States,North America,US,US,USA,259
-U.S.,United States,North America,US,US,USA,259
-U.S.,United States (Alaska),North America,US,US,USA,259
-U.S.,United States (Hawaii),Oceania,US,US,USA,259
 Uru.,Uruguay,South America,UY,UY,URY,260
 Uzb.,Uzbekistan,Central Asia,UZ,UZ,UZB,261
 Vanu.,Vanuatu,Oceania,NH,VU,VUT,262
 Vat. C.,Vatican City,Europe,VT,VA,VAT,110
 Ven.,Venezuela,South America,VE,VE,VEN,263
-Viet.,Vietnam,SE Asia,VM,-,-,
+Viet.,Vietnam,SE Asia,VM,VN,VNM,264
 Wake I.,Wake I,Oceania,WQ,-,-,
 Wal. & Fut.,Wallis & Futuna,Oceania,WF,WF,WLF,266
-W. Bank,West Bank,SW Asia,WE,PS,PSE,91
 W. Bank,West Bank,SW Asia,WE,PS,PSE,91
 W. Sah.,Western Sahara,Africa,WI,EH,ESH,268
 Yem.,Yemen,SW Asia,YM,YE,YEM,269
