@@ -162,7 +162,10 @@ class TileAoi(sw.Tile):
     
     def bind_aoi_method(self, change, list_input):
         """change the display of the AOI selector according to the method selected. will only display the useful one"""
-            
+        
+        # reset the aoi_io
+        self.io.reset()
+        
         # clearly identify the differents widgets 
         aoi_file_input        = list_input[1]
         aoi_file_name         = list_input[0]
