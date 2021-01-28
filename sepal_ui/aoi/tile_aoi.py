@@ -164,7 +164,7 @@ class TileAoi(sw.Tile):
         """change the display of the AOI selector according to the method selected. will only display the useful one"""
         
         # reset the aoi_io
-        self.io.reset()
+        self.io.clear_attributes()
         
         # clearly identify the differents widgets 
         aoi_file_input        = list_input[1]
