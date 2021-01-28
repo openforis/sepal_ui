@@ -55,7 +55,7 @@ class TestFileInput(unittest.TestCase):
         file_input = sw.FileInput(folder=sepal_ui)
         
         # move into sepal_ui folders 
-        readme = os.path.join(sepal_ui, 'README.md')
+        readme = os.path.join(sepal_ui, 'README.rst')
         
         file_input._on_file_select({'new' : sepal_ui})
         
