@@ -34,6 +34,35 @@ class CountrySelect(v.Select, sw.SepalWidget):
             v_model = None
         )
         
+class MethodSelect(v.Select, sw.SepalWidget):
+    
+    def __init__(self, default_methods, methods=None):
+        
+        # get all the methods if none 
+        methods = methods or default_methods
+        
+        # create a custom item list 
+        items = []
+        custom_header = False
+        for m in methods:
+            
+            if m in default_methods:
+                
+                if m == default_methods[0]: # country selection 
+                    items.append({'header': 'Administrative definitions'})
+                elif not custom_header:
+                    items.append({'header': 'Custom geometries'})
+                    custom_header = True
+                        
+                items.append({'text': m, 'value': m})
+                
+        # create the input 
+        super().__init__(
+            label = 'AOI selection method',
+            items = items,
+            v_model = None
+        )
+        
 class TileAoi(sw.Tile):
     """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId.
     
@@ -41,7 +70,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file')
+    SELECTION_METHOD =['Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
     
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
@@ -55,22 +84,19 @@ class TileAoi(sw.Tile):
         self.folder = folder
         
         # create the inputs widgets 
-        self.aoi_file_name = FileNameField(io.file_name).hide()
-        self.output.bind(self.aoi_file_name, self.io, 'file_name')
-        
+        self.aoi_file_name = FileNameField(io.file_name).hide()     
         self.aoi_file_input = sw.FileInput(['.shp']).hide()
-        self.output.bind(self.aoi_file_input, self.io, 'file_input')
-        self.aoi_file_input.observe(self._on_file_change, 'v_model')
-        
         self.aoi_country_selection = CountrySelect().hide()
-        self.output.bind(self.aoi_country_selection, self.io, 'country_selection')
-    
-        self.aoi_asset_name = sw.AssetSelect(folder = self.folder).hide()
-        self.output.bind(self.aoi_asset_name, self.io, 'assetId')
-        
+        self.aoi_asset_name = sw.AssetSelect(folder = self.folder, default_asset = io.default_asset).hide()
         self.aoi_load_table = sw.LoadTableField().hide()
-        self.output.bind(self.aoi_load_table, self.io, 'json_csv')
-        self.aoi_load_table.observe(self._on_table_change, 'v_model')
+        
+        # bind to aoi_io 
+        self.uotput = sw.Alert() \
+            .bind(self.aoi_file_name, self.io, 'file_name') \
+            .bind(self.aoi_file_input, self.io, 'file_input') \
+            .bind(self.aoi_country_selection, self.io, 'country_selection') \
+            .bind(self.aoi_asset_name, self.io, 'assetId') \
+            .bind(self.aoi_load_table, self.io, 'json_csv')
     
         widget_list = [
             self.aoi_file_name, 
@@ -82,20 +108,16 @@ class TileAoi(sw.Tile):
         
         #create the map 
         self.m = SepalMap(['Esri Satellite', 'CartoDB.DarkMatter'], dc=True)
-        self.m.dc.on_draw(self.handle_draw)
     
         # bind the input to the selected method 
-        method_items = [m for m in methods if m in self.SELECTION_METHOD] 
-        self.aoi_select_method = v.Select(items = method_items, label = 'AOI selection method', v_model = None)
-        self.aoi_select_method.observe(partial(self.bind_aoi_method, list_input = widget_list), 'v_model')
+        #method_items = [m for m in methods if m in self.SELECTION_METHOD] 
+        self.aoi_select_method = MethodSelect(self.SELECTION_METHOD, methods)
         
         # create the validation button 
         self.aoi_select_btn = sw.Btn('Select these inputs')
-        self.aoi_select_btn.on_event('click', self.bind_aoi_process)
     
         # assemble everything on a tile 
         inputs = v.Layout(
-            _metadata    = {'mount-id': 'data-input'},
             class_       = "pa-5",
             row          = True,
             align_center = True, 
@@ -117,6 +139,13 @@ class TileAoi(sw.Tile):
         )
         
         super().__init__(id_ = 'aoi_widget', title = 'AOI selection', inputs = [aoi_content_main])
+        
+        # link the custom behaviours 
+        self.aoi_load_table.observe(self._on_table_change, 'v_model')
+        self.aoi_file_input.observe(self._on_file_change, 'v_model')
+        self.m.dc.on_draw(self.handle_draw)
+        self.aoi_select_method.observe(partial(self.bind_aoi_method, list_input = widget_list), 'v_model')
+        self.aoi_select_btn.on_event('click', self.bind_aoi_process)
         
     def handle_draw(self, dc, action, geo_json):
         """handle the drawing of a geometry on a map. The geometry is transform into a ee.featurecollection and send to the variable attribute of self.io"""
@@ -162,7 +191,10 @@ class TileAoi(sw.Tile):
     
     def bind_aoi_method(self, change, list_input):
         """change the display of the AOI selector according to the method selected. will only display the useful one"""
-            
+        
+        # reset the aoi_io
+        self.io.clear_attributes()
+        
         # clearly identify the differents widgets 
         aoi_file_input        = list_input[1]
         aoi_file_name         = list_input[0]

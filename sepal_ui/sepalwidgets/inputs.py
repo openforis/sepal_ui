@@ -336,7 +336,7 @@ class LoadTableField(v.Col, SepalWidget):
 
 class AssetSelect(v.Combobox, SepalWidget):
     
-    def __init__(self, label = 'Select an asset', folder = None):
+    def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
         
         # if folder is not set use the root one 
         self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
@@ -356,6 +356,6 @@ class AssetSelect(v.Combobox, SepalWidget):
             hint            = "select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it",
             persistent_hint = True,
             items           = items,
-            v_model         = None
+            v_model         = default_asset
         )
         

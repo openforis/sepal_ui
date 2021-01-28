@@ -123,7 +123,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
     
-    def bind(self, widget, obj, variable, msg=None):
+    def bind(self, widget, obj, variable, msg=None, verbose=True):
         """ 
         bind the variable to the widget and display it in the alert
     
@@ -136,11 +136,14 @@ class Alert(v.Alert, SepalWidget):
         if not msg: msg = 'The selected variable is: '
         
         def on_change(change, obj=obj, variable=variable, msg=msg):
-        
+            
+            # change the obj value
             setattr(obj, variable, change['new'])
             
-            msg += str(change['new'])
-            self.add_msg(msg)
+            # add the message if needed
+            if verbose:
+                msg += str(change['new'])
+                self.add_msg(msg)
         
             return
         
