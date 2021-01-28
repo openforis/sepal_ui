@@ -65,7 +65,7 @@ class TileAoi(sw.Tile):
         self.aoi_country_selection = CountrySelect().hide()
         self.output.bind(self.aoi_country_selection, self.io, 'country_selection')
     
-        self.aoi_asset_name = sw.AssetSelect(folder = self.folder).hide()
+        self.aoi_asset_name = sw.AssetSelect(folder = self.folder, default_asset = io.default_asset).hide()
         self.output.bind(self.aoi_asset_name, self.io, 'assetId')
         
         self.aoi_load_table = sw.LoadTableField().hide()
