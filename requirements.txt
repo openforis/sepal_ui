@@ -12,3 +12,4 @@ coverage>=5.3
 six>=1.15.0
 googledrivedownloader
 deepdiff
+colorama>=0.4.3
