@@ -67,7 +67,7 @@ class TestFileInput(unittest.TestCase):
             list_names.append(list_item_title.children[0])
         
         self.assertEqual(file_input.v_model, '')
-        self.assertIn('README.md', list_names)
+        self.assertIn('README.rst', list_names)
         
         # select readme
         file_input._on_file_select({'new': readme})
