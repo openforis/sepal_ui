@@ -146,7 +146,7 @@ class TestAlert(unittest.TestCase):
         res = alert.check_input(var_test)
         self.assertFalse(res)
         self.assertTrue(alert.viz)
-        self.assertEqual(alert.children[0].children[0], 'toto')
+        self.assertEqual(alert.children[0].children[0], 'The value has not been initialized')
         
         res = alert.check_input(var_test, 'toto')
         self.assertEqual(alert.children[0].children[0], 'toto')
