@@ -13,6 +13,34 @@ from sepal_ui.scripts import utils as su
 su.init_ee()
 
 class Aoi_io:
+    """
+    an io object dedicated to the sorage and the manipulation of aoi. 
+    It is meant to be used with the TileAoi object. 
+    By using this you will be able to provide your application with aoi as an ee_object or any other intersting format.
+    The class also provide insight on your aoi.
+    
+    Args: 
+        alert_widget (sw.Alert): an alert output to display message when computing stuff internally. This is a legacy parameter
+        default_asset (str): the default asset to use when no others are provided
+        
+    Attributes:
+        default_asset (str): the default asset link
+        
+        assetId (str): the assetId of the current asset
+        column (str): name of a aoi's column (feature)  
+        field (str): name or value of a specific filed in a specific column
+        selected_feature (ee.Feature): a feature queried inside the ee.FeatureCollection version of the object
+        json_csv (str | pathlib.Path): the path to the json initial file
+        country_code (int): the code of the country in FAUL GAUL 2015 format
+        feature_collection (ee.FeatureCollection): the feature_collection to use as asset when dealing with administrative layers
+        
+        file_input (str | pathlib.Path): the path to the input .shp file
+        file_name (str): the name that will be used to name the AOI when exporting
+        country_selection (str): the name of the country being used 
+        selection_method (str): the selection method used in the linked aoi.TileAoi
+        drawn_feat (geo_json): the feature drawn on the map
+        alert (sw.Alert): the alert to display message
+    """
     
     def __init__(self, alert_widget=None, default_asset=None):
         
@@ -37,8 +65,12 @@ class Aoi_io:
         self.alert = alert_widget
         
     def get_aoi_ee(self):
-
-        """ Returns an ee.asset from self, None if no aoi set"""
+        """ 
+        get the ee_object corresponding to current self, None if no aoi set.
+            
+        Return:
+            (ee.FeatureCollection): the aoi FeatureCollection in GEE format
+        """
         
         obj = None
         if self.feature_collection:
@@ -49,10 +81,11 @@ class Aoi_io:
         return obj
     
     def get_columns(self):
+        """ 
+        Retrieve the columns or variables from self excluding `system:index` and `Shape_Area`.
 
-        """ Retrieve the columns or variables from self
-
-        return: sorted list cof column names
+            Return: 
+                ([str]): sorted list cof column names
         """
         
         aoi_ee = self.get_aoi_ee()
@@ -62,12 +95,14 @@ class Aoi_io:
         return columns
     
     def get_fields(self, column=None):
-        """" Retrieve the fields from the selected self column
+        """" 
+        Retrieve the fields from a column. It will use the self.column if not provided.
         
         Args:
-            column (str) (optional): Used to query over the asset
+            column (str, optional): A column name to query over the asset
         
-        return: sorted list of fields
+        Return: 
+            ([str]): sorted list of fields value
 
         """
         
@@ -80,10 +115,11 @@ class Aoi_io:
         return fields
 
     def get_selected_feature(self):
-        """ Select a ee object based on the current state.
+        """ 
+        Select an ee object based on the current `self.column` and `self.field`.
 
-        Returns:
-            ee.geometry
+        Return:
+            (ee.Geometry): the geometry associated with the query
         """
 
         if not self.column or not self.field:
@@ -98,9 +134,24 @@ class Aoi_io:
         return select_feature
 
     def clear_selected(self):
+        """
+        clear the selected_feature attribute.
+        
+        Return:
+            self
+        """
         self.selected_feature = None
+        
+        return self
 
     def clear_attributes(self):
+        """
+        Return all attributes to their default state.
+        Set the default_asset as current assetId.
+        
+        Return: 
+            self
+        """
 
         # GEE parameters
         self.assetId = self.default_asset
@@ -118,17 +169,29 @@ class Aoi_io:
         self.selection_method = None
         self.drawn_feat = None
 
+        return self
+    
     def get_not_null_attrs(self):
+        """
+        Retrieve all the non null attributes of the object.
         
+        Return:
+            ([str]): The list of the non null attributes' name
+        """
         attrs = dict((k, v) for k, v in self.__dict__.items() if v is not None)
         
         return attrs
 
     def display_on_map(self, map_):
-        """ Display the current aoi on a map and remove the dc
+        """ 
+        Display the current aoi on a `ms.SepalMap`.
+        The drawing control of the map will be removed if existing.
 
         Args:
-            map_ (SepalMap): Map to display the element
+            map_ (ms.SepalMap): Map to display the element
+            
+        Return:
+            self
         """
         aoi = self.get_aoi_ee()
         map_.zoom_ee_object(aoi.geometry())
@@ -140,15 +203,16 @@ class Aoi_io:
 
 
     def get_bounds(self, ee_object, cardinal=False):
-        """ Returns the min(lon,lat) and max(lon, lat) from the given asset
+        """ 
+        Get the min(lon,lat) and max(lon, lat) from the given `ee` object.
+        returns coordinates (lon, lat) of each cardinal points (tl, bl, tr, br) if cardinal is `True` else returns a bounding box (min_lon, min_lat, max_lon, max_lat)
 
         Args:
             ee_asset (ee.object): GEE asset (FeatureCollection, Geometry or str)
             cardinal (boolean) (optional)
 
-        Returns:
-            If cardinal True: returns cardinal points tl, bl, tr, br
-            If cardinal False: returns bounding box
+        Return:
+            (tuple(tuple(int)) | tuple(int)): coordinates (lon, lat) of each cardinal points or a bounding box
         """ 
             
         ee_bounds = ee.FeatureCollection(ee_object).geometry().bounds().coordinates()
@@ -157,7 +221,6 @@ class Aoi_io:
 
         # Get the bounding box
         min_lon, min_lat, max_lon, max_lat = ll[0], ll[1], ur[0], ur[1]
-
 
         # Get (x, y) of the 4 cardinal points
         tl = (min_lon, max_lat)
@@ -168,7 +231,15 @@ class Aoi_io:
         return (tl, bl, tr, br) if cardinal else (min_lon, min_lat, max_lon, max_lat)
     
     def get_aoi_shp(self, dwnDir=''):
-        """ create the .shp file corresponding to the selected aoi"""
+        """ 
+        Create the .shp file corresponding to the selected aoi
+        
+        Args:
+            dwnDir (str | pathlib.Path): the path to directory that will store the ESRI shapefiles
+            
+        Return:
+            (str): the absolute path to the .shp file
+        """
         
         aoi_name = self.get_aoi_name()
             
@@ -203,7 +274,15 @@ class Aoi_io:
         return filename
     
     def get_aoi_name(self):
-        """ remove the aoi_ before the nam of the created asset"""
+        """ 
+        Get the aoi name based on the current state. 
+        It will be an ISO 3166-1 alpha-3 if it's a country name and the asset stem for the rest. 
+        Remove the `aoi_` string before the name of asset as it's a creation prefix convention.
+        Return None if there is nothing. 
+        
+        Return:
+            (str): the aoi name
+        """
         
         name = None
         if self.country_code:

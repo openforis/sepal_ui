@@ -40,7 +40,16 @@ class Translator(SimpleNamespace):
         
         
     def _update(self, d, u):
-        """update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire"""
+        """ 
+        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire
+        
+        Args:
+            d (dict): The fallback dictionnary
+            u (dict): the target dctionnary
+            
+        Return:
+            ms (dict): The updated dictionnay
+        """
         
         ms = d.copy()
         
@@ -53,8 +62,12 @@ class Translator(SimpleNamespace):
         return ms
     
     def missing_keys(self):
-        """this function is intended for developper use only
-           print the list of the missing keys in the target dictionnairie
+        """
+        this function is intended for developer use only
+        print the list of the missing keys in the target dictionnairie
+        
+        Return:
+            (str): the list of missing keys
         """
         
         # find all the missing keys
