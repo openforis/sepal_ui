@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
 
@@ -20,11 +19,25 @@ import ipyvuetify as v
 from sepal_ui.scripts import utils as su
 
 #initialize earth engine
-if not ee.data._credentials: ee.Initialize()
-
+su.init_ee()
 
 class SepalMap(geemap.Map):
-    """initialize differents maps and tools"""
+    """
+    The SepalMap class inherits from geemap.Map. It can thus be initialized with all its parameter. 
+    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+    Numerous methods have been added in the class to help you deal with your workflow implementation.
+    It can natively display raster from .tif files and files and ee objects using methods that have the same signature as the GEE JavaScripts console
+    
+    Args: 
+        basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
+        dc (bool): wether or not the drawing control should be displayed
+        
+    Attributes:
+        loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
+        output_r (Output): the rectangle to display the result of the raster interaction
+        output_control_r (WidgetControl): the custom control on the map
+        dc (geemap.DrawingControl): the drawing control of the map 
+    """
 
     def __init__(self, basemaps=[], dc=False, **kwargs):
 
@@ -107,23 +120,30 @@ class SepalMap(geemap.Map):
             
             return
 
-    def set_drawing_controls(self, bool_=False):
-        """create a drawing control for the map"""
+    def set_drawing_controls(self, add=False):
+        """
+        Create a drawing control for the map.
+        It will be possible to draw rectangles, circles and polygons.
+        
+        Args:
+            add (bool): either to add the dc to the object attribute or not
+            
+        return:
+            self
+        """
         
         color = v.theme.themes.dark.info
         
-        dc = None
-        if bool_:
-            dc = geemap.DrawControl(
-                marker       = {},
-                circlemarker = {},
-                polyline     = {},
-                rectangle    = {'shapeOptions': {'color': color}},
-                circle       = {'shapeOptions': {'color': color}},
-                polygon      = {'shapeOptions': {'color': color}},
-            )
+        dc = geemap.DrawControl(
+            marker       = {},
+            circlemarker = {},
+            polyline     = {},
+            rectangle    = {'shapeOptions': {'color': color}},
+            circle       = {'shapeOptions': {'color': color}},
+            polygon      = {'shapeOptions': {'color': color}},
+        )
             
-        self.dc = dc
+        self.dc = dc if add else None
         
         return self
 
@@ -169,11 +189,18 @@ class SepalMap(geemap.Map):
         return self
               
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
+        """ 
+        Get the proper zoom to the given ee geometry.
+
+        Args:
+            ee_geometry (ee.Geometry): the geometry to zzom on
+            zoom_out (int) (optional): Zoom out the bounding zoom
+        """
         
-        #center the image
+        # center the image
         self.centerObject(ee_geometry)
         
-        #extract bounds from ee_object 
+        # extract bounds from ee_object 
         ee_bounds = ee_geometry.bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
         ll, ur = coords[0], coords[2]
@@ -206,7 +233,7 @@ class SepalMap(geemap.Map):
         
         maxsize = max(haversine(tl, br), haversine(bl, tr))
         
-        lg = 40075 #number of displayed km at zoom 1
+        lg = 40075 # number of displayed km at zoom 1
         zoom = 1
         while lg > maxsize:
             zoom += 1
@@ -220,13 +247,13 @@ class SepalMap(geemap.Map):
         return self
     
     def update_map(self, assetId, bounds, remove_last=False):
-        """Update the map with the asset overlay and removing the selected drawing controls
+        """
+        Update the map with the asset overlay
         
         Args:
             assetId (str): the asset ID in gee assets
             bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
-            remove_last (boolean) (optional): Remove the last layer (if there is one) before 
-                                                updating the map
+            remove_last (boolean) (optional): Remove the last layer (if there is one) before updating the map
         """  
         if remove_last:
             self.remove_last_layer()
@@ -237,9 +264,11 @@ class SepalMap(geemap.Map):
         
         return self
     
-    #copy of the geemap add_raster function to prevent a bug from sepal 
+    # copy of the geemap add_raster function to prevent a bug from sepal 
     def add_raster(self, image, bands=None, layer_name='Layer_' + su.random_string(), colormap=plt.cm.inferno, x_dim='x', y_dim='y', opacity=1.0):
-        """Adds a local raster dataset to the map.
+        """
+        Adds a local raster dataset to the map.
+        
         Args:
             image (str): The image file path.
             bands (int or list, optional): The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
@@ -248,10 +277,10 @@ class SepalMap(geemap.Map):
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
         """
+        
         if not os.path.exists(image):
             return print('The image file does not exist.')
             
-
         # check inputs
         if layer_name in self.loaded_rasters.keys():
             layer_name = layer_name+su.random_string()
@@ -296,7 +325,12 @@ class SepalMap(geemap.Map):
         return
     
     def show_dc(self):
-        """add the drawing control on the map"""
+        """
+        show the drawing control on the map
+        
+        Return:
+            self
+        """
         
         if self.dc:
             self.dc.clear()
@@ -307,7 +341,12 @@ class SepalMap(geemap.Map):
         return self
     
     def hide_dc(self):
-        """remove the drawing control from the map"""
+        """
+        hide the drawing control of the map
+        
+        Return:
+            self
+        """
         
         if self.dc:
             self.dc.clear()
