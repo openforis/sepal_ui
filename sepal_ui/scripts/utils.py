@@ -18,7 +18,12 @@ import ee
 import sepal_ui
 
 def hide_component(widget):
-    """hide a vuetify based component"""
+    """
+    hide a vuetify based component
+    
+    Args:
+        widget (v.VuetifyWidget): the widget to hide
+    """
     
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
@@ -28,7 +33,13 @@ def hide_component(widget):
     return
 
 def show_component(widget):
-    """show a vuetify based component"""
+    """
+    show a vuetify based component
+    
+    Args:
+        widget (v.VuetifyWidget): the widget to hide
+    """
+    
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
     elif 'd-none' in str(widget.class_):
@@ -37,10 +48,11 @@ def show_component(widget):
     return 
 
 def get_gaul_dic():
-    """create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
+    """
+    Create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
         
-    Returns:
-        fao_gaul (dic): the countries FAO_GAUL codes labelled with english country names
+    Return:
+        (dict): the countries FAO_GAUL codes labelled with english country names
     """
     
     # file path
@@ -55,9 +67,17 @@ def get_gaul_dic():
     return fao_gaul
 
 def get_iso_3(country_name):
-    """return the iso_3 code of a country_selection. Uses the fips_code if the iso-3 is not available"""
+    """
+    Get the iso_3 code of a country_selection. Uses the fips_code if the iso-3 is not available
     
-    #file path
+    Args:
+        country_name (str): the country name in english
+        
+    Return:
+        (str): the 3 letters of the iso_3 country code
+    """
+    
+    # file path
     path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
     
     # get the df
@@ -71,7 +91,15 @@ def get_iso_3(country_name):
     return code
     
 def create_download_link(pathname):
-    """return a clickable link to download the pathname target"""
+    """
+    Create a clickable link to download the pathname target
+    
+    Args:
+        pathname (str | pathlib.Path): the pathname th download
+        
+    Return:
+        (str): the download link
+    """
     
     result_path = os.path.expanduser(pathname)
     home_path = os.path.expanduser('~')
@@ -82,24 +110,45 @@ def create_download_link(pathname):
     return link
 
 def is_absolute(url):
-    """ check if the given url is an absolute or relative path"""
+    """
+    Check if the given url is an absolute or relative path
+    
+    Args:
+        url (str): the url to test
+        
+    Return:
+        (bool): True if absolute else False
+    """
     return bool(urlparse(url).netloc)
 
 def random_string(string_length=3):
-    """Generates a random string of fixed length. 
+    """
+    Generates a random string of fixed length. 
+    
     Args:
         string_length (int, optional): Fixed length. Defaults to 3.
-    Returns:
-        str: A random string
+    
+    Return:
+        (str): A random string
     """
+    
     # random.seed(1001)
     letters = string.ascii_lowercase
+    
     return ''.join(random.choice(letters) for i in range(string_length))
 
 def get_file_size(filename):
-    """return the file size as string of 2 digit in the adapted scale (B, KB, MB....)"""
+    """
+    Get the file size as string of 2 digit in the adapted scale (B, KB, MB....)
     
-    #file_size = Path(filename).stat().st_size
+    Args:
+        filename (str | pathlib.Path): the path to the file to mesure
+        
+    Return:
+        (str): the file size in a readable humanly readable
+    """
+    
+    # file_size = Path(filename).stat().st_size
     file_size = os.path.getsize(filename)
     
     if file_size == 0:
@@ -113,7 +162,11 @@ def get_file_size(filename):
     return '{:.1f} {}'.format(s, size_name[i])
 
 def init_ee():
-    """Initialize earth engine according to the environment"""
+    """
+    Initialize earth engine according to the environment. 
+    It will use the creddential file if the EE_PRIVATE_KEY env variable exist. 
+    Otherwise it use the simple Initilize command (asking the user to register if necessary)
+    """
     
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
@@ -135,4 +188,4 @@ def init_ee():
         else:
             ee.Initialize()
             
-    return 0
+    return
