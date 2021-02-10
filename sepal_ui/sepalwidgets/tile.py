@@ -8,7 +8,18 @@ from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.scripts import utils as su
 
 class Tile(v.Layout, SepalWidget):
-    """create a customizable tile for the sepal UI framework"""
+    """
+    Custom Layout widget for the sepal UI framework. 
+    It an helper to build a consistent tiling system. 
+    Tile objects are indeed compatible with the other classes from sepal_ui.
+    
+    Args:
+        id_ (str): the tile id that will be written in its mount_id _metadata attribute
+        title (str): the title of the Tile
+        inputs ([list]): the list of widget to display inside the tile
+        btn (v.Btn): the process btn
+        output (sw.Alert): the alert to display process informations to the end user
+    """
     
     def __init__(self, id_, title, inputs=[''], btn=None, output=None, **kwargs):
         
@@ -39,6 +50,16 @@ class Tile(v.Layout, SepalWidget):
         )
         
     def set_content(self, inputs):
+        """
+        Replace the current content of the tile with the provided inputs
+        DO NOT USE, refactoring needed
+        
+        Args:
+            inputs ([list]): the list of widget to display inside the tile
+            
+        Return:
+            self
+        """
         
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         self.children[0].children = [self.children[0].children[0]] + content
@@ -46,6 +67,15 @@ class Tile(v.Layout, SepalWidget):
         return self 
     
     def set_title(self, title):
+        """
+        Replace the current title
+        
+        Args:
+            title (str): the new title of the object
+            
+        Return:
+            self
+        """
         
         title = v.Html(xs12=True, tag='h2', children=[title])
         
@@ -54,16 +84,25 @@ class Tile(v.Layout, SepalWidget):
         return self
     
     def get_title(self):
+        """
+        Return the current title of the tile
+        
+        Return:
+            (str): the title
+        """ 
         
         return self.children[0].children[0].children[0]
     
     def toggle_inputs(self, fields_2_show, fields):
         """
-        display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
+        Display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
     
         Args:
             fields_2_show ([v.widget]) : the list of input to be display
             fields ([v.widget]) : the list of the tile widget
+            
+        Return:
+            self
         """
     
         for field in fields:
@@ -75,13 +114,23 @@ class Tile(v.Layout, SepalWidget):
         return self
     
     def get_id(self):
-        """return the mount_id value"""
+        """
+        Return the mount_id value
+        
+        Return:
+            (str): the moun_id value from _metadata dict
+        """
         
         return self._metadata['mount_id']
         
 class TileAbout(Tile):
     """
-    create a about tile using a md file. This tile will have the "about_widget" id and "About" title."""
+    Create an about tile using a .md file. 
+    This tile will have the "about_widget" id and "About" title.
+    
+    Args:
+        pathname (str | pathlib.Path): the path to the .md file
+    """
     
     def __init__(self, pathname, **kwargs):
         
@@ -105,7 +154,9 @@ class TileAbout(Tile):
         
 class TileDisclaimer(Tile):
     """
-    create a about tile using a md file. This tile will have the "about_widget" id and "About" title."""
+    Create a about tile using a the generic disclaimer .md file. 
+    This tile will have the "about_widget" id and "Disclaimer" title.
+    """
     
     def __init__(self, **kwargs):
         

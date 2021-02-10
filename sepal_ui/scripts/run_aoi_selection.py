@@ -265,7 +265,7 @@ def run_aoi_selection(output, list_method, io, folder=None):
         output (v.Alert): the widget used to display the process informations
         list_method ([str]): list of the method use to select an AOI
         drawn_feat (ee.FeatureCollection): the last drawn object on the map
-        folder (str): the user GEE asset folder
+        folder (str, optional): the user GEE asset folder
         
     Return:
         (str) : the AssetId of the AOI

@@ -9,7 +9,16 @@ from sepal_ui.frontend.styles import *
 from sepal_ui.frontend.js import *
 
 class AppBar (v.AppBar, SepalWidget):
-    """create an appBar widget with the provided title using the sepal color framework"""
+    """
+    Custom AppBar widget with the provided title using the sepal color framework
+    
+    Args: 
+        title (str, optional): the title of the app
+        
+    Attributes:
+        toggle_button (v.Btn): the btn to display or hide the drawer to the user
+        title (v.ToolBarTitle): the widget containing the app title
+    """
     
     def __init__(self, title='SEPAL module', **kwargs):
         
@@ -20,27 +29,49 @@ class AppBar (v.AppBar, SepalWidget):
             ]
         )
         
+        self.title = v.ToolbarTitle(children=[title])
+        
         super().__init__(
             color=sepal_main,
             class_="white--text",
             dense=True,
             app = True,
-            children = [self.toggle_button, v.ToolbarTitle(children=[title])],
+            children = [self.toggle_button, self.title],
             **kwargs
         )
         
     def set_title(self, title):
-        """set the title in the appbar"""
+        """
+        Set the title of the appBar
+        
+        Args:
+            title (str): the new app title
             
-        self.children = [
-            self.toggle_button, 
-            v.ToolbarTitle(children=[title])
-        ]
+        Return:
+            self
+        """
+        
+        self.title.children = [title]
             
         return self
             
 class DrawerItem(v.ListItem, SepalWidget):
-    """create a drawer item using the user input"""
+    """
+    Custom DrawerItem using the user input. 
+    If a card is set the drawerItem will trigger the display of all the Tiles in the app that have the same mount_id.
+    If an href is set, the drawer will open the link in a new tab
+    
+    Args:
+        title (str): the title of the drawer item
+        icon(str, optional): the full name of a mdi-icon
+        card (str, optional): the mount_id of tiles in the app
+        href (str, optional): the absolute link to an external webpage
+        
+    Attributes:
+        href (str): the absolute link to follow on click 
+        _metadata (dict): single key dict to point to a mount_id. This ount_id will be used as parameter to know which tiles are to be shown on click event
+        rt (ResizeTrigger): the trigger to resize maps and other javascript object when jumping from a tile to another
+    """
     
     def __init__(self, title, icon=None, card=None, href=None, **kwargs):
         
@@ -80,10 +111,14 @@ class DrawerItem(v.ListItem, SepalWidget):
             
     def display_tile(self, tiles):
         """
-        display the apropriate tiles when the item is clicked
+        Display the apropriate tiles when the item is clicked.
+        The tile to display will be all tile in the list with the mount_id as the current object
     
         Args:
-            tiles ([v.Layout]) : the list of all the available tiles in the app
+            tiles ([sw.Tile]) : the list of all the available tiles in the app
+            
+        Return:
+            self
         """            
     
         self.on_event('click', partial(self._on_click, tiles=tiles))
@@ -104,52 +139,69 @@ class DrawerItem(v.ListItem, SepalWidget):
         return self
             
 class NavDrawer(v.NavigationDrawer, SepalWidget):
-        """ 
-    create a navdrawer using the different items of the user and the sepal color framework. The drawer can include links to the github page of the project for wiki, bugs and repository.
+    """ 
+    Custom NavDrawer using the different DrawerItems of the user and the sepal color framework. 
+    The drawer can include links to the github page of the project for wiki, bugs and repository.
+    
+    Args:
+        item ([sw.DrawerItem]): the list of all the drawerItem to display in the drawer. This items should pilote the different tile visibility
+        code (str, optional): the absolute link to the source code 
+        wiki (str, optional): the absolute link the the wiki page
+        issue (str, optional): the absolute link to the issue tracker
     """
         
-        def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
-            
-            code_link = []
-            if code:
-                item_code = DrawerItem('Source code', icon='mdi-file-code', href=code)
-                code_link.append(item_code)
-            if wiki:
-                item_wiki = DrawerItem('Wiki', icon='mdi-book-open-page-variant', href=wiki)
-                code_link.append(item_wiki)
-            if issue:
-                item_bug = DrawerItem('Bug report', icon='mdi-bug', href=issue)
-                code_link.append(item_bug)
-                
-            super().__init__(
-                v_model=True,
-                app=True,
-                color = sepal_darker,
-                children = [
-                    v.List(dense=True, children=items),
-                    v.Divider(),
-                    v.List(dense=True, children=code_link)
-                ],
-                **kwargs
-            )
-            
-        def display_drawer(self, toggleButton):
-            """
-            bind the drawer to it's toggleButton
-
-            Args:
-                drawer (v.navigationDrawer) : the drawer tobe displayed
-                toggleButton(v.Btn) : the button that activate the drawer
-            """
-            toggleButton.on_event('click', self._on_drawer_click)
-                
-            return self
+    def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
         
-        def _on_drawer_click(self, widget, event, data):
-            self.v_model = not self.v_model
+        code_link = []
+        if code:
+            item_code = DrawerItem('Source code', icon='mdi-file-code', href=code)
+            code_link.append(item_code)
+        if wiki:
+            item_wiki = DrawerItem('Wiki', icon='mdi-book-open-page-variant', href=wiki)
+            code_link.append(item_wiki)
+        if issue:
+            item_bug = DrawerItem('Bug report', icon='mdi-bug', href=issue)
+            code_link.append(item_bug)
+            
+        super().__init__(
+            v_model=True,
+            app=True,
+            color = sepal_darker,
+            children = [
+                v.List(dense=True, children=items),
+                v.Divider(),
+                v.List(dense=True, children=code_link)
+            ],
+            **kwargs
+        )
+        
+    def display_drawer(self, toggleButton):
+        """
+        Bind the drawer to the app toggleButton
+
+        Args:
+            toggleButton(v.Btn) : the button that activate the drawer
+        """
+        
+        toggleButton.on_event('click', self._on_drawer_click)
+            
+        return self
+    
+    def _on_drawer_click(self, widget, event, data):
+        """
+        Toggle the drawer visibility
+        """
+        
+        self.v_model = not self.v_model
 
 class Footer(v.Footer, SepalWidget):
-    """create a footer with cuzomizable text. Not yet capable of displaying logos"""
+    """
+    Custom Footer with cuzomizable text. 
+    Not yet capable of displaying logos
+    
+    Args: 
+        text (str, optional): the text to display in the future
+    """
     def __init__(self, text="", **kwargs):
         
         text = text if text != '' else 'SEPAL \u00A9 {}'.format(datetime.today().year)
@@ -163,7 +215,23 @@ class Footer(v.Footer, SepalWidget):
         )
         
 class App(v.App, SepalWidget):
-        """Create an app display with the tiles created by the user. Display false footer and appBar if not filled. navdrawer is fully optionnal
+        """
+        Custom App display with the tiles created by the user using the sepal color framework.
+        Display false appBar if not filled. Navdrawer is fully optionnal
+        
+        Args:
+            tiles ([sw.Tile]): the tiles of the app
+            appBar (sw.AppBar, optional): the appBar of the application
+            footer (sw.Footer, optional): the footer of the application
+            navDrawer (sw.NavDrawer): the navdrawer of the application
+            
+        Attributes:
+            tiles ([sw.Tile]): the tiles of the app
+            appBar (sw.AppBar, optional): the appBar of the application
+            footer (sw.Footer, optional): the footer of the application
+            navDrawer (sw.NavDrawer): the navdrawer of the application
+            content (v.Content): the tiles organized in a fluid container
+            
         """
         
         def __init__(self, tiles=[''], appBar=None, footer=None, navDrawer=None, **kwargs):
@@ -200,7 +268,16 @@ class App(v.App, SepalWidget):
                 **kwargs)
             
         def show_tile(self, name):
-            """select the tile to display using its mount-id"""
+            """
+            Select the tile to display when the app is launched
+            
+            Args:
+                name (str): the mount-id of the tile(s) to display
+            
+            Return:
+                self
+            """
+            
             for tile in self.tiles:
                 if name == tile._metadata['mount_id']:
                     tile.show()

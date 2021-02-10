@@ -14,7 +14,7 @@ def wait_for_completion(task_descripsion, widget_alert=None):
 
     Args:
         task_descripsion (str): name of the running task
-        widget_alert (v.Alert): alert to display the output messages
+        widget_alert (v.Alert, optional): alert to display the output messages
         
     Return:
         (str): the final state of the task
