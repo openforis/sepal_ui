@@ -6,7 +6,23 @@ from deepdiff import DeepDiff
 
 
 class Translator(SimpleNamespace):
+    """
+    The translator is a SimpleNamespace of Simplenamespace. It read 2 json file, the first one being the source language (usually english) and the second one the target language. 
+    It will replace in the source dict every key that exist in both json dict. Following this procedure, every message that is not translated can still be accessed in the source language. 
+    To access the dict keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key. 
+    There are no depth limits, just respect the snake_case convention when naming your keys in the .json dicts.
     
+    Args: 
+        json_folder (str | pathlib.Path): the folder where the dictionnaries are stored
+        target_lan (str): the language code of the target lang (it should be the same as the target dictionnary)
+        default_lan (str): the language code of the source lang (it should be the same as the source dictionnary)
+        
+    Attributes:
+        default_dict (dict): the source language dictionnary
+        target_dict (dict): the target language dictionnary 
+        (keys): all the keys can be acceced as attributes. make sure to never use default_dict and target_dict
+    
+    """
     def __init__(self, json_folder, target_lan, default_lan='en'):
         
         super().__init__()
