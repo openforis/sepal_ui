@@ -216,7 +216,10 @@ class Alert(v.Alert, SepalWidget):
             # add the message if needed
             if verbose:
                 msg += str(change['new'])
-                self.add_msg(msg)
+            else:
+                msg += '*' * len(change['new'])
+                
+            self.add_msg(msg)
         
             return
         
