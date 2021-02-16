@@ -186,7 +186,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
     def _get_items(self):
         """Return the list of items inside the folder"""
 
-        self.loading.indeterminate = not self.loading.indeterminate
+        self.loading.indeterminate = True
         
         folder = Path(self.folder)
 
@@ -234,7 +234,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         folder_list.extend(file_list)
         folder_list.insert(0,parent_item)
 
-        self.loading.indeterminate = not self.loading.indeterminate
+        self.loading.indeterminate = False
         
         return folder_list
     
