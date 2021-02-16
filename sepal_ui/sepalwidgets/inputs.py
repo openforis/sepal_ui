@@ -268,10 +268,25 @@ class LoadTableField(v.Col, SepalWidget):
     def __init__(self):
         
         self.fileInput = FileInput(['.csv', '.txt'])
-                
-        self.IdSelect = self._LocalSelect('id_column', 'Id')
-        self.LngSelect = self._LocalSelect('lng_column', 'Longitude')
-        self.LatSelect = self._LocalSelect('lat_column', 'Latitude')
+        
+        self.IdSelect = v.Select(
+            _metadata = {'name': 'id_column'}, 
+            items     = [], 
+            label     = 'Id', 
+            v_model   = None
+        ) 
+        self.LngSelect = v.Select(
+            _metadata = {'name': 'lng_column'}, 
+            items     = [], 
+            label     = 'Longitude', 
+            v_model   = None
+        )
+        self.LatSelect = v.Select(
+            _metadata = {'name': 'lat_column'}, 
+            items     = [], 
+            label     = 'Latitude', 
+            v_model   = None
+        )
         
         super().__init__(
             v_model = json.dumps(self.default_v_model),
@@ -396,19 +411,6 @@ class LoadTableField(v.Col, SepalWidget):
         """
         
         return json.loads(self.v_model)['lat_column']
-    
-    
-    class _LocalSelect(v.Select):
-        """useless, it will be depracted soon"""
-        
-        def __init__(self, metadata, label):
-            
-            super().__init__(
-                _metadata = {'name': metadata}, 
-                items     = [], 
-                label     = label, 
-                v_model   = None
-            )
 
 class AssetSelect(v.Combobox, SepalWidget):
     """
