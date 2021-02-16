@@ -21,7 +21,7 @@ class Divider(v.Divider, SepalWidget):
     type_ = Unicode('').tag(sync=True)
 
     def __init__(self, class_='', **kwargs):
-        self.class = class_
+        self.class_ = class_
         super().__init__(**kwargs)
 
     @observe('type_')
