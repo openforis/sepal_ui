@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import WidgetControl, LocalTileLayer, TileLayer
 import ipyvuetify as v
+from deprecated import deprecated
 
 from sepal_ui.scripts import utils as su
 
@@ -260,6 +261,7 @@ class SepalMap(geemap.Map):
         
         return self
     
+    @deprecated(reason="will be removed in version 2.0")
     def update_map(self, assetId, bounds, remove_last=False):
         """
         Update the map with the asset overlay
