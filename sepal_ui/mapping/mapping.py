@@ -215,17 +215,13 @@ class SepalMap(geemap.Map):
         # extract bounds from ee_object 
         ee_bounds = ee_geometry.bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
-        ll, ur = coords[0], coords[2]
-
-        # Get the bounding box
-        min_lon, min_lat, max_lon, max_lat = ll[0], ll[1], ur[0], ur[1]
-
-
+        
         # Get (x, y) of the 4 cardinal points
-        tl = (max_lat, min_lon)
-        bl = (min_lat, min_lon)
-        tr = (max_lat, max_lon)
-        br = (min_lat, max_lon)
+        bl, br, tr, tl, _ = coords
+        
+        # Get (x, y) of the 4 cardinal points
+        min_lon, min_lat = bl
+        max_lon, max_lat = tr
         
         #zoom on these bounds 
         self.zoom_bounds([tl, bl, tr, br], zoom_out)
