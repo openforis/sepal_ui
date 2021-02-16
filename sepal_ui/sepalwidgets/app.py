@@ -152,6 +152,8 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         
     def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
         
+        self.items = items
+        
         code_link = []
         if code:
             item_code = DrawerItem('Source code', icon='mdi-file-code', href=code)
@@ -168,7 +170,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             app=True,
             color = sepal_darker,
             children = [
-                v.List(dense=True, children=items),
+                v.List(dense=True, children=self.items),
                 v.Divider(),
                 v.List(dense=True, children=code_link)
             ],
@@ -217,7 +219,8 @@ class Footer(v.Footer, SepalWidget):
 class App(v.App, SepalWidget):
         """
         Custom App display with the tiles created by the user using the sepal color framework.
-        Display false appBar if not filled. Navdrawer is fully optionnal
+        Display false appBar if not filled. Navdrawer is fully optionnal.
+        The drawerItem will be linked to the app tile and they will be able to control their display
         
         Args:
             tiles ([sw.Tile]): the tiles of the app
@@ -242,6 +245,10 @@ class App(v.App, SepalWidget):
             
             # add the navDrawer if existing
             if navDrawer:
+                # bind app tile list to the navdrawer
+                for di in navDrawer.items:
+                    di.display_tile(tiles)
+                # add the drawers to the children
                 self.navDrawer = navDrawer
                 app_children.append(self.navDrawer)
     
