@@ -12,7 +12,7 @@ class Divider(v.Divider, SepalWidget):
     type_ = Unicode('').tag(sync=True)
 
     def __init__(self, class_='', **kwargs):
-        self.class_= class_
+        self.class = class_
         super().__init__(**kwargs)
 
     @observe('type_')
