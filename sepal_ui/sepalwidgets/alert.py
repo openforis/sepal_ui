@@ -74,7 +74,44 @@ class Alert(v.Alert, SepalWidget):
         
         self.hide()
         
+    def update_progress(self, progress, msg='Progress', bar_length=30):
+        """
+        Update the Alert message with a progress bar. This function will stay until we manage to use tqdm in the widgets
+        
+        Args:
+            progress (float): the progress status in float [0, 1]
+            msg (str, optionnal): The message to use before the progress bar 
+            bar_length (int, optionnal): the length of the progress bar in characters 
+            
+        Return:
+            self
+        """
+        
+        # define the characters to use in the progress bar
+        plain_char = '█'
+        empty_char = ' '  
+        
+        # cast the progress to float
+        progress = float(progress)
+        
+        # set the length parameter 
+        block = int(round(bar_length * progress))
+
+        # construct the message content
+        text = f'|{plain_char * block + empty_char * (bar_length - block)}|'
     
+        # add the message to the output
+        self.add_live_msg(v.Html(
+            tag='span', 
+            children=[
+                v.Html(tag='span', children=[f'{msg}: '], class_='d-inline'),
+                v.Html(tag='pre', class_='info--text d-inline', children=[text]),
+                v.Html(tag='span', children=[f' {progress *100:.1f}%'], class_='d-inline')
+            ]
+        ))
+   
+        return self
+        
     def add_msg(self, msg, type_='info'):
         """
         Add a message in the alert by replacing all the existing one. 
