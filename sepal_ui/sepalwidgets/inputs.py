@@ -448,7 +448,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             v_model         = default_asset
         )
         
-class PasswordField(sw.SepalWidget, v.TextField):
+class PasswordField(v.TextField, SepalWidget):
     
     def __init__(self, **kwargs):
         
