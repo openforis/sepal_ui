@@ -280,8 +280,15 @@ class Alert(v.Alert, SepalWidget):
         if not msg: msg = "The value has not been initialized"
         init = True 
         
-        if input_ == None:
-            init = False
+        # check the collection type that are the only one supporting the len method
+        try:
+            if len(input_) == 0:
+                init = False
+        except:
+            if input_ == None:
+                init = False
+                
+        if not init:
             self.add_msg(msg, 'error')
         
         return init
