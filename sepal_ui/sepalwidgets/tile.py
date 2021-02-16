@@ -4,7 +4,7 @@ from traitlets import Unicode
 
 import ipyvuetify as v
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Markdown
 from sepal_ui.scripts import utils as su
 
 class Tile(v.Layout, SepalWidget):
@@ -138,17 +138,7 @@ class TileAbout(Tile):
         with open(pathname, 'r') as f:
             about = f.read()
         
-        about = markdown(about, extensions=['fenced_code','sane_lists'])
-    
-        #need to be nested in a div to be displayed
-        about = '<div>\n' + about + '\n</div>'
-    
-        #create a Html widget
-        class MyHTML(v.VuetifyTemplate):
-            template = Unicode(about).tag(sync=True)
-    
-    
-        content = MyHTML()
+        content = Markdown(about)
         
         super().__init__('about_widget', 'About', inputs=[content], **kwargs)
         
@@ -164,18 +154,8 @@ class TileDisclaimer(Tile):
         
         #read the content and transform it into a html
         with open(pathname, 'r') as f:
-            about = f.read()
-        
-        about = markdown(about, extensions=['fenced_code','sane_lists'])
-    
-        #need to be nested in a div to be displayed
-        about = '<div>\n' + about + '\n</div>'
-    
-        #create a Html widget
-        class MyHTML(v.VuetifyTemplate):
-            template = Unicode(about).tag(sync=True)
-    
-    
-        content = MyHTML()
+            disclaimer = f.read()
+            
+        content = Markdown(disclaimer)
         
         super().__init__('about_widget', 'Disclaimer', inputs=[content], **kwargs)
