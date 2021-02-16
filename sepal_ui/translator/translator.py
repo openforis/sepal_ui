@@ -43,7 +43,12 @@ class Translator(SimpleNamespace):
             print(f'No json file is provided for "{target_lan}", fallback to "en"')
 
         
+        # create the composite dictionnary
         ms_dict = self._update(self.default_dict, self.target_dict)
+        
+        # verify if 'default_dict' or 'target_dict' is in use
+        self._search_key(ms_dict, 'default_dict')
+        self._search_key(ms_dict, 'target_dict')
         
         # transform it into a json str
         ms_json = json.dumps(ms_dict)
@@ -53,7 +58,25 @@ class Translator(SimpleNamespace):
         
         for k, v in ms.__dict__.items():
             setattr(self, k, getattr(ms, k))
+            
+    def _search_key(self, d, key):
+        """
+        Search a specific key in the d dictionnary and raise an error if found
         
+        Args:
+            d (dict): the dictionnary to study 
+            key (str): the key to look for
+        """
+        
+        for k, v in d.items():
+            if isinstance(v, abc.Mapping):
+                self._search_key(v, key)
+            else:
+                if k == key:
+                    raise Exception(f"You cannot use the key {key} in your translation dictionnary")
+                    break
+        
+        return self
         
     def _update(self, d, u):
         """ 
