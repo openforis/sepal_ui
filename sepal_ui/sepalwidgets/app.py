@@ -136,6 +136,9 @@ class DrawerItem(v.ListItem, SepalWidget):
         # trigger the risize event 
         rt.resize += 1
         
+        # change the cuurent item status 
+        self.input_value = True
+        
         return self
             
 class NavDrawer(v.NavigationDrawer, SepalWidget):
@@ -177,6 +180,10 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             **kwargs
         )
         
+        # bind the javascripts behaviour
+        for i in self.items:
+            i.observe(self._on_item_click, 'input_value')
+        
     def display_drawer(self, toggleButton):
         """
         Bind the drawer to the app toggleButton
@@ -195,6 +202,23 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         """
         
         self.v_model = not self.v_model
+        
+        return self
+        
+    def _on_item_click(self, change):
+        """
+        Deactivate all the other items when on of the is activated
+        """
+        if change['new'] == False:
+            return self
+        
+        # reset all others states
+        for i in self.items:
+            if i != change['owner']:
+                i.input_value = False
+            
+        return self
+        
 
 class Footer(v.Footer, SepalWidget):
     """
@@ -284,11 +308,15 @@ class App(v.App, SepalWidget):
             Return:
                 self
             """
-            
+            # show the tile 
             for tile in self.tiles:
                 if name == tile._metadata['mount_id']:
                     tile.show()
                 else:
                     tile.hide()
             
+            # activate the drawerItem
+            for i in self.navDrawer.items:
+                if name == i._metadata['card_id']:
+                    i.input_value = True
             return self
