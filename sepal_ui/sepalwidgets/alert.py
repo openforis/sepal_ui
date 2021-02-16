@@ -207,6 +207,9 @@ class Alert(v.Alert, SepalWidget):
         
         def _on_change(change, obj=obj, attribute=attribute, msg=msg):
             
+            # if the key doesn't exist the getattr function will raise an AttributeError
+            getattr(obj, attribute)
+            
             # change the obj value
             setattr(obj, attribute, change['new'])
             
