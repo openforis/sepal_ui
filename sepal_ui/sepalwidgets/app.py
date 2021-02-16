@@ -136,6 +136,9 @@ class DrawerItem(v.ListItem, SepalWidget):
         # trigger the risize event 
         rt.resize += 1
         
+        # change the cuurent item status 
+        self.input_value = True
+        
         return self
             
 class NavDrawer(v.NavigationDrawer, SepalWidget):
@@ -151,6 +154,8 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
     """
         
     def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
+        
+        self.items = items
         
         code_link = []
         if code:
@@ -168,12 +173,16 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             app=True,
             color = sepal_darker,
             children = [
-                v.List(dense=True, children=items),
+                v.List(dense=True, children=self.items),
                 v.Divider(),
                 v.List(dense=True, children=code_link)
             ],
             **kwargs
         )
+        
+        # bind the javascripts behaviour
+        for i in self.items:
+            i.observe(self._on_item_click, 'input_value')
         
     def display_drawer(self, toggleButton):
         """
@@ -193,6 +202,23 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         """
         
         self.v_model = not self.v_model
+        
+        return self
+        
+    def _on_item_click(self, change):
+        """
+        Deactivate all the other items when on of the is activated
+        """
+        if change['new'] == False:
+            return self
+        
+        # reset all others states
+        for i in self.items:
+            if i != change['owner']:
+                i.input_value = False
+            
+        return self
+        
 
 class Footer(v.Footer, SepalWidget):
     """
@@ -217,7 +243,8 @@ class Footer(v.Footer, SepalWidget):
 class App(v.App, SepalWidget):
         """
         Custom App display with the tiles created by the user using the sepal color framework.
-        Display false appBar if not filled. Navdrawer is fully optionnal
+        Display false appBar if not filled. Navdrawer is fully optionnal.
+        The drawerItem will be linked to the app tile and they will be able to control their display
         
         Args:
             tiles ([sw.Tile]): the tiles of the app
@@ -242,6 +269,10 @@ class App(v.App, SepalWidget):
             
             # add the navDrawer if existing
             if navDrawer:
+                # bind app tile list to the navdrawer
+                for di in navDrawer.items:
+                    di.display_tile(tiles)
+                # add the drawers to the children
                 self.navDrawer = navDrawer
                 app_children.append(self.navDrawer)
     
@@ -277,11 +308,15 @@ class App(v.App, SepalWidget):
             Return:
                 self
             """
-            
+            # show the tile 
             for tile in self.tiles:
                 if name == tile._metadata['mount_id']:
                     tile.show()
                 else:
                     tile.hide()
             
+            # activate the drawerItem
+            for i in self.navDrawer.items:
+                if name == i._metadata['card_id']:
+                    i.input_value = True
             return self

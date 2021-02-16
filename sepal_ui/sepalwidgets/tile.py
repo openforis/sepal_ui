@@ -23,20 +23,21 @@ class Tile(v.Layout, SepalWidget):
     
     def __init__(self, id_, title, inputs=[''], btn=None, output=None, **kwargs):
         
-        if btn:
-            inputs.append(btn)
+        self.btn = btn
+        if btn: inputs.append(btn)
         
-        if output:
-            inputs.append(output)
+        self.output = output
+        if output: inputs.append(output)
         
-        title = v.Html(xs12=True, tag='h2', children=[title])
+        self.title = v.Html(xs12=True, tag='h2', children=[title])
+        
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         
         card = v.Card(
             class_ = "pa-5",
             raised = True,
             xs12 = True,
-            children = [title] + content
+            children = [self.title] + content
         )
         
         super().__init__(
@@ -51,8 +52,7 @@ class Tile(v.Layout, SepalWidget):
         
     def set_content(self, inputs):
         """
-        Replace the current content of the tile with the provided inputs
-        DO NOT USE, refactoring needed
+        Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
         
         Args:
             inputs ([list]): the list of widget to display inside the tile
@@ -61,8 +61,20 @@ class Tile(v.Layout, SepalWidget):
             self
         """
         
+        # create the widgets 
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
-        self.children[0].children = [self.children[0].children[0]] + content
+        
+        # add the title  
+        content = [self.children[0].children[0]] + content
+        
+        # add the output (if existing)
+        if self.output:
+            content = content + [self.output]
+            
+        if self.btn:
+             content = content + [self.btn]
+        
+        self.children[0].children = content
         
         return self 
     
@@ -77,9 +89,7 @@ class Tile(v.Layout, SepalWidget):
             self
         """
         
-        title = v.Html(xs12=True, tag='h2', children=[title])
-        
-        self.children[0].children = [title] + self.children[0].children[1:]
+        self.title.children = [title]
         
         return self
     
@@ -91,7 +101,7 @@ class Tile(v.Layout, SepalWidget):
             (str): the title
         """ 
         
-        return self.children[0].children[0].children[0]
+        return self.title.children[0]
     
     def toggle_inputs(self, fields_2_show, fields):
         """

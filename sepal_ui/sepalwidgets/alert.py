@@ -65,11 +65,49 @@ class Alert(v.Alert, SepalWidget):
         self.text = True
         self.type = type_ if (type_ in TYPES) else TYPES[0]
         self.class_="mt-5"
-        self.hide()
         
         super().__init__(**kwargs)
-        
     
+        self.hide()
+        
+    def update_progress(self, progress, msg='Progress', bar_length=30):
+        """
+        Update the Alert message with a progress bar. This function will stay until we manage to use tqdm in the widgets
+        
+        Args:
+            progress (float): the progress status in float [0, 1]
+            msg (str, optionnal): The message to use before the progress bar 
+            bar_length (int, optionnal): the length of the progress bar in characters 
+            
+        Return:
+            self
+        """
+        
+        # define the characters to use in the progress bar
+        plain_char = '█'
+        empty_char = ' '  
+        
+        # cast the progress to float
+        progress = float(progress)
+        
+        # set the length parameter 
+        block = int(round(bar_length * progress))
+
+        # construct the message content
+        text = f'|{plain_char * block + empty_char * (bar_length - block)}|'
+    
+        # add the message to the output
+        self.add_live_msg(v.Html(
+            tag='span', 
+            children=[
+                v.Html(tag='span', children=[f'{msg}: '], class_='d-inline'),
+                v.Html(tag='pre', class_='info--text d-inline', children=[text]),
+                v.Html(tag='span', children=[f' {progress *100:.1f}%'], class_='d-inline')
+            ]
+        ))
+   
+        return self
+        
     def add_msg(self, msg, type_='info'):
         """
         Add a message in the alert by replacing all the existing one. 
@@ -238,8 +276,15 @@ class Alert(v.Alert, SepalWidget):
         if not msg: msg = "The value has not been initialized"
         init = True 
         
-        if input_ == None:
-            init = False
+        # check the collection type that are the only one supporting the len method
+        try:
+            if len(input_) == 0:
+                init = False
+        except:
+            if input_ == None:
+                init = False
+                
+        if not init:
             self.add_msg(msg, 'error')
         
         return init
