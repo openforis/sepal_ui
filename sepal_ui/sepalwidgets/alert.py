@@ -34,18 +34,13 @@ class Alert(v.Alert, SepalWidget):
     """create an alert widget that can be used to display the process outputs"""
     
     def __init__(self, type_=None, **kwargs):
-        
-        type_ = type_ if (type_ in TYPES) else TYPES[0]
-        
-        super().__init__(
-            children = [''],
-            type = type_,
-            text = True,
-            class_="mt-5",
-            **kwargs
-        )
-        
+
+        self.text = True
+        self.type = type_ if (type_ in TYPES) else TYPES[0]
+        self.class_="mt-5"
         self.hide()
+        
+        super().__init__(**kwargs)
         
     
     def add_msg(self, msg, type_='info'):
