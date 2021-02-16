@@ -448,3 +448,27 @@ class AssetSelect(v.Combobox, SepalWidget):
             v_model         = default_asset
         )
         
+class PasswordField(sw.SepalWidget, v.TextField):
+    
+    def __init__(self, **kwargs):
+        
+        self.label="Password"
+        self.class_='mr-2'
+        self.v_model=''
+        self.type='password'
+        self.append_icon='mdi-eye-off'
+        
+        super().__init__(**kwargs)
+        
+        
+        self.on_event('click:append' ,self._toggle_pwd)
+    
+
+    def _toggle_pwd(self, widget, event, data):
+
+        if widget.type=='text':
+            widget.type='password'
+            widget.append_icon = 'mdi-eye-off'
+        else:
+            widget.type = 'text'
+            widget.append_icon = 'mdi-eye'
