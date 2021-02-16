@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import WidgetControl, LocalTileLayer, TileLayer
 import ipyvuetify as v
+from deprecated import deprecated
 
 from sepal_ui.scripts import utils as su
 
@@ -148,8 +149,15 @@ class SepalMap(geemap.Map):
         return self
 
     def _remove_local_raster(self, local_layer):
-
-        """ Remove local layer from memory"""
+        """ 
+        Remove local layer from memory
+        
+        Args:
+            local_layer (str | geemap.layer): The local layer to remove or its name
+            
+        Return: 
+            self
+        """
         name = local_layer if type(local_layer) == str else local_layer.name
         
         if name in self.loaded_rasters.keys():
@@ -158,13 +166,14 @@ class SepalMap(geemap.Map):
         return self
 
     def remove_last_layer(self, local=False):
-
-        """Remove last layer from Map
+        """
+        Remove last added layer from Map
 
         Args:
-            local (boolean): Specify True to only remove local last layers,
-                                otherwise will remove every last layer.
+            local (boolean): Specify True to only remove local last layers, otherwise will remove every last layer.
 
+        Return:
+            self
         """
         if len(self.layers) > 1:
 
@@ -195,6 +204,9 @@ class SepalMap(geemap.Map):
         Args:
             ee_geometry (ee.Geometry): the geometry to zzom on
             zoom_out (int) (optional): Zoom out the bounding zoom
+            
+        Return:
+            self
         """
         
         # center the image
@@ -222,11 +234,14 @@ class SepalMap(geemap.Map):
     
     def zoom_bounds(self, bounds, zoom_out=1):
         """ 
-        Get the proper zoom to the given bounds.
+        Adapt the zoom to the given bounds.
 
         Args:
             bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
             zoom_out (int) (optional): Zoom out the bounding zoom
+            
+        Return:
+            self
         """
         
         tl, bl, tr, br = bounds        
@@ -246,6 +261,7 @@ class SepalMap(geemap.Map):
         
         return self
     
+    @deprecated(reason="will be removed in version 2.0")
     def update_map(self, assetId, bounds, remove_last=False):
         """
         Update the map with the asset overlay
@@ -279,7 +295,7 @@ class SepalMap(geemap.Map):
         """
         
         if not os.path.exists(image):
-            return print('The image file does not exist.')
+            raise Exception('The image file does not exist.')
             
         # check inputs
         if layer_name in self.loaded_rasters.keys():

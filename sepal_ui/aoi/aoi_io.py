@@ -54,7 +54,7 @@ class Aoi_io:
         self.selected_feature = None
         self.json_csv = None # information that will be use to transform the csv into asset 
         self.country_code = None # to name the asset coming from country selection
-        self.feature_collection = None # to access the country
+        self.feature_collection = None # to access the country asset
 
         #set up your inputs
         self.file_input = None
@@ -63,6 +63,18 @@ class Aoi_io:
         self.selection_method = None
         self.drawn_feat = None
         self.alert = alert_widget
+        
+    def is_admin(self):
+        """
+        Test if the current aoi_io object is refeering to an administrative layer or not
+        
+        Return:
+            (bool): True if administrative layer else False. False as well if no aoi is selected.
+        """
+        admin = False
+        
+        if self.country_code:
+            admin = True
         
     def get_aoi_ee(self):
         """ 
@@ -73,7 +85,7 @@ class Aoi_io:
         """
         
         obj = None
-        if self.feature_collection:
+        if self.is_admin:
             obj = self.feature_collection
         elif self.assetId:
             obj = ee.FeatureCollection(self.assetId)

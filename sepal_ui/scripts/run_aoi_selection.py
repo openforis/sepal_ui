@@ -18,23 +18,33 @@ from sepal_ui.scripts import utils as su
 su.init_ee()
 
 def display_asset(output, asset):
-    """remove the manifest from the asset name and display it to the user"""
+    """
+    remove the manifest from the asset name and display it to the user in an output
+    
+    Args: 
+        output (sw.Alert): the alert to display information to the user
+        asset (str): the asset name
+    
+    Return:
+        (str): the asset name without the manifest
+    """
     
     asset = asset.replace('projects/earthengine-legacy/assets/', '')
     
     output.add_msg(ms.aoi_sel.asset_created.format(asset), 'success')
     
-    return
+    return asset
 
 def isAsset(asset_descripsion, folder):
-    """Check if the asset already exist in the user asset folder
+    """
+    Check if the asset already exist in the user asset folder
     
     Args: 
         asset_descripsion (str) : the descripsion of the asset
         folder (str): the folder of the glad assets
         
-    Returns:
-        exist (bool): true if already in folder
+    Return:
+        (bool): true if already in folder
     """
     exist = False
     liste = ee.data.listAssets({'parent': folder})['assets']
@@ -46,7 +56,17 @@ def isAsset(asset_descripsion, folder):
     return exist 
 
 def get_country_asset(country_selection, output):
-    """send a request to GEE to get a featurecollection based on the country selected"""
+    """
+    send a request to GEE to get a featurecollection based on the country selected
+    
+    Args:
+        country_selection (str): the country name in english
+        output (sw.Alert): the alert to display information to the end user
+        
+    return:
+        (ee.FeatureColection): the FeatureCollection invocation of the country
+        (str): the iso 3 letter country code
+    """
     
     if country_selection == None:
         output.add_msg(ms.aoi_sel.no_country, 'warning')
@@ -62,7 +82,18 @@ def get_country_asset(country_selection, output):
     return country, iso_3
 
 def get_drawn_shape(drawn_feat, file_name, folder, output):
-    """send the requested drawn feature to GEE to create an asset"""
+    """
+    send the requested drawn feature to GEE to create an asset
+    
+    Args:
+        drawn_feat (ee.FeatureCollection): the feature drawn on the map
+        file_name (str): the name to use as GEE asset
+        folder (str): the path to the user GEE folder
+        output (sw.Alert): the alert to display information to the end user
+        
+    Return:
+        (str): the created asset name
+    """
     
     aoi = drawn_feat 
     asset_name = ms.aoi_sel.file_pattern.format(re.sub('[^a-zA-Z\d\-\_]', '_', file_name))
@@ -91,7 +122,16 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
     return asset
 
 def get_gee_asset(asset_name, output):
-    """check that the asset exist return None if not"""
+    """
+    check that the asset name is not null or None
+    
+    Args:
+        asset_name (str): the asset name
+        output (sw.Alert): the alert to display information to the end user
+        
+    Return:
+        (str): return the asset if not null
+    """
     
     if asset_name == '' or asset_name == None:
         output.add_msg(ms.aoi_sel.no_asset, 'error') 
@@ -103,7 +143,18 @@ def get_gee_asset(asset_name, output):
     return asset
 
 def get_csv_asset(json_csv, file_name, folder, output):
-    """Send a request to GEE to create an asset based on the local shapefile"""
+    """
+    Send a request to GEE to create an asset based on the local shapefile
+    
+    Args:
+        json_csv (str): the csv file information stored as a json dict {pathname, id, lng, lat}
+        file_name (str): the name that will be used in GEE 
+        folder (str): The user folder in GEE
+        outpput (sw.Alert): the alert to display information to the end user
+        
+    Return:
+        (str): the created asset name
+    """
     
     #read the json 
     load_df = json.loads(json_csv)
@@ -150,7 +201,18 @@ def get_csv_asset(json_csv, file_name, folder, output):
     
             
 def get_shp_aoi(file_input, file_name, folder, output):
-    """send a request to GEE to create an asset based on the local shapefile"""
+    """
+    Send a request to GEE to create an asset based on the local shapefile
+    
+    Args:
+        file_input (str | pathlib.path): the path to the .shp file
+        file_name (str): the name used for the GEE asset
+        folder (str): the user folder in GEE
+        output (sw.Alert): the alert to display information to the end user
+        
+    Return:
+        (str): the created asset name
+    """
     
     if not os.path.isfile(file_input):
         output.add_msg(ms.aoi_sel.error_occured, 'error')
@@ -191,20 +253,22 @@ def get_shp_aoi(file_input, file_name, folder, output):
     return asset
     
 def run_aoi_selection(output, list_method, io, folder=None):
-    """ create an gee asset according to the user inputs
+    """
+    Create an gee asset according to the user inputs
 
     Args:
-        file_input (str): the file to retreive from the user folder. It must be a .shp file
-        file_name (str): name of the aoi that will be used troughout the process
-        country_selection (str): a country name in english available in LSIB 2017
-        asset_name (str): the assetId of a existing asset
-        drawing_method (str): the name of the method selected to create the asset
+        io.file_input (str): the file to retreive from the user folder. It must be a .shp file
+        io.file_name (str): name of the aoi that will be used troughout the process
+        io.country_selection (str): a country name in english available in LSIB 2017
+        io.asset_name (str): the assetId of a existing asset
+        io.drawing_method (str): the name of the method selected to create the asset
         output (v.Alert): the widget used to display the process informations
         list_method ([str]): list of the method use to select an AOI
         drawn_feat (ee.FeatureCollection): the last drawn object on the map
+        folder (str, optional): the user GEE asset folder
         
-    Returns:
-        asset (str) : the AssetId of the AOI
+    Return:
+        (str) : the AssetId of the AOI
     """
     #go to the glad folder in gee assets 
     if not folder: 

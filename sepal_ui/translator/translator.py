@@ -6,7 +6,23 @@ from deepdiff import DeepDiff
 
 
 class Translator(SimpleNamespace):
+    """
+    The translator is a SimpleNamespace of Simplenamespace. It read 2 json file, the first one being the source language (usually english) and the second one the target language. 
+    It will replace in the source dict every key that exist in both json dict. Following this procedure, every message that is not translated can still be accessed in the source language. 
+    To access the dict keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key. 
+    There are no depth limits, just respect the snake_case convention when naming your keys in the .json dicts.
     
+    Args: 
+        json_folder (str | pathlib.Path): the folder where the dictionnaries are stored
+        target_lan (str): the language code of the target lang (it should be the same as the target dictionnary)
+        default_lan (str): the language code of the source lang (it should be the same as the source dictionnary)
+        
+    Attributes:
+        default_dict (dict): the source language dictionnary
+        target_dict (dict): the target language dictionnary 
+        (keys): all the keys can be acceced as attributes. make sure to never use default_dict and target_dict
+    
+    """
     def __init__(self, json_folder, target_lan, default_lan='en'):
         
         super().__init__()
@@ -27,7 +43,12 @@ class Translator(SimpleNamespace):
             print(f'No json file is provided for "{target_lan}", fallback to "en"')
 
         
+        # create the composite dictionnary
         ms_dict = self._update(self.default_dict, self.target_dict)
+        
+        # verify if 'default_dict' or 'target_dict' is in use
+        self._search_key(ms_dict, 'default_dict')
+        self._search_key(ms_dict, 'target_dict')
         
         # transform it into a json str
         ms_json = json.dumps(ms_dict)
@@ -37,7 +58,25 @@ class Translator(SimpleNamespace):
         
         for k, v in ms.__dict__.items():
             setattr(self, k, getattr(ms, k))
+            
+    def _search_key(self, d, key):
+        """
+        Search a specific key in the d dictionnary and raise an error if found
         
+        Args:
+            d (dict): the dictionnary to study 
+            key (str): the key to look for
+        """
+        
+        for k, v in d.items():
+            if isinstance(v, abc.Mapping):
+                self._search_key(v, key)
+            else:
+                if k == key:
+                    raise Exception(f"You cannot use the key {key} in your translation dictionnary")
+                    break
+        
+        return self
         
     def _update(self, d, u):
         """ 

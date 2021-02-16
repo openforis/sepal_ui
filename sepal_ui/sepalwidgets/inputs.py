@@ -17,7 +17,16 @@ from sepal_ui.sepalwidgets.btn import Btn
 su.init_ee()
 
 class DatePicker(v.Layout, SepalWidget):
+    """
+    Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
     
+    Args:
+        label (str, optional): the label of the datepicker field
+        
+    Attributes:
+        menu (v.Menu): the menu widget to display the datepicker
+        
+    """
     def __init__(self, label="Date", **kwargs):
         
         date_picker = v.DatePicker(
@@ -66,6 +75,24 @@ class DatePicker(v.Layout, SepalWidget):
         #date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
         
 class FileInput(v.Flex, SepalWidget, HasTraits):
+    """
+    Custom input field to select a file in the sepal folders. 
+    
+    Args:
+        extentions ([str]): the list of the allowed extentions. the FileInput will only display thiese extention and folders
+        folder (str | pathlib.Path): the starting folder of the file input
+        label (str): the label of the input
+        v_model = the default value ?
+        
+    Attributes:
+        extentions ([str]): the extention list
+        folder (pathlib.Path): the current folder
+        selected_file (v.TextField): the textfield where the file pathname is stored
+        loading (v.ProgressLinear): loading top bar of the menu component
+        file_list (v.List): the list of files and folder that are available in the current folder
+        file_menu (v.Menu): the menu that hide and show the file_list
+        reload (v.Btn): reload btn to reload the file list on the current folder 
+    """
 
     file = Unicode('')
     
@@ -136,6 +163,8 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.reload.on_event('click', self._on_reload)
         
     def _on_file_select(self, change):
+        """Dispatch the behaviour between file selection and folder change"""
+        
         new_value = change['new']
         if new_value:
             if os.path.isdir(new_value):
@@ -145,18 +174,19 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
             elif os.path.isfile(new_value):
                 self.file = new_value
             
-            return
+        return
                 
     def _change_folder(self):
-        """change the target folder"""
+        """Change the target folder"""
         #reset files
         self.file_list.children[0].children = self._get_items()
+        
+        return
     
-
     def _get_items(self):
-        """return the list of items inside the folder"""
+        """Return the list of items inside the folder"""
 
-        self.loading.indeterminate = not self.loading.indeterminate
+        self.loading.indeterminate = True
         
         folder = Path(self.folder)
 
@@ -204,7 +234,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         folder_list.extend(file_list)
         folder_list.insert(0,parent_item)
 
-        self.loading.indeterminate = not self.loading.indeterminate
+        self.loading.indeterminate = False
         
         return folder_list
     
@@ -216,6 +246,17 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         return
 
 class LoadTableField(v.Col, SepalWidget):
+    """
+    A custom input widget to load points data. The user will provide a csv or txt file containing labeled dataset. 
+    The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
+    {pathname, id_column, lat_column,lng_column}
+    
+    Attributes:
+        fileInput (sw.FileInput): the file input to select the .csv or .txt file
+        IdSelect (v.Select): input to select the id column
+        LngSelect (v.Select): input to select the lng column
+        LatSelect (v.Select): input to select the lat column
+    """
     
     default_v_model = {
             'pathname'  : None, 
@@ -253,7 +294,7 @@ class LoadTableField(v.Col, SepalWidget):
         self.LatSelect.observe(self._on_select_change, 'v_model')
         
     def _on_file_input_change(self, change):
-        
+        """Update the select content when the fileinput v_model is changing"""
         path = change['new']
             
         df = pd.read_csv(path, sep=None, engine='python')
@@ -278,63 +319,109 @@ class LoadTableField(v.Col, SepalWidget):
                 self.LngSelect.v_model = name
             elif any(ext in lname for ext in ['lat', 'latitude', 'y_coord', 'ycoord']):
                 self.LatSelect.v_model = name
+        
+        return self
                 
     def _clear_select(self):
-        """clear the select v_model"""
+        """clear the selects components"""
+        
         self.IdSelect.items = [] # all the others are listening to this one 
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
         
-        return 
+        return self
     
     def _on_select_change(self, change):
+        """change the v_model value when a select is changed"""
         
         name = change['owner']._metadata['name']
         self._set_value(name, change['new'])
         
-        return
+        return self
         
     def _set_value(self, name, value):
-        
         """ set the value in the json dictionary"""
+        
         tmp = json.loads(self.v_model)
         tmp[name] = value
         self.v_model = json.dumps(tmp)
         
-        return
+        return self
     
     def get_v_model(self):
-        """get the v_model as a dict"""
+        """
+        Return the v_model as a dict
+        
+        Return:
+            (dict): the v_model
+        """
+        
         return json.loads(self.v_model)
     
     def get_pathname(self):
-        """return the pathname from v_model"""
+        """
+        Return the pathname from v_model
+        
+        Return:
+            (str): the v_model pathname
+        """
+        
         return json.loads(self.v_model)['pathname']
     
     def get_id_lbl(self):
-        """return the id column label from v_model"""
+        """
+        Return the id column label from v_model
+        
+        Return:
+            (str): label of the id column
+        """
+        
         return json.loads(self.v_model)['id_column']
     
     def get_lng_lbl(self):
-        """return the longitude column label from v_model"""
+        """
+        Return the longitude column label from v_model
+        
+        Return:
+            (str): label of the longitude column
+        """
+        
         return json.loads(self.v_model)['lng_column']
     
     def get_lat_lbl(self):
-        """return the latitude column label from v_model"""
+        """
+        Return the latitude column label from v_model
+        
+        Return:
+            (str); label of the latitude column
+        """
+        
         return json.loads(self.v_model)['lat_column']
     
     
     class _LocalSelect(v.Select):
+        """useless, it will be depracted soon"""
+        
+        def __init__(self, metadata, label):
             
-            def __init__(self, metadata, label):
-                
-                super().__init__(
-                    _metadata = {'name': metadata}, 
-                    items     = [], 
-                    label     = label, 
-                    v_model   = None
-                )
+            super().__init__(
+                _metadata = {'name': metadata}, 
+                items     = [], 
+                label     = label, 
+                v_model   = None
+            )
 
 class AssetSelect(v.Combobox, SepalWidget):
+    """
+    Custom widget input to select an asset inside the asset folder of the user
+    
+    Args:
+        label (str): the label of the input
+        folder (str): the folder of the user assets
+        default_asset (str): the id of a default asset
+        
+    Attributes:
+        folder (str): the folder of the user assets
+    """
     
     def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
         
