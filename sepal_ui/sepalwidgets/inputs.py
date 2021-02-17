@@ -497,15 +497,13 @@ class NumberField(v.TextField, SepalWidget):
     max_ = Int(10).tag(sync=True)
     min_ = Int(0).tag(sync=True)
     
-    def __init__(self, max_=0, min_=0, **kwargs):
+    def __init__(self, **kwargs):
         
         self.type='number'
         self.append_outer_icon='mdi-plus'
         self.prepend_icon='mdi-minus'
         self.v_model=0
         self.readonly=True
-        self.max_=max_
-        self.min_=min_
         
         super().__init__(**kwargs)
         
