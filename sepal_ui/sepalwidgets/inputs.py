@@ -439,9 +439,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         # get the list of user asset
         assets = ee.data.listAssets({'parent': self.folder})['assets']
         
-        # would be interesting when it will work
-        #items = [{'text': asset['name'].replace(self.folder, ''), 'value': asset['name']} for asset in assets]
-        items = [asset['name'] for asset in assets]
+        items = [asset['id'] for asset in assets]
         
         super().__init__(
             clearable       = True,
@@ -455,31 +453,32 @@ class AssetSelect(v.Combobox, SepalWidget):
         )
         
 class PasswordField(v.TextField, SepalWidget):
-    """Custom widget to input passwords in text area and 
+    """
+    Custom widget to input passwords in text area and 
     toggle its visibility.
 
     Args:
         label (str, optional): Header displayed in text area. Defaults to Password.
-
     """
     def __init__(self, **kwargs):
         
+        # default behaviour 
         self.label="Password"
         self.class_='mr-2'
         self.v_model=''
         self.type='password'
         self.append_icon='mdi-eye-off'
         
+        # init the widget with the remaining kwargs
         super().__init__(**kwargs)
         
-        
+        # bind the js behaviour
         self.on_event('click:append' ,self._toggle_pwd)
     
 
     def _toggle_pwd(self, widget, event, data):
-        """Toggle password visibility when append button is 
-        clicked
-        """
+        """Toggle password visibility when append button is clicked"""
+        
         if widget.type=='text':
             widget.type='password'
             widget.append_icon = 'mdi-eye-off'
@@ -488,8 +487,8 @@ class PasswordField(v.TextField, SepalWidget):
             widget.append_icon = 'mdi-eye'
             
 class NumberField(v.TextField, SepalWidget):
-    """Custom widget to input numbers in text area and 
-    add/substract with single increment.
+    """
+    Custom widget to input numbers in text area and add/substract with single increment.
 
     Args:
         max_ (int, optional): Maximum selectable number. Defaults to 10.
