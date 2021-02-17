@@ -234,22 +234,22 @@ class TileAoi(sw.Tile):
         # lock the btn
         widget.toggle_loading()            
             
-        #try:
-        # create the aoi asset
-        run_aoi_selection.run_aoi_selection(
-            output      = self.aoi_output, 
-            list_method = self.SELECTION_METHOD, 
-            io          = self.io,
-            folder      = self.folder
-        )
+        try:
+            # create the aoi asset
+            run_aoi_selection.run_aoi_selection(
+                output      = self.aoi_output, 
+                list_method = self.SELECTION_METHOD, 
+                io          = self.io,
+                folder      = self.folder
+            )
             
-        # display the resulting aoi on the map
-        if self.io.get_aoi_ee():
-            self.m.hide_dc()
-            self.io.display_on_map(self.m)
+            # display the resulting aoi on the map
+            if self.io.get_aoi_ee():
+                self.m.hide_dc()
+                self.io.display_on_map(self.m)
             
-        #except Exception as e: 
-        #    self.output.add_live_msg(str(e), 'error') 
+        except Exception as e: 
+            self.aoi_output.add_live_msg(str(e), 'error') 
         
         # free the btn
         widget.toggle_loading()

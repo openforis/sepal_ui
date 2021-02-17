@@ -1,4 +1,3 @@
-import os 
 from pathlib import Path
 import json
 
@@ -86,7 +85,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         
     Attributes:
         extentions ([str]): the extention list
-        folder (pathlib.Path): the current folder
+        folder (str | pathlib.Path): the current folder
         selected_file (v.TextField): the textfield where the file pathname is stored
         loading (v.ProgressLinear): loading top bar of the menu component
         file_list (v.List): the list of files and folder that are available in the current folder
@@ -96,8 +95,11 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
     file = Unicode('')
     
-    def __init__(self, extentions = [], folder=os.path.expanduser('~'), label='search file', v_model = None, **kwargs):
-
+    def __init__(self, extentions = [], folder=Path('~').expanduser(), label='search file', v_model = None, **kwargs):
+        
+        if type(folder) == str:
+            folder = Path(folder)
+            
         self.extentions = extentions
         self.folder = folder
         
@@ -165,16 +167,19 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
     def _on_file_select(self, change):
         """Dispatch the behaviour between file selection and folder change"""
         
-        new_value = change['new']
-        if new_value:
-            if os.path.isdir(new_value):
-                self.folder = new_value
-                self._change_folder()
+        if not change['new']:
+            return self
+        
+        new_value = Path(change['new'])
+        
+        if new_value.is_dir():
+            self.folder = new_value
+            self._change_folder()
                 
-            elif os.path.isfile(new_value):
-                self.file = new_value
+        elif new_value.is_file():
+            self.file = str(new_value)
             
-        return
+        return self
                 
     def _change_folder(self):
         """Change the target folder"""
@@ -188,7 +193,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
 
         self.loading.indeterminate = True
         
-        folder = Path(self.folder)
+        folder = self.folder
 
         list_dir = [el for el in folder.glob('*/') if not el.name.startswith('.')]
 
@@ -222,12 +227,11 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         folder_list = sorted(folder_list, key=lambda x: x.value)
         file_list = sorted(file_list, key=lambda x: x.value)
 
-        parent_path = str(folder.parent)
         parent_item = v.ListItem(
-            value=parent_path, 
+            value=str(folder.parent), 
             children=[
                 v.ListItemAction(children=[v.Icon(color=ICON_TYPES['PARENT']['color'], children=[ICON_TYPES['PARENT']['icon']])]),
-                v.ListItemContent(children=[v.ListItemTitle(children=[f'..{parent_path}'])]),
+                v.ListItemContent(children=[v.ListItemTitle(children=[f'..{folder.parent}'])]),
             ]
         )
 

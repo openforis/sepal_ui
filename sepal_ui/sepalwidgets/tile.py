@@ -1,6 +1,6 @@
-import os 
 from markdown import markdown
 from traitlets import Unicode
+from pathlib import Path
 
 import ipyvuetify as v
 
@@ -144,8 +144,11 @@ class TileAbout(Tile):
     
     def __init__(self, pathname, **kwargs):
         
+        if type(pathname) == str:
+            pathname = Path(pathname)
+            
         #read the content and transform it into a html
-        with open(pathname, 'r') as f:
+        with pathname.open() as f:
             about = f.read()
         
         content = Markdown(about)
@@ -160,10 +163,11 @@ class TileDisclaimer(Tile):
     
     def __init__(self, **kwargs):
         
-        pathname = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'disclaimer.md')
+        pathname = Path(__file__).parent.parent.joinpath('scripts', 'disclaimer.md')
+        #pathname = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'disclaimer.md')
         
         #read the content and transform it into a html
-        with open(pathname, 'r') as f:
+        with pathname.open() as f:
             disclaimer = f.read()
             
         content = Markdown(disclaimer)

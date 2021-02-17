@@ -56,7 +56,7 @@ def get_gaul_dic():
     """
     
     # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    path = Path(__file__).parent.joinpath('country_code.csv')
     
     # get the df and sort by country name
     df = pd.read_csv(path).sort_values(by=['country_na'])
@@ -78,7 +78,7 @@ def get_iso_3(country_name):
     """
     
     # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    path = Path(__file__).parent.joinpath('country_code.csv')
     
     # get the df
     df = pd.read_csv(path)
@@ -152,7 +152,6 @@ def get_file_size(filename):
     """
     
     file_size = Path(filename).stat().st_size
-    #file_size = os.path.getsize(filename)
     
     if file_size == 0:
         return "0B"
