@@ -372,5 +372,16 @@ class SepalMap(geemap.Map):
                 
         return self
         
+    @staticmethod   
+    def get_basemap_list():
+        """
+        This function is intending for development use
+        It give the list of all the available basemaps for SepalMap object
+        
+        Return:
+            ([str]): the list of the basemap names
+        """
+        
+        return [k for k in geemap.ee_basemaps.keys()]
         
         
