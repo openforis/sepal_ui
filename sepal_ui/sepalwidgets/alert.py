@@ -21,7 +21,7 @@ class Divider(v.Divider, SepalWidget):
     type_ = Unicode('').tag(sync=True)
 
     def __init__(self, class_='', **kwargs):
-        self.class_= class_
+        self.class_ = class_
         super().__init__(**kwargs)
 
     @observe('type_')
@@ -61,17 +61,13 @@ class Alert(v.Alert, SepalWidget):
     """
     
     def __init__(self, type_=None, **kwargs):
+
+        self.text = True
+        self.type = type_ if (type_ in TYPES) else TYPES[0]
+        self.class_="mt-5"
         
-        type_ = type_ if (type_ in TYPES) else TYPES[0]
-        
-        super().__init__(
-            children = [''],
-            type = type_,
-            text = True,
-            class_="mt-5",
-            **kwargs
-        )
-        
+        super().__init__(**kwargs)
+    
         self.hide()
         
     def update_progress(self, progress, msg='Progress', bar_length=30):

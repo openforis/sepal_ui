@@ -17,15 +17,17 @@ class Btn(v.Btn, SepalWidget):
     """
     
     def __init__(self, text='Click', icon=None, **kwargs):
-        
-        super().__init__(**kwargs)
-        
+
         self.color='primary'
         self.v_icon = None
         self.children=[text]
         
         if icon:
             self.set_icon(icon)
+        
+        super().__init__(**kwargs)
+        
+
 
     def set_icon(self, icon):
         """
@@ -70,16 +72,14 @@ class DownloadBtn(v.Btn, SepalWidget):
     
     def __init__(self, text, path='#', **kwargs):
         
-        super().__init__(
-            class_   = 'ma-2',
-            xs5      = True,
-            color    = 'success',
-            children = [
-                v.Icon(left=True, children=['mdi-download']),
-                text
-            ],
-            **kwargs
-        )
+        self.class_   = 'ma-2'
+        self.xs5      = True
+        self.color    = 'success'
+        self.children = [
+            v.Icon(left=True, children=['mdi-download']),
+            text
+        ]
+        super().__init__(**kwargs)
         
         # create the url 
         self.set_url(path)
