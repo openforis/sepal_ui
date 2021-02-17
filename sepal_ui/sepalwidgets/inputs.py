@@ -3,7 +3,9 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import HasTraits, Unicode, link
+from traitlets import (
+    HasTraits, Unicode, link, Int
+)
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -472,3 +474,29 @@ class PasswordField(v.TextField, SepalWidget):
         else:
             widget.type = 'text'
             widget.append_icon = 'mdi-eye'
+            
+class NumberField(v.TextField, SepalWidget):
+    
+    max_ = Int(5).tag(sync=True)
+    min_ = Int(0).tag(sync=True)
+    
+    def __init__(self, max_=0, min_=0, **kwargs):
+        
+        self.type='number'
+        self.append_outer_icon='mdi-plus'
+        self.prepend_icon='mdi-minus'
+        self.v_model=0
+        self.readonly=True
+        self.max_=max_
+        self.min_=min_
+        
+        super().__init__(**kwargs)
+        
+        self.on_event('click:append-outer', self.increment)
+        self.on_event('click:prepend', self.decrement)
+    
+    def increment(self, widget, event, data):
+        if self.v_model < self.max_: self.v_model+=1
+        
+    def decrement(self, widget, event, data):
+        if self.v_model > self.min_: self.v_model-=1
