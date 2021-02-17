@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os 
 from pathlib import Path
 import json
@@ -451,7 +453,13 @@ class AssetSelect(v.Combobox, SepalWidget):
         )
         
 class PasswordField(v.TextField, SepalWidget):
-    
+    """Custom widget to input passwords in text area and 
+    toggle its visibility.
+
+    Args:
+        label (str, optional): Header displayed in text area. Defaults to Password.
+
+    """
     def __init__(self, **kwargs):
         
         self.label="Password"
@@ -467,7 +475,10 @@ class PasswordField(v.TextField, SepalWidget):
     
 
     def _toggle_pwd(self, widget, event, data):
-
+    """Toggle password visibility when append button is 
+    clicked
+    
+    """
         if widget.type=='text':
             widget.type='password'
             widget.append_icon = 'mdi-eye-off'
@@ -476,8 +487,15 @@ class PasswordField(v.TextField, SepalWidget):
             widget.append_icon = 'mdi-eye'
             
 class NumberField(v.TextField, SepalWidget):
-    
-    max_ = Int(5).tag(sync=True)
+    """Custom widget to input numbers in text area and 
+    add/substract with single increment.
+
+    Args:
+        max_ (int, optional): Maximum selectable number. Defaults to 10.
+        min_ (int, optional): Minimum selectable number. Defaults to 0.
+
+    """
+    max_ = Int(10).tag(sync=True)
     min_ = Int(0).tag(sync=True)
     
     def __init__(self, max_=0, min_=0, **kwargs):
@@ -496,7 +514,9 @@ class NumberField(v.TextField, SepalWidget):
         self.on_event('click:prepend', self.decrement)
     
     def increment(self, widget, event, data):
+        """Adds 1 to the current v_model number"""
         if self.v_model < self.max_: self.v_model+=1
         
     def decrement(self, widget, event, data):
+        """Substracts 1 to the current v_model number"""
         if self.v_model > self.min_: self.v_model-=1
