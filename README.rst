@@ -20,6 +20,8 @@ Sepal_ui
 .. image:: https://api.codeclimate.com/v1/badges/861f09002bb9d75b6ea5/test_coverage
     :target: https://codeclimate.com/github/12rambau/sepal_ui/test_coverage
     :alt: Test Coverage
+    
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/img/sepal-header.png
 
 Sepal_ui is a lib designed to create elegant dashboard in the Sepal environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ librairie and will help developper to easily create interface for your workflows. 
 By using this librairy, you'll ensure a robust and unifyed interface for your scripts and a easy and complete integration into the sepal dashboard of application.
