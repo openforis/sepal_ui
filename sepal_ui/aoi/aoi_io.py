@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 import ee
 import geemap
@@ -254,10 +253,13 @@ class Aoi_io:
         """
         
         aoi_name = self.get_aoi_name()
+        
+        if type(dwnDir) == str:
+            dwnDir = Path(dwnDir).expanduser()
             
-        filename = os.path.join(dwnDir, f'{aoi_name}.shp')
+        filename = dwnDir.joinpath(f'{aoi_name}.shp')
     
-        if os.path.isfile(filename):
+        if filename.is_file():
             return filename
     
         # verify that the asset exist

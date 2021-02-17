@@ -96,7 +96,7 @@ class TileAoi(sw.Tile):
     Attributes: 
         io (aoi.aoi_Io): the aoi_io used to store aoi selection inputs and outputs
         
-        output (sw.Alert): the Alert widget used to display information
+        aoi_output (sw.Alert): the Alert widget used to display information
         
         folder (str | pathlib.Path): the earthengine folder to use for asset saving and discovery. default to user Root
         
@@ -120,7 +120,7 @@ class TileAoi(sw.Tile):
         self.io = io
         
         # create the output
-        self.output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
+        self.aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
         
         # save the folder (mainly for testing purposes)
         self.folder = folder
@@ -133,7 +133,7 @@ class TileAoi(sw.Tile):
         self.aoi_load_table = sw.LoadTableField().hide()
         
         # bind to aoi_io 
-        self.uotput = sw.Alert() \
+        self.aoi_output = sw.Alert() \
             .bind(self.aoi_file_name, self.io, 'file_name') \
             .bind(self.aoi_file_input, self.io, 'file_input') \
             .bind(self.aoi_country_selection, self.io, 'country_selection') \
@@ -167,7 +167,7 @@ class TileAoi(sw.Tile):
                 [v.Flex(xs12 = True, children =[self.aoi_select_method])] 
                 + [v.Flex(xs12 = True, children = [widget]) for widget in widget_list]
                 + [v.Flex(xs12 = True, children =[self.aoi_select_btn])] 
-                + [v.Flex(xs12 = True, children = [self.output])]
+                + [v.Flex(xs12 = True, children = [self.aoi_output])]
             )
         )
         
@@ -212,7 +212,7 @@ class TileAoi(sw.Tile):
         feature = ee.Feature(geom)
         self.io.drawn_feat = ee.FeatureCollection(feature)
             
-        self.output.add_live_msg('A shape have been drawn')
+        self.aoi_output.add_live_msg('A shape have been drawn')
 
         return self
     
@@ -237,7 +237,7 @@ class TileAoi(sw.Tile):
         #try:
         # create the aoi asset
         run_aoi_selection.run_aoi_selection(
-            output      = self.output, 
+            output      = self.aoi_output, 
             list_method = self.SELECTION_METHOD, 
             io          = self.io,
             folder      = self.folder

@@ -101,11 +101,14 @@ def create_download_link(pathname):
         (str): the download link
     """
     
-    result_path = os.path.expanduser(pathname)
-    home_path = os.path.expanduser('~')
-    download_path='/'+os.path.relpath(result_path,home_path)
+    if type(pathname) == str:
+        pathname = Path(pathname)
+        
+    result_path = Path(pathname).expanduser()
+    home_path = Path('~').expanduser()
+    download_path = result_path.relative_to(home_path)
     
-    link = f'/api/files/download?path={download_path}'
+    link = f'/api/files/download?path=/{download_path}'
     
     return link
 
@@ -148,8 +151,8 @@ def get_file_size(filename):
         (str): the file size in a readable humanly readable
     """
     
-    # file_size = Path(filename).stat().st_size
-    file_size = os.path.getsize(filename)
+    file_size = Path(filename).stat().st_size
+    #file_size = os.path.getsize(filename)
     
     if file_size == 0:
         return "0B"
