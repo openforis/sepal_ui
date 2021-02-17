@@ -1,6 +1,6 @@
 #!/usr/bin/python3
+
 import re 
-import os 
 from pathlib import Path
 import subprocess
 import json
@@ -150,5 +150,3 @@ if __name__ == "__main__":
     print()
     print("Let's code !")
     print(Fore.RESET)
-    
-    

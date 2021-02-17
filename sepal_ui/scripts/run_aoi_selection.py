@@ -1,7 +1,6 @@
 import time
 import sys
 import re
-import os
 import json
 from pathlib import Path
 
@@ -49,7 +48,7 @@ def isAsset(asset_descripsion, folder):
     exist = False
     liste = ee.data.listAssets({'parent': folder})['assets']
     for asset in liste:
-        if asset['name'] == os.path.join(folder,asset_descripsion):
+        if asset['name'] == str(Path(folder,asset_descripsion)):
             exist = True
             break
             
@@ -105,7 +104,7 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
         output.add_msg(ms.aoi_sel.name_used, 'error')
         return None 
         
-    asset = os.path.join(folder, asset_name)
+    asset = str(Path(folder, asset_name))
             
     #create and launch the task
     task_config = {
@@ -183,7 +182,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
     ee_object = geemap.geojson_to_ee(json_df)
     
     # upload this object to earthengine
-    asset = os.path.join(folder, asset_name)
+    asset = str(Path(folder, asset_name))
             
     #create and launch the task
     task_config = {
@@ -214,7 +213,10 @@ def get_shp_aoi(file_input, file_name, folder, output):
         (str): the created asset name
     """
     
-    if not os.path.isfile(file_input):
+    if type(file_input) == str:
+        file_input = Path(file_input)
+        
+    if not file_input.is_file():
         output.add_msg(ms.aoi_sel.error_occured, 'error')
         return None
     
@@ -236,7 +238,7 @@ def get_shp_aoi(file_input, file_name, folder, output):
         
     else:
         
-        asset = os.path.join(folder, asset_name)
+        asset = str(Path(folder, asset_name))
             
         #launch the task
         task_config = {

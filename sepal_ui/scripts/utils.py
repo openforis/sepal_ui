@@ -56,7 +56,7 @@ def get_gaul_dic():
     """
     
     # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    path = Path(__file__).parent.joinpath('country_code.csv')
     
     # get the df and sort by country name
     df = pd.read_csv(path).sort_values(by=['country_na'])
@@ -78,7 +78,7 @@ def get_iso_3(country_name):
     """
     
     # file path
-    path = os.path.join(os.path.dirname(__file__), 'country_code.csv')
+    path = Path(__file__).parent.joinpath('country_code.csv')
     
     # get the df
     df = pd.read_csv(path)
@@ -101,11 +101,14 @@ def create_download_link(pathname):
         (str): the download link
     """
     
-    result_path = os.path.expanduser(pathname)
-    home_path = os.path.expanduser('~')
-    download_path='/'+os.path.relpath(result_path,home_path)
+    if type(pathname) == str:
+        pathname = Path(pathname)
+        
+    result_path = Path(pathname).expanduser()
+    home_path = Path('~').expanduser()
+    download_path = result_path.relative_to(home_path)
     
-    link = f'/api/files/download?path={download_path}'
+    link = f'/api/files/download?path=/{download_path}'
     
     return link
 
@@ -148,8 +151,7 @@ def get_file_size(filename):
         (str): the file size in a readable humanly readable
     """
     
-    # file_size = Path(filename).stat().st_size
-    file_size = os.path.getsize(filename)
+    file_size = Path(filename).stat().st_size
     
     if file_size == 0:
         return "0B"
