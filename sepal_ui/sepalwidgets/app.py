@@ -268,6 +268,7 @@ class App(v.App, SepalWidget):
             app_children = []
             
             # add the navDrawer if existing
+            self.navDrawer = None
             if navDrawer:
                 # bind app tile list to the navdrawer
                 for di in navDrawer.items:
@@ -316,7 +317,9 @@ class App(v.App, SepalWidget):
                     tile.hide()
             
             # activate the drawerItem
-            for i in self.navDrawer.items:
-                if name == i._metadata['card_id']:
-                    i.input_value = True
+            if self.navDrawer:
+                for i in self.navDrawer.items:
+                    if name == i._metadata['card_id']:
+                        i.input_value = True
+                        
             return self

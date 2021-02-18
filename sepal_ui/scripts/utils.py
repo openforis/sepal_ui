@@ -106,7 +106,8 @@ def create_download_link(pathname):
         
     result_path = Path(pathname).expanduser()
     home_path = Path('~').expanduser()
-    download_path = result_path.relative_to(home_path)
+    
+    download_path = result_path.relative_to(home_path) if result_path.is_relative_to(home_path) else result_path
     
     link = f'/api/files/download?path=/{download_path}'
     
