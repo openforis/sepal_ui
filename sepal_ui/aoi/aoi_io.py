@@ -74,6 +74,8 @@ class Aoi_io:
         
         if self.country_code:
             admin = True
+            
+        return admin
         
     def get_aoi_ee(self):
         """ 
@@ -84,7 +86,7 @@ class Aoi_io:
         """
         
         obj = None
-        if self.is_admin:
+        if self.is_admin():
             obj = self.feature_collection
         elif self.assetId:
             obj = ee.FeatureCollection(self.assetId)
