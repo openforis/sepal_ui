@@ -24,19 +24,19 @@ class TestAlert(unittest.TestCase):
         alert = sw.Alert()
         msg = 'toto'
         
-        #single msg
+        # single msg
         res = alert.add_msg(msg)
         self.assertEqual(res, alert)
         self.assertTrue(alert.viz)
         self.assertEqual(alert.children[0].children[0], msg)
         
-        #single msg with type 
+        # single msg with type 
         for type_ in sw.TYPES:
             alert.add_msg(msg, type_)
             self.assertEqual(alert.type, type_)
             self.assertEqual(alert.children[0].children[0], msg)
             
-        #single msg with rdm type
+        # single msg with rdm type
         alert.add_msg(msg, 'random')
         self.assertEqual(alert.type, 'info')
         self.assertEqual(alert.children[0].children[0], msg)
@@ -47,19 +47,19 @@ class TestAlert(unittest.TestCase):
         alert = sw.Alert()
         msg = 'toto'
         
-        #single msg
+        # single msg
         res = alert.add_live_msg(msg)
         self.assertEqual(res, alert)
         self.assertTrue(alert.viz)
         self.assertEqual(alert.children[1].children[0], msg)
         
-        #single msg with type 
+        # single msg with type 
         for type_ in sw.TYPES:
             alert.add_live_msg(msg, type_)
             self.assertEqual(alert.type, type_)
             self.assertEqual(alert.children[1].children[0], msg)
             
-        #single msg with rdm type
+        # single msg with rdm type
         alert.add_live_msg(msg, 'random')
         self.assertEqual(alert.type, 'info')
         self.assertEqual(alert.children[1].children[0], msg)
@@ -116,11 +116,13 @@ class TestAlert(unittest.TestCase):
         alert = sw.Alert()
         alert2 = sw.Alert()
         alert3 = sw.Alert()
+        alert4 = sw.Alert()
         
         # binding without text 
         res = alert.bind(widget, test_io, 'out')
         alert2.bind(widget, test_io, 'out', 'new variable : ')
         alert3.bind(widget, test_io, 'out', verbose=False)
+        alert4.bind(widget, test_io, 'out', secret=True)
         
         self.assertEqual(res, alert)
         
@@ -134,7 +136,8 @@ class TestAlert(unittest.TestCase):
         
         self.assertEqual(alert.children[0].children[0], 'The selected variable is: {}'.format(msg))
         self.assertEqual(alert2.children[0].children[0], 'new variable : {}'.format(msg))
-        self.assertFalse(len(alert3.children[0]))
+        self.assertFalse(len(alert3.children))
+        self.assertEqual(alert4.children[0].children[0], 'The selected variable is: {}'.format("*" * len(msg)))
         
         return 
     

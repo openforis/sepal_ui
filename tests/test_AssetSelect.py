@@ -11,10 +11,11 @@ class TestAssetSelect(unittest.TestCase):
         
         # create an asset select that points to the foder I created for testing
         folder = 'projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test'
+        std_root = folder.replace('projects/earthengine-legacy/assets/', '')
         asset_select = sw.AssetSelect(folder = folder)
         
         self.assertIsInstance(asset_select, sw.AssetSelect)
-        self.assertIn(f'{folder}/france', asset_select.items)
+        self.assertIn(f'{std_root}/france', asset_select.items)
         
         return
         

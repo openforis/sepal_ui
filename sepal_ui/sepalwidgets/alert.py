@@ -165,7 +165,8 @@ class Alert(v.Alert, SepalWidget):
         """
         
         self.show()
-        if self.children[0]:
+        
+        if len(self.children):
             current_children = self.children[:]
             if section:
                 # As the list is mutable, and the trait is only triggered when
@@ -219,7 +220,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
     
-    def bind(self, widget, obj, attribute, msg=None, verbose=True):
+    def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
         """ 
         Bind the attribute to the widget and display it in the alert.
         The binded input need to have an active `v_model` trait.
@@ -232,6 +233,7 @@ class Alert(v.Alert, SepalWidget):
             attribute (str): the name of the attribute in io object
             msg (str, optionnal): the output message displayed before the variable
             verbose (bool, optional): wheter the variable should be displayed to the user 
+            secret (bool, optional): either if the variable is secret or not. If true only "*" will be shown in the output
             
         Return:
             self
@@ -247,12 +249,13 @@ class Alert(v.Alert, SepalWidget):
             setattr(obj, attribute, change['new'])
             
             # add the message if needed
-            if verbose:
-                msg += str(change['new'])
-            else:
+            if secret:
                 msg += '*' * len(change['new'])
+            else:
+                msg += str(change['new'])
                 
-            self.add_msg(msg)
+            if verbose:
+                self.add_msg(msg)
         
             return
         

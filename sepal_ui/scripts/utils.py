@@ -10,6 +10,7 @@ import string
 import random
 import math
 import base64
+import os
 
 import ipyvuetify as v
 import pandas as pd
@@ -107,7 +108,9 @@ def create_download_link(pathname):
     result_path = Path(pathname).expanduser()
     home_path = Path('~').expanduser()
     
-    download_path = result_path.relative_to(home_path) if result_path.is_relative_to(home_path) else result_path
+    # will be available with python 3.9
+    #download_path = result_path.relative_to(home_path) if result_path.is_relative_to(home_path) else result_path
+    download_path = os.path.relpath(result_path,home_path)
     
     link = f'/api/files/download?path=/{download_path}'
     

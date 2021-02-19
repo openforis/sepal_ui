@@ -30,7 +30,7 @@ class Aoi_io:
         field (str): name or value of a specific filed in a specific column
         selected_feature (ee.Feature): a feature queried inside the ee.FeatureCollection version of the object
         json_csv (str | pathlib.Path): the path to the json initial file
-        country_code (int): the code of the country in FAUL GAUL 2015 format
+        country_code (int): the code of the country in FAO GAUL 2015 format
         feature_collection (ee.FeatureCollection): the feature_collection to use as asset when dealing with administrative layers
         
         file_input (str | pathlib.Path): the path to the input .shp file

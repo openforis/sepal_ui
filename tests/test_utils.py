@@ -2,6 +2,7 @@ import unittest
 import random
 from unittest.mock import patch
 import os
+from pathlib import Path
 
 import ipyvuetify as v
 
