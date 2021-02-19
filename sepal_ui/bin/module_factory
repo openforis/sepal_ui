@@ -140,6 +140,10 @@ if __name__ == "__main__":
     command = ['git', 'init']
     res = subprocess.run(command, cwd=folder)
     
+    # add the configuration of the git repository 
+    command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
+    res = subprocess.run(command, cwd=folder)
+    
     # add all the files in the git repo
     command = ['git', 'add', '.']
     res = subprocess.run(command, cwd=folder)
