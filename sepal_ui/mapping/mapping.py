@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 # knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
@@ -14,7 +17,12 @@ import rioxarray
 import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
-from ipyleaflet import WidgetControl, LocalTileLayer, TileLayer
+from ipyleaflet import (
+    WidgetControl, LocalTileLayer, TileLayer
+)
+from traitlets import (
+    Bool, link, observe
+)
 import ipyvuetify as v
 from deprecated import deprecated
 
@@ -33,21 +41,29 @@ class SepalMap(geemap.Map):
     Args: 
         basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
         dc (bool): wether or not the drawing control should be displayed
+        vinspector (bool) : Add value inspector to map, useful to inspect pixel values
         
     Attributes:
         loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
         output_r (Output): the rectangle to display the result of the raster interaction
         output_control_r (WidgetControl): the custom control on the map
         dc (geemap.DrawingControl): the drawing control of the map 
+        
     """
 
+    vinspector = Bool(False).tag(sync=True)
+    
     def __init__(self, basemaps=[], dc=False, **kwargs):
+        
+        # Initial parameters
+
 
         super().__init__(
-            add_google_map=False, 
+            add_google_map=False,
             center = [0,0],
             zoom = 2,
-            **kwargs)
+            **kwargs
+        )
         
         # init the rasters
         self.loaded_rasters = {}
@@ -69,6 +85,22 @@ class SepalMap(geemap.Map):
         
         # specific drawing control
         self.set_drawing_controls(dc)
+        
+        # Add value inspector
+        self.w_vinspector = widgets.Checkbox(
+                    value=False,
+                    description='Inspect values',
+                    indent=False,
+                    layout=widgets.Layout(width='18ex')
+        )
+
+        if kwargs.get("vinspector"):
+            self.add_control(
+                WidgetControl(
+                    widget = self.w_vinspector,
+                    position = 'topright')
+            )
+            link((self.w_vinspector, 'value'),(self, 'vinspector'))
 
         # Create output space for raster interaction
         self.output_r = widgets.Output(layout={'border': '1px solid black'})
@@ -78,10 +110,17 @@ class SepalMap(geemap.Map):
         # define interaction with rasters
         self.on_interaction(self.raster_interaction)
         
+    @observe('vinspector')
+    def change_cursor(self, change):
+        if self.vinspector:
+            self.default_style = {'cursor': 'crosshair'}
+        else:
+            self.default_style = {'cursor': 'grab'}
+        
     def raster_interaction(self, **kwargs):
         """Define a behavior when ispector checked and map clicked"""
         
-        if kwargs.get('type') == 'click' and self.inspector_checked:
+        if kwargs.get('type') == 'click' and self.vinspector:
             latlon = kwargs.get('coordinates')
             self.default_style = {'cursor': 'wait'}
 
