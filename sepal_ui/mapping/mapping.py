@@ -112,6 +112,7 @@ class SepalMap(geemap.Map):
         
     @observe('vinspector')
     def change_cursor(self, change):
+        """Method to be called when vinspector trait changes"""
         if self.vinspector:
             self.default_style = {'cursor': 'crosshair'}
         else:
