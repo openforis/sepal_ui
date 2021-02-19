@@ -245,6 +245,7 @@ class App(v.App, SepalWidget):
         Custom App display with the tiles created by the user using the sepal color framework.
         Display false appBar if not filled. Navdrawer is fully optionnal.
         The drawerItem will be linked to the app tile and they will be able to control their display
+        If the navdrawer exist, it will be linked to the appbar togglebtn
         
         Args:
             tiles ([sw.Tile]): the tiles of the app
@@ -267,21 +268,25 @@ class App(v.App, SepalWidget):
             
             app_children = []
             
+            # create a false appBar if necessary
+            if not appBar:
+                appBar = AppBar()
+            self.appBar = appBar
+            app_children.append(self.appBar)
+            
             # add the navDrawer if existing
             self.navDrawer = None
             if navDrawer:
                 # bind app tile list to the navdrawer
                 for di in navDrawer.items:
                     di.display_tile(tiles)
+                    
+                # link it with the appbar
+                navDrawer.display_drawer(self.appBar.toggle_button)
+                
                 # add the drawers to the children
                 self.navDrawer = navDrawer
                 app_children.append(self.navDrawer)
-    
-            # create a false appBar if necessary
-            if not appBar:
-                appBar = AppBar()
-            self.appBar = appBar
-            app_children.append(self.appBar)
 
             # add the content of the app
             self.content = v.Content(children=[

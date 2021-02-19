@@ -290,18 +290,19 @@ def run_aoi_selection(output, list_method, io, folder=None):
         output.add_msg(ms.aoi_sel.no_selection, 'error')   
     # use a country boundary
     elif io.selection_method == list_method[0]: 
-        io.feature_collection, io.country_code = get_country_asset(io.country_selection, output)
+        asset, admin0 = get_country_asset(io.country_selection, output)
+        io.set_admin(asset, admin0=admin0)
     # draw a shape
     elif io.selection_method == list_method[1]: 
-        io.assetId = get_drawn_shape(io.drawn_feat, io.file_name, folder, output)
+        io.set_asset(get_drawn_shape(io.drawn_feat, io.file_name, folder, output))
     # use GEE asset
     elif io.selection_method == list_method[3]: 
-        io.assetId = get_gee_asset(io.assetId, output)
+        io.set_asset(get_gee_asset(io.assetId, output))
     # upload file
     elif io.selection_method == list_method[2]: 
-        io.assetId = get_shp_aoi(io.file_input, io.file_name, folder, output)
+        io.set_asset(get_shp_aoi(io.file_input, io.file_name, folder, output))
     # csv point file
     elif io.selection_method == list_method[4]: 
-        io.assetId = get_csv_asset(io.json_csv, io.file_name, folder, output)
+        io.set_asset(get_csv_asset(io.json_csv, io.file_name, folder, output))
             
     return

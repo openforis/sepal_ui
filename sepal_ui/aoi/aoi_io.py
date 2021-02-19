@@ -21,6 +21,7 @@ class Aoi_io:
     Args: 
         alert_widget (sw.Alert): an alert output to display message when computing stuff internally. This is a legacy parameter
         default_asset (str): the default asset to use when no others are provided
+        default_admin0 (str): a default administrative layer of level 0 to use if nothing is provided (will overload the default_asset). use a FAO gaul 2015 id
         
     Attributes:
         default_asset (str): the default asset link
@@ -41,10 +42,11 @@ class Aoi_io:
         alert (sw.Alert): the alert to display message
     """
     
-    def __init__(self, alert_widget=None, default_asset=None):
+    def __init__(self, alert_widget=None, default_asset=None, default_admin0=None):
         
-        # keep the default asset in memory
+        # keep the default assets in memory
         self.default_asset = default_asset
+        self.default_admin0 = default_admin0
         
         # GEE parameters
         self.assetId = self.default_asset
@@ -52,8 +54,11 @@ class Aoi_io:
         self.field = None
         self.selected_feature = None
         self.json_csv = None # information that will be use to transform the csv into asset 
-        self.country_code = None # to name the asset coming from country selection
+        self.country_code = self.default_admin0 # to name the asset coming from country selection
         self.feature_collection = None # to access the country asset
+        
+        # set the feature_collection 
+        self._set_default_admin()
 
         #set up your inputs
         self.file_input = None
@@ -172,8 +177,11 @@ class Aoi_io:
         self.field = None
         self.selected_feature = None
         self.json_csv = None
-        self.country_code = None
+        self.country_code = self.default_admin0
         self.feature_collection = None
+        
+        # set the feature_collection
+        self._set_default_admin()
 
         # set up your inputs
         self.file_input = None
@@ -307,3 +315,66 @@ class Aoi_io:
             name = Path(self.assetId).stem.replace('aoi_', '')
         
         return name
+    
+    def _set_default_admin(self):
+        """
+        Set the self.feature_collection acording to the default admin code.
+        It will return an empty featurecollection if the value is not reffering to anything
+        
+        Return:
+            self
+        """
+        
+        if self.default_admin0:
+            self.feature_collection = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', self.default_admin0))
+            
+        return self
+    
+    def set_asset(self, assetId):
+        """
+        Set the asset id of the aoi and unsure that all existing reference to administrative layer are removed
+        
+        Args:
+            assetId (str): the assetId of the new asset
+            
+        Return:
+            self
+        """
+        
+        # add the asset 
+        self.assetId = assetId 
+        
+        # remove all the administrative layers 
+        self.feature_collection = None
+        self.country_code = None
+        
+        return self 
+    
+    def set_admin(self, asset, admin0=None):
+        """
+        Set the asset in feature_collection and referenced the admin level code
+        Remove all existing assetId. At least one of the admin level need to be filled
+        
+        Args:
+            admmin0 (int, optional): the admin0 code in the FAO GAUL 2015 code list
+            asset (ee.FeatureCollection): the asset associated with the code
+            
+        Return: 
+            self
+        """
+        
+        # add the asset 
+        self.feature_collection = asset 
+        
+        # remove the assetId 
+        self.assetId = None
+        
+        # add the admin level code 
+        if admin0 == None:
+            raise Exception("Impossible to set an administrative level without level")
+        
+        if admin0:
+            self.country_code = admin0
+            
+        return self
+            
