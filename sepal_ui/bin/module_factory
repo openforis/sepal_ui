@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 import subprocess
 import json
+from distutils.util import strtobool
 
 from colorama import init, Fore, Style
 
@@ -115,13 +116,13 @@ if __name__ == "__main__":
     
     branch = 'default'
     # ask if the user need the default function 
-    default = input(f'{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.CYAN}')
-    if not bool(distutils.util.strtobool(default)):
+    default = input(f'{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.RESET}')
+    if not strtobool(default):
         branch= 'no_default'
         
         # ask if the user need the aoi 
-        aoi = input(f'{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.CYAN}')
-        if not bool(distutils.util.strtobool(aoi)):
+        aoi = input(f'{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}')
+        if not strtobool(aoi):
             branch = 'no_aoi'
     
     # adapt the name of the module to remove any special characters and spaces
