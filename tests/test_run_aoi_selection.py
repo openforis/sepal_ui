@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 import json
-from glob import glob
+import os
 
 import ee
 
@@ -166,15 +166,20 @@ class TestRunAoiSelection(unittest.TestCase):
         # create the shape file from gee france asset 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
         aoi_io = aoi.Aoi_io(default_asset = asset_id)
-        out_dir = os.path.expanduser('~')
+        out_dir = Path('~').expanduser()
         filename = aoi_io.get_aoi_shp(out_dir)
         
+        # rename all the shp files
         name_ext = '_test'
-        for file in glob(str(Path(filename).with_suffix('.*'))):
-            new_name = str(Path(file).with_suffix('')) + name_ext + Path(file).suffix
-            os.rename(file, new_name)
-            
-        filename = str(Path(file).with_suffix('')) + name_ext + Path(filename).suffix
+        for f in filename.parent.glob(f'{filename.stem}.*'): 
+            # only available in Python 3.9
+            # f.rename(f.with_stem(f.stem + name_ext))
+            f.rename(f.with_name(f.stem + name_ext + f.suffix))
+        
+        # rename the path I'll use for the test
+        # only available in Python 3.9
+        #filename = filename.with_stem(filename.stem + name_ext)
+        filename = filename.with_name(filename.stem + name_ext + filename.suffix)
         
         asset_name = Path(filename).stem
         
@@ -183,8 +188,8 @@ class TestRunAoiSelection(unittest.TestCase):
         self.assertEqual(asset, f'{folder}/aoi_france_test')
         
         # remove the files 
-        for file in glob(str(Path(filename).with_suffix('.*'))):
-            os.remove(file)
+        for f in filename.parent.glob(f'{filename.stem}.*'):
+            f.unlink()
             
         # delete the asset 
         ee.data.deleteAsset(asset)

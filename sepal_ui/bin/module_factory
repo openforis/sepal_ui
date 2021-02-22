@@ -1,6 +1,6 @@
 #!/usr/bin/python3
+
 import re 
-import os 
 from pathlib import Path
 import subprocess
 import json
@@ -57,8 +57,28 @@ def set_module_name(folder, module_name):
             json.dump(data, f, indent=4)
             
     return
-    
 
+def set_drawer_link(folder, repository):
+    """replace the reference to the default repository to the one provided by the use"""
+    
+    print('Update the drawers link with the new repository one')
+    
+    # get the ui file
+    ui = folder.joinpath('ui.ipynb')
+    
+    # read the file 
+    with ui.open() as f:
+        ui_content = f.read()
+        
+    # replace the target strings 
+    ui_content = ui_content.replace('https://github.com/12rambau/sepal_ui_template', repository.replace('.git', ''))
+    
+    # write everything down again 
+    with ui.open('w') as f:
+        f.write(ui_content)
+        
+    return 
+    
 if __name__ == "__main__":
     
     # welcome the user 
@@ -114,9 +134,14 @@ if __name__ == "__main__":
     set_default_readme(folder, module_name, description)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
+    set_drawer_link(folder, github_url)
     
     # init the new git repository
     command = ['git', 'init']
+    res = subprocess.run(command, cwd=folder)
+    
+    # add the configuration of the git repository 
+    command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
     res = subprocess.run(command, cwd=folder)
     
     # add all the files in the git repo
@@ -150,5 +175,3 @@ if __name__ == "__main__":
     print()
     print("Let's code !")
     print(Fore.RESET)
-    
-    

@@ -30,14 +30,15 @@ By the end, you will have an overview of the librairie usage and you'll be able 
 .. toctree::
     :maxdepth: 1
 
+    readme
     installation
     authors
+
 
 .. toctree::
     :maxdepth: 1
     :caption: Cookbook
 
-    tutorials/tutorials
     tutorials/create-module
     tutorials/structure
     tutorials/custom-widget
@@ -53,10 +54,9 @@ By the end, you will have an overview of the librairie usage and you'll be able 
     :caption: Usage 
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 3
     :caption: Content
 
-    modules/modules
     modules/sepal_ui
 
 
