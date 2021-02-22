@@ -112,6 +112,18 @@ if __name__ == "__main__":
     # ask for a short description 
     description = input(f'{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}')
     
+    
+    branch = 'default'
+    # ask if the user need the default function 
+    default = input(f'{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.CYAN}')
+    if not bool(distutils.util.strtobool(default)):
+        branch= 'no_default'
+        
+        # ask if the user need the aoi 
+        aoi = input(f'{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.CYAN}')
+        if not bool(distutils.util.strtobool(aoi)):
+            branch = 'no_aoi'
+    
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub('[^a-zA-Z\d\-\_]', '_', module_name)
     
@@ -123,7 +135,7 @@ if __name__ == "__main__":
     # clone the repository in a folder that has the normalized module name 
     folder = Path('~', normalized_name).expanduser()
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
-    command = ['git', 'clone', template_url, str(folder)]
+    command = ['git', 'clone', '--single-branch', '--branch', branch, template_url, str(folder)]
     res = subprocess.run(command, cwd=Path.home())
     
     # remove the .git folder 
@@ -140,9 +152,10 @@ if __name__ == "__main__":
     command = ['git', 'init']
     res = subprocess.run(command, cwd=folder)
     
-    # add the configuration of the git repository 
-    command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
-    res = subprocess.run(command, cwd=folder)
+    # add the configuration of the git repository
+    # create strange behaviour I need to check again
+    #command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
+    #res = subprocess.run(command, cwd=folder)
     
     # add all the files in the git repo
     command = ['git', 'add', '.']
