@@ -27,6 +27,7 @@ import ipyvuetify as v
 from deprecated import deprecated
 
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
 #initialize earth engine
 su.init_ee()
@@ -113,10 +114,13 @@ class SepalMap(geemap.Map):
     @observe('vinspector')
     def change_cursor(self, change):
         """Method to be called when vinspector trait changes """
+        
         if self.vinspector:
             self.default_style = {'cursor': 'crosshair'}
         else:
             self.default_style = {'cursor': 'grab'}
+            
+        return
         
     def raster_interaction(self, **kwargs):
         """Define a behavior when ispector checked and map clicked"""
@@ -335,7 +339,7 @@ class SepalMap(geemap.Map):
             image = Path(image)
             
         if not image.is_file():
-            raise Exception('The image file does not exist.')
+            raise Exception(ms.mapping.no_image)
             
         # check inputs
         if layer_name in self.loaded_rasters.keys():

@@ -11,13 +11,14 @@ from sepal_ui.aoi.aoi_io import Aoi_io
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su, run_aoi_selection
 from sepal_ui.mapping import SepalMap
+from sepal_ui.message import ms
     
 # initialize earth engine
 su.init_ee()
     
 class FileNameField(v.TextField, sw.SepalWidget):
     """
-    custom v.TextField heriting from sw.SepalWidget. default_name will be used ans default v_model
+    custom v.TextField heriting from sw.SepalWidget. default_name will be used as default v_model
     
     Args:
         default_name (str): a default name
@@ -26,7 +27,7 @@ class FileNameField(v.TextField, sw.SepalWidget):
     def __init__(self, default_name = None):
         
         super().__init__(
-            label   = 'Select an asset name', 
+            label   = ms.aoi_sel.asset_name_lbl, 
             v_model = default_name
         )
         
@@ -39,7 +40,7 @@ class CountrySelect(v.Select, sw.SepalWidget):
         
         super().__init__(
             items   = [*su.get_gaul_dic()], 
-            label   = 'Country/Province', 
+            label   = ms.aoi_sel.country_lbl, 
             v_model = None
         )
         
@@ -68,16 +69,16 @@ class MethodSelect(v.Select, sw.SepalWidget):
             if m in default_methods:
                 
                 if m == default_methods[0]: # country selection 
-                    items.append({'header': 'Administrative definitions'})
+                    items.append({'header': ms.aoi_sel.administrative})
                 elif not custom_header:
-                    items.append({'header': 'Custom geometries'})
+                    items.append({'header': ms.aoi_sel.custom})
                     custom_header = True
                         
                 items.append({'text': m, 'value': m})
                 
         # create the input 
         super().__init__(
-            label = 'AOI selection method',
+            label = ms.aoi_sel.method_lbl,
             items = items,
             v_model = None
         )
@@ -156,7 +157,7 @@ class TileAoi(sw.Tile):
         self.aoi_select_method = MethodSelect(self.SELECTION_METHOD, methods)
         
         # create the validation button 
-        self.aoi_select_btn = sw.Btn('Select these inputs')
+        self.aoi_select_btn = sw.Btn(ms.aoi_sel.btn)
     
         # assemble everything on a tile 
         inputs = v.Layout(
@@ -180,7 +181,7 @@ class TileAoi(sw.Tile):
             ]
         )
         
-        super().__init__(id_ = 'aoi_widget', title = 'AOI selection', inputs = [aoi_content_main])
+        super().__init__(id_ = 'aoi_widget', title = ms.aoi_sel.title, inputs = [aoi_content_main])
         
         # link the custom behaviours 
         self.aoi_load_table.observe(self._on_table_change, 'v_model')
@@ -212,7 +213,7 @@ class TileAoi(sw.Tile):
         feature = ee.Feature(geom)
         self.io.drawn_feat = ee.FeatureCollection(feature)
             
-        self.aoi_output.add_live_msg('A shape have been drawn')
+        self.aoi_output.add_live_msg(ms.aoi_sel.shape_drawn)
 
         return self
     
