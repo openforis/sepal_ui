@@ -26,8 +26,8 @@ class TestApp(unittest.TestCase):
         app = sw.App(tiles, appBar, footer, navDrawer)
         self.assertIsInstance(app, sw.App)
         self.assertEqual(len(app.children), 4)
-        self.assertIsInstance(app.children[0], sw.NavDrawer)
-        self.assertIsInstance(app.children[1], sw.AppBar)
+        self.assertIsInstance(app.children[0], sw.AppBar)
+        self.assertIsInstance(app.children[1], sw.NavDrawer)
         self.assertIsInstance(app.children[2], v.Content)
         self.assertIsInstance(app.children[3], sw.Footer)
         

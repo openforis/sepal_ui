@@ -106,13 +106,17 @@ class TestUtils(unittest.TestCase):
         size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
         
         # mock 0 B file 
-        with patch('os.path.getsize', return_value=0):
+        with patch('pathlib.Path.stat') as stat:
+            stat.return_value.st_size = 0
+            
             txt = su.get_file_size('random')
             self.assertEqual(txt, '0B')
         
         # mock every pow of 1024 to YB
         for i in range(9):
-            with patch('os.path.getsize', return_value=test_value*(1024**i)):
+            with patch('pathlib.Path.stat') as stat:
+                stat.return_value.st_size = test_value*(1024**i)
+                
                 txt = su.get_file_size('random')
                 self.assertEqual(txt, f'7.5 {size_name[i]}')
         
