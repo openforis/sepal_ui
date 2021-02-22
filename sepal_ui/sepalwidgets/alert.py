@@ -291,3 +291,49 @@ class Alert(v.Alert, SepalWidget):
             self.add_msg(msg, 'error')
         
         return init
+    
+class StateBar(v.SystemBar):
+    
+    """ Widget to display quick messages on simple inline status bar
+    
+    Args: 
+        **kwargs from Vuetify SystemBar object.
+        msg (str, traitlet): message to be displayed
+        done (bool, traitlet): State of bar, it will display a loading spin wheel if not done.
+    
+    """
+    
+    msg = Unicode('').tag(sync=True)
+    done = Bool(False).tag(sync=True)
+    
+    def __init__(self,  **kwargs):
+                        
+        self.progress = v.ProgressCircular(
+            indeterminate=not self.done,
+            value=100,
+            small=True,
+            size=15,
+            color='primary',
+            class_='mr-2',
+        )
+        
+        self.children = [self.progress, self.msg]
+        
+        super().__init__(**kwargs)
+    
+    @observe('done')
+    def _change_done(self, change):
+        """ Change progress wheel state"""
+        self.progress.indeterminate = not self.done
+            
+    @observe('msg')
+    def _change_msg(self, change):
+        """ Change state bar message"""
+        self.children = [self.progress, self.msg]
+        
+    def add_msg(self, msg, done=False):
+        """ Change current status message"""
+        self.msg = msg
+        self.done = done
+        
+        return self
