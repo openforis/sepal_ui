@@ -25,6 +25,7 @@ class Aoi_io:
         
     Attributes:
         default_asset (str): the default asset link
+        default_admin0 (int): the default country Id (in FAO GAUL 2015)
         
         assetId (str): the assetId of the current asset
         column (str): name of a aoi's column (feature)  

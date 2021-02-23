@@ -158,6 +158,16 @@ class TestAlert(unittest.TestCase):
         res = alert.check_input(var_test)
         self.assertTrue(res)
         
+        # test lists 
+        var_test = [range(2)]
+        res = alert.check_input(var_test)
+        self.assertTrue(res)
+        
+        # test empty list 
+        var_test = []
+        res = alert.check_input(var_test)
+        self.assertFalse(res)
+        
         return 
     
     def test_reset(self):
@@ -199,6 +209,15 @@ class TestAlert(unittest.TestCase):
         self.assertEqual(alert.children[nb_msg-2].children[0], f'{string}{nb_msg-2}')
         
         return
+    
+    def test_update_progress(self):
+        
+        # create an alert 
+        alert = sw.Alert()
+        
+        # test a random update 
+        alert.update_progress(0.5)
+        self.assertEqual(alert.children[1].children[0].children[2].children[0], ' 50.0%')
         
 if __name__ == '__main__':
     unittest.main()

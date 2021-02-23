@@ -16,7 +16,7 @@ class TestApp(unittest.TestCase):
         self.assertIsInstance(app.children[1], v.Content)
         
         #exhaustive 
-        navDrawer = sw.NavDrawer([])
+        navDrawer = sw.NavDrawer([sw.DrawerItem('title {}'.format(i)) for i in range(5)])
         appBar = sw.AppBar()
         tiles = []
         for i in range(5):
@@ -35,9 +35,7 @@ class TestApp(unittest.TestCase):
     
     def test_show_tile(self):
         
-        tiles = []
-        for i in range(5):
-            tiles.append(sw.Tile('id_{}'.format(i), 'title_{}'.format(i)))
+        tiles = [sw.Tile('id_{}'.format(i), 'title_{}'.format(i)) for i in range(5)]
             
         title = 'main_title'
         id_ = 'main_id' 

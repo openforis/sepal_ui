@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 # knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
@@ -54,7 +51,7 @@ class SepalMap(geemap.Map):
 
     vinspector = Bool(False).tag(sync=True)
     
-    def __init__(self, basemaps=[], dc=False, **kwargs):
+    def __init__(self, basemaps=[], dc=False, vinspector=False, **kwargs):
         
         # Initial parameters
 
@@ -95,7 +92,7 @@ class SepalMap(geemap.Map):
                     layout=widgets.Layout(width='18ex')
         )
 
-        if kwargs.get("vinspector"):
+        if vinspector:
             self.add_control(
                 WidgetControl(
                     widget = self.w_vinspector,

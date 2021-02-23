@@ -108,6 +108,14 @@ class TestAoiTile(unittest.TestCase):
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertNotIn('d-none', tile_aoi.aoi_load_table.class_)
         
+        # select nothing 
+        tile_aoi.aoi_select_method.v_model = None
+        self.assertIn('d-none', tile_aoi.aoi_file_input.class_)
+        self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
+        self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
+        self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
+        
+        
         return 
     
     def test_handle_draw(self):

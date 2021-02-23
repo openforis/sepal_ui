@@ -21,6 +21,12 @@ class TestAoi_io(unittest.TestCase):
         
         self.assertEqual(aoi_io.assetId, asset_id)
         
+        # with a default admin 
+        admin = 53
+        aoi_io = aoi.Aoi_io(default_admin0 = admin)
+        
+        self.assertNotEqual(aoi_io.feature_collection, None)
+        
         return 
     
     def test_get_aoi_ee(self):
