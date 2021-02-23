@@ -479,12 +479,12 @@ class PasswordField(v.TextField, SepalWidget):
     def _toggle_pwd(self, widget, event, data):
         """Toggle password visibility when append button is clicked"""
         
-        if widget.type=='text':
-            widget.type='password'
-            widget.append_icon = 'mdi-eye-off'
+        if self.type=='text':
+            self.type='password'
+            self.append_icon = 'mdi-eye-off'
         else:
-            widget.type = 'text'
-            widget.append_icon = 'mdi-eye'
+            self.type = 'text'
+            self.append_icon = 'mdi-eye'
             
 class NumberField(v.TextField, SepalWidget):
     """

@@ -55,7 +55,7 @@ class TestFileInput(unittest.TestCase):
         file_input = sw.FileInput(folder=sepal_ui)
         
         # move into sepal_ui folders 
-        readme = os.path.join(sepal_ui, 'README.rst')
+        readme = sepal_ui.joinpath('README.rst')
         
         file_input._on_file_select({'new' : sepal_ui})
         
@@ -71,10 +71,38 @@ class TestFileInput(unittest.TestCase):
         
         # select readme
         file_input._on_file_select({'new': readme})
-        self.assertEqual(file_input.v_model, readme)
+        self.assertEqual(file_input.v_model, str(readme))
         
         return
     
+    def test_on_reload(self):
+        
+        home = Path('~').expanduser()
+        file_input = sw.FileInput(folder=home)
+        
+        # create a fake file 
+        test_name = 'test.txt'
+        tmp_file = home.joinpath(test_name)
+        with tmp_file.open('w') as f:
+            f.write('a test \n')
+            
+        # reload the folder 
+        file_input._on_reload(None, None, None)
+        
+        # check that the new file is in the list
+        list_names = []
+        for list_item in file_input.file_list.children[0].children:
+            list_item_content = list_item.children[1]
+            list_item_title = list_item_content.children[0]
+            list_names.append(list_item_title.children[0])
+        
+        self.assertIn(test_name, list_names)
+        
+        # remove the test file 
+        tmp_file.unlink()
+        
+        return
+        
     def _get_sepal_parent(self):
         
         path = Path(__file__).parent.parent.absolute()

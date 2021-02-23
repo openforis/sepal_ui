@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 # knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
@@ -27,6 +24,7 @@ import ipyvuetify as v
 from deprecated import deprecated
 
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
 #initialize earth engine
 su.init_ee()
@@ -53,7 +51,7 @@ class SepalMap(geemap.Map):
 
     vinspector = Bool(False).tag(sync=True)
     
-    def __init__(self, basemaps=[], dc=False, **kwargs):
+    def __init__(self, basemaps=[], dc=False, vinspector=False, **kwargs):
         
         # Initial parameters
 
@@ -94,7 +92,7 @@ class SepalMap(geemap.Map):
                     layout=widgets.Layout(width='18ex')
         )
 
-        if kwargs.get("vinspector"):
+        if vinspector:
             self.add_control(
                 WidgetControl(
                     widget = self.w_vinspector,
@@ -113,10 +111,13 @@ class SepalMap(geemap.Map):
     @observe('vinspector')
     def change_cursor(self, change):
         """Method to be called when vinspector trait changes """
+        
         if self.vinspector:
             self.default_style = {'cursor': 'crosshair'}
         else:
             self.default_style = {'cursor': 'grab'}
+            
+        return
         
     def raster_interaction(self, **kwargs):
         """Define a behavior when ispector checked and map clicked"""
@@ -335,7 +336,7 @@ class SepalMap(geemap.Map):
             image = Path(image)
             
         if not image.is_file():
-            raise Exception('The image file does not exist.')
+            raise Exception(ms.mapping.no_image)
             
         # check inputs
         if layer_name in self.loaded_rasters.keys():

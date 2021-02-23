@@ -8,9 +8,7 @@ class TestNavDrawer(unittest.TestCase):
     
     def test_init(self):
         
-        items = []
-        for i in range(5):
-            items.append(sw.DrawerItem('title {}'.format(i)))
+        items = [sw.DrawerItem('title {}'.format(i)) for i in range(5)]
         
         #default init
         widget = sw.NavDrawer(items)
@@ -75,6 +73,28 @@ class TestNavDrawer(unittest.TestCase):
         self.assertEqual(nav_drawer.v_model, not previous)
         
         return
+    
+    def test_on_item_click(self):
+        
+        # create items 
+        items = [sw.DrawerItem('title {}'.format(i)) for i in range(5)]
+        nav_drawer = sw.NavDrawer(items)
+        
+        # activate the first one 
+        items[0].input_value = True
+        for i in range(5):
+            if i == 0:
+                self.assertTrue(items[i].input_value)
+            else:
+                self.assertFalse(items[i].input_value)
+                
+        # activate the second one 
+        items[1].input_value = True
+        for i in range(5):
+            if i == 1:
+                self.assertTrue(items[i].input_value)
+            else: 
+                self.assertFalse(items[i].input_value)
         
 if __name__ == '__main__':
     unittest.main()
