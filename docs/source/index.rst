@@ -53,7 +53,25 @@ By the end, you will have an overview of the librairie usage and you'll be able 
    
 .. toctree::
     :maxdepth: 1
-    :caption: Widget 
+    :caption: Widgets usage 
+
+    widgets/sepal_widget
+    widgets/markdown
+    widgets/btn
+    widgets/download_btn
+    widgets/number
+    widgets/password
+    widgets/date_picker
+    widgets/file_input
+    widgets/load_table
+    widgets/asset_select
+    widgets/about
+    widgets/disclaimer
+    widgets/tile
+    widgets/tile_aoi
+    widgets/alert
+    widgets/app
+    
 
 .. toctree::
     :maxdepth: 3
