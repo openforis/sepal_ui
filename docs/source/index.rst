@@ -33,6 +33,7 @@ By the end, you will have an overview of the librairie usage and you'll be able 
     readme
     installation
     authors
+    inspiration
 
 
 .. toctree::
@@ -47,11 +48,12 @@ By the end, you will have an overview of the librairie usage and you'll be able 
     tutorials/remove-default
     tutorials/add-tile
     tutorials/io-design
+    tutorials/sepalize
     tutorials/send-to-sepal
    
 .. toctree::
     :maxdepth: 1
-    :caption: Usage 
+    :caption: Widget 
 
 .. toctree::
     :maxdepth: 3
