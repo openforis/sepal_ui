@@ -26,7 +26,8 @@ setup(
         'coverage',
         'deepdiff',
         'colorama',
-        'Deprecated'
+        'Deprecated',
+        'cryptography'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

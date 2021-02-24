@@ -14,3 +14,4 @@ googledrivedownloader
 deepdiff
 colorama>=0.4.3
 Deprecated>=1.2.11
+cryptography>=2.1.4
