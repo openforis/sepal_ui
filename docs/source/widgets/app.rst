@@ -1,7 +1,7 @@
 App
 ===
 
-:code:`App`is a custom App display with the tiles created by the user using the sepal color framework. 
+:code:`App` is a custom App display with the tiles created by the user using the sepal color framework. 
 Display false appBar if not filled. 
 Navdrawer is fully optionnal. 
 The drawerItem will be linked to the app tile and they will be able to control their display If the navdrawer exist, it will be linked to the appbar togglebtn.
