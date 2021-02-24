@@ -17,17 +17,14 @@ setup(
         'ipyvuetify',
         'geemap',
         'earthengine-api',
-        'bqplot',
         'markdown',
         'xarray_leaflet',
         'shapely',
         'geopandas',
         'pandas',
-        'coverage',
         'deepdiff',
         'colorama',
-        'Deprecated',
-        'cryptography'
+        'Deprecated'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
