@@ -1,7 +1,6 @@
 import unittest
-import os
-from glob import glob
 import ee
+from pathlib import Path
 
 from sepal_ui import aoi
 from sepal_ui import mapping as sm
@@ -22,6 +21,12 @@ class TestAoi_io(unittest.TestCase):
         
         self.assertEqual(aoi_io.assetId, asset_id)
         
+        # with a default admin 
+        admin = 53
+        aoi_io = aoi.Aoi_io(default_admin0 = admin)
+        
+        self.assertNotEqual(aoi_io.feature_collection, None)
+        
         return 
     
     def test_get_aoi_ee(self):
@@ -37,7 +42,8 @@ class TestAoi_io(unittest.TestCase):
         
         self.assertEqual(ee_obj, ee_france)
         
-        # an aoi with a feature collection
+        # fake an administrative country 
+        aoi_io.country_code = 53 # fake number to force is_admin to return true
         aoi_io.feature_collection = ee_italy
         ee_obj = aoi_io.get_aoi_ee()
         
@@ -218,21 +224,21 @@ class TestAoi_io(unittest.TestCase):
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
         aoi_io = aoi.Aoi_io(default_asset = asset_id)
-        out_dir = os.path.expanduser('~')
+        out_dir = Path('~').expanduser()
         
         filename = aoi_io.get_aoi_shp(out_dir)
         
-        self.assertEqual(filename, f'{out_dir}/france.shp')
-        self.assertEqual(os.path.getsize(filename), 236)
+        self.assertEqual(filename, out_dir.joinpath('france.shp'))
+        self.assertEqual(Path(filename).stat().st_size, 236)
         
         #check if the filename is return when already exist
         filename = aoi_io.get_aoi_shp(out_dir)
         
-        self.assertEqual(filename, f'{out_dir}/france.shp')
+        self.assertEqual(filename, out_dir.joinpath('france.shp'))
         
         # remove the files 
-        for file in glob(f'{out_dir}/france.*'):
-            os.remove(file)
+        for f in out_dir.glob('france.*'):
+            f.unlink()
         
         return 
     

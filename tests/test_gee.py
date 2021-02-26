@@ -5,7 +5,7 @@ import ee
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import gee
-from sepal_ui.scripts import messages as ms
+from sepal_ui.message import ms
 
 @unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
 class TestGee(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestGee(unittest.TestCase):
         
         self.assertEqual(res, 'COMPLETED')
         self.assertEqual(alert.type, 'success')
-        self.assertEqual(ms.STATUS.format('COMPLETED'), alert.children[1].children[0])
+        self.assertEqual(ms.status.format('COMPLETED'), alert.children[1].children[0])
         
         ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
         

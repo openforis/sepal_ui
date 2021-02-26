@@ -32,7 +32,7 @@ class TestTile(unittest.TestCase):
         
         id_ = "id"
         title = "title"
-        tile = sw.Tile(id_, title)
+        tile = sw.Tile(id_, title, output = sw.Alert(), btn = sw.Btn())
         
         input_ = v.Slider()
         

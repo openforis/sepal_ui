@@ -34,15 +34,13 @@ class TestSepalMap(unittest.TestCase):
         self.assertIn('CartoDB.DarkMatter', layers_name)
         self.assertIn('CartoDB.Positron', layers_name)
         
+        # check that the map starts with a vinspector 
+        m = sm.SepalMap(vinspector=True)
+        self.assertIsInstance(m, sm.SepalMap)
+        
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
-        # work until I get how to use assertRaises
-        error = False
-        try:
+        with self.assertRaises(Exception):
             m = sm.SepalMap(['TOTO'])
-        except Exception as e:
-            error = True
-            
-        self.assertTrue(error)
         
         return
     

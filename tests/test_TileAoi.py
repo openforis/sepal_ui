@@ -44,7 +44,7 @@ class TestAoiTile(unittest.TestCase):
         
         # launch the click without any entry 
         tile_aoi.bind_aoi_process(tile_aoi.aoi_select_btn, None, None)
-        self.assertEqual(tile_aoi.output.children[0].children[0], ms.aoi_sel.no_selection)
+        self.assertEqual(tile_aoi.aoi_output.children[0].children[0], ms.aoi_sel.no_selection)
         
         # launch with a coutry entry
         aoi_io.clear_attributes()
@@ -107,6 +107,14 @@ class TestAoiTile(unittest.TestCase):
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertNotIn('d-none', tile_aoi.aoi_load_table.class_)
+        
+        # select nothing 
+        tile_aoi.aoi_select_method.v_model = None
+        self.assertIn('d-none', tile_aoi.aoi_file_input.class_)
+        self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
+        self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
+        self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
+        
         
         return 
     

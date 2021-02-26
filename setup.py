@@ -2,29 +2,29 @@ from distutils.core import setup
     
 setup(
     name = 'sepal_ui',      
-    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.frontend', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi', 'sepal_ui.message'],   
-    package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json']},
-    version = '1.0.2',   
+    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.frontend', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi', 'sepal_ui.message', 'sepal_ui.mapping', 'sepal_ui.translator'],   
+    package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json', 'bin/module_factory']},
+    version = '1.1.0',   
     license='MIT',        
     description = 'Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform',  
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_1.0.2.tar.gz',
+    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_1.1.0.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',
         'ipyvuetify',
         'geemap',
         'earthengine-api',
-        'bqplot',
         'markdown',
         'xarray_leaflet',
         'shapely',
         'geopandas',
         'pandas',
-        'coverage',
-        'deepdiff'
+        'deepdiff',
+        'colorama',
+        'Deprecated'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -5,7 +5,13 @@ from traitlets import Unicode
 TYPES = ('info', 'secondary', 'primary', 'error', 'warning', 'success', 'accent')
 
 class SepalWidget(v.VuetifyWidget):
+    """
+    Custom vuetifyWidget to add specific methods
     
+    Attributes:
+        viz (bool): weather the file is displayed or not
+        old_class (str): a saving attribute of the widget class
+    """
     
     def __init__(self, **kwargs):
         
@@ -15,11 +21,23 @@ class SepalWidget(v.VuetifyWidget):
         self.old_class = ''
         
     def toggle_viz(self):
-        """toogle the visibility of the widget"""
+        """
+        toogle the visibility of the widget
+        
+        Return:
+            self
+        """
+        
         return self.hide() if self.viz else self.show()
     
     def hide(self):
-        """add the d-none html class to the widget"""
+        """
+        Hide the widget by adding the d-none html class to the widget.
+        Save the previous class and set viz attribute to False.
+        
+        Return:
+            self
+        """
         
         if not 'd-none' in str(self.class_):
             self.old_class = self.class_
@@ -30,7 +48,14 @@ class SepalWidget(v.VuetifyWidget):
         return self
         
     def show(self):
-        """ remove the d-none html class to the widget"""
+        """
+        Hide the widget by removing the d-none html class to the widget
+        Save the previous class and set viz attribute to True.
+        
+        Return:
+            self
+        """
+        
         if self.old_class:
             self.class_ = self.old_class
         
@@ -42,7 +67,12 @@ class SepalWidget(v.VuetifyWidget):
         return self
     
 class Markdown(v.Layout, SepalWidget):
-    """create a v.layout based on the markdown text given"""
+    """
+    Custom Layout based on the markdown text given
+    
+    Args:
+        mkd_str (str): the text to display using the markdown convention. multi-line string are also interpreted
+    """
     
     def __init__(self, mkd_str="", **kwargs):
         
