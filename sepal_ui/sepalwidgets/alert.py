@@ -92,6 +92,8 @@ class Alert(v.Alert, SepalWidget):
         
         # cast the progress to float
         progress = float(progress)
+        if 0 > progress > 1:
+            raise ValueError(f"progress should be in [0, 1], {progress} given")
         
         # set the length parameter 
         block = int(round(bar_length * progress))
