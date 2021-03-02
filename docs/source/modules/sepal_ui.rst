@@ -1,16 +1,26 @@
-sepal\_ui package
-=================
+Content
+=======
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   sepal_ui.aoi
+   sepal_ui.frontend
+   sepal_ui.mapping
+   sepal_ui.scripts
+   sepal_ui.sepalwidgets
+   sepal_ui.translator
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    sepal_ui.aoi
    sepal_ui.frontend
    sepal_ui.mapping
-   sepal_ui.message
    sepal_ui.scripts
    sepal_ui.sepalwidgets
    sepal_ui.translator

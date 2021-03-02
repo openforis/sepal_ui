@@ -15,6 +15,7 @@ import os
 import ipyvuetify as v
 import pandas as pd
 import ee
+from cryptography.fernet import Fernet
 
 import sepal_ui
 
@@ -177,14 +178,24 @@ def init_ee():
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
         
-        # if in test env use the private key
-        if 'EE_PRIVATE_KEY' in os.environ:
+        # if the decrypt key is available use the decript key 
+        if 'EE_DECRYPT_KEY' in os.environ:
+        
+            # read the key as byte 
+            key = os.environ['EE_DECRYPT_KEY'].encode()
             
-            # key need to be decoded in a file
-            content = base64.b64decode(os.environ['EE_PRIVATE_KEY']).decode()
+            # create the fernet object 
+            fernet = Fernet(key)
+            
+            # decrypt the key
+            json_encrypted = Path(__file__).parent.joinpath('encrypted_key.json')
+            with json_encrypted.open('rb') as f:
+                json_decripted = fernet.decrypt(f.read()).decode()
+                
+            # write it to a file
             with open('ee_private_key.json', 'w') as f:
-                f.write(content)
-    
+                f.write(json_decripted)
+                
             # connection to the service account
             service_account = 'test-sepal-ui@sepal-ui.iam.gserviceaccount.com'
             credentials = ee.ServiceAccountCredentials(service_account, 'ee_private_key.json')

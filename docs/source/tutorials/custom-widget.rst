@@ -99,7 +99,7 @@ toggle the visibility
 Now we want to add a behaviour to our object. When we click on the eye, the passwordField should toggle its visibility : 
 
 * The eye should switch from :code:`mdi-eye` and :code:`mdi-eye-off`
-* The text_field should switch from type :code:`password` to :code:`text``
+* The text_field should switch from type :code:`password` to :code:`text`
 
 To do so we will first add 2 class static variable (capslock) to list the 2 types and icon and set them on the two attributes of my class. a new attribute needs to be created to remind the current state of the password. 
 I'll call it :code:`password_viz` as the :code:`viz` parameter is already an attribute of :code;`SepalWidget`. 

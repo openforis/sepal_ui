@@ -12,17 +12,19 @@
 #
 import os
 import sys
+from datetime import datetime
 sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
+# General information about the project.
 project = 'sepal-ui'
-copyright = '2021, Pierrick Rambaud'
+copyright = f"2020-{datetime.now().year}, the sepal development team"
 author = 'Pierrick Rambaud'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.2'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,15 +42,26 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'pydata_sphinx_theme'
 html_logo = os.path.abspath('../img/sepal.png') 
-html_theme_options = {'logo_only': True}
+html_favicon = os.path.abspath('../img/favicon.ico')
+html_theme_options = {
+    #"external_links": [],
+    "github_url": "https://github.com/12rambau/sepal_ui",
+    "use_edit_page_button": True,
+    #"twitter_url": "https://twitter.com/pandas_dev"
+}
+html_context = {
+    "github_user": "12rambau",
+    "github_repo": "sepal_ui",
+    "github_version": "master",
+    "doc_path": "docs/source",
+}
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
