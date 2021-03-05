@@ -45,9 +45,9 @@ class SepalMap(geemap.Map):
         
     Attributes:
         loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
-        output_r (Output): the rectangle to display the result of the raster interaction
-        output_control_r (WidgetControl): the custom control on the map
-        dc (geemap.DrawingControl): the drawing control of the map 
+        output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
+        output_control_r (ipyleaflet.WidgetControl): the custom control on the map
+        dc (ipyleaflet.DrawingControl): the drawing control of the map 
         
     """
 
