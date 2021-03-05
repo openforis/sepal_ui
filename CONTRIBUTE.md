@@ -32,7 +32,7 @@ pip install [your_sepal_ui_folder]
 
 ## what can I push and where
 
-Our branching system embed som rules to avoid crash of the production environment. I you want to contribute to this framework, here are some basic rules that we try our best to follow :
+Our branching system embed some rules to avoid crash of the production environment. If you want to contribute to this framework, here are some basic rules that we try our best to follow :
 - the modification you offer is solving a critical bug in prod : **PR in hotfix**
 - the modification you propose solve the following issues : test, documentation, typo, quality, refactoring, translation **PR in master**
 - the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to develop**
