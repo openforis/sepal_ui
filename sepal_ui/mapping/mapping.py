@@ -5,8 +5,8 @@ if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
 import collections
 from pathlib import Path
 
-import geemap
 import ee 
+import geemap
 from haversine import haversine
 import xarray_leaflet
 import numpy as np
@@ -15,7 +15,9 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import (
-    WidgetControl, LocalTileLayer, TileLayer
+    AttributionControl, DrawControl, LayersControl, 
+    LocalTileLayer, ScaleControl, TileLayer, WidgetControl,
+    ZoomControl
 )
 from traitlets import (
     Bool, link, observe
@@ -76,10 +78,10 @@ class SepalMap(geemap.Map):
         
         # add the base controls
         self.clear_controls()
-        self.add_control(geemap.ZoomControl(position='topright'))
-        self.add_control(geemap.LayersControl(position='topright'))
-        self.add_control(geemap.AttributionControl(position='bottomleft'))
-        self.add_control(geemap.ScaleControl(position='bottomleft', imperial=False))
+        self.add_control(ZoomControl(position='topright'))
+        self.add_control(LayersControl(position='topright'))
+        self.add_control(AttributionControl(position='bottomleft'))
+        self.add_control(ScaleControl(position='bottomleft', imperial=False))
         
         # specific drawing control
         self.set_drawing_controls(dc)
@@ -177,7 +179,7 @@ class SepalMap(geemap.Map):
         
         color = v.theme.themes.dark.info
         
-        dc = geemap.DrawControl(
+        dc = DrawControl(
             marker       = {},
             circlemarker = {},
             polyline     = {},
