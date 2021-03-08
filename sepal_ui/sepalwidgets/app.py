@@ -100,15 +100,13 @@ class DrawerItem(v.ListItem, SepalWidget):
             children=children,
             **kwargs) 
 
-        
         if href:
             self.href=href
             self.target="_blank"
         elif card:
             self._metadata = {'card_id': card }
-            
-        self.rt = ResizeTrigger()
-            
+        
+                        
     def display_tile(self, tiles):
         """
         Display the apropriate tiles when the item is clicked.
@@ -132,10 +130,10 @@ class DrawerItem(v.ListItem, SepalWidget):
                 tile.show()
             else:
                 tile.hide()
-                    
+
         # trigger the risize event 
         rt.resize += 1
-        
+                
         # change the cuurent item status 
         self.input_value = True
         
