@@ -50,6 +50,7 @@ exclude_patterns = []
 html_theme = 'pydata_sphinx_theme'
 html_logo = os.path.abspath('../img/sepal.png') 
 html_favicon = os.path.abspath('../img/favicon.ico')
+html_last_updated_fmt = ''
 html_theme_options = {
     #"external_links": [],
     "github_url": "https://github.com/12rambau/sepal_ui",
