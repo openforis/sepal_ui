@@ -40,7 +40,14 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['*/.ipynb_checkpoints']
+
+# -- Load the images from the master sepal-doc -------------------------------
+from urllib.request import urlretrieve
+
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png', '../img/dwn/sepal.png')
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico', '../img/dwn/favicon.ico')
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -48,8 +55,8 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'pydata_sphinx_theme'
-html_logo = os.path.abspath('../img/sepal.png') 
-html_favicon = os.path.abspath('../img/favicon.ico')
+html_logo = '../img/dwn/sepal.png'
+html_favicon = '../img/dwn/favicon.ico'
 html_last_updated_fmt = ''
 html_theme_options = {
     #"external_links": [],
