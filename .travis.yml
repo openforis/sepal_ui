@@ -15,3 +15,6 @@ script:
   
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
