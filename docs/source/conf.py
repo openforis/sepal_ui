@@ -46,8 +46,8 @@ exclude_patterns = ['*/.ipynb_checkpoints']
 # -- Load the images from the master sepal-doc -------------------------------
 from urllib.request import urlretrieve
 
-urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png', '../img/dwn/sepal.png')
-urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico', '../img/dwn/favicon.ico')
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png', os.path.abspath('../img/dwn/sepal.png'))
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico', os.path.abspath('../img/dwn/favicon.ico'))
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -56,8 +56,8 @@ urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/
 # a list of builtin themes.
 #
 html_theme = 'pydata_sphinx_theme'
-html_logo = '../img/dwn/sepal.png'
-html_favicon = '../img/dwn/favicon.ico'
+html_logo = os.path.abspath('../img/dwn/sepal.png')
+html_favicon = os.path.abspath('../img/dwn/favicon.ico')
 html_last_updated_fmt = ''
 html_theme_options = {
     #"external_links": [],
