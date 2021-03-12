@@ -25,7 +25,7 @@ python3 setup.py sdist
 
 then install the sepal_ui from your local folder
 ```py
-pip install [your_sepal_ui_folder]
+pip install -e [your_sepal_ui_folder]
 ```
 
 > :warning: Remember that if you create modifications that alter the lib standard funtionning It will break the applications that use it on your sepal app dashboard. 
