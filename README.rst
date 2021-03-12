@@ -19,8 +19,8 @@ Sepal_ui
     :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
     :alt: Maintainability
 
-.. image:: https://api.codeclimate.com/v1/badges/861f09002bb9d75b6ea5/test_coverage
-    :target: https://codeclimate.com/github/12rambau/sepal_ui/test_coverage
+.. image:: https://codecov.io/gh/12rambau/sepal_ui/branch/master/graph/badge.svg?token=YZ3mVcuaCq
+    :target: https://codecov.io/gh/12rambau/sepal_ui
     :alt: Test Coverage
     
 .. image:: https://readthedocs.org/projects/sepal-ui/badge/?version=latest
