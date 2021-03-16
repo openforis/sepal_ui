@@ -1,6 +1,7 @@
 # knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
+if 'PROJ_LIB' in list(os.environ.keys()): del os.environ['PROJ_LIB']
 
 import collections
 from pathlib import Path
