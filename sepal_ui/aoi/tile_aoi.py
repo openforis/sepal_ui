@@ -1,238 +1,355 @@
 from functools import partial
+from pathlib import Path
+import json
+from datetime import datetime
 
 import ipyvuetify as v
 import geemap
 import ee
 
-from .aoi_io import Aoi_io
-from .. import sepalwidgets as sw
-from ..scripts import utils as su, run_aoi_selection
-from ..mapping import SepalMap
-
-if not ee.data._credentials: ee.Initialize()
-
+from sepal_ui.aoi.aoi_io import Aoi_io
+from sepal_ui import sepalwidgets as sw
+from sepal_ui.scripts import utils as su, run_aoi_selection
+from sepal_ui.mapping import SepalMap
+from sepal_ui.message import ms
+    
+# initialize earth engine
+su.init_ee()
+    
+class FileNameField(v.TextField, sw.SepalWidget):
+    """
+    custom v.TextField heriting from sw.SepalWidget. default_name will be used as default v_model
+    
+    Args:
+        default_name (str): a default name
+    """
+    
+    def __init__(self, default_name = None):
+        
+        super().__init__(
+            label   = ms.aoi_sel.asset_name_lbl, 
+            v_model = default_name
+        )
+        
+class CountrySelect(v.Select, sw.SepalWidget):
+    """ 
+    Custom v.Select heriting from sw.SepalWidget. Uses the FAO GAUL 2015 admo0_name features as item
+    """
+    
+    def __init__(self):
+        
+        super().__init__(
+            items   = [*su.get_gaul_dic()], 
+            label   = ms.aoi_sel.country_lbl, 
+            v_model = None
+        )
+        
+class MethodSelect(v.Select, sw.SepalWidget):
+    """
+    Custom v.Select heriting from sw.SepalWidget. create a method list based on the provided methods and default methods. 
+    2 headers will be added (if relevant), on before the administrative selection methods, another before the custom asset/shape/points methods.
+    if no list is provided the default_methods list will be used entirely.
+    
+    Args: 
+        default_methods ([str]): the list of all methods name that we can to display
+        methods ([str], optionnal): the list of all methods name that we want to display
+         
+    """
+    
+    def __init__(self, default_methods, methods=None):
+        
+        # get all the methods if none 
+        methods = methods or default_methods
+        
+        # create a custom item list 
+        items = []
+        custom_header = False
+        for m in methods:
+            
+            if m in default_methods:
+                
+                if m == default_methods[0]: # country selection 
+                    items.append({'header': ms.aoi_sel.administrative})
+                elif not custom_header:
+                    items.append({'header': ms.aoi_sel.custom})
+                    custom_header = True
+                        
+                items.append({'text': m, 'value': m})
+                
+        # create the input 
+        super().__init__(
+            label = ms.aoi_sel.method_lbl,
+            items = items,
+            v_model = None
+        )
+        
 class TileAoi(sw.Tile):
-    """render and bind all the variable to create an autonomous aoi selector. It will create a asset in you gee account with the name 'aoi_[aoi_name]'. The assetId will be added to io.assetId."""
+    """
+    sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi.Aoi_Io object.
+    Render and bind all the variable to create an autonomous aoi selector. 
+    If you use a custom aoi, it will create a asset in you gee account with the name 'aoi_[aoi_name]'.
     
-    #constants
-    SELECTION_METHOD =('Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset')
-    
-    def __init__(self, io, **kwargs):
+    Args:
+        io (aoi.Aoi_Io): an object that will carry the inputs and outputs of the tile
+        methods ([str]): the methods to use for the aoi selection. needs to be part of the Private const SELECTION_METHOD
+        folder (str | pathlib.path): the earthengine folder to use for asset saving and discovery. default to user Root
         
-        #create the output
-        aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
+    Attributes: 
+        io (aoi.aoi_Io): the aoi_io used to store aoi selection inputs and outputs
         
-        #create the inputs widgets 
-        aoi_file_input = sw.FileInput(['.shp']).hide()
-        aoi_output.bind(aoi_file_input, io, 'file_input')
+        aoi_output (sw.Alert): the Alert widget used to display information
+        
+        folder (str | pathlib.Path): the earthengine folder to use for asset saving and discovery. default to user Root
+        
+        aoi_file_name (FileNameField): a TextField input to choose asset name
+        aoi_file_input (sw.FileInput): a file selector to retrieve sepal folders 
+        aoi_country_selection (CountrySelect): the country selector input
+        aoi_asset_name (sw.AssetSelect): a ComboBox input to select an asset in the self.folder or any custom asset link
+        aoi_load_table (sw.LoadTableField): a table input field to retreive information from a point file
+        aoi_select_method (v.Select): the input to select to aoi selection method to use. change the display of the tile widgets
+        aoi_select_btn (sw.Btn): the Btn to launch the exportation of an asset
+        
+        m (ms.SepalMap): The map to display drawings and selected aoi. It is using both sattelites and CartoDb.DarkMatter basemaps
+    """
     
-        aoi_file_name = v.TextField(
-            label='Select a filename', 
-            v_model=io.file_name,
-            class_='d-none'
-        )
-        aoi_output.bind(aoi_file_name, io, 'file_name')
+    # constants
+    SELECTION_METHOD =['Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
     
-        aoi_country_selection = v.Select(
-            items=[*su.create_FIPS_dic()], 
-            label='Country/Province', 
-            v_model=None,
-            class_='d-none'
-        )
-        aoi_output.bind(aoi_country_selection, io, 'country_selection')
-    
-        aoi_asset_name = v.TextField(
-            label='Select a GEE asset', 
-            v_model=None,
-            class_='d-none'
-        )
-        aoi_output.bind(aoi_asset_name, io, 'assetId')
+    def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
+        
+        # load the io 
+        self.io = io
+        
+        # create the output
+        self.aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
+        
+        # save the folder (mainly for testing purposes)
+        self.folder = folder
+        
+        # create the inputs widgets 
+        self.aoi_file_name = FileNameField(io.file_name).hide()     
+        self.aoi_file_input = sw.FileInput(['.shp']).hide()
+        self.aoi_country_selection = CountrySelect().hide()
+        self.aoi_asset_name = sw.AssetSelect(folder = self.folder, default_asset = io.default_asset).hide()
+        self.aoi_load_table = sw.LoadTableField().hide()
+        
+        # bind to aoi_io 
+        self.aoi_output = sw.Alert() \
+            .bind(self.aoi_file_name, self.io, 'file_name') \
+            .bind(self.aoi_file_input, self.io, 'file_input') \
+            .bind(self.aoi_country_selection, self.io, 'country_selection') \
+            .bind(self.aoi_asset_name, self.io, 'assetId') \
+            .bind(self.aoi_load_table, self.io, 'json_csv')
     
         widget_list = [
-            aoi_file_input, 
-            aoi_file_name, 
-            aoi_country_selection, 
-            aoi_asset_name
+            self.aoi_file_name, 
+            self.aoi_file_input, 
+            self.aoi_country_selection, 
+            self.aoi_asset_name,
+            self.aoi_load_table
         ]
         
         #create the map 
-        m = SepalMap(['Esri Satellite', 'CartoDB.Positron'], dc=True)
-        self.handle_draw(m.dc, io, 'drawn_feat', aoi_output)
+        self.m = SepalMap(['Esri Satellite', 'CartoDB.DarkMatter'], dc=True)
     
-        #bind the input to the selected method 
-        aoi_select_method = v.Select(items=self.SELECTION_METHOD, label='AOI selection method', v_model=None)
-        self.bind_aoi_method(aoi_select_method, widget_list, io, m, m.dc, self.SELECTION_METHOD)
+        # bind the input to the selected method 
+        #method_items = [m for m in methods if m in self.SELECTION_METHOD] 
+        self.aoi_select_method = MethodSelect(self.SELECTION_METHOD, methods)
+        
+        # create the validation button 
+        self.aoi_select_btn = sw.Btn(ms.aoi_sel.btn)
     
-
-        #create the validation button 
-        aoi_select_btn = sw.Btn('Select these inputs')
-        self.bind_aoi_process(aoi_select_btn, io, m, m.dc, aoi_output, self.SELECTION_METHOD)
-    
-        #assemble everything on a tile 
+        # assemble everything on a tile 
         inputs = v.Layout(
-            _metadata={'mount-id': 'data-input'},
-            class_="pa-5",
-            row=True,
-            align_center=True, 
-            children=[
-                v.Flex(xs12=True, children=[aoi_select_method]),
-                v.Flex(xs12=True, children=[aoi_country_selection]),
-                v.Flex(xs12=True, children=[aoi_file_input]),
-                v.Flex(xs12=True, children=[aoi_file_name]),
-                v.Flex(xs12=True, children=[aoi_asset_name]),
-                v.Flex(xs12=True, children=[aoi_select_btn]),
-                v.Flex(xs12=True, children=[aoi_output]),
-            ]
+            class_       = "pa-5",
+            row          = True,
+            align_center = True, 
+            children     = (
+                [v.Flex(xs12 = True, children =[self.aoi_select_method])] 
+                + [v.Flex(xs12 = True, children = [widget]) for widget in widget_list]
+                + [v.Flex(xs12 = True, children =[self.aoi_select_btn])] 
+                + [v.Flex(xs12 = True, children = [self.aoi_output])]
+            )
         )
         
         aoi_content_main = v.Layout(
-            row=True,
-            xs12=True,
+            row      = True,
+            xs12     = True,
             children = [
-                v.Flex(xs12=True, md6=True, children=[inputs]),
-                v.Flex(class_="pa-5", xs12=True, md6=True, children=[m])
+                v.Flex(xs12 = True, md6 = True, children = [inputs]),
+                v.Flex(xs12 = True, md6 = True, class_ = "pa-5", children = [self.m])
             ]
         )
         
-        super().__init__(
-            id_='aoi_widget',
-            title='AOI selection', 
-            inputs=[aoi_content_main]
-        )
+        super().__init__(id_ = 'aoi_widget', title = ms.aoi_sel.title, inputs = [aoi_content_main])
         
-    def handle_draw(self, dc, io, variable, output):
-        """ 
-        handle the drawing of a geometry on a map. The geometry is transform into a ee.featurecollection and send to the variable attribute of obj.
-    
-        Args: 
-            dc (DrawControl) : the draw control on which the drawing will be done 
-            io (obj Aoi_io) : any object created for IO of your tile 
-            variable (str) : the name of the atrribute of the obj object where to store the ee.FeatureCollection 
-            output (sw.Alert) : the output to display results
+        # link the custom behaviours 
+        self.aoi_load_table.observe(self._on_table_change, 'v_model')
+        self.aoi_file_input.observe(self._on_file_change, 'v_model')
+        self.m.dc.on_draw(self.handle_draw)
+        self.aoi_select_method.observe(partial(self.bind_aoi_method, list_input = widget_list), 'v_model')
+        self.aoi_select_btn.on_event('click', self.bind_aoi_process)
         
-    """
-        def on_draw(self, action, geo_json, obj, variable, output):
-            geom = geemap.geojson_to_ee(geo_json, False)
-            feature = ee.Feature(geom)
-            setattr(obj, variable, ee.FeatureCollection(feature)) 
-            
-            output.add_live_msg('A shape have been drawn')
-
-            return 
-        
-        
-        dc.on_draw(partial(
-            on_draw,
-            obj=io,
-            variable=variable,
-            output=output
-        ))
-    
-        return self
-    
-    def bind_aoi_process(self, btn, io, m, dc, output, list_method):
+    def handle_draw(self, dc, action, geo_json):
         """
-        Create an asset in your gee acount and serve it to the map.
+        handle the drawing of a geometry on a map. 
+        The geometry is transform into a ee.featurecollection and save in self.io
         
         Args:
-            btn (v.Btn) : the btn that launch the process
-            io (Aoi_IO) : the IO of the aoi selection tile
-            m (geemap.Map) : the tile map
-            dc (drawcontrol) : the drawcontrol
-            output (v.Alert) : the alert of the selector tile
-            list_method([str]) : the list of the available selections methods
+            dc (geemap.DrawingControl): the drawing control
+            action (): the action that fire this handler
+            geo_json (json): the dict of the drawn feature
+            
+        Return:
+            self
         """
+        
+        # change the date 
+        date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.aoi_file_name.v_model = f'Manual_{date}'
+        
+        # add the feature
+        geom = geemap.geojson_to_ee(geo_json, False)
+        feature = ee.Feature(geom)
+        self.io.drawn_feat = ee.FeatureCollection(feature)
+            
+        self.aoi_output.add_live_msg(ms.aoi_sel.shape_drawn)
+
+        return self
     
-        def on_click(widget, event, data, io, m, dc, output, list_method):
+    def bind_aoi_process(self, widget, event, data):
+        """
+        Use the user inputs to create a aoi. If a administrative layer have been selected, then its features are saved in self.io.
+        If it's a custom selection method, a custom asset is created under `aoi_[aoi_name]` in the self.folder of the user GEE account.
+        The final aoi will be displayed on the map 
         
-            widget.toggle_loading()
+        Args:
+            widget (v.Vue): the vuetify object that trigger the binding
+            event (str): the event that trigger the binding
+            data ({str}): the data of the javascript event
+            
+        Return:
+            self
+        """
         
-            #create the aoi asset
-            assetId = run_aoi_selection.run_aoi_selection(
-                file_input        = io.file_input, 
-                file_name         = io.file_name, 
-                country_selection = io.country_selection, 
-                asset_name        = io.assetId, 
-                drawn_feat        = io.drawn_feat,
-                drawing_method    = io.selection_method,
-                output            = output, 
-                list_method       = list_method, 
+        # lock the btn
+        widget.toggle_loading()            
+            
+        try:
+            # create the aoi asset
+            run_aoi_selection.run_aoi_selection(
+                output      = self.aoi_output, 
+                list_method = self.SELECTION_METHOD, 
+                io          = self.io,
+                folder      = self.folder
             )
             
-            #remove the dc
-            dc.clear()
-            if dc in m.controls:
-                m.remove_control(dc)
-        
-            #display it on the map
-            if assetId:
-                setattr(io, 'assetId', assetId)
-                io.display_on_map(m)
+            # display the resulting aoi on the map
+            if self.io.get_aoi_ee():
+                self.m.hide_dc()
+                self.io.display_on_map(self.m)
             
-            widget.toggle_loading()
+        except Exception as e: 
+            self.aoi_output.add_live_msg(str(e), 'error') 
         
-            return 
-    
-        btn.on_event('click', partial(
-            on_click,
-            io          = io, 
-            m           = m, 
-            dc          = dc, 
-            output      = output,
-            list_method = list_method
-        ))
+        # free the btn
+        widget.toggle_loading()
     
         return self
     
-    def bind_aoi_method(self, method_widget, list_input, obj, m, dc, selection_method):
+    def bind_aoi_method(self, change, list_input):
         """
-        change the display of the AOI selector according to the method selected. will only display the useful one
+        change the display of the AOI selector according to the method selected. will only display the useful inputs
         
-        Args: 
-            method_widget (v.select) : the method selector widget 
-            list_input ([v.widget]) : the list of all the aoi inputs
-            obj (Aoi_IO) : the IO object of the tile
-            m (geemap.Map) the map displayed in the tile
-            dc (DrawControl) : the drawing control
-            selection_method ([str]) : the available selection methods
+        Args:
+            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            list_input ([v.Vue]): the list of all the inputs of the aoi selector
+            
+        Return:
+            self
         """
         
+        # reset the aoi_io
+        self.io.clear_attributes()
         
-        def on_change(widget, event, data, list_input, obj, m, dc, selection_method):
+        # clearly identify the differents widgets 
+        aoi_file_input        = list_input[1]
+        aoi_file_name         = list_input[0]
+        aoi_country_selection = list_input[2]
+        aoi_asset_name        = list_input[3]
+        aoi_load_table        = list_input[4]
+        
+        # clear the file_name
+        aoi_file_name.v_model = None
+        
+        # extract the selecion methods
+        method = self.SELECTION_METHOD
             
-            #clearly identify the differents widgets 
-            aoi_file_input = list_input[0]
-            aoi_file_name = list_input[1]
-            aoi_country_selection = list_input[2]
-            aoi_asset_name = list_input[3]
+        # update the io
+        self.io.selection_method = change['new']
             
-            setattr(obj, 'selection_method', widget.v_model)
+        # hide the dc
+        self.m.hide_dc()
+        
+        #############################################
+        ##      toogle the appropriate inputs      ##
+        #############################################
             
-            #remove the dc 
-            dc.clear()
-            if dc in m.controls:
-                m.remove_control(dc)
-                
-            #toogle the appropriate inputs
-            if widget.v_model == selection_method[0]: #country selection
-                self.toggle_inputs([aoi_country_selection], list_input)
-            elif widget.v_model == selection_method[1]: #drawing
-                self.toggle_inputs([aoi_file_name], list_input)
-                m.add_control(dc)
-            elif widget.v_model == selection_method[2]: #shp file
-                self.toggle_inputs([aoi_file_input], list_input)
-            elif widget.v_model == selection_method[3]: #gee asset
-                self.toggle_inputs([aoi_asset_name], list_input)
-        
-        
-        
-        method_widget.on_event('change', partial(
-            on_change,
-            list_input=list_input,
-            obj=obj,
-            m=m,
-            dc=dc, 
-            selection_method=selection_method
-        ))
+        # country selection
+        if change['new'] == method[0]: 
+            self.toggle_inputs([aoi_country_selection], list_input)
+        # drawing
+        elif change['new'] == method[1]: 
+            self.toggle_inputs([aoi_file_name], list_input)
+            self.m.show_dc()
+        # shp file
+        elif change['new'] == method[2]: 
+            self.toggle_inputs([aoi_file_name, aoi_file_input], list_input)
+        # gee asset
+        elif change['new'] == method[3]: 
+            self.toggle_inputs([aoi_asset_name], list_input)
+        # Point file (.csv)
+        elif change['new'] == method[4]: 
+            self.toggle_inputs([aoi_file_name, aoi_load_table], list_input)
+        # display nothing 
+        else:
+            self.toggle_inputs([], list_input)
         
         return self 
+    
+    def _on_file_change(self, change):
+        """
+        Change the aoi_file_name v_model with a pattern based on the file name
+        the following pattern is used : 'aoi_[file_path.stem]'
+        
+        Args:
+            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            
+        Return:
+            self
+        """
+        
+        name = Path(change['new']).stem
+        self.aoi_file_name.v_model = name
+        
+        return
+    
+    def _on_table_change(self, change):
+        """
+        Change the aoi_file_name v_model with a pattern based on the file name
+        the following pattern is used : 'aoi_[file_path.stem]'
+        
+        Args:
+            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            
+        Return:
+            self
+        """
+        
+        load_df = json.loads(change['new'])
+        
+        name = Path(load_df['pathname']).stem
+        self.aoi_file_name.v_model = name
+        
+        return
+    

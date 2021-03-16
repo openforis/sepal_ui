@@ -32,7 +32,7 @@ class TestTile(unittest.TestCase):
         
         id_ = "id"
         title = "title"
-        tile = sw.Tile(id_, title)
+        tile = sw.Tile(id_, title, output = sw.Alert(), btn = sw.Btn())
         
         input_ = v.Slider()
         
@@ -108,6 +108,15 @@ class TestTile(unittest.TestCase):
                 self.assertNotIn('d-none', str(input_.class_).strip())
             else:
                 self.assertIn('d-none', str(input_.class_).strip())
+        
+        return
+    
+    def test_get_id(self):
+        
+        id_ = "id"
+        tile = sw.Tile(id_, "title", [''])
+        
+        self.assertEqual(tile.get_id(), id_)
         
         return
     

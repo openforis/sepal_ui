@@ -1,0 +1,19 @@
+{
+    "status": "Status: {}",
+    "aoi_sel": {
+        "file_pattern"        : "aoi_{}",
+        "no_selection"         : "No se ha elegido ningún método de selección",
+        "no_country"          : "No se ha seleccionado ningún país",
+        "asset_already_exist" : "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
+        "asset_created"       : "El Asset ya ha sido creado bajo el nombre: {}",
+        "name_used"           : "El nombre ya está en uso, cámbielo o borre el archivo anterior en su cuenta de GEE",
+        "no_asset"            : "No se ha seleccionado ningún Asset",
+        "check_if_asset"      : "Compruebe cuidadosamente que su cadena es un Asset ID",
+        "not_available"       : "Esta función aún no está disponible",
+        "no_shape"            : "No se ha dibujado ninguna forma en el mapa",
+        "shp_error"           : "Ocurrió un error con el shapefile seleccionado",
+        "aoi_message"         : "haga clic en \"seleccionar estas opciones\" para validar su AOI.",
+        "duplicate_key"       : "Hay una llave duplicada en su selección. Por favor, seleccione diferentes columnas para los parámetros de latitud, longitud e identificación",
+        "geojson_to_ee"       : "Convierta su archivo .csv en un objeto de Google Earth Engine"
+    }
+}

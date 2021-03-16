@@ -24,22 +24,26 @@ class TestBtn(unittest.TestCase):
     
     def test_set_icon(self):
         
-        btn = sw.Btn()
-        res = btn.set_icon('mdi-folder')
+        # new icon
+        icon = 'mdi-folder'
+        btn = sw.Btn().set_icon(icon)
+        
         self.assertIsInstance(btn.v_icon, v.Icon)
-        self.assertEqual(btn.v_icon.children[0], 'mdi-folder')
-        self.assertEqual(res, btn)
+        self.assertEqual(btn.v_icon.children[0], icon)
+        
+        # change existing icon 
+        icon = 'mdi-file'
+        btn.set_icon(icon)
+        self.assertEqual(btn.v_icon.children[0], icon)
         
         return 
     
     def test_toggle_loading(self):
         
-        btn = sw.Btn()
-        res = btn.toggle_loading()
+        btn = sw.Btn().toggle_loading()
         
         self.assertTrue(btn.loading)
         self.assertTrue(btn.disabled)
-        self.assertEqual(res, btn)
         
         btn.toggle_loading()
         self.assertFalse(btn.loading)
