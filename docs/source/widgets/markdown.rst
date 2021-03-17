@@ -34,10 +34,9 @@ If you want to use the translation tool AND create multiline mkd text you should
 in :code:`en.json` use a list in your key with each element of the list corresponding to a line:
 
 .. code-block:: json
-    # component/message/en.json
 
     {
-        #[...]
+        "_comment": "component/message/en.json",
         "multiline_key": [
             "this is",
             " a multiline",

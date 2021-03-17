@@ -1,7 +1,7 @@
 Inspiration
 ===========
 
-If you're still not confident enought to start your own module, you can use the following repositories as inspiration for your developments.
+If you're still not confident enough to start your own module, you can use the following repositories as inspiration for your developments.
 All the presented repositories are available on the sepal dashboard. 
 
 - `deforestation alert analysis <https://github.com/openforis/alert_module>`_: Retrieve any type of alert on a selected AOI
@@ -14,6 +14,6 @@ All the presented repositories are available on the sepal dashboard.
 
 .. warning::
 
-    Some of the presented module propose alternative structures for their application. If you start your first module, please stick to the suggested folder structure
+    Some of the presented modules propose alternative structures for their application. If you start your first module, please stick to the suggested folder structure
 
 Happy developping!

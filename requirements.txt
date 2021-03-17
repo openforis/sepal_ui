@@ -1,7 +1,7 @@
 earthengine-api>=0.1.238
 geemap==0.8.9
 haversine>=2.3.0
-ipyvuetify==1.5.1
+ipyvuetify>=1.6.2
 markdown>=3.3.2
 xarray_leaflet==0.1.13
 shapely>=1.7.1

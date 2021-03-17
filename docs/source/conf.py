@@ -13,6 +13,7 @@
 import os
 import sys
 from datetime import datetime
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../..'))
 
 
@@ -32,7 +33,7 @@ release = '1.1.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon']
+extensions = ['sphinx.ext.napoleon', '_extentions.video']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,7 +41,14 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['*/.ipynb_checkpoints']
+
+# -- Load the images from the master sepal-doc -------------------------------
+from urllib.request import urlretrieve
+
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png', '../img/dwn/sepal.png')
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico', '../img/dwn/favicon.ico')
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -48,8 +56,9 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'pydata_sphinx_theme'
-html_logo = os.path.abspath('../img/sepal.png') 
-html_favicon = os.path.abspath('../img/favicon.ico')
+html_logo = '../img/dwn/sepal.png'
+html_favicon = '../img/dwn/favicon.ico'
+html_last_updated_fmt = ''
 html_theme_options = {
     #"external_links": [],
     "github_url": "https://github.com/12rambau/sepal_ui",

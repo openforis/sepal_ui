@@ -30,6 +30,13 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
             <a href="#example" title="Examples">💡</a>
             <a href="#review" title="Reviewed Pull Requests">👀</a> 
          </td>	
+         <td align="center">
+            <a href="https://www.linkedin.com/in/rémi-d-annunzio-575625bb/?originalSubdomain=it">
+            <img src="https://avatars.githubusercontent.com/u/13508875?v=4" width="70px;" alt="lecrabe"/><br />
+            <sub><b>Rémi D'Annunzio</b></sub>
+            </a><br /> 
+            <a href="#documentation" title="Documentation">📖</a> 
+         </td>
       </tr>
    </table>
    </br>

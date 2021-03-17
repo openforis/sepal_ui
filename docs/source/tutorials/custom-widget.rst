@@ -68,7 +68,7 @@ Here we will create the object with its expected attributes
         def __init__(self, label="Password", **kwargs):
 
             # create the eye icon
-            self.eye = v.Icon(class = 'ml-1', children=['mdi-eye'])
+            self.eye = v.Icon(class_ = 'ml-1', children=['mdi-eye'])
 
             # create the texfied 
             self.text_field = v.TextField(
@@ -122,7 +122,7 @@ I'll call it :code:`password_viz` as the :code:`viz` parameter is already an att
             self.password_viz = False
 
             # create the eye icon
-            self.eye = v.Icon(class = 'ml-1', children=[EYE_ICON[False]])
+            self.eye = v.Icon(class_ = 'ml-1', children=[EYE_ICON[False]])
 
             # create the texfied 
             self.text_field = v.TextField(
@@ -233,7 +233,7 @@ finally we obtain the following reusable widget :
             self.password_viz = False
 
             # create the eye icon
-            self.eye = v.Icon(class = 'ml-1', children=[EYE_ICON[False]])
+            self.eye = v.Icon(class_ = 'ml-1', children=[EYE_ICON[False]])
 
             # create the texfied 
             self.text_field = v.TextField(
