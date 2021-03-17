@@ -188,6 +188,21 @@ The popup will display a fully functionnal app. A default process have been set-
       earthengine authenticate
 
    You'll need to follow the command instructions and then reload the dashboard. 
+   
+.. warning::
+
+    The module factory is bound to a specific folder in sepal : :code:`module_results`. This folder stores the results of all dashboard applications. It is by default set in the :code:`directory.py` component : 
+    
+    .. code-block:: python 
+        
+        # component/parameter/directory.py
+        
+        from pathlib import Path
+        
+        module_dir = Path('~','module_results').expanduser()
+        module_dir.mkdir(exist_ok=True)
+        
+    Please use it as a starting point for any results you xant to export in SEPAL.
 
 
 

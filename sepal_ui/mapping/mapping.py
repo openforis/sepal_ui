@@ -1,12 +1,13 @@
 # knwon bug of rasterio
 import os 
 if 'GDAL_DATA' in list(os.environ.keys()): del os.environ['GDAL_DATA']
+if 'PROJ_LIB' in list(os.environ.keys()): del os.environ['PROJ_LIB']
 
 import collections
 from pathlib import Path
 
-import geemap
 import ee 
+import geemap
 from haversine import haversine
 import xarray_leaflet
 import numpy as np
@@ -15,7 +16,9 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import (
-    WidgetControl, LocalTileLayer, TileLayer
+    AttributionControl, DrawControl, LayersControl, 
+    LocalTileLayer, ScaleControl, TileLayer, WidgetControl,
+    ZoomControl
 )
 from traitlets import (
     Bool, link, observe
@@ -43,9 +46,9 @@ class SepalMap(geemap.Map):
         
     Attributes:
         loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
-        output_r (Output): the rectangle to display the result of the raster interaction
-        output_control_r (WidgetControl): the custom control on the map
-        dc (geemap.DrawingControl): the drawing control of the map 
+        output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
+        output_control_r (ipyleaflet.WidgetControl): the custom control on the map
+        dc (ipyleaflet.DrawingControl): the drawing control of the map 
         
     """
 
@@ -76,10 +79,10 @@ class SepalMap(geemap.Map):
         
         # add the base controls
         self.clear_controls()
-        self.add_control(geemap.ZoomControl(position='topright'))
-        self.add_control(geemap.LayersControl(position='topright'))
-        self.add_control(geemap.AttributionControl(position='bottomleft'))
-        self.add_control(geemap.ScaleControl(position='bottomleft', imperial=False))
+        self.add_control(ZoomControl(position='topright'))
+        self.add_control(LayersControl(position='topright'))
+        self.add_control(AttributionControl(position='bottomleft'))
+        self.add_control(ScaleControl(position='bottomleft', imperial=False))
         
         # specific drawing control
         self.set_drawing_controls(dc)
@@ -177,7 +180,7 @@ class SepalMap(geemap.Map):
         
         color = v.theme.themes.dark.info
         
-        dc = geemap.DrawControl(
+        dc = DrawControl(
             marker       = {},
             circlemarker = {},
             polyline     = {},
@@ -319,7 +322,18 @@ class SepalMap(geemap.Map):
         return self
     
     # copy of the geemap add_raster function to prevent a bug from sepal 
-    def add_raster(self, image, bands=None, layer_name='Layer_' + su.random_string(), colormap=plt.cm.inferno, x_dim='x', y_dim='y', opacity=1.0):
+    def add_raster(
+        self, 
+        image, 
+        bands=None, 
+        layer_name='Layer_' + su.random_string(), 
+        colormap=plt.cm.inferno, 
+        x_dim='x', 
+        y_dim='y', 
+        opacity=1.0, 
+        fit_bounds=True,
+        get_base_url=lambda _: 'https://sepal.io/api/sandbox/jupyter',
+        colorbar_position='bottomright'):
         """
         Adds a local raster dataset to the map.
         
@@ -330,6 +344,9 @@ class SepalMap(geemap.Map):
             colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to None.
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
+            fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
+            get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
+            colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it. 
         """
         
         if type(image) == str:
@@ -369,10 +386,19 @@ class SepalMap(geemap.Map):
             da = da.rio.write_nodata(np.nan)
         da = da.sel(band=bands)
 
-        if multi_band:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band')
-        else:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, colormap=colormap)
+        kwargs = {
+            'm': self,
+            'x_dim': x_dim,
+            'y_dim': y_dim,
+            'fit_bounds': fit_bounds,
+            'get_base_url': get_base_url,
+            #'colorbar_position': colorbar_position # will be uncoment when the colobared version of xarray-leaflet will be released
+            'rgb_dim': 'band' if multi_band else None,
+            'colormap': None if multi_band else colormap,
+        }
+        
+        # display the layer on the map
+        layer = da.leaflet.plot(**kwargs)
 
         layer.name = layer_name
 

@@ -83,7 +83,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         extentions ([str]): the list of the allowed extentions. the FileInput will only display thiese extention and folders
         folder (str | pathlib.Path): the starting folder of the file input
         label (str): the label of the input
-        v_model = the default value ?
+        v_model (str, optional): the default value
         
     Attributes:
         extentions ([str]): the extention list

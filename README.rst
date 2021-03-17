@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/img/sepal_header.png
+.. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal_header.png
 
 Sepal_ui
 --------
@@ -19,16 +19,18 @@ Sepal_ui
     :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
     :alt: Maintainability
 
-.. image:: https://api.codeclimate.com/v1/badges/861f09002bb9d75b6ea5/test_coverage
-    :target: https://codeclimate.com/github/12rambau/sepal_ui/test_coverage
+.. image:: https://codecov.io/gh/12rambau/sepal_ui/branch/master/graph/badge.svg?token=YZ3mVcuaCq
+    :target: https://codecov.io/gh/12rambau/sepal_ui
     :alt: Test Coverage
     
 .. image:: https://readthedocs.org/projects/sepal-ui/badge/?version=latest
     :target: https://sepal-ui.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Sepal_ui is a lib designed to create elegant dashboard in the Sepal environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ librairie and will help developper to easily create interface for your workflows. 
-By using this librairy, you'll ensure a robust and unifyed interface for your scripts and a easy and complete integration into the sepal dashboard of application.
+:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ librairie and will help developper to easily create interface for their workflows. 
+By using this librairy, you'll ensure a robust and unifyed interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
+
+The full documentation is available here : `<https://sepal-ui.readthedocs.io/en/latest/>`_
 
 We are happy to receive feedback and we welcome any kind of contribution
 

@@ -13,7 +13,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
 .. image:: ../../img/date_picker.png
     :alt: number
 
-..tip::
+.. tip::
 
     You need to click outside of the slot to validate your selection
 

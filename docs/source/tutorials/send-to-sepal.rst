@@ -31,11 +31,12 @@ To be used by other Sepal users, your module will need to provide a complete doc
 Create a release branch 
 -----------------------
 
-The sepal prod environment will be listening to the :code:`release` branch of your repository, so you need to create one. 
+The SEPAL :code:`prod` environment will be listening to the :code:`release` branch of your repository, so you need to create one. 
+The SEPAL :code:`test` environment will be listening to the :code:`master` branch of the repository.
 
 .. warning::
 
-    After it's publication every push to the :code:`release` branch will be updated on the prod env so prefer to continue developing in the :code:`master` branch and merge in release only when everything is ready
+    After it's publication every push to the :code:`release` branch will be updated on the :code:`prod` env so prefer to continue developing in the :code:`master` branch and merge in release only when everything is ready. As the :code:`master` branch will still be listened by the :code:`test` env, Your Beta tester will still have something to play with without sending half finished tools to the public SEPAL website.
 
 Open an issue on the Sepal repository 
 -------------------------------------
