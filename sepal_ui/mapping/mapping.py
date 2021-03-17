@@ -331,7 +331,9 @@ class SepalMap(geemap.Map):
         x_dim='x', 
         y_dim='y', 
         opacity=1.0, 
-        fit_bounds=True):
+        fit_bounds=True,
+        get_base_url=lambda _: 'https://sepal.io/api/sandbox/jupyter',
+        colorbar_position='bottomright'):
         """
         Adds a local raster dataset to the map.
         
@@ -343,6 +345,8 @@ class SepalMap(geemap.Map):
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
+            get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
+            colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it. 
         """
         
         if type(image) == str:
@@ -383,9 +387,9 @@ class SepalMap(geemap.Map):
         da = da.sel(band=bands)
 
         if multi_band:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band', fit_bound=fit_bounds)
+            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band', fit_bound=fit_bounds, get_base_url=get_base_url, colorbar_position=colorbar_position)
         else:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, colormap=colormap, fit_bounds=fit_bounds)
+            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, colormap=colormap, fit_bounds=fit_bounds, get_base_url=get_base_url, colorbar_position=colorbar_position)
 
         layer.name = layer_name
 
