@@ -386,10 +386,19 @@ class SepalMap(geemap.Map):
             da = da.rio.write_nodata(np.nan)
         da = da.sel(band=bands)
 
-        if multi_band:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, rgb_dim='band', fit_bound=fit_bounds, get_base_url=get_base_url, colorbar_position=colorbar_position)
-        else:
-            layer = da.leaflet.plot(self, x_dim=x_dim, y_dim=y_dim, colormap=colormap, fit_bounds=fit_bounds, get_base_url=get_base_url, colorbar_position=colorbar_position)
+        kwargs = {
+            'm': self,
+            'x_dim': x_dim,
+            'y_dim': y_dim,
+            'fit_bounds': fit_bounds,
+            'get_base_url': get_base_url,
+            #'colorbar_position': colorbar_position # will be uncoment when the colobared version of xarray-leaflet will be released
+            'rgb_dim': 'band' if multi_band else None,
+            'colormap': None if multi_band else colormap,
+        }
+        
+        # display the layer on the map
+        layer = da.leaflet.plot(**kwargs)
 
         layer.name = layer_name
 
