@@ -23,7 +23,8 @@
         "shp_error"           : "An error occured with provided .shp file",
         "aoi_message"         : "click on \"selet these inputs\" to validate your AOI",
         "duplicate_key"       : "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
-        "geojson_to_ee"       : "Convert your .csv file into a ee_object"
+        "geojson_to_ee"       : "Convert your .csv file into a ee_object",
+        "valid_admin0": "The country have been found in FAO GAUL 2015. \"{}\" will be used as a prefix for file naming."
     },
     "mapping": {
         "no_image": "The image file does not exist."

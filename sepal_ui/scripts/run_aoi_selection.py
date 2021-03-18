@@ -75,8 +75,8 @@ def get_country_asset(country_selection, output):
     iso_3 = utils.get_iso_3(country_selection)
     
     country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', country_code))
-          
-    display_asset(output, iso_3)
+    
+    output.add_msg(ms.aoi_sel.valid_admin0.format(iso_3), 'success')
     
     return country, iso_3
 
