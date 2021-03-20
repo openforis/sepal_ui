@@ -79,7 +79,7 @@ copy paste any badge from this `github repository <https://gist.github.com/lukas
 ^^^^^^^^^^
 
 We use the default Python Github gitignore. It will prevent any cache file to be pushed in the github repository. 
-If you're module require API keys, it is strongly suggested to add the :code:`api_key.txt` file instide the :code:`.gitignore` to avoid security breach
+If your module requires API keys, it is strongly suggested to add the :code:`api_key.txt` file inside the :code:`.gitignore` to avoid security breaches.
 
 README.md
 ^^^^^^^^^
