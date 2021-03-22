@@ -61,10 +61,10 @@ def get_gaul_dic():
     path = Path(__file__).parent.joinpath('country_code.csv')
     
     # get the df and sort by country name
-    df = pd.read_csv(path).sort_values(by=['country_na'])
+    df = pd.read_csv(path).sort_values(by=['ADM0_NAME'])
     
     # create the dict
-    fao_gaul = {row['country_na'] : row['GAUL'] for i, row in df.iterrows()}
+    fao_gaul = {row['ADM0_NAME'] : row['ADM0_CODE'] for i, row in df.iterrows()}
         
     return fao_gaul
 
@@ -85,7 +85,7 @@ def get_iso_3(country_name):
     # get the df
     df = pd.read_csv(path)
     
-    row = df[df['country_na'] == country_name]
+    row = df[df['ADM0_NAME'] == country_name]
     
     if len(row):
         code = row['ISO 3166-1 alpha-3'].values[0]

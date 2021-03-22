@@ -384,9 +384,9 @@ class Aoi_io:
         if admin0 == None:
             raise Exception("Impossible to set an administrative level without level")
         
-        self.adm0 = admin0 if admin0 else None
-        self.adm0 = admin1 if admin1 else None
-        self.adm0 = admin2 if admin2 else None
+        self.adm0 = admin0
+        self.adm1 = admin1
+        self.adm2 = admin2
             
         return self
             
