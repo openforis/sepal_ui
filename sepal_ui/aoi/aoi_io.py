@@ -32,7 +32,9 @@ class Aoi_io:
         field (str): name or value of a specific filed in a specific column
         selected_feature (ee.Feature): a feature queried inside the ee.FeatureCollection version of the object
         json_csv (str | pathlib.Path): the path to the json initial file
-        country_code (int): the code of the country in FAO GAUL 2015 format
+        adm0 (int): the code of the admin0 level in FAO GAUL 2015 format
+        adm1 (int): the code of the admin1 level in FAO GAUL 2015 format
+        adm2 (int): the code of the admin2 level in FAO GAUL 2015 format
         feature_collection (ee.FeatureCollection): the feature_collection to use as asset when dealing with administrative layers
         
         file_input (str | pathlib.Path): the path to the input .shp file
@@ -43,11 +45,13 @@ class Aoi_io:
         alert (sw.Alert): the alert to display message
     """
     
-    def __init__(self, alert_widget=None, default_asset=None, default_admin0=None):
+    def __init__(self, alert_widget=None, default_asset=None, default_admin0=None, default_admin1=None, default_admin2=None):
         
         # keep the default assets in memory
         self.default_asset = default_asset
         self.default_admin0 = default_admin0
+        self.default_admin1 = default_admin1
+        self.default_admin2 = default_admin2
         
         # GEE parameters
         self.assetId = self.default_asset
@@ -55,7 +59,9 @@ class Aoi_io:
         self.field = None
         self.selected_feature = None
         self.json_csv = None # information that will be use to transform the csv into asset 
-        self.country_code = self.default_admin0 # to name the asset coming from country selection
+        self.adm0 = self.default_admin0 
+        self.adm1 = self.default_admin1
+        self.adm2 = self.default_admin2 
         self.feature_collection = None # to access the country asset
         
         # set the feature_collection 
@@ -64,7 +70,6 @@ class Aoi_io:
         #set up your inputs
         self.file_input = None
         self.file_name = None
-        self.country_selection = None
         self.selection_method = None
         self.drawn_feat = None
         self.alert = alert_widget
@@ -78,7 +83,7 @@ class Aoi_io:
         """
         admin = False
         
-        if self.country_code:
+        if self.adm0 or self.adm1 or self.adm2:
             admin = True
             
         return admin
@@ -178,7 +183,7 @@ class Aoi_io:
         self.field = None
         self.selected_feature = None
         self.json_csv = None
-        self.country_code = self.default_admin0
+        self.adm0 = self.default_admin0
         self.feature_collection = None
         
         # set the feature_collection
@@ -188,6 +193,8 @@ class Aoi_io:
         self.file_input = None
         self.file_name = None
         self.country_selection = None
+        self.adm1_select = None
+        self.adm2_select = None
         self.selection_method = None
         self.drawn_feat = None
 
@@ -310,8 +317,12 @@ class Aoi_io:
         """
         
         name = None
-        if self.country_code:
-            name = self.country_code
+        if self.is_admin():
+            name = su.get_iso_3(self.adm0)
+            if self.adm1:
+                name += f"_{self.adm1}"
+            if self.adm2:
+                name += f"_{self.adm2}"
         elif self.assetId:
             name = Path(self.assetId).stem.replace('aoi_', '')
         
@@ -347,17 +358,21 @@ class Aoi_io:
         
         # remove all the administrative layers 
         self.feature_collection = None
-        self.country_code = None
+        self.adm0 = None
+        self.adm1 = None
+        self.adm2 = None
         
         return self 
     
-    def set_admin(self, asset, admin0=None):
+    def set_admin(self, asset, admin0=None, admin1=None, admin2=None):
         """
         Set the asset in feature_collection and referenced the admin level code
         Remove all existing assetId. At least one of the admin level need to be filled
         
         Args:
-            admmin0 (int, optional): the admin0 code in the FAO GAUL 2015 code list
+            admin0 (int, optional): the adm0 code in the FAO GAUL 2015 code list
+            admin1 (int, optional): the adm1 code in the FAO GAUL 2015 code list
+            admin2 (int, optional): the adm2 code in the FAO GAUL 2015 code list
             asset (ee.FeatureCollection): the asset associated with the code
             
         Return: 
@@ -371,11 +386,12 @@ class Aoi_io:
         self.assetId = None
         
         # add the admin level code 
-        if admin0 == None:
+        if (admin0, admin1, admin2) == (None, None, None):
             raise Exception("Impossible to set an administrative level without level")
         
-        if admin0:
-            self.country_code = admin0
+        self.adm0 = admin0
+        self.adm1 = admin1
+        self.adm2 = admin2
             
         return self
             

@@ -94,3 +94,39 @@ class Markdown(v.Layout, SepalWidget):
             children=[v.Flex(xs12=True, children=[content])],
             **kwargs
         )
+        
+class Tooltip(v.Tooltip):
+    
+    def __init__(self, widget, tooltip, *args, **kwargs):
+        """
+        Custom widget to display tooltip when mouse is over widget
+
+        Args:
+            widget (DOM.widget): widget used to display tooltip
+            tooltip (str): the text to display in the tooltip
+            
+        Example:
+            
+            btn = v.Btn(children=['Button'])
+            Tooltip(widget=btn, tooltip='Click over the button')
+        """
+        
+        self.bottom=True
+        self.v_slots=[{
+            'name': 'activator',
+            'variable': 'tooltip',
+            'children': widget
+        }]
+        widget.v_on = 'tooltip.on'
+        
+        self.children = [tooltip]
+        
+        super().__init__(*args, **kwargs)
+        
+    def __setattr__(self, name, value):
+        """prevent set attributes after instantiate tooltip class"""
+        
+        if hasattr(self,'_model_id'):
+            if self._model_id:
+                raise RuntimeError(f"You can't modify the attributes of the {self.__class__} after instantiated")
+        super().__setattr__(name, value)
