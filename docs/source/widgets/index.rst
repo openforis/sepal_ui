@@ -23,3 +23,4 @@ Example
     alert
     app
     tooltip
+    statebar

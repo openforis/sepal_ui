@@ -14,4 +14,4 @@ Tooltip
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidgets.Tooltip>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.Tooltip>`_.
