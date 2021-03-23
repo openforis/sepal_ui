@@ -6,6 +6,7 @@ from datetime import datetime
 import ipyvuetify as v
 import geemap
 import ee
+import pandas as pd
 
 from sepal_ui.aoi.aoi_io import Aoi_io
 from sepal_ui import sepalwidgets as sw
@@ -31,7 +32,69 @@ class FileNameField(v.TextField, sw.SepalWidget):
             v_model = default_name
         )
         
-class CountrySelect(v.Select, sw.SepalWidget):
+class Adm0Select(v.Select, sw.SepalWidget):
+    """ 
+    Custom v.Select heriting from sw.SepalWidget. Uses the FAO GAUL 2015 admo0_name features as item
+    """
+    
+    def __init__(self):
+        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = pd.read_csv(country_codes)
+        country_codes = country_codes.drop_duplicates(subset=['ADM0_CODE'])
+        country_codes = country_codes.sort_values('ADM0_NAME')
+        
+        items = []
+        for i, row in country_codes.iterrows():
+            items.append({'text': row.ADM0_NAME, 'value': row.ADM0_CODE})
+        
+        country_codes = None
+        
+        super().__init__(
+            items   = items, 
+            label   = ms.aoi_sel.country_lbl, 
+            v_model = None
+        )
+        
+class Adm1Select(v.Select, sw.SepalWidget):
+    """ 
+    Custom v.Select heriting from sw.SepalWidget. Uses the FAO GAUL 2015 admo1_name features as item
+    """
+    
+    def __init__(self):
+        
+        super().__init__(
+            items   = [], 
+            label   = ms.aoi_sel.adm1_lbl, 
+            v_model = None
+        )
+        
+    def set_admin_input(self, change):
+        """set the list of possible items to the list of corresponding GAUL admo1_code - name"""
+        
+        adm0_code = change['new']
+        
+        items = [{'text': 'all', 'value': 'all'}]
+        
+        # filter the country list to keep only each admin1 in the selected admin0
+        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = pd.read_csv(country_codes)
+        country_codes = country_codes[country_codes['ADM0_CODE'] == adm0_code]        
+        country_codes = country_codes.drop_duplicates(subset=['ADM1_CODE'])
+        country_codes = country_codes.sort_values('ADM1_NAME')
+        
+        # create a usable dict for the items 
+        for i, row in country_codes.iterrows():
+            items.append({'text': row.ADM1_NAME, 'value': row.ADM1_CODE})
+        
+        country_codes = None
+        
+        # set the items 
+        self.items = items
+        
+        return self
+        
+        
+class Adm2Select(v.Select, sw.SepalWidget):
     """ 
     Custom v.Select heriting from sw.SepalWidget. Uses the FAO GAUL 2015 admo0_name features as item
     """
@@ -39,10 +102,34 @@ class CountrySelect(v.Select, sw.SepalWidget):
     def __init__(self):
         
         super().__init__(
-            items   = [*su.get_gaul_dic()], 
-            label   = ms.aoi_sel.country_lbl, 
+            items   = [], 
+            label   = ms.aoi_sel.adm2_lbl, 
             v_model = None
         )
+        
+    def set_admin_input(self, change):
+        """set the list of possible items to the list of corresponding GAUL admo1_code - name"""
+        
+        adm1_code = change['new']
+        
+        items = [{'text': 'all', 'value': 'all'}]
+        
+        # filter the country list to keep only each admin1 in the selected admin0
+        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = pd.read_csv(country_codes)
+        country_codes = country_codes[country_codes['ADM1_CODE'] == adm1_code]
+        country_codes = country_codes.sort_values('ADM2_NAME')
+        
+        # create a usable dict for the items 
+        for i, row in country_codes.iterrows():
+            items.append({'text': row.ADM2_NAME, 'value': row.ADM2_CODE})
+        
+        country_codes = None
+        
+        # set the items 
+        self.items = items
+        
+        return self
         
 class MethodSelect(v.Select, sw.SepalWidget):
     """
@@ -63,16 +150,19 @@ class MethodSelect(v.Select, sw.SepalWidget):
         
         # create a custom item list 
         items = []
-        custom_header = False
+        custom_header = True
+        admin_header = True
         for m in methods:
             
             if m in default_methods:
                 
-                if m == default_methods[0]: # country selection 
+                # admin header
+                if m in default_methods[:3] and admin_header: 
                     items.append({'header': ms.aoi_sel.administrative})
-                elif not custom_header:
+                    admin_header = False
+                elif m in default_methods[3:] and custom_header:
                     items.append({'header': ms.aoi_sel.custom})
-                    custom_header = True
+                    custom_header = False
                         
                 items.append({'text': m, 'value': m})
                 
@@ -80,7 +170,8 @@ class MethodSelect(v.Select, sw.SepalWidget):
         super().__init__(
             label = ms.aoi_sel.method_lbl,
             items = items,
-            v_model = None
+            v_model = None,
+            dense = True
         )
         
 class TileAoi(sw.Tile):
@@ -113,7 +204,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =['Country boundaries', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
+    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
     
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
@@ -121,7 +212,7 @@ class TileAoi(sw.Tile):
         self.io = io
         
         # create the output
-        self.aoi_output = sw.Alert()#.add_msg(ms.AOI_MESSAGE)
+        self.aoi_output = sw.Alert()
         
         # save the folder (mainly for testing purposes)
         self.folder = folder
@@ -129,22 +220,28 @@ class TileAoi(sw.Tile):
         # create the inputs widgets 
         self.aoi_file_name = FileNameField(io.file_name).hide()     
         self.aoi_file_input = sw.FileInput(['.shp']).hide()
-        self.aoi_country_selection = CountrySelect().hide()
+        self.aoi_country_selection = Adm0Select().hide()
+        self.aoi_admin_1_select = Adm1Select().hide()
+        self.aoi_admin_2_select = Adm2Select().hide()
         self.aoi_asset_name = sw.AssetSelect(folder = self.folder, default_asset = io.default_asset).hide()
         self.aoi_load_table = sw.LoadTableField().hide()
         
         # bind to aoi_io 
         self.aoi_output = sw.Alert() \
-            .bind(self.aoi_file_name, self.io, 'file_name') \
-            .bind(self.aoi_file_input, self.io, 'file_input') \
-            .bind(self.aoi_country_selection, self.io, 'country_selection') \
-            .bind(self.aoi_asset_name, self.io, 'assetId') \
-            .bind(self.aoi_load_table, self.io, 'json_csv')
+            .bind(self.aoi_file_name, self.io, 'file_name',  verbose=False) \
+            .bind(self.aoi_file_input, self.io, 'file_input',  verbose=False) \
+            .bind(self.aoi_country_selection, self.io, 'country_selection',  verbose=False) \
+            .bind(self.aoi_admin_1_select, self.io, 'adm1_select',  verbose=False) \
+            .bind(self.aoi_admin_2_select, self.io, 'adm2_select',  verbose=False) \
+            .bind(self.aoi_asset_name, self.io, 'assetId',  verbose=False) \
+            .bind(self.aoi_load_table, self.io, 'json_csv',  verbose=False)
     
         widget_list = [
             self.aoi_file_name, 
             self.aoi_file_input, 
             self.aoi_country_selection, 
+            self.aoi_admin_1_select,
+            self.aoi_admin_2_select,
             self.aoi_asset_name,
             self.aoi_load_table
         ]
@@ -189,6 +286,8 @@ class TileAoi(sw.Tile):
         self.m.dc.on_draw(self.handle_draw)
         self.aoi_select_method.observe(partial(self.bind_aoi_method, list_input = widget_list), 'v_model')
         self.aoi_select_btn.on_event('click', self.bind_aoi_process)
+        self.aoi_country_selection.observe(self.aoi_admin_1_select.set_admin_input, 'v_model')
+        self.aoi_admin_1_select.observe(self.aoi_admin_2_select.set_admin_input, 'v_model')
         
     def handle_draw(self, dc, action, geo_json):
         """
@@ -276,8 +375,10 @@ class TileAoi(sw.Tile):
         aoi_file_input        = list_input[1]
         aoi_file_name         = list_input[0]
         aoi_country_selection = list_input[2]
-        aoi_asset_name        = list_input[3]
-        aoi_load_table        = list_input[4]
+        aoi_admin_1_select    = list_input[3]
+        aoi_admin_2_select    = list_input[4]
+        aoi_asset_name        = list_input[5]
+        aoi_load_table        = list_input[6]
         
         # clear the file_name
         aoi_file_name.v_model = None
@@ -296,20 +397,26 @@ class TileAoi(sw.Tile):
         #############################################
             
         # country selection
-        if change['new'] == method[0]: 
+        if change['new'] == method[0]:
             self.toggle_inputs([aoi_country_selection], list_input)
-        # drawing
+        # admin 1
         elif change['new'] == method[1]: 
+            self.toggle_inputs([aoi_country_selection, aoi_admin_1_select], list_input)
+        # admin 2
+        elif change['new'] == method[2]: 
+            self.toggle_inputs([aoi_country_selection, aoi_admin_1_select, aoi_admin_2_select], list_input)
+        # drawing
+        elif change['new'] == method[3]: 
             self.toggle_inputs([aoi_file_name], list_input)
             self.m.show_dc()
         # shp file
-        elif change['new'] == method[2]: 
+        elif change['new'] == method[4]: 
             self.toggle_inputs([aoi_file_name, aoi_file_input], list_input)
         # gee asset
-        elif change['new'] == method[3]: 
+        elif change['new'] == method[5]: 
             self.toggle_inputs([aoi_asset_name], list_input)
         # Point file (.csv)
-        elif change['new'] == method[4]: 
+        elif change['new'] == method[6]: 
             self.toggle_inputs([aoi_file_name, aoi_load_table], list_input)
         # display nothing 
         else:

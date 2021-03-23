@@ -71,6 +71,8 @@ class Aoi_io:
         self.file_input = None
         self.file_name = None
         self.country_selection = None
+        self.adm1_select = None
+        self.adm2_select = None
         self.selection_method = None
         self.drawn_feat = None
         self.alert = alert_widget
@@ -194,6 +196,8 @@ class Aoi_io:
         self.file_input = None
         self.file_name = None
         self.country_selection = None
+        self.adm1_select = None
+        self.adm2_select = None
         self.selection_method = None
         self.drawn_feat = None
 
