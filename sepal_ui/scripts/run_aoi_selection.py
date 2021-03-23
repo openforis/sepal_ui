@@ -317,7 +317,7 @@ def run_aoi_selection(output, list_method, io, folder=None):
         folder = ee.data.getAssetRoots()[0]['id']
     
     # clean all but the selected method
-    if io.country_selection:
+    if io.adm0:
         io.assetId = None
     else:
         io.feature_collection, io.country_code = (None, None)

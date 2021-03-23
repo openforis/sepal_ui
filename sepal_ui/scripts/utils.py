@@ -86,6 +86,7 @@ def get_iso_3(adm0):
     df = pd.read_csv(path)
     
     row = df[df['ADM0_CODE'] == adm0]
+    code = None
     if len(row):
         code = row['ISO 3166-1 alpha-3'].values[0]
         
