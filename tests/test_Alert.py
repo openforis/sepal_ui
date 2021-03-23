@@ -219,5 +219,9 @@ class TestAlert(unittest.TestCase):
         alert.update_progress(0.5)
         self.assertEqual(alert.children[1].children[0].children[2].children[0], ' 50.0%')
         
+        # show that a value > 1 raise an error 
+        with self.assertRaises(Exception): 
+            alert.update_progress(1.5)
+        
 if __name__ == '__main__':
     unittest.main()

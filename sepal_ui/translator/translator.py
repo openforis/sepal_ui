@@ -47,8 +47,8 @@ class Translator(SimpleNamespace):
         ms_dict = self._update(self.default_dict, self.target_dict)
         
         # verify if 'default_dict' or 'target_dict' is in use
-        self._search_key(ms_dict, 'default_dict')
-        self._search_key(ms_dict, 'target_dict')
+        self.search_key(ms_dict, 'default_dict')
+        self.search_key(ms_dict, 'target_dict')
         
         # transform it into a json str
         ms_json = json.dumps(ms_dict)
@@ -58,8 +58,9 @@ class Translator(SimpleNamespace):
         
         for k, v in ms.__dict__.items():
             setattr(self, k, getattr(ms, k))
-            
-    def _search_key(self, d, key):
+    
+    @classmethod
+    def search_key(cls, d, key):
         """
         Search a specific key in the d dictionnary and raise an error if found
         
@@ -70,13 +71,13 @@ class Translator(SimpleNamespace):
         
         for k, v in d.items():
             if isinstance(v, abc.Mapping):
-                self._search_key(v, key)
+                cls.search_key(v, key)
             else:
                 if k == key:
                     raise Exception(f"You cannot use the key {key} in your translation dictionnary")
                     break
         
-        return self
+        return None
         
     def _update(self, d, u):
         """ 

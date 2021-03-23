@@ -16,11 +16,11 @@ class TestApp(unittest.TestCase):
         self.assertIsInstance(app.children[1], v.Content)
         
         #exhaustive 
-        navDrawer = sw.NavDrawer([sw.DrawerItem('title {}'.format(i)) for i in range(5)])
+        navDrawer = sw.NavDrawer([sw.DrawerItem(f'title {i}') for i in range(5)])
         appBar = sw.AppBar()
         tiles = []
         for i in range(5):
-            tiles.append(sw.Tile('id_{}'.format(i), 'title_{}'.format(i)))
+            tiles.append(sw.Tile(f'id_{i}', f'title_{i}'))
         footer = sw.Footer()
         
         app = sw.App(tiles, appBar, footer, navDrawer)
@@ -35,14 +35,19 @@ class TestApp(unittest.TestCase):
     
     def test_show_tile(self):
         
-        tiles = [sw.Tile('id_{}'.format(i), 'title_{}'.format(i)) for i in range(5)]
+        tiles = [sw.Tile(f'id_{i}', f'title_{i}') for i in range(5)]
+        drawer_items = [sw.DrawerItem(f'title {i}', card=f'id_{i}') for i in range(5)]
+        appBar = sw.AppBar()
+        footer = sw.Footer()
             
         title = 'main_title'
         id_ = 'main_id' 
         main_tile = sw.Tile(id_, title)
+        main_drawer = sw.DrawerItem(title, card=id_)
         tiles.append(main_tile)
+        drawer_items.append(main_drawer)
         
-        app = sw.App(tiles)
+        app = sw.App(tiles, appBar, footer, sw.NavDrawer(drawer_items))
         res = app.show_tile(id_)
         
         self.assertEqual(res, app)
@@ -51,7 +56,13 @@ class TestApp(unittest.TestCase):
             if tile == main_tile:
                 self.assertTrue(tile.viz)
             else:
-                self.assertFalse(tile.viz)        
+                self.assertFalse(tile.viz) 
+                
+        for di in drawer_items:
+            if di._metadata['card_id'] == id_:
+                self.assertTrue(di.input_value)
+            else:
+                self.assertFalse(di.input_value)
         
         
 if __name__ == '__main__':
