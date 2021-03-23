@@ -52,7 +52,8 @@ class Adm0Select(v.Select, sw.SepalWidget):
         super().__init__(
             items   = items, 
             label   = ms.aoi_sel.country_lbl, 
-            v_model = None
+            v_model = None,
+            dense = True
         )
         
 class Adm1Select(v.Select, sw.SepalWidget):
@@ -65,15 +66,14 @@ class Adm1Select(v.Select, sw.SepalWidget):
         super().__init__(
             items   = [], 
             label   = ms.aoi_sel.adm1_lbl, 
-            v_model = None
+            v_model = None,
+            dense = True
         )
         
     def set_admin_input(self, change):
         """set the list of possible items to the list of corresponding GAUL admo1_code - name"""
         
         adm0_code = change['new']
-        
-        items = [{'text': 'all', 'value': 'all'}]
         
         # filter the country list to keep only each admin1 in the selected admin0
         country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
@@ -82,7 +82,8 @@ class Adm1Select(v.Select, sw.SepalWidget):
         country_codes = country_codes.drop_duplicates(subset=['ADM1_CODE'])
         country_codes = country_codes.sort_values('ADM1_NAME')
         
-        # create a usable dict for the items 
+        # create a usable dict for the items
+        items = []
         for i, row in country_codes.iterrows():
             items.append({'text': row.ADM1_NAME, 'value': row.ADM1_CODE})
         
@@ -104,7 +105,8 @@ class Adm2Select(v.Select, sw.SepalWidget):
         super().__init__(
             items   = [], 
             label   = ms.aoi_sel.adm2_lbl, 
-            v_model = None
+            v_model = None,
+            dense = True
         )
         
     def set_admin_input(self, change):
@@ -112,15 +114,14 @@ class Adm2Select(v.Select, sw.SepalWidget):
         
         adm1_code = change['new']
         
-        items = [{'text': 'all', 'value': 'all'}]
-        
         # filter the country list to keep only each admin1 in the selected admin0
         country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes[country_codes['ADM1_CODE'] == adm1_code]
         country_codes = country_codes.sort_values('ADM2_NAME')
         
-        # create a usable dict for the items 
+        # create a usable dict for the items
+        items = []
         for i, row in country_codes.iterrows():
             items.append({'text': row.ADM2_NAME, 'value': row.ADM2_CODE})
         
@@ -230,9 +231,9 @@ class TileAoi(sw.Tile):
         self.aoi_output = sw.Alert() \
             .bind(self.aoi_file_name, self.io, 'file_name',  verbose=False) \
             .bind(self.aoi_file_input, self.io, 'file_input',  verbose=False) \
-            .bind(self.aoi_country_selection, self.io, 'country_selection',  verbose=False) \
-            .bind(self.aoi_admin_1_select, self.io, 'adm1_select',  verbose=False) \
-            .bind(self.aoi_admin_2_select, self.io, 'adm2_select',  verbose=False) \
+            .bind(self.aoi_country_selection, self.io, 'adm0',  verbose=False) \
+            .bind(self.aoi_admin_1_select, self.io, 'adm1',  verbose=False) \
+            .bind(self.aoi_admin_2_select, self.io, 'adm2',  verbose=False) \
             .bind(self.aoi_asset_name, self.io, 'assetId',  verbose=False) \
             .bind(self.aoi_load_table, self.io, 'json_csv',  verbose=False)
     
@@ -374,14 +375,18 @@ class TileAoi(sw.Tile):
         # clearly identify the differents widgets 
         aoi_file_input        = list_input[1]
         aoi_file_name         = list_input[0]
-        aoi_country_selection = list_input[2]
+        aoi_admin_0_select    = list_input[2]
         aoi_admin_1_select    = list_input[3]
         aoi_admin_2_select    = list_input[4]
         aoi_asset_name        = list_input[5]
         aoi_load_table        = list_input[6]
         
-        # clear the file_name
+        # clear all the v_model
         aoi_file_name.v_model = None
+        aoi_admin_0_select.v_model = None
+        aoi_asset_name.v_model = None
+        aoi_admin_1_select.items = []
+        aoi_admin_2_select.items = []
         
         # extract the selecion methods
         method = self.SELECTION_METHOD
@@ -398,13 +403,13 @@ class TileAoi(sw.Tile):
             
         # country selection
         if change['new'] == method[0]:
-            self.toggle_inputs([aoi_country_selection], list_input)
+            self.toggle_inputs([aoi_admin_0_select], list_input)
         # admin 1
         elif change['new'] == method[1]: 
-            self.toggle_inputs([aoi_country_selection, aoi_admin_1_select], list_input)
+            self.toggle_inputs([aoi_admin_0_select, aoi_admin_1_select], list_input)
         # admin 2
         elif change['new'] == method[2]: 
-            self.toggle_inputs([aoi_country_selection, aoi_admin_1_select, aoi_admin_2_select], list_input)
+            self.toggle_inputs([aoi_admin_0_select, aoi_admin_1_select, aoi_admin_2_select], list_input)
         # drawing
         elif change['new'] == method[3]: 
             self.toggle_inputs([aoi_file_name], list_input)
