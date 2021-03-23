@@ -22,7 +22,7 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(aoi_io.assetId, asset_id)
         
         # with a default admin 
-        admin = 53
+        admin = 85
         aoi_io = aoi.Aoi_io(default_admin0 = admin)
         
         self.assertNotEqual(aoi_io.feature_collection, None)
@@ -43,7 +43,7 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(ee_obj, ee_france)
         
         # fake an administrative country 
-        aoi_io.country_code = 53 # fake number to force is_admin to return true
+        aoi_io.adm0 = 122 # fake number to force is_admin to return true
         aoi_io.feature_collection = ee_italy
         ee_obj = aoi_io.get_aoi_ee()
         
@@ -143,11 +143,12 @@ class TestAoi_io(unittest.TestCase):
         aoi_io.field = dum
         aoi_io.selected_feature = dum
         aoi_io.json_csv = dum
-        aoi_io.country_code = dum
+        aoi_io.adm0 = dum
+        aoi_io.adm1 = dum
+        aoi_io.adm2 = dum
         aoi_io.feature_collection = dum
         aoi_io.file_input = dum
         aoi_io.file_name = dum
-        aoi_io.country_selection = dum
         aoi_io.selection_method = dum
         aoi_io.drawn_feat = dum
         
@@ -158,11 +159,12 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(aoi_io.field, None)
         self.assertEqual(aoi_io.selected_feature, None)
         self.assertEqual(aoi_io.json_csv, None)
-        self.assertEqual(aoi_io.country_code, None)
+        self.assertEqual(aoi_io.adm0, None)
+        self.assertEqual(aoi_io.adm1, None)
+        self.assertEqual(aoi_io.adm2, None)
         self.assertEqual(aoi_io.feature_collection, None)
         self.assertEqual(aoi_io.file_input, None)
         self.assertEqual(aoi_io.file_name, None)
-        self.assertEqual(aoi_io.country_selection, None)
         self.assertEqual(aoi_io.selection_method, None)
         self.assertEqual(aoi_io.drawn_feat, None)
 
@@ -231,7 +233,7 @@ class TestAoi_io(unittest.TestCase):
         self.assertEqual(filename, out_dir.joinpath('france.shp'))
         self.assertEqual(Path(filename).stat().st_size, 236)
         
-        #check if the filename is return when already exist
+        # check if the filename is return when already exist
         filename = aoi_io.get_aoi_shp(out_dir)
         
         self.assertEqual(filename, out_dir.joinpath('france.shp'))
@@ -253,7 +255,7 @@ class TestAoi_io(unittest.TestCase):
         
         # use a country code 
         code = 'FRA'
-        aoi_io.country_code = code
+        aoi_io.adm0 = 85 # France GAUL number
         name = aoi_io.get_aoi_name()
         self.assertEqual(name, code)
         

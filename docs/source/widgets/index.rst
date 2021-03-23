@@ -22,3 +22,4 @@ Example
     tile_aoi
     alert
     app
+    tooltip
