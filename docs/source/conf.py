@@ -25,7 +25,7 @@ copyright = f"2020-{datetime.now().year}, the sepal development team"
 author = 'Pierrick Rambaud'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.1'
+release = '1.1.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,7 +33,11 @@ release = '1.1.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon', '_extentions.video']
+extensions = [
+    'sphinx.ext.napoleon',
+    'notfound.extension', 
+    '_extentions.video'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,6 +52,7 @@ from urllib.request import urlretrieve
 
 urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png', '../img/dwn/sepal.png')
 urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico', '../img/dwn/favicon.ico')
+urlretrieve ('https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/404-compass.png', '../img/dwn/404-compass.png')
 
 
 # -- Options for HTML output -------------------------------------------------

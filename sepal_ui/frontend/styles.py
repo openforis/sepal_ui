@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from ipywidgets import HTML
+from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v 
 
@@ -18,19 +17,27 @@ v.theme.themes.dark.error = "#A63228"
 sepal_main = '#24221F'
 sepal_darker = '#1a1a1a'
 
-# Fixed styles to avoid leaflet maps overlap sepal widgets
-STYLES = """
-<style>
-.leaflet-pane {
-    z-index : 2 !important;
-}
-.leaflet-top, .leaflet-bottom {
-    z-index : 2 !important;
-}
-</style>
-"""
 
-_ = display(HTML(STYLES))
+# Fixed styles to avoid leaflet maps overlap sepal widgets
+
+class Styles(v.VuetifyTemplate):
+
+    template=Unicode("""
+    <style>
+        .leaflet-pane {
+            z-index : 2 !important;
+        }
+        .leaflet-top, .leaflet-bottom {
+            z-index : 2 !important;
+        }
+        main.v-content {
+            padding-top: 0px !important;
+        }
+    </style>
+    """).tag(sync=True)
+    
+styles=Styles()
+display(styles)
 
 COMPONENTS = {
 

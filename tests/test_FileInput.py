@@ -10,6 +10,9 @@ class TestFileInput(unittest.TestCase):
         
         # default init
         file_input = sw.FileInput(folder=self._get_sepal_parent())
+        
+        # init with a string 
+        file_input = sw.FileInput(folder=str(self._get_sepal_parent()))
 
         self.assertIsInstance(file_input, sw.FileInput)
         self.assertEqual(file_input.v_model, '')

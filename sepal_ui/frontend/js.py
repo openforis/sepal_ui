@@ -1,11 +1,9 @@
 import ipyvuetify as v 
-import traitlets
+from traitlets import Int, Unicode
 from IPython.display import display
 
 class ResizeTrigger(v.VuetifyTemplate):
-    template = traitlets.Unicode('''
-    <template>
-    </template>
+    template = Unicode('''
     <script>
         modules.export = {
             watch: {
@@ -14,11 +12,10 @@ class ResizeTrigger(v.VuetifyTemplate):
                 }
             }
         }
-    </script>
+        </script>
     ''').tag(sync=True)
     
-    
-    resize = traitlets.Int(0).tag(sync=True)
-    
+    resize = Int(0).tag(sync=True)
+
 rt = ResizeTrigger()
-_ = display(rt)
+display(rt)
