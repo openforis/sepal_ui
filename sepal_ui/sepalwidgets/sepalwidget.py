@@ -96,20 +96,16 @@ class Markdown(v.Layout, SepalWidget):
         )
         
 class Tooltip(v.Tooltip):
+    """
+    Custom widget to display tooltip when mouse is over widget
+
+    Args:
+        widget (DOM.widget): widget used to display tooltip
+        tooltip (str): the text to display in the tooltip            
+    """
     
     def __init__(self, widget, tooltip, *args, **kwargs):
-        """
-        Custom widget to display tooltip when mouse is over widget
-
-        Args:
-            widget (DOM.widget): widget used to display tooltip
-            tooltip (str): the text to display in the tooltip
-            
-        Example:
-            
-            btn = v.Btn(children=['Button'])
-            Tooltip(widget=btn, tooltip='Click over the button')
-        """
+        
         
         self.bottom=True
         self.v_slots=[{

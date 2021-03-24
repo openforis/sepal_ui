@@ -92,7 +92,7 @@ class Alert(v.Alert, SepalWidget):
         
         # cast the progress to float
         progress = float(progress)
-        if 0 > progress > 1:
+        if not (0 <= progress <= 1):
             raise ValueError(f"progress should be in [0, 1], {progress} given")
         
         # set the length parameter 
@@ -300,11 +300,10 @@ class Alert(v.Alert, SepalWidget):
 class StateBar(v.SystemBar):
     
     """ Widget to display quick messages on simple inline status bar
-    
-    Args: 
-        **kwargs from Vuetify SystemBar object.
-        msg (str, traitlet): message to be displayed
-        done (bool, traitlet): State of bar, it will display a loading spin wheel if not done.
+        
+    Attributes:
+        msg (Unicode): the msg to be displayed 
+        done (Bool): State of bar, it will display a loading spin wheel if not done.
     
     """
     

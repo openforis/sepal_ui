@@ -184,6 +184,8 @@ class Aoi_io:
         self.selected_feature = None
         self.json_csv = None
         self.adm0 = self.default_admin0
+        self.adm1 = self.default_admin1
+        self.adm2 = self.default_admin2
         self.feature_collection = None
         
         # set the feature_collection
@@ -192,9 +194,6 @@ class Aoi_io:
         # set up your inputs
         self.file_input = None
         self.file_name = None
-        self.country_selection = None
-        self.adm1_select = None
-        self.adm2_select = None
         self.selection_method = None
         self.drawn_feat = None
 

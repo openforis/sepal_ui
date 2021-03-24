@@ -33,13 +33,22 @@ Open Sepal in a second tab of your browser and start an new instance (t1) in the
 
 from root execute the following command:
 
-.. code-block:: bash
+.. code-block:: console
    
-   module_factory.sh
+   module_factory
+   
+.. tip:: 
+
+   if the :code:`module_factory` is not available, use the following command instead: 
+   
+   .. code-block:: console
+   
+      /usr/local/lib/python3.6/dist-packages/sepal_ui/bin/module_factory
+      
 
 It will launch the creation script of the module factory. 
 
-.. code-block::
+.. code-block:: console
 
       
    ##################################

@@ -23,7 +23,10 @@
         "shp_error"           : "Une erreur est survenue avec le fichier .shp utilisé",
         "aoi_message"         : "Cliquer sur le boutton pour valider votre AOI",
         "duplicate_key"       : "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'identifiant",
-        "geojson_to_ee"       : "Convertir votre fichier .csv en object Google Earth Engine"
+        "geojson_to_ee"       : "Convertir votre fichier .csv en object Google Earth Engine",
+        "valid_admin0": "Le pays/province a pas été trouvé dans FAO GAUL 2015. \"{}\" sera utiliser comme prefix pour les noms de fichier.",
+        "adm1_lbl": "Niveau administratif 1",
+        "adm2_lbl": "Niveau administratif 2"
     },
         "mapping": {
         "no_image": "Le fichier image n'existe pas."
