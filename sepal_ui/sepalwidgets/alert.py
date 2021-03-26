@@ -313,7 +313,7 @@ class StateBar(v.SystemBar):
     def __init__(self,  **kwargs):
                         
         self.progress = v.ProgressCircular(
-            indeterminate=not self.loading,
+            indeterminate=self.loading,
             value=100,
             small=True,
             size=15,
@@ -328,7 +328,7 @@ class StateBar(v.SystemBar):
     @observe('loading')
     def _change_loading(self, change):
         """ Change progress wheel state"""
-        self.progress.indeterminate = not self.loading
+        self.progress.indeterminate = self.loading
             
     @observe('msg')
     def _change_msg(self, change):
