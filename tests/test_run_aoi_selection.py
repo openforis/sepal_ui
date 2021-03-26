@@ -35,12 +35,17 @@ class TestRunAoiSelection(unittest.TestCase):
         
         alert = sw.Alert()
         
-        country, iso_3 = get_country_asset('France', alert)
+        admin0 = get_admin0_asset(85, alert)
+        admin1 = get_admin1_asset(1250, alert)
+        admin2 = get_admin2_asset(16246, alert)
         
-        column = 'ADM0_NAME'
-        name =country.distinct(column).aggregate_array(column).getInfo()[0]
+        
+        name =admin0.distinct("ADM0_NAME").aggregate_array("ADM0_NAME").getInfo()[0]
         self.assertEqual(name, 'France')
-        self.assertEqual(iso_3, 'FRA')
+        name =admin1.distinct("ADM1_NAME").aggregate_array("ADM1_NAME").getInfo()[0]
+        self.assertEqual(name, 'Auvergne')
+        name =admin2.distinct("ADM2_NAME").aggregate_array("ADM2_NAME").getInfo()[0]
+        self.assertEqual(name, 'Cantal')
     
         return 
     

@@ -54,31 +54,71 @@ def isAsset(asset_descripsion, folder):
             
     return exist 
 
-def get_country_asset(country_selection, output):
+def get_admin0_asset(adm0, output):
     """
     send a request to GEE to get a featurecollection based on the country selected
     
     Args:
-        country_selection (str): the country name in english
+        adm0 (int): the administrative level 0 in FAO GAUL 2015
         output (sw.Alert): the alert to display information to the end user
         
     return:
         (ee.FeatureColection): the FeatureCollection invocation of the country
-        (str): the iso 3 letter country code
     """
     
-    if country_selection == None:
+    if adm0 == None:
         output.add_msg(ms.aoi_sel.no_country, 'warning')
         return (None, None)
     
-    country_code = utils.get_gaul_dic()[country_selection] 
-    iso_3 = utils.get_iso_3(country_selection)
+    country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', adm0))
     
-    country = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq('ADM0_CODE', country_code))
-          
-    display_asset(output, iso_3)
+    #output.add_msg(ms.aoi_sel.valid_admin0.format(iso_3), 'success')
     
-    return country, iso_3
+    return country
+
+def get_admin1_asset(adm1, output):
+    """
+    send a request to GEE to get a featurecollection based on the country selected
+    
+    Args:
+        adm1 (int): the administrative level 1 in FAO GAUL 2015
+        output (sw.Alert): the alert to display information to the end user
+        
+    return:
+        (ee.FeatureColection): the FeatureCollection invocation of the country
+    """
+    
+    if adm1 == None:
+        output.add_msg(ms.aoi_sel.no_country, 'warning')
+        return (None, None)
+    
+    country = ee.FeatureCollection("FAO/GAUL/2015/level1").filter(ee.Filter.eq('ADM1_CODE', adm1))
+    
+    #
+    
+    return country
+
+def get_admin2_asset(adm2, output):
+    """
+    send a request to GEE to get a featurecollection based on the country selected
+    
+    Args:
+        adm2 (int): the administrative level 2 in FAO GAUL 2015
+        output (sw.Alert): the alert to display information to the end user
+        
+    return:
+        (ee.FeatureColection): the FeatureCollection invocation of the country
+    """
+    
+    if adm2 == None:
+        output.add_msg(ms.aoi_sel.no_country, 'warning')
+        return (None, None)
+    
+    country = ee.FeatureCollection("FAO/GAUL/2015/level2").filter(ee.Filter.eq('ADM2_CODE', adm2))
+    
+    #output.add_msg(ms.aoi_sel.valid_admin0.format(iso_3), 'success')
+    
+    return country
 
 def get_drawn_shape(drawn_feat, file_name, folder, output):
     """
@@ -106,7 +146,7 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
         
     asset = str(Path(folder, asset_name))
             
-    #create and launch the task
+    # create and launch the task
     task_config = {
         'collection': drawn_feat, 
         'description':asset_name,
@@ -155,7 +195,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
         (str): the created asset name
     """
     
-    #read the json 
+    # read the json 
     load_df = json.loads(json_csv)
     
     # check that the columns are well set 
@@ -184,7 +224,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
     # upload this object to earthengine
     asset = str(Path(folder, asset_name))
             
-    #create and launch the task
+    # create and launch the task
     task_config = {
         'collection': ee_object, 
         'description':asset_name,
@@ -231,7 +271,7 @@ def get_shp_aoi(file_input, file_name, folder, output):
        
     asset_name = ms.aoi_sel.file_pattern.format(re.sub('[^a-zA-Z\d\-\_]','_',file_name))
         
-    #check asset's name
+    # check asset's name
     if isAsset(asset_name, folder):
         output.add_msg(ms.aoi_sel.name_used, 'error')
         asset = None
@@ -240,7 +280,7 @@ def get_shp_aoi(file_input, file_name, folder, output):
         
         asset = str(Path(folder, asset_name))
             
-        #launch the task
+        # launch the task
         task_config = {
             'collection': ee_object, 
             'description':asset_name,
@@ -272,12 +312,12 @@ def run_aoi_selection(output, list_method, io, folder=None):
     Return:
         (str) : the AssetId of the AOI
     """
-    #go to the glad folder in gee assets 
+    # go to the glad folder in gee assets 
     if not folder: 
         folder = ee.data.getAssetRoots()[0]['id']
     
-    #clean all but the selected method
-    if io.country_selection:
+    # clean all but the selected method
+    if io.adm0:
         io.assetId = None
     else:
         io.feature_collection, io.country_code = (None, None)
@@ -287,22 +327,33 @@ def run_aoi_selection(output, list_method, io, folder=None):
     
     # not selected
     if io.selection_method == None:
-        output.add_msg(ms.aoi_sel.no_selection, 'error')   
+        raise Exception(ms.aoi_sel.no_selection)   
     # use a country boundary
     elif io.selection_method == list_method[0]: 
-        asset, admin0 = get_country_asset(io.country_selection, output)
-        io.set_admin(asset, admin0=admin0)
-    # draw a shape
+        asset = get_admin0_asset(io.adm0, output)
+        io.set_admin(asset, admin0=io.adm0)
+        output.add_msg(ms.aoi_sel.valid_admin0.format(io.get_aoi_name()), 'success')
+    # use adm1
     elif io.selection_method == list_method[1]: 
+        asset = get_admin1_asset(io.adm1, output)
+        io.set_admin(asset, admin0=io.adm0, admin1=io.adm1)
+        output.add_msg(ms.aoi_sel.valid_admin0.format(io.get_aoi_name()), 'success')
+    # use adm2
+    elif io.selection_method == list_method[2]: 
+        asset = get_admin2_asset(io.adm2, output)
+        io.set_admin(asset, admin0=io.adm0, admin1=io.adm1, admin2=io.adm2)
+        output.add_msg(ms.aoi_sel.valid_admin0.format(io.get_aoi_name()), 'success')
+    # draw a shape
+    elif io.selection_method == list_method[3]: 
         io.set_asset(get_drawn_shape(io.drawn_feat, io.file_name, folder, output))
     # use GEE asset
-    elif io.selection_method == list_method[3]: 
+    elif io.selection_method == list_method[4]: 
         io.set_asset(get_gee_asset(io.assetId, output))
     # upload file
-    elif io.selection_method == list_method[2]: 
+    elif io.selection_method == list_method[5]: 
         io.set_asset(get_shp_aoi(io.file_input, io.file_name, folder, output))
     # csv point file
-    elif io.selection_method == list_method[4]: 
+    elif io.selection_method == list_method[6]: 
         io.set_asset(get_csv_asset(io.json_csv, io.file_name, folder, output))
             
     return

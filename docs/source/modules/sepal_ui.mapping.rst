@@ -10,7 +10,7 @@ sepal\_ui.mapping package
    
    .. code-block:: python 
 
-      from sepal_ui import amapping as sm
+      from sepal_ui import mapping as sm
 
       m = sm.SepalMap() 
 
