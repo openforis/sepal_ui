@@ -66,7 +66,7 @@ def set_module_name_doc(folder, repository, module_name):
     languages = ['fr', 'en', 'es']
     for lang in languages:
         
-        file = folder.joinpath('doc', f'{lang}.json')
+        file = folder.joinpath('doc', f'{lang}.rst')
         
         with file.open() as f:
             text = f.read()
