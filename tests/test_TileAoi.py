@@ -114,24 +114,24 @@ class TestAoiTile(unittest.TestCase):
         self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
         
-        # select shp file
-        tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[4]
-        self.assertNotIn('d-none', tile_aoi.aoi_file_input.class_)
-        self.assertNotIn('d-none', tile_aoi.aoi_file_name.class_)
-        self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
-        self.assertIn('d-none', tile_aoi.aoi_admin_1_select.class_)
-        self.assertIn('d-none', tile_aoi.aoi_admin_2_select.class_)
-        self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
-        self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
-        
         # select gee asset
-        tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[5]
+        tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[4]
         self.assertIn('d-none', tile_aoi.aoi_file_input.class_)
         self.assertIn('d-none', tile_aoi.aoi_file_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
         self.assertIn('d-none', tile_aoi.aoi_admin_1_select.class_)
         self.assertIn('d-none', tile_aoi.aoi_admin_2_select.class_)
         self.assertNotIn('d-none', tile_aoi.aoi_asset_name.class_)
+        self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
+        
+        # select shp file
+        tile_aoi.aoi_select_method.v_model = tile_aoi.SELECTION_METHOD[5]
+        self.assertNotIn('d-none', tile_aoi.aoi_file_input.class_)
+        self.assertNotIn('d-none', tile_aoi.aoi_file_name.class_)
+        self.assertIn('d-none', tile_aoi.aoi_country_selection.class_)
+        self.assertIn('d-none', tile_aoi.aoi_admin_1_select.class_)
+        self.assertIn('d-none', tile_aoi.aoi_admin_2_select.class_)
+        self.assertIn('d-none', tile_aoi.aoi_asset_name.class_)
         self.assertIn('d-none', tile_aoi.aoi_load_table.class_)
         
         # select point file
