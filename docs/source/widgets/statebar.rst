@@ -12,7 +12,7 @@ any argument from the original :code:`Btn` ipyvuetify class can be used to compl
     
 .. image:: ../../img/statebar.png
 
-State bar can bbe stopped using the following code. The :code:`msg`can be changed according to your need. 
+State bar can bbe stopped using the following code. The :code:`msg` can be changed according to your need. 
 
 .. tip::
     

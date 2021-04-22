@@ -65,10 +65,19 @@ html_logo = '../img/dwn/sepal.png'
 html_favicon = '../img/dwn/favicon.ico'
 html_last_updated_fmt = ''
 html_theme_options = {
-    #"external_links": [],
-    "github_url": "https://github.com/12rambau/sepal_ui",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/12rambau/sepal_ui",
+            "icon": "fab fa-github-square"
+        },
+        {
+            "name": "Pypi",
+            "url": "https://pypi.org/project/sepal-ui/",
+            "icon": "fab fa-python",
+        }
+    ],
     "use_edit_page_button": True,
-    #"twitter_url": "https://twitter.com/pandas_dev"
 }
 html_context = {
     "github_user": "12rambau",
