@@ -59,6 +59,24 @@ def set_module_name(folder, module_name):
             
     return
 
+def set_contribute_file(folder, repository, module_name):
+    """complete the contributing file with the appropriate informations"""
+    
+    print('Update the module name in the contribute file')
+    
+    contrib = folder/'CONTRIBUTE.md'
+    
+    with contrib.open() as f:
+        data = f.read()
+        
+    data = data.replace('SEPAL_UI_TEMPLATE', module_name)
+    data = data.replace('https://github.com/12rambau/sepal_ui_template.git', repository)
+    
+    with contrib.open('w') as f:
+        f.write(data)
+        
+    return
+
 def set_module_name_doc(folder, repository, module_name):
     """set the module name in each documentation file and set the appropriate repository in the link"""
     
@@ -66,7 +84,7 @@ def set_module_name_doc(folder, repository, module_name):
     languages = ['fr', 'en', 'es']
     for lang in languages:
         
-        file = folder.joinpath('doc', f'{lang}.json')
+        file = folder.joinpath('doc', f'{lang}.rst')
         
         with file.open() as f:
             text = f.read()
@@ -77,7 +95,7 @@ def set_module_name_doc(folder, repository, module_name):
         
         with file.open('w') as f:
             f.write(text)
-    return 
+    return
 
 def set_drawer_link(folder, repository):
     """replace the reference to the default repository to the one provided by the use"""
@@ -169,6 +187,7 @@ if __name__ == "__main__":
     set_module_name(folder, module_name)
     set_drawer_link(folder, github_url)
     set_module_name_doc(folder, github_url, module_name)
+    set_contribute_file(folder, github_url, module_name)
     
     # init the new git repository
     command = ['git', 'init']
