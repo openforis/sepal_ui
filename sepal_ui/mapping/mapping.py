@@ -373,7 +373,7 @@ class SepalMap(geemap.Map):
 
 
         multi_band = False
-        if len(da.band) > 1:
+        if len(da.band) > 1 and type(bands) != int:
             multi_band = True
             if not bands:
                 bands = [3, 2, 1]
@@ -396,6 +396,8 @@ class SepalMap(geemap.Map):
             'rgb_dim': 'band' if multi_band else None,
             'colormap': None if multi_band else colormap,
         }
+        
+        print(kwargs)
         
         # display the layer on the map
         layer = da.leaflet.plot(**kwargs)
