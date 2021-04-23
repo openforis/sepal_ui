@@ -11,15 +11,17 @@ from colorama import init, Fore, Style
 #init colors for all plateforms
 init()
 
-def set_default_readme(folder, module_name, description):
+def set_default_readme(folder, module_name, description, repository):
     """write a default README.md file and overwrite the existing one"""
     
     print('Write a default README.md file')
     
+    license = f"{repository.replace('.git','')}/blob/master/LICENSE"
+    
     with open(folder.joinpath('README.md'), "w") as readme:
         
         readme.write(f'# {module_name}  \n')
-        readme.write('[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  \n')
+        readme.write(f'[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n')
         readme.write('  \n')
         readme.write('## About  \n')
         readme.write('  \n')
@@ -182,7 +184,7 @@ if __name__ == "__main__":
     res = subprocess.run(command, cwd=Path.home())
     
     # replace the placeholders 
-    set_default_readme(folder, module_name, description)
+    set_default_readme(folder, module_name, description, github_url)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
     set_drawer_link(folder, github_url)
