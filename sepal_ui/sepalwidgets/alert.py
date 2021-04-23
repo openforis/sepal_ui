@@ -255,9 +255,11 @@ class Alert(v.Alert, SepalWidget):
             # change the obj value
             setattr(obj, attribute, change['new'])
             
+            
+            
             # add the message if needed
-            if secret:
-                msg += '*' * len(change['new'])
+            elif secret:
+                msg += '*' * len(str(change['new']))
             else:
                 msg += str(change['new'])
                 
