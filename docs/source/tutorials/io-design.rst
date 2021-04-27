@@ -188,7 +188,7 @@ In this framework the aoi selection is hard-coded in the :code:ÀoiIo` object an
 If you look at the documentation of the lib you'll see that :code:`AoiIo` has a lot of embeded useful method that you can call anywhere.
 with the :code:`AoiIo.get_aoi_ee` method, you can get the aoi corresponding ee object as a variable. 
 
-..code-block:: python 
+.. code-block:: python 
 
     from sepal_ui import aoi
     aoi_io = aoi.AoiIo(default_asset = 'users/yourself/anAsset')
