@@ -80,7 +80,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
     Custom input field to select a file in the sepal folders. 
     
     Args:
-        extentions ([str]): the list of the allowed extentions. the FileInput will only display thiese extention and folders
+        extentions ([str]): the list of the allowed extentions. the FileInput will only display these extention and folders
         folder (str | pathlib.Path): the starting folder of the file input
         label (str): the label of the input
         v_model (str, optional): the default value
