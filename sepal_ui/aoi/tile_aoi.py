@@ -205,7 +205,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Upload file', 'Use GEE asset', 'Use points file']
+    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Upload file', 'Use points file']
     
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
@@ -414,12 +414,12 @@ class TileAoi(sw.Tile):
         elif change['new'] == method[3]: 
             self.toggle_inputs([aoi_file_name], list_input)
             self.m.show_dc()
-        # shp file
-        elif change['new'] == method[4]: 
-            self.toggle_inputs([aoi_file_name, aoi_file_input], list_input)
         # gee asset
-        elif change['new'] == method[5]: 
+        elif change['new'] == method[4]: 
             self.toggle_inputs([aoi_asset_name], list_input)
+        # shp file
+        elif change['new'] == method[5]: 
+            self.toggle_inputs([aoi_file_name, aoi_file_input], list_input)
         # Point file (.csv)
         elif change['new'] == method[6]: 
             self.toggle_inputs([aoi_file_name, aoi_load_table], list_input)
