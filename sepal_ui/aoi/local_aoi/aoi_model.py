@@ -6,7 +6,6 @@ from pathlib import Path
 from traitlets import Any, HasTraits
 from ipyleaflet import GeoJSON
 
-from .aoi_view import AoiView
 
 def alert_error(alert):
     """Decorator to execute try/except sentence
@@ -32,10 +31,11 @@ class AoiModel(HasTraits):
     country = Any('').tag(sync=True)
 
     def __init__(self, alert, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
         
         self.alert = alert
-        self.gpd = None
+        self.gdf = None
         self.ipygeojson = None
         self.selected_feature = None
         
@@ -60,6 +60,11 @@ class AoiModel(HasTraits):
         assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
         
         self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
+
+    def geo_json_to_gdf(self, geo_json):
+        """Converts drawn map features into geodataframe"""
+
+        self.gdf = gpd.GeoDataFrame.from_features([geo_json])
 
     def _get_columns(self):
         """Return all columns skiping geometry"""

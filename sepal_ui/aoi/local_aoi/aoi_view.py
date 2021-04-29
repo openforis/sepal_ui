@@ -6,6 +6,8 @@ from traitlets import (
     List, Any, link, observe, Unicode, HasTraits
 )
 
+from .aoi_model import AoiModel
+
 ALL = 'All'
 
 class Flex(v.Flex, sw.SepalWidget):
@@ -23,7 +25,7 @@ class ColumnField(v.Flex, sw.SepalWidget):
     
     ALL_ITEMS = [{'text':'Use all features', 'value':ALL}, {'divider':True}]
     
-    def __init__(self,*args,**kwargs):
+    def __init__(self, *args, **kwargs):
         
         super().__init__(*args,**kwargs)
         
@@ -50,7 +52,6 @@ class ColumnField(v.Flex, sw.SepalWidget):
         link((self, 'field_items'),(self.w_field, 'items'))
         
         # Events
-        
         self.w_column.observe(self.toggle_fields, 'v_model')
     
     def toggle_fields(self, change):
@@ -72,14 +73,14 @@ class AoiView(v.Card):
     column = Any('').tag(sync=True)
     field = Any('').tag(sync=True)
     
-    def __init__(self, model, map_=None, *args, **kwargs):
+    def __init__(self, map_=None, *args, **kwargs):
         
         self.map_=map_
         self.methods = self._get_methods()
         self.column_field = ColumnField()
         
         self.alert = sw.Alert()
-        self.model = model(self.alert)
+        self.model = AoiModel(self.alert)
         
         w_method = v.Select(
             label = 'Select a method',
@@ -100,7 +101,10 @@ class AoiView(v.Card):
             children=[self.w_countries, self.btn_country])
         
         
-        self.w_file = sw.FileInput(['.shp'], '/home/dguerrero/restoration_viewer/shp/')
+        self.w_file = sw.FileInput(
+            ['.shp'], 
+            '/home/dguerrero/restoration_viewer/shp/'
+        )
         
         self.btn_file = sw.Btn('Select file', small=True)
         w_file_btn = Flex(
@@ -135,7 +139,8 @@ class AoiView(v.Card):
         
         # Events
         self.btn_file.on_event('click', self._file_btn_event)
-        
+        # On drawing control events
+        self.map_.dc.on_draw(self.handle_draw)
         
         self.children=[
             self.alert,
@@ -173,7 +178,8 @@ class AoiView(v.Card):
             self.map_.add_layer(self.model.ipygeojson)
 
 
-        # Populate columns widget with all columsn plus 'ALL' in case user wants to use all 
+        # Populate columns widget with all columsn plus 'ALL' in case user 
+        # wants to use all 
         self.column_field.column_items = self.model._get_columns()
         
         # Show column-field widget
@@ -197,9 +203,11 @@ class AoiView(v.Card):
     def _get_selected_feature(self, change):
         """Define selected feature with the current options"""
 
-        self.model.selected_feature = self.model._get_selected(self.column, self.field)
+        self.model.selected_feature = self.model._get_selected(
+            self.column, self.field)
         
-        self.model.selected_feature = self.model._get_selected(self.column, self.field)
+        self.model.selected_feature = self.model._get_selected(
+            self.column, self.field)
         
         if self.map_:
             self.zoom_and_center(self.model.selected_feature)
@@ -219,11 +227,27 @@ class AoiView(v.Card):
         """Create a list of countries"""
         
         return list(range(10))
-    
+
+
+    def remove_layers(self):
+        """Remove all loaded layers"""
+
+        # get map layers
+        layers = self.map_.layers
+        
+        # loop and remove layers 
+        [self.map_.remove_last_layer() for _ in range(len(layers))]
+
+
     @observe('method')
     def _aoi_method_event(self, change):
         
         method = change['new']
+
+        # Remove layers from map
+        self.remove_layers()
+
+        # Hide components
         self._hide_components()
         
         if method == 'Draw on map':
@@ -231,3 +255,8 @@ class AoiView(v.Card):
         else:
             self.map_.hide_dc()
             su.show_component(self.components[method])
+
+    def handle_draw(self, target, action, geo_json):
+
+        if action in ['created', 'edited']:
+            self.model.geo_json_to_gdf(geo_json)
