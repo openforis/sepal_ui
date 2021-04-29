@@ -1,3 +1,5 @@
+import functools
+
 import ipyvuetify as v
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -17,6 +19,26 @@ class Flex(v.Flex, sw.SepalWidget):
 class Select(v.Select, sw.SepalWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+def loading_button(button):
+    """Decorator to execute try/except sentence
+    and toggle loading button object
+    
+    Params:
+        button (sw.Btn): Toggle button
+    """
+    def decorator_loading(func):
+        @functools.wraps(func)
+        def wrapper_loading(*args, **kwargs):
+            button.loading=True
+            try:
+                value = func(*args, **kwargs)
+            except Exception as e:
+                button.loading=False
+            button.loading=False
+            return value
+        return wrapper_loading
+    return decorator_loading
         
 class ColumnField(v.Flex, sw.SepalWidget):
     
@@ -149,7 +171,6 @@ class AoiView(v.Card):
             w_file_btn,
             self.column_field,
         ]
-            
         
     def zoom_and_center(self, layer):
         """Add layers to the map"""
@@ -163,27 +184,31 @@ class AoiView(v.Card):
         bounds = [(maxy,minx), (miny,minx), (maxy,maxx), (miny,maxx)]
         self.map_.zoom_bounds(bounds=bounds, zoom_out=0);
 
+
     def _file_btn_event(self, widget, event, data):
         """Define behavior when the file button is clicked"""
-        
-        self.column_field.reset()
-        
-        # Create a geopandas dataset
-        self.model.shape_to_gpd(self.w_file.file)
-        
-        # Display vector file into map_
-        if self.map_:
-            self.model.gdf_to_ipygeojson()
-            self.zoom_and_center(self.model.gdf)
-            self.map_.add_layer(self.model.ipygeojson)
+
+        @loading_button(self.btn_file)
+        def event():
+            self.column_field.reset()
+            
+            # Create a geopandas dataset
+            self.model.shape_to_gpd(self.w_file.file)
+            
+            # Display vector file into map_
+            if self.map_:
+                self.model.gdf_to_ipygeojson()
+                self.zoom_and_center(self.model.gdf)
+                self.map_.add_layer(self.model.ipygeojson)
 
 
-        # Populate columns widget with all columsn plus 'ALL' in case user 
-        # wants to use all 
-        self.column_field.column_items = self.model._get_columns()
-        
-        # Show column-field widget
-        self.column_field.show()
+            # Populate columns widget with all columsn plus 'ALL' in case user 
+            # wants to use all 
+            self.column_field.column_items = self.model._get_columns()
+            
+            # Show column-field widget
+            self.column_field.show()
+        event()
     
     @observe('column')
     def _get_fields(self, change):

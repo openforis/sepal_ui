@@ -7,9 +7,9 @@ from traitlets import Any, HasTraits
 from ipyleaflet import GeoJSON
 
 
-def alert_error(alert):
+def catch_errors(alert):
     """Decorator to execute try/except sentence
-    and toggle loading button object
+    and catch errors in the alert message
     
     Params:
         alert (sw.Alert): Alert to display errors
@@ -39,27 +39,30 @@ class AoiModel(HasTraits):
         self.ipygeojson = None
         self.selected_feature = None
         
-        # Decorate methods
-        self.shape_to_gpd = alert_error(self.alert)(self.shape_to_gpd)
-            
     def shape_to_gpd(self, file):
         """ Converts shapefile into geopandas"""
-        
-        file_path = Path(file)
-        
-        assert file_path.exists(), "File doesn't exists"
-        
-        if file_path.suffix == '.shp':
 
-            self.gdf = gpd.read_file(str(file_path))
-            self.gdf = self.gdf.to_crs("EPSG:4326")
+        @catch_errors(self.alert)
+        def process():
+            file_path = Path(file)
+            
+            assert file_path.exists(), "File doesn't exists"
+            
+            if file_path.suffix == '.shp':
+
+                self.gdf = gpd.read_file(str(file_path))
+                self.gdf = self.gdf.to_crs("EPSG:4326")
+        process()
             
     def gdf_to_ipygeojson(self):
         """ Converts current geopandas object into ipyleaflet GeoJSON"""
         
-        assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
-        
-        self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
+        @catch_errors(self.alert)
+        def process():
+            assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
+
+            self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
+        process()
 
     def geo_json_to_gdf(self, geo_json):
         """Converts drawn map features into geodataframe"""
