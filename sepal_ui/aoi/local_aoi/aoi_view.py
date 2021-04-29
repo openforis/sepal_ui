@@ -129,6 +129,7 @@ class AoiView(v.Card):
         )
         
         self.btn_file = sw.Btn('Select file', small=True)
+
         w_file_btn = Flex(
             class_='d-flex align-center mb-2',
             row=True, 
@@ -190,6 +191,7 @@ class AoiView(v.Card):
 
         @loading_button(self.btn_file)
         def event():
+            self.remove_layers()
             self.column_field.reset()
             
             # Create a geopandas dataset

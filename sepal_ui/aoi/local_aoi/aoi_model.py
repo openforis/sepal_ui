@@ -71,11 +71,11 @@ class AoiModel(HasTraits):
 
     def _get_columns(self):
         """Return all columns skiping geometry"""
-        return list(set(['geometry'])^set(self.gdf.columns.to_list()))
+        return sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
         
     def _get_fields(self, column):
         """Return fields from selected column"""
-        return self.gdf[column].to_list()
+        return sorted(self.gdf[column].to_list())
     
     def _get_selected(self, column, field):
         """Get selected element"""
