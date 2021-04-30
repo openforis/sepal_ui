@@ -64,7 +64,7 @@ class TestTranslator(unittest.TestCase):
         
         # use the json folder of the lib 
         home = Path(__file__).parent.parent.absolute()
-        path = home.joinpath('sepal_ui', 'message')
+        path = home/'sepal_ui'/'message'
         
         return path
         

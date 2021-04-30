@@ -38,7 +38,7 @@ class Adm0Select(v.Select, sw.SepalWidget):
     """
     
     def __init__(self):
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes.drop_duplicates(subset=['ADM0_CODE'])
         country_codes = country_codes.sort_values('ADM0_NAME')
@@ -76,7 +76,7 @@ class Adm1Select(v.Select, sw.SepalWidget):
         adm0_code = change['new']
         
         # filter the country list to keep only each admin1 in the selected admin0
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes[country_codes['ADM0_CODE'] == adm0_code]        
         country_codes = country_codes.drop_duplicates(subset=['ADM1_CODE'])
@@ -115,7 +115,7 @@ class Adm2Select(v.Select, sw.SepalWidget):
         adm1_code = change['new']
         
         # filter the country list to keep only each admin1 in the selected admin0
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes[country_codes['ADM1_CODE'] == adm1_code]
         country_codes = country_codes.sort_values('ADM2_NAME')

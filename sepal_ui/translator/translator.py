@@ -31,10 +31,11 @@ class Translator(SimpleNamespace):
             json_folder = Path(json_folder)
         
         # reading both the default dict
-        self.default_dict = json.loads(json_folder.joinpath(f'{default_lan}.json').read_text())
+        source_path = json_folder/f'{default_lan}.json'
+        self.default_dict = json.loads(source_path.read_text())
         
         # create a composite dict replaceing all the default keys with the one availabel in the target lan        
-        target_path = json_folder.joinpath(f'{target_lan}.json')
+        target_path = json_folder/f'{target_lan}.json'
         self.target_dict = self.default_dict.copy()
         
         if target_path.is_file():

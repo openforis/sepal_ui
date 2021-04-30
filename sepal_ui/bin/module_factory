@@ -18,7 +18,8 @@ def set_default_readme(folder, module_name, description, repository):
     
     license = f"{repository.replace('.git','')}/blob/master/LICENSE"
     
-    with open(folder.joinpath('README.md'), "w") as readme:
+    file = folder/'README.md'
+    with file.open("w") as readme:
         
         readme.write(f'# {module_name}  \n')
         readme.write(f'[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n')
@@ -34,7 +35,8 @@ def set_default_about(folder, description):
     
     print('Write a default ABOUT.md file')
     
-    with open(folder.joinpath('utils', 'ABOUT.md'), "w") as about:
+    file = folder/'utils'/'ABOUT.md'
+    with file.open("w") as about:
         
         about.write(f'{description}  \n')
         
@@ -49,14 +51,14 @@ def set_module_name(folder, module_name):
     languages = ['en', 'fr']
     for lang in languages:
     
-        file = folder.joinpath('component', 'message', f'{lang}.json')
+        file = folder/'component'/'message'/f'{lang}.json'
         
-        with open(file, "r") as f:
+        with file.open("r") as f:
             data = json.load(f)
 
         data['app']['title'] = module_name
 
-        with open(file, "w") as f:
+        with file.open("w") as f:
             json.dump(data, f, indent=4)
             
     return
@@ -86,7 +88,7 @@ def set_module_name_doc(folder, repository, module_name):
     languages = ['fr', 'en', 'es']
     for lang in languages:
         
-        file = folder.joinpath('doc', f'{lang}.rst')
+        file = folder/'doc'/f'{lang}.rst'
         
         with file.open() as f:
             text = f.read()
@@ -105,7 +107,7 @@ def set_drawer_link(folder, repository):
     print('Update the drawers link with the new repository one')
     
     # get the ui file
-    ui = folder.joinpath('ui.ipynb')
+    ui = folder/'ui.ipynb'
     
     # read the file 
     with ui.open() as f:
@@ -180,7 +182,7 @@ if __name__ == "__main__":
     res = subprocess.run(command, cwd=Path.home())
     
     # remove the .git folder 
-    command = ["rm", "-rf", str(folder.joinpath('.git'))]
+    command = ["rm", "-rf", str(folder/'.git')]
     res = subprocess.run(command, cwd=Path.home())
     
     # replace the placeholders 
