@@ -36,7 +36,8 @@ release = '1.1.4'
 extensions = [
     'sphinx.ext.napoleon',
     'notfound.extension', 
-    '_extentions.video'
+    '_extentions.video',
+    '_extentions.line_break'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
