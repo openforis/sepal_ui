@@ -205,7 +205,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Upload file', 'Use points file']
+    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Select file from SEPAL', 'Use points file']
     
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
