@@ -274,7 +274,7 @@ class Aoi_io:
         if type(dwnDir) == str:
             dwnDir = Path(dwnDir).expanduser()
             
-        filename = dwnDir.joinpath(f'{aoi_name}.shp')
+        filename = dwnDir/f'{aoi_name}.shp'
     
         if filename.is_file():
             return filename

@@ -373,11 +373,11 @@ class SepalMap(geemap.Map):
 
 
         multi_band = False
-        if len(da.band) > 1:
+        if len(da.band) > 1 and type(bands) != int:
             multi_band = True
             if not bands:
                 bands = [3, 2, 1]
-        else:
+        elif len(da.band) == 1:
             bands = 1
 
         if multi_band:

@@ -100,14 +100,13 @@ class Tooltip(v.Tooltip):
     Custom widget to display tooltip when mouse is over widget
 
     Args:
-        widget (DOM.widget): widget used to display tooltip
+        widget (Vuetify.widget): widget used to display tooltip
         tooltip (str): the text to display in the tooltip            
     """
     
     def __init__(self, widget, tooltip, *args, **kwargs):
         
-        
-        self.bottom=True
+
         self.v_slots=[{
             'name': 'activator',
             'variable': 'tooltip',

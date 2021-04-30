@@ -58,7 +58,7 @@ class TestFileInput(unittest.TestCase):
         file_input = sw.FileInput(folder=sepal_ui)
         
         # move into sepal_ui folders 
-        readme = sepal_ui.joinpath('README.rst')
+        readme = sepal_ui/'README.rst'
         
         file_input._on_file_select({'new' : sepal_ui})
         
@@ -85,7 +85,7 @@ class TestFileInput(unittest.TestCase):
         
         # create a fake file 
         test_name = 'test.txt'
-        tmp_file = home.joinpath(test_name)
+        tmp_file = home/test_name
         with tmp_file.open('w') as f:
             f.write('a test \n')
             

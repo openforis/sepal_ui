@@ -11,15 +11,18 @@ from colorama import init, Fore, Style
 #init colors for all plateforms
 init()
 
-def set_default_readme(folder, module_name, description):
+def set_default_readme(folder, module_name, description, repository):
     """write a default README.md file and overwrite the existing one"""
     
     print('Write a default README.md file')
     
-    with open(folder.joinpath('README.md'), "w") as readme:
+    license = f"{repository.replace('.git','')}/blob/master/LICENSE"
+    
+    file = folder/'README.md'
+    with file.open("w") as readme:
         
         readme.write(f'# {module_name}  \n')
-        readme.write('[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  \n')
+        readme.write(f'[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n')
         readme.write('  \n')
         readme.write('## About  \n')
         readme.write('  \n')
@@ -32,7 +35,8 @@ def set_default_about(folder, description):
     
     print('Write a default ABOUT.md file')
     
-    with open(folder.joinpath('utils', 'ABOUT.md'), "w") as about:
+    file = folder/'utils'/'ABOUT.md'
+    with file.open("w") as about:
         
         about.write(f'{description}  \n')
         
@@ -47,16 +51,34 @@ def set_module_name(folder, module_name):
     languages = ['en', 'fr']
     for lang in languages:
     
-        file = folder.joinpath('component', 'message', f'{lang}.json')
+        file = folder/'component'/'message'/f'{lang}.json'
         
-        with open(file, "r") as f:
+        with file.open("r") as f:
             data = json.load(f)
 
         data['app']['title'] = module_name
 
-        with open(file, "w") as f:
+        with file.open("w") as f:
             json.dump(data, f, indent=4)
             
+    return
+
+def set_contribute_file(folder, repository, module_name):
+    """complete the contributing file with the appropriate informations"""
+    
+    print('Update the module name in the contribute file')
+    
+    contrib = folder/'CONTRIBUTE.md'
+    
+    with contrib.open() as f:
+        data = f.read()
+        
+    data = data.replace('SEPAL_UI_TEMPLATE', module_name)
+    data = data.replace('https://github.com/12rambau/sepal_ui_template.git', repository)
+    
+    with contrib.open('w') as f:
+        f.write(data)
+        
     return
 
 def set_module_name_doc(folder, repository, module_name):
@@ -66,7 +88,7 @@ def set_module_name_doc(folder, repository, module_name):
     languages = ['fr', 'en', 'es']
     for lang in languages:
         
-        file = folder.joinpath('doc', f'{lang}.json')
+        file = folder/'doc'/f'{lang}.rst'
         
         with file.open() as f:
             text = f.read()
@@ -77,7 +99,7 @@ def set_module_name_doc(folder, repository, module_name):
         
         with file.open('w') as f:
             f.write(text)
-    return 
+    return
 
 def set_drawer_link(folder, repository):
     """replace the reference to the default repository to the one provided by the use"""
@@ -85,7 +107,7 @@ def set_drawer_link(folder, repository):
     print('Update the drawers link with the new repository one')
     
     # get the ui file
-    ui = folder.joinpath('ui.ipynb')
+    ui = folder/'ui.ipynb'
     
     # read the file 
     with ui.open() as f:
@@ -160,15 +182,16 @@ if __name__ == "__main__":
     res = subprocess.run(command, cwd=Path.home())
     
     # remove the .git folder 
-    command = ["rm", "-rf", str(folder.joinpath('.git'))]
+    command = ["rm", "-rf", str(folder/'.git')]
     res = subprocess.run(command, cwd=Path.home())
     
     # replace the placeholders 
-    set_default_readme(folder, module_name, description)
+    set_default_readme(folder, module_name, description, github_url)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
     set_drawer_link(folder, github_url)
     set_module_name_doc(folder, github_url, module_name)
+    set_contribute_file(folder, github_url, module_name)
     
     # init the new git repository
     command = ['git', 'init']

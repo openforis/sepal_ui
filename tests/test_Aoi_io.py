@@ -230,13 +230,13 @@ class TestAoi_io(unittest.TestCase):
         
         filename = aoi_io.get_aoi_shp(out_dir)
         
-        self.assertEqual(filename, out_dir.joinpath('france.shp'))
+        self.assertEqual(filename, out_dir/'france.shp')
         self.assertEqual(Path(filename).stat().st_size, 236)
         
         # check if the filename is return when already exist
         filename = aoi_io.get_aoi_shp(out_dir)
         
-        self.assertEqual(filename, out_dir.joinpath('france.shp'))
+        self.assertEqual(filename, out_dir/'france.shp')
         
         # remove the files 
         for f in out_dir.glob('france.*'):

@@ -58,7 +58,7 @@ def get_gaul_dic():
     """
     
     # file path
-    path = Path(__file__).parent.joinpath('country_code.csv')
+    path = Path(__file__).parent/'country_code.csv'
     
     # get the df and sort by country name
     df = pd.read_csv(path).sort_values(by=['ADM0_NAME'])
@@ -80,7 +80,7 @@ def get_iso_3(adm0):
     """
     
     # file path
-    path = Path(__file__).parent.joinpath('country_code.csv')
+    path = Path(__file__).parent/'country_code.csv'
     
     # get the df
     df = pd.read_csv(path)
@@ -188,7 +188,7 @@ def init_ee():
             fernet = Fernet(key)
             
             # decrypt the key
-            json_encrypted = Path(__file__).parent.joinpath('encrypted_key.json')
+            json_encrypted = Path(__file__).parent/'encrypted_key.json'
             with json_encrypted.open('rb') as f:
                 json_decripted = fernet.decrypt(f.read()).decode()
                 
