@@ -176,14 +176,14 @@ if __name__ == "__main__":
     print()
     
     # clone the repository in a folder that has the normalized module name 
-    folder = Path('~', normalized_name).expanduser()
+    folder = Path.cwd()/normalized_name
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
     command = ['git', 'clone', '--single-branch', '--branch', branch, template_url, str(folder)]
-    res = subprocess.run(command, cwd=Path.home())
+    res = subprocess.run(command, cwd=Path.cwd())
     
     # remove the .git folder 
     command = ["rm", "-rf", str(folder/'.git')]
-    res = subprocess.run(command, cwd=Path.home())
+    res = subprocess.run(command, cwd=Path.cwd())
     
     # replace the placeholders 
     set_default_readme(folder, module_name, description, github_url)
