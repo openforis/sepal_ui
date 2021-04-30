@@ -39,7 +39,7 @@ then install the sepal_ui from your local folder:
 
 .. warning::
 
-    Remember that if you create modifications that alter the lib standard funtionning It will break the applications that use it on the SEPAL app dashboard. 
+    Remember that if you create modifications that alter the lib standard functioning It will break the applications that use it on the SEPAL app dashboard. 
 
 What can I push and where
 -------------------------
@@ -63,11 +63,11 @@ Create a new release
     
 In the files change the version number in the following files: 
 
--   :code:`septup.py`: in the setup and the download url 
+-   :code:`septup.py`: in the setup and the download URL 
 -   :code:`sepal_ui.__init__.py`
 -   :code:`docs/source/conf.py`
 
-Then push the current master branch th the release branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`.
+Then push the current master branch to the release branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`.
 
 .. warning::
 

@@ -25,10 +25,10 @@ the concept is easier to grasp with a simple example
     >>>> 4
     >>>> 8
 
-The value of a cannot be modifyed inside the function. 
+The value of a cannot be modified inside the function. 
 For those who have practiced other languages such as C/C++, Fortran or Java, you know that it's possible to choose if the variable is passed to the function by reference or by value. 
-The flexibility of pyhton doesn't authorize this differences, there are just mutable and not mutable objects. 
-2 solution were possible : eaither we return all the results from function to function (which could rapidely to a high number of tuples in the return statement) or use io objects to store inputs of our widgets and output of our processes. 
+The flexibility of Pyhton doesn't authorize this differences, there are just mutable and not mutable objects. 
+2 solution were possible : either we return all the results from function to function (which could rapidly to a high number of tuples in the return statement) or use io objects to store inputs of our widgets and output of our processes. 
 
 IO object 
 ---------
@@ -81,9 +81,9 @@ I will also create a dummy script to use in my tile
 
         return io.input * 2
 
-Now I can create a custom tile that will use the io object as an input storage (linking io.input to a slider). 
-This io will then be used in the _on_click method of my tile. 
-This function will modify the value of the io.output attribute.
+Now I can create a custom tile that will use the :code:`io` object as an input storage (linking :code:`io.input` to a slider). 
+This :code:`io` will then be used in the :code:`_on_click` method of my tile. 
+This function will modify the value of the :code:`io.output` attribute.
 
 .. code-block:: python 
 
@@ -115,7 +115,7 @@ This function will modify the value of the io.output attribute.
 
             return 
 
-Now let's test our code in situation. W'll gather everithing in a partial layout and see how the io object is changed persistently by the tile function 
+Now let's test our code in situation. W'll gather everything in a partial layout and see how the io object is changed persistently by the tile function 
 
 .. code-block:: python 
 
@@ -138,15 +138,15 @@ Now let's test our code in situation. W'll gather everithing in a partial layout
         'output': 10
     }
 
-The output have been persistently modifyed and can be used in other tiles in the final process builded in :code:`ui.ipynb` or :code:`no_ui.ipynb`
+The output have been persistently modified and can be used in other tiles in the final process built in :code:`ui.ipynb` or :code:`no_ui.ipynb`
 
-Use the io object for testing purpose
--------------------------------------
+Use the :code:`io` object for testing purpose
+---------------------------------------------
 
 When a new tile is created it can be bothering to launch the full app to gather all the information that we need to test our new component.
 A good practice is to use fake io object in the partial ui files to reproduce the output of a previous step. 
 
-let's assume that you process require 2 io object, a custom one and the aoi_io object comming from the :code:`aoi_ui.ipynb`.
+let's assume that you process require 2 io object, a custom one and the :code:`aoi_io` object coming from the :code:`aoi_ui.ipynb`.
 
 .. code-block:: python
 
@@ -158,9 +158,9 @@ let's assume that you process require 2 io object, a custom one and the aoi_io o
     my_io = MyIo()
     my_tile = MyTile(my_io, aoi_io)
 
-Then to test your partial ui, you need a set aoi_io object with a asset_id value. 
-In its current state, your notebook will raise an error as aoi_io is not set. 
-You can add it in a debugging cell at the very beggining of the :code:`my_ui.ipynb`.
+Then to test your partial UI, you need a set :code:`aoi_io` object with a asset_id value. 
+In its current state, your notebook will raise an error as :code:`aoi_io` is not set. 
+You can add it in a debugging cell at the very beginning of the :code:`my_ui.ipynb`.
 
 .. code-block:: python
 
@@ -184,9 +184,9 @@ Advanced usage of io object
 
 io objects are Python objects so they can also embed specific methods to help you build a better app.
 
-In this framework the aoi selection is hard-coded in the :code:ÀoiIo` object and the :code:`AoiTile` object. 
-If you look at the documentation of the lib you'll see that :code:`AoiIo` has a lot of embeded useful method that you can call anywhere.
-with the :code:`AoiIo.get_aoi_ee` method, you can get the aoi corresponding ee object as a variable. 
+In this framework the AOI selection is hard-coded in the :code:`AoiIo` object and the :code:`AoiTile` object. 
+If you look at the documentation of the lib you'll see that :code:`AoiIo` has a lot of embedded useful method that you can call anywhere.
+with the :code:`AoiIo.get_aoi_ee` method, you can get the AOI corresponding ee object as a variable. 
 
 .. code-block:: python 
 
@@ -195,7 +195,7 @@ with the :code:`AoiIo.get_aoi_ee` method, you can get the aoi corresponding ee o
     ee_object = aoi_io.get_aoi_ee()
 
 
-In our previous example the double function is not a very useful scripts. instead we should have added it to the aoi member methods
+In our previous example the double function is not a very useful scripts. instead we should have added it to the AOI member methods
 
 .. code:: python 
 

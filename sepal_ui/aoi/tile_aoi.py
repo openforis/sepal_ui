@@ -197,7 +197,7 @@ class TileAoi(sw.Tile):
         aoi_file_input (sw.FileInput): a file selector to retrieve sepal folders 
         aoi_country_selection (CountrySelect): the country selector input
         aoi_asset_name (sw.AssetSelect): a ComboBox input to select an asset in the self.folder or any custom asset link
-        aoi_load_table (sw.LoadTableField): a table input field to retreive information from a point file
+        aoi_load_table (sw.LoadTableField): a table input field to retrieve information from a point file
         aoi_select_method (v.Select): the input to select to aoi selection method to use. change the display of the tile widgets
         aoi_select_btn (sw.Btn): the Btn to launch the exportation of an asset
         
@@ -362,7 +362,7 @@ class TileAoi(sw.Tile):
         change the display of the AOI selector according to the method selected. will only display the useful inputs
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             list_input ([v.Vue]): the list of all the inputs of the aoi selector
             
         Return:
@@ -435,7 +435,7 @@ class TileAoi(sw.Tile):
         the following pattern is used : 'aoi_[file_path.stem]'
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             
         Return:
             self
@@ -452,7 +452,7 @@ class TileAoi(sw.Tile):
         the following pattern is used : 'aoi_[file_path.stem]'
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             
         Return:
             self

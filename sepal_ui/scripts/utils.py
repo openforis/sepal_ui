@@ -119,10 +119,10 @@ def create_download_link(pathname):
 
 def is_absolute(url):
     """
-    Check if the given url is an absolute or relative path
+    Check if the given URL is an absolute or relative path
     
     Args:
-        url (str): the url to test
+        url (str): the URL to test
         
     Return:
         (bool): True if absolute else False

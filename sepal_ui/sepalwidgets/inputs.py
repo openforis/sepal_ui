@@ -167,7 +167,7 @@ class FileInput(v.Flex, SepalWidget):
         self.reload.on_event('click', self._on_reload)
         
     def _on_file_select(self, change):
-        """Dispatch the behaviour between file selection and folder change"""
+        """Dispatch the behavior between file selection and folder change"""
         
         if not change['new']:
             return self
@@ -478,7 +478,7 @@ class PasswordField(v.TextField, SepalWidget):
     """
     def __init__(self, **kwargs):
         
-        # default behaviour 
+        # default behavior 
         self.label="Password"
         self.class_='mr-2'
         self.v_model=''
@@ -488,7 +488,7 @@ class PasswordField(v.TextField, SepalWidget):
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
         
-        # bind the js behaviour
+        # bind the js behavior
         self.on_event('click:append' ,self._toggle_pwd)
     
 

@@ -1,14 +1,14 @@
 App
 ===
 
-:code:`App` is a custom App display with the tiles created by the user using the sepal color framework. 
-Display false appBar if not filled. 
-Navdrawer is fully optionnal. 
-The drawerItem will be linked to the app tile and they will be able to control their display If the navdrawer exist, it will be linked to the appbar togglebtn.
+:code:`App` is a custom :code:`App` display with the tiles created by the user using the sepal color framework. 
+Display false :code:`AppBar` if not filled. 
+:code:`NavDrawer` is fully optional. 
+The :code:`drawerItem` will be linked to the app tile and they will be able to control their display If the :code:`NavDrawer` exists, it will be linked to the :code:`Appbar` :code:`togglebtn`.
 
 .. danger::
 
-    This component should never be launched from the kernel but only in voila dashboard. The javascript compoent would overlay on top of the notebook window.
+    This component should never be launched from the kernel but only in voila dashboard. The Javascript components would overlay on top of the Notebook window.
 
 .. code-block:: python 
 
@@ -29,7 +29,7 @@ The drawerItem will be linked to the app tile and they will be able to control t
 
 .. tip::
 
-    If you start your voila dashboard from Jupyter Notebook, add :code:`?voila-theme=dark` at the end of your url.
+    If you start your voila dashboard from Jupyter Notebook, add :code:`?voila-theme=dark` at the end of your URL.
 
 .. image:: ../../img/app.png
     :alt: app

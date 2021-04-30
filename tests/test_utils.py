@@ -59,7 +59,7 @@ class TestUtils(unittest.TestCase):
     
     def test_download_link(self):
         
-        # check the url for a 'toto/tutu.png' path
+        # check the URL for a 'toto/tutu.png' path
         path = 'toto/tutu.png'
         
         expected_link = '/api/files/download?path='
@@ -72,11 +72,11 @@ class TestUtils(unittest.TestCase):
     
     def test_is_absolute(self):
         
-        # test an absolute url (wikipedia home page)
+        # test an absolute URL (wikipedia home page)
         link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
         self.assertTrue(su.is_absolute(link))
         
-        # test a relative url ('toto/tutu.html')
+        # test a relative URL ('toto/tutu.html')
         link = 'toto/tutu.html'
         self.assertFalse(su.is_absolute(link))
         
