@@ -13,6 +13,7 @@
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -36,6 +37,7 @@ release = '1.1.4'
 extensions = [
     'sphinx.ext.napoleon',
     'notfound.extension', 
+    'sphinxcontrib.spelling',
     '_extentions.video',
     '_extentions.line_break'
 ]
@@ -96,3 +98,9 @@ html_static_path = ['_static']
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = ['css/custom.css']
+
+# -- Options for spelling output -------------------------------------------------
+spelling_lang='en_US'
+spelling_show_suggestions=True
+spelling_filters = ['_filters.names.Names']
+spelling_word_list_filename=[str(Path(__file__).parent.joinpath('_spelling', 'en_US.txt'))]
