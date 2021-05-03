@@ -253,8 +253,15 @@ class AoiView(v.Card):
     def _get_countries(self):
         """Create a list of countries"""
         
-        return list(range(10))
-
+        # get the GADM database 
+        gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
+        
+        # extract the country list 
+        # formatted as a item list for a select component
+        gadm_df = pd.read_csv(gadm_file).drop_duplicate(subset='GID_0', inplace=True)
+        gadm_list = [{'text': r.NAME_0, 'value': r.GID_0} for _, r in gadm_gdf.itterows()] 
+        
+        return gadm_list
 
     def remove_layers(self):
         """Remove all loaded layers"""
