@@ -7,12 +7,15 @@ from traitlets import Any, HasTraits
 from ipyleaflet import GeoJSON
 
 
-def catch_errors(alert):
-    """Decorator to execute try/except sentence
-    and catch errors in the alert message
+def catch_errors(alert, debug=False):
+    """
+    Decorator to execute try/except sentence
+    and catch errors in the alert message.
+    If debug is True then the error is raised anyway
     
     Params:
         alert (sw.Alert): Alert to display errors
+        debug (bool): Wether to raise the error or not, default to false
     """
     def decorator_alert_error(func):
         @functools.wraps(func)
@@ -21,7 +24,8 @@ def catch_errors(alert):
                 value = func(*args, **kwargs)
             except Exception as e:
                 alert.add_msg(f'{e}', type_='error')
-                raise e
+                if debug:
+                    raise e
             return value
         return wrapper_alert_error
     return decorator_alert_error
