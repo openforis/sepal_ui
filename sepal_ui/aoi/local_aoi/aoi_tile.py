@@ -6,14 +6,14 @@ from sepal_ui.aoi.local_aoi.aoi_view import *
 
 class AoiTile(sw.Tile):
     
-    def __init__(self, **kwargs):
+    def __init__(self, methods='ALL', **kwargs):
         
         # create the map 
         self.map=sm.SepalMap(dc=True)
         
         # create the view
         # the view include the model 
-        self.aoi_view = AoiView(self.map)
+        self.aoi_view = AoiView(methods=methods, map=self.map)
         
         # organise them in a layout
         layout = v.Layout(

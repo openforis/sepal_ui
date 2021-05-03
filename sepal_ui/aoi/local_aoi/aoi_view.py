@@ -8,16 +8,80 @@ import pandas as pd
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.aoi.local_aoi.aoi_model import AoiModel
+from sepal_ui.message import ms
 
+CUSTOM = 'custom'
+ADMIN = 'admin'
 ALL = 'All'
 
+select_methods = {
+    'ADMIN0': {'name': 'admin 0', 'type': ADMIN},
+    'ADMIN1': {'name': 'admin 1', 'type': ADMIN},
+    'ADMIN2': {'name': 'admin 2', 'type': ADMIN},
+    'SHAPE': {'name': 'vector shape', 'type': CUSTOM},
+    'DRAW': {'name': 'draw a shape', 'type': CUSTOM},
+    'POINTS': {'name': 'use point file', 'type': CUSTOM}
+}
+
 class Flex(v.Flex, sw.SepalWidget):
+    """ A classic Vuetify Flex widget inheriting from sepalwidgets"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
 class Select(v.Select, sw.SepalWidget):
+    """ A classic Vuetify Select widget inheriting from sepalwidgets"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+class MethodSelect(Select):
+    f"""
+    A method selector. It will list the availabel methods for this very AoiView. 
+    'ALL' will select all the available methods (default)
+    'ADMIN' only the admin one, 'CUSTOM' only the custom one. 
+    'XXX' will add the selected method to the list when '-XXX' will discard it. 
+    You cannot mix adding and removing behaviours.
+    
+    Params:
+        methods (str|[str]): a list of methods from the available list ({' '.join(select_methods.keys())})
+    """
+    
+    def __init__(self, methods='ALL'):
+        
+        # create the method list
+        if methods=='ALL':
+            self.methods = select_methods
+        elif methods == 'ADMIN':
+            self.methods = {k: v for k, v in select_methods.items() if v['type'] == ADMIN}
+        elif methods == 'CUSTOM':
+            self.methods = {k: v for k, v in select_methods.items() if v['type'] == CUSTOM}
+        elif type(methods) == list:
+            
+            if any(m[0] == '-' for m in methods) != all(m[0] == '-' for m in methods):
+                raise Exception("You mixed adding and removing, punk")
+            
+            if methods[0][0] == '-':
+                self.methods = select_methods
+                [self.methods.pop(k[1:]) for k in methods]
+            else:
+                self.methods = {k: select_methods[k] for k in methods}
+        else:
+            raise Exception("I don't get what you meant")
+            
+        # build the item list with header 
+        prev_type = None
+        items = []
+        for k, m in self.methods.items():
+            current_type = m['type']
+            
+            if prev_type != current_type:
+                items.append({'header': current_type})
+            prev_type = current_type
+            
+            items.append({'text':m['name'], 'value': k})
+            
+        # create the input 
+        super().__init__(label=ms.aoi_sel.method_lbl, items=items, v_model=None, dense=True)
+        
 
 def loading_button(button):
     """Decorator to execute try/except sentence
@@ -94,11 +158,13 @@ class AoiView(v.Card):
     column = Any('').tag(sync=True)
     field = Any('').tag(sync=True)
     
-    def __init__(self, map_=None, *args, **kwargs):
+    def __init__(self, methods='ALL', map_=None, *args, **kwargs):
         
         self.map_=map_
         self.methods = self._get_methods()
         self.column_field = ColumnField()
+        
+        self.w_method = MethodSelect(methods)
         
         self.alert = sw.Alert()
         self.model = AoiModel(self.alert)
@@ -162,14 +228,15 @@ class AoiView(v.Card):
         # Events
         self.btn_file.on_event('click', self._file_btn_event)
         # On drawing control events
-        self.map_.dc.on_draw(self.handle_draw)
+        #self.map_.dc.on_draw(self.handle_draw)
         
         self.children=[
-            self.alert,
+            self.w_method,
             w_method,
             w_countries_btn,
             w_file_btn,
             self.column_field,
+            self.alert,
         ]
         
     def zoom_and_center(self, layer):
