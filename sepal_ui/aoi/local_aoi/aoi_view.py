@@ -1,9 +1,11 @@
 import functools
 from pathlib import Path
 from traitlets import List, Any, link, observe, Unicode, HasTraits
+import json
 
 import ipyvuetify as v
 import pandas as pd
+import geopandas as gpd
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -30,6 +32,11 @@ class Flex(v.Flex, sw.SepalWidget):
         
 class Select(v.Select, sw.SepalWidget):
     """ A classic Vuetify Select widget inheriting from sepalwidgets"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+class TextField(v.TextField, sw.SepalWidget):
+    """ A classic Vuetify TextField widget inheriting from sepalwidgets"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -151,6 +158,108 @@ class ColumnField(v.Flex, sw.SepalWidget):
     def reset(self):
         """Reset items to its original state"""
         self.column_items = self.field_items = []
+        
+class VectorField(v.Col, sw.SepalWidget):
+    
+    default_v_model = {
+            'pathname'  : None, 
+            'column' : None, 
+            'value': None, 
+    }
+    
+    def __init__(self):
+        
+        # save the gdf somewhere to avoid multiple reading
+        self.gdf = None
+        
+        # set the 3 wigets
+        self.w_file = sw.FileInput(['.shp', '.geojson', '.gpkg'])
+        self.w_column = Select(
+            _metadata = {'name': 'column'}, 
+            items     = [], 
+            label     = 'Column', 
+            v_model   = None
+        )
+        self.w_value = Select(
+            _metadata = {'name': 'value'}, 
+            items     = [], 
+            label     = 'Value', 
+            v_model   = None
+        )
+        
+        # create the Col Field
+        super().__init__(
+            v_model = json.dumps(self.default_v_model),
+            children = [
+                self.w_file,
+                self.w_column,
+                self.w_value
+            ]
+        )
+        
+        # add some javascripts
+        self.w_file.observe(self._update_file, 'v_model')
+        self.w_column.observe(self._update_column, 'v_model')
+        self.w_value.observe(self._update_value, 'v_model')
+        
+    def _update_file(self, change):
+        """update the file name, the v_model and reset the other widgets"""
+        
+        # reset the widgets
+        self.w_column.items = self.w_value.items = []
+        self.w_column.v_model = self.w_value.v_model = None
+        self.gdf = None
+        
+        # set the pathname value 
+        self._set_json("pathname", change['new'])
+        
+        # exit if nothing 
+        if change['new'] == None:
+            return self
+        
+        # read the file 
+        self.gdf = gpd.read_file(change['new'])
+        
+        # update the columns
+        self.w_column.items = sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        
+        return self
+    
+    def _update_column(self, change):
+        """Update the column name and empty the value list"""
+        
+        # reset value widget
+        self.w_value.items = []
+        self.w_value.v_model = None
+        
+        # set the value 
+        self._set_json('column', change['new'])
+        
+        # exit if nothing 
+        if change['new'] == None:
+            return self
+        
+        # read the colmun 
+        self.w_value.items = list(set(self.gdf[change['new']].to_list()))
+        
+        return self
+    
+    def _update_value(self, change):
+        """Update the value name"""
+        
+        # set the value 
+        self._set_json('value', change['new'])
+        
+        return self
+        
+    def _set_json(self, key, value):
+        """set a value of the jsn v_model"""
+        
+        tmp = json.loads(self.v_model)
+        tmp[key] = value
+        self.v_model = json.dumps(tmp)
+        
+        return self
 
 class AoiView(v.Card):
     
@@ -160,20 +269,22 @@ class AoiView(v.Card):
     
     def __init__(self, methods='ALL', map_=None, *args, **kwargs):
         
+        # get the map if filled 
         self.map_=map_
-        self.methods = self._get_methods()
-        self.column_field = ColumnField()
         
+        # create the method widget 
         self.w_method = MethodSelect(methods)
+        
+        # add the 6 methods blocks
+        self.w_points = sw.LoadTableField()
+        self.w_draw = TextField(label="aoi name")
+        self.w_vector = VectorField() 
+        
+        
+        self.column_field = ColumnField()
         
         self.alert = sw.Alert()
         self.model = AoiModel(self.alert)
-        
-        w_method = v.Select(
-            label = 'Select a method',
-            v_model = self.method,
-            items = self._get_methods()
-        )
         
         self.w_countries = v.Select(
             label="Select country",
@@ -188,10 +299,7 @@ class AoiView(v.Card):
             children=[self.w_countries, self.btn_country])
         
         
-        self.w_file = sw.FileInput(
-            ['.shp'], 
-            '/home/dguerrero/restoration_viewer/shp/'
-        )
+        self.w_file = sw.FileInput(['.shp'])
         
         self.btn_file = sw.Btn('Select file', small=True)
 
@@ -212,13 +320,13 @@ class AoiView(v.Card):
             'Column_field' : self.column_field,
         }
         
-        self._hide_components()
+        #self._hide_components()
         
         super().__init__(*args, **kwargs)
         
         
         # Link traits view
-        link((self, 'method'),(w_method, 'v_model'))
+        #link((self, 'method'),(w_method, 'v_model'))
         link((self, 'column'),(self.column_field.w_column, 'v_model'))
         link((self, 'field'),(self.column_field.w_field, 'v_model'))
         
@@ -232,7 +340,9 @@ class AoiView(v.Card):
         
         self.children=[
             self.w_method,
-            w_method,
+            self.w_vector,
+            self.w_points,
+            self.w_draw,
             w_countries_btn,
             w_file_btn,
             self.column_field,
@@ -310,11 +420,6 @@ class AoiView(v.Card):
         
         for component in self.components.values():
             su.hide_component(component)
-        
-    def _get_methods(self):
-        """Handle which methods will be displayed in select widget"""
-        
-        return ['Draw on map', 'Country', 'Upload file']
     
     def _get_countries(self):
         """Create a list of countries"""
