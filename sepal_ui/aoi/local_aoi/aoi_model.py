@@ -1,34 +1,12 @@
-import functools
 import os
-import geopandas as gpd
 import json
 from pathlib import Path
 from traitlets import Any, HasTraits
+
+import geopandas as gpd
 from ipyleaflet import GeoJSON
 
-
-def catch_errors(alert, debug=False):
-    """
-    Decorator to execute try/except sentence
-    and catch errors in the alert message.
-    If debug is True then the error is raised anyway
-    
-    Params:
-        alert (sw.Alert): Alert to display errors
-        debug (bool): Wether to raise the error or not, default to false
-    """
-    def decorator_alert_error(func):
-        @functools.wraps(func)
-        def wrapper_alert_error(*args, **kwargs):
-            try:
-                value = func(*args, **kwargs)
-            except Exception as e:
-                alert.add_msg(f'{e}', type_='error')
-                if debug:
-                    raise e
-            return value
-        return wrapper_alert_error
-    return decorator_alert_error
+from sepal_ui.scripts import utils as su
 
 class AoiModel(HasTraits):
     
@@ -46,7 +24,7 @@ class AoiModel(HasTraits):
     def shape_to_gpd(self, file):
         """ Converts shapefile into geopandas"""
 
-        @catch_errors(self.alert)
+        @su.catch_errors(self.alert)
         def process():
             file_path = Path(file)
             
@@ -61,7 +39,7 @@ class AoiModel(HasTraits):
     def gdf_to_ipygeojson(self):
         """ Converts current geopandas object into ipyleaflet GeoJSON"""
         
-        @catch_errors(self.alert)
+        @su.catch_errors(self.alert)
         def process():
             assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
 

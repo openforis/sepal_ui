@@ -11,6 +11,7 @@ import random
 import math
 import base64
 import os
+import functools
 
 import ipyvuetify as v
 import pandas as pd
@@ -206,3 +207,26 @@ def init_ee():
             ee.Initialize()
             
     return
+
+def catch_errors(alert, debug=False):
+    """
+    Decorator to execute try/except sentence
+    and catch errors in the alert message.
+    If debug is True then the error is raised anyway
+    
+    Params:
+        alert (sw.Alert): Alert to display errors
+        debug (bool): Wether to raise the error or not, default to false
+    """
+    def decorator_alert_error(func):
+        @functools.wraps(func)
+        def wrapper_alert_error(*args, **kwargs):
+            try:
+                value = func(*args, **kwargs)
+            except Exception as e:
+                alert.add_msg(f'{e}', type_='error')
+                if debug:
+                    raise e
+            return value
+        return wrapper_alert_error
+    return decorator_alert_error
