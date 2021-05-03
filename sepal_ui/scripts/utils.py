@@ -10,8 +10,9 @@ import string
 import random
 import math
 import base64
-import os
 import functools
+import re
+from unidecode import unidecode
 
 import ipyvuetify as v
 import pandas as pd
@@ -230,3 +231,17 @@ def catch_errors(alert, debug=False):
             return value
         return wrapper_alert_error
     return decorator_alert_error
+
+def normalize_str(msg):
+    """
+    Sanityse an str to make it compatible with file naming (no spaces, special chars ...etc)
+    
+    Params:
+        msg (str): the string to sanitise
+        
+    Return:
+        (str): the modified str
+    """
+    
+    return re.sub('[^a-zA-Z\d\-\_]', '_', unidecode(msg))
+    

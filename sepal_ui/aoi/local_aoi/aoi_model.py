@@ -53,11 +53,33 @@ class AoiModel(HasTraits):
         # the Alert used to display information
         self.alert = alert
         
+        # set default values
+        self.set_default(default_vector, default_admin)
+        
+        
+    def set_default(self, default_vector=None, default_admin=None):
+        """
+        Set the default value of the object and create a gdf out of it
+        
+        Params:
+            default_vector (str, pathlib.path): the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
+            default_admin (str): the default administrative area in GADM norm
+            
+        Return:
+            self
+        """
+        
+        # save the default values
+        self.default_vector = default_vector
+        self.default_admin = default_admin
+        
         # set the default gdf in possible 
         if self.default_vector: 
             self.set_vector(default_vector)
         elif self.default_admin:
             self.set_admin(default_admin)
+            
+        return self
         
     def set_vector(self, vector_file):
         """
@@ -77,6 +99,9 @@ class AoiModel(HasTraits):
         assert vector_file.is_file(), "File does not exist" # I think it's useless as the first test of read_file is to test existence
             
         self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
+        
+        # set the name using the file stem
+        self.name = su.normalize_str(vector_file.stem)
             
         return self
             
@@ -128,6 +153,42 @@ class AoiModel(HasTraits):
         # get the exact admin from this layer 
         self.gdf = level_gdf[level_gdf[f'GID_{level}'] == admin]
         
+        # set the name using the layer 
+        r = self.gdf.iloc[0]
+        names = [su.normalize_str(r[f'NAME_{i}']) if i else r['GID_0'] for i in range(int(level)+1)]
+        self.name = '_'.join(names)
+        
+        return self
+    
+    def is_admin(self):
+        """
+        Test if the current object is refeering to an administrative layer or not
+        
+        Return:
+            (bool): True if administrative layer else False. False as well if no aoi is selected.
+        """
+            
+        return bool(self.admin)
+    
+    def clear_attributes(self):
+        """
+        Return all attributes to their default state.
+        Set the default setting as current gdf.
+
+        Return: 
+            self
+        """
+
+        # keep the default 
+        default_admin = self.default_admi
+        default_vector = self.default_vector 
+
+        # delete all the attributes
+        [setattr(self, attr, None) for attr in self.__dict__.keys()]
+
+        # reset the default 
+        self.set_default(default_vector, default_admin)
+
         return self
 
     def shape_to_gpd(self, file):
