@@ -1,14 +1,13 @@
 import functools
+from pathlib import Path
+from traitlets import List, Any, link, observe, Unicode, HasTraits
 
 import ipyvuetify as v
+import pandas as pd
+
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
-
-from traitlets import (
-    List, Any, link, observe, Unicode, HasTraits
-)
-
-from .aoi_model import AoiModel
+from sepal_ui.aoi.local_aoi.aoi_model import AoiModel
 
 ALL = 'All'
 
@@ -158,7 +157,7 @@ class AoiView(v.Card):
         link((self, 'field'),(self.column_field.w_field, 'v_model'))
         
         # Link traits with model
-        link((self.model, 'country'),(self.w_countries, 'v_model'))
+        #link((self.model, 'country'),(self.w_countries, 'v_model'))
         
         # Events
         self.btn_file.on_event('click', self._file_btn_event)
@@ -258,8 +257,8 @@ class AoiView(v.Card):
         
         # extract the country list 
         # formatted as a item list for a select component
-        gadm_df = pd.read_csv(gadm_file).drop_duplicate(subset='GID_0', inplace=True)
-        gadm_list = [{'text': r.NAME_0, 'value': r.GID_0} for _, r in gadm_gdf.itterows()] 
+        gadm_df = pd.read_csv(gadm_file).drop_duplicates(subset='GID_0')
+        gadm_list = [{'text': r.NAME_0, 'value': r.GID_0} for _, r in gadm_df.iterrows()] 
         
         return gadm_list
 
