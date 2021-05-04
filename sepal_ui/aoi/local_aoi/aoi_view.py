@@ -1,6 +1,6 @@
 import functools
 from pathlib import Path
-from traitlets import List, Any, link, observe, Unicode, HasTraits
+from traitlets import List, Any, link, observe, Unicode, HasTraits, Int
 import json
 
 import ipyvuetify as v
@@ -227,6 +227,7 @@ class AoiView(v.Card):
     #method = Unicode('').tag(sync=True)
     #column = Any('').tag(sync=True)
     #field = Any('').tag(sync=True)
+    updated = Int(0).tag(sync=True)
     
     def __init__(self, methods='ALL', map_=None, *args, **kwargs):
         
@@ -361,6 +362,9 @@ class AoiView(v.Card):
         if self.map_:
             pass
         
+        # tell the rest of the apps that the aoi have been updated 
+        self.updated += 1
+        
         return self
     
     def _activate(self, change):
@@ -390,31 +394,31 @@ class AoiView(v.Card):
         self.map_.zoom_bounds(bounds=bounds, zoom_out=0);
 
 
-    def _file_btn_event(self, widget, event, data):
-        """Define behavior when the file button is clicked"""
-
-        @loading_button(self.btn_file)
-        def event():
-            self.remove_layers()
-            self.column_field.reset()
-            
-            # Create a geopandas dataset
-            self.model.shape_to_gpd(self.w_file.file)
-            
-            # Display vector file into map_
-            if self.map_:
-                self.model.gdf_to_ipygeojson()
-                self.zoom_and_center(self.model.gdf)
-                self.map_.add_layer(self.model.ipygeojson)
-
-
-            # Populate columns widget with all columsn plus 'ALL' in case user 
-            # wants to use all 
-            self.column_field.column_items = self.model._get_columns()
-            
-            # Show column-field widget
-            self.column_field.show()
-        event()
+    #def _file_btn_event(self, widget, event, data):
+    #    """Define behavior when the file button is clicked"""
+#
+    #    @loading_button(self.btn_file)
+    #    def event():
+    #        self.remove_layers()
+    #        self.column_field.reset()
+    #        
+    #        # Create a geopandas dataset
+    #        self.model.shape_to_gpd(self.w_file.file)
+    #        
+    #        # Display vector file into map_
+    #        if self.map_:
+    #            self.model.gdf_to_ipygeojson()
+    #            self.zoom_and_center(self.model.gdf)
+    #            self.map_.add_layer(self.model.ipygeojson)
+#
+#
+    #        # Populate columns widget with all columsn plus 'ALL' in case user 
+    #        # wants to use all 
+    #        self.column_field.column_items = self.model._get_columns()
+    #        
+    #        # Show column-field widget
+    #        self.column_field.show()
+    #    event()
     
     #@observe('column')
     #def _get_fields(self, change):
@@ -459,22 +463,22 @@ class AoiView(v.Card):
         [self.map_.remove_last_layer() for _ in range(len(layers))]
 
 
-    @observe('method')
-    def _aoi_method_event(self, change):
-        
-        method = change['new']
+    #observe('method')
+    #ef _aoi_method_event(self, change):
+    #   
+    #   method = change['new']
 
-        # Remove layers from map
-        self.remove_layers()
+    #   # Remove layers from map
+    #   self.remove_layers()
 
-        # Hide components
-        self._hide_components()
-        
-        if method == 'Draw on map':
-            self.map_.show_dc()
-        else:
-            self.map_.hide_dc()
-            su.show_component(self.components[method])
+    #   # Hide components
+    #   self._hide_components()
+    #   
+    #   if method == 'Draw on map':
+    #       self.map_.show_dc()
+    #   else:
+    #       self.map_.hide_dc()
+    #       su.show_component(self.components[method])
 
     def handle_draw(self, target, action, geo_json):
 
