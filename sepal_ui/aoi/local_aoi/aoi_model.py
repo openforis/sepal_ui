@@ -14,6 +14,9 @@ from sepal_ui.scripts import utils as su
 ###      parameters      ###
 ############################
 
+# the file location of the database 
+gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
+
 # the base url to download gadm maps 
 gadm_base_url = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
 
@@ -39,9 +42,6 @@ class AoiModel(HasTraits):
         self.default_admin = default_admin
         
         # selection parameters
-        self.column = None
-        self.field = None
-        self.selected_feature = None
         self.json_csv = None # information that will be use to transform the csv into a gdf 
         self.admin = None
         
@@ -120,7 +120,6 @@ class AoiModel(HasTraits):
         iso_3 = admin[:3]
         
         # get the admin level corresponding to the given admin code
-        gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
         gadm_df = pd.read_csv(gadm_file)
         
         # extract the first element that include this administrative code and set the level accordingly 

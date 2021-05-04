@@ -259,6 +259,7 @@ class LoadTableField(v.Col, SepalWidget):
     
     Attributes:
         fileInput (sw.FileInput): the file input to select the .csv or .txt file
+        v_model (Traitlet): the json saved v_model shaped as {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx} The values can be accessed separately with the appropriate getter methods
         IdSelect (v.Select): input to select the id column
         LngSelect (v.Select): input to select the lng column
         LatSelect (v.Select): input to select the lat column
@@ -518,3 +519,157 @@ class NumberField(v.TextField, SepalWidget):
     def decrement(self, widget, event, data):
         """Substracts 1 to the current v_model number"""
         if self.v_model > self.min_: self.v_model-=1
+
+class VectorField(v.Col, SepalWidget):
+    """
+    A custom input widget to load vector data. The user will provide a vector file compatible with fiona.
+    The user can then select a specific shape by setting column and value fields.
+    
+    Args:
+        label (str): the label of the file input field, default to 'vector file'.
+    
+    Attributes:
+        original_gdf (geopandas.gdf): The originally selected dataframe
+        gdf (geopandas.gdf): The selected dataframe.
+        v_model (Traitlet): The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx} The values can be accessed separately with the appropriate getter methods
+        w_file (sw.FileInput): The file selector widget
+        w_column (v.Select): The Select widget to select the column
+        w_value (v.Select): The Select widget to select the value in the selected column 
+    """
+    
+    default_v_model = {
+            'pathname'  : None, 
+            'column' : None, 
+            'value': None, 
+    }
+    
+    def __init__(self, label='vector_file', **kwargs):
+        
+        # save the gdf somewhere to avoid multiple reading
+        self.original_gdf = None
+        self.gdf = None
+        
+        # set the 3 wigets
+        self.w_file = FileInput(['.shp', '.geojson', '.gpkg'])
+        self.w_column = v.Select(
+            _metadata = {'name': 'column'}, 
+            items     = [], 
+            label     = 'Column', 
+            v_model   = None
+        )
+        self.w_value = v.Select(
+            _metadata = {'name': 'value'}, 
+            items     = [], 
+            label     = 'Value', 
+            v_model   = None
+        )
+        
+        
+        # create the Col Field
+        self.v_model = json.dumps(self.default_v_model)
+        self.children = [self.w_file, self.w_column, self.w_value]
+        super().__init__(**kwargs)
+        
+        # add some javascripts
+        self.w_file.observe(self._update_file, 'v_model')
+        self.w_column.observe(self._update_column, 'v_model')
+        self.w_value.observe(self._update_value, 'v_model')
+        
+    def _update_file(self, change):
+        """update the file name, the v_model and reset the other widgets"""
+        
+        # reset the widgets
+        self.w_column.items = self.w_value.items = []
+        self.w_column.v_model = self.w_value.v_model = None
+        self.gdf = None
+        
+        # set the pathname value 
+        self._set_json("pathname", change['new'])
+        
+        # exit if nothing 
+        if change['new'] == None:
+            return self
+        
+        # read the file 
+        self.original_gdf = gpd.read_file(change['new'])
+        self.gdf = self.original_gdf.copy()
+        
+        
+        # update the columns
+        self.w_column.items = sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        
+        return self
+    
+    def _update_column(self, change):
+        """Update the column name and empty the value list"""
+        
+        # reset value widget
+        self.w_value.items = []
+        self.w_value.v_model = None
+        
+        # set the value 
+        self._set_json('column', change['new'])
+        
+        # exit if nothing 
+        if change['new'] == None:
+            return self
+        
+        # read the colmun 
+        self.w_value.items = list(set(self.gdf[change['new']].to_list()))
+        
+        return self
+    
+    def _update_value(self, change):
+        """Update the value name and reduce the gdf"""
+        
+        # set the value 
+        self._set_json('value', change['new'])
+        
+        # reduce the gdf to the selected feature
+        self.gdf = self.orginal_gdf[self.original_gdf[self.get_column()] == change['new']]
+        
+        return self
+        
+    def _set_json(self, key, value):
+        """set a value of the jsn v_model"""
+        
+        tmp = json.loads(self.v_model)
+        tmp[key] = value
+        self.v_model = json.dumps(tmp)
+        
+        return self
+    
+    def get_pathname(self):
+        """
+        Return the pathname from v_model
+        
+        Return:
+            (str): the v_model pathname
+        """
+        tmp = json.loads(self.v_model)
+        
+        return tmp['pathname']
+    
+    def get_column(self):
+        """
+        Return the column from v_model
+        
+        Return:
+            (str): the v_model column
+        """
+        tmp = json.loads(self.v_model)
+        
+        return tmp['column']
+    
+    def get_value(self):
+        """
+        Return the value from v_model
+        
+        Return:
+            (str): the v_model value
+        """
+        tmp = json.loads(self.v_model)
+        
+        return tmp['value']
+    
+    

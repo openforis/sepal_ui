@@ -89,7 +89,61 @@ class MethodSelect(Select):
         # create the input 
         super().__init__(label=ms.aoi_sel.method_lbl, items=items, v_model=None, dense=True)
         
-
+class AdminField(v.Select, sw.SepalWidget):
+    
+    # the file location of the database 
+    GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
+    
+    def __init__(self, level, parent=None, **kwargs):
+        
+        # get the level info 
+        self.level = level
+        self.parent = parent
+        
+        # init an empty widget
+        self.v_model = None
+        self.items = []
+        self.clearable = True
+        super().__init__(**kwargs)
+        
+        # add js behaviour
+        if self.parent:
+            self.parent.observe(self._update, 'v_model')
+            
+    def get_items(self, filter_=None):
+        """
+        update the item list based on the given filter
+        
+        Params:
+            filter_ (str): The GID code of the parent v_model to filter the current results
+            
+        Return:
+            self
+        """
+        
+        # extract the level list
+        gadm_df = pd.read_csv(self.GADM_FILE).drop_duplicates(subset=f'GID_{self.level}')
+        
+        # filter it 
+        if filter_: gadm_df = gadm_df[gadm_df[f'GID_{self.level-1}'] == filter_]
+        
+        # formatted as a item list for a select component
+        self.items = [{'text': su.normalize_str(r[f'NAME_{self.level}']), 'value': r[f'GID_{self.level}']} for _, r in gadm_df.iterrows()] 
+        
+        return self
+        
+    def _update(self, change):
+        """update the item list of the admin select"""
+        
+        # reset v_model
+        self.v_model = None
+        
+        # update the items list
+        if change['new']:
+            self.get_items(change['new'])
+            
+        return self
+            
 def loading_button(button):
     """Decorator to execute try/except sentence
     and toggle loading button object
@@ -158,108 +212,6 @@ class ColumnField(v.Flex, sw.SepalWidget):
     def reset(self):
         """Reset items to its original state"""
         self.column_items = self.field_items = []
-        
-class VectorField(v.Col, sw.SepalWidget):
-    
-    default_v_model = {
-            'pathname'  : None, 
-            'column' : None, 
-            'value': None, 
-    }
-    
-    def __init__(self):
-        
-        # save the gdf somewhere to avoid multiple reading
-        self.gdf = None
-        
-        # set the 3 wigets
-        self.w_file = sw.FileInput(['.shp', '.geojson', '.gpkg'])
-        self.w_column = Select(
-            _metadata = {'name': 'column'}, 
-            items     = [], 
-            label     = 'Column', 
-            v_model   = None
-        )
-        self.w_value = Select(
-            _metadata = {'name': 'value'}, 
-            items     = [], 
-            label     = 'Value', 
-            v_model   = None
-        )
-        
-        # create the Col Field
-        super().__init__(
-            v_model = json.dumps(self.default_v_model),
-            children = [
-                self.w_file,
-                self.w_column,
-                self.w_value
-            ]
-        )
-        
-        # add some javascripts
-        self.w_file.observe(self._update_file, 'v_model')
-        self.w_column.observe(self._update_column, 'v_model')
-        self.w_value.observe(self._update_value, 'v_model')
-        
-    def _update_file(self, change):
-        """update the file name, the v_model and reset the other widgets"""
-        
-        # reset the widgets
-        self.w_column.items = self.w_value.items = []
-        self.w_column.v_model = self.w_value.v_model = None
-        self.gdf = None
-        
-        # set the pathname value 
-        self._set_json("pathname", change['new'])
-        
-        # exit if nothing 
-        if change['new'] == None:
-            return self
-        
-        # read the file 
-        self.gdf = gpd.read_file(change['new'])
-        
-        # update the columns
-        self.w_column.items = sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
-        
-        return self
-    
-    def _update_column(self, change):
-        """Update the column name and empty the value list"""
-        
-        # reset value widget
-        self.w_value.items = []
-        self.w_value.v_model = None
-        
-        # set the value 
-        self._set_json('column', change['new'])
-        
-        # exit if nothing 
-        if change['new'] == None:
-            return self
-        
-        # read the colmun 
-        self.w_value.items = list(set(self.gdf[change['new']].to_list()))
-        
-        return self
-    
-    def _update_value(self, change):
-        """Update the value name"""
-        
-        # set the value 
-        self._set_json('value', change['new'])
-        
-        return self
-        
-    def _set_json(self, key, value):
-        """set a value of the jsn v_model"""
-        
-        tmp = json.loads(self.v_model)
-        tmp[key] = value
-        self.v_model = json.dumps(tmp)
-        
-        return self
 
 class AoiView(v.Card):
     
@@ -276,49 +228,66 @@ class AoiView(v.Card):
         self.w_method = MethodSelect(methods)
         
         # add the 6 methods blocks
-        self.w_points = sw.LoadTableField()
+        self.w_admin_0 = AdminField(0).get_items()
+        self.w_admin_1 = AdminField(1, self.w_admin_0)
+        self.w_admin_2 = AdminField(2, self.w_admin_1)
+        self.w_vector = sw.VectorField() 
         self.w_draw = TextField(label="aoi name")
-        self.w_vector = VectorField() 
+        self.w_points = sw.LoadTableField()
         
+        # group them together with the same key as the 
+        self.component = {
+            'ADMIN0': self.w_admin_0
+            'ADMIN1': self.w_admin_1
+            'ADMIN2': self.w_admin_2
+            'SHAPE': self.w_vector  
+            'DRAW': self.w_draw 
+            'POINTS': self.w_points  
+        }
         
-        self.column_field = ColumnField()
+        # create an alert to bind to the model 
+        # I would like to integrate the binding directly to the Model object (https://github.com/12rambau/sepal_ui/issues/198)
+        self.alert = sw.Alert() \
+            .bind()
+        
+        #self.column_field = ColumnField()
         
         self.alert = sw.Alert()
         self.model = AoiModel(self.alert)
         
-        self.w_countries = v.Select(
-            label="Select country",
-            v_model='',
-            items=self._get_countries(),
-        )
-        self.btn_country = sw.Btn('Select', small=True)
+        #self.w_countries = v.Select(
+        #    label="Select country",
+        #    v_model='',
+        #    items=self._get_countries(),
+        #)
+        #self.btn_country = sw.Btn('Select', small=True)
         
-        w_countries_btn = Flex(
-            class_='d-flex align-center mb-2',
-            row=True, 
-            children=[self.w_countries, self.btn_country])
+        #w_countries_btn = Flex(
+        #    class_='d-flex align-center mb-2',
+        #    row=True, 
+        #    children=[self.w_countries, self.btn_country])
         
         
-        self.w_file = sw.FileInput(['.shp'])
+        #self.w_file = sw.FileInput(['.shp'])
         
-        self.btn_file = sw.Btn('Select file', small=True)
+        #self.btn_file = sw.Btn('Select file', small=True)
 
-        w_file_btn = Flex(
-            class_='d-flex align-center mb-2',
-            row=True, 
-            children=[self.w_file, self.btn_file])
+        #w_file_btn = Flex(
+        #    class_='d-flex align-center mb-2',
+        #    row=True, 
+        #    children=[self.w_file, self.btn_file])
         
-        w_file_btn = Flex(
-            class_='d-flex align-center mb-2',
-            row=True, 
-            children=[self.w_file, self.btn_file]
-        )
+        #w_file_btn = Flex(
+        #    class_='d-flex align-center mb-2',
+        #    row=True, 
+        #    children=[self.w_file, self.btn_file]
+        #)
         
-        self.components = {
-            'Country' : w_countries_btn,
-            'Upload file' : w_file_btn,
-            'Column_field' : self.column_field,
-        }
+        #self.components = {
+        #    'Country' : w_countries_btn,
+        #    'Upload file' : w_file_btn,
+        #    'Column_field' : self.column_field,
+        #}
         
         #self._hide_components()
         
@@ -327,8 +296,8 @@ class AoiView(v.Card):
         
         # Link traits view
         #link((self, 'method'),(w_method, 'v_model'))
-        link((self, 'column'),(self.column_field.w_column, 'v_model'))
-        link((self, 'field'),(self.column_field.w_field, 'v_model'))
+        #link((self, 'column'),(self.column_field.w_column, 'v_model'))
+        #link((self, 'field'),(self.column_field.w_field, 'v_model'))
         
         # Link traits with model
         #link((self.model, 'country'),(self.w_countries, 'v_model'))
@@ -343,9 +312,12 @@ class AoiView(v.Card):
             self.w_vector,
             self.w_points,
             self.w_draw,
-            w_countries_btn,
-            w_file_btn,
-            self.column_field,
+            self.w_admin_0,
+            self.w_admin_1,
+            self.w_admin_2,
+            #w_countries_btn,
+            #w_file_btn,
+            #self.column_field,
             self.alert,
         ]
         
