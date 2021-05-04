@@ -66,6 +66,18 @@ class SepalWidget(v.VuetifyWidget):
         
         return self
     
+    def clear(self):
+        """
+        Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input
+        
+        Return:
+            self
+        """
+        
+        self.v_model = None
+        
+        return self
+    
 class Markdown(v.Layout, SepalWidget):
     """
     Custom Layout based on the markdown text given

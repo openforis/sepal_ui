@@ -276,7 +276,7 @@ class AoiView(v.Card):
         
         # js events
         self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
-        # load the informations
+        self.btn.on_event('click', self._update_aoi) # load the informations
         # handle map drawing
         
         
@@ -350,7 +350,19 @@ class AoiView(v.Card):
         #    #self.column_field,
         #    self.alert,
         #]
+    
+    def _update_aoi(self, widget, event, data):
+        """load the gdf in the model & update the map (if possible)"""
         
+        # update the model 
+        self.model.set_gdf()
+        
+        # update the map
+        if self.map_:
+            pass
+        
+        return self
+    
     def _activate(self, change):
         """activate the adapted widgets"""
         
@@ -358,7 +370,7 @@ class AoiView(v.Card):
         if self.map_: self.m.show_dc() if change['new'] == 'DRAW' else self.m.hide_dc()
             
         # clear the inputs
-        for w in self.components.values(): w.v_model = None
+        [w.clear() for w in self.components.values()]
          
         # activate the widget
         [w.show() if change['new'] == k else w.hide() for k, w in self.components.items()]

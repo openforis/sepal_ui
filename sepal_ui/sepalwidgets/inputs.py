@@ -8,6 +8,7 @@ from traitlets import (
 from ipywidgets import jslink
 import pandas as pd
 import ee
+import geopandas as gpd
 
 from sepal_ui.frontend.styles import *
 from sepal_ui.scripts import utils as su
@@ -357,20 +358,38 @@ class LoadTableField(v.Col, SepalWidget):
         self.LngSelect.observe(self._on_select_change, 'v_model')
         self.LatSelect.observe(self._on_select_change, 'v_model')
         
+    def clear(self):
+        """
+        Clear the values and return to the empty default json
+        
+        Return:
+            self
+        """
+        
+        # clear the fileInput
+        self.fileInput.clear()
+        
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
+        
+        # clear the selects
+        self._clear_select()
+        
+        # set the path
         path = change['new']
-            
+        self._set_value('pathname', path)
+        
+        # exit if none
+        if not path:
+            return self
+        
         df = pd.read_csv(path, sep=None, engine='python')
         
         if len(df.columns) < 3: 
             self._clear_select()
             return 
         
-        self._set_value('pathname', path)
-        
-        # clear the selects
-        self._clear_select()
+        # set the items 
         self.IdSelect.items = df.columns.tolist()
         
         # pre load values that sounds like what we are looking for 
@@ -597,13 +616,15 @@ class VectorField(v.Col, SepalWidget):
             _metadata = {'name': 'column'}, 
             items     = [], 
             label     = 'Column', 
-            v_model   = None
+            v_model   = None,
+            clearable = True
         )
         self.w_value = v.Select(
             _metadata = {'name': 'value'}, 
             items     = [], 
             label     = 'Value', 
-            v_model   = None
+            v_model   = None,
+            clearable = True
         )
         
         
@@ -616,6 +637,18 @@ class VectorField(v.Col, SepalWidget):
         self.w_file.observe(self._update_file, 'v_model')
         self.w_column.observe(self._update_column, 'v_model')
         self.w_value.observe(self._update_value, 'v_model')
+        
+    def clear(self):
+        """
+        Return the field to its initial state
+        
+        Return:
+            self
+        """
+        
+        self.w_file.clear()
+        
+        return self
         
     def _update_file(self, change):
         """update the file name, the v_model and reset the other widgets"""
@@ -668,7 +701,7 @@ class VectorField(v.Col, SepalWidget):
         self._set_json('value', change['new'])
         
         # reduce the gdf to the selected feature
-        self.gdf = self.orginal_gdf[self.original_gdf[self.get_column()] == change['new']]
+        self.gdf = self.original_gdf[self.original_gdf[self.get_column()] == change['new']]
         
         return self
         
