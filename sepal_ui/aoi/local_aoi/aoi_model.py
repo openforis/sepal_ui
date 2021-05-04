@@ -42,10 +42,12 @@ class AoiModel(HasTraits):
         self.default_admin = default_admin
         
         # selection parameters
-        self.json_csv = None # information that will be use to transform the csv into a gdf 
+        self.json_csv = None # information that will be use to transform the csv into a gdf
+        self.json_vector = None # information that will be use to transform the vector file into a gdf 
         self.admin = None
+        self.name = None # the name of the file (use only in drawed shaped)
         
-        # outputs of the selection 
+        # outputs of the selection
         self.gdf = None
         self.ipygeojson = None
         self.selected_feature = None

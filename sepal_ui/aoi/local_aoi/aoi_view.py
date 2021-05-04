@@ -110,6 +110,15 @@ class AdminField(v.Select, sw.SepalWidget):
         if self.parent:
             self.parent.observe(self._update, 'v_model')
             
+    def show(self):
+        """when an admin field is shown, show its parent as well"""
+        
+        super().show()
+        
+        if self.parent: self.parent.show()
+        
+        return self
+            
     def get_items(self, filter_=None):
         """
         update the item list based on the given filter
@@ -215,11 +224,14 @@ class ColumnField(v.Flex, sw.SepalWidget):
 
 class AoiView(v.Card):
     
-    method = Unicode('').tag(sync=True)
-    column = Any('').tag(sync=True)
-    field = Any('').tag(sync=True)
+    #method = Unicode('').tag(sync=True)
+    #column = Any('').tag(sync=True)
+    #field = Any('').tag(sync=True)
     
     def __init__(self, methods='ALL', map_=None, *args, **kwargs):
+        
+        # get the model
+        self.model = AoiModel(sw.Alert())
         
         # get the map if filled 
         self.map_=map_
@@ -228,32 +240,50 @@ class AoiView(v.Card):
         self.w_method = MethodSelect(methods)
         
         # add the 6 methods blocks
-        self.w_admin_0 = AdminField(0).get_items()
-        self.w_admin_1 = AdminField(1, self.w_admin_0)
-        self.w_admin_2 = AdminField(2, self.w_admin_1)
-        self.w_vector = sw.VectorField() 
-        self.w_draw = TextField(label="aoi name")
-        self.w_points = sw.LoadTableField()
+        self.w_admin_0 = AdminField(0).get_items().hide()
+        self.w_admin_1 = AdminField(1, self.w_admin_0).hide()
+        self.w_admin_2 = AdminField(2, self.w_admin_1).hide()
+        self.w_vector = sw.VectorField() .hide()
+        self.w_points = sw.LoadTableField().hide()
+        if self.map_: self.w_draw = TextField(label="aoi name").hide()
         
-        # group them together with the same key as the 
-        self.component = {
-            'ADMIN0': self.w_admin_0
-            'ADMIN1': self.w_admin_1
-            'ADMIN2': self.w_admin_2
-            'SHAPE': self.w_vector  
-            'DRAW': self.w_draw 
+        # group them together with the same key as the select_method object
+        self.components = {
+            'ADMIN0': self.w_admin_0,
+            'ADMIN1': self.w_admin_1,
+            'ADMIN2': self.w_admin_2,
+            'SHAPE': self.w_vector,  
             'POINTS': self.w_points  
         }
+        if self.map_: self.components['DRAW'] = self.w_draw
         
         # create an alert to bind to the model 
         # I would like to integrate the binding directly to the Model object (https://github.com/12rambau/sepal_ui/issues/198)
-        self.alert = sw.Alert() \
-            .bind()
+        self.alert = self.model.alert \
+            .bind(self.w_admin_0, self.model, 'admin') \
+            .bind(self.w_admin_1, self.model, 'admin') \
+            .bind(self.w_admin_2, self.model, 'admin') \
+            .bind(self.w_vector, self.model, 'json_vector') \
+            .bind(self.w_points, self.model, 'json_csv') 
+        if self.map_: self.alert.bind(self.w_draw, self.model, 'name')
+        
+        # add a validation btn
+        self.btn = sw.Btn()
+        
+        # create the widget
+        self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert.show()]
+        super().__init__(*args, **kwargs)
+        
+        # js events
+        self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
+        # load the informations
+        # handle map drawing
+        
+        
+        
         
         #self.column_field = ColumnField()
         
-        self.alert = sw.Alert()
-        self.model = AoiModel(self.alert)
         
         #self.w_countries = v.Select(
         #    label="Select country",
@@ -291,7 +321,7 @@ class AoiView(v.Card):
         
         #self._hide_components()
         
-        super().__init__(*args, **kwargs)
+        #super().__init__(*args, **kwargs)
         
         
         # Link traits view
@@ -303,23 +333,34 @@ class AoiView(v.Card):
         #link((self.model, 'country'),(self.w_countries, 'v_model'))
         
         # Events
-        self.btn_file.on_event('click', self._file_btn_event)
+        #self.btn_file.on_event('click', self._file_btn_event)
         # On drawing control events
         #self.map_.dc.on_draw(self.handle_draw)
         
-        self.children=[
-            self.w_method,
-            self.w_vector,
-            self.w_points,
-            self.w_draw,
-            self.w_admin_0,
-            self.w_admin_1,
-            self.w_admin_2,
-            #w_countries_btn,
-            #w_file_btn,
-            #self.column_field,
-            self.alert,
-        ]
+        #self.children=[
+        #    self.w_method,
+        #    self.w_vector,
+        #    self.w_points,
+        #    self.w_draw,
+        #    self.w_admin_0,
+        #    self.w_admin_1,
+        #    self.w_admin_2,
+        #    #w_countries_btn,
+        #    #w_file_btn,
+        #    #self.column_field,
+        #    self.alert,
+        #]
+        
+    def _activate(self, change):
+        """activate the adapted widgets"""
+        
+        # deactivate or activate the dc
+        if self.map_: self.m.show_dc() if change['new'] == 'DRAW' else self.m.hide_dc()
+        
+        # activate the widget
+        [w.show() if change['new'] == k else w.hide() for k, w in self.components.items()]
+        
+        return self
         
     def zoom_and_center(self, layer):
         """Add layers to the map"""
@@ -360,51 +401,38 @@ class AoiView(v.Card):
             self.column_field.show()
         event()
     
-    @observe('column')
-    def _get_fields(self, change):
-        """Populate widget field items with fields"""
-        
-        # Reset fields items
-        self.column_field.items = []
-        
-        if self.column == ALL:
-            "All geometries were selected"
-        else:
-            self.column_field.w_field.loading=True
-            self.column_field.field_items = self.model._get_fields(self.column)
-            self.column_field.w_field.loading=False
-    
-    @observe('field')
-    def _get_selected_feature(self, change):
-        """Define selected feature with the current options"""
+    #@observe('column')
+    #def _get_fields(self, change):
+    #    """Populate widget field items with fields"""
+    #    
+    #    # Reset fields items
+    #    self.column_field.items = []
+    #    
+    #    if self.column == ALL:
+    #        "All geometries were selected"
+    #    else:
+    #        self.column_field.w_field.loading=True
+    #        self.column_field.field_items = self.model._get_fields(self.column)
+    #        self.column_field.w_field.loading=False
+    #
+    #@observe('field')
+    #def _get_selected_feature(self, change):
+    #    """Define selected feature with the current options"""
+    #
+    #    self.model.selected_feature = self.model._get_selected(
+    #        self.column, self.field)
+    #    
+    #    self.model.selected_feature = self.model._get_selected(
+    #        self.column, self.field)
+    #    
+    #    if self.map_:
+    #        self.zoom_and_center(self.model.selected_feature)
 
-        self.model.selected_feature = self.model._get_selected(
-            self.column, self.field)
-        
-        self.model.selected_feature = self.model._get_selected(
-            self.column, self.field)
-        
-        if self.map_:
-            self.zoom_and_center(self.model.selected_feature)
-
-    def _hide_components(self):
-        """Hide all possible componentes"""
-        
-        for component in self.components.values():
-            su.hide_component(component)
-    
-    def _get_countries(self):
-        """Create a list of countries"""
-        
-        # get the GADM database 
-        gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
-        
-        # extract the country list 
-        # formatted as a item list for a select component
-        gadm_df = pd.read_csv(gadm_file).drop_duplicates(subset='GID_0')
-        gadm_list = [{'text': r.NAME_0, 'value': r.GID_0} for _, r in gadm_df.iterrows()] 
-        
-        return gadm_list
+    #def _hide_components(self):
+    #    """Hide all possible componentes"""
+    #    
+    #    for component in self.components.values():
+    #        su.hide_component(component)
 
     def remove_layers(self):
         """Remove all loaded layers"""
