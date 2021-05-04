@@ -166,6 +166,48 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
         
+    def clear(self):
+        """
+        Clear the File selection and move to the root folder
+        
+        Return:
+            self
+        """
+        
+        root = Path('~').expanduser()
+        
+        # move to root 
+        self._on_file_select({'new': root})
+        
+        # remove v_model
+        self.v_model = ''
+        
+        return self
+    
+    def select_file(self, path):
+        """
+        Manually select a file from it's path. no verification on the extension is performed
+        
+        Params:
+            path (str|pathlib.Path): the path to the file
+        
+        Return:
+            self
+        """
+        
+        # cast to Path
+        path = Path(path)
+        
+        # test file existence 
+        if not path.is_file():
+            raise Exception(f'{path} is not a file')
+        
+        # set the menu to the folder of the file
+        self._on_file_select({'new': path.parent})
+        
+        # select the appropriate file 
+        self._on_file_select({'new': path})
+        
     def _on_file_select(self, change):
         """Dispatch the behaviour between file selection and folder change"""
         

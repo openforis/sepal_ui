@@ -24,10 +24,6 @@ gadm_base_url = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip
 gadm_zip_dir = Path('~', 'tmp', 'GADM_zip').expanduser()
 gadm_zip_dir.mkdir(parents=True, exist_ok=True)
 
-# the tmp dir with the geopackages
-gadm_tmp_dir = Path('~', 'tmp', 'GADM').expanduser()
-gadm_tmp_dir.mkdir(parents=True, exist_ok=True)
-
 ############################
 
 
@@ -37,15 +33,12 @@ class AoiModel(HasTraits):
 
         super().__init__(*args, **kwargs)
         
-        # keep the default informations in memory
-        self.default_vector = default_vector
-        self.default_admin = default_admin
-        
         # selection parameters
-        self.json_csv = None # information that will be use to transform the csv into a gdf
-        self.json_vector = None # information that will be use to transform the vector file into a gdf 
+        self.point_json = None # information that will be use to transform the csv into a gdf
+        self.vector_json = None # information that will be use to transform the vector file into a gdf
+        self.geo_json = None # the drawn geojson feature
         self.admin = None
-        self.name = None # the name of the file (use only in drawed shaped)
+        self.name = None # the name of the file (use only in drawn shaped)
         
         # outputs of the selection
         self.gdf = None
@@ -73,50 +66,100 @@ class AoiModel(HasTraits):
         
         # save the default values
         self.default_vector = default_vector
-        self.default_admin = default_admin
+        self.vector_json = json.dumps({'pathname': str(default_vector), 'column': None, 'value': None}) if default_vector else None
+        self.default_admin = self.admin = default_admin
         
         # set the default gdf in possible 
-        if self.default_vector: 
-            self.set_vector(default_vector)
-        elif self.default_admin:
-            self.set_admin(default_admin)
+        if (self.vector_json != None) or (self.admin != None):
+            self.set_gdf()
             
         return self
-        
-    def set_vector(self, vector_file):
+    
+    def set_gdf(self):
         """
-        set the model gdf according to a given vector_file. The gdf will be projected to EPSG:4326.
-        The file need to be in one of the format compatible with the fiona library and/or GDAL/OGR.
-        
-        Params:
-            vector_file(str, pathlib.path): the path to the vector file. The file type will be detected with the extension, please don't change it.
-            
-        Return:
-            Self
-        """
-        
-        # force cast to pathlib.Path
-        vector_file = Path(vector_file)
-            
-        assert vector_file.is_file(), "File does not exist" # I think it's useless as the first test of read_file is to test existence
-            
-        self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
-        
-        # set the name using the file stem
-        self.name = su.normalize_str(vector_file.stem)
-            
-        return self
-            
-    def set_admin(self, admin):
-        """
-        Set the gdf according to given an administrative number in the GADM norm. The gdf will be projected in EPSG:4326
-        
-        Params:
-            admin (str): an administrative GADM code from level 0 to 2
+        set the gdf based on the model inputs
         
         Return:
             self
         """
+        
+        # there should be a more pythonic way of doing the same thing
+        if self.admin:
+            self._from_admin(self.admin)
+        elif self.point_json:
+            self._from_points(self.point_json)
+        elif self.vector_json:
+            self._from_vector(self.vector_json)
+        elif self.geo_json:
+            self._from_geo_json(self.geo_json)
+        else:
+            self.alert.add_msg("No inputs were provided", 'warning')
+        
+        return self
+    
+    def get_ipygeojson(self):
+        """ Converts current geopandas object into ipyleaflet GeoJSON"""
+        
+        @su.catch_errors(self.alert)
+        def process():
+            assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
+
+            self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
+        process()
+    
+    def _from_points(self, point_json):
+        """set the gdf output from a csv json"""
+        
+        # read the json 
+        tmp = json.loads(point_json)
+        
+        # cast the pathname to pathlib Path
+        point_file = Path(tmp['pathname'])
+    
+        # check that the columns are well set 
+        tmp_list = [v for v in tmp.values()]
+        if not len(tmp_list) == len(set(tmp_list)):
+            raise Exception(ms.aoi_sel.duplicate_key)
+    
+        # create the gdf
+        df = pd.read_csv(point_file, sep=None, engine='python')
+        self.gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[tmp['lng_column']], df[tmp['lat_column']]))
+        
+        # set the name
+        self.name = point_file.stem
+        
+        return self
+    
+    def _from_vector(self, vector_json):
+        """set the gdf output from a vector json"""
+        
+        # read the vector json
+        tmp = json.loads(vector_json)
+        
+        # cast the pathname to pathlib Path
+        vector_file = Path(tmp['pathname'])
+        
+        # create the gdf
+        self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
+        
+        # filter it if necessary
+        if tmp['value']:
+            self.gdf = self.gdf[self.gdf[tmp['column']] == tmp['value']]
+        
+        # set the name using the file stem
+        self.name = vector_file.stem
+        
+        return self
+    
+    def _from_geo_json(self, geo_json):
+        """set the gdf output from a geo_json"""
+        
+        self.gdf = gpd.GeoDataFrame.from_features([geo_json])
+        
+        return self
+            
+    def _from_admin(self, admin):
+        """Set the gdf according to given an administrative number in the GADM norm. The gdf will be projected in EPSG:4326"""
         
         # save the country iso_code 
         iso_3 = admin[:3]
@@ -133,21 +176,16 @@ class AoiModel(HasTraits):
             level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][-1] # last character from 'GID_X' with X being the level
             
         # download the geopackage in tmp 
-        file = gadm_tmp_dir/f'gadm36_{iso_3}.gpkg'
         zip_file = gadm_zip_dir/f'{iso_3}.zip'
         
-        if not file.is_file():
+        if not zip_file.is_file():
             
             # get the zip from GADM server only the ISO_3 code need to be used
             urlretrieve(gadm_base_url.format(iso_3), zip_file)
             
-            # extract all in a another tmp folder
-            with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-                zip_ref.extractall(gadm_tmp_dir)
-            
         # read the geopackage 
         layer_name = f"gadm36_{iso_3}_{level}"
-        level_gdf = gpd.read_file(file, layer=layer_name)
+        level_gdf = gpd.read_file(f'{zip_file}!gadm36_{iso_3}.gpkg', layer=layer_name)
         
         # note that the runtime warning is normal for geopackages: https://stackoverflow.com/questions/64995369/geopandas-warning-on-read-file
         
@@ -181,7 +219,7 @@ class AoiModel(HasTraits):
         """
 
         # keep the default 
-        default_admin = self.default_admi
+        default_admin = self.default_admin
         default_vector = self.default_vector 
 
         # delete all the attributes
@@ -206,21 +244,6 @@ class AoiModel(HasTraits):
                 self.gdf = gpd.read_file(str(file_path))
                 self.gdf = self.gdf.to_crs("EPSG:4326")
         process()
-            
-    def gdf_to_ipygeojson(self):
-        """ Converts current geopandas object into ipyleaflet GeoJSON"""
-        
-        @su.catch_errors(self.alert)
-        def process():
-            assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
-
-            self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
-        process()
-
-    def geo_json_to_gdf(self, geo_json):
-        """Converts drawn map features into geodataframe"""
-
-        self.gdf = gpd.GeoDataFrame.from_features([geo_json])
 
     def _get_columns(self):
         """Return all columns skiping geometry"""

@@ -263,8 +263,8 @@ class AoiView(v.Card):
             .bind(self.w_admin_0, self.model, 'admin') \
             .bind(self.w_admin_1, self.model, 'admin') \
             .bind(self.w_admin_2, self.model, 'admin') \
-            .bind(self.w_vector, self.model, 'json_vector') \
-            .bind(self.w_points, self.model, 'json_csv') 
+            .bind(self.w_vector, self.model, 'vector_json') \
+            .bind(self.w_points, self.model, 'point_json') 
         if self.map_: self.alert.bind(self.w_draw, self.model, 'name')
         
         # add a validation btn
@@ -356,7 +356,10 @@ class AoiView(v.Card):
         
         # deactivate or activate the dc
         if self.map_: self.m.show_dc() if change['new'] == 'DRAW' else self.m.hide_dc()
-        
+            
+        # clear the inputs
+        for w in self.components.values(): w.v_model = None
+         
         # activate the widget
         [w.show() if change['new'] == k else w.hide() for k, w in self.components.items()]
         
