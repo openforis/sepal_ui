@@ -269,23 +269,31 @@ class SepalMap(geemap.Map):
         max_lon, max_lat = tr
         
         #zoom on these bounds 
-        self.zoom_bounds([tl, bl, tr, br], zoom_out)
+        self.zoom_bounds([min_lon, min_lat, max_lon, max_lat], zoom_out)
         
         return self 
     
     def zoom_bounds(self, bounds, zoom_out=1):
         """ 
-        Adapt the zoom to the given bounds.
+        Adapt the zoom to the given bounds. and center the image.
 
         Args:
-            bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
+            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy
             zoom_out (int) (optional): Zoom out the bounding zoom
             
         Return:
             self
         """
         
-        tl, bl, tr, br = bounds        
+        minx, miny, maxx, maxy = bounds
+        
+        # Center map to the centroid of the layer(s)
+        self.center = [(maxy-miny)/2+miny, (maxx-minx)/2+minx]
+        
+        tl = (minx, maxy)
+        bl = (minx, miny)
+        tr = (maxx, maxy)
+        br = (maxx, miny)
         
         maxsize = max(haversine(tl, br), haversine(bl, tr))
         

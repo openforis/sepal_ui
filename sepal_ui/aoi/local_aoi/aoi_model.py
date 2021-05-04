@@ -7,6 +7,7 @@ import zipfile
 import pandas as pd
 import geopandas as gpd
 from ipyleaflet import GeoJSON
+import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
 
@@ -23,6 +24,17 @@ gadm_base_url = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip
 # the zip dir where we download the zips
 gadm_zip_dir = Path('~', 'tmp', 'GADM_zip').expanduser()
 gadm_zip_dir.mkdir(parents=True, exist_ok=True)
+
+# default styling of the layer
+aoi_style = {
+    "stroke": True,
+    "color": v.theme.themes.dark.success,
+    "weight": 2,
+    "opacity": 1,
+    "fill": True,
+    "fillColor": v.theme.themes.dark.success,
+    "fillOpacity": 0.4,
+}
 
 ############################
 
@@ -98,14 +110,20 @@ class AoiModel(HasTraits):
         return self
     
     def get_ipygeojson(self):
-        """ Converts current geopandas object into ipyleaflet GeoJSON"""
+        """ 
+        Converts current geopandas object into ipyleaflet GeoJSON
         
-        @su.catch_errors(self.alert)
-        def process():
-            assert self.gdf is not None, "You must create a geopandas file before to convert it into GeoJSON"
-
-            self.ipygeojson = GeoJSON(data=json.loads(self.gdf.to_json()))
-        process()
+        Return: 
+            (GeoJSON): the geojson layer of the aoi gdf
+        """
+        
+        if type(self.gdf) == type(None):
+            raise Exception("You must set the gdf before converting it into GeoJSON")
+    
+        data = json.loads(self.gdf.to_json())
+        self.ipygeojson = GeoJSON(data=data, style=aoi_style, name='aoi')
+        
+        return self.ipygeojson
     
     def _from_points(self, point_json):
         """set the gdf output from a csv json"""

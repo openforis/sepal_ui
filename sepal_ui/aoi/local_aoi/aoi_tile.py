@@ -13,7 +13,7 @@ class AoiTile(sw.Tile):
         
         # create the view
         # the view include the model 
-        self.aoi_view = AoiView(methods=methods, map=self.map)
+        self.aoi_view = AoiView(methods=methods, map_=self.map)
         
         # organise them in a layout
         layout = v.Layout(

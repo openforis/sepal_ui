@@ -278,10 +278,7 @@ class AoiView(v.Card):
         # js events
         self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
         self.btn.on_event('click', self._update_aoi) # load the informations
-        # handle map drawing
-        
-        
-        
+        if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
         
         #self.column_field = ColumnField()
         
@@ -360,7 +357,9 @@ class AoiView(v.Card):
         
         # update the map
         if self.map_:
-            pass
+            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == 'aoi']
+            self.map_.zoom_bounds(self.model.gdf.total_bounds)
+            self.map_.add_layer(self.model.get_ipygeojson())
         
         # tell the rest of the apps that the aoi have been updated 
         self.updated += 1
@@ -371,7 +370,7 @@ class AoiView(v.Card):
         """activate the adapted widgets"""
         
         # deactivate or activate the dc
-        if self.map_: self.m.show_dc() if change['new'] == 'DRAW' else self.m.hide_dc()
+        if self.map_: self.map_.show_dc() if change['new'] == 'DRAW' else self.map_.hide_dc()
             
         # clear the inputs
         [w.clear() for w in self.components.values()]
@@ -380,18 +379,26 @@ class AoiView(v.Card):
         [w.show() if change['new'] == k else w.hide() for k, w in self.components.items()]
         
         return self
+    
+    def _handle_draw(self, target, action, geo_json):
+        """handle the draw on map event"""
+
+        if action in ['created', 'edited']:
+            self.model.geo_json = geo_json
         
-    def zoom_and_center(self, layer):
-        """Add layers to the map"""
+        return self
         
-        minx, miny, maxx, maxy = list(layer.total_bounds)
-        
-        # Center map to the centroid of the layer(s)
-        self.map_.center = [(maxy-miny)/2+miny, (maxx-minx)/2+minx]
-        
-        # zoom to bounds
-        bounds = [(maxy,minx), (miny,minx), (maxy,maxx), (miny,maxx)]
-        self.map_.zoom_bounds(bounds=bounds, zoom_out=0);
+    #def zoom_and_center(self, layer):
+    #    """Add layers to the map"""
+    #    
+    #    minx, miny, maxx, maxy = list(layer.total_bounds)
+    #    
+    #    # Center map to the centroid of the layer(s)
+    #    self.map_.center = [(maxy-miny)/2+miny, (maxx-minx)/2+minx]
+    #    
+    #    # zoom to bounds
+    #    bounds = [(maxy,minx), (miny,minx), (maxy,maxx), (miny,maxx)]
+    #    self.map_.zoom_bounds(bounds=bounds, zoom_out=0);
 
 
     #def _file_btn_event(self, widget, event, data):
@@ -453,15 +460,15 @@ class AoiView(v.Card):
     #    for component in self.components.values():
     #        su.hide_component(component)
 
-    def remove_layers(self):
-        """Remove all loaded layers"""
-
-        # get map layers
-        layers = self.map_.layers
-        
-        # loop and remove layers 
-        [self.map_.remove_last_layer() for _ in range(len(layers))]
-
+    #def remove_layers(self):
+    #    """Remove all loaded layers"""
+#
+    #    # get map layers
+    #    layers = self.map_.layers
+    #    
+    #    # loop and remove layers 
+    #    [self.map_.remove_last_layer() for _ in range(len(layers))]
+#
 
     #observe('method')
     #ef _aoi_method_event(self, change):
@@ -479,8 +486,3 @@ class AoiView(v.Card):
     #   else:
     #       self.map_.hide_dc()
     #       su.show_component(self.components[method])
-
-    def handle_draw(self, target, action, geo_json):
-
-        if action in ['created', 'edited']:
-            self.model.geo_json_to_gdf(geo_json)
