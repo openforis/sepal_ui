@@ -605,7 +605,7 @@ class VectorField(v.Col, SepalWidget):
         w_value (v.Select): The Select widget to select the value in the selected column 
     """
     
-    default_v_model = {
+    v_model = {
             'pathname'  : None, 
             'column' : None, 
             'value': None, 
@@ -640,7 +640,6 @@ class VectorField(v.Col, SepalWidget):
         
         
         # create the Col Field
-        self.v_model = self.default_v_model
         self.children = [self.w_file, self.w_column, self.w_value]
         
         super().__init__(**kwargs)
@@ -650,7 +649,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_column.observe(self._update_column, 'v_model')
         self.w_value.observe(self._update_value, 'v_model')
         
-    def clear(self):
+    def reset(self):
         """
         Return the field to its initial state
         
@@ -658,7 +657,7 @@ class VectorField(v.Col, SepalWidget):
             self
         """
         
-        self.w_file.clear()
+        self.w_file.reset()
         
         return self
         
