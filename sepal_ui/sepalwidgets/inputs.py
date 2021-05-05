@@ -312,9 +312,9 @@ class LoadTableField(v.Col, SepalWidget):
             'lng_column': None
     }
     
-    def __init__(self):
+    def __init__(self, label="Table file"):
         
-        self.fileInput = FileInput(['.csv', '.txt'])
+        self.fileInput = FileInput(['.csv', '.txt'], label=label)
         
         self.IdSelect = v.Select(
             _metadata = {'name': 'id_column'}, 
@@ -617,7 +617,7 @@ class VectorField(v.Col, SepalWidget):
         self.gdf = None
         
         # set the 3 wigets
-        self.w_file = FileInput(['.shp', '.geojson', '.gpkg', '.kml'])
+        self.w_file = FileInput(['.shp', '.geojson', '.gpkg', '.kml'], label=label)
         self.w_column = v.Select(
             _metadata = {'name': 'column'}, 
             items     = self.column_base_items, 

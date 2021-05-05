@@ -13,17 +13,17 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.aoi.local_aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 
-CUSTOM = 'custom'
-ADMIN = 'admin'
+CUSTOM = ms.aoi_sel.custom
+ADMIN = ms.aoi_sel.administrative
 ALL = 'All'
 
 select_methods = {
-    'ADMIN0': {'name': 'admin 0', 'type': ADMIN},
-    'ADMIN1': {'name': 'admin 1', 'type': ADMIN},
-    'ADMIN2': {'name': 'admin 2', 'type': ADMIN},
-    'SHAPE': {'name': 'vector shape', 'type': CUSTOM},
-    'DRAW': {'name': 'draw a shape', 'type': CUSTOM},
-    'POINTS': {'name': 'use point file', 'type': CUSTOM}
+    'ADMIN0': {'name': ms.aoi_sel.adm[0], 'type': ADMIN},
+    'ADMIN1': {'name': ms.aoi_sel.adm[1], 'type': ADMIN},
+    'ADMIN2': {'name': ms.aoi_sel.adm[2], 'type': ADMIN},
+    'SHAPE': {'name': ms.aoi_sel.vector, 'type': CUSTOM},
+    'DRAW': {'name': ms.aoi_sel.draw, 'type': CUSTOM},
+    'POINTS': {'name': ms.aoi_sel.points, 'type': CUSTOM}
 }
 
 class Flex(v.Flex, sw.SepalWidget):
@@ -88,7 +88,7 @@ class MethodSelect(Select):
             items.append({'text':m['name'], 'value': k})
             
         # create the input 
-        super().__init__(label=ms.aoi_sel.method_lbl, items=items, v_model=None, dense=True)
+        super().__init__(label=ms.aoi_sel.method, items=items, v_model=None, dense=True)
         
 class AdminField(v.Select, sw.SepalWidget):
     
@@ -105,6 +105,7 @@ class AdminField(v.Select, sw.SepalWidget):
         self.v_model = None
         self.items = []
         self.clearable = True
+        self.label = ms.aoi_sel.adm[level]
         super().__init__(**kwargs)
         
         # add js behaviour
@@ -174,54 +175,54 @@ def loading_button(button):
         return wrapper_loading
     return decorator_loading
         
-class ColumnField(v.Flex, sw.SepalWidget):
-    
-    column_items = List([]).tag(sync=True)
-    field_items = List([]).tag(sync=True)
-    
-    ALL_ITEMS = [{'text':'Use all features', 'value':ALL}, {'divider':True}]
-    
-    def __init__(self, *args, **kwargs):
-        
-        super().__init__(*args,**kwargs)
-        
-        self.w_column = Select(
-            _metadata={'name':'column'},
-            label="Filter by column",
-            v_model=ALL,
-            items=self.column_items
-        )
-        
-        self.w_field = Select(
-            _metadata={'name':'field'},
-            label="Select field",
-            v_model="",
-            items=self.field_items
-        ).hide()
-        
-        self.children=[
-            self.w_column,
-            self.w_field
-        ]
-        
-        # Link traits
-        link((self, 'field_items'),(self.w_field, 'items'))
-        
-        # Events
-        self.w_column.observe(self.toggle_fields, 'v_model')
-    
-    def toggle_fields(self, change):
-        """Toggle field widget"""
-        self.w_field.show() if change['new'] != ALL else self.w_field.hide()
-        
-    @observe('column_items')
-    def _add_all_item(self, change):
-        """Add 'All' item to the columns items as the first option"""
-        self.w_column.items =  self.ALL_ITEMS + change['new']
-        
-    def reset(self):
-        """Reset items to its original state"""
-        self.column_items = self.field_items = []
+#class ColumnField(v.Flex, sw.SepalWidget):
+#    
+#    column_items = List([]).tag(sync=True)
+#    field_items = List([]).tag(sync=True)
+#    
+#    ALL_ITEMS = [{'text':'Use all features', 'value':ALL}, {'divider':True}]
+#    
+#    def __init__(self, *args, **kwargs):
+#        
+#        super().__init__(*args,**kwargs)
+#        
+#        self.w_column = Select(
+#            _metadata={'name':'column'},
+#            label="Filter by column",
+#            v_model=ALL,
+#            items=self.column_items
+#        )
+#        
+#        self.w_field = Select(
+#            _metadata={'name':'field'},
+#            label="Select field",
+#            v_model="",
+#            items=self.field_items
+#        ).hide()
+#        
+#        self.children=[
+#            self.w_column,
+#            self.w_field
+#        ]
+#        
+#        # Link traits
+#        link((self, 'field_items'),(self.w_field, 'items'))
+#        
+#        # Events
+#        self.w_column.observe(self.toggle_fields, 'v_model')
+#    
+#    def toggle_fields(self, change):
+#        """Toggle field widget"""
+#        self.w_field.show() if change['new'] != ALL else self.w_field.hide()
+#        
+#    @observe('column_items')
+#    def _add_all_item(self, change):
+#        """Add 'All' item to the columns items as the first option"""
+#        self.w_column.items =  self.ALL_ITEMS + change['new']
+#        
+#    def reset(self):
+#        """Reset items to its original state"""
+#        self.column_items = self.field_items = []
 
 class AoiView(v.Card):
     
@@ -245,9 +246,9 @@ class AoiView(v.Card):
         self.w_admin_0 = AdminField(0).get_items().hide()
         self.w_admin_1 = AdminField(1, self.w_admin_0).hide()
         self.w_admin_2 = AdminField(2, self.w_admin_1).hide()
-        self.w_vector = sw.VectorField() .hide()
-        self.w_points = sw.LoadTableField().hide()
-        if self.map_: self.w_draw = TextField(label="aoi name").hide()
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector) .hide()
+        self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
+        if self.map_: self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
         
         # group them together with the same key as the select_method object
         self.components = {
@@ -261,19 +262,20 @@ class AoiView(v.Card):
         
         # create an alert to bind to the model 
         # I would like to integrate the binding directly to the Model object (https://github.com/12rambau/sepal_ui/issues/198)
+        # but it will be when the model object will be add to develo (i.e. next step)
         self.alert = self.model.alert \
-            .bind(self.w_admin_0, self.model, 'admin') \
-            .bind(self.w_admin_1, self.model, 'admin') \
-            .bind(self.w_admin_2, self.model, 'admin') \
-            .bind(self.w_vector, self.model, 'vector_json') \
-            .bind(self.w_points, self.model, 'point_json') 
-        if self.map_: self.alert.bind(self.w_draw, self.model, 'name')
+            .bind(self.w_admin_0, self.model, 'admin', verbose=False) \
+            .bind(self.w_admin_1, self.model, 'admin', verbose=False) \
+            .bind(self.w_admin_2, self.model, 'admin', verbose=False) \
+            .bind(self.w_vector, self.model, 'vector_json', verbose=False) \
+            .bind(self.w_points, self.model, 'point_json', verbose=False) 
+        if self.map_: self.alert.bind(self.w_draw, self.model, 'name', verbose=False)
         
         # add a validation btn
-        self.btn = sw.Btn()
+        self.btn = sw.Btn(ms.aoi_sel.btn)
         
         # create the widget
-        self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert.show()]
+        self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert]
         super().__init__(*args, **kwargs)
         
         # js events
@@ -417,7 +419,6 @@ class AoiView(v.Card):
         # insert it in the geo_json 
         json = geo_json
         json['geometry'] = circle[0].__geo_interface__
-        print(json)
         
         return json
         

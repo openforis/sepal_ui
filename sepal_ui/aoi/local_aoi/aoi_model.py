@@ -106,7 +106,9 @@ class AoiModel(HasTraits):
         elif self.geo_json:
             self._from_geo_json(self.geo_json)
         else:
-            self.alert.add_msg("No inputs were provided", 'warning')
+            raise Exception(ms.aoi_sel.no_inputs)
+            
+        self.alert.add_msg(ms.aoi_sel.complete, "success")
         
         return self
     
@@ -257,21 +259,6 @@ class AoiModel(HasTraits):
         self.set_default(default_vector, default_admin)
 
         return self
-
-    def shape_to_gpd(self, file):
-        """ Converts shapefile into geopandas"""
-
-        @su.catch_errors(self.alert)
-        def process():
-            file_path = Path(file)
-            
-            assert file_path.exists(), "File doesn't exists"
-            
-            if file_path.suffix == '.shp':
-
-                self.gdf = gpd.read_file(str(file_path))
-                self.gdf = self.gdf.to_crs("EPSG:4326")
-        process()
 
     def _get_columns(self):
         """Return all columns skiping geometry"""

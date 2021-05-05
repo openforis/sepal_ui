@@ -1,6 +1,8 @@
+import ipyvuetify as v
+
 from sepal_ui import sepalwidgets as sw 
 from sepal_ui import mapping as sm
-import ipyvuetify as v
+from sepal_ui.message import ms
 
 from sepal_ui.aoi.local_aoi.aoi_view import *
 
@@ -14,14 +16,15 @@ class AoiTile(sw.Tile):
         # create the view
         # the view include the model 
         self.aoi_view = AoiView(methods=methods, map_=self.map)
+        self.aoi_view.elevation = 0
         
         # organise them in a layout
         layout = v.Layout(
             row      = True,
             xs12     = True,
             children = [
-                v.Flex(xs12 = True, md6 = True, children = [self.aoi_view]),
-                v.Flex(xs12 = True, md6 = True, class_ = "pa-5", children = [self.map])
+                v.Flex(xs12 = True, md6 = True, class_="pa-5", children = [self.aoi_view]),
+                v.Flex(xs12 = True, md6 = True, class_ = "pa-1", children = [self.map])
             ]
         )
 
