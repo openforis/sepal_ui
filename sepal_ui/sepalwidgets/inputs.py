@@ -3,7 +3,7 @@ import json
 
 import ipyvuetify as v
 from traitlets import (
-    HasTraits, Unicode, link, Int
+    HasTraits, Unicode, link, Int, Any
 )
 from ipywidgets import jslink
 import pandas as pd
@@ -93,15 +93,21 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         reload (v.Btn): reload btn to reload the file list on the current folder 
     """
 
-    file = Unicode('')
+    file = Any('')
     
-    def __init__(self, extentions = [], folder=Path('~').expanduser(), label='search file', v_model = None, **kwargs):
+    def __init__(self, 
+                 extentions = [], 
+                 folder=Path('~').expanduser(), 
+                 label='search file', 
+                 v_model = None, 
+                 **kwargs):
         
         if type(folder) == str:
             folder = Path(folder)
             
         self.extentions = extentions
         self.folder = folder
+        self.v_model = v_model
         
         self.selected_file = v.TextField(
             readonly = True,
