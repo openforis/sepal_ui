@@ -14,9 +14,6 @@ from sepal_ui.scripts import utils as su, run_aoi_selection
 from sepal_ui.mapping import SepalMap
 from sepal_ui.message import ms
     
-# initialize earth engine
-su.init_ee()
-    
 class FileNameField(v.TextField, sw.SepalWidget):
     """
     custom v.TextField heriting from sw.SepalWidget. default_name will be used as default v_model
@@ -207,6 +204,7 @@ class TileAoi(sw.Tile):
     # constants
     SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Upload file', 'Use points file']
     
+    @su.need_ee
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
         
         # load the io 

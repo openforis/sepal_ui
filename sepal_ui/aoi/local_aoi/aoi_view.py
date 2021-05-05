@@ -6,6 +6,7 @@ import json
 import ipyvuetify as v
 import pandas as pd
 import geopandas as gpd
+from shapely import geometry as sg
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -382,11 +383,44 @@ class AoiView(v.Card):
     
     def _handle_draw(self, target, action, geo_json):
         """handle the draw on map event"""
-
-        if action in ['created', 'edited']:
-            self.model.geo_json = geo_json
+        
+        # polygonize circles 
+        if 'radius' in geo_json['properties']['style']:
+            geo_json = self.polygonize(geo_json)
+        
+        if action == 'created': # no edit as you don't know which one to change
+            self.model.geo_json['features'].append(geo_json)
+        elif action == 'deleted':
+            self.model.geo_json['features'].remove(geo_json)
         
         return self
+    
+    @staticmethod
+    def polygonize(geo_json):
+        """
+        Transform a ipyleaflet circle (a point with a radius) into a GeoJson multipolygon
+        
+        Params:
+            geo_json (json): the circle geojson
+            
+        Return:
+            (json): the polygonised circle
+        """
+        
+        # get the input
+        radius = geo_json['properties']['style']['radius']
+        coordinates = geo_json['geometry']['coordinates']
+        
+        # create shapely point 
+        circle = gpd.GeoSeries([sg.Point(coordinates)], crs=4326).to_crs(3857).buffer(radius).to_crs(4326)
+        
+        # insert it in the geo_json 
+        json = geo_json
+        json['geometry'] = circle[0].__geo_interface__
+        print(json)
+        
+        return json
+        
         
     #def zoom_and_center(self, layer):
     #    """Add layers to the map"""

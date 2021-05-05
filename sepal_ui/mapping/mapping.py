@@ -30,28 +30,6 @@ from deprecated import deprecated
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
-def need_ee(func):
-    """
-    Decorator to execute check if the map have initialize ee.
-    Trigger an exception if not. 
-    
-    .. warning::
-        
-        This decorator can only be applied to SepalMap methods
-    
-    Params:
-        ee (bool): the ee boolean
-    """
-    def wrapper_ee(*args, **kwargs):
-        
-        # args[0] is always self for class methods 
-        if not args[0].ee: 
-            raise Exception ('This map is not wired to Earth Engine')
-            
-        func(*args, **kwargs)
-        
-    return wrapper_ee
-
 class SepalMap(geemap.Map):
     """
     The SepalMap class inherits from geemap.Map. It can thus be initialized with all its parameter. 
@@ -206,6 +184,7 @@ class SepalMap(geemap.Map):
         color = v.theme.themes.dark.info
         
         dc = DrawControl(
+            edit         = False,
             marker       = {},
             circlemarker = {},
             polyline     = {},
@@ -267,7 +246,7 @@ class SepalMap(geemap.Map):
                     
         return self
     
-    @need_ee
+    @su.need_ee
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
         """ 
         Get the proper zoom to the given ee geometry.
@@ -336,7 +315,7 @@ class SepalMap(geemap.Map):
         
         return self
     
-    @need_ee
+    @su.need_ee
     @deprecated(reason="will be removed in version 2.0")
     def update_map(self, assetId, bounds, remove_last=False):
         """

@@ -12,10 +12,8 @@ import geopandas as gpd
 from sepal_ui.scripts import utils, gee
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
-    
-# initialize earth engine
-su.init_ee()
 
+@su.need_ee
 def display_asset(output, asset):
     """
     remove the manifest from the asset name and display it to the user in an output
@@ -34,6 +32,7 @@ def display_asset(output, asset):
     
     return asset
 
+@su.need_ee
 def isAsset(asset_descripsion, folder):
     """
     Check if the asset already exist in the user asset folder
@@ -54,6 +53,7 @@ def isAsset(asset_descripsion, folder):
             
     return exist 
 
+@su.need_ee
 def get_admin0_asset(adm0, output):
     """
     send a request to GEE to get a featurecollection based on the country selected
@@ -76,6 +76,7 @@ def get_admin0_asset(adm0, output):
     
     return country
 
+@su.need_ee
 def get_admin1_asset(adm1, output):
     """
     send a request to GEE to get a featurecollection based on the country selected
@@ -98,6 +99,7 @@ def get_admin1_asset(adm1, output):
     
     return country
 
+@su.need_ee
 def get_admin2_asset(adm2, output):
     """
     send a request to GEE to get a featurecollection based on the country selected
@@ -120,6 +122,7 @@ def get_admin2_asset(adm2, output):
     
     return country
 
+@su.need_ee
 def get_drawn_shape(drawn_feat, file_name, folder, output):
     """
     send the requested drawn feature to GEE to create an asset
@@ -160,6 +163,7 @@ def get_drawn_shape(drawn_feat, file_name, folder, output):
     
     return asset
 
+@su.need_ee
 def get_gee_asset(asset_name, output):
     """
     check that the asset name is not null or None
@@ -181,6 +185,7 @@ def get_gee_asset(asset_name, output):
         
     return asset
 
+@su.need_ee
 def get_csv_asset(json_csv, file_name, folder, output):
     """
     Send a request to GEE to create an asset based on the local shapefile
@@ -238,7 +243,7 @@ def get_csv_asset(json_csv, file_name, folder, output):
     
     return asset
     
-            
+@su.need_ee
 def get_shp_aoi(file_input, file_name, folder, output):
     """
     Send a request to GEE to create an asset based on the local shapefile
@@ -293,7 +298,8 @@ def get_shp_aoi(file_input, file_name, folder, output):
         display_asset(output, asset)
     
     return asset
-    
+
+@su.need_ee
 def run_aoi_selection(output, list_method, io, folder=None):
     """
     Create an gee asset according to the user inputs

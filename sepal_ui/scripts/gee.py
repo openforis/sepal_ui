@@ -4,10 +4,8 @@ import ee
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
-    
-# initialize earth engine
-su.init_ee()
 
+@su.need_ee
 def wait_for_completion(task_descripsion, widget_alert=None):
     """
     Wait until the selected process is finished. Display some output information
@@ -41,7 +39,8 @@ def wait_for_completion(task_descripsion, widget_alert=None):
         widget_alert.add_live_msg(ms.status.format(state), 'success')
         
     return state
-        
+
+@su.need_ee
 def isTask(task_descripsion):
     """
     Search for the described task in the user Task list return None if nothing is find

@@ -15,9 +15,6 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.btn import Btn
 
-# initialize earth engine
-su.init_ee()
-
 class DatePicker(v.Layout, SepalWidget):
     """
     Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
@@ -493,7 +490,11 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder (str): the folder of the user assets
     """
     
+    @su.need_ee
     def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
+        
+        # initialize earth engine
+        su.init_ee()
         
         # if folder is not set use the root one 
         self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
@@ -666,7 +667,7 @@ class VectorField(v.Col, SepalWidget):
         self._set_json("pathname", change['new'])
         
         # exit if nothing 
-        if change['new'] == None:
+        if not change['new']:
             return self
         
         # read the file 

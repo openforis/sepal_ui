@@ -10,6 +10,7 @@ from ipyleaflet import GeoJSON
 import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
 ############################
 ###      parameters      ###
@@ -48,7 +49,7 @@ class AoiModel(HasTraits):
         # selection parameters
         self.point_json = None # information that will be use to transform the csv into a gdf
         self.vector_json = None # information that will be use to transform the vector file into a gdf
-        self.geo_json = None # the drawn geojson feature
+        self.geo_json = {'type': 'FeatureCollection', 'features': []} # the drawn geojson featureCollection
         self.admin = None
         self.name = None # the name of the file (use only in drawn shaped)
         
@@ -172,7 +173,13 @@ class AoiModel(HasTraits):
     def _from_geo_json(self, geo_json):
         """set the gdf output from a geo_json"""
         
-        self.gdf = gpd.GeoDataFrame.from_features([geo_json])
+        # create the gdf
+        self.gdf = gpd.GeoDataFrame.from_features(geo_json)
+        
+        # save the geojson in downloads 
+        path = Path('~', 'downloads', 'aoi').expanduser()
+        path.mkdir(exist_ok=True, parents=True) # if nothing have been run the downloads folder doesn't exist
+        self.gdf.to_file(path/f'{self.name}.geojson', driver='GeoJSON')
         
         return self
             
@@ -242,6 +249,9 @@ class AoiModel(HasTraits):
 
         # delete all the attributes
         [setattr(self, attr, None) for attr in self.__dict__.keys()]
+        
+        # reset the FeatureCollection 
+        self.geo_json = {'type': 'FeatureCollection', 'features': []}
 
         # reset the default 
         self.set_default(default_vector, default_admin)

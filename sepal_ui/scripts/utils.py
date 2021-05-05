@@ -10,9 +10,9 @@ import string
 import random
 import math
 import base64
-import functools
 import re
 from unidecode import unidecode
+from functools import wraps
 
 import ipyvuetify as v
 import pandas as pd
@@ -206,7 +206,7 @@ def init_ee():
         # if in local env use the local user credential
         else:
             ee.Initialize()
-            
+        
     return
 
 def catch_errors(alert, debug=False):
@@ -220,7 +220,7 @@ def catch_errors(alert, debug=False):
         debug (bool): Wether to raise the error or not, default to false
     """
     def decorator_alert_error(func):
-        @functools.wraps(func)
+        @wraps(func)
         def wrapper_alert_error(*args, **kwargs):
             try:
                 value = func(*args, **kwargs)
@@ -231,6 +231,27 @@ def catch_errors(alert, debug=False):
             return value
         return wrapper_alert_error
     return decorator_alert_error
+
+def need_ee(func):
+    """
+    Decorator to execute check if the object require EE binding.
+    Trigger an exception if the connection is not possible. 
+    
+    Params:
+        func (obj): the object on which the decorator is applied
+    """
+    @wraps(func)
+    def wrapper_ee(*args, **kwargs):
+        
+        # try to connect to ee 
+        try: 
+            init_ee()
+        except Exception as e:
+            raise Exception ('This function needs an Earth Engine authentication')
+            
+        func(*args, **kwargs)
+        
+    return wrapper_ee
 
 def normalize_str(msg):
     """
