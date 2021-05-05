@@ -616,7 +616,7 @@ class VectorField(v.Col, SepalWidget):
         self.gdf = None
         
         # set the 3 wigets
-        self.w_file = FileInput(['.shp', '.geojson', '.gpkg'])
+        self.w_file = FileInput(['.shp', '.geojson', '.gpkg', '.kml'])
         self.w_column = v.Select(
             _metadata = {'name': 'column'}, 
             items     = self.column_base_items, 

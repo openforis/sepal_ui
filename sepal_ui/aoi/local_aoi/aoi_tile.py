@@ -9,7 +9,7 @@ class AoiTile(sw.Tile):
     def __init__(self, methods='ALL', **kwargs):
         
         # create the map 
-        self.map=sm.SepalMap(dc=True)
+        self.map=sm.SepalMap(dc=True, ee=False)
         
         # create the view
         # the view include the model 
@@ -25,7 +25,6 @@ class AoiTile(sw.Tile):
             ]
         )
 
-        
         # create the tile
         super().__init__(
             "aoi_tile",

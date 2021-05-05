@@ -5,6 +5,7 @@ if 'PROJ_LIB' in list(os.environ.keys()): del os.environ['PROJ_LIB']
 
 import collections
 from pathlib import Path
+import functools
 
 import ee 
 import geemap
@@ -29,8 +30,27 @@ from deprecated import deprecated
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
-#initialize earth engine
-su.init_ee()
+def need_ee(func):
+    """
+    Decorator to execute check if the map have initialize ee.
+    Trigger an exception if not. 
+    
+    .. warning::
+        
+        This decorator can only be applied to SepalMap methods
+    
+    Params:
+        ee (bool): the ee boolean
+    """
+    def wrapper_ee(*args, **kwargs):
+        
+        # args[0] is always self for class methods 
+        if not args[0].ee: 
+            raise Exception ('This map is not wired to Earth Engine')
+            
+        func(*args, **kwargs)
+        
+    return wrapper_ee
 
 class SepalMap(geemap.Map):
     """
@@ -54,17 +74,22 @@ class SepalMap(geemap.Map):
 
     vinspector = Bool(False).tag(sync=True)
     
-    def __init__(self, basemaps=[], dc=False, vinspector=False, **kwargs):
+    def __init__(self, basemaps=[], dc=False, vinspector=False, ee=True, **kwargs):
         
-        # Initial parameters
-
-
+        # Init the map
         super().__init__(
+            ee_initialize = False, # we take care of the initialization on our side
             add_google_map=False,
             center = [0,0],
             zoom = 2,
             **kwargs
         )
+        
+        # init ee 
+        self.ee = ee
+        if ee:
+            su.init_ee()
+            self.ee = ee
         
         # init the rasters
         self.loaded_rasters = {}
@@ -89,18 +114,18 @@ class SepalMap(geemap.Map):
         
         # Add value inspector
         self.w_vinspector = widgets.Checkbox(
-                    value=False,
-                    description='Inspect values',
-                    indent=False,
-                    layout=widgets.Layout(width='18ex')
+            value=False,
+            description='Inspect values',
+            indent=False,
+            layout=widgets.Layout(width='18ex')
         )
 
         if vinspector:
-            self.add_control(
-                WidgetControl(
-                    widget = self.w_vinspector,
-                    position = 'topright')
-            )
+            self.add_control(WidgetControl(
+                widget = self.w_vinspector,
+                position = 'topright'
+            ))
+            
             link((self.w_vinspector, 'value'),(self, 'vinspector'))
 
         # Create output space for raster interaction
@@ -241,7 +266,8 @@ class SepalMap(geemap.Map):
                     self._remove_local_raster(last_layer)
                     
         return self
-              
+    
+    @need_ee
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
         """ 
         Get the proper zoom to the given ee geometry.
@@ -310,6 +336,7 @@ class SepalMap(geemap.Map):
         
         return self
     
+    @need_ee
     @deprecated(reason="will be removed in version 2.0")
     def update_map(self, assetId, bounds, remove_last=False):
         """
