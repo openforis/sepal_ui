@@ -16,6 +16,8 @@ from sepal_ui.message import ms
 ###      parameters      ###
 ############################
 
+# I don't really know where to put them ... in the beggining of the class maybe ?
+
 # the file location of the database 
 gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
 
@@ -36,7 +38,6 @@ aoi_style = {
     "fillColor": v.theme.themes.dark.success,
     "fillOpacity": 0.4,
 }
-
 ############################
 
 
@@ -233,7 +234,8 @@ class AoiModel(HasTraits):
         Return:
             (bool): True if administrative layer else False. False as well if no aoi is selected.
         """
-            
+        
+        # It may seem useless at the moment but When we'll need to name the aoi (for output files and folder) I think it will become handy
         return bool(self.admin)
     
     def clear_attributes(self):
@@ -263,15 +265,21 @@ class AoiModel(HasTraits):
     def _get_columns(self):
         """Return all columns skiping geometry"""
         
+        # they were used to build the model but I think we can keep it as a way to interact with the model 
+        
         return sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
         
     def _get_fields(self, column):
         """Return fields from selected column."""
         
+        # they were used to build the model but I think we can keep it as a way to interact with the model 
+        
         return sorted(self.gdf[column].to_list())
     
     def _get_selected(self, column, field):
         """Get selected element"""
+        
+        # they were used to build the model but I think we can keep it as a way to interact with the model 
         
         return self.gdf[self.gdf[column] == field]
         
