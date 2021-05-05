@@ -134,7 +134,12 @@ class AdminField(v.Select, sw.SepalWidget):
         if filter_: gadm_df = gadm_df[gadm_df[f'GID_{self.level-1}'] == filter_]
         
         # formatted as a item list for a select component
-        self.items = [{'text': su.normalize_str(r[f'NAME_{self.level}']), 'value': r[f'GID_{self.level}']} for _, r in gadm_df.iterrows()] 
+        self.items = [
+            {
+                'text': su.normalize_str(r[f'NAME_{self.level}']), 
+                'value': r[f'GID_{self.level}']
+            } for _, r in gadm_df.iterrows()
+        ] 
         
         return self
         
@@ -172,7 +177,7 @@ class AoiView(v.Card):
         self.w_admin_0 = AdminField(0).get_items().hide()
         self.w_admin_1 = AdminField(1, self.w_admin_0).hide()
         self.w_admin_2 = AdminField(2, self.w_admin_1).hide()
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector) .hide()
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_: self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
         
@@ -235,10 +240,10 @@ class AoiView(v.Card):
         
         # deactivate or activate the dc
         if self.map_: self.map_.show_dc() if change['new'] == 'DRAW' else self.map_.hide_dc()
-            
+    
         # clear the inputs
-        [w.clear() for w in self.components.values()]
-         
+        [w.reset() for w in self.components.values()]
+        
         # activate the widget
         [w.show() if change['new'] == k else w.hide() for k, w in self.components.items()]
         

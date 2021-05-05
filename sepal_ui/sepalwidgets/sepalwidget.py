@@ -66,7 +66,7 @@ class SepalWidget(v.VuetifyWidget):
         
         return self
     
-    def clear(self):
+    def reset(self):
         """
         Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input
         
