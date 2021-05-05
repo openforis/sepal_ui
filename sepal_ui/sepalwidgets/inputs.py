@@ -604,6 +604,11 @@ class VectorField(v.Col, SepalWidget):
             'value': None, 
     }
     
+    column_base_items = [
+        {'text': 'All', 'value': 'ALL'},
+        {'divider': True}
+    ]
+    
     def __init__(self, label='vector_file', **kwargs):
         
         # save the gdf somewhere to avoid multiple reading
@@ -614,18 +619,17 @@ class VectorField(v.Col, SepalWidget):
         self.w_file = FileInput(['.shp', '.geojson', '.gpkg'])
         self.w_column = v.Select(
             _metadata = {'name': 'column'}, 
-            items     = [], 
+            items     = self.column_base_items, 
             label     = 'Column', 
-            v_model   = None,
-            clearable = True
+            v_model   = 'ALL'
         )
         self.w_value = v.Select(
             _metadata = {'name': 'value'}, 
             items     = [], 
             label     = 'Value', 
-            v_model   = None,
-            clearable = True
+            v_model   = None
         )
+        su.hide_component(self.w_value)
         
         
         # create the Col Field
@@ -671,7 +675,8 @@ class VectorField(v.Col, SepalWidget):
         
         
         # update the columns
-        self.w_column.items = sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        self.w_column.items = self.column_base_items + sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        self.w_column.v_model = 'ALL'
         
         return self
     
@@ -689,8 +694,15 @@ class VectorField(v.Col, SepalWidget):
         if change['new'] == None:
             return self
         
+        # hide value if "ALL"
+        if change['new'] == 'ALL':
+            su.hide_component(self.w_value)
+            self.gdf = self.original_gdf.copy()
+            return self
+        
         # read the colmun 
-        self.w_value.items = list(set(self.gdf[change['new']].to_list()))
+        self.w_value.items = sorted(list(set(self.original_gdf[change['new']].to_list())))
+        su.show_component(self.w_value)
         
         return self
     
