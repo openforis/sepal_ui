@@ -253,6 +253,36 @@ def need_ee(func):
         
     return wrapper_ee
 
+def loading_button(debug=False):
+    """
+    Decorator to execute try/except sentence
+    and toggle loading button object
+    
+    Params:
+        btn (sw.Btn): Toggle button
+    """
+    def decorator_loading(func):
+        @wraps(func)
+        def wrapper_loading(self, *args, **kwargs):
+            
+            self.btn.toggle_loading()
+            
+            value = None
+            
+            try:
+                value = func(self, *args, **kwargs)
+                
+            except Exception as e:
+                self.alert.add_msg(f'{e}', 'error')
+                if debug: raise e
+            
+            self.btn.toggle_loading()
+            
+            return value
+        
+        return wrapper_loading
+    return decorator_loading
+
 def normalize_str(msg):
     """
     Sanityse an str to make it compatible with file naming (no spaces, special chars ...etc)

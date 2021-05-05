@@ -154,26 +154,6 @@ class AdminField(v.Select, sw.SepalWidget):
             self.get_items(change['new'])
             
         return self
-            
-def loading_button(button):
-    """Decorator to execute try/except sentence
-    and toggle loading button object
-    
-    Params:
-        button (sw.Btn): Toggle button
-    """
-    def decorator_loading(func):
-        @functools.wraps(func)
-        def wrapper_loading(*args, **kwargs):
-            button.loading=True
-            try:
-                value = func(*args, **kwargs)
-            except Exception as e:
-                button.loading=False
-            button.loading=False
-            return value
-        return wrapper_loading
-    return decorator_loading
         
 #class ColumnField(v.Flex, sw.SepalWidget):
 #    
@@ -352,6 +332,7 @@ class AoiView(v.Card):
         #    self.alert,
         #]
     
+    @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
         """load the gdf in the model & update the map (if possible)"""
         
@@ -371,6 +352,9 @@ class AoiView(v.Card):
     
     def _activate(self, change):
         """activate the adapted widgets"""
+        
+        # clear and hide the alert 
+        self.alert.reset()
         
         # deactivate or activate the dc
         if self.map_: self.map_.show_dc() if change['new'] == 'DRAW' else self.map_.hide_dc()
