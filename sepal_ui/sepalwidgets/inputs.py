@@ -606,10 +606,10 @@ class VectorField(v.Col, SepalWidget):
     }
     
     column_base_items = [
-        {'text': 'All', 'value': 'ALL'},
+        {'text': 'Use all features', 'value': 'ALL'},
         {'divider': True}
     ]
-    
+        
     def __init__(self, label='vector_file', **kwargs):
         
         # save the gdf somewhere to avoid multiple reading
@@ -634,11 +634,12 @@ class VectorField(v.Col, SepalWidget):
         
         
         # create the Col Field
-        self.v_model = json.dumps(self.default_v_model)
+        self.v_model = self.default_v_model
         self.children = [self.w_file, self.w_column, self.w_value]
+        
         super().__init__(**kwargs)
         
-        # add some javascripts
+        # events
         self.w_file.observe(self._update_file, 'v_model')
         self.w_column.observe(self._update_column, 'v_model')
         self.w_value.observe(self._update_value, 'v_model')
@@ -664,19 +665,20 @@ class VectorField(v.Col, SepalWidget):
         self.gdf = None
         
         # set the pathname value 
-        self._set_json("pathname", change['new'])
+        self.v_model["pathname"] = change['new']
         
         # exit if nothing 
-        if not change['new']:
-            return self
+        if not change['new']: return self
         
         # read the file 
         self.original_gdf = gpd.read_file(change['new'])
         self.gdf = self.original_gdf.copy()
         
-        
+
         # update the columns
-        self.w_column.items = self.column_base_items + sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        self.w_column.items = self.column_base_items + \
+            sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        
         self.w_column.v_model = 'ALL'
         
         return self
@@ -689,11 +691,10 @@ class VectorField(v.Col, SepalWidget):
         self.w_value.v_model = None
         
         # set the value 
-        self._set_json('column', change['new'])
+        self.v_model['column'] = change['new']
         
         # exit if nothing 
-        if change['new'] == None:
-            return self
+        if change['new'] is None: return self
         
         # hide value if "ALL"
         if change['new'] == 'ALL':
@@ -711,22 +712,13 @@ class VectorField(v.Col, SepalWidget):
         """Update the value name and reduce the gdf"""
         
         # set the value 
-        self._set_json('value', change['new'])
+        self.v_model['value'] = change['new']
         
         # reduce the gdf to the selected feature
         self.gdf = self.original_gdf[self.original_gdf[self.get_column()] == change['new']]
         
         return self
-        
-    def _set_json(self, key, value):
-        """set a value of the jsn v_model"""
-        
-        tmp = json.loads(self.v_model)
-        tmp[key] = value
-        self.v_model = json.dumps(tmp)
-        
-        return self
-    
+            
     def get_pathname(self):
         """
         Return the pathname from v_model
@@ -734,9 +726,8 @@ class VectorField(v.Col, SepalWidget):
         Return:
             (str): the v_model pathname
         """
-        tmp = json.loads(self.v_model)
         
-        return tmp['pathname']
+        return self.v_model['pathname']
     
     def get_column(self):
         """
@@ -745,9 +736,8 @@ class VectorField(v.Col, SepalWidget):
         Return:
             (str): the v_model column
         """
-        tmp = json.loads(self.v_model)
         
-        return tmp['column']
+        return self.v_model['column']
     
     def get_value(self):
         """
@@ -756,8 +746,7 @@ class VectorField(v.Col, SepalWidget):
         Return:
             (str): the v_model value
         """
-        tmp = json.loads(self.v_model)
         
-        return tmp['value']
+        return self.v_model['value']
     
     
