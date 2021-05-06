@@ -253,7 +253,7 @@ def need_ee(func):
         
     return wrapper_ee
 
-def loading_button(button, debug=False):
+def loading_button(button, alert, debug=False):
     """
     Decorator to execute try/except sentence
     and toggle loading button object
@@ -270,6 +270,7 @@ def loading_button(button, debug=False):
                 value = func(*args, **kwargs)
             except Exception as e:
                 button.toggle_loading() # Stop loading button if there is an error
+                alert.add_msg(f'{e}', 'error')
                 if debug: raise e
                 return # Scape of the function
 
