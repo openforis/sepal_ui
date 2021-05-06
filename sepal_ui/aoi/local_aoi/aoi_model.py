@@ -13,13 +13,6 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 
-############################
-###      parameters      ###
-############################
-
-# I don't really know where to put them ... in the beggining of the class maybe ?
-############################
-
 
 class AoiModel(Model):
     
@@ -70,7 +63,8 @@ class AoiModel(Model):
         Set the default value of the object and create a gdf out of it
         
         Params:
-            default_vector (str, pathlib.path): the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
+            default_vector (str, pathlib.path): the default vector file that 
+                will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
             default_admin (str): the default administrative area in GADM norm
             
         Return:
@@ -79,7 +73,13 @@ class AoiModel(Model):
         
         # save the default values
         self.default_vector = default_vector
-        self.vector_json = {'pathname': str(default_vector), 'column': None, 'value': None} if default_vector else None
+        
+        self.vector_json = {
+            'pathname': str(default_vector), 
+            'column': None, 
+            'value': None
+        } if default_vector else None
+        
         self.default_admin = self.admin = default_admin
         
         # set the default gdf in possible 
@@ -141,7 +141,13 @@ class AoiModel(Model):
     
         # create the gdf
         df = pd.read_csv(point_file, sep=None, engine='python')
-        self.gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[point_json['lng_column']], df[point_json['lat_column']]))
+        self.gdf = gpd.GeoDataFrame(
+            df, 
+            crs='EPSG:4326', 
+            geometry = gpd.points_from_xy(
+                df[point_json['lng_column']], 
+                df[point_json['lat_column']])
+        )
         
         # set the name
         self.name = point_file.stem
@@ -184,7 +190,8 @@ class AoiModel(Model):
         return self
             
     def _from_admin(self, admin):
-        """Set the gdf according to given an administrative number in the GADM norm. The gdf will be projected in EPSG:4326"""
+        """Set the gdf according to given an administrative number in 
+        the GADM norm. The gdf will be projected in EPSG:4326"""
         
         # save the country iso_code 
         iso_3 = admin[:3]

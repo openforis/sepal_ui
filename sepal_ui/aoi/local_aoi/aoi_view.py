@@ -211,7 +211,7 @@ class AoiView(v.Card):
 
         # Decorate methods
         # We have to decorate methods before declaring events, otherwise it will use the un-decorated method
-        self._update_aoi = su.loading_button(button=self.btn, debug=True)(self._update_aoi)
+        self._update_aoi = su.loading_button(button=self.btn, alert=self.alert, debug=True)(self._update_aoi)
         
         # js events
         self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
