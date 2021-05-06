@@ -18,51 +18,40 @@ from sepal_ui.model import Model
 ############################
 
 # I don't really know where to put them ... in the beggining of the class maybe ?
-
-# the file location of the database 
-gadm_file = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
-
-# the base url to download gadm maps 
-gadm_base_url = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
-
-# the zip dir where we download the zips
-gadm_zip_dir = Path('~', 'tmp', 'GADM_zip').expanduser()
-gadm_zip_dir.mkdir(parents=True, exist_ok=True)
-
-# default styling of the layer
-aoi_style = {
-    "stroke": True,
-    "color": v.theme.themes.dark.success,
-    "weight": 2,
-    "opacity": 1,
-    "fill": True,
-    "fillColor": v.theme.themes.dark.success,
-    "fillOpacity": 0.4,
-}
 ############################
 
 
 class AoiModel(Model):
+    
+    # const params
+    GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv' # the file location of the database
+    GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip" # the base url to download gadm maps
+
+    GADM_ZIP_DIR = Path('~', 'tmp', 'GADM_zip').expanduser() # the zip dir where we download the zips
+    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
+
+    AOI_STYLE = { # default styling of the layer
+        "stroke": True,
+        "color": v.theme.themes.dark.success,
+        "weight": 2,
+        "opacity": 1,
+        "fill": True,
+        "fillColor": v.theme.themes.dark.success,
+        "fillOpacity": 0.4,
+    }
     
     # widget related traitlets
     default_vector = Any(None).tag(sync=True)
     default_admin = Any(None).tag(syn=True)
     point_json = Any(None).tag(sync=True) # information that will be use to transform the csv into a gdf
     vector_json = Any(None).tag(sync=True) # information that will be use to transform the vector file into a gdf
-    geo_json = Any({'type': 'FeatureCollection', 'features': []}).tag(sync=True) # the drawn geojson featureCollection
+    geo_json = Any(None).tag(sync=True) # the drawn geojson featureCollection
     admin = Any(None).tag(sync=True)
     name = Any(None).tag(sync=True) # the name of the file (use only in drawn shaped)
 
     def __init__(self, alert, default_vector = None, default_admin=None, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
-        
-        # selection parameters
-        #self.point_json = None # information that will be use to transform the csv into a gdf
-        #self.vector_json = None # information that will be use to transform the vector file into a gdf
-        #self.geo_json = {'type': 'FeatureCollection', 'features': []} # the drawn geojson featureCollection
-        #self.admin = None
-        #self.name = None # the name of the file (use only in drawn shaped)
         
         # outputs of the selection
         self.gdf = None
@@ -99,6 +88,22 @@ class AoiModel(Model):
             
         return self
     
+    def get_ipygeojson(self):
+        """ 
+        Converts current geopandas object into ipyleaflet GeoJSON
+        
+        Return: 
+            (GeoJSON): the geojson layer of the aoi gdf
+        """
+        
+        if type(self.gdf) == type(None):
+            raise Exception("You must set the gdf before converting it into GeoJSON")
+    
+        data = json.loads(self.gdf.to_json())
+        self.ipygeojson = GeoJSON(data=data, style=self.AOI_STYLE, name='aoi')
+        
+        return self.ipygeojson
+    
     def set_gdf(self):
         """
         set the gdf based on the model inputs
@@ -122,22 +127,6 @@ class AoiModel(Model):
         self.alert.add_msg(ms.aoi_sel.complete, "success")
         
         return self
-    
-    def get_ipygeojson(self):
-        """ 
-        Converts current geopandas object into ipyleaflet GeoJSON
-        
-        Return: 
-            (GeoJSON): the geojson layer of the aoi gdf
-        """
-        
-        if type(self.gdf) == type(None):
-            raise Exception("You must set the gdf before converting it into GeoJSON")
-    
-        data = json.loads(self.gdf.to_json())
-        self.ipygeojson = GeoJSON(data=data, style=aoi_style, name='aoi')
-        
-        return self.ipygeojson
     
     def _from_points(self, point_json):
         """set the gdf output from a csv json"""
@@ -168,12 +157,13 @@ class AoiModel(Model):
         # create the gdf
         self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
         
+        # set the name using the file stem
+        self.name = vector_file.stem
+        
         # filter it if necessary
         if vector_json['value']:
             self.gdf = self.gdf[self.gdf[vector_json['column']] == vector_json['value']]
-        
-        # set the name using the file stem
-        self.name = vector_file.stem
+            self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
         
         return self
     
@@ -182,6 +172,9 @@ class AoiModel(Model):
         
         # create the gdf
         self.gdf = gpd.GeoDataFrame.from_features(geo_json)
+        
+        # normalize the name
+        self.name =su.normalize_str(self.name)
         
         # save the geojson in downloads 
         path = Path('~', 'downloads', 'aoi').expanduser()
@@ -197,7 +190,7 @@ class AoiModel(Model):
         iso_3 = admin[:3]
         
         # get the admin level corresponding to the given admin code
-        gadm_df = pd.read_csv(gadm_file)
+        gadm_df = pd.read_csv(self.GADM_FILE)
         
         # extract the first element that include this administrative code and set the level accordingly 
         is_in = gadm_df.filter(['GID_0', 'GID_1', 'GID_2']).isin([admin])
@@ -208,7 +201,7 @@ class AoiModel(Model):
             level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][-1] # last character from 'GID_X' with X being the level
             
         # download the geopackage in tmp 
-        zip_file = gadm_zip_dir/f'{iso_3}.zip'
+        zip_file = self.GADM_ZIP_DIR/f'{iso_3}.zip'
         
         if not zip_file.is_file():
             
@@ -219,7 +212,7 @@ class AoiModel(Model):
         layer_name = f"gadm36_{iso_3}_{level}"
         level_gdf = gpd.read_file(f'{zip_file}!gadm36_{iso_3}.gpkg', layer=layer_name)
         
-        # note that the runtime warning is normal for geopackages: https://stackoverflow.com/questions/64995369/geopandas-warning-on-read-file
+        # note that the runtime warning is not display when reading from a ZIP
         
         # get the exact admin from this layer 
         self.gdf = level_gdf[level_gdf[f'GID_{level}'] == admin]
@@ -230,17 +223,6 @@ class AoiModel(Model):
         self.name = '_'.join(names)
         
         return self
-    
-    def is_admin(self):
-        """
-        Test if the current object is refeering to an administrative layer or not
-        
-        Return:
-            (bool): True if administrative layer else False. False as well if no aoi is selected.
-        """
-        
-        # It may seem useless at the moment but When we'll need to name the aoi (for output files and folder) I think it will become handy
-        return bool(self.admin)
     
     def clear_attributes(self):
         """
@@ -257,9 +239,6 @@ class AoiModel(Model):
 
         # delete all the traits
         [setattr(self, attr, None) for attr in self.trait_names()]
-        
-        # reset the FeatureCollection 
-        self.geo_json = {'type': 'FeatureCollection', 'features': []}
 
         # reset the default 
         self.set_default(default_vector, default_admin)
@@ -271,24 +250,27 @@ class AoiModel(Model):
 
         return self
 
-    def _get_columns(self):
-        """Return all columns skiping geometry"""
+    def get_columns(self):
+        """Return all columns skiping geometry""" 
         
-        # they were used to build the model but I think we can keep it as a way to interact with the model 
+        if type(self.gdf) == type(None):
+            raise Exception("You must set the gdf before interacting with it")
         
         return sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
         
-    def _get_fields(self, column):
+    def get_fields(self, column):
         """Return fields from selected column."""
         
-        # they were used to build the model but I think we can keep it as a way to interact with the model 
+        if type(self.gdf) == type(None):
+            raise Exception("You must set the gdf before interacting with it")
         
         return sorted(self.gdf[column].to_list())
     
-    def _get_selected(self, column, field):
+    def get_selected(self, column, field):
         """Get selected element"""
         
-        # they were used to build the model but I think we can keep it as a way to interact with the model 
+        if type(self.gdf) == type(None):
+            raise Exception("You must set the gdf before interacting with it") 
         
         return self.gdf[self.gdf[column] == field]
         

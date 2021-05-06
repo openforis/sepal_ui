@@ -137,7 +137,7 @@ class AdminField(v.Select, sw.SepalWidget):
         # formatted as a item list for a select component
         self.items = [
             {
-                'text': su.normalize_str(r[f'NAME_{self.level}']), 
+                'text': su.normalize_str(r[f'NAME_{self.level}'], folder=False), 
                 'value': r[f'GID_{self.level}']
             } for _, r in gadm_df.iterrows()
         ] 
@@ -255,6 +255,10 @@ class AoiView(v.Card):
         # update the automatic name
         if not self.w_draw.v_model:
             self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+            
+        # Init the json if it's not 
+        if self.model.geo_json == None:
+            self.model.geo_json = {'type': 'FeatureCollection', 'features': []}
         
         # polygonize circles 
         if 'radius' in geo_json['properties']['style']:

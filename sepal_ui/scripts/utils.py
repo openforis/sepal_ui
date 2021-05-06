@@ -283,16 +283,19 @@ def loading_button(debug=False):
         return wrapper_loading
     return decorator_loading
 
-def normalize_str(msg):
+def normalize_str(msg, folder=True):
     """
-    Sanityse an str to make it compatible with file naming (no spaces, special chars ...etc)
+    Normalize an str to make it compatible with file naming (no spaces, special chars ...etc)
     
     Params:
         msg (str): the string to sanitise
+        folder (optional|bool): if the name will be used for folder naming or for display. if display, <'> and < > characters will be kept 
         
     Return:
         (str): the modified str
     """
     
-    return re.sub('[^a-zA-Z\d\-\_]', '_', unidecode(msg))
+    regex = '[^a-zA-Z\d\-\_]' if folder else '[^a-zA-Z\d\-\_\ \']'
+    
+    return re.sub(regex, '_', unidecode(msg))
     
