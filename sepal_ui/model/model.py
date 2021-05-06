@@ -45,7 +45,8 @@ class Model(HasTraits):
             
     def bind(self, widget, trait):
         """
-        Binding a widget input 'v_model' trait to a trait of the model. The binding will be unidirectionnal for the sake of some custom widget that does not support it.
+        Binding a widget input 'v_model' trait to a trait of the model. 
+        The binding will be unidirectionnal for the sake of some custom widget that does not support it.
         This wrapper avoid to import the ipywidgets lib everywhere and reduce the number of parameters
         Some existence check are also performed and will throw an error if the trait doesn't exist
         
