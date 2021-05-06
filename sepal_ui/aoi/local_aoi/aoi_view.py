@@ -188,17 +188,18 @@ class AoiView(v.Card):
         }
         if self.map_: self.components['DRAW'] = self.w_draw
         
-        # create an alert to bind to the model 
-        # I would like to integrate the binding directly to the Model object (https://github.com/12rambau/sepal_ui/issues/198)
-        # but it will be when the model object will be add to develo (i.e. next step)
-        self.alert = self.model.alert \
-            .bind(self.w_admin_0, self.model, 'admin', verbose=False) \
-            .bind(self.w_admin_1, self.model, 'admin', verbose=False) \
-            .bind(self.w_admin_2, self.model, 'admin', verbose=False) \
-            .bind(self.w_vector, self.model, 'vector_json', verbose=False) \
-            .bind(self.w_points, self.model, 'point_json', verbose=False) 
-        if self.map_: self.alert.bind(self.w_draw, self.model, 'name', verbose=False)
+        # use the same alert as in the model
+        self.alert = self.model.alert
         
+        # bind the widgets to the model
+        self.model \
+            .bind(self.w_admin_0, 'admin') \
+            .bind(self.w_admin_1, 'admin') \
+            .bind(self.w_admin_2, 'admin') \
+            .bind(self.w_vector, 'vector_json') \
+            .bind(self.w_points, 'point_json') 
+        if self.map_: self.model.bind(self.w_draw, 'name')
+            
         # add a validation btn
         self.btn = sw.Btn(ms.aoi_sel.btn)
         
@@ -211,7 +212,7 @@ class AoiView(v.Card):
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
     
-    @su.loading_button(debug=True)
+    @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
         """load the gdf in the model & update the map (if possible)"""
         

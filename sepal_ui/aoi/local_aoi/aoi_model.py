@@ -11,6 +11,7 @@ import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui.model import Model
 
 ############################
 ###      parameters      ###
@@ -41,18 +42,27 @@ aoi_style = {
 ############################
 
 
-class AoiModel(HasTraits):
+class AoiModel(Model):
+    
+    # widget related traitlets
+    default_vector = Any(None).tag(sync=True)
+    default_admin = Any(None).tag(syn=True)
+    point_json = Any(None).tag(sync=True) # information that will be use to transform the csv into a gdf
+    vector_json = Any(None).tag(sync=True) # information that will be use to transform the vector file into a gdf
+    geo_json = Any({'type': 'FeatureCollection', 'features': []}).tag(sync=True) # the drawn geojson featureCollection
+    admin = Any(None).tag(sync=True)
+    name = Any(None).tag(sync=True) # the name of the file (use only in drawn shaped)
 
     def __init__(self, alert, default_vector = None, default_admin=None, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
         
         # selection parameters
-        self.point_json = None # information that will be use to transform the csv into a gdf
-        self.vector_json = None # information that will be use to transform the vector file into a gdf
-        self.geo_json = {'type': 'FeatureCollection', 'features': []} # the drawn geojson featureCollection
-        self.admin = None
-        self.name = None # the name of the file (use only in drawn shaped)
+        #self.point_json = None # information that will be use to transform the csv into a gdf
+        #self.vector_json = None # information that will be use to transform the vector file into a gdf
+        #self.geo_json = {'type': 'FeatureCollection', 'features': []} # the drawn geojson featureCollection
+        #self.admin = None
+        #self.name = None # the name of the file (use only in drawn shaped)
         
         # outputs of the selection
         self.gdf = None
@@ -100,11 +110,11 @@ class AoiModel(HasTraits):
         # there should be a more pythonic way of doing the same thing
         if self.admin:
             self._from_admin(self.admin)
-        elif self.point_json:
+        elif self.point_json['pathname']:
             self._from_points(self.point_json)
-        elif self.vector_json:
+        elif self.vector_json['pathname']:
             self._from_vector(self.vector_json)
-        elif self.geo_json:
+        elif len(self.geo_json['features']):
             self._from_geo_json(self.geo_json)
         else:
             raise Exception(ms.aoi_sel.no_inputs)
@@ -245,14 +255,19 @@ class AoiModel(HasTraits):
         default_admin = self.default_admin
         default_vector = self.default_vector 
 
-        # delete all the attributes
-        [setattr(self, attr, None) for attr in self.__dict__.keys()]
+        # delete all the traits
+        [setattr(self, attr, None) for attr in self.trait_names()]
         
         # reset the FeatureCollection 
         self.geo_json = {'type': 'FeatureCollection', 'features': []}
 
         # reset the default 
         self.set_default(default_vector, default_admin)
+        
+        # reset the outputs
+        self.gdf = None
+        self.ipygeojson = None
+        self.selected_feature = None
 
         return self
 

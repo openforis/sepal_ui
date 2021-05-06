@@ -311,11 +311,11 @@ class LoadTableField(v.Col, SepalWidget):
         LatSelect (v.Select): input to select the lat column
     """
     
-    v_model = {
-            'pathname'  : None, 
-            'id_column' : None, 
-            'lat_column': None, 
-            'lng_column': None
+    default_v_model = {
+        'pathname'  : None, 
+        'id_column' : None, 
+        'lat_column': None, 
+        'lng_column': None
     }
     
     def __init__(self, label="Table file"):
@@ -342,6 +342,7 @@ class LoadTableField(v.Col, SepalWidget):
         )
         
         super().__init__(
+            v_model = self.default_v_model,
             children = [
                 self.fileInput,
                 self.IdSelect,
@@ -545,10 +546,10 @@ class VectorField(v.Col, SepalWidget):
         w_value (v.Select): The Select widget to select the value in the selected column 
     """
     
-    v_model = {
-            'pathname'  : None, 
-            'column' : None, 
-            'value': None, 
+    default_v_model = {
+        'pathname'  : None, 
+        'column' : None, 
+        'value': None, 
     }
     
     column_base_items = [
@@ -580,6 +581,7 @@ class VectorField(v.Col, SepalWidget):
         
         # create the Col Field
         self.children = [self.w_file, self.w_column, self.w_value]
+        self.v_model = self.default_v_model
         
         super().__init__(**kwargs)
         
@@ -634,11 +636,8 @@ class VectorField(v.Col, SepalWidget):
         # set the value 
         self.v_model['column'] = change['new']
         
-        # exit if nothing 
-        if change['new'] is None: return self
-        
-        # hide value if "ALL"
-        if change['new'] == 'ALL':
+        # hide value if "ALL" or none
+        if change['new'] in ['ALL', None]:
             su.hide_component(self.w_value)
             return self
         
