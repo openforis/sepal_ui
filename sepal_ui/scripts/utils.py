@@ -253,33 +253,29 @@ def need_ee(func):
         
     return wrapper_ee
 
-def loading_button(debug=False):
+def loading_button(button, debug=False):
     """
     Decorator to execute try/except sentence
     and toggle loading button object
     
     Params:
-        btn (sw.Btn): Toggle button
+        button (sw.Btn): Toggle button
     """
     def decorator_loading(func):
         @wraps(func)
-        def wrapper_loading(self, *args, **kwargs):
-            
-            self.btn.toggle_loading()
-            
+        def wrapper_loading(*args, **kwargs):
+            button.toggle_loading() # Start loading 
             value = None
-            
             try:
-                value = func(self, *args, **kwargs)
-                
+                value = func(*args, **kwargs)
             except Exception as e:
-                self.alert.add_msg(f'{e}', 'error')
+                button.toggle_loading() # Stop loading button if there is an error
                 if debug: raise e
-            
-            self.btn.toggle_loading()
+                return # Scape of the function
+
+            button.toggle_loading() # Stop loading button if there is not an error
             
             return value
-        
         return wrapper_loading
     return decorator_loading
 
