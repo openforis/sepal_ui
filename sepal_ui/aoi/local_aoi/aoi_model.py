@@ -213,7 +213,7 @@ class AoiModel(Model):
         if not zip_file.is_file():
             
             # get the zip from GADM server only the ISO_3 code need to be used
-            urlretrieve(gadm_base_url.format(iso_3), zip_file)
+            urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
             
         # read the geopackage 
         layer_name = f"gadm36_{iso_3}_{level}"
