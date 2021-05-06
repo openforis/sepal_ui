@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from traitlets import Any, HasTraits
+from traitlets import Any, HasTraits, Unicode
 from urllib.request import urlretrieve
 import zipfile
 
@@ -25,11 +25,15 @@ class AoiModel(Model):
     GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
     
     # widget related traitlets
+    
+    method = Unicode('').tag(sync=True)
+    
     default_vector = Any(None).tag(sync=True)
     default_admin = Any(None).tag(syn=True)
     point_json = Any(None).tag(sync=True) # information that will be use to transform the csv into a gdf
     vector_json = Any(None).tag(sync=True) # information that will be use to transform the vector file into a gdf
     geo_json = Any(None).tag(sync=True) # the drawn geojson featureCollection
+    
     admin = Any(None).tag(sync=True)
     name = Any(None).tag(sync=True) # the name of the file (use only in drawn shaped)
 
@@ -104,13 +108,14 @@ class AoiModel(Model):
         """
         
         # there should be a more pythonic way of doing the same thing
-        if self.admin:
+        
+        if self.method in ['ADMIN0', 'ADMIN1', 'ADMIN2']:
             self._from_admin(self.admin)
-        elif self.point_json['pathname']:
+        elif self.method == 'POINTS':
             self._from_points(self.point_json)
-        elif self.vector_json['pathname']:
+        elif self.method == 'SHAPE':
             self._from_vector(self.vector_json)
-        elif len(self.geo_json['features']):
+        elif self.method == 'DRAW':
             self._from_geo_json(self.geo_json)
         else:
             raise Exception(ms.aoi_sel.no_inputs)
@@ -118,10 +123,14 @@ class AoiModel(Model):
         self.alert.add_msg(ms.aoi_sel.complete, "success")
         
         return self
+
     
     def _from_points(self, point_json):
         """set the gdf output from a csv json"""
         
+        if not all(point_json.values()):
+            raise Exception('All fields are required, please fill them.')
+            
         # cast the pathname to pathlib Path
         point_file = Path(point_json['pathname'])
     
@@ -148,6 +157,13 @@ class AoiModel(Model):
     def _from_vector(self, vector_json):
         """set the gdf output from a vector json"""
         
+        if not (vector_json['pathname']):
+            raise Exception('Please select a file.')
+        
+        if vector_json['column'] != 'ALL':
+            if vector_json['value'] is None:
+                raise Exception('Please select a value.')
+            
         # cast the pathname to pathlib Path
         vector_file = Path(vector_json['pathname'])
         
@@ -167,6 +183,9 @@ class AoiModel(Model):
     def _from_geo_json(self, geo_json):
         """set the gdf output from a geo_json"""
         
+        if not geo_json:
+            raise Exception('Please draw a shape in the map')
+        
         # create the gdf
         self.gdf = gpd.GeoDataFrame.from_features(geo_json)
         
@@ -181,9 +200,13 @@ class AoiModel(Model):
         return self
             
     def _from_admin(self, admin):
+        
         """Set the gdf according to given an administrative number in 
         the GADM norm. The gdf will be projected in EPSG:4326"""
         
+        if not admin:
+            raise Exception('Select an administrative layer')
+            
         # save the country iso_code 
         iso_3 = admin[:3]
         

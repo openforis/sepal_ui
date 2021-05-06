@@ -84,7 +84,7 @@ class MethodSelect(Select):
             items.append({'text':m['name'], 'value': k})
             
         # create the input 
-        super().__init__(label=ms.aoi_sel.method, items=items, v_model=None, dense=True)
+        super().__init__(label=ms.aoi_sel.method, items=items, v_model='', dense=True)
         
 class AdminField(v.Select, sw.SepalWidget):
     
@@ -198,7 +198,8 @@ class AoiView(v.Card):
             .bind(self.w_admin_1, 'admin') \
             .bind(self.w_admin_2, 'admin') \
             .bind(self.w_vector, 'vector_json') \
-            .bind(self.w_points, 'point_json') 
+            .bind(self.w_points, 'point_json') \
+            .bind(self.w_method, 'method')
         if self.map_: self.model.bind(self.w_draw, 'name')
             
         # add a validation btn
