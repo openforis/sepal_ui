@@ -80,7 +80,7 @@ class AoiModel(HasTraits):
         
         # save the default values
         self.default_vector = default_vector
-        self.vector_json = json.dumps({'pathname': str(default_vector), 'column': None, 'value': None}) if default_vector else None
+        self.vector_json = {'pathname': str(default_vector), 'column': None, 'value': None} if default_vector else None
         self.default_admin = self.admin = default_admin
         
         # set the default gdf in possible 
@@ -132,20 +132,17 @@ class AoiModel(HasTraits):
     def _from_points(self, point_json):
         """set the gdf output from a csv json"""
         
-        # read the json 
-        tmp = json.loads(point_json)
-        
         # cast the pathname to pathlib Path
-        point_file = Path(tmp['pathname'])
+        point_file = Path(point_json['pathname'])
     
         # check that the columns are well set 
-        tmp_list = [v for v in tmp.values()]
-        if not len(tmp_list) == len(set(tmp_list)):
+        values = [v for v in point_json.values()]
+        if not len(values) == len(set(values)):
             raise Exception(ms.aoi_sel.duplicate_key)
     
         # create the gdf
         df = pd.read_csv(point_file, sep=None, engine='python')
-        self.gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[tmp['lng_column']], df[tmp['lat_column']]))
+        self.gdf = gpd.GeoDataFrame(df, crs='EPSG:4326', geometry = gpd.points_from_xy(df[point_json['lng_column']], df[point_json['lat_column']]))
         
         # set the name
         self.name = point_file.stem
@@ -155,18 +152,15 @@ class AoiModel(HasTraits):
     def _from_vector(self, vector_json):
         """set the gdf output from a vector json"""
         
-        # read the vector json
-        tmp = json.loads(vector_json)
-        
         # cast the pathname to pathlib Path
-        vector_file = Path(tmp['pathname'])
+        vector_file = Path(vector_json['pathname'])
         
         # create the gdf
         self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
         
         # filter it if necessary
-        if tmp['value']:
-            self.gdf = self.gdf[self.gdf[tmp['column']] == tmp['value']]
+        if vector_json['value']:
+            self.gdf = self.gdf[self.gdf[vector_json['column']] == vector_json['value']]
         
         # set the name using the file stem
         self.name = vector_file.stem

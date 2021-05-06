@@ -311,7 +311,7 @@ class LoadTableField(v.Col, SepalWidget):
         LatSelect (v.Select): input to select the lat column
     """
     
-    default_v_model = {
+    v_model = {
             'pathname'  : None, 
             'id_column' : None, 
             'lat_column': None, 
@@ -342,7 +342,6 @@ class LoadTableField(v.Col, SepalWidget):
         )
         
         super().__init__(
-            v_model = json.dumps(self.default_v_model),
             children = [
                 self.fileInput,
                 self.IdSelect,
@@ -361,7 +360,7 @@ class LoadTableField(v.Col, SepalWidget):
         self.LngSelect.observe(self._on_select_change, 'v_model')
         self.LatSelect.observe(self._on_select_change, 'v_model')
         
-    def clear(self):
+    def reset(self):
         """
         Clear the values and return to the empty default json
         
@@ -370,7 +369,7 @@ class LoadTableField(v.Col, SepalWidget):
         """
         
         # clear the fileInput
-        self.fileInput.clear()
+        self.fileInput.reset()
         
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
@@ -380,7 +379,7 @@ class LoadTableField(v.Col, SepalWidget):
         
         # set the path
         path = change['new']
-        self._set_value('pathname', path)
+        self.v_model['pathname'] = path
         
         # exit if none
         if not path:
@@ -420,68 +419,9 @@ class LoadTableField(v.Col, SepalWidget):
         """change the v_model value when a select is changed"""
         
         name = change['owner']._metadata['name']
-        self._set_value(name, change['new'])
+        self.v_model[name] = change['new']
         
         return self
-        
-    def _set_value(self, name, value):
-        """ set the value in the json dictionary"""
-        
-        tmp = json.loads(self.v_model)
-        tmp[name] = value
-        self.v_model = json.dumps(tmp)
-        
-        return self
-    
-    def get_v_model(self):
-        """
-        Return the v_model as a dict
-        
-        Return:
-            (dict): the v_model
-        """
-        
-        return json.loads(self.v_model)
-    
-    def get_pathname(self):
-        """
-        Return the pathname from v_model
-        
-        Return:
-            (str): the v_model pathname
-        """
-        
-        return json.loads(self.v_model)['pathname']
-    
-    def get_id_lbl(self):
-        """
-        Return the id column label from v_model
-        
-        Return:
-            (str): label of the id column
-        """
-        
-        return json.loads(self.v_model)['id_column']
-    
-    def get_lng_lbl(self):
-        """
-        Return the longitude column label from v_model
-        
-        Return:
-            (str): label of the longitude column
-        """
-        
-        return json.loads(self.v_model)['lng_column']
-    
-    def get_lat_lbl(self):
-        """
-        Return the latitude column label from v_model
-        
-        Return:
-            (str); label of the latitude column
-        """
-        
-        return json.loads(self.v_model)['lat_column']
 
 class AssetSelect(v.Combobox, SepalWidget):
     """
@@ -618,9 +558,8 @@ class VectorField(v.Col, SepalWidget):
         
     def __init__(self, label='vector_file', **kwargs):
         
-        # save the gdf somewhere to avoid multiple reading
-        self.original_gdf = None
-        self.gdf = None
+        # save the df for column naming (not using a gdf as geometry are useless)
+        self.df = None
         
         # set the 3 wigets
         self.w_file = FileInput(['.shp', '.geojson', '.gpkg', '.kml'], label=label)
@@ -667,7 +606,7 @@ class VectorField(v.Col, SepalWidget):
         # reset the widgets
         self.w_column.items = self.w_value.items = []
         self.w_column.v_model = self.w_value.v_model = None
-        self.gdf = None
+        self.df = None
         
         # set the pathname value 
         self.v_model["pathname"] = change['new']
@@ -676,13 +615,10 @@ class VectorField(v.Col, SepalWidget):
         if not change['new']: return self
         
         # read the file 
-        self.original_gdf = gpd.read_file(change['new'])
-        self.gdf = self.original_gdf.copy()
-        
+        self.df = gpd.read_file(change['new'], ignore_geometry=True)        
 
         # update the columns
-        self.w_column.items = self.column_base_items + \
-            sorted(list(set(['geometry'])^set(self.gdf.columns.to_list())))
+        self.w_column.items = self.column_base_items + sorted(set(self.df.columns.to_list()))
         
         self.w_column.v_model = 'ALL'
         
@@ -704,11 +640,10 @@ class VectorField(v.Col, SepalWidget):
         # hide value if "ALL"
         if change['new'] == 'ALL':
             su.hide_component(self.w_value)
-            self.gdf = self.original_gdf.copy()
             return self
         
         # read the colmun 
-        self.w_value.items = sorted(list(set(self.original_gdf[change['new']].to_list())))
+        self.w_value.items = sorted(set(self.df[change['new']].to_list()))
         su.show_component(self.w_value)
         
         return self
@@ -719,39 +654,5 @@ class VectorField(v.Col, SepalWidget):
         # set the value 
         self.v_model['value'] = change['new']
         
-        # reduce the gdf to the selected feature
-        self.gdf = self.original_gdf[self.original_gdf[self.get_column()] == change['new']]
-        
-        return self
-            
-    def get_pathname(self):
-        """
-        Return the pathname from v_model
-        
-        Return:
-            (str): the v_model pathname
-        """
-        
-        return self.v_model['pathname']
-    
-    def get_column(self):
-        """
-        Return the column from v_model
-        
-        Return:
-            (str): the v_model column
-        """
-        
-        return self.v_model['column']
-    
-    def get_value(self):
-        """
-        Return the value from v_model
-        
-        Return:
-            (str): the v_model value
-        """
-        
-        return self.v_model['value']
-    
+        return self    
     

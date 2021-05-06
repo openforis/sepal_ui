@@ -157,9 +157,6 @@ class AdminField(v.Select, sw.SepalWidget):
 
 class AoiView(v.Card):
     
-    #method = Unicode('').tag(sync=True)
-    #column = Any('').tag(sync=True)
-    #field = Any('').tag(sync=True)
     updated = Int(0).tag(sync=True)
     
     def __init__(self, methods='ALL', map_=None, *args, **kwargs):
@@ -214,7 +211,7 @@ class AoiView(v.Card):
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
     
-    @su.loading_button(debug=False)
+    @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the gdf in the model & update the map (if possible)"""
         
