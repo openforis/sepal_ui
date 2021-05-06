@@ -9,6 +9,7 @@ import geopandas as gpd
 from ipyleaflet import GeoJSON
 import ipyvuetify as v
 
+from sepal_ui.frontend.styles import AOI_STYLE
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 from sepal_ui.model import Model
@@ -22,16 +23,6 @@ class AoiModel(Model):
 
     GADM_ZIP_DIR = Path('~', 'tmp', 'GADM_zip').expanduser() # the zip dir where we download the zips
     GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
-
-    AOI_STYLE = { # default styling of the layer
-        "stroke": True,
-        "color": v.theme.themes.dark.success,
-        "weight": 2,
-        "opacity": 1,
-        "fill": True,
-        "fillColor": v.theme.themes.dark.success,
-        "fillOpacity": 0.4,
-    }
     
     # widget related traitlets
     default_vector = Any(None).tag(sync=True)
