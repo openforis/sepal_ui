@@ -91,7 +91,7 @@ class AoiModel(Model):
             raise Exception("You must set the gdf before converting it into GeoJSON")
     
         data = json.loads(self.gdf.to_json())
-        self.ipygeojson = GeoJSON(data=data, style=self.AOI_STYLE, name='aoi')
+        self.ipygeojson = GeoJSON(data=data, style=AOI_STYLE, name='aoi')
         
         return self.ipygeojson
     
