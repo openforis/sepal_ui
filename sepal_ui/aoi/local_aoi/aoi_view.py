@@ -2,6 +2,7 @@ import functools
 from pathlib import Path
 from traitlets import List, Any, link, observe, Unicode, HasTraits, Int
 import json
+from datetime import datetime as dt
 
 import ipyvuetify as v
 import pandas as pd
@@ -224,6 +225,7 @@ class AoiView(v.Card):
             [self.map_.remove_layer(l) for l in self.map_.layers if l.name == 'aoi']
             self.map_.zoom_bounds(self.model.gdf.total_bounds)
             self.map_.add_layer(self.model.get_ipygeojson())
+            self.map_.hide_dc()
         
         # tell the rest of the apps that the aoi have been updated 
         self.updated += 1
@@ -250,6 +252,10 @@ class AoiView(v.Card):
     def _handle_draw(self, target, action, geo_json):
         """handle the draw on map event"""
         
+        # update the automatic name
+        if not self.w_draw.v_model:
+            self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+        
         # polygonize circles 
         if 'radius' in geo_json['properties']['style']:
             geo_json = self.polygonize(geo_json)
@@ -258,7 +264,7 @@ class AoiView(v.Card):
             self.model.geo_json['features'].append(geo_json)
         elif action == 'deleted':
             self.model.geo_json['features'].remove(geo_json)
-        
+            
         return self
     
     @staticmethod
