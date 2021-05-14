@@ -10,7 +10,9 @@ import string
 import random
 import math
 import base64
-import os
+import re
+from unidecode import unidecode
+from functools import wraps
 
 import ipyvuetify as v
 import pandas as pd
@@ -204,5 +206,93 @@ def init_ee():
         # if in local env use the local user credential
         else:
             ee.Initialize()
-            
+        
     return
+
+def catch_errors(alert, debug=False):
+    """
+    Decorator to execute try/except sentence
+    and catch errors in the alert message.
+    If debug is True then the error is raised anyway
+    
+    Params:
+        alert (sw.Alert): Alert to display errors
+        debug (bool): Wether to raise the error or not, default to false
+    """
+    def decorator_alert_error(func):
+        @wraps(func)
+        def wrapper_alert_error(*args, **kwargs):
+            try:
+                value = func(*args, **kwargs)
+            except Exception as e:
+                alert.add_msg(f'{e}', type_='error')
+                if debug:
+                    raise e
+            return value
+        return wrapper_alert_error
+    return decorator_alert_error
+
+def need_ee(func):
+    """
+    Decorator to execute check if the object require EE binding.
+    Trigger an exception if the connection is not possible. 
+    
+    Params:
+        func (obj): the object on which the decorator is applied
+    """
+    @wraps(func)
+    def wrapper_ee(*args, **kwargs):
+        
+        # try to connect to ee 
+        try: 
+            init_ee()
+        except Exception as e:
+            raise Exception ('This function needs an Earth Engine authentication')
+            
+        func(*args, **kwargs)
+        
+    return wrapper_ee
+
+def loading_button(button, alert, debug=False):
+    """
+    Decorator to execute try/except sentence
+    and toggle loading button object
+    
+    Params:
+        button (sw.Btn): Toggle button
+    """
+    def decorator_loading(func):
+        @wraps(func)
+        def wrapper_loading(*args, **kwargs):
+            button.toggle_loading() # Start loading 
+            value = None
+            try:
+                value = func(*args, **kwargs)
+            except Exception as e:
+                button.toggle_loading() # Stop loading button if there is an error
+                alert.add_msg(f'{e}', 'error')
+                if debug: raise e
+                return # Scape of the function
+
+            button.toggle_loading() # Stop loading button if there is not an error
+            
+            return value
+        return wrapper_loading
+    return decorator_loading
+
+def normalize_str(msg, folder=True):
+    """
+    Normalize an str to make it compatible with file naming (no spaces, special chars ...etc)
+    
+    Params:
+        msg (str): the string to sanitise
+        folder (optional|bool): if the name will be used for folder naming or for display. if display, <'> and < > characters will be kept 
+        
+    Return:
+        (str): the modified str
+    """
+    
+    regex = '[^a-zA-Z\d\-\_]' if folder else '[^a-zA-Z\d\-\_\ \']'
+    
+    return re.sub(regex, '_', unidecode(msg))
+    

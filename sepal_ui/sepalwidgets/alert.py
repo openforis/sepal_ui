@@ -306,13 +306,11 @@ class StateBar(v.SystemBar):
     Attributes:
         msg (Unicode): the msg to be displayed 
         loading (Bool): State of bar, it will display a loading spin wheel if not loading.
-        done (Bool): State of bar, it will display a loading spin wheel if not done. Legacy, will be deprecated in v_1.2.0
     
     """
     
     msg = Unicode('').tag(sync=True)
     loading = Bool(False).tag(sync=True)
-    done = Bool(True).tag(sync=True)
     
     def __init__(self,  **kwargs):
                         
@@ -333,20 +331,15 @@ class StateBar(v.SystemBar):
     def _change_loading(self, change):
         """ Change progress wheel state"""
         self.progress.indeterminate = self.loading
-        
-    @observe('done')
-    def _change_done(self, change):
-        """ Change progress wheel state"""
-        self.progress.indeterminate = not self.loading
             
     @observe('msg')
     def _change_msg(self, change):
         """ Change state bar message"""
         self.children = [self.progress, self.msg]
         
-    def add_msg(self, msg, loading=False, done=False):
+    def add_msg(self, msg, loading=False):
         """ Change current status message"""
         self.msg = msg
-        self.loading = any((not done, loading))
+        self.loading = loading
         
         return self

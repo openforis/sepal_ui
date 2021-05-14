@@ -46,6 +46,17 @@ COMPONENTS = {
     }
 }
 
+
+AOI_STYLE = { # default styling of the layer
+    "stroke": True,
+    "color": v.theme.themes.dark.success,
+    "weight": 2,
+    "opacity": 1,
+    "fill": True,
+    "fillColor": v.theme.themes.dark.success,
+    "fillOpacity": 0.4,
+}
+
 ICON_TYPES = {
     # Used for folders
     '':{ 

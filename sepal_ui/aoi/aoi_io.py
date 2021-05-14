@@ -7,9 +7,6 @@ import geopandas as gpd
 import ipyvuetify as v 
 
 from sepal_ui.scripts import utils as su
-    
-# initialize earth engine
-su.init_ee()
 
 class Aoi_io:
     """
@@ -46,6 +43,9 @@ class Aoi_io:
     """
     
     def __init__(self, alert_widget=None, default_asset=None, default_admin0=None, default_admin1=None, default_admin2=None):
+        
+        # initialize earth engine
+        su.init_ee()
         
         # keep the default assets in memory
         self.default_asset = default_asset
