@@ -401,7 +401,7 @@ class LoadTableField(v.Col, SepalWidget):
             lname = name.lower() 
             if 'id' in lname:
                 self.IdSelect.v_model = name
-            elif any(ext in lname for ext in ['lng', 'long', 'longitude', 'x_coord', 'xcoord']):
+            elif any(ext in lname for ext in ['lng', 'long', 'longitude', 'x_coord', 'xcoord', 'lon']):
                 self.LngSelect.v_model = name
             elif any(ext in lname for ext in ['lat', 'latitude', 'y_coord', 'ycoord']):
                 self.LatSelect.v_model = name
