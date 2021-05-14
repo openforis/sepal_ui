@@ -2,9 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import (
-    HasTraits, Unicode, link, Int, Any
-)
+from traitlets import link, Int, Any
 from ipywidgets import jslink
 import pandas as pd
 import ee

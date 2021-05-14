@@ -1,7 +1,13 @@
-i.fa-github:hover {
-    color: #333;
-}
+ :root {
+     
+    /*****************************************************************************
+    * Color
+    * 
+    * Colors are defined in rgb string way, "red, green, blue"
+    **/
+    --pts-color-sepal: 24, 102, 145;
 
-i.fa-python:hover {
-    color: #306998;
-}
+    --pst-color-h1: var(--pts-color-sepal);
+    --pst-color-h2: var(--pts-color-sepal);
+    --pst-color-active-navigation: var(--pts-color-sepal);
+ }
