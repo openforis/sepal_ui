@@ -12,6 +12,7 @@ import geopandas as gpd
 
 from sepal_ui.frontend.styles import *
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.btn import Btn
 
@@ -445,7 +446,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         su.init_ee()
         
         # if folder is not set use the root one 
-        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
+        self.folder = folder or ee.data.getAssetRoots()[0]['id']
         
         
         self.label = label
@@ -457,8 +458,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         
         self.class_ = 'my-5'
         self.placeholder = 'users/someCustomUser/customAsset'
-        self.hint = 'select an asset in the list or write a custom asset ' + \
-                    'name. Be careful that you need to have access to this asset to use it'
+        self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
         
         self.items = self._get_items()
         
@@ -467,10 +467,10 @@ class AssetSelect(v.Combobox, SepalWidget):
     def _get_items(self):
         
         # get the list of user asset
-        assets = ee.data.listAssets({'parent': self.folder})['assets']
+        assets = gee.get_assets(self.folder)
         
-        tables = [e['id'] for e in assets if e['type'] == 'TABLE']
-        images = [e['id'] for e in assets if e['type'] == 'IMAGE']
+        tables = sorted([e['id'] for e in assets if e['type'] == 'TABLE'])
+        images = sorted([e['id'] for e in assets if e['type'] == 'IMAGE'])
         
         items = [{'divider':True}, {'header':'Tables'}] + \
                 tables + \
