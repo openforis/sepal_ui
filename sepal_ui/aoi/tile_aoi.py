@@ -35,7 +35,7 @@ class Adm0Select(v.Select, sw.SepalWidget):
     """
     
     def __init__(self):
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes.drop_duplicates(subset=['ADM0_CODE'])
         country_codes = country_codes.sort_values('ADM0_NAME')
@@ -73,7 +73,7 @@ class Adm1Select(v.Select, sw.SepalWidget):
         adm0_code = change['new']
         
         # filter the country list to keep only each admin1 in the selected admin0
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes[country_codes['ADM0_CODE'] == adm0_code]        
         country_codes = country_codes.drop_duplicates(subset=['ADM1_CODE'])
@@ -112,7 +112,7 @@ class Adm2Select(v.Select, sw.SepalWidget):
         adm1_code = change['new']
         
         # filter the country list to keep only each admin1 in the selected admin0
-        country_codes = Path(__file__).parents[1].joinpath('scripts/country_code.csv')
+        country_codes = Path(__file__).parents[1]/'scripts/country_code.csv'
         country_codes = pd.read_csv(country_codes)
         country_codes = country_codes[country_codes['ADM1_CODE'] == adm1_code]
         country_codes = country_codes.sort_values('ADM2_NAME')
@@ -194,7 +194,7 @@ class TileAoi(sw.Tile):
         aoi_file_input (sw.FileInput): a file selector to retrieve sepal folders 
         aoi_country_selection (CountrySelect): the country selector input
         aoi_asset_name (sw.AssetSelect): a ComboBox input to select an asset in the self.folder or any custom asset link
-        aoi_load_table (sw.LoadTableField): a table input field to retreive information from a point file
+        aoi_load_table (sw.LoadTableField): a table input field to retrieve information from a point file
         aoi_select_method (v.Select): the input to select to aoi selection method to use. change the display of the tile widgets
         aoi_select_btn (sw.Btn): the Btn to launch the exportation of an asset
         
@@ -202,7 +202,7 @@ class TileAoi(sw.Tile):
     """
     
     # constants
-    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Upload file', 'Use points file']
+    SELECTION_METHOD =['Country boundaries', "First administrative layer", 'second administrative layer', 'Draw a shape', 'Use GEE asset', 'Select file from SEPAL', 'Use points file']
     
     @su.need_ee
     def __init__(self, io, methods = SELECTION_METHOD, folder = None, **kwargs):
@@ -360,7 +360,7 @@ class TileAoi(sw.Tile):
         change the display of the AOI selector according to the method selected. will only display the useful inputs
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             list_input ([v.Vue]): the list of all the inputs of the aoi selector
             
         Return:
@@ -433,7 +433,7 @@ class TileAoi(sw.Tile):
         the following pattern is used : 'aoi_[file_path.stem]'
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             
         Return:
             self
@@ -450,7 +450,7 @@ class TileAoi(sw.Tile):
         the following pattern is used : 'aoi_[file_path.stem]'
         
         Args:
-            change ({obj}): the change dictionnary of an observe method (see Traitlet documentation)
+            change ({obj}): the change dictionary of an observe method (see Traitlet documentation)
             
         Return:
             self

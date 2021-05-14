@@ -1,7 +1,7 @@
 Tooltip
 =======
 
-:code:`Tooltip` is a custom widget to provide easy to use tooltip in the sepal_ui framework. We are based on the vuetify web structure so the design of the tooltip design can be surprising for users coming from different platform. Here the tooltip is the main widget, and it owns the widget it describe. Here is an example for a :code:`Btn`.
+:code:`Tooltip` is a custom widget to provide easy to use tooltip in the sepal_ui framework. We are based on the Vuetify web structure so the design of the tooltip design can be surprising for users coming from different platform. Here the tooltip is the main widget, and it owns the widget it describe. Here is an example for a :code:`Btn`.
 
 .. code-block:: python
 

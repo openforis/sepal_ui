@@ -65,7 +65,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         title (str): the title of the drawer item
         icon(str, optional): the full name of a mdi-icon
         card (str, optional): the mount_id of tiles in the app
-        href (str, optional): the absolute link to an external webpage
+        href (str, optional): the absolute link to an external web page
         
     Attributes:
         href (str): the absolute link to follow on click 
@@ -178,7 +178,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             **kwargs
         )
         
-        # bind the javascripts behaviour
+        # bind the javascripts behavior
         for i in self.items:
             i.observe(self._on_item_click, 'input_value')
         

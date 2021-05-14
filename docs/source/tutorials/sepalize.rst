@@ -1,7 +1,7 @@
 How to sepalize a process
 =========================
 
-The wireframe of your app is now ready but it's an empty shell and we would like to wire it to an actual process. 
+The wire-frame of your app is now ready but it's an empty shell and we would like to wire it to an actual process. 
 Sepalizing is a 2 step process that will be presented in this tutorial through the sepalization of a GEE process. 
 
 .. tip::
@@ -11,10 +11,10 @@ Sepalizing is a 2 step process that will be presented in this tutorial through t
 From GEE to Python
 ------------------
 
-Most of the process that requires sepalization are based on Google Earth Engine (that we will call GEE). This processes are written in javascripts in the GEE console and execute in the javascript environment of Google (wich provide several embeded tools such as a map and a ploting tool).
-Fortunately the Seapl framework can use the Earth Engine Python API so anything that exist in javascript can be translated into python ! 
+Most of the process that requires sepalization are based on Google Earth Engine (that we will call GEE). This processes are written in Javascript in the GEE console and execute in the Javascript environment of Google (which provide several embedded tools such as a map and a plotting tool).
+Fortunately the Seapl framework can use the Earth Engine Python API so anything that exist in Javascript can be translated into python ! 
 
-For this tutorial we will translate the following script. It analyses the cloud coverage on top of an selected aoi between 2 dates. 
+For this tutorial we will translate the following script. It analyses the cloud coverage on top of an selected AOI between 2 dates. 
 The script provide both images and plots. It is available `here <#>`_.  
 
 .. code-block:: javascript
@@ -134,9 +134,9 @@ The script provide both images and plots. It is available `here <#>`_.
 Set up
 ^^^^^^
 
-create a test.ipynb notebook at the root of your repository. This notebook will have access to all the app component wich will fasten the app wiring. 
+create a test.ipynb notebook at the root of your repository. This notebook will have access to all the app component which will fasten the app wiring. 
 
-in this file create a first cell where you init EE API :
+in this file create a first cell where you initialize EE API :
 
 .. code-block:: python 
 
@@ -148,7 +148,7 @@ in this file create a first cell where you init EE API :
 
 .. danger::
 
-    If you did not authenticate to earthengine previously, some extra action will be asked in the cell output. This process need to be done at least once
+    If you did not authenticate to Google Earth Engine previously, some extra action will be asked in the cell output. This process need to be done at least once
 
 
 Define the io
@@ -157,16 +157,16 @@ Define the io
 Then you need to identify what are the input and the output of your process in order to create an io. 
 Here we have 3 input : 
 
-- aoi
+- AOI
 - start_date
 - end_date
-- point coodrinate
+- point coordinates
 
 And 2 output:
 - l8 ImageCollection
 - l7 ImageCollection 
 
-We will thus create an io that matche our process requirements. For mor information please refer to this `page <#>`_ of the documentaion.
+We will thus create an :code:`io` that matches our process requirements. For more information please refer to this `page <#>`_ of the documentation.
 
 .. code-block: python
 
@@ -208,10 +208,10 @@ now in a second cell of our :code:`test.ipynb` we will initialize this io object
 Get the FeatureCollections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now we want to get the images collection that will be used for the rest of the process. The translation from javascripts toPython is strait foward. Keep in mind that : 
+Now we want to get the images collection that will be used for the rest of the process. The translation from Javascript to Python is strait forward. Keep in mind that: 
 
-- python doesn't use :code:`;` to end command but line break 
-- to keep the chaining behaviour and readability of ee objects use :code:`\ ` at the end of your line 
+- Python doesn't use :code:`;` to end command but line break 
+- to keep the chaining behavior and readability of ee objects use :code:`\ ` at the end of your line 
 - :code:`and` and :code:`or` are protected in python, use :code:`And` and :code:`Or` instead
 
 .. note::
@@ -253,7 +253,7 @@ Now we want to get the images collection that will be used for the rest of the p
 display the results on a map 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-to display our result we will use the SepalMap class embeded in the sepal_ui :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <#>`_.
+to display our result we will use the SepalMap class embedded in the sepal_ui :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <#>`_.
 
 At the bottom of the script you see some visualization parameters. These parameters needs to be set in the :code:`parameter` component. 
 
@@ -268,9 +268,9 @@ At the bottom of the script you see some visualization parameters. These paramet
 
 .. tip::
 
-    The Python dictionnaries keys need to be set between :code:`"`
+    The Python dictionaries keys need to be set between :code:`"`
 
-set a SepalMap object and then add all the images you like using the same method as in javascript 
+set a SepalMap object and then add all the images you like using the same method as in Javascript:
 
 .. code-block:: python 
 
@@ -293,12 +293,12 @@ set a SepalMap object and then add all the images you like using the same method
 Create the Histogram
 ^^^^^^^^^^^^^^^^^^^^
 
-GEE provide tools to directly produce graphs out of ImageCollections. In Python, the graphs will be displayed using the :code:`pyplotlib` or the :code:`bqplot` lib. 
-So our work here is to extract the data from our images to reproduce the behaviour of the ploting function. In this script we will translate the :code:`ui.Chart.image.series` method but it can be any other one. 
+GEE provide tools to directly produce graphs out of ImageCollections. In Python, the graphs will be displayed using the :code:`pyplotlib` or the :code:`bqplot` libraries. 
+So our work here is to extract the data from our images to reproduce the behavior of the plotting function. In this script we will translate the :code:`ui.Chart.image.series` method but it can be any other one. 
 
 .. tip::
 
-    You can ask help on `GIS.StackExchange <https://gis.stackexchange.com>`_ on the translation of the different charting methods. Some of them have already been treated : 
+    You can ask help on `GIS.StackExchange <https://gis.stackexchange.com>`_ on the translation of the different charting methods. Some of them have already been treated: 
 
     - `how to get the value from ui.Chart.image.series <https://gis.stackexchange.com/questions/385704/how-to-get-the-value-from-ui-chart-image-series>`_
 
@@ -365,13 +365,13 @@ This function can then be called on each image from the :code:`process_io`  :
     create_hist(process_io.l8, process_io.point, 'landsat 8')
     create_hist(process_io.l7, process_io.point, 'landsat 7')
 
-All this functions are now functionnal. You can add them in the script component using the necessary parameters here :code:`process_io` and :code:`Map`.
+All this functions are now functional. You can add them in the script component using the necessary parameters here :code:`process_io` and :code:`Map`.
 
 wire process to a tile
 ----------------------
 
-We will assume that you followed the tutorial on `how to add a tile to my module <#>`_ and that your logic is descripbed in the scripts package. 
-If that's not the case please refer to the appropiate step of the documentation.
+We will assume that you followed the tutorial on `how to add a tile to my module <#>`_ and that your logic is described in the scripts package. 
+If that's not the case please refer to the appropriate step of the documentation.
 
 your tile should look like this one :
 
@@ -411,13 +411,13 @@ your tile should look like this one :
             )
 
 
-We want to launch the process when the btn is click and use all the io attributes as parameters. important things in your tile are : 
+We want to launch the process when the button is click and use all the io attributes as parameters. important things in your tile are : 
 
 - set the io objects as class attributes
 - wire the widget to the io attributes
-- create a btn
+- create a button
 
-:code:`btn` is a vuetify widget so it inherit some javascripts behaviours that are describe in the `ipyvuetify documentation <https://ipyvuetify.readthedocs.io/en/latest/>`_.
+:code:`btn` is a Vuetify widget so it inherit some Javascripts behaviors that are describe in the `ipyvuetify documentation <https://ipyvuetify.readthedocs.io/en/latest/>`_.
 here we will launch a function on every click on it :
 
 .. code-block:: python 
@@ -438,14 +438,14 @@ here we will launch a function on every click on it :
         return self
 
 
-Some explaination on what we just coded. The :code:`on_event` method is linking the btn javascripts behaviour to the python function. a complete list of javascript event can be found `here <https://developer.mozilla.org/en-US/docs/Web/Events>`_.
+Some explanation on what we just coded. The :code:`on_event` method is linking the button Javascripts behavior to the python function. a complete list of Javascript's events can be found `here <https://developer.mozilla.org/en-US/docs/Web/Events>`_.
 this event is linked to a callback function. This function can only have 3 arguments : 
 
-- widget: the widget that trown the event
+- widget: the widget that thrown the event
 - event: the details of the event
 - data: the data shared on the event (none in most of the case)
 
-As a member of the :code:`ProcessTile` class, the :code:`_on_click` method add the self argument in first positio. It will allow the function to have access to all the class attribute. 
+As a member of the :code:`ProcessTile` class, the :code:`_on_click` method add the self argument in first position. It will allow the function to have access to all the class attribute. 
 A process should look like the following : 
 
 .. code-block:: python 

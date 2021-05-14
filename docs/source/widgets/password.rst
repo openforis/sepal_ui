@@ -13,7 +13,7 @@ Any argument from the original :code:`TextField` ipyvuetify class can be used to
 .. image:: ../../img/password.png
     :alt: password
 
-the value can be retreive from the :code:`v_model` trait. 
+the value can be retrieve from the :code:`v_model` trait. 
 
 .. code-block:: python 
 

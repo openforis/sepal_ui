@@ -1,9 +1,9 @@
 Download Btn
 ============
 
-:code:`DownloadBtn` is custom widget to provide easy to use btn in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
+:code:`DownloadBtn` is custom widget to provide easy to use button in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. It is used to store download path.
-The default color is set to "success". if no url is set the btn is disabled.
+The default color is set to "success". if no URL is set the button is disabled.
 
 .. code-block:: python 
 
@@ -15,7 +15,7 @@ The default color is set to "success". if no url is set the btn is disabled.
 .. image:: ../../img/download_btn.png
     :alt: btn
 
-the linked url can be dynamically set with the :code:`set_url` method.
+the linked URL can be dynamically set with the :code:`set_url` method.
 
 .. code-block:: python 
 

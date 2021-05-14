@@ -2,7 +2,7 @@ Load table
 ==========
 
 :code:`LoadTableField` is a field widget to load points data. 
-The user will provide a csv or txt file containing labeled dataset. 
+The user will provide a .csv or .txt file containing labeled dataset. 
 The relevant columns (lat, long and id) can then be identified in the updated select. 
 Once everything is set, the widget will populate itself with a json dict. {pathname, id_column, lat_column,lng_column}. 
 It inherits from the :code:`SepalWidget` class.
@@ -17,7 +17,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
 .. image:: ../../img/load_table.png
     :alt: point_file
 
-the value can be retreive from the :code:`v_model` trait. 
+the value can be retrieve from the :code:`v_model` trait. 
 
 .. code-block:: python 
 
@@ -38,3 +38,8 @@ the value can be retreive from the :code:`v_model` trait.
 .. note::
 
     More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.LoadTableField>`_.
+
+.. spelling::
+
+    pathname
+    lng

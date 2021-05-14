@@ -73,12 +73,12 @@ class DatePicker(v.Layout, SepalWidget):
         #close the datepicker on click
         #date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
         
-class FileInput(v.Flex, SepalWidget, HasTraits):
+class FileInput(v.Flex, SepalWidget):
     """
     Custom input field to select a file in the sepal folders. 
     
     Args:
-        extentions ([str]): the list of the allowed extentions. the FileInput will only display thiese extention and folders
+        extentions ([str]): the list of the allowed extentions. the FileInput will only display these extention and folders
         folder (str | pathlib.Path): the starting folder of the file input
         label (str): the label of the input
         v_model (str, optional): the default value
@@ -213,7 +213,7 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self._on_file_select({'new': path})
         
     def _on_file_select(self, change):
-        """Dispatch the behaviour between file selection and folder change"""
+        """Dispatch the behavior between file selection and folder change"""
         
         if not change['new']:
             return self
@@ -437,6 +437,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder (str): the folder of the user assets
     """
     
+
     @su.need_ee
     def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
         
@@ -446,21 +447,37 @@ class AssetSelect(v.Combobox, SepalWidget):
         # if folder is not set use the root one 
         self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
         
+        
+        self.label = label
+        self.v_model = default_asset
+        
+        self.clearable = True
+        self.dense = True
+        self.persistent_hint = True
+        
+        self.class_ = 'my-5'
+        self.placeholder = 'users/someCustomUser/customAsset'
+        self.hint = 'select an asset in the list or write a custom asset ' + \
+                    'name. Be careful that you need to have access to this asset to use it'
+        
+        self.items = self._get_items()
+        
+        super().__init__(*args, **kwargs)
+
+    def _get_items(self):
+        
         # get the list of user asset
         assets = ee.data.listAssets({'parent': self.folder})['assets']
         
-        items = [asset['id'] for asset in assets]
+        tables = [e['id'] for e in assets if e['type'] == 'TABLE']
+        images = [e['id'] for e in assets if e['type'] == 'IMAGE']
         
-        super().__init__(
-            clearable       = True,
-            class_          = 'mb-5',
-            label           = label,
-            placeholder     = 'users/someCustomUser/customAsset',
-            hint            = "select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it",
-            persistent_hint = True,
-            items           = items,
-            v_model         = default_asset
-        )
+        items = [{'divider':True}, {'header':'Tables'}] + \
+                tables + \
+                [{'divider':True}, {'header':'Rasters'}] + \
+                images
+        
+        return items
         
 class PasswordField(v.TextField, SepalWidget):
     """
@@ -472,7 +489,7 @@ class PasswordField(v.TextField, SepalWidget):
     """
     def __init__(self, **kwargs):
         
-        # default behaviour 
+        # default behavior 
         self.label="Password"
         self.class_='mr-2'
         self.v_model=''
@@ -482,7 +499,7 @@ class PasswordField(v.TextField, SepalWidget):
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
         
-        # bind the js behaviour
+        # bind the js behavior
         self.on_event('click:append' ,self._toggle_pwd)
     
 

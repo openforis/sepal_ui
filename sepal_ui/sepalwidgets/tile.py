@@ -163,7 +163,7 @@ class TileDisclaimer(Tile):
     
     def __init__(self, **kwargs):
         
-        pathname = Path(__file__).parent.parent.joinpath('scripts', 'disclaimer.md')
+        pathname = Path(__file__).parents[1]/'scripts'/'disclaimer.md'
         #pathname = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'disclaimer.md')
         
         #read the content and transform it into a html

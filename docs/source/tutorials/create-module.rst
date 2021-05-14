@@ -1,18 +1,18 @@
 Create my first module
 ======================
 
-In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a github repository
+In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository
 
-Create the github repository 
+Create the GitHub repository 
 ----------------------------
 
-To initialize our project, let's create an empty github repository.
+To initialize our project, let's create an empty GitHub repository.
 Make sure that the repository is public.
 All the following checkbox need to stay unchecked:
 
 * add a README file 
-* add a .gitignore
-* choose a licence
+* add a `.gitignore`
+* choose a license
 
 
 .. note::
@@ -24,7 +24,7 @@ Here I will use :code:`my_first_module`:
 .. image:: ../../img/create-repository.png
 
 You can click on :code:`create repository`
-Keep the GitHub webpage open.
+Keep the GitHub web page open.
 
 Initialize the module 
 ---------------------
@@ -58,8 +58,8 @@ It will launch the creation script of the module factory.
    ##################################
 
    Welcome in the module factory interface.
-   This interface will help you building a dashboard app based on the sepal_ui librairy
-   Please read the documentation of the librairy before launching this script
+   This interface will help you building a dashboard app based on the sepal_ui library
+   Please read the documentation of the library before launching this script
 
 
 
@@ -68,7 +68,7 @@ It will launch the creation script of the module factory.
 
    Provide a module name: 
    My first module 
-   Provide the url of an empty github repository: 
+   Provide the URL of an empty github repository: 
    https://github.com/12rambau/my_first_module.git
    Provide a short description for your module(optional): 
    This is the first module of my life 
@@ -85,7 +85,7 @@ It will launch the creation script of the module factory.
    Resolving deltas: 100% (82/82), done.
    Write a default README.md file
    Write a default ABOUT.md file
-   Update the module name in the json translation dictionnaries
+   Update the module name in the json translation dictionaries
    Initialized empty Git repository in /home/prambaud/My_first_module/.git/
    [master (root-commit) 0519924] first commit
    25 files changed, 1115 insertions(+)
@@ -140,10 +140,10 @@ Module name
 
 Use the module name you want to use in the top bar of your application, special character are not forbidden.
 
-github repository
+GitHub repository
 ^^^^^^^^^^^^^^^^^
 
-You need to copy paste the link to the github repository that is still open in your second tab. Just click on the :code:`copy to clipboard` and paste it in the terminal.
+You need to copy paste the link to the GitHub repository that is still open in your second tab. Just click on the :code:`copy to clipboard` and paste it in the terminal.
 
 If you're not sure it's here :
 
@@ -158,10 +158,10 @@ This parameter is optional
 What happened ?
 ^^^^^^^^^^^^^^^
 
-This script cloned the `template repository <https://github.com/12rambau/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file habeen build on the fly based on the description you gave in the questionnaire. 
-The name of the app have been changed in the translation dictionnaries and your folder has been pushed to the empty Github repository.
+This script cloned the `template repository <https://github.com/12rambau/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file have been build on the fly based on the description you gave in the questionnaire. 
+The name of the app have been changed in the translation dictionaries and your folder has been pushed to the empty GitHub repository.
 
-if you reload your GitHub page in your browser, you'll find all that all the files have been uopdated and in your sepal terminal run :code:`cd my_first_repository` to start coding. 
+if you reload your GitHub page in your browser, you'll find out that all the files have been updated. In your SEPAL terminal run :code:`cd my_first_repository` to start coding. 
 
 Let's play
 ----------
@@ -175,22 +175,22 @@ It will start a popup window.
 
 .. note::
    
-   If you want to reproduce the sepal behaviour you'll need to add an extra option to the url of this popup windows. 
-   The sepal interface will display voila with it's dark theme so if you don't want to have a light background add :code:`?voila-theme=dark` at the end of your url as in:
+   If you want to reproduce the sepal behavior you'll need to add an extra option to the URL of this popup windows. 
+   The sepal interface will display voila with it's dark theme so if you don't want to have a light background add :code:`?voila-theme=dark` at the end of your URL as in:
    
    .. code-block:: bash 
       
       https://sepal.io/api/sandbox/jupyter/voila/render/My_first_module/ui.ipynb?voila-theme=dark
 
 
-The popup will display a fully functionnal app. A default process have been set-up to show you how the Python module can behave, take your time to play with it.
+The popup will display a fully functional app. A default process have been set-up to show you how the Python module can behave, take your time to play with it.
 
 .. image:: ../../img/module-landing.png
 
 .. warning::
 
-   If you're module start with an error, it means that your are not registered to your'e GEE account
-   Follow the procedure to link you're GEE account to Sepal and then go to a fresh terminal
+   If you're module start with an error, it means that your are not registered to your GEE account
+   Follow the procedure to link your GEE account to Sepal and then go to a fresh terminal
 
    .. code-block:: bash
 
@@ -211,7 +211,7 @@ The popup will display a fully functionnal app. A default process have been set-
         module_dir = Path('~','module_results').expanduser()
         module_dir.mkdir(exist_ok=True)
         
-    Please use it as a starting point for any results you xant to export in SEPAL.
+    Please use it as a starting point for any results you want to export in SEPAL.
 
 
 
