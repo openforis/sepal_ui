@@ -1,13 +1,11 @@
 import json
 from pathlib import Path
-from traitlets import Any, HasTraits, Unicode
+from traitlets import Any
 from urllib.request import urlretrieve
-import zipfile
 
 import pandas as pd
 import geopandas as gpd
 from ipyleaflet import GeoJSON
-import ipyvuetify as v
 
 from sepal_ui.frontend.styles import AOI_STYLE
 from sepal_ui.scripts import utils as su
@@ -26,15 +24,15 @@ class AoiModel(Model):
     
     # widget related traitlets
     
-    method = Unicode('').tag(sync=True)
+    method = Any(None).tag(sync=True)
     
     default_vector = Any(None).tag(sync=True)
     default_admin = Any(None).tag(syn=True)
     point_json = Any(None).tag(sync=True) # information that will be use to transform the csv into a gdf
     vector_json = Any(None).tag(sync=True) # information that will be use to transform the vector file into a gdf
     geo_json = Any(None).tag(sync=True) # the drawn geojson featureCollection
-    
     admin = Any(None).tag(sync=True)
+    
     name = Any(None).tag(sync=True) # the name of the file (use only in drawn shaped)
 
     def __init__(self, alert, default_vector = None, default_admin=None, *args, **kwargs):
@@ -78,8 +76,10 @@ class AoiModel(Model):
         self.default_admin = self.admin = default_admin
         
         # set the default gdf in possible 
-        if (self.vector_json != None) or (self.admin != None):
-            self.set_gdf()
+        if self.vector_json != None:
+            self.set_gdf('SHAPE')
+        elif self.admin != None:
+            self.set_gdf('ADMIN0') #any level will work
             
         return self
     
@@ -99,15 +99,19 @@ class AoiModel(Model):
         
         return self.ipygeojson
     
-    def set_gdf(self):
+    def set_gdf(self, method=None):
         """
-        set the gdf based on the model inputs
+        set the gdf based on the model inputs. The method can be manually overwrite
+        
+        Args:
+            method (str| optional): a model method
         
         Return:
             self
         """
         
-        # there should be a more pythonic way of doing the same thing
+        # overwrite self.method
+        self.method = method or self.method
         
         if self.method in ['ADMIN0', 'ADMIN1', 'ADMIN2']:
             self._from_admin(self.admin)
@@ -260,14 +264,14 @@ class AoiModel(Model):
 
         # delete all the traits
         [setattr(self, attr, None) for attr in self.trait_names()]
-
-        # reset the default 
-        self.set_default(default_vector, default_admin)
         
         # reset the outputs
         self.gdf = None
         self.ipygeojson = None
         self.selected_feature = None
+
+        # reset the default 
+        self.set_default(default_vector, default_admin)
 
         return self
 
