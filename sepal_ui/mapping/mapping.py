@@ -5,27 +5,23 @@ if 'PROJ_LIB' in list(os.environ.keys()): del os.environ['PROJ_LIB']
 
 import collections
 from pathlib import Path
-import functools
 
 import ee 
 import geemap
 from haversine import haversine
-import xarray_leaflet
 import numpy as np
 import rioxarray
-import xarray as xr
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import (
     AttributionControl, DrawControl, LayersControl, 
-    LocalTileLayer, ScaleControl, TileLayer, WidgetControl,
+    LocalTileLayer, ScaleControl, WidgetControl,
     ZoomControl
 )
 from traitlets import (
     Bool, link, observe
 )
 import ipyvuetify as v
-from deprecated import deprecated
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -312,26 +308,6 @@ class SepalMap(geemap.Map):
             zoom_out = zoom - 1
 
         self.zoom = zoom-zoom_out
-        
-        return self
-    
-    @su.need_ee
-    @deprecated(reason="will be removed in version 2.0")
-    def update_map(self, assetId, bounds, remove_last=False):
-        """
-        Update the map with the asset overlay
-        
-        Args:
-            assetId (str): the asset ID in gee assets
-            bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
-            remove_last (boolean) (optional): Remove the last layer (if there is one) before updating the map
-        """  
-        if remove_last:
-            self.remove_last_layer()
-
-        self.zoom_bounds(bounds, zoom_out=2)
-        self.centerObject(ee.FeatureCollection(assetId), zoom=self.zoom)
-        self.addLayer(ee.FeatureCollection(assetId), {'color': 'green'}, name='aoi')
         
         return self
     
