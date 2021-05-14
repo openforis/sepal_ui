@@ -13,6 +13,7 @@
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -36,7 +37,9 @@ release = '1.1.4'
 extensions = [
     'sphinx.ext.napoleon',
     'notfound.extension', 
-    '_extentions.video'
+    'sphinxcontrib.spelling',
+    '_extentions.video',
+    '_extentions.line_break'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -45,7 +48,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['*/.ipynb_checkpoints']
+exclude_patterns = ['**.ipynb_checkpoints/']
 
 # -- Load the images from the master sepal-doc -------------------------------
 from urllib.request import urlretrieve
@@ -65,10 +68,19 @@ html_logo = '../img/dwn/sepal.png'
 html_favicon = '../img/dwn/favicon.ico'
 html_last_updated_fmt = ''
 html_theme_options = {
-    #"external_links": [],
-    "github_url": "https://github.com/12rambau/sepal_ui",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/12rambau/sepal_ui",
+            "icon": "fab fa-github"
+        },
+        {
+            "name": "Pypi",
+            "url": "https://pypi.org/project/sepal-ui/",
+            "icon": "fab fa-python",
+        }
+    ],
     "use_edit_page_button": True,
-    #"twitter_url": "https://twitter.com/pandas_dev"
 }
 html_context = {
     "github_user": "12rambau",
@@ -81,4 +93,16 @@ html_context = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = ['css/custom.css']
+
+# -- Options for spelling output -------------------------------------------------
+spelling_lang='en_US'
+spelling_show_suggestions=True
+spelling_filters = ['_filters.names.Names']
+spelling_word_list_filename=[str(Path(__file__).parent.joinpath('_spelling', 'en_US.txt'))]
+spelling_verbose=False
+spelling_exclude_patterns=['modules/*']

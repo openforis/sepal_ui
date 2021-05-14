@@ -299,7 +299,7 @@ def run_aoi_selection(output, list_method, io, folder=None):
     Create an gee asset according to the user inputs
 
     Args:
-        io.file_input (str): the file to retreive from the user folder. It must be a .shp file
+        io.file_input (str): the file to retrieve from the user folder. It must be a .shp file
         io.file_name (str): name of the aoi that will be used troughout the process
         io.country_selection (str): a country name in english available in LSIB 2017
         io.asset_name (str): the assetId of a existing asset

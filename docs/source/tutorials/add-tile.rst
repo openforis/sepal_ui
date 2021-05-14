@@ -66,9 +66,7 @@ Create a partial ui
 At the root of your repository create a notebook called :code:`[my process_name]_ui.ipynb`.
 In this file will create the instance of the tile object that we created 
 
-by writting the following steps (each code block need to be written in a separate cell):
-
-impot io and tiles 
+by writing the following steps (each code block need to be written in a separate cell):
 
 .. code-block:: python 
 
@@ -78,7 +76,7 @@ impot io and tiles
 
 .. tip::
     
-    add the debugging io required for you tile to work in stand-alone. it will allow you to test your process only by launching this notebook 
+    add the debugging :code:`io` required for you tile to work in stand-alone. it will allow you to test your process only by launching this notebook 
 
 create the io 
 
@@ -151,3 +149,7 @@ in the :code:`app_items` list, add a :code:`DrawerItem` corresponding to your ti
 
 start your voila dashboard "et voila!", you're tile will be loaded at the kernel start and display when you click on the corresponding drawer item.
 
+
+.. spelling:: 
+
+    et

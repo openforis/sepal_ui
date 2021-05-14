@@ -13,7 +13,7 @@ Any argument from the original :code:`Combobox` ipyvuetify class can be used to 
 .. image:: ../../img/asset_select.png
     :alt: asset_select
 
-the value can be retreive from the :code:`v_model` trait. 
+the value can be retrieve from the :code:`v_model` trait. 
 
 .. code-block:: python 
 

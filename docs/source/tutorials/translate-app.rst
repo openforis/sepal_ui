@@ -1,17 +1,22 @@
 Translate my application 
 ========================
 
-Sepal tries to be as inclusive as possible. To do so the plateform is translated in 3 languages : English, Français and español. 
-To reflect the diversity of language available, :code:`sepal_ui` embed an translator tool and help you manage your messages for differents languages. 
+Sepal tries to be as inclusive as possible. To do so the platform is translated in 3 languages : 
+
+-   English, 
+-   Français
+-   Español
+
+To reflect the diversity of language available, :code:`sepal_ui` embed an translator tool and help you manage your messages for different languages. 
 
 
 Update the main dictionary 
 --------------------------
 
 I assume that since you started using the lib you hard-coded in your files every single message displayed to the end user. 
-The first thing you'll need to do is to update the main dictionnary as it will be your reference for the rest of the app. 
+The first thing you'll need to do is to update the main dictionary as it will be your reference for the rest of the app. 
 
-if you removed every message relative to the default functions, your dictionnary should look like the following : 
+if you removed every message relative to the default functions, your dictionary should look like the following : 
 
 .. code-block:: python 
 
@@ -33,7 +38,7 @@ Add new message
 ^^^^^^^^^^^^^^^
 
 here you gather and add every message you display in your app. 
-For example if I want to display an error when no_aoi is set i can add the following input in the dictionnary : 
+For example if I want to display an error when :code:`no_aoi` is set i can add the following input in the dictionary: 
 
 .. code-block:: python 
 
@@ -49,7 +54,7 @@ For example if I want to display an error when no_aoi is set i can add the follo
 
     remember that JSON format does only accept " (double quote)
 
-and to call in any of your component you just need to import the ms Translator and use the names you gave as namespaces : 
+and to call in any of your component you just need to import the ms Translator and use the names you gave as :code:`SimpleNameSpace`: 
 
 .. code-block:: python 
 
@@ -69,7 +74,7 @@ If you want to keep the possibility to use parameter in your message you can use
     The :code:`format()` method formats the specified value(s) and insert them inside the string's placeholder. The placeholder is defined using curly brackets: :code:`{}`. 
     Read more about the placeholders in the Placeholder `official documentation <https://docs.python.org/fr/3.5/library/string.html>`_. The :code:`format()` method returns the formatted string.
 
-In our dictionnary that could be use in the following way:
+In our dictionary that could be use in the following way:
 
 .. code-block:: python 
 
@@ -93,15 +98,15 @@ and call it in your components for example in a try/Except statement :
         print(ms.error.error_occured.format(e))
 
 
-Update the translated dictionnaries
+Update the translated dictionaries
 -----------------------------------
 
-If this is the first time you translate your app, the easyest way is to simply copy/paste all the english dictionnary (:code:`en.json`) into the target one (:code:`fr.json` or :code:`es.json`) and replace all the message with their accurate translation. 
+If this is the first time you translate your app, the easiest way is to simply copy/paste all the English dictionary (:code:`en.json`) into the target one (:code:`fr.json` or :code:`es.json`) and replace all the message with their accurate translation. 
 
 
-If it's not the first translation you make you don't want to erase all you're already translated message. You only want to update the dictionnary with the new key. 
+If it's not the first translation you make you don't want to erase all you're already translated message. You only want to update the dictionary with the new key. 
 To pinpoint the missing keys you can use your memory or one of the Translator method. 
-Open the :code:`component/message/test_translation.ipynb` notebook. change the :code:`locale` variable into your target language. Then run all cells. The last one will display all the missing keys in the dictionnary hierarchy.
+Open the :code:`component/message/test_translation.ipynb` notebook. change the :code:`locale` variable into your target language. Then run all cells. The last one will display all the missing keys in the dictionary hierarchy.
 
 .. code-block:: python 
 
@@ -119,8 +124,12 @@ Open the :code:`component/message/test_translation.ipynb` notebook. change the :
 
     >>>>> root['not_translated']
 
-Once your output message is "All messages are translated" it means that all the dictionnaries have the same keys and the same shape. if someone open your application in another language the translated message will be used instead of the english one.
+Once your output message is "All messages are translated" it means that all the dictionaries have the same keys and the same shape. if someone open your application in another language the translated message will be used instead of the English one.
 
 .. note::
 
-    If a key is missing in the target language dictionnary, the :code:`Translator` (:code:`ms`) will automattically fallback to the en key in order to avoid error or non displayed messages
+    If a key is missing in the target language dictionary, the :code:`Translator` (:code:`ms`) will automatically fallback to the en key in order to avoid error or non displayed messages
+
+.. spelling:: 
+
+    Español
