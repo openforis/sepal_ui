@@ -5,6 +5,7 @@ if 'PROJ_LIB' in list(os.environ.keys()): del os.environ['PROJ_LIB']
 
 import collections
 from pathlib import Path
+import functools
 
 import ee 
 import geemap
@@ -29,9 +30,6 @@ from deprecated import deprecated
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
-#initialize earth engine
-su.init_ee()
-
 class SepalMap(geemap.Map):
     """
     The SepalMap class inherits from geemap.Map. It can thus be initialized with all its parameter. 
@@ -54,17 +52,22 @@ class SepalMap(geemap.Map):
 
     vinspector = Bool(False).tag(sync=True)
     
-    def __init__(self, basemaps=[], dc=False, vinspector=False, **kwargs):
+    def __init__(self, basemaps=[], dc=False, vinspector=False, ee=True, **kwargs):
         
-        # Initial parameters
-
-
+        # Init the map
         super().__init__(
+            ee_initialize = False, # we take care of the initialization on our side
             add_google_map=False,
             center = [0,0],
             zoom = 2,
             **kwargs
         )
+        
+        # init ee 
+        self.ee = ee
+        if ee:
+            su.init_ee()
+            self.ee = ee
         
         # init the rasters
         self.loaded_rasters = {}
@@ -89,18 +92,18 @@ class SepalMap(geemap.Map):
         
         # Add value inspector
         self.w_vinspector = widgets.Checkbox(
-                    value=False,
-                    description='Inspect values',
-                    indent=False,
-                    layout=widgets.Layout(width='18ex')
+            value=False,
+            description='Inspect values',
+            indent=False,
+            layout=widgets.Layout(width='18ex')
         )
 
         if vinspector:
-            self.add_control(
-                WidgetControl(
-                    widget = self.w_vinspector,
-                    position = 'topright')
-            )
+            self.add_control(WidgetControl(
+                widget = self.w_vinspector,
+                position = 'topright'
+            ))
+            
             link((self.w_vinspector, 'value'),(self, 'vinspector'))
 
         # Create output space for raster interaction
@@ -181,6 +184,7 @@ class SepalMap(geemap.Map):
         color = v.theme.themes.dark.info
         
         dc = DrawControl(
+            edit         = False,
             marker       = {},
             circlemarker = {},
             polyline     = {},
@@ -241,7 +245,8 @@ class SepalMap(geemap.Map):
                     self._remove_local_raster(last_layer)
                     
         return self
-              
+    
+    @su.need_ee
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
         """ 
         Get the proper zoom to the given ee geometry.
@@ -269,23 +274,31 @@ class SepalMap(geemap.Map):
         max_lon, max_lat = tr
         
         #zoom on these bounds 
-        self.zoom_bounds([tl, bl, tr, br], zoom_out)
+        self.zoom_bounds([min_lon, min_lat, max_lon, max_lat], zoom_out)
         
         return self 
     
     def zoom_bounds(self, bounds, zoom_out=1):
         """ 
-        Adapt the zoom to the given bounds.
+        Adapt the zoom to the given bounds. and center the image.
 
         Args:
-            bounds (list of tuple(x,y)): coordinates of tl, bl, tr, br points
+            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy
             zoom_out (int) (optional): Zoom out the bounding zoom
             
         Return:
             self
         """
         
-        tl, bl, tr, br = bounds        
+        minx, miny, maxx, maxy = bounds
+        
+        # Center map to the centroid of the layer(s)
+        self.center = [(maxy-miny)/2+miny, (maxx-minx)/2+minx]
+        
+        tl = (minx, maxy)
+        bl = (minx, miny)
+        tr = (maxx, maxy)
+        br = (maxx, miny)
         
         maxsize = max(haversine(tl, br), haversine(bl, tr))
         
@@ -302,6 +315,7 @@ class SepalMap(geemap.Map):
         
         return self
     
+    @su.need_ee
     @deprecated(reason="will be removed in version 2.0")
     def update_map(self, assetId, bounds, remove_last=False):
         """
