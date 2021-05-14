@@ -462,7 +462,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         
         self.items = self._get_items()
         
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
     def _get_items(self):
         
