@@ -446,23 +446,25 @@ class AssetSelect(v.Combobox, SepalWidget):
         # if folder is not set use the root one 
         self.folder = folder or ee.data.getAssetRoots()[0]['id']
         
-        
         self.label = label
         self.v_model = default_asset
         
         self.clearable = True
         self.dense = True
         self.persistent_hint = True
+        self.prepend_icon = 'mdi-cached'
         
         self.class_ = 'my-5'
         self.placeholder = 'users/someCustomUser/customAsset'
         self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
         
-        self.items = self._get_items()
+        self.items = self._get_items(None, None, None)
         
-        super().__init__(**kwargs)
+        super().__init__(**kwargs) 
+        
+        self.on_event('click:prepend', self._get_items)
 
-    def _get_items(self):
+    def _get_items(self, widget, event, data):
         
         # get the list of user asset
         assets = gee.get_assets(self.folder)
@@ -470,12 +472,14 @@ class AssetSelect(v.Combobox, SepalWidget):
         tables = sorted([e['id'] for e in assets if e['type'] == 'TABLE'])
         images = sorted([e['id'] for e in assets if e['type'] == 'IMAGE'])
         
-        items = [{'divider':True}, {'header':'Tables'}] + \
-                tables + \
-                [{'divider':True}, {'header':'Rasters'}] + \
-                images
+        self.items = [
+            {'divider':True}, {'header':'Tables'},
+            *tables,
+            {'divider':True}, {'header':'Rasters'},
+            *images
+        ]
         
-        return items
+        return self
         
 class PasswordField(v.TextField, SepalWidget):
     """
