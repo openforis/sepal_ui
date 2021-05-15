@@ -100,3 +100,30 @@ def get_assets(folder, asset_list = []):
             
     return asset_list
 
+@su.need_ee
+def is_asset(asset_name, folder=None):
+    """
+    Check if the asset already exist in the user asset folder
+    
+    Args: 
+        asset_descripsion (str) : the descripsion of the asset
+        folder (str): the folder of the glad assets
+        
+    Return:
+        (bool): true if already in folder
+    """
+    
+    # get the folder 
+    folder = folder or ee.data.getAssetRoots()[0]['id']
+    
+    # get all the assets
+    asset_list = get_assets(folder)
+    
+    # search for asset existance
+    exist = False
+    for asset in asset_list:
+        if asset_name == asset['name']:
+            exist = True
+            break
+            
+    return exist

@@ -22,9 +22,7 @@ sepal_darker = '#1a1a1a'
 # set the background 
 bg_color = '#121212' if v.theme.dark else '#fff'
 
-
 # Fixed styles to avoid leaflet maps overlap sepal widgets
-
 class Styles(v.VuetifyTemplate):
 
     template=Unicode("""
