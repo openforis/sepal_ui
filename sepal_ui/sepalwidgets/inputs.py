@@ -438,7 +438,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     
 
     @su.need_ee
-    def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
+    def __init__(self, label = 'Select an asset', folder = None, default_asset = None, **kwargs):
         
         # initialize earth engine
         su.init_ee()
@@ -460,7 +460,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         
         self.items = self._get_items()
         
-        super().__init__()
+        super().__init__(**kwargs)
 
     def _get_items(self):
         
