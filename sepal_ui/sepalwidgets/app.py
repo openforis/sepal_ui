@@ -5,6 +5,7 @@ import ipyvuetify as v
 import traitlets
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui import color
 from sepal_ui.frontend.styles import *
 from sepal_ui.frontend.js import *
 
@@ -296,11 +297,20 @@ class App(v.App, SepalWidget):
             if footer:
                 self.footer = footer
                 app_children.append(self.footer)
+                
+            # create a negative overlay to force the background color 
+            bg = v.Overlay(
+                color=color.bg, 
+                opacity=1, 
+                style_='transition:unset', 
+                z_index=-1
+            )
             
             super().__init__(
                 v_model=None,
-                children = app_children,
-                **kwargs)
+                children = [bg, *app_children],
+                **kwargs
+            )
             
         def show_tile(self, name):
             """

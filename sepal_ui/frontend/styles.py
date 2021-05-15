@@ -5,6 +5,8 @@ import ipyvuetify as v
 
 # change vuetify theming 
 v.theme.dark = True
+
+# set the colors for the dark theme
 v.theme.themes.dark.primary = "#B3842E"
 v.theme.themes.dark.accent = "#a1458e"
 v.theme.themes.dark.secondary = "#324a88"
@@ -16,6 +18,9 @@ v.theme.themes.dark.error = "#A63228"
 #fixed colors 
 sepal_main = '#24221F'
 sepal_darker = '#1a1a1a'
+
+# set the background 
+bg_color = '#121212' if v.theme.dark else '#fff'
 
 
 # Fixed styles to avoid leaflet maps overlap sepal widgets
