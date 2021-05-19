@@ -268,9 +268,13 @@ def loading_button(button, alert, debug=False):
             value = None
             try:
                 value = func(*args, **kwargs)
+                
             except Exception as e:
                 button.toggle_loading() # Stop loading button if there is an error
-                alert.add_msg(f'{e}', 'error')
+                
+                type_ = 'warning' if isinstance(e, Warning) else 'error'
+                
+                alert.add_msg(f'{e}', type_)
                 if debug: raise e
                 return # Scape of the function
 
