@@ -11,7 +11,7 @@ from shapely import geometry as sg
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
-from sepal_ui.aoi.local_aoi.aoi_model import AoiModel
+from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui import color as sc
 
