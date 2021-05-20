@@ -123,7 +123,7 @@ def init_ee():
     """
     Initialize earth engine according to the environment. 
     It will use the creddential file if the EE_PRIVATE_KEY env variable exist. 
-    Otherwise it use the simple Initilize command (asking the user to register if necessary)
+    Otherwise it use the simple Initialize command (asking the user to register if necessary)
     """
     
     # only do the initialization if the credential are missing

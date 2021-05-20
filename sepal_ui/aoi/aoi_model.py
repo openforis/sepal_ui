@@ -17,6 +17,37 @@ from sepal_ui.model import Model
 
 
 class AoiModel(Model):
+    """
+    an Model object dedicated to the sorage and the manipulation of aoi. 
+    It is meant to be used with the AoiView object (embeded in the AoiTile). 
+    By using this you will be able to provide your application with aoi as an ee_object or a gdf, depending if you activated the ee binding or not.
+    The class also provide insight on your aoi geometry.
+    
+    Args: 
+        ee (bool, optional): wether or not the aoi selector should be using the EarthEngine binding
+        vector (str|pathlib.Path, optional): the path to the default vector object
+        admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+        asset (str, optional): the default asset. Can only work if ee==True
+        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+        
+    Attributes:
+        method (traitlet, str): the method to use in the aoi selection. Need to be one of the AoiView.
+        
+        default_vector (str|pathlib.Path): the default vector file 
+        default asset (str): the default asset path
+        default_admin (int): the default admin code in GADM if ee==False else GAUL 2015
+        
+        point_json (traitlet, dict): information that will be use to transform the csv into a gdf (pathname, lat, long, id)
+        vector_json = (trailtet, dict): information that will be use to transform the vector file into a gdf
+        geo_json = (traitlet, GeoJson): the drawn geojson featureCollection
+        admin = (traitlet, int): the administrative code. Need to be GADM if ee==False and GAUL 2015 if ee==True. 
+        asset_name = (traitlet, str): the asset name (only for GEE model)
+        name = (traitlet, str): the name of the asset (manually set only in drawn shaped, automatic for all the others)
+        
+        feature_collection (ee.FeatureCollection): the featurecollection of the aoi (only in ee model)
+        gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
+        ipygeojson (GeoJson layer): the ipyleaflet representation of the selected aoi
+    """
     
     # const params
     GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv' # the file location of the database
@@ -36,8 +67,6 @@ class AoiModel(Model):
     # widget related traitlets
     method = Any(None).tag(sync=True)
     
-    default_vector = Any(None).tag(sync=True)
-    default_admin = Any(None).tag(syn=True)
     point_json = Any(None).tag(sync=True) # information that will be use to transform the csv into a gdf
     vector_json = Any(None).tag(sync=True) # information that will be use to transform the vector file into a gdf
     geo_json = Any(None).tag(sync=True) # the drawn geojson featureCollection
@@ -59,7 +88,6 @@ class AoiModel(Model):
         self.gdf = None
         self.feature_collection = None
         self.ipygeojson = None
-        self.selected_feature = None
         
         # the Alert used to display information
         self.alert = alert
@@ -246,9 +274,7 @@ class AoiModel(Model):
         return self
             
     def _from_admin(self, admin):
-        
-        """Set the object according to given an administrative number in 
-        the GADM norm. The object will be projected in EPSG:4326"""
+        """Set the object according to given an administrative number in the GADM norm. The object will be projected in EPSG:4326"""
         
         if not admin:
             raise Exception('Select an administrative layer')
@@ -304,7 +330,7 @@ class AoiModel(Model):
     def clear_attributes(self):
         """
         Return all attributes to their default state.
-        Set the default setting as current gdf.
+        Set the default setting as current object.
 
         Return: 
             self
@@ -334,7 +360,7 @@ class AoiModel(Model):
         Retrieve the columns or variables from self excluding geometries and gee index.
 
         Return: 
-            ([str]): sorted list cof column names
+            ([str]): sorted list of column names
         """
         
         if type(self.gdf) == type(None):
@@ -384,15 +410,18 @@ class AoiModel(Model):
             raise Exception("You must set the gdf before interacting with it") 
         
         if self.ee:
-            self.selected_feature = self.feature_collection.filterMetadata(column, 'equals', field)
+            selected_feature = self.feature_collection.filterMetadata(column, 'equals', field)
         else:
-            self.selected_feature = self.gdf[self.gdf[column] == field]
+            selected_feature = self.gdf[self.gdf[column] == field]
             
-        return self.selected_feature
+        return selected_feature
     
     def total_bounds(self):
-        """Reproduce the behaviour of the total_bounds method from geopandas
-        Return the minxx, miny, maxx, maxy values
+        """
+        Reproduce the behaviour of the total_bounds method from geopandas
+        
+        Return: 
+            (tuple): minxx, miny, maxx, maxy
         """
         
         if self.ee:
@@ -406,7 +435,12 @@ class AoiModel(Model):
         return bounds
     
     def export_to_asset(self):
-        """Export the feature_collection as an asset"""
+        """
+        Export the feature_collection as an asset (only for ee model)
+        
+        Return: 
+            self
+        """
         
         asset_name = self.ASSET_SUFFIX + self.name
         asset_id = str(Path(self.folder, asset_name))

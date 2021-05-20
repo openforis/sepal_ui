@@ -1,4 +1,3 @@
-from ipywidgets import HTML
 from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v 
@@ -15,7 +14,7 @@ v.theme.themes.dark.info = "#79B1C9"
 v.theme.themes.dark.warning = "#b8721d"
 v.theme.themes.dark.error = "#A63228"
 
-#fixed colors 
+# fixed colors 
 sepal_main = '#24221F'
 sepal_darker = '#1a1a1a'
 
@@ -43,14 +42,13 @@ styles=Styles()
 display(styles)
 
 COMPONENTS = {
-
     'PROGRESS_BAR':{
         'color':'indigo',
     }
 }
 
-
-AOI_STYLE = { # default styling of the layer
+# default styling of the aoi layer
+AOI_STYLE = { 
     "stroke": True,
     "color": v.theme.themes.dark.success,
     "weight": 2,
@@ -60,40 +58,22 @@ AOI_STYLE = { # default styling of the layer
     "fillOpacity": 0.4,
 }
 
-ICON_TYPES = {
-    # Used for folders
-    '':{ 
-        'color':'amber',
-        'icon':'mdi-folder-outline'
-    },
-    '.csv':{
-        'color':'green accent-4',
-        'icon':'mdi-border-all'
-    },
-    '.txt':{
-        'color':'green accent-4',
-        'icon':'mdi-border-all'
-    },
-    '.tif':{
-        'color':'deep-purple',
-        'icon':'mdi-image-outline'
-    },
-    '.tiff':{
-        'color':'deep-purple',
-        'icon':'mdi-image-outline'
-    },
-    '.shp':{
-        'color':'deep-purple',
-        'icon':'mdi-vector-polyline'
-    },
-    'DEFAULT':{
-        'color':'light-blue',
-        'icon':'mdi-file-outline'
-    },
-    # Icon for parent folder
-    'PARENT':{ 
-        'color':'white',
-        'icon':'mdi-folder-upload-outline'
-    },
 
+_folder = {'color':'amber', 'icon':'mdi-folder-outline'},
+_table = {'color':'green accent-4','icon':'mdi-border-all'},
+_vector = {'color':'deep-purple', 'icon':'mdi-vector-polyline'},
+_other = {'color':'light-blue', 'icon':'mdi-file-outline'}
+_parent = {'color':'white', 'icon':'mdi-folder-upload-outline'}
+_image = {'color':'deep-purple', 'icon':'mdi-image-outline'}
+
+ICON_TYPES = {
+    '': _folder,
+    '.csv': _table,
+    '.txt': _table,
+    '.tif': _image,
+    '.tiff': _image,
+    '.shp': _vector,
+    '.geojson': _vector,
+    'DEFAULT': _other,
+    'PARENT': _parent,
 }

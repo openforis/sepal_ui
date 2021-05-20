@@ -31,14 +31,17 @@ class SepalMap(geemap.Map):
     The SepalMap class inherits from geemap.Map. It can thus be initialized with all its parameter. 
     The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
     Numerous methods have been added in the class to help you deal with your workflow implementation.
-    It can natively display raster from .tif files and files and ee objects using methods that have the same signature as the GEE JavaScripts console
+    It can natively display raster from .tif files and files and ee objects using methods that have the same signature as the GEE JavaScripts console.
     
     Args: 
         basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
-        dc (bool): wether or not the drawing control should be displayed
-        vinspector (bool) : Add value inspector to map, useful to inspect pixel values
+        dc (bool, optional): wether or not the drawing control should be displayed. default to false
+        vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
+        ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        
         
     Attributes:
+        ee (bool): current ee binding status
         loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
         output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
         output_control_r (ipyleaflet.WidgetControl): the custom control on the map
@@ -61,9 +64,7 @@ class SepalMap(geemap.Map):
         
         # init ee 
         self.ee = ee
-        if ee:
-            su.init_ee()
-            self.ee = ee
+        if ee: su.init_ee()
         
         # init the rasters
         self.loaded_rasters = {}
@@ -71,8 +72,7 @@ class SepalMap(geemap.Map):
         # add the basemaps
         self.clear_layers()
         if len(basemaps):
-            for basemap in set(basemaps):
-                self.add_basemap(basemap)
+            [self.add_basemap(basemap) for basemap in set(basemaps)]
         else:
             self.add_basemap('CartoDB.DarkMatter')
         
@@ -108,10 +108,10 @@ class SepalMap(geemap.Map):
         self.add_control(self.output_control_r)
 
         # define interaction with rasters
-        self.on_interaction(self.raster_interaction)
+        self.on_interaction(self._raster_interaction)
         
     @observe('vinspector')
-    def change_cursor(self, change):
+    def _change_cursor(self, change):
         """Method to be called when vinspector trait changes """
         
         if self.vinspector:
@@ -121,7 +121,7 @@ class SepalMap(geemap.Map):
             
         return
         
-    def raster_interaction(self, **kwargs):
+    def _raster_interaction(self, **kwargs):
         """Define a behavior when ispector checked and map clicked"""
         
         if kwargs.get('type') == 'click' and self.vinspector:
@@ -334,6 +334,7 @@ class SepalMap(geemap.Map):
             colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to None.
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
+            opacity (float, optional): the opacity of the layer, default 1.0.
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
             get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
             colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it. 
@@ -382,7 +383,7 @@ class SepalMap(geemap.Map):
             'y_dim': y_dim,
             'fit_bounds': fit_bounds,
             'get_base_url': get_base_url,
-            #'colorbar_position': colorbar_position # will be uncoment when the colobared version of xarray-leaflet will be released
+            'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
             'rgb_dim': 'band' if multi_band else None,
             'colormap': None if multi_band else colormap,
         }

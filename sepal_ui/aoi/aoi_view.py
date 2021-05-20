@@ -1,7 +1,5 @@
-import functools
 from pathlib import Path
-from traitlets import List, Any, link, observe, Unicode, HasTraits, Int
-import json
+from traitlets import Int
 from datetime import datetime as dt
 
 import ipyvuetify as v
@@ -30,7 +28,7 @@ select_methods = {
 }
         
 class Select(v.Select, sw.SepalWidget):
-    """ A classic Vuetify Select widget inheriting from sepalwidgets"""
+    """A classic Vuetify Select widget inheriting from sepalwidgets"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -89,6 +87,19 @@ class MethodSelect(Select):
         super().__init__(label=ms.aoi_sel.method, items=items, v_model='', dense=True)
         
 class AdminField(v.Select, sw.SepalWidget):
+    """
+    An admin level selector. It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+    
+    Args:
+        level (int): The administrative level of the field
+        parent (AdminField): the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
+        ee (bool, optional): wether to use ee or not (default to True)
+        
+    Attributes:
+        ee (bool): the earthengine status
+        level (int): the admin level of the current field
+        parent (AdminField): the field parent object
+    """
     
     # the file location of the database 
     GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
@@ -118,7 +129,12 @@ class AdminField(v.Select, sw.SepalWidget):
             self.parent.observe(self._update, 'v_model')
             
     def show(self):
-        """when an admin field is shown, show its parent as well"""
+        """
+        when an admin field is shown, show its parent as well
+        
+        Return:
+            self
+        """
         
         super().show()
         
@@ -169,6 +185,25 @@ class AdminField(v.Select, sw.SepalWidget):
         return self
 
 class AoiView(v.Card):
+    """
+    Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False)
+    
+    Args:
+        methods (str, optional): the methods to use in the widget, default to 'ALL',
+        map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        ee (bool, optional): wether to bind to ee or not
+        
+    Attributes:
+        ee (bool): the earthengine binding status
+        model (AoiModel): the aoiModel to save the aoi selected as gdf or ee.FeatureCollection
+        map (SepalMap): the map if filled in the arguments
+        w_method (MethodSelect): the the method selection widget
+        w_admin_0, w_admin_1, w_admin2, w_vector, w_points, w_draw, w_asset (widgets): the selection widgets
+        components (dict): the widgets stored in a dict using the method names as keys
+        alert (sw.Alert): an alert component to display outputs
+        btn (sw.Btn): a btn component
+        
+    """
     
     updated = Int(0).tag(sync=True)
     

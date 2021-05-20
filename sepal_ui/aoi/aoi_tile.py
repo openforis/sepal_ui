@@ -7,6 +7,17 @@ from sepal_ui.message import ms
 from sepal_ui.aoi.aoi_view import *
 
 class AoiTile(sw.Tile):
+    """
+    sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation
+    
+    Args:
+        methods (str, optional): the methods to select the aoi (more information in AoiView), default to 'ALL'
+        ee (bool, optional): wether or not to use the python EartEngine API. default to True
+        
+    Attributes:
+        map (sw.SepalMap): a SepalMap object to display the selected aoi
+        aoi_view (AoiView): an AoiView object to handle the aoi method selection
+    """
     
     def __init__(self, methods='ALL', ee= True, **kwargs):
         
