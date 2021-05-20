@@ -13,20 +13,11 @@ from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui import color as sc
 
-CUSTOM = ms.aoi_sel.custom
-ADMIN = ms.aoi_sel.administrative
+CUSTOM = AoiModel.CUSTOM
+ADMIN = AoiModel.ADMIN
 ALL = 'All'
+select_methods = AoiModel.METHODS     
 
-select_methods = {
-    'ADMIN0': {'name': ms.aoi_sel.adm[0], 'type': ADMIN},
-    'ADMIN1': {'name': ms.aoi_sel.adm[1], 'type': ADMIN},
-    'ADMIN2': {'name': ms.aoi_sel.adm[2], 'type': ADMIN},
-    'SHAPE': {'name': ms.aoi_sel.vector, 'type': CUSTOM},
-    'DRAW': {'name': ms.aoi_sel.draw, 'type': CUSTOM},
-    'POINTS': {'name': ms.aoi_sel.points, 'type': CUSTOM},
-    'ASSET': {'name': ms.aoi_sel.asset, 'type': CUSTOM}
-}
-        
 class Select(v.Select, sw.SepalWidget):
     """A classic Vuetify Select widget inheriting from sepalwidgets"""
     def __init__(self, *args, **kwargs):
@@ -101,13 +92,10 @@ class AdminField(v.Select, sw.SepalWidget):
         parent (AdminField): the field parent object
     """
     
-    # the file location of the database 
-    GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv'
-    GAUL_FILE = Path(__file__).parents[2]/'scripts'/'gaul_database.csv'
-    GADM_CODE = 'GID_{}'
-    GAUL_CODE = 'ADM{}_CODE'
-    GADM_NAME = 'NAME_{}'
-    GAUL_NAME = 'ADM{}_NAME'
+    # the file location of the database
+    FILE = AoiModel.FILE
+    CODE = AoiModel.CODE
+    NAME = AoiModel.NAME
     
     def __init__(self, level, parent=None, ee=True, **kwargs):
         
@@ -154,19 +142,16 @@ class AdminField(v.Select, sw.SepalWidget):
         """
         
         # extract the level list
-        file = self.GAUL_FILE if self.ee else self.GADM_FILE
-        code = self.GAUL_CODE if self.ee else self.GADM_CODE
-        df = pd.read_csv(file).drop_duplicates(subset=code.format(self.level))
+        df = pd.read_csv(self.FILE[self.ee]).drop_duplicates(subset=self.CODE[self.ee].format(self.level))
         
         # filter it 
-        if filter_: df = df[df[code.format(self.level-1)] == filter_]
+        if filter_: df = df[df[self.CODE[self.ee].format(self.level-1)] == filter_]
         
         # formatted as a item list for a select component
-        name = self.GAUL_NAME if self.ee else self.GAD_NAME
         self.items = [
             {
-                'text': su.normalize_str(r[name.format(self.level)], folder=False), 
-                'value': r[code.format(self.level)]
+                'text': su.normalize_str(r[self.NAME[self.ee].format(self.level)], folder=False), 
+                'value': r[self.CODE[self.ee].format(self.level)]
             } for _, r in df.iterrows()
         ] 
         

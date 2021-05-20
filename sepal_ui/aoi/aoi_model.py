@@ -50,19 +50,28 @@ class AoiModel(Model):
     """
     
     # const params
-    GADM_FILE = Path(__file__).parents[2]/'scripts'/'gadm_database.csv' # the file location of the database
+    FILE = [Path(__file__).parents[2]/'scripts'/'gadm_database.csv', Path(__file__).parent[2]/'scripts'/'gaul_database.csv']
+    CODE = ['GID_{}', 'ADM{}_CODE']
+    NAME = ['NAME_{}', 'ADM{}_NAME']
+    ISO = ['GID_0', 'iso-3']
     GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip" # the base url to download gadm maps
     GADM_ZIP_DIR = Path('~', 'tmp', 'GADM_zip').expanduser() # the zip dir where we download the zips
     GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
-    GADM_CODE = 'GID_{}'
-    GADM_ISO = 'GID_0'
-    GADM_NAME = 'NAME_{}'
-    GAUL_FILE = Path(__file__).parent[2]/'scripts'/'gaul_database.csv' # the file location of the GAUL dataset
     GAUL_ASSET = "FAO/GAUL/2015/level{}"
-    GAUL_CODE = 'ADM{}_CODE'
-    GAUL_ISO = 'iso-3'
-    GAUL_NAME = 'ADM{}_NAME'
     ASSET_SUFFIX = 'aoi_' # the suffix to identify the asset in GEE
+    
+    # const methods 
+    CUSTOM = ms.aoi_sel.custom
+    ADMIN = ms.aoi_sel.administrative
+    METHODS = {
+        'ADMIN0': {'name': ms.aoi_sel.adm[0], 'type': ADMIN},
+        'ADMIN1': {'name': ms.aoi_sel.adm[1], 'type': ADMIN},
+        'ADMIN2': {'name': ms.aoi_sel.adm[2], 'type': ADMIN},
+        'SHAPE': {'name': ms.aoi_sel.vector, 'type': CUSTOM},
+        'DRAW': {'name': ms.aoi_sel.draw, 'type': CUSTOM},
+        'POINTS': {'name': ms.aoi_sel.points, 'type': CUSTOM},
+        'ASSET': {'name': ms.aoi_sel.asset, 'type': CUSTOM}
+    }
     
     # widget related traitlets
     method = Any(None).tag(sync=True)
@@ -280,12 +289,10 @@ class AoiModel(Model):
             raise Exception('Select an administrative layer')
         
         # get the admin level corresponding to the given admin code
-        dataset = self.GAUL_FILE if self.ee else self.GADM_FILE 
-        df = pd.read_csv(dataset)
+        df = pd.read_csv(self.FILE[self.ee])
         
         # extract the first element that include this administrative code and set the level accordingly 
-        code = self.GAUL_CODE if self.ee else self.GADM_CODE
-        is_in = df.filter([code.format(i) for i in range(3)]).isin([admin])
+        is_in = df.filter([self.CODE[self.ee].format(i) for i in range(3)]).isin([admin])
         
         if not is_in.any().any():
             raise Exception("The code is not in the database")
@@ -316,13 +323,11 @@ class AoiModel(Model):
                 level_gdf = gpd.read_file(f'{zip_file}!gadm36_{iso_3}.gpkg', layer=layer_name)
         
                 # get the exact admin from this layer 
-                self.gdf = level_gdf[level_gdf[code.format(level)] == admin]
+                self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
         
         # set the name using the layer 
-        r = df[df[code.format(level)] == admin].iloc[0]
-        name = self.GAUL_NAME if self.ee else self.GADM_NAME
-        iso = self.GAUL_ISO if self.ee else self.GADM_ISO
-        names = [su.normalize_str(r[name.format(i)]) if i else r[iso] for i in range(int(level)+1)]
+        r = df[df[self.CODE[self.ee].format(level)] == admin].iloc[0]
+        names = [su.normalize_str(r[self.NAME[self.ee].format(i)]) if i else r[self.ISO[self.ee]] for i in range(int(level)+1)]
         self.name = '_'.join(names)
         
         return self
