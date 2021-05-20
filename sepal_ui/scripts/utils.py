@@ -198,32 +198,34 @@ def need_ee(func):
         except Exception as e:
             raise Exception ('This function needs an Earth Engine authentication')
             
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
         
     return wrapper_ee
 
-def loading_button(button=None, alert=None, debug=False):
+def loading_button(debug=False):
     """
     Decorator to execute try/except sentence and toggle loading button object.
-    Designed to work within the Tile object, if btn and alert ar set to None, the self.btn and self.alert of the calling object will be used
+    Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
     
     Params:
         button (sw.Btn, optional): Toggled button
-        alert (sw.Alert, optional): the alert to display the rror message
+        alert (sw.Alert, optional): the alert to display the error message
         debug (bool, optional): wether or not the exception should stop the execution. default to False
     """
+    
     def decorator_loading(func):
+        
         @wraps(func)
-        def wrapper_loading(*args, **kwargs):
+        def wrapper_loading(self, *args, **kwargs):
             
             # set btn and alert 
-            button = button or self.btn
-            alert = alert or self.alert
+            button = self.btn
+            alert = self.alert
             
             button.toggle_loading() # Start loading 
             value = None
             try:
-                value = func(*args, **kwargs)
+                value = func(self, *args, **kwargs)
             except Exception as e:
                 button.toggle_loading() # Stop loading button if there is an error
                 alert.add_msg(f'{e}', 'error')

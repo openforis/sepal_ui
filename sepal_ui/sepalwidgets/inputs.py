@@ -458,7 +458,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.placeholder = 'users/someCustomUser/customAsset'
         self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
         
-        self.items = self._get_items(None, None, None)
+        self._get_items(None, None, None)
         
         super().__init__(**kwargs) 
         

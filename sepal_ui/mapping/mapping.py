@@ -41,7 +41,7 @@ class SepalMap(geemap.Map):
         
         
     Attributes:
-        ee (bool): current ee binding status
+        gee (bool): current ee binding status
         loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
         output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
         output_control_r (ipyleaflet.WidgetControl): the custom control on the map
@@ -51,7 +51,7 @@ class SepalMap(geemap.Map):
 
     vinspector = Bool(False).tag(sync=True)
     
-    def __init__(self, basemaps=[], dc=False, vinspector=False, ee=True, **kwargs):
+    def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
         
         # Init the map
         super().__init__(
@@ -63,8 +63,8 @@ class SepalMap(geemap.Map):
         )
         
         # init ee 
-        self.ee = ee
-        if ee: su.init_ee()
+        self.ee = gee
+        if gee: su.init_ee()
         
         # init the rasters
         self.loaded_rasters = {}

@@ -59,9 +59,9 @@ AOI_STYLE = {
 }
 
 
-_folder = {'color':'amber', 'icon':'mdi-folder-outline'},
-_table = {'color':'green accent-4','icon':'mdi-border-all'},
-_vector = {'color':'deep-purple', 'icon':'mdi-vector-polyline'},
+_folder = {'color':'amber', 'icon':'mdi-folder-outline'}
+_table = {'color':'green accent-4','icon':'mdi-border-all'}
+_vector = {'color':'deep-purple', 'icon':'mdi-vector-polyline'}
 _other = {'color':'light-blue', 'icon':'mdi-file-outline'}
 _parent = {'color':'white', 'icon':'mdi-folder-upload-outline'}
 _image = {'color':'deep-purple', 'icon':'mdi-image-outline'}

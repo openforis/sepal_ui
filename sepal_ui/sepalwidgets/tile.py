@@ -18,16 +18,16 @@ class Tile(v.Layout, SepalWidget):
         title (str): the title of the Tile
         inputs ([list]): the list of widget to display inside the tile
         btn (v.Btn): the process btn
-        output (sw.Alert): the alert to display process informations to the end user
+        alert (sw.Alert): the alert to display process informations to the end user
     """
     
-    def __init__(self, id_, title, inputs=[''], btn=None, output=None, **kwargs):
+    def __init__(self, id_, title, inputs=[''], btn=None, alert=None, **kwargs):
         
         self.btn = btn
         if btn: inputs.append(btn)
         
-        self.output = output
-        if output: inputs.append(output)
+        self.alert = alert
+        if alert: inputs.append(alert)
         
         self.title = v.Html(xs12=True, tag='h2', children=[title])
         
@@ -153,7 +153,7 @@ class TileAbout(Tile):
         
         content = Markdown(about)
         
-        super().__init__('about_widget', 'About', inputs=[content], **kwargs)
+        super().__init__('about_tile', 'About', inputs=[content], **kwargs)
         
 class TileDisclaimer(Tile):
     """

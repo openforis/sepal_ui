@@ -20,13 +20,13 @@ select_methods = AoiModel.METHODS
 
 class Select(v.Select, sw.SepalWidget):
     """A classic Vuetify Select widget inheriting from sepalwidgets"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         
 class TextField(v.TextField, sw.SepalWidget):
     """ A classic Vuetify TextField widget inheriting from sepalwidgets"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class MethodSelect(Select):
     f"""
@@ -87,7 +87,7 @@ class AdminField(v.Select, sw.SepalWidget):
         ee (bool, optional): wether to use ee or not (default to True)
         
     Attributes:
-        ee (bool): the earthengine status
+        gee (bool): the earthengine status
         level (int): the admin level of the current field
         parent (AdminField): the field parent object
     """
@@ -97,10 +97,13 @@ class AdminField(v.Select, sw.SepalWidget):
     CODE = AoiModel.CODE
     NAME = AoiModel.NAME
     
-    def __init__(self, level, parent=None, ee=True, **kwargs):
+    def __init__(self, level, parent=None, gee=True, **kwargs):
+        
+        self.toto = "toto"
         
         # save ee state
-        self.ee == ee
+        self.ee = gee
+        
         # get the level info 
         self.level = level
         self.parent = parent
@@ -142,7 +145,9 @@ class AdminField(v.Select, sw.SepalWidget):
         """
         
         # extract the level list
-        df = pd.read_csv(self.FILE[self.ee]).drop_duplicates(subset=self.CODE[self.ee].format(self.level))
+        df = pd.read_csv(self.FILE[self.ee]) \
+            .drop_duplicates(subset=self.CODE[self.ee].format(self.level)) \
+            .sort_values(self.NAME[self.ee].format(self.level))
         
         # filter it 
         if filter_: df = df[df[self.CODE[self.ee].format(self.level-1)] == filter_]
@@ -176,10 +181,13 @@ class AoiView(v.Card):
     Args:
         methods (str, optional): the methods to use in the widget, default to 'ALL',
         map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
-        ee (bool, optional): wether to bind to ee or not
+        gee (bool, optional): wether to bind to ee or not
+        vector (str|pathlib.Path, optional): the path to the default vector object
+        admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+        asset (str, optional): the default asset. Can only work if ee==True
         
     Attributes:
-        ee (bool): the earthengine binding status
+        gee (bool): the earthengine binding status
         model (AoiModel): the aoiModel to save the aoi selected as gdf or ee.FeatureCollection
         map (SepalMap): the map if filled in the arguments
         w_method (MethodSelect): the the method selection widget
@@ -192,15 +200,14 @@ class AoiView(v.Card):
     
     updated = Int(0).tag(sync=True)
     
-    def __init__(self, methods='ALL', map_=None, ee=True, *args, **kwargs):
+    def __init__(self, methods='ALL', map_=None, gee=True, asset=None, admin=None, vector=None, **kwargs):
         
         # set ee dependencie
-        if ee: 
-            self.ee = ee 
-            su.init_ee()
+        self.ee = gee
+        if gee: su.init_ee()
             
-        # get the model
-        self.model = AoiModel(sw.Alert(), ee=ee)
+        # get the model   
+        self.model = AoiModel(sw.Alert(), gee=gee, asset=asset, admin=admin, vector=vector)
         
         # get the map if filled 
         self.map_=map_
@@ -209,9 +216,9 @@ class AoiView(v.Card):
         self.w_method = MethodSelect(methods)
         
         # add the 6 methods blocks
-        self.w_admin_0 = AdminField(0).get_items().hide()
-        self.w_admin_1 = AdminField(1, self.w_admin_0).hide()
-        self.w_admin_2 = AdminField(2, self.w_admin_1).hide()
+        self.w_admin_0 = AdminField(0, gee=gee).get_items().hide()
+        self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee).hide()
+        self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee).hide()
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_: self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
@@ -248,24 +255,24 @@ class AoiView(v.Card):
         # create the widget
         self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert]
         
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         
         # js events
         self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
             
-    @su.loading_button
+    @su.loading_button(debug=False)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
         
         # update the model 
-        self.model.set_gdf()
+        self.model.set_object()
         
         # update the map
         if self.map_:
             [self.map_.remove_layer(l) for l in self.map_.layers if l.name == 'aoi']
-            self.map_.zoom_bounds(self.model.gdf.total_bounds)
+            self.map_.zoom_bounds(self.model.total_bounds())
             
             if self.ee:
                 self.map_.addLayer(self.model.feature_collection, {'color': sc.success}, 'aoi')

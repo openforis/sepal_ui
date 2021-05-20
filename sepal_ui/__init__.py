@@ -4,7 +4,7 @@ __version__ = "1.1.4"
 
 # direct access to colors 
 from sepal_ui.frontend import styles
-from ipyvuetify import v
+import ipyvuetify as v
 from types import SimpleNamespace
 
 theme = v.theme.themes.dark if v.theme.dark else v.theme.themes.light

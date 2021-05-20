@@ -15,6 +15,7 @@
         "draw": "Drawn shapes",
         "points": "Point file",
         "aoi_name": "Select an AOI name",
+        "asset": "Asset name",
         "btn": "Select these inputs",
         "no_inputs": "Provided fully qualified inputs before validating your AOI",
         "complete": "The AOI have been selected",
