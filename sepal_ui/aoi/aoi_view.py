@@ -264,17 +264,13 @@ class AoiView(v.Card):
         self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert]
         
         super().__init__(*args, **kwargs)
-
-        # Decorate methods
-        # We have to decorate methods before declaring events, otherwise it will use the un-decorated method
-        self._update_aoi = su.loading_button(button=self.btn, alert=self.alert, debug=True)(self._update_aoi)
         
         # js events
         self.w_method.observe(self._activate, 'v_model') # activate the appropriate widgets
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
             
-
+    @su.loading_button
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
         

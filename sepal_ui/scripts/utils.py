@@ -202,17 +202,24 @@ def need_ee(func):
         
     return wrapper_ee
 
-def loading_button(button, alert, debug=False):
+def loading_button(button=None, alert=None, debug=False):
     """
-    Decorator to execute try/except sentence
-    and toggle loading button object
+    Decorator to execute try/except sentence and toggle loading button object.
+    Designed to work within the Tile object, if btn and alert ar set to None, the self.btn and self.alert of the calling object will be used
     
     Params:
-        button (sw.Btn): Toggle button
+        button (sw.Btn, optional): Toggled button
+        alert (sw.Alert, optional): the alert to display the rror message
+        debug (bool, optional): wether or not the exception should stop the execution. default to False
     """
     def decorator_loading(func):
         @wraps(func)
         def wrapper_loading(*args, **kwargs):
+            
+            # set btn and alert 
+            button = button or self.btn
+            alert = alert or self.alert
+            
             button.toggle_loading() # Start loading 
             value = None
             try:
