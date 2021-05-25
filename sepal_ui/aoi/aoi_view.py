@@ -200,11 +200,13 @@ class AoiView(v.Card):
     
     updated = Int(0).tag(sync=True)
     
-    def __init__(self, methods='ALL', map_=None, gee=True, **kwargs):
+    def __init__(self, methods='ALL', map_=None, gee=True, folder=None, **kwargs):
         
         # set ee dependencie
         self.ee = gee
-        if gee: su.init_ee()
+        if gee: 
+            su.init_ee()
+            self.folder = folder
             
         # get the model   
         self.model = AoiModel(sw.Alert(), gee=gee, **kwargs)
@@ -222,7 +224,7 @@ class AoiView(v.Card):
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_: self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
-        if self.ee: self.w_asset = sw.AssetSelect(label=ms.aoi_sel.asset).hide()
+        if self.ee: self.w_asset = sw.AssetSelect(label=ms.aoi_sel.asset, folder=self.folder).hide()
         
         # group them together with the same key as the select_method object
         self.components = {
