@@ -68,8 +68,8 @@ class Tile(v.Layout, SepalWidget):
         content = [self.children[0].children[0]] + content
         
         # add the output (if existing)
-        if self.output:
-            content = content + [self.output]
+        if self.alert:
+            content = content + [self.alert]
             
         if self.btn:
              content = content + [self.btn]
@@ -171,4 +171,4 @@ class TileDisclaimer(Tile):
             
         content = Markdown(disclaimer)
         
-        super().__init__('about_widget', 'Disclaimer', inputs=[content], **kwargs)
+        super().__init__('about_tile', 'Disclaimer', inputs=[content], **kwargs)

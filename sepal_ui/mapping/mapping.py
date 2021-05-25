@@ -18,9 +18,7 @@ from ipyleaflet import (
     LocalTileLayer, ScaleControl, WidgetControl,
     ZoomControl
 )
-from traitlets import (
-    Bool, link, observe
-)
+from traitlets import Bool, link, observe
 import ipyvuetify as v
 
 from sepal_ui.scripts import utils as su
@@ -311,7 +309,6 @@ class SepalMap(geemap.Map):
         
         return self
     
-    # copy of the geemap add_raster function to prevent a bug from sepal 
     def add_raster(
         self, 
         image, 

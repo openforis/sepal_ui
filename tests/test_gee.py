@@ -48,12 +48,41 @@ class TestGee(unittest.TestCase):
         gee.wait_for_completion(self.DESCRIPTION, alert)
         
         # check if it exist
-        res = gee.isTask(self.DESCRIPTION)
+        res = gee.is_task(self.DESCRIPTION)
         
         self.assertNotEqual(res, None)
         
         # delete the asset 
         ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
+        
+        return
+    
+    @unittest.skip("Not using the appropriate source folder")
+    def test_get_assets(self):
+        
+        # get the assets from the test repository 
+        folder = 'projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test'
+        list_ = gee.get_assets(folder)
+        
+        # check that they are all there 
+        names = ['corsica_template', 'france', 'Italy']
+        
+        for item, name in zip(list_, names):
+            self.assertEqual(item['name'], f'{folder}/{name}')
+            
+        return
+    
+    def test_isAsset(self):
+        
+        folder = 'projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test'
+        
+        # real asset 
+        res = gee.is_asset(f'{folder}/france', folder)
+        self.assertTrue(res)
+        
+        # fake asset 
+        res = gee.is_asset(f'{folder}/toto', folder)
+        self.assertFalse(res)
         
         return
     

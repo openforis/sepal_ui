@@ -20,9 +20,9 @@
         "no_inputs": "Provided fully qualified inputs before validating your AOI",
         "complete": "The AOI have been selected",
         "shape_drawn": "A shape have been drawn",
-        "file_pattern"        : "aoi_{}",
-        "no_selection"         : "No selection method have been picked up",
-        "no_country"          : "No Country have been selected",
+        "file_pattern": "aoi_{}",
+        "no_selection": "No selection method have been picked up",
+        "no_country": "No Country have been selected",
         "asset_already_exist" : "The asset was already existing you can continue to use it. It's also available at :{}",
         "asset_created"       : "The asset has been created under the name : {}",
         "name_used"           : "The name was already in used, change it or delete the previous asset in your GEE acount",
@@ -33,8 +33,7 @@
         "shp_error"           : "An error occured with provided .shp file",
         "aoi_message"         : "click on \"selet these inputs\" to validate your AOI",
         "duplicate_key"       : "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
-        "geojson_to_ee"       : "Convert your .csv file into a ee_object",
-        "valid_admin0": "The country have been found in FAO GAUL 2015. \"{}\" will be used as a prefix for file naming."
+        "geojson_to_ee"       : "Convert your .csv file into a ee_object"
     },
     "mapping": {
         "no_image": "The image file does not exist."

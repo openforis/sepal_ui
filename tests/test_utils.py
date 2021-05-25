@@ -39,22 +39,6 @@ class TestUtils(unittest.TestCase):
         su.show_component(widget)
         self.assertTrue(widget.viz)
         
-        return 
-    
-    def test_get_gaul_dic(self):
-        
-        # search for France GAUL code 
-        dict_ = su.get_gaul_dic()
-        self.assertEqual(dict_['France'], 85)
-        
-        return 
-    
-    def get_iso_3(self):
-        
-        # search for France ISO-3 code
-        iso_code = su.get_iso_3('Fance') 
-        self.assertEqual(iso_code, 'FRA')
-        
         return
     
     def test_download_link(self):

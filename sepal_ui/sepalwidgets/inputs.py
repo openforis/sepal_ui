@@ -169,7 +169,7 @@ class FileInput(v.Flex, SepalWidget):
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
         
-    def clear(self):
+    def reset(self):
         """
         Clear the File selection and move to the root folder
         

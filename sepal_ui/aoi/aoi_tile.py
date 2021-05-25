@@ -22,14 +22,14 @@ class AoiTile(sw.Tile):
         aoi_view (AoiView): an AoiView object to handle the aoi method selection
     """
     
-    def __init__(self, methods='ALL', gee=True, asset=None, admin=None, vector=None, **kwargs):
+    def __init__(self, methods='ALL', gee=True, **kwargs):
         
         # create the map 
         self.map=sm.SepalMap(dc=True, gee=gee)
         
         # create the view
         # the view include the model         
-        self.view = AoiView(methods=methods, map_=self.map, gee=gee, asset=asset, admin=admin, vector=vector)
+        self.view = AoiView(methods=methods, map_=self.map, gee=gee, **kwargs)
         self.view.elevation = 0
         
         # organise them in a layout

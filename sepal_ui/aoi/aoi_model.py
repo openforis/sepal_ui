@@ -124,10 +124,10 @@ class AoiModel(Model):
         self.default_asset = self.asset_name = asset
         self.default_admin = self.admin = admin
         
-        # cats the vecto to json
+        # cast the vector to json
         self.vector_json = {
             'pathname': str(vector), 
-            'column': None, 
+            'column': 'ALL', 
             'value': None
         } if vector else None
         
@@ -181,6 +181,9 @@ class AoiModel(Model):
         
         # set the feature collection 
         self.feature_collection = ee_col 
+        
+        # create a gdf form te feature_collection 
+        self.gdf = geemap.ee_to_geopandas(self.feature_collection)
         
         # set the name 
         self.name = Path(asset_name).stem.replace(self.ASSET_SUFFIX, '')
@@ -309,7 +312,10 @@ class AoiModel(Model):
             # get the feature_collection
             self.feature_collection = ee.FeatureCollection(self.GAUL_ASSET.format(level)) \
                 .filter(ee.Filter.eq(f'ADM{level}_CODE', admin))
-        
+            
+            # transform it into gdf
+            self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+            
         else:     
             # save the country iso_code 
             iso_3 = admin[:3]

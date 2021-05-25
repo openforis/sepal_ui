@@ -200,14 +200,14 @@ class AoiView(v.Card):
     
     updated = Int(0).tag(sync=True)
     
-    def __init__(self, methods='ALL', map_=None, gee=True, asset=None, admin=None, vector=None, **kwargs):
+    def __init__(self, methods='ALL', map_=None, gee=True, **kwargs):
         
         # set ee dependencie
         self.ee = gee
         if gee: su.init_ee()
             
         # get the model   
-        self.model = AoiModel(sw.Alert(), gee=gee, asset=asset, admin=admin, vector=vector)
+        self.model = AoiModel(sw.Alert(), gee=gee, **kwargs)
         
         # get the map if filled 
         self.map_=map_

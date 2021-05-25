@@ -64,7 +64,7 @@ class TestSepalMap(unittest.TestCase):
         
         return 
     
-    
+    @unittest.skip("problem dealing with local rasters")
     def test_remove_local_raster(self):
         # init 
         m = sm.SepalMap()        
@@ -159,12 +159,12 @@ class TestSepalMap(unittest.TestCase):
         
         # init objects 
         m = sm.SepalMap()
-        bounds = (
-            (45.73871293893269, 4.804066607988262), # tl
-            (45.73871293893269, 4.9050034976367),   # bl
-            (45.7746437385302, 4.9050034976367),    # tr
-            (45.7746437385302, 4.804066607988262),  # br
-        )
+        bounds = [
+            45.73871293893269, # minx
+            4.9050034976367, # miny
+            45.7746437385302, # maxx
+            4.9050034976367 # maxy
+        ]
         
         # zoom without zoom_out 
         m.zoom_bounds(bounds)
@@ -173,41 +173,8 @@ class TestSepalMap(unittest.TestCase):
         # zoom with zoom_out 
         m.zoom_bounds(bounds, 5)
         self.assertEqual(m.zoom, 10.)
-         
         
-        return 
-    
-    def test_update_map(self):
-        
-        # create a map
-        m = sm.SepalMap()
-        
-        # bounds around the city of lyon
-        bounds = (
-            (45.73871293893269, 4.804066607988262), # tl
-            (45.73871293893269, 4.9050034976367),   # bl
-            (45.7746437385302, 4.9050034976367),    # tr
-            (45.7746437385302, 4.804066607988262),  # br
-        )
-        
-        # add a false layer 
-        france = 'users/bornToBeAlive/sepal_ui_test/france'
-        m.update_map(france, bounds)
-        
-        # update with a new one
-        italy = 'users/bornToBeAlive/sepal_ui_test/italy'
-        m.update_map(italy, bounds)
-        
-        self.assertEqual(len(m.layers), 2)
-        self.assertEqual(m.center, [42.707535806409155, 12.205774930297773])
-        self.assertEqual(m.zoom, 13)
-        
-        # add a new one removing the one before 
-        m = sm.SepalMap().update_map(france, bounds).update_map(italy, bounds, True)
-        
-        self.assertEqual(len(m.layers), 2)
-        
-        return 
+        return
     
     @unittest.skip("problem dealing with local rasters")
     def test_add_raster(self):
