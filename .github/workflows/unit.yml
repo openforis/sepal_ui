@@ -22,7 +22,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: test with unittest
         env:
-          EE_DECRYPT_KEY: ${{ secret.EE_DECRYPT_KEY }}
+          EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
         run: coverage run -m unittest discover -s tests
       - name: coverage
         run: coverage report -m
