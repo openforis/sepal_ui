@@ -13,16 +13,16 @@ class TestAoiTile(unittest.TestCase):
     def test_init(self):
         
         # default init
-        view = aoi.AoiView(folder = self.FOLDER)
+        view = aoi.AoiView(folder=self.FOLDER)
         self.assertIsInstance(view, aoi.AoiView)    
         
         # init with ee 
-        view = aoi.AoiView(folder= self.FOLDER, gee=False)
+        view = aoi.AoiView(gee=False)
         self.assertFalse(view.model.ee)
         
         # init with a map 
         m = SepalMap(dc=True)
-        view = aoi.AoiView(map_=m)
+        view = aoi.AoiView(map_=m, folder=self.FOLDER)
         self.assertEqual(view.map_, m)
         
         return
@@ -30,12 +30,12 @@ class TestAoiTile(unittest.TestCase):
     def test_admin(self):
         
         # test if admin0 is in Gaul
-        view = aoi.AoiView(folder = self.FOLDER)
+        view = aoi.AoiView(folder=self.FOLDER)
         first_gaul_item = {'text': 'Abyei', 'value': 102}
         self.assertEqual(first_gaul_item, view.w_admin_0.items[0])
         
         # test if admin0 is in gadm
-        view = aoi.AoiView(gee=False, folder = self.FOLDER)
+        view = aoi.AoiView(gee=False, folder=self.FOLDER)
         first_gadm_item = {'text': 'Afghanistan', 'value': 'AFG'}
         self.assertEqual(first_gadm_item, view.w_admin_0.items[0])
         

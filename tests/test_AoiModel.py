@@ -7,19 +7,22 @@ from sepal_ui import sepalwidgets as sw
 
 class TestAoiModel(unittest.TestCase):
     
+    # test folder 
+    FOLDER = 'projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test'
+    
     def test_init(self):
         
         # dummy alert 
         alert = sw.Alert()
         
         # default init
-        aoi_model = aoi.AoiModel(alert)
+        aoi_model = aoi.AoiModel(alert, folder=self.FOLDER)
         self.assertIsInstance(aoi_model, aoi.AoiModel)
         self.assertEqual(aoi_model.ee, True)
         
         # with default assetId 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/italy'
-        aoi_model = aoi.AoiModel(alert, asset = asset_id)
+        aoi_model = aoi.AoiModel(alert, asset = asset_id, folder=self.FOLDER)
         
         self.assertEqual(aoi_model.asset_name, asset_id)
         self.assertEqual(aoi_model.default_asset, asset_id)
@@ -29,13 +32,13 @@ class TestAoiModel(unittest.TestCase):
         
         # with a default admin 
         admin =  85 # GAUL France
-        aoi_model = aoi.AoiModel(alert, admin=admin)
+        aoi_model = aoi.AoiModel(alert, admin=admin, folder=self.FOLDER)
         
         self.assertEqual(aoi_model.name, 'FRA')
         
         # test with a non ee definition 
         admin = 'FRA' # GADM France
-        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin)
+        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin, folder=self.FOLDER)
         
         self.assertEqual(aoi_model.name, 'FRA')
         
@@ -48,7 +51,7 @@ class TestAoiModel(unittest.TestCase):
         
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
-        aoi_model = aoi.AoiModel(alert, asset=asset_id)
+        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
         
         # test data 
         test_data = [
@@ -74,7 +77,7 @@ class TestAoiModel(unittest.TestCase):
         
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
-        aoi_model = aoi.AoiModel(alert, asset = asset_id)
+        aoi_model = aoi.AoiModel(alert, asset = asset_id, folder=self.FOLDER)
         column = 'ADM0_CODE'
         
         res = aoi_model.get_fields(column)
@@ -90,7 +93,7 @@ class TestAoiModel(unittest.TestCase):
         
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
-        aoi_model = aoi.AoiModel(alert, asset = asset_id)
+        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
         ee_france = ee.FeatureCollection(asset_id)
         
         # select the geometry associated with france (all of it)
@@ -111,7 +114,7 @@ class TestAoiModel(unittest.TestCase):
         # dummy alert 
         alert = sw.Alert()
         
-        aoi_model = aoi.AoiModel(alert)
+        aoi_model = aoi.AoiModel(alert, folder=self.FOLDER)
         
         dum = "dum"
         
@@ -145,7 +148,7 @@ class TestAoiModel(unittest.TestCase):
         self.assertEqual(aoi_model.default_vector     , None) 
         
         # check that default are saved 
-        aoi_model = aoi.AoiModel(alert, admin=85) # GAUL for France
+        aoi_model = aoi.AoiModel(alert, admin=85, folder=self.FOLDER) # GAUL for France
         
         # insert dummy args
         aoi_model.method = dum 
@@ -175,7 +178,7 @@ class TestAoiModel(unittest.TestCase):
         
         # init 
         asset_id = 'users/bornToBeAlive/sepal_ui_test/france'
-        aoi_model = aoi.AoiModel(alert, asset = asset_id)
+        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
         
         # test data 
         expected_bounds = (
