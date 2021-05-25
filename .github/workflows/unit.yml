@@ -4,11 +4,16 @@ on:
   - push
   - pull_request
   - workflow_dispatch
+  
+env:
+  EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
+      max-parallel: 1
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
 
@@ -21,8 +26,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: test with unittest
-        env:
-          EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
         run: coverage run -m unittest discover -s tests
       - name: coverage
         run: coverage report -m
