@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,6 +20,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: test with unittest
+        env:
+          EE_DECRYPT_KEY: ${{ secret.EE_DECRYPT_KEY }}
         run: coverage run -m unittest discover -s tests
       - name: coverage
         run: coverage report -m
