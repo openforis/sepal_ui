@@ -24,7 +24,7 @@ class AoiModel(Model):
     The class also provide insight on your aoi geometry.
     
     Args: 
-        ee (bool, optional): wether or not the aoi selector should be using the EarthEngine binding
+        gee (bool, optional): wether or not the aoi selector should be using the EarthEngine binding
         vector (str|pathlib.Path, optional): the path to the default vector object
         admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
         asset (str, optional): the default asset. Can only work if ee==True
@@ -50,10 +50,10 @@ class AoiModel(Model):
     """
     
     # const params
-    FILE = [Path(__file__).parents[2]/'scripts'/'gadm_database.csv', Path(__file__).parents[2]/'scripts'/'gaul_database.csv']
+    FILE = [Path(__file__).parents[1]/'scripts'/'gadm_database.csv', Path(__file__).parents[1]/'scripts'/'gaul_database.csv']
     CODE = ['GID_{}', 'ADM{}_CODE']
     NAME = ['NAME_{}', 'ADM{}_NAME']
-    ISO = ['GID_0', 'iso-3']
+    ISO = ['GID_0', 'ISO 3166-1 alpha-3']
     GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip" # the base url to download gadm maps
     GADM_ZIP_DIR = Path('~', 'tmp', 'GADM_zip').expanduser() # the zip dir where we download the zips
     GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
@@ -83,15 +83,15 @@ class AoiModel(Model):
     asset_name = Any(None).tag(sync=True) # the asset name (only for GEE model)
     name = Any(None).tag(sync=True) # the name of the file (use only in drawn shaped)
 
-    def __init__(self, alert, ee=True, vector=None, admin=None, asset=None, folder=None, *args, **kwargs):
+    def __init__(self, alert, gee=True, vector=None, admin=None, asset=None, folder=None):
 
-        super().__init__(*args, **kwargs)
+        super().__init__()
         
         # the ee retated informations
-        self.ee = ee 
-        if ee:
+        self.ee = gee 
+        if gee:
             su.init_ee()
-            self.folder = folder or ee.data.getAssetRoots()[0]['id']
+            self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
         
         # outputs of the selection
         self.gdf = None
@@ -124,10 +124,10 @@ class AoiModel(Model):
         self.default_asset = self.asset_name = asset
         self.default_admin = self.admin = admin
         
-        # cats the vecto to json
+        # cast the vector to json
         self.vector_json = {
             'pathname': str(vector), 
-            'column': None, 
+            'column': 'ALL', 
             'value': None
         } if vector else None
         
@@ -182,6 +182,9 @@ class AoiModel(Model):
         # set the feature collection 
         self.feature_collection = ee_col 
         
+        # create a gdf form te feature_collection 
+        self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+        
         # set the name 
         self.name = Path(asset_name).stem.replace(self.ASSET_SUFFIX, '')
         
@@ -211,6 +214,9 @@ class AoiModel(Model):
                 df[point_json['lat_column']])
         )
         
+        # set the name
+        self.name = point_file.stem
+        
         if self.ee:
             # transform the gdf to ee.FeatureCollection 
             self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
@@ -218,9 +224,6 @@ class AoiModel(Model):
             # export as a GEE asset
             self.export_to_asset()
             
-        # set the name
-        self.name = point_file.stem
-        
         return self
     
     def _from_vector(self, vector_json):
@@ -239,13 +242,6 @@ class AoiModel(Model):
         # create the gdf
         self.gdf = gpd.read_file(vector_file).to_crs("EPSG:4326")
         
-        if self.ee:
-            # transform the gdf to ee.FeatureCollection 
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
-
-            # export as a GEE asset
-            self.export_to_asset()
-        
         # set the name using the file stem
         self.name = vector_file.stem
         
@@ -254,6 +250,13 @@ class AoiModel(Model):
             self.gdf = self.gdf[self.gdf[vector_json['column']] == vector_json['value']]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
         
+        if self.ee:
+            # transform the gdf to ee.FeatureCollection 
+            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+
+            # export as a GEE asset
+            self.export_to_asset()
+        
         return self
     
     def _from_geo_json(self, geo_json):
@@ -261,6 +264,10 @@ class AoiModel(Model):
         
         if not geo_json:
             raise Exception('Please draw a shape in the map')
+        
+        # remove the style property from geojson as it's not recognize by geopandas and gee
+        for feat in geo_json['features']:
+            del feat['properties']['style']
         
         # create the gdf
         self.gdf = gpd.GeoDataFrame.from_features(geo_json)
@@ -297,7 +304,7 @@ class AoiModel(Model):
         if not is_in.any().any():
             raise Exception("The code is not in the database")
         else:
-            index = 4 if self.ee else -1
+            index = 3 if self.ee else -1
             level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index] # the character that contains the index
             
         if self.ee:
@@ -305,7 +312,10 @@ class AoiModel(Model):
             # get the feature_collection
             self.feature_collection = ee.FeatureCollection(self.GAUL_ASSET.format(level)) \
                 .filter(ee.Filter.eq(f'ADM{level}_CODE', admin))
-        
+            
+            # transform it into gdf
+            self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+            
         else:     
             # save the country iso_code 
             iso_3 = admin[:3]

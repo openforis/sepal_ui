@@ -169,7 +169,7 @@ class FileInput(v.Flex, SepalWidget):
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
         
-    def clear(self):
+    def reset(self):
         """
         Clear the File selection and move to the root folder
         
@@ -444,7 +444,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         su.init_ee()
         
         # if folder is not set use the root one 
-        self.folder = folder or ee.data.getAssetRoots()[0]['id']
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
         
         self.label = label
         self.v_model = default_asset
@@ -458,7 +458,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.placeholder = 'users/someCustomUser/customAsset'
         self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
         
-        self.items = self._get_items(None, None, None)
+        self._get_items(None, None, None)
         
         super().__init__(**kwargs) 
         

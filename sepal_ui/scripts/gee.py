@@ -80,7 +80,7 @@ def is_running(task_descripsion):
     return current_task
     
 @su.need_ee
-def get_assets(folder, asset_list = []):
+def get_assets(folder=None, asset_list = []):
     """
     Get all the assets from the parameter folder. every nested asset will be displayed.
     
@@ -91,13 +91,16 @@ def get_assets(folder, asset_list = []):
     Return:
         ([asset]): the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
-     
+    # set the folder
+    folder = folder if folder else ee.data.getAssetRoots()[0]['id']
+    
+    # loop in the assets
     for asset in ee.data.listAssets({'parent': folder})['assets']:
         if asset['type'] == 'FOLDER':
             asset_list = get_assets(asset['name'], asset_list)
         else:
-            asset_list.append(asset)
-            
+            asset_list += [asset]
+    
     return asset_list
 
 @su.need_ee

@@ -26,7 +26,8 @@ setup(
         'pandas',
         'deepdiff',
         'colorama',
-        'Deprecated'
+        'Deprecated',
+        'Unidecode'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

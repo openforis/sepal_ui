@@ -2,12 +2,9 @@ from functools import partial
 from datetime import datetime
 
 from ipywidgets import jslink
-
 import ipyvuetify as v
-from traitlets import (
-    Unicode, observe, directional_link, List, 
-    Bool
-)
+from deprecated import deprecated
+from traitlets import Unicode, observe, directional_link, List, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
@@ -227,6 +224,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
     
+    @deprecated(reason="will be removed in version 2.1")
     def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
         """ 
         Bind the attribute to the widget and display it in the alert.
@@ -326,6 +324,8 @@ class StateBar(v.SystemBar):
         self.children = [self.progress, self.msg]
         
         super().__init__(**kwargs)
+        
+        jslink((self, 'loading'), (self.progress, 'indeterminate'))
     
     @observe('loading')
     def _change_loading(self, change):
