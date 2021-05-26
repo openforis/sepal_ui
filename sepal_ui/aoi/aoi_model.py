@@ -91,7 +91,7 @@ class AoiModel(Model):
         self.ee = gee 
         if gee:
             su.init_ee()
-            self.folder = folder or ee.data.getAssetRoots()[0]['id']
+            self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
         
         # outputs of the selection
         self.gdf = None

@@ -92,7 +92,7 @@ def get_assets(folder=None, asset_list = []):
         ([asset]): the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
     # set the folder
-    folder = folder or ee.data.getAssetRoots()[0]['id']
+    folder = folder if folder else ee.data.getAssetRoots()[0]['id']
     
     # loop in the assets
     for asset in ee.data.listAssets({'parent': folder})['assets']:

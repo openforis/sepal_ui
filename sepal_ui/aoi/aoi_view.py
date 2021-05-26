@@ -209,7 +209,7 @@ class AoiView(v.Card):
             self.folder = folder
             
         # get the model   
-        self.model = AoiModel(sw.Alert(), gee=gee, **kwargs)
+        self.model = AoiModel(sw.Alert(), gee=gee, folder=folder, **kwargs)
         
         # get the map if filled 
         self.map_=map_

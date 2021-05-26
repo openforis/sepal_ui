@@ -1,3 +1,4 @@
+git add .
 import unittest
 import os
 
@@ -7,7 +8,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.message import ms
 
-@unittest.skipIf('EE_PRIVATE_KEY' in os.environ, 'cannot be launched from a gservice account')
+@unittest.skipIf('EE_DECRYPT_KEY' in os.environ, 'cannot be launched from a gservice account')
 class TestGee(unittest.TestCase):
     
     DESCRIPTION = 'test_travis'
@@ -57,7 +58,6 @@ class TestGee(unittest.TestCase):
         
         return
     
-    @unittest.skip("Not using the appropriate source folder")
     def test_get_assets(self):
         
         # get the assets from the test repository 
@@ -65,7 +65,7 @@ class TestGee(unittest.TestCase):
         list_ = gee.get_assets(folder)
         
         # check that they are all there 
-        names = ['corsica_template', 'france', 'Italy']
+        names = ['corsica_template', 'france', 'italy']
         
         for item, name in zip(list_, names):
             self.assertEqual(item['name'], f'{folder}/{name}')

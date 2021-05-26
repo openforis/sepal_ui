@@ -444,7 +444,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         su.init_ee()
         
         # if folder is not set use the root one 
-        self.folder = folder or ee.data.getAssetRoots()[0]['id']
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
         
         self.label = label
         self.v_model = default_asset
