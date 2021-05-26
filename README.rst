@@ -11,9 +11,9 @@ Sepal_ui
     :target: https://badge.fury.io/py/sepal-ui
     :alt: PyPI version
 
-.. image:: https://travis-ci.com/12rambau/sepal_ui.svg?branch=master
-    :target: https://travis-ci.com/12rambau/sepal_ui
-    :alt: Build Status
+.. image:: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml/badge.svg
+    :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml
+    :alt: build
 
 .. image:: https://api.codeclimate.com/v1/badges/861f09002bb9d75b6ea5/maintainability
     :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
