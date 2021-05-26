@@ -12,23 +12,31 @@ sepal\_ui.aoi package
 
       from sepal_ui import aoi
 
-      io = aoi.Aoi_io() 
+      io = aoi.AoiModel() 
 
 Submodules
 ----------
 
-sepal\_ui.aoi.aoi\_io module
-----------------------------
+sepal\_ui.aoi.aoi\_model module
+-------------------------------
 
-.. automodule:: sepal_ui.aoi.aoi_io
+.. automodule:: sepal_ui.aoi.aoi_model
    :members:
    :undoc-members:
    :show-inheritance:
 
-sepal\_ui.aoi.tile\_aoi module
+sepal\_ui.aoi.aoi\_view module
 ------------------------------
+   
+.. automodule:: sepal_ui.aoi.aoi_view
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. automodule:: sepal_ui.aoi.tile_aoi
+sepal\_ui.aoi.aoi\_tile module
+------------------------------
+      
+.. automodule:: sepal_ui.aoi.aoi_tile
    :members:
    :undoc-members:
    :show-inheritance:

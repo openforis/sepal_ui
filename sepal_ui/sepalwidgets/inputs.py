@@ -2,20 +2,17 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import (
-    HasTraits, Unicode, link, Int
-)
+from traitlets import link, Int, Any
 from ipywidgets import jslink
 import pandas as pd
 import ee
+import geopandas as gpd
 
 from sepal_ui.frontend.styles import *
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.btn import Btn
-
-# initialize earth engine
-su.init_ee()
 
 class DatePicker(v.Layout, SepalWidget):
     """
@@ -75,12 +72,12 @@ class DatePicker(v.Layout, SepalWidget):
         #close the datepicker on click
         #date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
         
-class FileInput(v.Flex, SepalWidget, HasTraits):
+class FileInput(v.Flex, SepalWidget):
     """
     Custom input field to select a file in the sepal folders. 
     
     Args:
-        extentions ([str]): the list of the allowed extentions. the FileInput will only display thiese extention and folders
+        extentions ([str]): the list of the allowed extentions. the FileInput will only display these extention and folders
         folder (str | pathlib.Path): the starting folder of the file input
         label (str): the label of the input
         v_model (str, optional): the default value
@@ -95,15 +92,21 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         reload (v.Btn): reload btn to reload the file list on the current folder 
     """
 
-    file = Unicode('')
+    file = Any('')
     
-    def __init__(self, extentions = [], folder=Path('~').expanduser(), label='search file', v_model = None, **kwargs):
+    def __init__(self, 
+                 extentions = [], 
+                 folder=Path('~').expanduser(), 
+                 label='search file', 
+                 v_model = None, 
+                 **kwargs):
         
         if type(folder) == str:
             folder = Path(folder)
             
         self.extentions = extentions
         self.folder = folder
+        self.v_model = v_model
         
         self.selected_file = v.TextField(
             readonly = True,
@@ -166,8 +169,50 @@ class FileInput(v.Flex, SepalWidget, HasTraits):
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
         
+    def reset(self):
+        """
+        Clear the File selection and move to the root folder
+        
+        Return:
+            self
+        """
+        
+        root = Path('~').expanduser()
+        
+        # move to root 
+        self._on_file_select({'new': root})
+        
+        # remove v_model
+        self.v_model = ''
+        
+        return self
+    
+    def select_file(self, path):
+        """
+        Manually select a file from it's path. no verification on the extension is performed
+        
+        Params:
+            path (str|pathlib.Path): the path to the file
+        
+        Return:
+            self
+        """
+        
+        # cast to Path
+        path = Path(path)
+        
+        # test file existence 
+        if not path.is_file():
+            raise Exception(f'{path} is not a file')
+        
+        # set the menu to the folder of the file
+        self._on_file_select({'new': path.parent})
+        
+        # select the appropriate file 
+        self._on_file_select({'new': path})
+        
     def _on_file_select(self, change):
-        """Dispatch the behaviour between file selection and folder change"""
+        """Dispatch the behavior between file selection and folder change"""
         
         if not change['new']:
             return self
@@ -259,21 +304,22 @@ class LoadTableField(v.Col, SepalWidget):
     
     Attributes:
         fileInput (sw.FileInput): the file input to select the .csv or .txt file
+        v_model (Traitlet): the json saved v_model shaped as {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx} The values can be accessed separately with the appropriate getter methods
         IdSelect (v.Select): input to select the id column
         LngSelect (v.Select): input to select the lng column
         LatSelect (v.Select): input to select the lat column
     """
     
     default_v_model = {
-            'pathname'  : None, 
-            'id_column' : None, 
-            'lat_column': None, 
-            'lng_column': None
+        'pathname'  : None, 
+        'id_column' : None, 
+        'lat_column': None, 
+        'lng_column': None
     }
     
-    def __init__(self):
+    def __init__(self, label="Table file"):
         
-        self.fileInput = FileInput(['.csv', '.txt'])
+        self.fileInput = FileInput(['.csv', '.txt'], label=label)
         
         self.IdSelect = v.Select(
             _metadata = {'name': 'id_column'}, 
@@ -295,7 +341,7 @@ class LoadTableField(v.Col, SepalWidget):
         )
         
         super().__init__(
-            v_model = json.dumps(self.default_v_model),
+            v_model = self.default_v_model,
             children = [
                 self.fileInput,
                 self.IdSelect,
@@ -314,20 +360,38 @@ class LoadTableField(v.Col, SepalWidget):
         self.LngSelect.observe(self._on_select_change, 'v_model')
         self.LatSelect.observe(self._on_select_change, 'v_model')
         
+    def reset(self):
+        """
+        Clear the values and return to the empty default json
+        
+        Return:
+            self
+        """
+        
+        # clear the fileInput
+        self.fileInput.reset()
+        
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
+        
+        # clear the selects
+        self._clear_select()
+        
+        # set the path
         path = change['new']
-            
+        self.v_model['pathname'] = path
+        
+        # exit if none
+        if not path:
+            return self
+        
         df = pd.read_csv(path, sep=None, engine='python')
         
         if len(df.columns) < 3: 
             self._clear_select()
             return 
         
-        self._set_value('pathname', path)
-        
-        # clear the selects
-        self._clear_select()
+        # set the items 
         self.IdSelect.items = df.columns.tolist()
         
         # pre load values that sounds like what we are looking for 
@@ -336,7 +400,7 @@ class LoadTableField(v.Col, SepalWidget):
             lname = name.lower() 
             if 'id' in lname:
                 self.IdSelect.v_model = name
-            elif any(ext in lname for ext in ['lng', 'long', 'longitude', 'x_coord', 'xcoord']):
+            elif any(ext in lname for ext in ['lng', 'long', 'longitude', 'x_coord', 'xcoord', 'lon']):
                 self.LngSelect.v_model = name
             elif any(ext in lname for ext in ['lat', 'latitude', 'y_coord', 'ycoord']):
                 self.LatSelect.v_model = name
@@ -355,68 +419,9 @@ class LoadTableField(v.Col, SepalWidget):
         """change the v_model value when a select is changed"""
         
         name = change['owner']._metadata['name']
-        self._set_value(name, change['new'])
+        self.v_model[name] = change['new']
         
         return self
-        
-    def _set_value(self, name, value):
-        """ set the value in the json dictionary"""
-        
-        tmp = json.loads(self.v_model)
-        tmp[name] = value
-        self.v_model = json.dumps(tmp)
-        
-        return self
-    
-    def get_v_model(self):
-        """
-        Return the v_model as a dict
-        
-        Return:
-            (dict): the v_model
-        """
-        
-        return json.loads(self.v_model)
-    
-    def get_pathname(self):
-        """
-        Return the pathname from v_model
-        
-        Return:
-            (str): the v_model pathname
-        """
-        
-        return json.loads(self.v_model)['pathname']
-    
-    def get_id_lbl(self):
-        """
-        Return the id column label from v_model
-        
-        Return:
-            (str): label of the id column
-        """
-        
-        return json.loads(self.v_model)['id_column']
-    
-    def get_lng_lbl(self):
-        """
-        Return the longitude column label from v_model
-        
-        Return:
-            (str): label of the longitude column
-        """
-        
-        return json.loads(self.v_model)['lng_column']
-    
-    def get_lat_lbl(self):
-        """
-        Return the latitude column label from v_model
-        
-        Return:
-            (str); label of the latitude column
-        """
-        
-        return json.loads(self.v_model)['lat_column']
 
 class AssetSelect(v.Combobox, SepalWidget):
     """
@@ -431,26 +436,50 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder (str): the folder of the user assets
     """
     
-    def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
+
+    @su.need_ee
+    def __init__(self, label = 'Select an asset', folder = None, default_asset = None, **kwargs):
+        
+        # initialize earth engine
+        su.init_ee()
         
         # if folder is not set use the root one 
-        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id'] + '/'
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
+        
+        self.label = label
+        self.v_model = default_asset
+        
+        self.clearable = True
+        self.dense = True
+        self.persistent_hint = True
+        self.prepend_icon = 'mdi-cached'
+        
+        self.class_ = 'my-5'
+        self.placeholder = 'users/someCustomUser/customAsset'
+        self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
+        
+        self._get_items(None, None, None)
+        
+        super().__init__(**kwargs) 
+        
+        self.on_event('click:prepend', self._get_items)
+
+    def _get_items(self, widget, event, data):
         
         # get the list of user asset
-        assets = ee.data.listAssets({'parent': self.folder})['assets']
+        assets = gee.get_assets(self.folder)
         
-        items = [asset['id'] for asset in assets]
+        tables = sorted([e['id'] for e in assets if e['type'] == 'TABLE'])
+        images = sorted([e['id'] for e in assets if e['type'] == 'IMAGE'])
         
-        super().__init__(
-            clearable       = True,
-            class_          = 'mb-5',
-            label           = label,
-            placeholder     = 'users/someCustomUser/customAsset',
-            hint            = "select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it",
-            persistent_hint = True,
-            items           = items,
-            v_model         = default_asset
-        )
+        self.items = [
+            {'divider':True}, {'header':'Tables'},
+            *tables,
+            {'divider':True}, {'header':'Rasters'},
+            *images
+        ]
+        
+        return self
         
 class PasswordField(v.TextField, SepalWidget):
     """
@@ -462,7 +491,7 @@ class PasswordField(v.TextField, SepalWidget):
     """
     def __init__(self, **kwargs):
         
-        # default behaviour 
+        # default behavior 
         self.label="Password"
         self.class_='mr-2'
         self.v_model=''
@@ -472,7 +501,7 @@ class PasswordField(v.TextField, SepalWidget):
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
         
-        # bind the js behaviour
+        # bind the js behavior
         self.on_event('click:append' ,self._toggle_pwd)
     
 
@@ -518,3 +547,130 @@ class NumberField(v.TextField, SepalWidget):
     def decrement(self, widget, event, data):
         """Substracts 1 to the current v_model number"""
         if self.v_model > self.min_: self.v_model-=1
+
+class VectorField(v.Col, SepalWidget):
+    """
+    A custom input widget to load vector data. The user will provide a vector file compatible with fiona.
+    The user can then select a specific shape by setting column and value fields.
+    
+    Args:
+        label (str): the label of the file input field, default to 'vector file'.
+    
+    Attributes:
+        original_gdf (geopandas.gdf): The originally selected dataframe
+        gdf (geopandas.gdf): The selected dataframe.
+        v_model (Traitlet): The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx} The values can be accessed separately with the appropriate getter methods
+        w_file (sw.FileInput): The file selector widget
+        w_column (v.Select): The Select widget to select the column
+        w_value (v.Select): The Select widget to select the value in the selected column 
+    """
+    
+    default_v_model = {
+        'pathname'  : None, 
+        'column' : None, 
+        'value': None, 
+    }
+    
+    column_base_items = [
+        {'text': 'Use all features', 'value': 'ALL'},
+        {'divider': True}
+    ]
+        
+    def __init__(self, label='vector_file', **kwargs):
+        
+        # save the df for column naming (not using a gdf as geometry are useless)
+        self.df = None
+        
+        # set the 3 wigets
+        self.w_file = FileInput(['.shp', '.geojson', '.gpkg', '.kml'], label=label)
+        self.w_column = v.Select(
+            _metadata = {'name': 'column'}, 
+            items     = self.column_base_items, 
+            label     = 'Column', 
+            v_model   = 'ALL'
+        )
+        self.w_value = v.Select(
+            _metadata = {'name': 'value'}, 
+            items     = [], 
+            label     = 'Value', 
+            v_model   = None
+        )
+        su.hide_component(self.w_value)
+        
+        
+        # create the Col Field
+        self.children = [self.w_file, self.w_column, self.w_value]
+        self.v_model = self.default_v_model
+        
+        super().__init__(**kwargs)
+        
+        # events
+        self.w_file.observe(self._update_file, 'v_model')
+        self.w_column.observe(self._update_column, 'v_model')
+        self.w_value.observe(self._update_value, 'v_model')
+        
+    def reset(self):
+        """
+        Return the field to its initial state
+        
+        Return:
+            self
+        """
+        
+        self.w_file.reset()
+        
+        return self
+        
+    def _update_file(self, change):
+        """update the file name, the v_model and reset the other widgets"""
+        
+        # reset the widgets
+        self.w_column.items = self.w_value.items = []
+        self.w_column.v_model = self.w_value.v_model = None
+        self.df = None
+        
+        # set the pathname value 
+        self.v_model["pathname"] = change['new']
+        
+        # exit if nothing 
+        if not change['new']: return self
+        
+        # read the file 
+        self.df = gpd.read_file(change['new'], ignore_geometry=True)        
+
+        # update the columns
+        self.w_column.items = self.column_base_items + sorted(set(self.df.columns.to_list()))
+        
+        self.w_column.v_model = 'ALL'
+        
+        return self
+    
+    def _update_column(self, change):
+        """Update the column name and empty the value list"""
+        
+        # reset value widget
+        self.w_value.items = []
+        self.w_value.v_model = None
+        
+        # set the value 
+        self.v_model['column'] = change['new']
+        
+        # hide value if "ALL" or none
+        if change['new'] in ['ALL', None]:
+            su.hide_component(self.w_value)
+            return self
+        
+        # read the colmun 
+        self.w_value.items = sorted(set(self.df[change['new']].to_list()))
+        su.show_component(self.w_value)
+        
+        return self
+    
+    def _update_value(self, change):
+        """Update the value name and reduce the gdf"""
+        
+        # set the value 
+        self.v_model['value'] = change['new']
+        
+        return self    
+    

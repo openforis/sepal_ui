@@ -58,7 +58,7 @@ class TestFileInput(unittest.TestCase):
         file_input = sw.FileInput(folder=sepal_ui)
         
         # move into sepal_ui folders 
-        readme = sepal_ui.joinpath('README.rst')
+        readme = sepal_ui/'README.rst'
         
         file_input._on_file_select({'new' : sepal_ui})
         
@@ -85,7 +85,7 @@ class TestFileInput(unittest.TestCase):
         
         # create a fake file 
         test_name = 'test.txt'
-        tmp_file = home.joinpath(test_name)
+        tmp_file = home/test_name
         with tmp_file.open('w') as f:
             f.write('a test \n')
             
@@ -105,7 +105,38 @@ class TestFileInput(unittest.TestCase):
         tmp_file.unlink()
         
         return
+    
+    def test_reset(self):
         
+        sepal_ui = self._get_sepal_parent()
+        file_input = sw.FileInput(folder=sepal_ui)
+        
+        # move into sepal_ui folders 
+        readme = sepal_ui/'README.rst'
+        
+        file_input.reset()
+        
+        # assert that the folder has bee reset 
+        self.assertEqual(file_input.v_model, '')
+        self.assertNotEqual(file_input.folder, str(sepal_ui))
+        
+        return 
+    
+    def test_select_file(self):
+        
+        sepal_ui = self._get_sepal_parent()
+        file_input = sw.FileInput()
+        
+        # move into sepal_ui folders 
+        readme = sepal_ui/'README.rst'
+        
+        file_input.select_file(readme)
+        
+        # assert that the file has been selected
+        self.assertEqual(file_input.v_model, str(readme))
+        
+        return
+    
     def _get_sepal_parent(self):
         
         path = Path(__file__).parent.parent.absolute()

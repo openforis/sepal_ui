@@ -9,5 +9,6 @@ Getting started
     installation
     authors
     inspiration
+    contribute
 
 .. include:: ../../../README.rst

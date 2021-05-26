@@ -1,8 +1,8 @@
 Btn
 ===
 
-:code:`Btn` is custom widget to provide easy to use btn in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
-any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The btn icon need to be searched in the `mdi librairy <https://materialdesignicons.com>`_, if none is set, a :code:`mdi-check` will be used.
+:code:`Btn` is custom widget to provide easy to use button in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
+any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The button icon needs to be searched in the `mdi library <https://materialdesignicons.com>`_, if none is set, a :code:`mdi-check` will be used.
 The default color is set to "primary".  
 
 .. code-block:: python 
@@ -18,7 +18,7 @@ The default color is set to "primary".
 .. image:: ../../img/btn.png
     :alt: btn
 
-Btn can be used to launch function on any javascript event such as "click".
+Btn can be used to launch function on any Javascript event such as "click".
 
 .. code-block:: python 
 

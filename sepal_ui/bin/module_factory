@@ -11,15 +11,18 @@ from colorama import init, Fore, Style
 #init colors for all plateforms
 init()
 
-def set_default_readme(folder, module_name, description):
+def set_default_readme(folder, module_name, description, repository):
     """write a default README.md file and overwrite the existing one"""
     
     print('Write a default README.md file')
     
-    with open(folder.joinpath('README.md'), "w") as readme:
+    license = f"{repository.replace('.git','')}/blob/master/LICENSE"
+    
+    file = folder/'README.md'
+    with file.open("w") as readme:
         
         readme.write(f'# {module_name}  \n')
-        readme.write('[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  \n')
+        readme.write(f'[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n')
         readme.write('  \n')
         readme.write('## About  \n')
         readme.write('  \n')
@@ -32,7 +35,8 @@ def set_default_about(folder, description):
     
     print('Write a default ABOUT.md file')
     
-    with open(folder.joinpath('utils', 'ABOUT.md'), "w") as about:
+    file = folder/'utils'/'ABOUT.md'
+    with file.open("w") as about:
         
         about.write(f'{description}  \n')
         
@@ -41,22 +45,40 @@ def set_default_about(folder, description):
 def set_module_name(folder, module_name):
     """use the module name in the different translation dictionaries"""
     
-    print('Update the module name in the json translation dictionnaries')
+    print('Update the module name in the json translation dictionaries')
     
     #loop in the available languages
     languages = ['en', 'fr']
     for lang in languages:
     
-        file = folder.joinpath('component', 'message', f'{lang}.json')
+        file = folder/'component'/'message'/f'{lang}.json'
         
-        with open(file, "r") as f:
+        with file.open("r") as f:
             data = json.load(f)
 
         data['app']['title'] = module_name
 
-        with open(file, "w") as f:
+        with file.open("w") as f:
             json.dump(data, f, indent=4)
             
+    return
+
+def set_contribute_file(folder, repository, module_name):
+    """complete the contributing file with the appropriate informations"""
+    
+    print('Update the module name in the contribute file')
+    
+    contrib = folder/'CONTRIBUTE.md'
+    
+    with contrib.open() as f:
+        data = f.read()
+        
+    data = data.replace('SEPAL_UI_TEMPLATE', module_name)
+    data = data.replace('https://github.com/12rambau/sepal_ui_template.git', repository)
+    
+    with contrib.open('w') as f:
+        f.write(data)
+        
     return
 
 def set_module_name_doc(folder, repository, module_name):
@@ -66,7 +88,7 @@ def set_module_name_doc(folder, repository, module_name):
     languages = ['fr', 'en', 'es']
     for lang in languages:
         
-        file = folder.joinpath('doc', f'{lang}.rst')
+        file = folder/'doc'/f'{lang}.rst'
         
         with file.open() as f:
             text = f.read()
@@ -77,7 +99,7 @@ def set_module_name_doc(folder, repository, module_name):
         
         with file.open('w') as f:
             f.write(text)
-    return 
+    return
 
 def set_drawer_link(folder, repository):
     """replace the reference to the default repository to the one provided by the use"""
@@ -85,7 +107,7 @@ def set_drawer_link(folder, repository):
     print('Update the drawers link with the new repository one')
     
     # get the ui file
-    ui = folder.joinpath('ui.ipynb')
+    ui = folder/'ui.ipynb'
     
     # read the file 
     with ui.open() as f:
@@ -111,8 +133,8 @@ if __name__ == "__main__":
     print("##################################")
     print(Fore.RESET)
     print(f"Welcome in the {Style.BRIGHT}module factory{Style.NORMAL} interface.")
-    print("This interface will help you building a dashboard app based on the sepal_ui librairy")
-    print("Please read the documentation of the librairy before launching this script")
+    print("This interface will help you building a dashboard app based on the sepal_ui library")
+    print("Please read the documentation of the library before launching this script")
     print()
     print()
     print()
@@ -125,16 +147,17 @@ if __name__ == "__main__":
     if not module_name:
         raise Exception(f"{Fore.RED}A module name should be set")
         
-    # set the module github url 
-    github_url = input(f'{Fore.CYAN}Provide the url of an empty github repository: \n{Fore.RESET}')
+    # set the module github URL 
+    github_url = input(f'{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}')
     if not github_url:
         raise Exception(f"{Fore.RED}A module name should be set with an asociated github repository")
         
     # ask for a short description 
     description = input(f'{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}')
     
-    
+    # default to the default branch (obviously)
     branch = 'default'
+    
     # ask if the user need the default function 
     default = input(f'{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.RESET}')
     if not strtobool(default):
@@ -154,28 +177,29 @@ if __name__ == "__main__":
     print()
     
     # clone the repository in a folder that has the normalized module name 
-    folder = Path('~', normalized_name).expanduser()
+    folder = Path.cwd()/normalized_name
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
     command = ['git', 'clone', '--single-branch', '--branch', branch, template_url, str(folder)]
-    res = subprocess.run(command, cwd=Path.home())
+    res = subprocess.run(command, cwd=Path.cwd())
     
     # remove the .git folder 
-    command = ["rm", "-rf", str(folder.joinpath('.git'))]
-    res = subprocess.run(command, cwd=Path.home())
+    command = ["rm", "-rf", str(folder/'.git')]
+    res = subprocess.run(command, cwd=Path.cwd())
     
     # replace the placeholders 
-    set_default_readme(folder, module_name, description)
+    set_default_readme(folder, module_name, description, github_url)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
     set_drawer_link(folder, github_url)
     set_module_name_doc(folder, github_url, module_name)
+    set_contribute_file(folder, github_url, module_name)
     
     # init the new git repository
     command = ['git', 'init']
     res = subprocess.run(command, cwd=folder)
     
     # add the configuration of the git repository
-    # create strange behaviour I need to check again
+    # create strange behavior I need to check again
     #command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
     #res = subprocess.run(command, cwd=folder)
     
@@ -202,7 +226,7 @@ if __name__ == "__main__":
     # exit message
     print(Fore.YELLOW)
     print('WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created')
-    print("If thats the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues")
+    print("If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues")
     print(Fore.GREEN)
     print(f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}")
     print(f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment.")

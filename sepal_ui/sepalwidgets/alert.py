@@ -1,11 +1,10 @@
 from functools import partial
 from datetime import datetime
 
+from ipywidgets import jslink
 import ipyvuetify as v
-from traitlets import (
-    Unicode, observe, directional_link, List, 
-    Bool
-)
+from deprecated import deprecated
+from traitlets import Unicode, observe, directional_link, List, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
@@ -225,6 +224,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
     
+    @deprecated(reason="will be removed in version 2.1")
     def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
         """ 
         Bind the attribute to the widget and display it in the alert.
@@ -255,7 +255,7 @@ class Alert(v.Alert, SepalWidget):
             
             # add the message if needed
             if secret:
-                msg += '*' * len(change['new'])
+                msg += '*' * len(str(change['new']))
             else:
                 msg += str(change['new'])
                 
@@ -303,17 +303,17 @@ class StateBar(v.SystemBar):
         
     Attributes:
         msg (Unicode): the msg to be displayed 
-        done (Bool): State of bar, it will display a loading spin wheel if not done.
+        loading (Bool): State of bar, it will display a loading spin wheel if not loading.
     
     """
     
     msg = Unicode('').tag(sync=True)
-    done = Bool(False).tag(sync=True)
+    loading = Bool(False).tag(sync=True)
     
     def __init__(self,  **kwargs):
                         
         self.progress = v.ProgressCircular(
-            indeterminate=not self.done,
+            indeterminate=self.loading,
             value=100,
             small=True,
             size=15,
@@ -324,20 +324,22 @@ class StateBar(v.SystemBar):
         self.children = [self.progress, self.msg]
         
         super().__init__(**kwargs)
+        
+        jslink((self, 'loading'), (self.progress, 'indeterminate'))
     
-    @observe('done')
-    def _change_done(self, change):
+    @observe('loading')
+    def _change_loading(self, change):
         """ Change progress wheel state"""
-        self.progress.indeterminate = not self.done
+        self.progress.indeterminate = self.loading
             
     @observe('msg')
     def _change_msg(self, change):
         """ Change state bar message"""
         self.children = [self.progress, self.msg]
         
-    def add_msg(self, msg, done=False):
+    def add_msg(self, msg, loading=False):
         """ Change current status message"""
         self.msg = msg
-        self.done = done
+        self.loading = loading
         
         return self

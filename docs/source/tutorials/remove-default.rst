@@ -31,13 +31,13 @@ remove components
 
 The high modularity of allows to remove and add components very fast and without possible error. 
 
-in all compoent but message (:code:`tile`, :code:`scripts`, :code:`parameter` and :code:`io`) remove all the files that are starting by the :code:`default_` prefix. 
-In each package make sure that thes file are not imported by the :code:`__init__.py`. If it's still the case remove this imports
+in all component but message (:code:`tile`, :code:`scripts`, :code:`parameter` and :code:`io`) remove all the files that are starting by the :code:`default_` prefix. 
+In each package make sure that these files are not imported by the :code:`__init__.py`. If it's still the case remove this imports
 
 update messages 
 ---------------
 
-In the message dictionnaries (:code:`en.json` and :code:`fr.json`) remove all the keys that start with the :code:`default_` prefix and their content 
+In the message dictionaries (:code:`en.json` and :code:`fr.json`) remove all the keys that start with the :code:`default_` prefix and their content 
 
 going from : 
 
@@ -102,5 +102,5 @@ to
 
 .. tip::
 
-    it's easier to do this procedure at the beggining rather than at the end of your development
+    it's easier to do this procedure at the beginning rather than at the end of your development
 

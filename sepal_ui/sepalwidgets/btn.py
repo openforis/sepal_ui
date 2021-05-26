@@ -81,12 +81,12 @@ class DownloadBtn(v.Btn, SepalWidget):
         ]
         super().__init__(**kwargs)
         
-        # create the url 
+        # create the URL 
         self.set_url(path)
         
     def set_url(self, path='#'):
         """
-        Set the url of the download btn. and unable it. 
+        Set the URL of the download btn. and unable it. 
         If nothing is provided the btn is disabled
         
         Args:

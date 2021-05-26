@@ -23,13 +23,13 @@ Basic Example
 
 .. warning::
 
-    - No tabulation must be applyed in the multiline :code:`str`.
+    - No tabulation must be applied in the multi-line :code:`str`.
     - Don't forget to escape the "`" character, it will be interpreted as code mark
 
-Include multiline mkd in the translation tool 
----------------------------------------------
+Include multi-line markdown in the translation tool 
+---------------------------------------------------
 
-If you want to use the translation tool AND create multiline mkd text you should consider the following method 
+If you want to use the translation tool AND create multi-line markdown text you should consider the following method 
 
 in :code:`en.json` use a list in your key with each element of the list corresponding to a line:
 
@@ -44,7 +44,7 @@ in :code:`en.json` use a list in your key with each element of the list correspo
         ]
     }
 
-Then In your notebook you can call the key in a markdown widget and display it as multiline text:
+Then In your notebook you can call the key in a markdown widget and display it as multi-line text:
 
 .. code-block:: python 
 

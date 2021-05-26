@@ -18,16 +18,16 @@ class Tile(v.Layout, SepalWidget):
         title (str): the title of the Tile
         inputs ([list]): the list of widget to display inside the tile
         btn (v.Btn): the process btn
-        output (sw.Alert): the alert to display process informations to the end user
+        alert (sw.Alert): the alert to display process informations to the end user
     """
     
-    def __init__(self, id_, title, inputs=[''], btn=None, output=None, **kwargs):
+    def __init__(self, id_, title, inputs=[''], btn=None, alert=None, **kwargs):
         
         self.btn = btn
         if btn: inputs.append(btn)
         
-        self.output = output
-        if output: inputs.append(output)
+        self.alert = alert
+        if alert: inputs.append(alert)
         
         self.title = v.Html(xs12=True, tag='h2', children=[title])
         
@@ -68,8 +68,8 @@ class Tile(v.Layout, SepalWidget):
         content = [self.children[0].children[0]] + content
         
         # add the output (if existing)
-        if self.output:
-            content = content + [self.output]
+        if self.alert:
+            content = content + [self.alert]
             
         if self.btn:
              content = content + [self.btn]
@@ -153,7 +153,7 @@ class TileAbout(Tile):
         
         content = Markdown(about)
         
-        super().__init__('about_widget', 'About', inputs=[content], **kwargs)
+        super().__init__('about_tile', 'About', inputs=[content], **kwargs)
         
 class TileDisclaimer(Tile):
     """
@@ -163,8 +163,7 @@ class TileDisclaimer(Tile):
     
     def __init__(self, **kwargs):
         
-        pathname = Path(__file__).parent.parent.joinpath('scripts', 'disclaimer.md')
-        #pathname = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'disclaimer.md')
+        pathname = Path(__file__).parents[1]/'scripts'/'disclaimer.md'
         
         #read the content and transform it into a html
         with pathname.open() as f:
@@ -172,4 +171,4 @@ class TileDisclaimer(Tile):
             
         content = Markdown(disclaimer)
         
-        super().__init__('about_widget', 'Disclaimer', inputs=[content], **kwargs)
+        super().__init__('about_tile', 'Disclaimer', inputs=[content], **kwargs)

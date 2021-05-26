@@ -5,6 +5,7 @@ import ipyvuetify as v
 import traitlets
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui import color
 from sepal_ui.frontend.styles import *
 from sepal_ui.frontend.js import *
 
@@ -65,7 +66,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         title (str): the title of the drawer item
         icon(str, optional): the full name of a mdi-icon
         card (str, optional): the mount_id of tiles in the app
-        href (str, optional): the absolute link to an external webpage
+        href (str, optional): the absolute link to an external web page
         
     Attributes:
         href (str): the absolute link to follow on click 
@@ -178,7 +179,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             **kwargs
         )
         
-        # bind the javascripts behaviour
+        # bind the javascripts behavior
         for i in self.items:
             i.observe(self._on_item_click, 'input_value')
         
@@ -296,11 +297,20 @@ class App(v.App, SepalWidget):
             if footer:
                 self.footer = footer
                 app_children.append(self.footer)
+                
+            # create a negative overlay to force the background color 
+            bg = v.Overlay(
+                color=color.bg, 
+                opacity=1, 
+                style_='transition:unset', 
+                z_index=-1
+            )
             
             super().__init__(
                 v_model=None,
-                children = app_children,
-                **kwargs)
+                children = [bg, *app_children],
+                **kwargs
+            )
             
         def show_tile(self, name):
             """

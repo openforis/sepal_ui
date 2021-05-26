@@ -21,9 +21,9 @@ class TestTile(unittest.TestCase):
         
         #exhaustive 
         btn = sw.Btn()
-        output = sw.Alert()
-        tile = sw.Tile(id_, title, [''], btn, output)
-        self.assertIsInstance(tile, sw.Tile,)
+        alert = sw.Alert()
+        tile = sw.Tile(id_, title, [''], btn, alert)
+        self.assertIsInstance(tile, sw.Tile)
         self.assertEqual(len(tile.children[0].children), 4)
         
         return
@@ -32,7 +32,7 @@ class TestTile(unittest.TestCase):
         
         id_ = "id"
         title = "title"
-        tile = sw.Tile(id_, title, output = sw.Alert(), btn = sw.Btn())
+        tile = sw.Tile(id_, title, alert = sw.Alert(), btn = sw.Btn())
         
         input_ = v.Slider()
         
@@ -127,7 +127,7 @@ class TestTile(unittest.TestCase):
         tile = sw.TileAbout(pathname)
         
         self.assertIsInstance(tile, sw.TileAbout)
-        self.assertEqual(tile._metadata['mount_id'], 'about_widget')
+        self.assertEqual(tile._metadata['mount_id'], 'about_tile')
         
         ##########################################
         ##      didn't add a test pathname      ##
@@ -140,7 +140,7 @@ class TestTile(unittest.TestCase):
         tile = sw.TileDisclaimer()
         
         self.assertIsInstance(tile, sw.TileDisclaimer)
-        self.assertEqual(tile._metadata['mount_id'], 'about_widget')
+        self.assertEqual(tile._metadata['mount_id'], 'about_tile')
         
         return
     

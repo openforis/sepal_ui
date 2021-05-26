@@ -20,18 +20,16 @@ class TestStateBar(unittest.TestCase):
         
         # assert that add msg can add a msg without blocking the loading 
         msg = 'not finished'
-        state_bar.add_msg(msg)
+        state_bar.add_msg(msg, True)
         
         self.assertEqual(state_bar.children[0].indeterminate, True)
         self.assertEqual(state_bar.msg, msg)
         
         # assert that add message can stop the loading 
         msg = 'finished'
-        state_bar.add_msg(msg, True)
+        state_bar.add_msg(msg)
         
         self.assertEqual(state_bar.children[0].indeterminate, False)
         
         return 
-        
-        
-        
+    
