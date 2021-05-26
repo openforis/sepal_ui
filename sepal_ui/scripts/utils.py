@@ -1,22 +1,14 @@
-import time
-from datetime import datetime
 import os
-import glob
 from pathlib import Path
-import csv
 from urllib.parse import urlparse
-import subprocess
 import string 
 import random
 import math
-import base64
 import re
 import warnings
 from unidecode import unidecode
 from functools import wraps
 
-import ipyvuetify as v
-import pandas as pd
 import ee
 from cryptography.fernet import Fernet
 
@@ -50,50 +42,7 @@ def show_component(widget):
     elif 'd-none' in str(widget.class_):
         widget.class_ = widget.class_.replace('d-none', '')
         
-    return 
-
-def get_gaul_dic():
-    """
-    Create the list of the country code in the FAO GAUL norm using the CSV file provided in utils
-        
-    Return:
-        (dict): the countries FAO_GAUL codes labelled with english country names
-    """
-    
-    # file path
-    path = Path(__file__).parent/'country_code.csv'
-    
-    # get the df and sort by country name
-    df = pd.read_csv(path).sort_values(by=['ADM0_NAME'])
-    
-    # create the dict
-    fao_gaul = {row['ADM0_NAME'] : row['ADM0_CODE'] for i, row in df.iterrows()}
-        
-    return fao_gaul
-
-def get_iso_3(adm0):
-    """
-    Get the iso_3 code of a country_selection. Uses the fips_code if the iso-3 is not available
-    
-    Args:
-        adm0 (int): the country adm0 code FAO GAUL 2015
-        
-    Return:
-        (str): the 3 letters of the iso_3 country code
-    """
-    
-    # file path
-    path = Path(__file__).parent/'country_code.csv'
-    
-    # get the df
-    df = pd.read_csv(path)
-    
-    row = df[df['ADM0_CODE'] == adm0]
-    code = None
-    if len(row):
-        code = row['ISO 3166-1 alpha-3'].values[0]
-        
-    return code
+    return
     
 def create_download_link(pathname):
     """
@@ -175,7 +124,7 @@ def init_ee():
     """
     Initialize earth engine according to the environment. 
     It will use the creddential file if the EE_PRIVATE_KEY env variable exist. 
-    Otherwise it use the simple Initilize command (asking the user to register if necessary)
+    Otherwise it use the simple Initialize command (asking the user to register if necessary)
     """
     
     # only do the initialization if the credential are missing
@@ -250,7 +199,7 @@ def need_ee(func):
         except Exception as e:
             raise Exception ('This function needs an Earth Engine authentication')
             
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
         
     return wrapper_ee
 
@@ -291,7 +240,7 @@ def loading_button(alert=None, button=None, debug=False):
                     alert_.append_msg(warning.message.args[0], type_='warning') 
                     for warning in w
                 ]
-                
+                  
             except Exception as e:
                 button_.toggle_loading() # Stop loading button if there is an error
                 alert_.add_msg(f'{e}', 'error')

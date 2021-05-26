@@ -26,7 +26,7 @@ copyright = f"2020-{datetime.now().year}, the sepal development team"
 author = 'Pierrick Rambaud'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.4'
+release = '2.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -97,7 +97,7 @@ html_static_path = ['_static']
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
-html_css_files = ['css/custom.css']
+html_css_files = ['css/custom.css', 'css/icon.css']
 
 # -- Options for spelling output -------------------------------------------------
 spelling_lang='en_US'

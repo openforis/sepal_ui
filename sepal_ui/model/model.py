@@ -1,10 +1,19 @@
-from traitlets import HasTraits, Any
+from traitlets import HasTraits
 import json
 
-from ipywidgets import jsdlink, dlink
+from ipywidgets import dlink
 
 class Model(HasTraits):
+    """
+    Model object to store information of your computation (input, output.. etc)
+    The Model structure is based on traitlets and embed function for export or import in json format. 
+    The model traintlets can be bind to any widget field. 
     
+    Args:
+        traits ([str], optional): a list of traits names (not functional). default to none
+        
+    """
+
     def __init__(self, traits=[], *args, **kwargs):
         
         # didn't manage to make it work and it seems dodgy has it creates a simlink to new class at each call

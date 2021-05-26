@@ -51,3 +51,20 @@ You'll be asked to provide :
 - the missing python libraries
 
 Our maintainers will then study your request and may ask you to make modifications to your repository before pulling. 
+
+Add the documentation to sepal-doc 
+----------------------------------
+
+Now that your module is available on SEPAL you need help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described here: `<https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`_.
+
+Once your PR have been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.sepal.io/modules>`_:
+
+.. code-block:: python 
+
+    # ui.ipynb
+
+    # !!! not mandatory !!! 
+    # Add the links to the code, wiki and issue tracker of your
+    code_link = 'https://github.com/<profile>/<repository>'
+    wiki_link = 'https://docs.sepal.io/module/<module_name>.html'
+    issue_link = 'https://github.com/<profile>/<repository>/issues/new'

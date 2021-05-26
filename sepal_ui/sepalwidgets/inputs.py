@@ -2,9 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import (
-    HasTraits, Unicode, link, Int, Any
-)
+from traitlets import link, Int, Any
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -171,7 +169,7 @@ class FileInput(v.Flex, SepalWidget):
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
         
-    def clear(self):
+    def reset(self):
         """
         Clear the File selection and move to the root folder
         
@@ -440,14 +438,13 @@ class AssetSelect(v.Combobox, SepalWidget):
     
 
     @su.need_ee
-    def __init__(self, label = 'Select an asset', folder = None, default_asset = None):
+    def __init__(self, label = 'Select an asset', folder = None, default_asset = None, **kwargs):
         
         # initialize earth engine
         su.init_ee()
         
         # if folder is not set use the root one 
-        self.folder = folder or ee.data.getAssetRoots()[0]['id']
-        
+        self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
         
         self.label = label
         self.v_model = default_asset
@@ -455,16 +452,19 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.clearable = True
         self.dense = True
         self.persistent_hint = True
+        self.prepend_icon = 'mdi-cached'
         
         self.class_ = 'my-5'
         self.placeholder = 'users/someCustomUser/customAsset'
         self.hint = 'select an asset in the list or write a custom asset name. Be careful that you need to have access to this asset to use it'
         
-        self.items = self._get_items()
+        self._get_items(None, None, None)
         
-        super().__init__()
+        super().__init__(**kwargs) 
+        
+        self.on_event('click:prepend', self._get_items)
 
-    def _get_items(self):
+    def _get_items(self, widget, event, data):
         
         # get the list of user asset
         assets = gee.get_assets(self.folder)
@@ -472,12 +472,14 @@ class AssetSelect(v.Combobox, SepalWidget):
         tables = sorted([e['id'] for e in assets if e['type'] == 'TABLE'])
         images = sorted([e['id'] for e in assets if e['type'] == 'IMAGE'])
         
-        items = [{'divider':True}, {'header':'Tables'}] + \
-                tables + \
-                [{'divider':True}, {'header':'Rasters'}] + \
-                images
+        self.items = [
+            {'divider':True}, {'header':'Tables'},
+            *tables,
+            {'divider':True}, {'header':'Rasters'},
+            *images
+        ]
         
-        return items
+        return self
         
 class PasswordField(v.TextField, SepalWidget):
     """
