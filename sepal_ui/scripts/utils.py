@@ -5,6 +5,7 @@ import string
 import random
 import math
 import re
+import warnings
 from unidecode import unidecode
 from functools import wraps
 
@@ -202,7 +203,7 @@ def need_ee(func):
         
     return wrapper_ee
 
-def loading_button(debug=False):
+def loading_button(alert=None, button=None, debug=False):
     """
     Decorator to execute try/except sentence and toggle loading button object.
     Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
@@ -218,25 +219,40 @@ def loading_button(debug=False):
         @wraps(func)
         def wrapper_loading(self, *args, **kwargs):
             
-            # set btn and alert 
-            button = self.btn
-            alert = self.alert
-            
-            button.toggle_loading() # Start loading 
+            # set btn and alert
+            # Change name of variable to assign it again in this scope
+            button_ = self.btn if not button else button
+            alert_ = self.alert if not alert else alert
+
+            button_.toggle_loading() # Start loading 
             value = None
             try:
-                value = func(self, *args, **kwargs)
+                # Catch warnings in the process function
+                with warnings.catch_warnings(record=True) as w:
+                    value = func(self, *args, **kwargs)
+                
+                # Reset alert if there is a previous message printed
+                alert_.reset()
+                
+                # Check if there are warnings in the function and append them
+                # Use append msg due to several warnings could be triggered
+                if w: [
+                    alert_.append_msg(warning.message.args[0], type_='warning') 
+                    for warning in w
+                ]
+                  
             except Exception as e:
-                button.toggle_loading() # Stop loading button if there is an error
-                alert.add_msg(f'{e}', 'error')
+                button_.toggle_loading() # Stop loading button if there is an error
+                alert_.add_msg(f'{e}', 'error')
                 if debug: raise e
                 return # Scape of the function
 
-            button.toggle_loading() # Stop loading button if there is not an error
+            button_.toggle_loading() # Stop loading button if there is not an error
             
             return value
         return wrapper_loading
     return decorator_loading
+
 
 def normalize_str(msg, folder=True):
     """
