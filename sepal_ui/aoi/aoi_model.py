@@ -50,7 +50,7 @@ class AoiModel(Model):
     """
     
     # const params
-    FILE = [Path(__file__).parents[2]/'scripts'/'gadm_database.csv', Path(__file__).parent[2]/'scripts'/'gaul_database.csv']
+    FILE = [Path(__file__).parents[2]/'scripts'/'gadm_database.csv', Path(__file__).parents[2]/'scripts'/'gaul_database.csv']
     CODE = ['GID_{}', 'ADM{}_CODE']
     NAME = ['NAME_{}', 'ADM{}_NAME']
     ISO = ['GID_0', 'iso-3']
@@ -374,11 +374,11 @@ class AoiModel(Model):
         if self.ee: 
             aoi_ee = ee.Feature(self.feature_collection.first())
             columns = aoi_ee.propertyNames().getInfo()
-            list = [col for col in columns if col not in ['system:index', 'Shape_Area']]
+            list_ = [col for col in columns if col not in ['system:index', 'Shape_Area']]
         else:
-            list = list(set(['geometry'])^set(self.gdf.columns.to_list()))
+            list_ = list(set(['geometry'])^set(self.gdf.columns.to_list()))
             
-        return sorted(list)
+        return sorted(list_)
         
     def get_fields(self, column):
         """" 
@@ -397,11 +397,11 @@ class AoiModel(Model):
         
         if self.ee: 
             fields = self.feature_collection.distinct(column).aggregate_array(column)
-            list = fields.getInfo()
+            list_ = fields.getInfo()
         else:
-            list = self.gdf[column].to_list()
+            list_ = self.gdf[column].to_list()
             
-        return sorted(list)
+        return sorted(list_)
     
     def get_selected(self, column, field):
         """ 

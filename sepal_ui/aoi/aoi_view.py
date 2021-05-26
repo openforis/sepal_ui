@@ -200,6 +200,7 @@ class AoiView(v.Card):
             su.init_ee()
             
         # get the model
+        
         self.model = AoiModel(sw.Alert(), ee=ee)
         
         # get the map if filled 
