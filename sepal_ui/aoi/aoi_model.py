@@ -38,11 +38,11 @@ class AoiModel(Model):
         default_admin (int): the default admin code in GADM if ee==False else GAUL 2015
         
         point_json (traitlet, dict): information that will be use to transform the csv into a gdf (pathname, lat, long, id)
-        vector_json = (trailtet, dict): information that will be use to transform the vector file into a gdf
-        geo_json = (traitlet, GeoJson): the drawn geojson featureCollection
-        admin = (traitlet, int): the administrative code. Need to be GADM if ee==False and GAUL 2015 if ee==True. 
-        asset_name = (traitlet, str): the asset name (only for GEE model)
-        name = (traitlet, str): the name of the asset (manually set only in drawn shaped, automatic for all the others)
+        vector_json (trailtet, dict): information that will be use to transform the vector file into a gdf
+        geo_json (traitlet, GeoJson): the drawn geojson featureCollection
+        admin (traitlet, int): the administrative code. Need to be GADM if ee==False and GAUL 2015 if ee==True. 
+        asset_name (traitlet, str): the asset name (only for GEE model)
+        name (traitlet, str): the name of the asset (manually set only in drawn shaped, automatic for all the others)
         
         feature_collection (ee.FeatureCollection): the featurecollection of the aoi (only in ee model)
         gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
