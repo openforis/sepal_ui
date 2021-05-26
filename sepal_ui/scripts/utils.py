@@ -11,6 +11,7 @@ import random
 import math
 import base64
 import re
+import warnings
 from unidecode import unidecode
 from functools import wraps
 
