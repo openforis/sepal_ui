@@ -10,14 +10,15 @@ If you just created you module you should have the following tree :
    ├── [app_name]
    |     |
    |     ├── component
-   |     |     ├── io
+   |     |     ├── model
    |     |     |     ├── __init__.py
-   |     |     |     └── default_process_io.py
+   |     |     |     └── default_process_model.py
    |     |     |
    |     |     ├── message
    |     |     |     ├── __init__.py
    |     |     |     ├── en.json
    |     |     |     ├── fr.json
+   |     |     |     ├── es.json
    |     |     |     └── test_translation.ipynb
    |     |     |
    |     |     ├── parameter
@@ -115,10 +116,10 @@ component
 
 In this folder live all your app logic. Everything is well split for the sake of maintenance. Python developer have already recognize the :code:`__init__.py` file in each of it's folder which means that every component is a package and can be used as such in any Python file.
 
-io
-^^
+model
+^^^^^
 
-In this package every :code:`io` object that will be used in the project are gathered. 
+In this package every :code:`Model` object that will be used in the project are gathered. 
 
 message
 ^^^^^^^
