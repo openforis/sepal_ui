@@ -1,4 +1,3 @@
-git add .
 import unittest
 import os
 
