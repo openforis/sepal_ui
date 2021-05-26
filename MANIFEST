@@ -4,8 +4,9 @@ README.rst
 setup.py
 sepal_ui/__init__.py
 sepal_ui/aoi/__init__.py
-sepal_ui/aoi/aoi_io.py
-sepal_ui/aoi/tile_aoi.py
+sepal_ui/aoi/aoi_model.py
+sepal_ui/aoi/aoi_tile.py
+sepal_ui/aoi/aoi_view.py
 sepal_ui/bin/module_factory
 sepal_ui/frontend/__init__.py
 sepal_ui/frontend/js.py
@@ -17,10 +18,10 @@ sepal_ui/message/en.json
 sepal_ui/message/es.json
 sepal_ui/message/fr.json
 sepal_ui/scripts/__init__.py
-sepal_ui/scripts/country_code.csv
 sepal_ui/scripts/disclaimer.md
+sepal_ui/scripts/gadm_database.csv
+sepal_ui/scripts/gaul_database.csv
 sepal_ui/scripts/gee.py
-sepal_ui/scripts/run_aoi_selection.py
 sepal_ui/scripts/utils.py
 sepal_ui/sepalwidgets/__init__.py
 sepal_ui/sepalwidgets/alert.py

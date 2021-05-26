@@ -35,6 +35,8 @@ release = '2.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_copybutton',
+    'nbsphinx',
     'sphinx.ext.napoleon',
     'notfound.extension', 
     'sphinxcontrib.spelling',
