@@ -10,7 +10,7 @@ setup(
         'sepal_ui.aoi', 
         'sepal_ui.message',
         'sepal_ui.mapping', 
-        'sepal_ui.translator'
+        'sepal_ui.translator',
         'sepal_ui.model'
     ],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json', 'bin/module_factory']},
