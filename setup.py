@@ -2,7 +2,17 @@ from distutils.core import setup
     
 setup(
     name = 'sepal_ui',      
-    packages = ['sepal_ui', 'sepal_ui.scripts', 'sepal_ui.frontend', 'sepal_ui.sepalwidgets', 'sepal_ui.aoi', 'sepal_ui.message', 'sepal_ui.mapping', 'sepal_ui.translator'],   
+    packages = [
+        'sepal_ui', 
+        'sepal_ui.scripts', 
+        'sepal_ui.frontend', 
+        'sepal_ui.sepalwidgets', 
+        'sepal_ui.aoi', 
+        'sepal_ui.message',
+        'sepal_ui.mapping', 
+        'sepal_ui.translator'
+        'sepal_ui.model'
+    ],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json', 'bin/module_factory']},
     version = '2.0.0',   
     license='MIT',        
