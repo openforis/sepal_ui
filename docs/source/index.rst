@@ -4,8 +4,8 @@
 sepal-ui
 ========
 
-Sepal_ui is a lib designed to create elegant dashboard in the Sepal environment. It is designed on top of the amazing ipyvuetify and will help developper to easily create interfaces for their workflows. 
-By using this librairy, you'll ensure a robust and unifyed interface for your scripts and a easy and complete integration into the sepal dashboard of application.
+Sepal_ui is a lib designed to create elegant dashboard in the Sepal environment. It is designed on top of the amazing ipyvuetify and will help developer to easily create interfaces for their workflows. 
+By using this library, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the sepal dashboard of application.
 
 We are happy to receive feedback and we welcome any kind of contribution. 
 

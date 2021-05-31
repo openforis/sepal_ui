@@ -11,9 +11,10 @@ class TestApp(unittest.TestCase):
         #default init
         app = sw.App()
         self.assertIsInstance(app, sw.App)
-        self.assertEqual(len(app.children), 2)
-        self.assertIsInstance(app.children[0], sw.AppBar)
-        self.assertIsInstance(app.children[1], v.Content)
+        self.assertEqual(len(app.children), 3)
+        self.assertIsInstance(app.children[0], v.Overlay)
+        self.assertIsInstance(app.children[1], sw.AppBar)
+        self.assertIsInstance(app.children[2], v.Content)
         
         #exhaustive 
         navDrawer = sw.NavDrawer([sw.DrawerItem(f'title {i}') for i in range(5)])
@@ -25,11 +26,12 @@ class TestApp(unittest.TestCase):
         
         app = sw.App(tiles, appBar, footer, navDrawer)
         self.assertIsInstance(app, sw.App)
-        self.assertEqual(len(app.children), 4)
-        self.assertIsInstance(app.children[0], sw.AppBar)
-        self.assertIsInstance(app.children[1], sw.NavDrawer)
-        self.assertIsInstance(app.children[2], v.Content)
-        self.assertIsInstance(app.children[3], sw.Footer)
+        self.assertEqual(len(app.children), 5)
+        self.assertIsInstance(app.children[0], v.Overlay)
+        self.assertIsInstance(app.children[1], sw.AppBar)
+        self.assertIsInstance(app.children[2], sw.NavDrawer)
+        self.assertIsInstance(app.children[3], v.Content)
+        self.assertIsInstance(app.children[4], sw.Footer)
         
         return
     

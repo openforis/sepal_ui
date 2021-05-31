@@ -3,14 +3,14 @@ Manage the app footer
 
 Edit the footer 
 ---------------
-In the default application, the footer is displaying the fooloowing message : 
+In the default application, the footer is displaying the following message : 
 
 .. code-block:: 
 
     The sky is the limit (c) 2020
 
 This not very useful. If you want to add your name or company name to the footer it's very simple. 
-go to the english dictionnary file : 
+go to the English dictionary file : 
 
 .. code-block:: python
 
@@ -83,7 +83,7 @@ Remove the footer
 
 If the sepal footer (always included bellow dashboard app) is sufficient for your app, then you can consider removing the footer. 
 first remove the :code:`app_footer` variable from the :code:`ui.ipynb` file by removing the third cell. 
-Then in the penultimate cell of the same file remove the line coresponding to the footer :
+Then in the penultimate cell of the same file remove the line corresponding to the footer :
 
 .. code-block:: python 
 

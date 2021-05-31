@@ -13,7 +13,7 @@ Any argument from the original :code:`TextField` ipyvuetify class can be used to
 .. image:: ../../img/password.png
     :alt: password
 
-the value can be retreive from the :code:`v_model` trait. 
+the value can be retrieve from the :code:`v_model` trait. 
 
 .. code-block:: python 
 
@@ -21,9 +21,9 @@ the value can be retreive from the :code:`v_model` trait.
     password.v_model 
 
     # will be thown when v_model change (but it will be dangerous to print it ;-) 
-    password.observe(lambda change: print(change['new'])) 
+    password.observe(lambda change: print(change['new']), 'v_model') 
 
-    # bin the value to a io object using an Alert widget. As it's a password use the secret or non verbose option.
+    # bind the value to a io object using an Alert widget. As it's a password use the secret or non verbose option.
     sw.Alert().bind(password, io, 'password_attr', secret = True)
     sw.Alert().bind(password, io, 'password_attr', verbose =False) 
 

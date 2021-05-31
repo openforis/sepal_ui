@@ -18,7 +18,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
     You need to click outside of the slot to validate your selection
 
 
-the value can be retreive from the :code:`v_model` trait. 
+the value can be retrieve from the :code:`v_model` trait. 
 
 .. code-block:: python 
 

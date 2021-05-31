@@ -39,27 +39,11 @@ class TestUtils(unittest.TestCase):
         su.show_component(widget)
         self.assertTrue(widget.viz)
         
-        return 
-    
-    def test_get_gaul_dic(self):
-        
-        # search for France GAUL code 
-        dict_ = su.get_gaul_dic()
-        self.assertEqual(dict_['France'], 85)
-        
-        return 
-    
-    def get_iso_3(self):
-        
-        # search for France ISO-3 code
-        iso_code = su.get_iso_3('Fance') 
-        self.assertEqual(iso_code, 'FRA')
-        
         return
     
     def test_download_link(self):
         
-        # check the url for a 'toto/tutu.png' path
+        # check the URL for a 'toto/tutu.png' path
         path = 'toto/tutu.png'
         
         expected_link = '/api/files/download?path='
@@ -72,11 +56,11 @@ class TestUtils(unittest.TestCase):
     
     def test_is_absolute(self):
         
-        # test an absolute url (wikipedia home page)
+        # test an absolute URL (wikipedia home page)
         link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
         self.assertTrue(su.is_absolute(link))
         
-        # test a relative url ('toto/tutu.html')
+        # test a relative URL ('toto/tutu.html')
         link = 'toto/tutu.html'
         self.assertFalse(su.is_absolute(link))
         

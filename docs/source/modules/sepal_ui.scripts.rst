@@ -12,14 +12,6 @@ sepal\_ui.scripts.gee module
    :undoc-members:
    :show-inheritance:
 
-sepal\_ui.scripts.run\_aoi\_selection module
---------------------------------------------
-
-.. automodule:: sepal_ui.scripts.run_aoi_selection
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 sepal\_ui.scripts.utils module
 ------------------------------
 
