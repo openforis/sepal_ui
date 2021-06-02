@@ -231,9 +231,6 @@ def loading_button(alert=None, button=None, debug=False):
                 with warnings.catch_warnings(record=True) as w:
                     value = func(self, *args, **kwargs)
                 
-                # Reset alert if there is a previous message printed
-                alert_.reset()
-                
                 # Check if there are warnings in the function and append them
                 # Use append msg due to several warnings could be triggered
                 if w: [
