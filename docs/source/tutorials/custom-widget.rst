@@ -161,10 +161,10 @@ called in the end of my :code:`__init__` method by
 
     self.eye.on_event('click', self._toggle_viz)
    
-link to the :code:`io_object`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+link to the :code:`Model`
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In it's current state I could be tempted to use my new object in a tile as such 
+The newly created widget embed a :code:`v_model` trait so it can be binded to any :code:`Model` object using the :code:`bind` method.
 
 .. code-block:: python 
 
@@ -176,39 +176,15 @@ In it's current state I could be tempted to use my new object in a tile as such
 
     class MyTile(sw.Tile):
 
-        def __init__(self, io, **kwargs):
+        def __init__(self, model, **kwargs):
 
             # create a password 
             self.password_field = PasswordField(label = 'PasswordField')
 
-            # link it to io 
-            self.output = sw.Alert().bind(self.password.text_field, io, 'password')
+            # link it to the model
+            model.bind(self.password_field, 'password')
 
     # [...]
-
-but then the password would be systematically displayed in the output. which is not what we want for a password. So instead we'll deal with the io injection inside our custom widget.
-First we need to add the io to the widget attributes
-
-.. code-block:: python 
-
-    # component/widget/password_field.py
-
-    def __init__(self, io, label="Password", **kwargs):
-
-            # add the io to the attributes 
-            self.io = io
-
-    # [...]
-
-and then observe the evolution of the text_field to update the io 'password' attribute. a complete documentation of the observe method can be found in the `Traitlet lib documentation <https://traitlets.readthedocs.io/en/stable/using_traitlets.html>`_.
-
-.. code-block:: python
-
-    def _on_change(self, change):
-
-        self.io.password = change['new']
-
-        return 
 
 final password widget 
 ^^^^^^^^^^^^^^^^^^^^^
@@ -227,10 +203,7 @@ finally we obtain the following reusable widget :
         EYE_ICONS = ['mdi-eye', 'mdi-eye-off'] # new icon list
         TYPES = ['password', 'text'] # new type list
    
-        def __init__(self, io, label="Password", **kwargs):
-
-            # add the io to the attributes 
-            self.io = io
+        def __init__(self, label="Password", **kwargs):
 
             # the viz attribute
             self.password_viz = False
@@ -254,7 +227,6 @@ finally we obtain the following reusable widget :
 
             # link the different functions 
             self.eye.on_event('click', self._toggle_viz) 
-            self.text_field.observe(self._on_change, 'v_model')
 
         def _toggle_viz(self, widget, event, data):
 
@@ -265,14 +237,7 @@ finally we obtain the following reusable widget :
             self.eye.children = [EYE_ICONS[viz]]
             self.text_field.type = self.TYPES[viz]
 
-            return 
-
-        def _on_change(self, change):
-
-            self.io.password = change['new']
-
             return
-
 
 Usage 
 -----
@@ -289,10 +254,10 @@ To reuse my object in a tile I should first import the widget component and then
 
     class MyTile(sw.Tile):
 
-        def __init__(self, io, **kwargs):
+        def __init__(self, model, **kwargs):
 
             # create a password 
-            self.password_field = PasswordField(io, label = 'PasswordField')
+            self.password_field = PasswordField(label = 'PasswordField')
 
             # create a username 
             username_field = v.TextField(
@@ -302,7 +267,9 @@ To reuse my object in a tile I should first import the widget component and then
             )
 
             # link it to io 
-            self.output = sw.Alert().bind(self.password.username_field, io, 'username')
+            self.model = model \
+                .bind(self.username_field, 'username') \
+                .bind(self.password_field, 'password')
 
     # [...]
 

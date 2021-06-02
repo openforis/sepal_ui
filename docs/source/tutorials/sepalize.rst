@@ -15,7 +15,7 @@ Most of the process that requires sepalization are based on Google Earth Engine 
 Fortunately the Seapl framework can use the Earth Engine Python API so anything that exist in Javascript can be translated into python ! 
 
 For this tutorial we will translate the following script. It analyses the cloud coverage on top of an selected AOI between 2 dates. 
-The script provide both images and plots. It is available `here <#>`_.  
+The script provide both images and plots. It is available `here <https://code.earthengine.google.com/8d5747ccd50da69aef3fa56d87fb626a>`_.  
 
 .. code-block:: javascript
 
@@ -151,10 +151,10 @@ in this file create a first cell where you initialize EE API :
     If you did not authenticate to Google Earth Engine previously, some extra action will be asked in the cell output. This process need to be done at least once
 
 
-Define the io
-^^^^^^^^^^^^^
+Define the model
+^^^^^^^^^^^^^^^^
 
-Then you need to identify what are the input and the output of your process in order to create an io. 
+Then you need to identify what are the input and the output of your process in order to create a model. 
 Here we have 3 input : 
 
 - AOI
@@ -166,44 +166,43 @@ And 2 output:
 - l8 ImageCollection
 - l7 ImageCollection 
 
-We will thus create an :code:`io` that matches our process requirements. For more information please refer to this `page <#>`_ of the documentation.
+We will thus create a :code:`model` that matches our process requirements. For more information please refer to this `page <#>`_ of the documentation.
 
 .. code-block: python
 
-    # component/io/process_io.py
+    # component/model/process_model.py
 
-    class ProcessIo():
+    from traitlets import Any
+    from sepal_ui.model import Model
 
-        def __init__(self):
-            # inputs 
-            self.asset = None # ee.FeatureCollection 
-            self.start_date = None # str representing the start date in YYY-MM-DD format
-            self.end_date = None # str representing the end date in YYY-MM-DD format
-            self.point = None # ee.Point
+    class ProcessIo(Model):
 
-            # output 
-            self.l8 = None # ee.ImageCollection
-            self.L7 = None # ee.ImageCollection
+        # inputs 
+        asset = Any(None).tag(sync=True) # ee.FeatureCollection 
+        start_date = Any(None).tag(sync=True) # str representing the start date in YYY-MM-DD format
+        end_date = Any(None).tag(sync=True) # str representing the end date in YYY-MM-DD format
+        point = Any(None).tag(sync=True) # ee.Point
+
+        # output 
+        l8 = Any(None).tag(sync=True) # ee.ImageCollection
+        L7 = Any(None).tag(sync=True) # ee.ImageCollection
 
 .. tip::
 
-    Don't forget to add the the file to the io package :code:`__init__.py` file
+    Don't forget to add the the file to the model package :code:`__init__.py` file
 
-
-
-
-now in a second cell of our :code:`test.ipynb` we will initialize this io object with default parameters :
+now in a second cell of our :code:`test.ipynb` we will initialize this io object with default parameters:
 
 .. code-block:: python
 
     # test.ipynb
 
-    from component import io 
+    from component import model
 
-    process_io = io.ProcessIo()
-    process_io.asset = ee.FeatureCollection('users/bornToBeAlive/Juaboso_Bia_HIA')
-    process_io.start_date = '2012-01-01'
-    process_io.end_date = '2015-12-31'
+    process_model = model.ProcessModel()
+    process_model.asset = ee.FeatureCollection('users/bornToBeAlive/Juaboso_Bia_HIA')
+    process_model.start_date = '2012-01-01'
+    process_model.end_date = '2015-12-31'
 
 Get the FeatureCollections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -225,12 +224,12 @@ Now we want to get the images collection that will be used for the rest of the p
     # Import the Landsat 8 TOA image collection.
     l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA') \
         .filterBounds(aoi) \
-        .filterDate(process_io.start_date, process_io.end_date) \
+        .filterDate(process_model.start_date, process_model.end_date) \
         .sort('CLOUD_COVER') \
 
     l7 = ee.ImageCollection('LANDSAT/LE07/C01/T1_TOA') \
         .filterBounds(aoi) \
-        .filterDate(process_io.start_date, process_io.end_date) \
+        .filterDate(process_model.start_date, process_model.end_date) \
         .sort('CLOUD_COVER') \
 
     # cloud
@@ -281,14 +280,14 @@ set a SepalMap object and then add all the images you like using the same method
 
     Map = sm.SepalMap(['CartoDB.Positron'])
 
-    Map.addLayer(process_io.l8.first().select('cloud').clip(process_io.asset), cloudParams, 'cloud L8')
-    Map.addLayer(process_io.l7.first().select('cloud').clip(process_io.asset), cloudParams, 'cloud L7')
-    Map.addLayer(process_io.l8.first().clip(process_io.asset), rgbVis_l8, 'RGB image L8')
-    Map.addLayer(process_io.l7.first().clip(process_io.asset), rgbVis_l7, 'RGB image L7')
-    Map.addLayer(process_io.l8.first().select('NDMI').clip(process_io.asset), ndmiParams, 'NDMI image L8')
-    Map.addLayer(process_io.l7.first().select('NDMI').clip(process_io.asset), ndmiParams, 'NDMI image L7')
+    Map.addLayer(process_model.l8.first().select('cloud').clip(process_model.asset), cloudParams, 'cloud L8')
+    Map.addLayer(process_model.l7.first().select('cloud').clip(process_model.asset), cloudParams, 'cloud L7')
+    Map.addLayer(process_model.l8.first().clip(process_model.asset), rgbVis_l8, 'RGB image L8')
+    Map.addLayer(process_model.l7.first().clip(process_model.asset), rgbVis_l7, 'RGB image L7')
+    Map.addLayer(process_model.l8.first().select('NDMI').clip(process_model.asset), ndmiParams, 'NDMI image L8')
+    Map.addLayer(process_model.l7.first().select('NDMI').clip(process_model.asset), ndmiParams, 'NDMI image L7')
 
-    Map.zoom_ee_object(process_io.asset.geometry())
+    Map.zoom_ee_object(process_model.asset.geometry())
 
 Create the Histogram
 ^^^^^^^^^^^^^^^^^^^^
@@ -356,16 +355,16 @@ We thus need to create a specific function that build a :code:`matplotlib` chart
         
         plt.show()
 
-This function can then be called on each image from the :code:`process_io`  : 
+This function can then be called on each image from the :code:`process_model`: 
 
 .. code-block:: python 
 
     # test.ipynb
 
-    create_hist(process_io.l8, process_io.point, 'landsat 8')
-    create_hist(process_io.l7, process_io.point, 'landsat 7')
+    create_hist(process_model.l8, process_model.point, 'landsat 8')
+    create_hist(process_model.l7, process_model.point, 'landsat 7')
 
-All this functions are now functional. You can add them in the script component using the necessary parameters here :code:`process_io` and :code:`Map`.
+All this functions are now functional. You can add them in the script component using the necessary parameters here :code:`process_model` and :code:`Map`.
 
 wire process to a tile
 ----------------------
@@ -385,44 +384,43 @@ your tile should look like this one :
 
     class ProcessTile(sw.Tile):
         
-        def __init__(self, io, aoi_io, m):
+        def __init__(self, model, aoi_model, m):
             
-            # Define the io and the aoi_io as class attribute so that they can be manipulated in its custom methods
-            self.io = io 
-            self.aoi_io = aoi_io
+            # Define the model and the aoi_model as class attribute so that they can be manipulated in its custom methods
+            self.model = model 
+            self.aoi_model = aoi_model
             semf.m = m
             
             # the widget are defined 
             # [...]
 
-            # and linked to the io attributes using the output
+            # and linked to the io attributes using the model
             # [...]
-            
-            # add a btn to start the process
-            self.btn = sw.Btn()
             
             # construct the Tile with the widget we have initialized 
             super().__init__(
                 id_    = "process_widget", # the id will be used to make the Tile appear and disapear
                 title  = ms.process.title, # the Title will be displayed on the top of the tile
                 inputs = [...] # input list
-                btn    = self.btn,
-                output = self.output
+                btn    = sw.Btn(),
+                alert  = sw.Alert()
             )
 
 
-We want to launch the process when the button is click and use all the io attributes as parameters. important things in your tile are : 
+We want to launch the process when the button is click and use all the model attributes as parameters. important things in your tile are: 
 
-- set the io objects as class attributes
-- wire the widget to the io attributes
+- set the model objects as class attributes
+- wire the widget to the model attributes
 - create a button
 
 :code:`btn` is a Vuetify widget so it inherit some Javascripts behaviors that are describe in the `ipyvuetify documentation <https://ipyvuetify.readthedocs.io/en/latest/>`_.
-here we will launch a function on every click on it :
+here we will launch a function on every click on it:
 
 .. code-block:: python 
 
     # component/tile/process_tile.py
+
+    from sepal_ui.scripts.utils import loading_button
 
     class ProcessTile(sw.Tile):
     
@@ -431,7 +429,8 @@ here we will launch a function on every click on it :
             #[...]
             # now that the Tile is created we can link it to a specific function
             self.btn.on_event("click", self._on_run)
-        
+
+    @loading_button()
     def _on_click(self, widget, data, event): 
         # do stuff 
 
@@ -450,24 +449,14 @@ A process should look like the following :
 
 .. code-block:: python 
     
+    @loading_button()
     def _on_click(self, widget, event, data):
-
-        # toggle the loading button (ensure that the user doesn't launch the process multiple times)
-        widget.toggle_loading()
             
         # check that the input that you're gonna use are set (Not mandatory)
         if not self.output.check_input(self.aoi_io.get_aoi_name()): return widget.toggle_loading()
         if not self.output.check_input(self.io.year): return widget.toggle_loading()
        
-        # Wrap the process in a try/catch statement 
-        try:
-            # do stuff 
-        
-        except Exception as e: 
-            self.output.add_live_msg(str(e), 'error')
-        
-        # release the btn
-        widget.toggle_loading()
+        # do stuff 
         
         return self
 
