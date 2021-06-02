@@ -242,12 +242,10 @@ def loading_button(alert=None, button=None, debug=False):
                 ]
                   
             except Exception as e:
-                button_.toggle_loading() # Stop loading button if there is an error
-                alert_.add_msg(f'{e}', 'error')
+                alert.add_msg(f'{e}', 'error')
                 if debug: raise e
-                return # Scape of the function
-
-            button_.toggle_loading() # Stop loading button if there is not an error
+                    
+            button.toggle_loading() # Stop loading button
             
             return value
         return wrapper_loading
