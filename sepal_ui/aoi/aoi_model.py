@@ -478,6 +478,9 @@ class AoiModel(Model):
         task = ee.batch.Export.table.toAsset(**task_config)
         task.start()
         
+        # set the asset name 
+        self.asset_name = asset_id
+        
         return self
     
     def get_ipygeojson(self):
