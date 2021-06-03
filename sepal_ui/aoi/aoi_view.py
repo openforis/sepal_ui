@@ -16,7 +16,7 @@ from sepal_ui import color as sc
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN
 ALL = 'All'
-select_methods = AoiModel.METHODS     
+select_methods = AoiModel.METHODS
 
 class Select(v.Select, sw.SepalWidget):
     """A classic Vuetify Select widget inheriting from sepalwidgets"""
@@ -55,8 +55,12 @@ class MethodSelect(Select):
                 raise Exception("You mixed adding and removing, punk")
             
             if methods[0][0] == '-':
-                self.methods = select_methods
-                [self.methods.pop(k[1:]) for k in methods]
+                
+                to_remove = [method[1:] for method in methods]
+                
+                # Rewrite the methods instead of mutate the class methods
+                self.methods = {k:v for k,v in select_methods.items() if k not in to_remove} 
+                
             else:
                 self.methods = {k: select_methods[k] for k in methods}
         else:

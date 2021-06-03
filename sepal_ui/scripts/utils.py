@@ -231,9 +231,6 @@ def loading_button(alert=None, button=None, debug=False):
                 with warnings.catch_warnings(record=True) as w:
                     value = func(self, *args, **kwargs)
                 
-                # Reset alert if there is a previous message printed
-                alert_.reset()
-                
                 # Check if there are warnings in the function and append them
                 # Use append msg due to several warnings could be triggered
                 if w: [
@@ -242,10 +239,12 @@ def loading_button(alert=None, button=None, debug=False):
                 ]
                   
             except Exception as e:
-                alert.add_msg(f'{e}', 'error')
-                if debug: raise e
+                alert_.add_msg(f'{e}', 'error')
+                if debug:
+                    button_.toggle_loading() # Stop loading button if there is an error
+                    raise e
                     
-            button.toggle_loading() # Stop loading button
+            button_.toggle_loading() # Stop loading button
             
             return value
         return wrapper_loading
