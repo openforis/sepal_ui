@@ -11,10 +11,13 @@ from sepal_ui.scripts.utils import loading_button
 from sepal_ui.reclassify.customize_table import ClassTable
 from sepal_ui.reclassify.reclassify_model import ReclassifyModel
 
-
+class Flex(v.Flex, sw.SepalWidget):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        
 class ReclassifyView(v.Card):
 
-    def __init__(self, w_reclassify_table, class_path, gee=True, *args, **kwargs):
+    def __init__(self, w_reclassify_table, class_path, gee=False, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
         
@@ -23,82 +26,95 @@ class ReclassifyView(v.Card):
         self.w_reclassify_table = w_reclassify_table
         
         self.alert_dialog = sw.Alert().hide()
-    
-        title = v.CardTitle(children=[ms.reclassify.title])
-        description = v.CardText(
-            class_='py-0', 
-            children=[sw.Markdown(ms.reclassify.description)]
-        )
-
+        
         self.customize_view = CustomizeView(self.class_path)
+        
         self.w_class_file = v.Select(
             label='Select a classes file', 
             v_model='',
             dense=True
         )
+        self.get_items()
         
         self.get_table_btn = sw.Btn('Get reclassify table', class_='mb-2')
         self.save_raster_btn = sw.Btn('Reclassify', class_='my-2').hide()
         
-        self.get_items()
-    
-        self.w_select_raster = sw.FileInput(['.tif'], label='Search raster')
-        
-        local_children = [
-                title,
-                description,
-                self.w_select_raster,
-                self.w_class_file,
-                self.get_table_btn,
-                self.w_reclassify_table,
-                self.save_raster_btn,
-                self.alert_dialog,
-        ]
-
-        
-        self.asset_selector = sw.AssetSelect(
-            label='cm.remap.label', 
-            default_asset = 'users/dafguerrerom/FAO/LULC_2012_AOI'
-        )
-        
-        self.w_code = v.Select(label='', class_='pr-4', v_model='')
-        self.mapper_btn = sw.Btn('cm.remap.btn', small=True)
-        
-        w_asset = Flex(
-            _metadata = {'name':'code'},
-            class_='d-flex align-center mb-2',
-            children=[self.w_code, self.mapper_btn]
-        ).hide()
-        
-        gee_children = [
-            title, 
-            description, 
-            self.asset_selector, 
-            w_asset
+        if not gee:
             
-        ]
-        
-        self.children = gee_children
-        
-        # Capture and bind to model
-        self.model.bind(self.w_select_raster, 'in_raster')
+            # Load reclassify local rasters
+            title = v.CardTitle(children=[ms.reclassify.title])
+            description = v.CardText(
+                class_='py-0', 
+                children=[sw.Markdown(ms.reclassify.description)]
+            )
 
+            self.w_select_raster = sw.FileInput(
+                ['.tif'], label='Search raster'
+            )
+
+            self.children = [
+                    title,
+                    description,
+                    self.w_select_raster,
+                    self.w_class_file,
+                    self.get_table_btn,
+                    self.w_reclassify_table,
+                    self.save_raster_btn,
+                    self.alert_dialog,
+            ]
+            
+            # Capture and bind to model
+            self.model.bind(self.w_select_raster, 'in_raster')
+            
+        else:
+            # Load reclassify GEE assets
+            title = v.CardTitle(children=[ms.reclassify.title])
+            description = v.CardText(
+                class_='py-0', 
+                children=[sw.Markdown(ms.reclassify.description)]
+            )
+            
+            self.asset_selector = sw.AssetSelect(
+                label='cm.remap.label', 
+                default_asset = 'users/dafguerrerom/FAO/LULC_2012_AOI'
+            ).show()
+
+            self.w_code = v.Select(label='', class_='pr-4', v_model='')
+            self.mapper_btn = sw.Btn('cm.remap.btn', small=True)
+
+            self.w_asset = Flex(
+                _metadata = {'name':'code'},
+                class_='d-flex align-center mb-2',
+                children=[self.w_code, self.mapper_btn]
+            ).hide()
+            
+            self.model.bind(self.asset_selector, 'asset_id')
+            
+            self.asset_selector.observe(self.fill_cols, 'v_model')
+
+            self.children = [
+                title, 
+                description, 
+                self.asset_selector, 
+                self.w_asset
+            ]
+            
         # Decorate functions
         self.reclassify_and_save = loading_button(
             self.alert_dialog, self.save_raster_btn, debug=True,
         )(self.reclassify_and_save)
-        
+
         self.get_reclassify_table = loading_button(
             self.alert_dialog, self.get_table_btn, debug=True
         )(self.get_reclassify_table)
-        
+
         # Events
         self.get_table_btn.on_event('click', self.get_reclassify_table)
         self.save_raster_btn.on_event('click', self.reclassify_and_save)
-        
+
         # Refresh tables        
         self.customize_view.observe(self.get_items, 'classes_files')
-    
+
     def get_reclassify_table(self, *args):
         """Display a reclassify table which will lead the user to select
         a local code 'from user' to a target code based on a classes file"""
@@ -135,6 +151,33 @@ class ReclassifyView(v.Card):
         self.alert_dialog.add_msg(
             'File {} succesfully reclassified'.format(dst_raster), type_='success'
         )
+        
+    def fill_cols(self, *args):
+        """Get columns or bands from a featurecollection or an Image"""
+        # Hide previous loaded components
+#         self._hide_components()
+        
+        self.w_code.items=[]
+        self.w_asset.show()
+        
+        self.model.validate_asset()
+
+        self.w_code.loading=True
+
+        # Get columns of dataset
+        if self.model.asset_type == 'TABLE':
+            self.w_code.label = "cm.remap.code_label"
+            columns = self.model.get_cols()
+
+        elif self.model.asset_type == 'IMAGE':
+            self.w_code.label = "cm.remap.band_label"
+            columns = self.model.get_bands()
+
+        # Fill widgets with column names
+        self.w_code.items = columns
+
+        self.w_code.loading=False
+    
 
 class CustomizeView(v.Card):
     
@@ -295,32 +338,3 @@ class CustomizeView(v.Card):
 #         for component in self.components.values():
 #             su.hide_component(component)
     
-#     @observe('asset')
-#     def _get_items(self, change):
-        
-#         asset = change['new']
-        
-#         if asset:
-            
-#             # Hide previous loaded components
-#             self._hide_components()
-#             self.w_code.items=[]
-#             self.w_asset.show()
-#             self._validate_asset(asset)
-
-#             self.w_code.loading=True
-
-#             # Get columns of dataset
-#             if self.asset_type == 'TABLE':
-#                 columns = self._get_cols()
-
-#             elif self.asset_type == 'IMAGE':
-#                 columns = self._get_bands()
-
-#             # Fill widgets with column names
-#             self.w_code.items = columns
-
-#             self.w_code.loading=False
-
-
-        

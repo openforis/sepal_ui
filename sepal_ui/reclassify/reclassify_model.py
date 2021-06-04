@@ -5,8 +5,10 @@ import rasterio as rio
 
 from traitlets import Unicode, Any
 
-from sepal_ui.scripts.utils import need_ee
 from sepal_ui.model import Model
+
+import ee
+ee.Initialize()
 
 class ReclassifyModel(Model):
     
@@ -18,6 +20,9 @@ class ReclassifyModel(Model):
     
     def __ini__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        self.asset_type = None
+        self.ee_object = None
     
     def unique(self):
         """Retreive all the existing feature in the byte file"""
@@ -92,7 +97,6 @@ class ReclassifyModel(Model):
 
         return data
     
-    @need_ee
     def remap_feature_collection(self, band, matrix):
         """Get image with new remaped classes, it can process feature collection
         or images
@@ -124,24 +128,20 @@ class ReclassifyModel(Model):
     
     def validate_asset(self):
         
+        asset = self.asset_id
+        
         asset_info = ee.data.getAsset(asset)
         self.asset_type = asset_info['type']
         
         if self.asset_type == 'TABLE':
-            self.w_code.label = cm.remap.code_label
-            self.ee_asset = ee.FeatureCollection(asset)
-
-        elif self.asset_type == 'IMAGE':
-            self.w_code.label = cm.remap.band_label
-            self.ee_asset = ee.Image(asset)
-        else:
-            err_str = cm.remap.error_type
-            raise AttributeError(err_str)
+            self.ee_object = ee.FeatureCollection(asset)
             
-    def _get_bands(self):
-        """Get bands from Image asset"""
-        return list(self.ee_asset.bandTypes().getInfo().keys())
+        elif self.asset_type == 'IMAGE':
+            self.ee_object = ee.Image(asset)
         
+        else:
+            raise AttributeError(cm.remap.error_type)
+            
     def _get_fields(self):
         """Get fields from Feature Collection"""
         return sorted(
@@ -150,25 +150,33 @@ class ReclassifyModel(Model):
             ))
         ) 
 
-    def _get_cols(self):
+    def get_cols(self):
+        """Get columns from featurecollection asset"""
+
+        columns = ee.Feature(
+            self.ee_object.first()).propertyNames().getInfo()
         
-        if self.ee_asset:
-            columns = ee.Feature(
-                self.ee_asset.first()
-            ).propertyNames().getInfo()
-            return sorted(
-                [
-                    str(col) for col 
-                    in columns if col not in ['system:index', 'Shape_Area']
-                ])
+        return sorted(
+            [
+                str(col) for col 
+                in columns if col not in ['system:index', 'Shape_Area']
+            ])
+    
+    def get_bands(self):
+        """Get bands from Image asset"""
         
-    def _get_classes(self):
+        if not self.ee_object:
+            raise Exception('To get bands of an asset you must select one')
+            
+        return list(self.ee_object.bandTypes().getInfo().keys())
+        
+    def _get_classes(self, maxBuckets=40000):
         """Get raster classes"""
         
         # Reduce image
-        reduced = self.ee_asset.reduceRegion(
-          reducer = ee.Reducer.autoHistogram(maxBuckets=40000), 
-          geometry = self.ee_asset.geometry(), 
+        reduced = self.ee_object.reduceRegion(
+          reducer = ee.Reducer.autoHistogram(maxBuckets=maxBuckets), 
+          geometry = self.ee_object.geometry(), 
           scale=30, 
           maxPixels=1e13
         )
