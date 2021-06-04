@@ -37,5 +37,9 @@
     },
     "mapping": {
         "no_image": "The image file does not exist."
+    },
+    "reclassify": {
+        "title": "Reclassify local rasters",
+        "description": "This module will allow you to reclassify your local raster values into a new custom codes. <h2>Usage</h2></br>Navigate over your sepal storage environment and select the input `.tif` image, in the next dropdown use a manual classification if you don't have a classification `.csv` table, otherwise select the corresponding file. </br> Go to the 'Customize Classification' tab in order to create or modify existing classification files, and use them after in the workflow.<br><br>Once you have updated your files, click over the 'Get reclassify table' and choose the target values for each class."
     }
 }
