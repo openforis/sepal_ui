@@ -79,7 +79,7 @@ def is_absolute(url):
     Return:
         (bool): True if absolute else False
     """
-    return bool(urlparse(url).netloc)
+    return bool(urlparse(str(url)).netloc)
 
 def random_string(string_length=3):
     """
