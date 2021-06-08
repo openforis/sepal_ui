@@ -292,6 +292,22 @@ class AoiView(v.Card):
         
         return self
     
+    def reset(self):
+        """clear the aoi_model from input and remove the layer from the map (if existing)"""
+        
+        # clear the map
+        if self.map_:
+            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == 'aoi']
+            #self.map_.center = [0, 0]
+            #self.map_.zoom = 3
+            
+        # clear the model
+        self.model.clear_attributes()
+        
+        return self
+            
+        
+    
     def _activate(self, change):
         """activate the adapted widgets"""
         
