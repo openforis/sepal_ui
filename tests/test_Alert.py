@@ -90,7 +90,7 @@ class TestAlert(unittest.TestCase):
         
         #test from non empty alert with divider
         alert = sw.Alert().add_msg(start)
-        res = alert.append_msg(msg, True)
+        res = alert.append_msg(msg, section=True)
         
         self.assertEqual(res, alert)
         self.assertEqual(len(alert.children), 3)
