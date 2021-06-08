@@ -328,12 +328,12 @@ class AoiModel(Model):
                 # get the zip from GADM server only the ISO_3 code need to be used
                 urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
             
-                # read the geopackage 
-                layer_name = f"gadm36_{iso_3}_{level}"
-                level_gdf = gpd.read_file(f'{zip_file}!gadm36_{iso_3}.gpkg', layer=layer_name)
+            # read the geopackage 
+            layer_name = f"gadm36_{iso_3}_{level}"
+            level_gdf = gpd.read_file(f'{zip_file}!gadm36_{iso_3}.gpkg', layer=layer_name)
         
-                # get the exact admin from this layer 
-                self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
+            # get the exact admin from this layer 
+            self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
         
         # set the name using the layer 
         r = df[df[self.CODE[self.ee].format(level)] == admin].iloc[0]
@@ -459,6 +459,9 @@ class AoiModel(Model):
         
         asset_name = self.ASSET_SUFFIX + self.name
         asset_id = str(Path(self.folder, asset_name))
+        
+        # set the asset name 
+        self.asset_name = asset_id
         
         # check if the table already exist
         if asset_id in [a['name'] for a in gee.get_assets(self.folder)]:

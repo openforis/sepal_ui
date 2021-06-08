@@ -79,7 +79,7 @@ def is_absolute(url):
     Return:
         (bool): True if absolute else False
     """
-    return bool(urlparse(url).netloc)
+    return bool(urlparse(str(url)).netloc)
 
 def random_string(string_length=3):
     """
@@ -231,9 +231,6 @@ def loading_button(alert=None, button=None, debug=False):
                 with warnings.catch_warnings(record=True) as w:
                     value = func(self, *args, **kwargs)
                 
-                # Reset alert if there is a previous message printed
-                alert_.reset()
-                
                 # Check if there are warnings in the function and append them
                 # Use append msg due to several warnings could be triggered
                 if w: [
@@ -242,12 +239,12 @@ def loading_button(alert=None, button=None, debug=False):
                 ]
                   
             except Exception as e:
-                button_.toggle_loading() # Stop loading button if there is an error
                 alert_.add_msg(f'{e}', 'error')
-                if debug: raise e
-                return # Scape of the function
-
-            button_.toggle_loading() # Stop loading button if there is not an error
+                if debug:
+                    button_.toggle_loading() # Stop loading button if there is an error
+                    raise e
+                    
+            button_.toggle_loading() # Stop loading button
             
             return value
         return wrapper_loading

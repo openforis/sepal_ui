@@ -1,6 +1,6 @@
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "2.0.0"
+__version__ = "2.0.2"
 
 # direct access to colors 
 from sepal_ui.frontend import styles

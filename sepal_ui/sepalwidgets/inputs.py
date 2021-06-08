@@ -171,7 +171,7 @@ class FileInput(v.Flex, SepalWidget):
         
     def reset(self):
         """
-        Clear the File selection and move to the root folder
+        Clear the File selection and move to the root folder if something was selected
         
         Return:
             self
@@ -179,11 +179,13 @@ class FileInput(v.Flex, SepalWidget):
         
         root = Path('~').expanduser()
         
-        # move to root 
-        self._on_file_select({'new': root})
+        if self.v_model != '':
+            
+            # move to root
+            self._on_file_select({'new': root})
         
-        # remove v_model
-        self.v_model = ''
+            # remove v_model
+            self.v_model = ''
         
         return self
     

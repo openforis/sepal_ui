@@ -14,13 +14,14 @@ the tile cod is the following :
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v
     from component.message import ms
+    from sepal_ui.scripts import utils as su
 
     class MyTile(sw.Tile):
     
-        def __init__(self, io, **kwargs):
+        def __init__(self, model, **kwargs):
 
-        # gather ios
-        self.io = io
+        # gather models
+        self.model = model
         
         # a single widget
         self.slider = v.Slider(
@@ -30,33 +31,26 @@ the tile cod is the following :
             v_model     = 0
         )
         
-        self.output = sw.Alert().bind(self.slider, self.io, 'slider_value')
-        
-        self.btn = sw.Btn()
+        self.model.bind(self.slider, 'slider_value')
         
         # construct the Tile with the widget we have initialized 
         super().__init__(
             id_    = "my_tile", 
             title  = ms.my_tile.title,
             inputs = [self.slider],
-            btn    = self.btn,
-            output = self.output
+            btn    = sw.Btn(),
+            alert  = sw.Alert()
         )
         
         # now that the Tile is created we can link it to a specific function
         self.btn.on_event('click', self._on_run)
-        
+    
+    @su.loading_button(debug=False)
     def _on_run(self, widget, data, event): 
-            
-        # toggle the loading button
-        widget.toggle_loading()
 
         time.sleep(5)
 
-        self.output.add_live_msg("I've waited for 5 good seconds...", "warning")
-        
-        # release the btn
-        widget.toggle_loading()
+        self.alert.add_live_msg("I've waited for 5 good seconds...", "warning")
         
         return
 
