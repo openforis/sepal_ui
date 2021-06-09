@@ -131,7 +131,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             for cl in f.readlines():
                 # c:code, d:description
                 item = [
-                    {'value': c, 'text': f'{c}: ' + d.replace('\n','')} for c, d 
+                    {'value': int(c), 'text': f'{c}: ' + d.replace('\n','')} for c, d 
                     in [cl.split(',')]
                 ]
                 items+=item
@@ -155,9 +155,13 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             items=self.items, 
             v_model=None, 
             dense=True,
-            hide_details=True
+            hide_details=True,
+            type='number'
         )
         
         select.observe(partial(self.store, code), 'v_model')
+        
+        #Trigger the event and save it into the matrix
+        select.v_model = int(code)
         
         return select

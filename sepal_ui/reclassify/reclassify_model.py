@@ -84,6 +84,7 @@ class ReclassifyModel(Model):
         if not Path(self.in_raster).is_file():
             raise Exception('There is not any raster file selected')
             
+            
         # Get reclassify path raster
         filename = Path(self.in_raster).stem
 
@@ -96,12 +97,7 @@ class ReclassifyModel(Model):
             else:
                 raise Exception(cm.bin.no_exists.format(dst_raster))
 
-        if not all(list(map_values.values())):
-            raise Exception('All new values has to be filled, try it again.')
-
-        # Cast to integer map_values
-
-        map_values = {int(k): int(v) for k, v in map_values.items()}
+        map_values = self.validate_map_values(self, map_values)
 
         with rio.open(self.in_raster) as src:
 
@@ -111,7 +107,7 @@ class ReclassifyModel(Model):
             
             data = np.zeros_like(raw_data, dtype=np.uint8)
 
-            for origin, target in map_values.items():
+            for origin, target in map_values:
 
                 bool_data = np.zeros_like(raw_data, dtype=np.bool_)
                 bool_data = bool_data + (raw_data == origin)
@@ -124,7 +120,24 @@ class ReclassifyModel(Model):
             
             if save:
                 with rio.open(dst_raster, 'w', **self.out_profile) as dst:
-                    dst.write(self.raster_reclass)        
+                    dst.write(self.raster_reclass)
+    
+    def validate_map_values(self, map_values):
+        
+        values = list(map_values.values())
+        
+        if not all(values):
+            raise Exception('All new values must be filled, try it again.')
+            
+        matrix = {
+            int(k): int(v['value']) if 'text' in v else int(v)
+                for k, v in change_matrix.items()
+        }
+        
+        # Get from, to lists
+        origin, target = list(zip(*matrix.items()))
+        
+        return origin, target
     
     def remap_feature_collection(self, band, change_matrix, save=False):
         """Get image with new remaped classes, it can process feature collection
@@ -137,19 +150,8 @@ class ReclassifyModel(Model):
             matrix (Remap.matrix dictionary): dictionary with {from:to values}
         """
         
-        try:
-            # Check that all the values can be cast to integers
-            [int(v) for v in  change_matrix.values()]
-        except:
-            raise Exception('All new values has to be filled and integers')
-        
-        matrix = {
-            int(k): int(v['value']) if 'text' in v else int(v)
-                for k, v in change_matrix.items()
-        }
-        
-        # Get from, to lists
-        from_, to = list(zip(*matrix.items()))
+        origin, target = self.validate_map_values(change_matrix)
+
 
         if self.asset_type == 'TABLE':
             # Convert feature collection to raster
@@ -164,7 +166,7 @@ class ReclassifyModel(Model):
             raise Exception('Invalid asset id')
             
         # Remap image
-        self.reclass_ee_image = image.remap(from_, to, bandName=band)
+        self.reclass_ee_image = image.remap(origin, target, bandName=band)
         
         if save:
             name = Path(self.ee_object.getInfo()['id']).stem
