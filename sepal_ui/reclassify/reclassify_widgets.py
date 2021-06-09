@@ -66,7 +66,6 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         super().__init__(*args, **kwargs)
         
 
-    
     def _get_matrix(self, code_fields, classes_file=''):
         """ Init table reading local classes file and code/categories fields
         
@@ -108,6 +107,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         ]
         
         self.children = [v.Html(tag = 'tbody', children = header + rows)]
+        
+        return self
 
         
     def read_classes_from_file(self, class_file):

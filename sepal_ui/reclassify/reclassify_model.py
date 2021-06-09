@@ -1,11 +1,15 @@
+import warnings
 from pathlib import Path
 
+from pandas import DataFrame
 import numpy as np
 import rasterio as rio
 
 from traitlets import Unicode, Any
 
 from sepal_ui.model import Model
+from sepal_ui.scripts import gee
+
 
 import ee
 ee.Initialize()
@@ -16,13 +20,18 @@ class ReclassifyModel(Model):
     dst_raster = Unicode('').tag(sync=True)
     
     asset_id = Unicode('').tag(sync=True)
-    ee_code_Col = Any('').tag(sync=True)
+    code_col = Any('').tag(sync=True)
     
     def __ini__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.asset_type = None
         self.ee_object = None
+        
+        # Memory assets
+        self.raster_reclass = None
+        self.out_profile = None
+        self.asset_reclass = None
     
     def unique(self):
         """Retreive all the existing feature in the byte file"""
@@ -44,8 +53,25 @@ class ReclassifyModel(Model):
             features = features.tolist()
 
         return features
+    
+    def get_unique_ee(self, maxBuckets=40000):
+        """Get raster classes"""
+        
+        # Reduce image
+        reduced = self.ee_object.reduceRegion(
+          reducer = ee.Reducer.autoHistogram(maxBuckets=maxBuckets), 
+          geometry = self.ee_object.geometry(), 
+          scale=30, 
+          maxPixels=1e13
+        )
 
-    def reclassify_from_map(self, map_values, dst_raster=None, overwrite=False):
+        array = ee.Array(ee.List(reduced.get(self.code_col))).getInfo()
+        df = DataFrame(data=array, columns=['code', 'count'])
+        
+        return list(df[df['count']>0]['code'].unique())
+        
+
+    def reclassify_raster(self, map_values, dst_raster=None, overwrite=False, save=True):
         """ Remap raster values from map_values dictionary. If the 
         are missing values in the dictionary 0 value will be returned
 
@@ -73,14 +99,14 @@ class ReclassifyModel(Model):
 
         # Cast to integer map_values
 
-        map_values = {k: int(v) for k, v in map_values.items()}
+        map_values = {int(k): int(v) for k, v in map_values.items()}
 
         with rio.open(self.in_raster) as src:
 
             raw_data = src.read()
-            profile = src.profile
-            profile.update(compress='lzw', dtype=np.uint8)
-
+            self.out_profile = src.profile
+            self.out_profile.update(compress='lzw', dtype=np.uint8)
+            
             data = np.zeros_like(raw_data, dtype=np.uint8)
 
             for origin, target in map_values.items():
@@ -91,41 +117,85 @@ class ReclassifyModel(Model):
                 data_value = (bool_data * target).astype(np.uint8)
 
                 data += data_value
-
-                with rio.open(dst_raster, 'w', **profile) as dst:
-                    dst.write(data)
-
-        return data
+            
+            self.raster_reclass = data
+            
+            if save:
+                with rio.open(dst_raster, 'w', **self.out_profile) as dst:
+                    dst.write(self.raster_reclass)        
     
-    def remap_feature_collection(self, band, matrix):
+    def remap_feature_collection(self, band, matrix, save=False):
         """Get image with new remaped classes, it can process feature collection
         or images
 
         Args:
-            ee_asset (ee.Image, ee.FeatureCollection)
+            ee_object (ee.Image, ee.FeatureCollection)
             band (str): Name of band where are the values, if feature collection
                         is selected, column name has to be filled.
             matrix (Remap.matrix dictionary): dictionary with {from:to values}
         """
 
         # Get from, to lists
-        from_, to = list(zip(*[(k, v['value']) for k, v in matrix.items()]))
+        from_, to = list(zip(*matrix.items()))
 
-        asset_type = ee.data.getAsset(ee_asset)
-
-        if asset_type == 'TABLE':
+        if self.asset_type == 'TABLE':
             # Convert feature collection to raster
-            image = ee_asset.filter(ee.Filter.notNull([band])).reduceToImage(
-                properties=band, 
+            image = self.ee_object.filter(ee.Filter.notNull([band])).reduceToImage(
+                properties=[band], 
                 reducer=ee.Reducer.first()).rename([band])
 
-        elif asset_type == 'IMAGE':
-            image = ee.asset
+        elif self.asset_type == 'IMAGE':
+            image = self.ee_object
+            
+        else:
+            raise Exception('Invalid asset id')
+            
         # Remap image
-        image.remap(from_, to, bandName=band)
+        self.reclass_ee_image = image.remap(from_, to, bandName=band)
+        
+        if save:
+            name = Path(self.ee_object.getInfo()['id']).stem
+            return self.export_ee_image(name)
+            
+            
+    def export_ee_image(self, name, folder=None):
+        
+        def create_name(self, name):
 
-        return image
-    
+            if name[-1].isdigit():
+                last_number = int(name[-1])
+                name = name[:-1] + f'{last_number+1}'
+            else:
+                name += '_1'
+
+            return name
+        
+        asset_name = name+'_reclass'
+        folder = folder if folder else ee.data.getAssetRoots()[0]['id']
+        
+        asset_id = str(Path(folder, asset_name))
+        
+        # check if the table already exist
+        current_assets = [a['name'] for a in gee.get_assets(folder)]
+        
+        # An user could reclassify twice an asset,
+        # So let's create an unique name
+        while (asset_id in current_assets):
+            asset_id = create_name(asset_id)
+
+        params = {
+            'image': self.reclass_ee_image,
+            'assetId': asset_id,
+            'description': Path(asset_id).stem,
+            'scale': 30,
+            'maxPixels': 1e13,
+        }
+
+        task = ee.batch.Export.image.toAsset(**params)
+        task.start()
+
+        return task.id, asset_name
+            
     def validate_asset(self):
         
         asset = self.asset_id
@@ -140,22 +210,27 @@ class ReclassifyModel(Model):
             self.ee_object = ee.Image(asset)
         
         else:
-            raise AttributeError(cm.remap.error_type)
+            raise AttributeError("cm.remap.error_type")
             
-    def _get_fields(self):
+    def get_fields(self):
         """Get fields from Feature Collection"""
         return sorted(
             list(set(
-                self.ee_asset.aggregate_array(self.code_col).getInfo()
+                self.ee_object.aggregate_array(self.code_col).getInfo()
             ))
         ) 
 
-    def get_cols(self):
+    def get_cols(self, only_int=True):
         """Get columns from featurecollection asset"""
 
-        columns = ee.Feature(
-            self.ee_object.first()).propertyNames().getInfo()
+        columns = self.ee_object.first().getInfo()['properties']
         
+        if only_int:
+            columns = [col for col, val in columns.items() if type(val) in [int, float]]
+        else:
+            columns = list(columns.keys())
+            
+
         return sorted(
             [
                 str(col) for col 
@@ -170,18 +245,3 @@ class ReclassifyModel(Model):
             
         return list(self.ee_object.bandTypes().getInfo().keys())
         
-    def _get_classes(self, maxBuckets=40000):
-        """Get raster classes"""
-        
-        # Reduce image
-        reduced = self.ee_object.reduceRegion(
-          reducer = ee.Reducer.autoHistogram(maxBuckets=maxBuckets), 
-          geometry = self.ee_object.geometry(), 
-          scale=30, 
-          maxPixels=1e13
-        )
-
-        array = ee.Array(ee.List(reduced.get(self.code_col))).getInfo()
-        df = DataFrame(data=array, columns=['code', 'count'])
-        
-        return list(df[df['count']>0]['code'].unique())

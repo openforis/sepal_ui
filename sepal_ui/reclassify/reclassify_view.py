@@ -22,6 +22,7 @@ class ReclassifyView(v.Card):
         super().__init__(*args, **kwargs)
         
         self.model = ReclassifyModel()
+        self.gee = gee
         self.class_path = class_path
         self.w_reclassify_table = w_reclassify_table
         
@@ -37,9 +38,11 @@ class ReclassifyView(v.Card):
         self.get_items()
         
         self.get_table_btn = sw.Btn('Get reclassify table', class_='mb-2')
-        self.save_raster_btn = sw.Btn('Reclassify', class_='my-2').hide()
+        self.reclassify_btn = sw.Btn('Reclassify', class_='my-2').hide()
+        self.save_btn = sw.Btn('Save', class_='my-2').hide()
         
-        if not gee:
+        
+        if not self.gee:
             
             # Load reclassify local rasters
             title = v.CardTitle(children=[ms.reclassify.title])
@@ -55,12 +58,15 @@ class ReclassifyView(v.Card):
             self.children = [
                     title,
                     description,
+                    self.alert_dialog,
                     self.w_select_raster,
                     self.w_class_file,
                     self.get_table_btn,
                     self.w_reclassify_table,
-                    self.save_raster_btn,
-                    self.alert_dialog,
+                    Flex(class_='d-flex align-center mb-2', children=[
+                        self.reclassify_btn, self.save_btn,
+                    ])
+                    
             ]
             
             # Capture and bind to model
@@ -80,37 +86,43 @@ class ReclassifyView(v.Card):
             ).show()
 
             self.w_code = v.Select(label='', class_='pr-4', v_model='')
-            self.mapper_btn = sw.Btn('cm.remap.btn', small=True)
 
             self.w_asset = Flex(
                 _metadata = {'name':'code'},
                 class_='d-flex align-center mb-2',
-                children=[self.w_code, self.mapper_btn]
+                children=[self.w_code, self.get_table_btn]
             ).hide()
             
-            self.model.bind(self.asset_selector, 'asset_id')
+            self.model.bind(self.asset_selector, 'asset_id')\
+                        .bind(self.w_code, 'code_col')
             
             self.asset_selector.observe(self.fill_cols, 'v_model')
 
             self.children = [
                 title, 
                 description, 
+                self.alert_dialog,
+                self.w_class_file,
                 self.asset_selector, 
-                self.w_asset
+                self.w_asset,
+                self.w_reclassify_table,
+                Flex(class_='d-flex align-center mb-2', children=[
+                    self.reclassify_btn, self.save_btn,
+                ])
             ]
             
         # Decorate functions
-        self.reclassify_and_save = loading_button(
-            self.alert_dialog, self.save_raster_btn, debug=True,
-        )(self.reclassify_and_save)
-
+        self.reclassify = loading_button(
+            self.alert_dialog, self.reclassify_btn, debug=True,
+        )(self.reclassify)
+        
         self.get_reclassify_table = loading_button(
             self.alert_dialog, self.get_table_btn, debug=True
         )(self.get_reclassify_table)
 
         # Events
         self.get_table_btn.on_event('click', self.get_reclassify_table)
-        self.save_raster_btn.on_event('click', self.reclassify_and_save)
+        self.save_btn.on_event('click', self.reclassify)
 
         # Refresh tables        
         self.customize_view.observe(self.get_items, 'classes_files')
@@ -119,9 +131,19 @@ class ReclassifyView(v.Card):
         """Display a reclassify table which will lead the user to select
         a local code 'from user' to a target code based on a classes file"""
         
-        code_fields = self.model.unique()
-        self.w_reclassify_table._get_matrix(code_fields, self.w_class_file.v_model)
-        self.save_raster_btn.show()
+        if self.gee:
+            if self.model.asset_type == 'IMAGE':
+                code_fields = self.model.get_unique_ee()
+            elif self.model.asset_type == 'TABLE':
+                code_fields = self.model.get_fields()
+            else:
+                raise("Not recognizable asset type")
+        else:
+            code_fields = self.model.unique()
+            
+        self.w_reclassify_table._get_matrix(code_fields, self.w_class_file.v_model).show()
+        self.save_btn.show()
+        self.reclassify_btn.show()
         
     def get_items(self, *args):
         """Get classes .csv files from the selected path"""
@@ -129,33 +151,55 @@ class ReclassifyView(v.Card):
         self.w_class_file.items = [{'text':'Manual classification', 'value':''}] + \
             [{'divider':True}] + \
             [{'text':Path(f).name, 'value':f} for f 
-             in self.customize_view.classes_files]
+             in self.customize_view.classes_files]        
         
-    def reclassify_and_save(self, *args):
-        """Reclassify the input raster and save it in sepal space"""
+    def reclassify(self, *args):
+        """Reclassify the input raster and store it in memory"""
         
         change_matrix = self.w_reclassify_table.matrix
         
         map_values = {
-            k: v['value'] if 'text' in v else v
+            int(k): int(v['value']) if 'text' in v else int(v)
                 for k, v in change_matrix.items()
         }
+        
+        save=True
+        if self.gee:
+            
+            # Reclassify a gee asset
+            task, new_asset_id = self.model.remap_feature_collection(
+                band=self.w_code.v_model, 
+                matrix=map_values,
+                save=save
+            )
+            
+            self.alert_dialog.add_msg(
+                'Task {} succesfully created in GEE under asset id: {}'.format(task, new_asset_id), type_='success'
+            )
+            
+        else:
+            
             # Get reclassify path raster
-        filename = Path(self.model.in_raster).stem
-        dst_raster = Path('~').expanduser()/f'downloads/{filename}_reclassified.tif'
-        
-        self.model.reclassify_from_map(
-            map_values, dst_raster=dst_raster, overwrite=True
-        )
-        
-        self.alert_dialog.add_msg(
-            'File {} succesfully reclassified'.format(dst_raster), type_='success'
-        )
+            filename = Path(self.model.in_raster).stem
+            dst_raster = Path('~').expanduser()/f'downloads/{filename}_reclassified.tif'
+
+            self.model.reclassify_raster(
+                map_values, 
+                dst_raster=dst_raster, 
+                overwrite=True,
+                save=save
+            )
+
+            self.alert_dialog.add_msg(
+                'File {} succesfully reclassified'.format(dst_raster), type_='success'
+            )
+
         
     def fill_cols(self, *args):
         """Get columns or bands from a featurecollection or an Image"""
         # Hide previous loaded components
-#         self._hide_components()
+        
+        self.hide_components()
         
         self.w_code.items=[]
         self.w_asset.show()
@@ -175,8 +219,12 @@ class ReclassifyView(v.Card):
 
         # Fill widgets with column names
         self.w_code.items = columns
-
         self.w_code.loading=False
+        
+    def hide_components(self):
+        
+        self.w_reclassify_table.hide()
+        self.save_btn.hide()
     
 
 class CustomizeView(v.Card):
@@ -263,6 +311,7 @@ class CustomizeView(v.Card):
     
     def get_items(self):
         """Get items for widget selection"""
+        
         self.get_classes_files()
         classes_files = [{'divider':True}, {'header':'New classification'}] + \
                         [{'text':'Create new classification...', 'value':''}] + \
@@ -270,71 +319,6 @@ class CustomizeView(v.Card):
                         [{'text':Path(f).name, 'value':f}  for f in self.classes_files]
 
         return classes_files
-    
-
-# class ReclassifyGee(v.Card):
-    
-#         self.w_class_file = class_file
-        
-#         super().__init__(*args, **kwargs)
-
-#         self.ee_asset = None
-#         self.w_reclassify = ReclassifyTable(
-#             dense=True, 
-#             max_height=400,
-#             _metadata={'name':'mapper'}
-#         ).hide()
         
 
-        
-#         # List of components whose could be hidden/showed
-        
-#         self.components = {
-#             'mapper': self.w_reclassify,
-#             'code' : self.w_asset
-#         }
-        
-#         # Define view
-#         self.children = [
-#             self.asset_selector,
-#             self.w_reclassify,
-            
-#         ]
-        
-#         #Link traits
-#         link((self, 'asset'), (self.asset_selector, 'v_model'))
-#         link((self.w_code, 'v_model'), (self, 'code_col'))
-        
-#         # Decorate functions
-#         self._get_mapper_matrix = loading(
-#             self.alert_dialog, 
-#             self.mapper_btn)(self._get_mapper_matrix)
-        
-#         self._validate_asset = loading(
-#             self.alert_dialog)(self._validate_asset)
-        
-#         # Trigger events
-#         self.mapper_btn.on_event('click', self._get_mapper_matrix_event)
-
-#     def _get_mapper_matrix_event(self, widget, event, data):
-#         self._get_mapper_matrix()
-        
-#     def _get_mapper_matrix(self):
-        
-#         assert (self.code_col != ''), cm.remap.error.no_code_col
-        
-#         if self.asset_type == 'TABLE':
-#             code_fields = self._get_fields()
-#         elif self.asset_type == 'IMAGE':
-#             code_fields = self._get_classes()
-        
-#         # Create mapper widget
-#         self.w_reclassify._get_matrix(self.w_class_file.v_model, code_fields)
-#         self.w_reclassify.show()
-
-#     def _hide_components(self):
-#         """Hide all possible componentes"""
-#         self.code_col = ''
-#         for component in self.components.values():
-#             su.hide_component(component)
     
