@@ -182,8 +182,11 @@ class AoiModel(Model):
         # set the feature collection 
         self.feature_collection = ee_col 
         
-        # create a gdf form te feature_collection 
-        self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+        # create a gdf form te feature_collection
+        # cannot be used before geemap 0.8.17 (not released)
+        #self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+        self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features'])
+        
         
         # set the name 
         self.name = Path(asset_name).stem.replace(self.ASSET_SUFFIX, '')
@@ -314,7 +317,9 @@ class AoiModel(Model):
                 .filter(ee.Filter.eq(f'ADM{level}_CODE', admin))
             
             # transform it into gdf
-            self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+            # cannot be used before geemap 0.8.17 (not released)
+            #self.gdf = geemap.ee_to_geopandas(self.feature_collection)
+            self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features'])
             
         else:     
             # save the country iso_code 
