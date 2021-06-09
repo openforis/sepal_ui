@@ -6,25 +6,34 @@ from sepal_ui import sepalwidgets as sw
 
 class Dialog(v.Dialog):
     
-    def __init__(self, output=None, *args, **kwargs):
+    def __init__(self, widget, *args, **kwargs):
         
-        self.output = output if output else Output()
         
         self.v_model=False
         self.max_width=436
         self.overlay_color='black'
         self.overlay_opcity=0.7
+        
+        self.w_save =  sw.Btn('Save', class_='ml-2 my-2')
+        self.w_cancel = sw.Btn('Cancel', class_='ml-2 my-2')
+        
         self.children=[
-            v.Card(children=[self.output])
+            v.Card(children=[
+                v.CardTitle(children=['Reclassify to new values']),
+                widget, 
+                self.w_save, 
+                self.w_cancel
+            ]),
         ]
 
         super().__init__(*args, **kwargs)
         
-    def alert(self, alert):
-        self.v_model=True
-        with self.output:
-            self.output.clear_output()
-            display(alert)
+        self.w_save.on_event('click', self.save)
+        self.w_cancel.on_event('click', self.save)
+    
+    def save(self, *args):
+        self.v_model=False
+
             
 class Tabs(v.Card):
     

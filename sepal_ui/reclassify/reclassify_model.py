@@ -5,7 +5,7 @@ from pandas import DataFrame
 import numpy as np
 import rasterio as rio
 
-from traitlets import Unicode, Any
+from traitlets import Unicode, Any, Dict
 
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
@@ -21,6 +21,8 @@ class ReclassifyModel(Model):
     
     asset_id = Unicode('').tag(sync=True)
     code_col = Any('').tag(sync=True)
+    
+    matrix = Dict({}).tag(sync=True)
     
     def __ini__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,7 +126,7 @@ class ReclassifyModel(Model):
                 with rio.open(dst_raster, 'w', **self.out_profile) as dst:
                     dst.write(self.raster_reclass)        
     
-    def remap_feature_collection(self, band, matrix, save=False):
+    def remap_feature_collection(self, band, change_matrix, save=False):
         """Get image with new remaped classes, it can process feature collection
         or images
 
@@ -134,7 +136,18 @@ class ReclassifyModel(Model):
                         is selected, column name has to be filled.
             matrix (Remap.matrix dictionary): dictionary with {from:to values}
         """
-
+        
+        try:
+            # Check that all the values can be cast to integers
+            [int(v) for v in  change_matrix.values()]
+        except:
+            raise Exception('All new values has to be filled and integers')
+        
+        matrix = {
+            int(k): int(v['value']) if 'text' in v else int(v)
+                for k, v in change_matrix.items()
+        }
+        
         # Get from, to lists
         from_, to = list(zip(*matrix.items()))
 
@@ -156,11 +169,12 @@ class ReclassifyModel(Model):
         if save:
             name = Path(self.ee_object.getInfo()['id']).stem
             return self.export_ee_image(name)
+
             
             
     def export_ee_image(self, name, folder=None):
         
-        def create_name(self, name):
+        def create_name(name):
 
             if name[-1].isdigit():
                 last_number = int(name[-1])

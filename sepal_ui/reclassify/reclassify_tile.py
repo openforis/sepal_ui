@@ -22,7 +22,7 @@ class ReclassifyTile(v.Card, SepalWidget):
         self.workspace()
         
         self.w_reclassify_table = ReclassifyTable()
-        self.reclassify_view = ReclassifyView(
+        self.view = ReclassifyView(
             gee=gee,
             class_path=self.class_path,
             w_reclassify_table = self.w_reclassify_table
@@ -31,7 +31,7 @@ class ReclassifyTile(v.Card, SepalWidget):
         
         tabs_titles = ['Reclassify', 'Customize classification']
         tab_content = [
-            self.reclassify_view,
+            self.view,
             self.customize_view
         ]
 
