@@ -131,7 +131,7 @@ class ReclassifyModel(Model):
             
         matrix = {
             int(k): int(v['value']) if 'text' in v else int(v)
-                for k, v in change_matrix.items()
+                for k, v in map_values.items()
         }
         
         # Get from, to lists
