@@ -128,9 +128,9 @@ class ReclassifyModel(Model):
         
         if not all(values):
             raise Exception('All new values must be filled, try it again.')
-            
+
         matrix = {
-            int(k): int(v['value']) if 'text' in v else int(v)
+            int(k): int(v['value']) if isinstance(v, dict) else int(v)
                 for k, v in map_values.items()
         }
         
@@ -172,7 +172,6 @@ class ReclassifyModel(Model):
             name = Path(self.ee_object.getInfo()['id']).stem
             return self.export_ee_image(name)
 
-            
             
     def export_ee_image(self, name, folder=None):
         

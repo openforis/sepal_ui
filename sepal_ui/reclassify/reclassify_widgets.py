@@ -14,25 +14,26 @@ class Dialog(v.Dialog):
         self.overlay_color='black'
         self.overlay_opcity=0.7
         
-        self.w_save =  sw.Btn('Save', class_='ml-2 my-2')
-        self.w_cancel = sw.Btn('Cancel', class_='ml-2 my-2')
+        self.w_save =  sw.Btn('Ok', class_='ml-2 my-2')
         
         self.children=[
             v.Card(children=[
                 v.CardTitle(children=['Reclassify to new values']),
                 widget, 
                 self.w_save, 
-                self.w_cancel
             ]),
         ]
 
         super().__init__(*args, **kwargs)
         
         self.w_save.on_event('click', self.save)
-        self.w_cancel.on_event('click', self.save)
     
     def save(self, *args):
         self.v_model=False
+    
+    def show(self):
+        self.v_model=True
+        
 
             
 class Tabs(v.Card):
@@ -156,7 +157,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             v_model=None, 
             dense=True,
             hide_details=True,
-            type='number'
+#             type='number'
         )
         
         select.observe(partial(self.store, code), 'v_model')

@@ -19,7 +19,9 @@ class Flex(v.Flex, sw.SepalWidget):
 class ReclassifyView(v.Card):
 
     def __init__(self, w_reclassify_table, class_path, gee=False, *args, **kwargs):
-
+        
+        self.class_='pa-2'
+        
         super().__init__(*args, **kwargs)
         
         self.model = ReclassifyModel()
@@ -39,14 +41,33 @@ class ReclassifyView(v.Card):
         )
         self.get_items()
         
-        self.get_table_btn = sw.Btn('Get reclassify table', class_='mb-2')
+        self.get_table_btn = sw.Btn(
+            'Get reclassify table', 
+            'mdi-table',
+            class_='mb-2',
+            outlined=True)
         
-        self.reclassify_btn = sw.Btn('Reclassify', class_='my-2').show()
-        self.save_btn = sw.Btn('Save', class_='ml-2 my-2').show()
-        self.edit_btn = sw.Btn('Edit table', class_='ml-2 my-2').show()
+        self.reclassify_btn = sw.Btn(
+            'Reclassify', 
+            'mdi-checkerboard', 
+            class_='ml-2 my-2'
+        )
+        
+        self.save_btn = sw.Btn(
+            'Save', 
+            'mdi-file-export', 
+            class_='ml-2 my-2'
+        )
+        
+        self.edit_btn = sw.Btn(
+            'Edit table', 
+            'mdi-pencil',
+            class_='my-2',
+            outlined=True,
+        )
         
         self.action_buttons = Flex(class_='d-flex align-center mb-2', children=[
-            self.reclassify_btn, self.edit_btn, self.save_btn
+            self.edit_btn, self.reclassify_btn, self.save_btn
         ]).hide()
         
         if not self.gee:
@@ -127,46 +148,13 @@ class ReclassifyView(v.Card):
         self.get_table_btn.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', partial(self.reclassify, save=False))
         self.save_btn.on_event('click', partial(self.reclassify, save=True))
-        self.edit_btn.on_event('click', self.edit_table)
+        self.edit_btn.on_event('click', lambda *args: self.dialog.show())
         
-        # Link external widgets with model
-        
-        link((self.w_reclassify_table, 'matrix'), (self.model, 'matrix'))
+ 
 
         # Refresh tables        
         self.customize_view.observe(self.get_items, 'classes_files')
-        
-    def edit_table(self, *args):
-        
-        self.dialog.v_model = True
 
-    def get_reclassify_table(self, *args):
-        """Display a reclassify table which will lead the user to select
-        a local code 'from user' to a target code based on a classes file"""
-        
-        if self.gee:
-            if self.model.asset_type == 'IMAGE':
-                code_fields = self.model.get_unique_ee()
-            elif self.model.asset_type == 'TABLE':
-                code_fields = self.model.get_fields()
-            else:
-                raise("Not recognizable asset type")
-        else:
-            code_fields = self.model.unique()
-        
-        
-        self.w_reclassify_table._get_matrix(code_fields, self.w_class_file.v_model).show()
-        self.dialog.v_model=True
-        self.action_buttons.show()
-        
-    def get_items(self, *args):
-        """Get classes .csv files from the selected path"""
-        
-        self.w_class_file.items = [{'text':'Manual classification', 'value':''}] + \
-            [{'divider':True}] + \
-            [{'text':Path(f).name, 'value':f} for f 
-             in self.customize_view.classes_files]        
-        
     def reclassify(self, *args, save=False):
         """Reclassify the input raster and store it in memory"""
         
@@ -181,7 +169,8 @@ class ReclassifyView(v.Card):
                     save=save
                 )
                 self.alert_dialog.add_msg(
-                    'Task {} succesfully created in GEE under asset id: {}'.format(task, new_asset_id), type_='success'
+                    """Task {} succesfully created \ 
+                    in GEE under asset id: {}""".format(task, new_asset_id), type_='success'
                 )
             else:
                 # Reclassify a gee asset
@@ -200,7 +189,7 @@ class ReclassifyView(v.Card):
             dst_raster = Path('~').expanduser()/f'downloads/{filename}_reclassified.tif'
 
             self.model.reclassify_raster(
-                change_matrix, 
+                change_matrix,
                 dst_raster=dst_raster, 
                 overwrite=True,
                 save=save
@@ -209,6 +198,39 @@ class ReclassifyView(v.Card):
             self.alert_dialog.add_msg(
                 'File {} succesfully reclassified'.format(dst_raster), type_='success'
             )
+
+    def get_reclassify_table(self, *args):
+        """Display a reclassify table which will lead the user to select
+        a local code 'from user' to a target code based on a classes file"""
+        
+        if self.gee:
+            if self.model.asset_type == 'IMAGE':
+                code_fields = self.model.get_unique_ee()
+            elif self.model.asset_type == 'TABLE':
+                code_fields = self.model.get_fields()
+            else:
+                raise("Not recognizable asset type")
+        else:
+            code_fields = self.model.unique()
+        
+        
+        self.w_reclassify_table._get_matrix(code_fields, self.w_class_file.v_model).show()
+        
+        # Link widget after get the matrix,otherwise it won't work.
+        link((self.w_reclassify_table, 'matrix'), (self.model, 'matrix'))
+        
+        self.dialog.v_model=True
+        self.action_buttons.show()
+        
+    def get_items(self, *args):
+        """Get classes .csv files from the selected path"""
+        
+        self.w_class_file.items = [{'text':'Manual classification', 'value':''}] + \
+            [{'divider':True}] + \
+            [{'text':Path(f).name, 'value':f} for f 
+             in self.customize_view.classes_files]        
+        
+
 
         
     def fill_cols(self, *args):
