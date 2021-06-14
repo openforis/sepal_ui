@@ -51,6 +51,8 @@ class SepalMap(geemap.Map):
     
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
         
+        self.world_copy_jump=True
+        
         # Init the map
         super().__init__(
             ee_initialize = False, # we take care of the initialization on our side
