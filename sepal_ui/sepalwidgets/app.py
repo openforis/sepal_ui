@@ -331,8 +331,9 @@ class App(v.App, SepalWidget):
             
             # activate the drawerItem
             if self.navDrawer:
-                for i in self.navDrawer.items:
-                    if name == i._metadata['card_id']:
-                        i.input_value = True
+                items = (i for i in self.navDrawer.items if i._metadata != None)
+                for i in items:
+                        if name == i._metadata['card_id']:
+                            i.input_value = True
                         
             return self
