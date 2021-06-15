@@ -37,7 +37,8 @@ setup(
         'deepdiff',
         'colorama',
         'Deprecated',
-        'Unidecode'
+        'Unidecode',
+        'natsort'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

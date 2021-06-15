@@ -24,3 +24,4 @@ pandoc
 ipykernel
 sphinx-copybutton
 sepal_ui
+natsort

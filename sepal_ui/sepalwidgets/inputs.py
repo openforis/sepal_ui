@@ -7,6 +7,7 @@ from ipywidgets import jslink
 import pandas as pd
 import ee
 import geopandas as gpd
+from natsort import humansorted
 
 from sepal_ui.frontend.styles import *
 from sepal_ui.scripts import utils as su
@@ -273,8 +274,8 @@ class FileInput(v.Flex, SepalWidget):
                 children.append(v.ListItemActionText(children=[file_size]))
                 file_list.append(v.ListItem(value=str(el), children=children))
 
-        folder_list = sorted(folder_list, key=lambda x: x.value)
-        file_list = sorted(file_list, key=lambda x: x.value)
+        folder_list = humansorted(folder_list, key=lambda x: x.value)
+        file_list = humansorted(file_list, key=lambda x: x.value)
 
         parent_item = v.ListItem(
             value=str(folder.parent), 
