@@ -30,16 +30,16 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         self.dialog = Output()
 
         self.edit_icon = v.Icon(children=['mdi-pencil'])
-        edit_icon = sw.Tooltip(self.edit_icon, 'Edit selelcted row')
+        edit_icon = sw.Tooltip(self.edit_icon, 'Edit selelcted row', bottom=True)
         
         self.delete_icon = v.Icon(children=['mdi-delete'])
-        delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row')
+        delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
         
         self.add_icon = v.Icon(children=['mdi-plus'])
-        add_icon = sw.Tooltip(self.add_icon, 'Create a new element')
+        add_icon = sw.Tooltip(self.add_icon, 'Create a new element',  bottom=True)
         
         self.save_icon = v.Icon(children=['mdi-content-save'])
-        save_icon = sw.Tooltip(self.save_icon, 'Write current table on SEPAL space')
+        save_icon = sw.Tooltip(self.save_icon, 'Write current table on SEPAL space',  bottom=True)
         self.save_dialog = SaveDialog(table=self, out_path=self.out_path, transition=False)
         
         slot = v.Toolbar(
@@ -114,9 +114,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         dial = EditDialog(
             schema = self.schema, 
-            default= self.v_model[0],
+            default = self.v_model[0],
             table = self,
-            transition=False
+            transition = False
         )
         with self.dialog:
             display(dial)
@@ -150,26 +150,26 @@ class EditDialog(v.Dialog):
         Args: 
             table (ClassTable, v.DataTable): Table linked with dialog
             schema (dict {'title':'type'}): Schema for table showing headers and type of data
-            default (dict): Dictionary with default valules
+            default (dict): Dictionary with default values of a edited row
         """
         
+        self.schema = schema
         self.table = table
         self.default = default
         self.title = "New element" if not self.default else "Modify element"
-        self.schema = schema
         self.v_model=True
         self.max_width=500
         self.overlay_opcity=0.7
         
         # Action buttons
-        self.save = v.Btn(children=['Save'])
-        save_tool = sw.Tooltip(self.save, 'Create new element')
+        self.save = v.Btn(children=['Save'], class_='mr-2')
+        save_tool = sw.Tooltip(self.save, 'Create new element',  bottom=True)
         
         self.cancel = v.Btn(children=['Cancel'])
-        cancel_tool = sw.Tooltip(self.cancel, 'Ignore changes')
+        cancel_tool = sw.Tooltip(self.cancel, 'Ignore changes',  bottom=True)
         
-        self.modify = v.Btn(children=['Modify'])
-        modify_tool = sw.Tooltip(self.modify, 'Update row')
+        self.modify = v.Btn(children=['Modify'], class_='mr-2')
+        modify_tool = sw.Tooltip(self.modify, 'Update row', bottom=True)
         
         save = [save_tool, cancel_tool]
         modify = [modify_tool, cancel_tool]
@@ -229,20 +229,22 @@ class EditDialog(v.Dialog):
     
     def _populate_dict(self, change, title):
         """Populate model with new values"""
-        self.model[title] = change['new']
+        self.model[title] = change['new'] if change['new'] else change['old']
     
     def _get_widgets(self):
         
+        """Create widgets on fly"""
+        
         widgets = []
         for title, type_ in self.schema.items():
-            
-            widget = v.TextField(label=title.capitalize(), type=type_, v_model='')
+
+            widget = v.TextField(label=title.capitalize(), type=type_, v_model=None)
             widget.observe(partial(self._populate_dict, title=title), 'v_model')
                         
             if title == 'id': widget.disabled=True
                 
             if self.default: 
-                widget.v_model = self.default[title]
+                widget.v_model = self.default[title] if title in self.default else None
             else:
                 if title=='id': widget.v_model = self._get_index()
                 
@@ -280,10 +282,10 @@ class SaveDialog(v.Dialog):
         
         # Action buttons
         self.save = v.Btn(children=['Save'])
-        save = sw.Tooltip(self.save, 'Save table')
+        save = sw.Tooltip(self.save, 'Save table', bottom=True)
         
         self.cancel = v.Btn(children=['Cancel'])
-        cancel = sw.Tooltip(self.cancel, 'Cancel')
+        cancel = sw.Tooltip(self.cancel, 'Cancel', bottom=True)
         
         info = sw.Alert().add_msg(
             'The table will be stored in {}'.format(str(out_path))).show()
