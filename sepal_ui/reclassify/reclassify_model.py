@@ -61,6 +61,9 @@ class ReclassifyModel(Model):
     def get_unique_ee(self, maxBuckets=40000):
         """Get raster classes"""
         
+        if not self.code_col:
+            raise Exception("Please select a band")
+        
         # Reduce image
         reduced = self.ee_object.reduceRegion(
           reducer = ee.Reducer.autoHistogram(maxBuckets=maxBuckets), 
@@ -231,6 +234,10 @@ class ReclassifyModel(Model):
             
     def get_fields(self):
         """Get fields from Feature Collection"""
+        
+        if not self.code_col:
+            raise Exception("Please select a column")
+        
         return sorted(
             list(set(
                 self.ee_object.aggregate_array(self.code_col).getInfo()
