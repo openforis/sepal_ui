@@ -79,7 +79,7 @@ def is_absolute(url):
     Return:
         (bool): True if absolute else False
     """
-    return bool(urlparse(url).netloc)
+    return bool(urlparse(str(url)).netloc)
 
 def random_string(string_length=3):
     """
@@ -223,6 +223,9 @@ def loading_button(alert=None, button=None, debug=False):
             # Change name of variable to assign it again in this scope
             button_ = self.btn if not button else button
             alert_ = self.alert if not alert else alert
+            
+            # Clean previous loaded messages in alert
+            alert_.reset()
 
             button_.toggle_loading() # Start loading 
             value = None

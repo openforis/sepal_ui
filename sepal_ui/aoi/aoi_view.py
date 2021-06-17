@@ -40,7 +40,7 @@ class MethodSelect(Select):
         methods (str|[str]): a list of methods from the available list ({' '.join(select_methods.keys())})
     """
     
-    def __init__(self, methods='ALL'):
+    def __init__(self, methods='ALL', gee=True):
         
         # create the method list
         if methods=='ALL':
@@ -65,6 +65,10 @@ class MethodSelect(Select):
                 self.methods = {k: select_methods[k] for k in methods}
         else:
             raise Exception("I don't get what you meant")
+            
+        if not gee:
+            self.methods.pop('ASSET', None)
+            print(self.methods)
             
         # build the item list with header 
         prev_type = None
@@ -219,7 +223,7 @@ class AoiView(v.Card):
         self.map_=map_
         
         # create the method widget 
-        self.w_method = MethodSelect(methods)
+        self.w_method = MethodSelect(methods, gee=gee)
         
         # add the 6 methods blocks
         self.w_admin_0 = AdminField(0, gee=gee).get_items().hide()
@@ -228,7 +232,7 @@ class AoiView(v.Card):
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_: self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
-        if self.ee: self.w_asset = sw.AssetSelect(label=ms.aoi_sel.asset, folder=self.folder).hide()
+        if self.ee: self.w_asset = sw.AssetSelect(label=ms.aoi_sel.asset, folder=self.folder, types=['TABLE']).hide()
         
         # group them together with the same key as the select_method object
         self.components = {
@@ -291,6 +295,28 @@ class AoiView(v.Card):
         self.updated += 1
         
         return self
+    
+    def reset(self):
+        """clear the aoi_model from input and remove the layer from the map (if existing)"""
+        
+        # clear the map
+        if self.map_:
+            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == 'aoi']
+            #self.map_.center = [0, 0]
+            #self.map_.zoom = 3
+            
+        # clear the model
+        self.model.clear_attributes()
+        
+        # reset the alert 
+        self.alert.reset()
+        
+        # reset the view of the widgets 
+        self.w_method.v_model = None
+        
+        return self
+            
+        
     
     def _activate(self, change):
         """activate the adapted widgets"""

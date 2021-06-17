@@ -7,6 +7,7 @@ from ipywidgets import jslink
 import pandas as pd
 import ee
 import geopandas as gpd
+from natsort import humansorted
 
 from sepal_ui.frontend.styles import *
 from sepal_ui.scripts import utils as su
@@ -273,8 +274,8 @@ class FileInput(v.Flex, SepalWidget):
                 children.append(v.ListItemActionText(children=[file_size]))
                 file_list.append(v.ListItem(value=str(el), children=children))
 
-        folder_list = sorted(folder_list, key=lambda x: x.value)
-        file_list = sorted(file_list, key=lambda x: x.value)
+        folder_list = humansorted(folder_list, key=lambda x: x.value)
+        file_list = humansorted(file_list, key=lambda x: x.value)
 
         parent_item = v.ListItem(
             value=str(folder.parent), 
@@ -426,24 +427,37 @@ class LoadTableField(v.Col, SepalWidget):
         return self
 
 class AssetSelect(v.Combobox, SepalWidget):
-    """
+    f"""
     Custom widget input to select an asset inside the asset folder of the user
     
     Args:
         label (str): the label of the input
         folder (str): the folder of the user assets
         default_asset (str): the id of a default asset
+        types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM'. Default to 'IMAGE' & 'TABLE' 
         
     Attributes:
         folder (str): the folder of the user assets
     """
     
+    TYPES = {
+        'IMAGE': 'Raster',
+        'TABLE': 'Table', # FEATURE_COLLECTION seems to be rendered as table
+        'IMAGE_COLLECTION': 'Image collection',
+        'ALGORITHM': 'Algorithm',
+        'FOLDER': 'folder'
+        #UNKNOWN type is ignored
+    }
+    
 
     @su.need_ee
-    def __init__(self, label = 'Select an asset', folder = None, default_asset = None, **kwargs):
+    def __init__(self, label = 'Select an asset', folder = None, default_asset = None, types = ['IMAGE', 'TABLE'], **kwargs):
         
         # initialize earth engine
         su.init_ee()
+        
+        # save the types
+        self.types = [el for el in types if el in self.TYPES.keys()]
         
         # if folder is not set use the root one 
         self.folder = folder if folder else ee.data.getAssetRoots()[0]['id']
@@ -469,17 +483,17 @@ class AssetSelect(v.Combobox, SepalWidget):
     def _get_items(self, widget, event, data):
         
         # get the list of user asset
-        assets = gee.get_assets(self.folder)
+        raw_assets = gee.get_assets(self.folder)
         
-        tables = sorted([e['id'] for e in assets if e['type'] == 'TABLE'])
-        images = sorted([e['id'] for e in assets if e['type'] == 'IMAGE'])
+        assets = {k: sorted([e['id'] for e in raw_assets if e['type'] == k]) for k in self.types}
         
-        self.items = [
-            {'divider':True}, {'header':'Tables'},
-            *tables,
-            {'divider':True}, {'header':'Rasters'},
-            *images
-        ]
+        self.items = []
+        for k in self.types:
+            if len(assets[k]):
+                self.items += [
+                    {'divider':True}, {'header':self.TYPES[k]},
+                    *assets[k],
+                ]
         
         return self
         

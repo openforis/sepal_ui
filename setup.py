@@ -14,7 +14,7 @@ setup(
         'sepal_ui.model'
     ],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json', 'bin/module_factory']},
-    version = '2.0.1',   
+    version = '2.0.5',   
     license='MIT',        
     description = 'Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform',
     long_description = open('README.rst').read(),
@@ -22,7 +22,7 @@ setup(
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_2.0.1.tar.gz',
+    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_2.0.5.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',
@@ -37,7 +37,8 @@ setup(
         'deepdiff',
         'colorama',
         'Deprecated',
-        'Unidecode'
+        'Unidecode',
+        'natsort'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

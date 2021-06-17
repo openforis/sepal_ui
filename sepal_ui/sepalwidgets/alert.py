@@ -156,7 +156,7 @@ class Alert(v.Alert, SepalWidget):
         
         return self
 
-    def append_msg(self, msg, type_='info', section=False):
+    def append_msg(self, msg, section=False, type_='info'):
         """ 
         Append a message in a new parragraph, with or without divider
 

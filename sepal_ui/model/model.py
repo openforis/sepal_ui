@@ -23,6 +23,14 @@ class Model(HasTraits):
         
         super().__init__(*args, **kwargs)
         
+    def __repr__(self):
+        """Method to represent the Model objects as a string"""
+        
+        args = ", ".join([f'{k}={v}' for k, v in self.export_data().items()]).strip()
+        
+        return f'{self.__class__.__name__}({args})'
+        
+        
     def export_data(self):
         """
         Export a json description of all the object traitlets 
