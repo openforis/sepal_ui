@@ -304,6 +304,12 @@ class AoiView(v.Card):
         # clear the model
         self.model.clear_attributes()
         
+        # reset the alert 
+        self.alert.reset()
+        
+        # reset the view of the widgets 
+        self.w_method.v_model = None
+        
         return self
             
         
