@@ -167,6 +167,13 @@ if __name__ == "__main__":
         aoi = input(f'{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}')
         if not strtobool(aoi):
             branch = 'no_aoi'
+            
+        else: 
+
+            gee = input(f'{Fore.CYAN}Do you need a connection to GEE in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}')
+            if not strtobool(gee):
+                branch = 'no_gee'
+            
     
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub('[^a-zA-Z\d\-\_]', '_', module_name)
@@ -227,7 +234,7 @@ if __name__ == "__main__":
     command = ['git', 'checkout', '-b', 'release']
     res = subprocess.run(command, cwd=folder)
     
-    command = ['git', 'push', 'origin', 'release']
+    command = ['git', 'push', '--set-upstream', 'origin', 'release']
     res = subprocess.run(command, cwd=folder)
     
     # checkout to master 
