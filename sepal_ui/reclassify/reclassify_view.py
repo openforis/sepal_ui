@@ -10,7 +10,6 @@ from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from sepal_ui.reclassify.reclassify_widgets import Dialog
 from sepal_ui.reclassify.customize_table import ClassTable
-from sepal_ui.reclassify.reclassify_model import ReclassifyModel
 
 class Flex(v.Flex, sw.SepalWidget):
     def __init__(self,*args,**kwargs):
@@ -18,69 +17,69 @@ class Flex(v.Flex, sw.SepalWidget):
         
 class ReclassifyView(v.Card):
 
-    def __init__(self, w_reclassify_table, class_path, gee=False, *args, **kwargs):
+    def __init__(self, 
+                 model,
+                 w_reclassify_table, 
+                 class_path, 
+                 gee=False, 
+                 save=True, 
+                 *args, 
+                 **kwargs):
         
         self.class_='pa-2'
         
         super().__init__(*args, **kwargs)
         
-        self.model = ReclassifyModel()
+        self.model = model
         self.gee = gee
+        self.save = save
         self.class_path = class_path
         self.w_reclassify_table = w_reclassify_table
         
         self.dialog = Dialog(self.w_reclassify_table)
         self.alert_dialog = sw.Alert().hide()
-        
-        self.customize_view = CustomizeView(self.class_path)
-        
+                
         self.w_class_file = v.Select(
-            label='Select a classes file', 
+            label=ms.reclassify.class_file_label, 
             v_model='',
             dense=True
         )
         self.get_items()
         
         self.get_table_btn = sw.Btn(
-            'Get reclassify table', 
+            ms.reclassify.get_table_btn, 
             'mdi-table',
             class_='mb-2',
             outlined=True)
         
         self.reclassify_btn = sw.Btn(
-            'Reclassify', 
+            ms.reclassify.reclassify_btn, 
             'mdi-checkerboard', 
             class_='ml-2 my-2'
         )
-        
-        self.save_btn = sw.Btn(
-            'Save', 
-            'mdi-file-export', 
-            class_='ml-2 my-2'
-        )
-        
+                
         self.edit_btn = sw.Btn(
-            'Edit table', 
+            ms.reclassify.edit_table_btn, 
             'mdi-pencil',
             class_='my-2',
             outlined=True,
         )
         
         self.action_buttons = Flex(class_='d-flex align-center mb-2', children=[
-            self.edit_btn, self.reclassify_btn, self.save_btn
+            self.edit_btn, self.reclassify_btn
         ]).hide()
         
         if not self.gee:
             
             # Load reclassify local rasters
-            title = v.CardTitle(children=[ms.reclassify.title])
+            title = v.CardTitle(children=[ms.reclassify.raster.title])
             description = v.CardText(
                 class_='py-0', 
-                children=[sw.Markdown(ms.reclassify.description)]
+                children=[sw.Markdown(ms.reclassify.raster.description)]
             )
 
             self.w_select_raster = sw.FileInput(
-                ['.tif'], label='Search raster'
+                ['.tif'], label=ms.reclassify.raster.w_select_raster, 
             )
 
             self.children = [
@@ -99,14 +98,14 @@ class ReclassifyView(v.Card):
             
         else:
             # Load reclassify GEE assets
-            title = v.CardTitle(children=[ms.reclassify.title])
+            title = v.CardTitle(children=[ms.reclassify.gee.title])
             description = v.CardText(
                 class_='py-0', 
-                children=[sw.Markdown(ms.reclassify.description)]
+                children=[sw.Markdown(ms.reclassify.gee.description)]
             )
             
             self.asset_selector = sw.AssetSelect(
-                label='cm.remap.label', 
+                label=ms.reclassify.gee.widgets.asset_label, 
                 default_asset=''
             ).show()
 
@@ -146,14 +145,13 @@ class ReclassifyView(v.Card):
 
         # Events
         self.get_table_btn.on_event('click', self.get_reclassify_table)
-        self.reclassify_btn.on_event('click', partial(self.reclassify, save=False))
-        self.save_btn.on_event('click', partial(self.reclassify, save=True))
         self.edit_btn.on_event('click', lambda *args: self.dialog.show())
-        
- 
 
+        self.reclassify_btn.on_event('click', partial(self.reclassify, save=self.save))
+
+        
         # Refresh tables        
-        self.customize_view.observe(self.get_items, 'classes_files')
+        self.model.observe(self.get_items, 'classes_files')
 
     def reclassify(self, *args, save=False):
         """Reclassify the input raster and store it in memory"""
@@ -161,26 +159,26 @@ class ReclassifyView(v.Card):
         change_matrix = self.w_reclassify_table.matrix
 
         if self.gee:
-            if save:
-                # Reclassify a gee asset
+            if self.save:
+                # Reclassify a gee asset and save it
                 task, new_asset_id = self.model.remap_feature_collection(
                     band=self.w_code.v_model, 
                     change_matrix=change_matrix,
                     save=save
                 )
                 self.alert_dialog.add_msg(
-                    """Task {} succesfully created \ 
-                    in GEE under asset id: {}""".format(task, new_asset_id), type_='success'
+                    ms.reclassify.gee.success_export.format(task, new_asset_id), 
+                    type_='success'
                 )
             else:
-                # Reclassify a gee asset
+                # Reclassify a gee asset and store it in memory
                 self.model.remap_feature_collection(
                     band=self.w_code.v_model, 
                     change_matrix=change_matrix,
                     save=save
                 )
                 self.alert_dialog.add_msg(
-                    'Asset succesfully reclassified', type_='success')
+                    ms.reclassify.gee.success_reclass, type_='success')
             
         else:
             
@@ -196,7 +194,7 @@ class ReclassifyView(v.Card):
             )
 
             self.alert_dialog.add_msg(
-                'File {} succesfully reclassified'.format(dst_raster), type_='success'
+                ms.reclassify.raster.success_reclass.format(dst_raster), type_='success'
             )
 
     def get_reclassify_table(self, *args):
@@ -209,7 +207,7 @@ class ReclassifyView(v.Card):
             elif self.model.asset_type == 'TABLE':
                 code_fields = self.model.get_fields()
             else:
-                raise("Not recognizable asset type")
+                raise(ms.reclassify.gee.wrong_asset)
         else:
             code_fields = self.model.unique()
         
@@ -225,14 +223,12 @@ class ReclassifyView(v.Card):
     def get_items(self, *args):
         """Get classes .csv files from the selected path"""
         
-        self.w_class_file.items = [{'text':'Manual classification', 'value':''}] + \
+        self.w_class_file.items = [{'text':ms.reclassify.manual_class, 'value':''}] + \
             [{'divider':True}] + \
             [{'text':Path(f).name, 'value':f} for f 
-             in self.customize_view.classes_files]        
+             in self.model.classes_files]        
         
 
-
-        
     def fill_cols(self, *args):
         """Get columns or bands from a featurecollection or an Image"""
         # Hide previous loaded components
@@ -248,11 +244,11 @@ class ReclassifyView(v.Card):
 
         # Get columns of dataset
         if self.model.asset_type == 'TABLE':
-            self.w_code.label = "cm.remap.code_label"
+            self.w_code.label = ms.reclassify.w_code_table
             columns = self.model.get_cols()
 
         elif self.model.asset_type == 'IMAGE':
-            self.w_code.label = "cm.remap.band_label"
+            self.w_code.label = ms.reclassify.w_code_image
             columns = self.model.get_bands()
 
         # Fill widgets with column names
@@ -267,10 +263,9 @@ class ReclassifyView(v.Card):
 
 class CustomizeView(v.Card):
     
-    classes_files = List([]).tag(sync=True)
-    
     def __init__(
         self, 
+        model,
         class_path, 
         *args, **kwargs):
         
@@ -285,13 +280,14 @@ class CustomizeView(v.Card):
         
         super().__init__(*args, **kwargs)
         
-        self.title = v.CardTitle(children=['Edit or create new classifications'])
+        self.model = model
+        self.title = v.CardTitle(children=[ms.reclassify.customize.title])
         self.class_path = class_path
         
         alert = sw.Alert()
         
         self.w_class_file = v.Select(
-            label='Select a classes file', 
+            label=ms.reclassify.class_file_label, 
             items=self.get_items(), 
             v_model='',
             dense=True
@@ -301,7 +297,7 @@ class CustomizeView(v.Card):
             schema = {'id':'number', 'code':'number', 'description':'string'},
         ).hide()
 
-        use_btn = sw.Btn('Get table')
+        use_btn = sw.Btn(ms.reclassify.get_custom_table_btn)
         self.children=[
             self.title,
             v.Flex(class_='ml-2 d-flex', children=[
@@ -339,24 +335,23 @@ class CustomizeView(v.Card):
         self.w_class_file.items = self.get_items()
         
     def get_classes_files(self):
-        """Search for classes inside module path"""
+        """Search for classes files inside module path"""
 
         look_up_folder = Path(self.class_path).glob('*.csv')
         module_classes_folder = (Path(os.getcwd())/'component/parameter').glob('*.csv')
         
-        self.classes_files = [str(f) for f in (list(look_up_folder) + \
+        # Store list of .csv classes into model
+        self.model.classes_files = [str(f) for f in (list(look_up_folder) + \
                                                list(module_classes_folder))]
     
     def get_items(self):
         """Get items for widget selection"""
         
         self.get_classes_files()
-        classes_files = [{'divider':True}, {'header':'New classification'}] + \
-                        [{'text':'Create new classification...', 'value':''}] + \
-                        [{'divider':True}, {'header':'Local classifications'}] + \
-                        [{'text':Path(f).name, 'value':f}  for f in self.classes_files]
+        classes_files = [{'divider':True}, {'header':ms.reclassify.customize.new_classification}] + \
+                        [{'text':ms.reclassify.customize.create_new, 'value':''}] + \
+                        [{'divider':True}, {'header':ms.reclassify.customize.local}] + \
+                        [{'text':Path(f).name, 'value':f}  for f in self.model.classes_files]
 
         return classes_files
         
-
-    

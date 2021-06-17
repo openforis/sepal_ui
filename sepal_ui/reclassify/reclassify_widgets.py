@@ -3,6 +3,7 @@ from traitlets import Int, link, Dict
 from ipywidgets import Output
 import ipyvuetify as v 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.message import ms
 
 class Dialog(v.Dialog):
     

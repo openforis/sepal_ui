@@ -3,12 +3,13 @@ import ipyvuetify as v
 from sepal_ui.sepalwidgets import SepalWidget
 from sepal_ui.reclassify import (
     ReclassifyView, CustomizeView, 
-    ReclassifyTable, Tabs, 
+    ReclassifyTable, Tabs, ReclassifyModel
 )
+from sepal_ui.message import ms
 
 class ReclassifyTile(v.Card, SepalWidget):
     
-    def __init__(self, gee=True, *args, **kwargs):
+    def __init__(self, gee=True, save=True, *args, **kwargs):
 
         self.class_ = 'pa-4'
         self._metadata = {'mount_id':'reclassify'}
@@ -20,14 +21,21 @@ class ReclassifyTile(v.Card, SepalWidget):
         self.root_dir=None
         self.class_path=None
         self.workspace()
+        self.model = ReclassifyModel()
+        
         
         self.w_reclassify_table = ReclassifyTable()
         self.view = ReclassifyView(
-            gee=gee,
+            self.model,
+            w_reclassify_table = self.w_reclassify_table,
             class_path=self.class_path,
-            w_reclassify_table = self.w_reclassify_table
+            gee=gee,
+            save=save,
         )
-        self.customize_view = CustomizeView(class_path=self.class_path)
+        self.customize_view = CustomizeView(
+            self.model,
+            class_path=self.class_path
+        )
         
         tabs_titles = ['Reclassify', 'Customize classification']
         tab_content = [
@@ -38,6 +46,7 @@ class ReclassifyTile(v.Card, SepalWidget):
         self.children=[
             Tabs(tabs_titles, tab_content)
         ]
+        
 
     def workspace(self):
         """ Creates the workspace necessary to store the data
@@ -48,7 +57,7 @@ class ReclassifyTile(v.Card, SepalWidget):
 
         base_dir = Path('~').expanduser()
 
-        root_dir = base_dir/'module_results/gwb'
+        root_dir = base_dir/'downloads'
         class_path = root_dir/'custom_classification'
 
         root_dir.mkdir(parents=True, exist_ok=True)
