@@ -5,7 +5,7 @@ from pandas import DataFrame
 import numpy as np
 import rasterio as rio
 
-from traitlets import Unicode, Any, Dict
+from traitlets import Unicode, Any, Dict, List
 
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
@@ -23,6 +23,8 @@ class ReclassifyModel(Model):
     code_col = Any('').tag(sync=True)
     
     matrix = Dict({}).tag(sync=True)
+
+    classes_files = List([]).tag(sync=True)
     
     def __ini__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -209,7 +211,7 @@ class ReclassifyModel(Model):
         task = ee.batch.Export.image.toAsset(**params)
         task.start()
 
-        return task.id, asset_name
+        return task.id, asset_id
             
     def validate_asset(self):
         
