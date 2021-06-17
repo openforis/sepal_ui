@@ -26,7 +26,7 @@ copyright = f"2020-{datetime.now().year}, the sepal development team"
 author = 'Pierrick Rambaud'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.4'
+release = '2.0.5'
 
 
 # -- General configuration ---------------------------------------------------
