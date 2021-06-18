@@ -68,7 +68,6 @@ class MethodSelect(Select):
             
         if not gee:
             self.methods.pop('ASSET', None)
-            print(self.methods)
             
         # build the item list with header 
         prev_type = None
