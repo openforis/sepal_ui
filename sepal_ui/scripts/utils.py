@@ -223,6 +223,9 @@ def loading_button(alert=None, button=None, debug=False):
             # Change name of variable to assign it again in this scope
             button_ = self.btn if not button else button
             alert_ = self.alert if not alert else alert
+            
+            # Clean previous loaded messages in alert
+            alert_.reset()
 
             button_.toggle_loading() # Start loading 
             value = None
