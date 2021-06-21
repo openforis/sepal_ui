@@ -61,7 +61,7 @@
                 "asset_label" : "Select an asset ID"
             },
             "success_export" : "Task {} successfully created in GEE under asset id: {}",
-            "success_reclass" : "Task {} successfully created in GEE under asset id: {}",
+            "success_reclass" : "Asset successfully reclassified",
             "wrong_asset" : "Not recognizable asset type"
         },
         "customize" : {
