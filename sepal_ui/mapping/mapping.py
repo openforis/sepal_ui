@@ -83,6 +83,11 @@ class SepalMap(geemap.Map):
         self.add_control(AttributionControl(position='bottomleft'))
         self.add_control(ScaleControl(position='bottomleft', imperial=False))
         
+        # change the prefix 
+        for control in self.controls:
+            if type(control) == AttributionControl:
+                control.prefix = "SEPAL"
+        
         # specific drawing control
         self.set_drawing_controls(dc)
         
