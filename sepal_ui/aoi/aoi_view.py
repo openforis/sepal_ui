@@ -271,7 +271,7 @@ class AoiView(v.Card):
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
             
-    @su.loading_button(debug=False)
+    @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
         
@@ -324,7 +324,14 @@ class AoiView(v.Card):
         self.alert.reset()
         
         # deactivate or activate the dc
-        if self.map_: self.map_.show_dc() if change['new'] == 'DRAW' else self.map_.hide_dc()
+        # clear the geo_json saved features to start from scratch
+        if self.map_:
+            if change['new'] == 'DRAW': 
+                self.map_.show_dc()
+                self.model.geo_json = None
+            else:
+                self.map_.hide_dc()
+            
     
         # clear the inputs
         [w.reset() for w in self.components.values()]

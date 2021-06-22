@@ -131,7 +131,7 @@ class AoiModel(Model):
             'value': None
         } if vector else None
         
-        # set the default gdf in possible 
+        # set the default gdf if possible 
         if self.vector_json != None:
             self.set_object('SHAPE')
         elif self.admin != None:
@@ -270,10 +270,11 @@ class AoiModel(Model):
         
         # remove the style property from geojson as it's not recognize by geopandas and gee
         for feat in geo_json['features']:
-            del feat['properties']['style']
+            if 'style' in feat['properties']:
+                del feat['properties']['style']
         
         # create the gdf
-        self.gdf = gpd.GeoDataFrame.from_features(geo_json)
+        self.gdf = gpd.GeoDataFrame.from_features(geo_json).set_crs(epsg=4326)
         
         # normalize the name
         self.name =su.normalize_str(self.name)
