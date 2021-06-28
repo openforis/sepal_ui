@@ -90,10 +90,13 @@ class Markdown(v.Layout, SepalWidget):
         
         mkd = markdown(mkd_str, extensions=['fenced_code','sane_lists'])
     
-        #need to be nested in a div to be displayed
+        # need to be nested in a div to be displayed
         mkd = '<div>\n' + mkd + '\n</div>'
-    
-        #create a Html widget
+        
+        # make every link to point to target black (to avoid nested iframe in sepal)
+        mkd = mkd.replace('<a', '<a target="_blank"')
+        
+        # create a Html widget
         class MyHTML(v.VuetifyTemplate):
             template = Unicode(mkd).tag(sync=True)
     
