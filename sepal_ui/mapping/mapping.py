@@ -11,6 +11,7 @@ import geemap
 from haversine import haversine
 import numpy as np
 import rioxarray
+import xarray_leaflet # do not remove: plugin for rioxarray so it is never called but always used
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipyleaflet import (
@@ -358,7 +359,11 @@ class SepalMap(geemap.Map):
             colormap = plt.cm.get_cmap(name=colormap)
 
         da = rioxarray.open_rasterio(image, masked=True)
-
+        
+        # The dataset can be too big to hold in memory, so we will chunk it into smaller pieces. 
+        # That will also improve performances as the generation of a tile can be done in parallel using Dask.
+        da = da.chunk((1000, 1000))
+        
         # Create a named tuple with raster bounds and resolution
         local_raster = collections.namedtuple(
             'LocalRaster', ('name', 'left', 'bottom', 'right', 'top', 'x_res', 'y_res', 'data')
@@ -387,7 +392,7 @@ class SepalMap(geemap.Map):
             'y_dim': y_dim,
             'fit_bounds': fit_bounds,
             'get_base_url': get_base_url,
-            'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
+            #'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
             'rgb_dim': 'band' if multi_band else None,
             'colormap': None if multi_band else colormap,
         }
