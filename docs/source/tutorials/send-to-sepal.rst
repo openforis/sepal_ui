@@ -12,12 +12,43 @@ During your development, you may have encounter some trouble  using the preinsta
 
     $ pip install <my_lib>
 
-As a regular Sepal user, you don't have the rights to write in the :code:`usr/` so your installation have been performed using the :code:`--user` option. All the other Sepal user thus don't have access to your lib. 
-To verify that your module is still working try to launch it using the :code:`python3 module` kernel. This kernel only use the default libraries and will help you pinpoint what is missing in Sepal. 
+As a regular Sepal user, you don't have the rights to write in the :code:`/usr/` folder so your installations have been performed using the :code:`--user` option. All the other Sepal user thus don't have access to your libs. 
+in order to make your application work, Sepal will create a specific virtual environment (:code:`venv`) for your specific application. for that purpose you need to update the :code:`requirements.txt` file that is hold at the root of your module. By default the following content is already set: 
 
-.. tip::
+Standard environment
+^^^^^^^^^^^^^^^^^^^^
+.. code-block:: console
 
-    keep a list of all the missing python libraries
+    # these libs are requested to build common python libs 
+    # if you are an advance user and are sure to not use them you can comment the following lines
+    wheel
+    Cython
+    pybind11
+
+    # if you require GDAL and or pyproj in your module please uncomment these lines
+    # there are set up to be inlined with SEPAL implementation of GDAL and PROJ version
+    GDAL==3.0.4
+    pyproj<3.0.0
+
+    # the base lib to run any sepal_ui based app 
+    # don't forget to fix it to a specific version when you're app is ready
+    sepal_ui
+    
+The 3 first libs are compiling tools that are usually required for common Python libs, comment them only if you are sure that none of your libs are using them. 
+
+The gdal and pyproj libs are working on top of the PROJ and GDAL C++ libs that are already installed in SEPAL. The version suggested here are inlined with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
+
+Sepal_ui is off course a mandatory requirements.
+
+Customize the env
+^^^^^^^^^^^^^^^^^
+
+To customize this environment add any libs that are useful for your module. For this purpose use the :code:`module_deploy` command. it will automatically add your dependencies to the requirements and deal with the already known troubleshoutings:
+
+.. code-block:: console
+
+Check your env
+^^^^^^^^^^^^^^
 
 Add documentation
 -----------------
@@ -48,7 +79,6 @@ You'll be asked to provide :
 - the name of the repository 
 - the name of the app to display in the dashboard
 - a short description of the module (1 liner)
-- the missing python libraries
 
 Our maintainers will then study your request and may ask you to make modifications to your repository before pulling. 
 
