@@ -29,8 +29,11 @@ class ReclassifyModel(Model):
     # Create a state var, to determine if an asset has been remaped
     remaped = Bool(False).tag(sync=True)
     
-    def __ini__(self, *args, **kwargs):
+    def __init__(self, results_dir, *args, **kwargs):
+        
         super().__init__(*args, **kwargs)
+        
+        self.results_dir = results_dir
         
         self.asset_type = None
         self.ee_object = None
@@ -86,12 +89,16 @@ class ReclassifyModel(Model):
         return list(df[df['count']>0]['code'].unique())
         
 
-    def reclassify_raster(self, map_values, dst_raster=None, overwrite=False, save=True):
+    def reclassify_raster(self, 
+                          map_values, 
+                          dst_raster=None, 
+                          overwrite=False, 
+                          save=True):
+        
         """ Remap raster values from map_values dictionary. If the 
         are missing values in the dictionary 0 value will be returned
 
         Args:
-            in_raster (path to raster): Input raster to reclassify
             map_values (dict): Dictionary with origin:target values
         """
         if not Path(self.in_raster).is_file():
@@ -102,7 +109,7 @@ class ReclassifyModel(Model):
         filename = Path(self.in_raster).stem
 
         if not dst_raster:
-            dst_raster = Path('~').expanduser()/f'downloads/{filename}_reclassified.tif'
+            dst_raster = Path(self.results_dir)/f'{filename}_reclassified.tif'
 
         if not overwrite:
             if dst_raster.is_file():
