@@ -10,6 +10,7 @@ from sepal_ui.message import ms
 class ReclassifyTile(v.Card, SepalWidget):
     
     def __init__(self, 
+                 results_dir,
                  gee=True, 
                  save=True,
                  *args, **kwargs):
@@ -23,8 +24,6 @@ class ReclassifyTile(v.Card, SepalWidget):
                         
             save (bool): Write GEE assets or Raster's. If False, the reclassified objects could 
                         be accessed in tile.model.raster_reclass or tile.model.reclass_ee_image
-                        
-            map (bool): Whether a map will display the reclassify assets or not.
 
         """
 
@@ -35,24 +34,25 @@ class ReclassifyTile(v.Card, SepalWidget):
         
         # Class parameters
                 
-        self.root_dir=None
-        self.class_path=None
-        self.workspace()
-        self.model = ReclassifyModel()
+        self.results_dir = results_dir
+        self.class_dir = results_dir/'custom_classifications'
+        
+        Path(self.class_dir).mkdir(parents=True, exist_ok=True)
+
+        self.model = ReclassifyModel(results_dir)
         
         
         self.w_reclassify_table = ReclassifyTable()
         self.view = ReclassifyView(
             self.model,
             w_reclassify_table = self.w_reclassify_table,
-            class_path=self.class_path,
+            class_path=self.class_dir,
             gee=gee,
-            save=save,
-            map_=map_
+            save=save
         )
         self.customize_view = CustomizeView(
             self.model,
-            class_path=self.class_path
+            class_path=self.class_dir
         )
         
         tabs_titles = ['Reclassify', 'Customize classification']
@@ -64,22 +64,3 @@ class ReclassifyTile(v.Card, SepalWidget):
         self.children=[
             Tabs(tabs_titles, tab_content)
         ]
-        
-
-    def workspace(self):
-        """ Creates the workspace necessary to store the data
-
-        return:
-            returns env paths
-        """
-
-        base_dir = Path('~').expanduser()
-
-        root_dir = base_dir/'downloads'
-        class_path = root_dir/'custom_classification'
-
-        root_dir.mkdir(parents=True, exist_ok=True)
-        class_path.mkdir(parents=True, exist_ok=True)
-
-        self.root_dir = root_dir
-        self.class_path  = class_path

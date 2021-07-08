@@ -5,22 +5,45 @@ import ipyvuetify as v
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 
-class Dialog(v.Dialog):
+class EditTableDialog(v.Dialog):
     
-    def __init__(self, widget, *args, **kwargs):
-        
+    def __init__(self, widget, model, classes_dir, *args, **kwargs):
+
         
         self.v_model=False
         self.max_width=436
         self.overlay_color='black'
         self.overlay_opcity=0.7
         
+        self.w_open = sw.Btn('Load file', class_='ml-1')
+        self.input_file = FileInput(['.csv'], classes_dir)
+        
+        w_load = v.ExpansionPanels(children=[
+            v.ExpansionPanel(children=[
+                v.ExpansionPanelHeader(children=['Use a custom csv file']),
+                v.ExpansionPanelContent(children=[
+                    v.Flex(class_='d-flex align-center',
+                        children=[
+                            self.input_file,
+                            self.w_open
+                        ]
+                    )
+                ])
+            ])
+        ])
+
         self.w_save =  sw.Btn('Ok', class_='ml-2 my-2')
+        self.w_save_matrix = SaveReclass(model, results_dir)
+        
+        self.save_matrix_btn = sw.Btn('Save table', x_small=True)
         
         self.children=[
             v.Card(children=[
+                self.w_save_matrix, # This is a dialog
                 v.CardTitle(children=['Reclassify to new values']),
+                w_load,
                 widget, 
+                v.Flex(children=[self.save_matrix_btn]),
                 self.w_save, 
             ]),
         ]
@@ -28,6 +51,13 @@ class Dialog(v.Dialog):
         super().__init__(*args, **kwargs)
         
         self.w_save.on_event('click', self.save)
+        self.save_matrix_btn.on_event('click', self.save_matrix)
+        
+    def open_file(self, *args):
+        """Read input .csv file and """
+        
+    def save_matrix(self, *args):
+        self.w_save_matrix.v_model = True
     
     def save(self, *args):
         self.v_model=False
@@ -167,3 +197,85 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         select.v_model = int(code)
         
         return select
+    
+    
+    
+class SaveReclass(v.Dialog):
+    
+    reload = Int().tag(sync=True)
+        
+    def __init__(self, model, out_path, *args, **kwargs):
+        """
+        
+        Dialog to save as .csv file the content of a ReclassifyTable data table
+        
+        Args: 
+            matrix (ReclassifyTable.matrix): Reclassify table matrix
+            out_path (str): Folder path to store table content
+        """
+        self.max_width=500
+        self.v_model = False
+        self.out_path = out_path
+        
+        super().__init__(*args, **kwargs)
+        
+        self.model = model
+        
+        self.w_file_name = v.TextField(
+            label='Insert output file name', 
+            type='string', 
+            v_model='new_table.csv'
+        )
+        
+        # Action buttons
+        self.save = v.Btn(children=['Save'])
+        save = sw.Tooltip(self.save, 'Save table', bottom=True, class_='pr-2')
+        
+        self.cancel = v.Btn(children=['Cancel'])
+        cancel = sw.Tooltip(self.cancel, 'Cancel', bottom=True)
+        
+        info = sw.Alert().add_msg(
+            'The table will be stored in {}'.format(str(out_path))).show()
+                
+        self.children=[
+            v.Card(
+                class_='pa-4',
+                children=[
+                    v.CardTitle(children=['Save table']),
+                    self.w_file_name,
+                    info,
+                    save,
+                    cancel
+                ]
+            )
+        ]
+        
+        # Create events
+        self.save.on_event('click', self._save)
+        self.cancel.on_event('click', self._cancel)
+    
+    def _save(self, *args):
+        """Write current table on a text file"""
+        
+        file_name = self.w_file_name.v_model
+        file_name = file_name.strip()
+        if not '.csv'in file_name:
+            file_name = f'{file_name}.csv'
+        
+        out_file = self.out_path/file_name
+        
+        print(self.model.matrix.items())
+        
+        with open(out_file, 'w') as f:
+            for line in self.model.matrix.items():
+                line = [str(l) for l in line]
+                f.write(",".join(line)+'\n')
+        
+        # Every time a file is saved, we update the current widget state
+        # so it can be observed by other objects.
+        self.reload+=1
+        
+        self.v_model=False
+        
+    def _cancel(self, *args):
+        self.v_model=False

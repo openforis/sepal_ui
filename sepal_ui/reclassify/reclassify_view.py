@@ -8,7 +8,7 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 
 from sepal_ui.scripts.utils import loading_button
-from sepal_ui.reclassify.reclassify_widgets import Dialog
+from sepal_ui.reclassify.reclassify_widgets import EditTableDialog
 from sepal_ui.reclassify.customize_table import ClassTable
 
 class Flex(v.Flex, sw.SepalWidget):
@@ -37,7 +37,7 @@ class ReclassifyView(v.Card):
         self.class_path = class_path
         self.w_reclassify_table = w_reclassify_table
         
-        self.dialog = Dialog(self.w_reclassify_table)
+        self.dialog = EditTableDialog(self.w_reclassify_table, self.model, class_path)
         self.alert_dialog = sw.Alert().hide()
                 
         self.w_class_file = v.Select(
@@ -185,7 +185,7 @@ class ReclassifyView(v.Card):
             
             # Get reclassify path raster
             filename = Path(self.model.in_raster).stem
-            dst_raster = Path('~').expanduser()/f'downloads/{filename}_reclassified.tif'
+            dst_raster = Path(self.model.results_dir)/f'{filename}_reclassified.tif'
 
             self.model.reclassify_raster(
                 change_matrix,
