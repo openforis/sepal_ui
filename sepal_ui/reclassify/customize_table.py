@@ -282,7 +282,7 @@ class SaveDialog(v.Dialog):
         
         # Action buttons
         self.save = v.Btn(children=['Save'])
-        save = sw.Tooltip(self.save, 'Save table', bottom=True)
+        save = sw.Tooltip(self.save, 'Save table', bottom=True, class_='pr-2')
         
         self.cancel = v.Btn(children=['Cancel'])
         cancel = sw.Tooltip(self.cancel, 'Cancel', bottom=True)

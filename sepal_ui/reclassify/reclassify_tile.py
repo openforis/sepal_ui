@@ -9,7 +9,24 @@ from sepal_ui.message import ms
 
 class ReclassifyTile(v.Card, SepalWidget):
     
-    def __init__(self, gee=True, save=True, *args, **kwargs):
+    def __init__(self, 
+                 gee=True, 
+                 save=True,
+                 *args, **kwargs):
+        
+        """All in one tile to reclassify GEE assets or local raster 
+        
+        Args:
+            
+            gee (bool) : Use GEE variant, to reclassify assets or local raster
+                        default True
+                        
+            save (bool): Write GEE assets or Raster's. If False, the reclassified objects could 
+                        be accessed in tile.model.raster_reclass or tile.model.reclass_ee_image
+                        
+            map (bool): Whether a map will display the reclassify assets or not.
+
+        """
 
         self.class_ = 'pa-4'
         self._metadata = {'mount_id':'reclassify'}
@@ -31,6 +48,7 @@ class ReclassifyTile(v.Card, SepalWidget):
             class_path=self.class_path,
             gee=gee,
             save=save,
+            map_=map_
         )
         self.customize_view = CustomizeView(
             self.model,

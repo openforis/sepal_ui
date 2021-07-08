@@ -5,7 +5,7 @@ from pandas import DataFrame
 import numpy as np
 import rasterio as rio
 
-from traitlets import Unicode, Any, Dict, List
+from traitlets import Unicode, Any, Dict, List, Bool
 
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
@@ -26,6 +26,9 @@ class ReclassifyModel(Model):
 
     classes_files = List([]).tag(sync=True)
     
+    # Create a state var, to determine if an asset has been remaped
+    remaped = Bool(False).tag(sync=True)
+    
     def __ini__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -35,7 +38,7 @@ class ReclassifyModel(Model):
         # Memory assets
         self.raster_reclass = None
         self.out_profile = None
-        self.asset_reclass = None
+        self.reclass_ee_image = None
     
     def unique(self):
         """Retreive all the existing feature in the byte file"""
@@ -73,6 +76,11 @@ class ReclassifyModel(Model):
         )
 
         array = ee.Array(ee.List(reduced.get(self.code_col))).getInfo()
+        
+        if len(array) > 256:
+            raise Exception("Too many values to reclassify. Are you trying " + \
+            "to reclassify a coded Asset?")
+                            
         df = DataFrame(data=array, columns=['code', 'count'])
         
         return list(df[df['count']>0]['code'].unique())
@@ -102,7 +110,7 @@ class ReclassifyModel(Model):
             else:
                 raise Exception(cm.bin.no_exists.format(dst_raster))
 
-        map_values = self.validate_map_values(self, map_values)
+        change_matrix = self.validate_map_values(map_values)
 
         with rio.open(self.in_raster) as src:
 
@@ -111,8 +119,8 @@ class ReclassifyModel(Model):
             self.out_profile.update(compress='lzw', dtype=np.uint8)
             
             data = np.zeros_like(raw_data, dtype=np.uint8)
-
-            for origin, target in map_values:
+            
+            for origin, target in change_matrix:
 
                 bool_data = np.zeros_like(raw_data, dtype=np.bool_)
                 bool_data = bool_data + (raw_data == origin)
@@ -122,6 +130,7 @@ class ReclassifyModel(Model):
                 data += data_value
             
             self.raster_reclass = data
+            self.remaped=True
             
             if save:
                 with rio.open(dst_raster, 'w', **self.out_profile) as dst:
@@ -139,10 +148,9 @@ class ReclassifyModel(Model):
                 for k, v in map_values.items()
         }
         
-        # Get from, to lists
-        origin, target = list(zip(*matrix.items()))
+        return matrix
         
-        return origin, target
+
     
     def remap_feature_collection(self, band, change_matrix, save=False):
         """Get image with new remaped classes, it can process feature collection
@@ -155,9 +163,11 @@ class ReclassifyModel(Model):
             matrix (Remap.matrix dictionary): dictionary with {from:to values}
         """
         
-        origin, target = self.validate_map_values(change_matrix)
-
-
+        change_matrix = self.validate_map_values(change_matrix)
+        
+        # Get from, to lists
+        origin, target = list(zip(*change_matrix.items()))
+        
         if self.asset_type == 'TABLE':
             # Convert feature collection to raster
             image = self.ee_object.filter(ee.Filter.notNull([band])).reduceToImage(
@@ -172,6 +182,7 @@ class ReclassifyModel(Model):
             
         # Remap image
         self.reclass_ee_image = image.remap(origin, target, bandName=band)
+        self.remaped=True
         
         if save:
             name = Path(self.ee_object.getInfo()['id']).stem

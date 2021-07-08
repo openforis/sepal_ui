@@ -33,6 +33,7 @@ class ReclassifyView(v.Card):
         self.model = model
         self.gee = gee
         self.save = save
+        self.map_ = None
         self.class_path = class_path
         self.w_reclassify_table = w_reclassify_table
         
@@ -297,7 +298,7 @@ class CustomizeView(v.Card):
             schema = {'id':'number', 'code':'number', 'description':'string'},
         ).hide()
 
-        use_btn = sw.Btn(ms.reclassify.get_custom_table_btn)
+        use_btn = sw.Btn(ms.reclassify.get_custom_table_btn, class_='ml-2')
         self.children=[
             self.title,
             v.Flex(class_='ml-2 d-flex', children=[
