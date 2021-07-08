@@ -7,16 +7,22 @@ from sepal_ui.message import ms
 
 class EditTableDialog(v.Dialog):
     
-    def __init__(self, widget, model, classes_dir, *args, **kwargs):
-
+    def __init__(self, reclassify_table, model, classes_dir, *args, **kwargs):
+        
+        """Edit dialog tile to load, reclassify and save classes"""
         
         self.v_model=False
         self.max_width=436
         self.overlay_color='black'
         self.overlay_opcity=0.7
         
-        self.w_open = sw.Btn('Load file', class_='ml-1')
-        self.input_file = FileInput(['.csv'], classes_dir)
+        # Input widgets
+        self.reclassify_table = reclassify_table
+        
+        super().__init__(*args, **kwargs)
+        
+        self.load_btn = sw.Btn('Load values', class_='ml-1')
+        self.input_file = sw.FileInput(['.csv'], classes_dir)
         
         w_load = v.ExpansionPanels(children=[
             v.ExpansionPanel(children=[
@@ -25,7 +31,7 @@ class EditTableDialog(v.Dialog):
                     v.Flex(class_='d-flex align-center',
                         children=[
                             self.input_file,
-                            self.w_open
+                            self.load_btn
                         ]
                     )
                 ])
@@ -33,7 +39,7 @@ class EditTableDialog(v.Dialog):
         ])
 
         self.w_save =  sw.Btn('Ok', class_='ml-2 my-2')
-        self.w_save_matrix = SaveReclass(model, results_dir)
+        self.w_save_matrix = SaveReclass(model, classes_dir)
         
         self.save_matrix_btn = sw.Btn('Save table', x_small=True)
         
@@ -42,27 +48,32 @@ class EditTableDialog(v.Dialog):
                 self.w_save_matrix, # This is a dialog
                 v.CardTitle(children=['Reclassify to new values']),
                 w_load,
-                widget, 
+                self.reclassify_table, 
                 v.Flex(children=[self.save_matrix_btn]),
                 self.w_save, 
             ]),
         ]
-
-        super().__init__(*args, **kwargs)
         
         self.w_save.on_event('click', self.save)
         self.save_matrix_btn.on_event('click', self.save_matrix)
+        self.load_btn.on_event('click', self.load_csv_file)
         
-    def open_file(self, *args):
-        """Read input .csv file and """
+    def load_csv_file(self, *args):
+        """Read input .csv file, and fill combos with its data"""
+        
+        csv_file = self.input_file.v_model
+        self.reclassify_table.fill_combos_from_file(csv_file)
         
     def save_matrix(self, *args):
+        """Open save reclass dialog"""
         self.w_save_matrix.v_model = True
     
     def save(self, *args):
+        """Close dialog"""
         self.v_model=False
     
     def show(self):
+        """Display dialog"""
         self.v_model=True
         
 
@@ -105,6 +116,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
 
         # Create table
         super().__init__(*args, **kwargs)
+        
+        self.combos = {}
         
 
     def _get_matrix(self, code_fields, classes_file=''):
@@ -196,8 +209,24 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         #Trigger the event and save it into the matrix
         select.v_model = int(code)
         
+        # Save all combos in a dictionary
+        self.combos[code] = select
+        
         return select
     
+    def fill_combos_from_file(self, csv_file):
+        """Fill combos v_model from a csv_file
+        
+        Args:
+            csv_file (str): Path of previous saved matrix as csv file
+        """
+        
+        with open(csv_file, 'r') as f:
+            for cl in f.readlines():
+                from_, to = cl.split(',')
+                from_=int(from_)
+                to=int(to.replace('\n',''))
+                self.combos[int(from_)].v_model=to
     
     
 class SaveReclass(v.Dialog):
