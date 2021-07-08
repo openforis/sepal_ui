@@ -12,7 +12,7 @@ class EditTableDialog(v.Dialog):
         """Edit dialog tile to load, reclassify and save classes"""
         
         self.v_model=False
-        self.max_width=436
+        self.max_width=650
         self.overlay_color='black'
         self.overlay_opcity=0.7
         
