@@ -91,11 +91,11 @@ Then activate this virtual environment:
     
 the name in parenthesis show to the user that the terminal is now running in a specific environment. 
 
-.. tips::
+.. tip::
 
     to return to the general environment simply run:
     
-    .. cod-block:: console
+    .. code-block:: console
     
         (venv_name) $ deactivate
         $ 
