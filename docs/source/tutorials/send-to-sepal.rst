@@ -73,7 +73,7 @@ To customize this environment add any libs that are useful for your module. For 
     
 .. note::
 
-    If you want to import a file directly from the source, use the git import syntaxt: 
+    If you want to import a file directly from the source, use the git import syntax: 
     
     .. code-block::
     
