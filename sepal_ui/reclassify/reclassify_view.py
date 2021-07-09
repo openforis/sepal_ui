@@ -161,8 +161,8 @@ class ReclassifyView(v.Card):
 
         if self.gee:
             if self.save:
-                # Reclassify a gee asset and save it
-                task, new_asset_id = self.model.remap_feature_collection(
+                # Reclassify an gee asset and save it
+                task, new_asset_id = self.model.remap_ee_object(
                     band=self.w_code.v_model, 
                     change_matrix=change_matrix,
                     save=save
@@ -172,8 +172,8 @@ class ReclassifyView(v.Card):
                     type_='success'
                 )
             else:
-                # Reclassify a gee asset and store it in memory
-                self.model.remap_feature_collection(
+                # Reclassify an gee asset and store it in memory
+                self.model.remap_ee_object(
                     band=self.w_code.v_model, 
                     change_matrix=change_matrix,
                     save=save

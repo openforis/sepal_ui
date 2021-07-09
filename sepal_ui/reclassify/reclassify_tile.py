@@ -7,7 +7,7 @@ from sepal_ui.reclassify import (
 )
 from sepal_ui.message import ms
 
-class ReclassifyTile(v.Card, SepalWidget):
+class ReclassifyTile(Tabs, SepalWidget):
     
     def __init__(self, 
                  results_dir,
@@ -18,23 +18,23 @@ class ReclassifyTile(v.Card, SepalWidget):
         """All in one tile to reclassify GEE assets or local raster 
         
         Args:
+            results_dir (str) : Directory to store the 
+                                outputs (rasters, and csv_files)
             
-            gee (bool) : Use GEE variant, to reclassify assets or local raster
-                        default True
+            gee (bool) : Use GEE variant, to reclassify assets 
+                        or local raster. default True
                         
-            save (bool): Write GEE assets or Raster's. If False, the reclassified objects could 
-                        be accessed in tile.model.raster_reclass or tile.model.reclass_ee_image
+            save (bool): Write GEE assets or Raster's. If False, 
+                        the reclassified objects could  be accessed in 
+                        tile.model.raster_reclass or tile.model.reclass_ee
 
         """
 
-        self.class_ = 'pa-4'
         self._metadata = {'mount_id':'reclassify'}
-
-        super().__init__(*args, **kwargs)
         
         # Class parameters
                 
-        self.results_dir = results_dir
+        self.results_dir = results_dir if results_dir else Path('~').expanduser()/'downloads'
         self.class_dir = results_dir/'custom_classifications'
         
         Path(self.class_dir).mkdir(parents=True, exist_ok=True)
@@ -60,7 +60,7 @@ class ReclassifyTile(v.Card, SepalWidget):
             self.view,
             self.customize_view
         ]
-
-        self.children=[
-            Tabs(tabs_titles, tab_content)
-        ]
+        
+        super().__init__(titles=tabs_titles,
+                         content=tab_content,
+                         *args, **kwargs)

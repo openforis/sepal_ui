@@ -3,6 +3,7 @@ from traitlets import Int, link, Dict
 from ipywidgets import Output
 import ipyvuetify as v 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
 class EditTableDialog(v.Dialog):
@@ -20,6 +21,8 @@ class EditTableDialog(v.Dialog):
         self.reclassify_table = reclassify_table
         
         super().__init__(*args, **kwargs)
+        
+        alert=sw.Alert()
         
         self.load_btn = sw.Btn('Load values', class_='ml-1')
         self.input_file = sw.FileInput(['.csv'], classes_dir)
@@ -47,12 +50,23 @@ class EditTableDialog(v.Dialog):
             v.Card(children=[
                 self.w_save_matrix, # This is a dialog
                 v.CardTitle(children=['Reclassify to new values']),
+                alert,
                 w_load,
                 self.reclassify_table, 
                 v.Flex(children=[self.save_matrix_btn]),
                 self.w_save, 
             ]),
         ]
+        
+        # Decorate functions
+        
+        self.save_matrix = su.loading_button(
+            alert, self.save_matrix_btn
+        )(self.save_matrix)
+        
+        self.load_csv_file = su.loading_button(
+            alert, self.load_btn
+        )(self.load_csv_file)
         
         self.w_save.on_event('click', self.save)
         self.save_matrix_btn.on_event('click', self.save_matrix)

@@ -41,7 +41,7 @@ class ReclassifyModel(Model):
         # Memory assets
         self.raster_reclass = None
         self.out_profile = None
-        self.reclass_ee_image = None
+        self.reclass_ee = None
     
     def unique(self):
         """Retreive all the existing feature in the byte file"""
@@ -65,7 +65,7 @@ class ReclassifyModel(Model):
         return features
     
     def get_unique_ee(self, maxBuckets=40000):
-        """Get raster classes"""
+        """Get unique values (or classes) from a categorical EE image"""
         
         if not self.code_col:
             raise Exception("Please select a band")
@@ -95,11 +95,13 @@ class ReclassifyModel(Model):
                           overwrite=False, 
                           save=True):
         
-        """ Remap raster values from map_values dictionary. If the 
+        """ 
+        Remap raster values from a map_values dictionary. If the 
         are missing values in the dictionary 0 value will be returned
 
         Args:
             map_values (dict): Dictionary with origin:target values
+            
         """
         if not Path(self.in_raster).is_file():
             raise Exception('There is not any raster file selected')
@@ -137,11 +139,12 @@ class ReclassifyModel(Model):
                 data += data_value
             
             self.raster_reclass = data
-            self.remaped=True
             
             if save:
                 with rio.open(dst_raster, 'w', **self.out_profile) as dst:
                     dst.write(self.raster_reclass)
+                    
+        self.remaped=True
     
     def validate_map_values(self, map_values):
         
@@ -156,11 +159,9 @@ class ReclassifyModel(Model):
         }
         
         return matrix
-        
-
     
-    def remap_feature_collection(self, band, change_matrix, save=False):
-        """Get image with new remaped classes, it can process feature collection
+    def remap_ee_object(self, band, change_matrix, save=False):
+        """Get input with new remaped classes, it can process feature collection
         or images
 
         Args:
@@ -175,25 +176,21 @@ class ReclassifyModel(Model):
         # Get from, to lists
         origin, target = list(zip(*change_matrix.items()))
         
-        if self.asset_type == 'TABLE':
-            # Convert feature collection to raster
-            image = self.ee_object.filter(ee.Filter.notNull([band])).reduceToImage(
-                properties=[band], 
-                reducer=ee.Reducer.first()).rename([band])
-
-        elif self.asset_type == 'IMAGE':
-            image = self.ee_object
-            
+        
+        if self.asset_type == 'IMAGE':
+            # Remap image
+            self.reclass_ee = self.ee_object.remap(origin, target, bandName=band)
         else:
-            raise Exception('Invalid asset id')
+            # Remap image
+            self.reclass_ee = self.ee_object.remap(origin, target, columnName=band)
             
-        # Remap image
-        self.reclass_ee_image = image.remap(origin, target, bandName=band)
-        self.remaped=True
         
         if save:
             name = Path(self.ee_object.getInfo()['id']).stem
             return self.export_ee_image(name)
+        
+        # is the asset already remapped?
+        self.remaped=True
 
             
     def export_ee_image(self, name, folder=None):
@@ -222,7 +219,7 @@ class ReclassifyModel(Model):
             asset_id = create_name(asset_id)
 
         params = {
-            'image': self.reclass_ee_image,
+            'image': self.reclass_ee,
             'assetId': asset_id,
             'description': Path(asset_id).stem,
             'scale': 30,
@@ -250,15 +247,18 @@ class ReclassifyModel(Model):
         else:
             raise AttributeError("cm.remap.error_type")
             
-    def get_fields(self):
+    def get_fields(self, ee_object=None, code_col=None):
         """Get fields from Feature Collection"""
         
+        ee_object = self.ee_object if not ee_object else ee_object
+        code_col = self.code_col if not code_col else code_col
+        
         if not self.code_col:
-            raise Exception("Please select a column")
+            raise Exception("Please provide a column")
         
         return sorted(
             list(set(
-                self.ee_object.aggregate_array(self.code_col).getInfo()
+                ee_object.aggregate_array(code_col).getInfo()
             ))
         ) 
 
