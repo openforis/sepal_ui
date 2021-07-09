@@ -61,11 +61,7 @@ Create a new release
 
     for maintainers only 
     
-In the files change the version number in the following files: 
-
--   :code:`septup.py`: in the setup and the download URL 
--   :code:`sepal_ui.__init__.py`
--   :code:`docs/source/conf.py`
+In the files change the version number in the following file: :code:`VERSION`
 
 Then push the current master branch to the release branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`.
 
