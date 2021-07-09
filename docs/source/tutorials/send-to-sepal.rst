@@ -17,7 +17,7 @@ in order to make your application work, Sepal will create a specific virtual env
 
 Standard environment
 ^^^^^^^^^^^^^^^^^^^^
-.. code-block:: console
+.. code-block:: python
 
     # these libs are requested to build common python libs 
     # if you are an advance user and are sure to not use them you can comment the following lines
@@ -70,7 +70,17 @@ To customize this environment add any libs that are useful for your module. For 
     sepal_ui version have been freezed to  2.0.6
     
     WARNING: The requirements.txt file have been updated. The tool does not cover every possible configuration so don't forget to check the final file before pushing to release
+    
+.. note::
 
+    If you want to import a file directly from the source, use the git import syntaxt: 
+    
+    .. code-block::
+    
+        git+git://github.com/12rambau/sepal_ui.git#egg=sepal_ui
+        
+    with everything after "git+" being the ssh link to the repository and "egg=" the name used by the lib in your file. If you want to know more about this method please refer to `this blog post <https://codeinthehole.com/tips/using-pip-and-requirementstxt-to-install-from-the-head-of-a-github-branch/>`_.
+    
 Check your env
 ^^^^^^^^^^^^^^
 
