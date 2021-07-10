@@ -179,10 +179,12 @@ class ReclassifyModel(Model):
         
         if self.asset_type == 'IMAGE':
             # Remap image
-            self.reclass_ee = self.ee_object.remap(origin, target, bandName=band)
+            self.reclass_ee = self.ee_object.remap(
+                origin, target, bandName=band).rename([band])
         else:
-            # Remap image
-            self.reclass_ee = self.ee_object.remap(origin, target, columnName=band)
+            # Remap table
+            self.reclass_ee = self.ee_object.remap(
+                origin, target, columnName=band)
             
         
         if save:
