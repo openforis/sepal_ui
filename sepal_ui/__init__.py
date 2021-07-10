@@ -1,6 +1,8 @@
+from pathlib import Path
+
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "2.0.5"
+__version__ = (Path(__file__).parents[1]/'VERSION').read_text()
 
 # direct access to colors 
 from sepal_ui.frontend import styles

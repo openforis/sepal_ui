@@ -1,5 +1,8 @@
 from distutils.core import setup
-    
+from pathlib import Path
+
+_version = (Path(__file__).parent/'VERSION').read_text()
+
 setup(
     name = 'sepal_ui',      
     packages = [
@@ -14,7 +17,7 @@ setup(
         'sepal_ui.model'
     ],   
     package_data={'sepal_ui': ['scripts/*.csv', 'scripts/*.md', 'message/*.json', 'bin/module_factory']},
-    version = '2.0.5',   
+    version = _version,   
     license='MIT',        
     description = 'Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform',
     long_description = open('README.rst').read(),
@@ -22,7 +25,7 @@ setup(
     author = 'Pierrick Rambaud',                   
     author_email = 'pierrick.rambaud49@gmail.com',  
     url = 'https://github.com/12rambau/sepal_ui',
-    download_url = 'https://github.com/12rambau/sepal_ui/archive/v_2.0.5.tar.gz',
+    download_url = f'https://github.com/12rambau/sepal_ui/archive/v_{_version}.tar.gz',
     keywords = ['UI', 'Python', 'widget', 'sepal'], 
     install_requires=[
         'haversine',

@@ -68,7 +68,6 @@ class MethodSelect(Select):
             
         if not gee:
             self.methods.pop('ASSET', None)
-            print(self.methods)
             
         # build the item list with header 
         prev_type = None
@@ -325,7 +324,14 @@ class AoiView(v.Card):
         self.alert.reset()
         
         # deactivate or activate the dc
-        if self.map_: self.map_.show_dc() if change['new'] == 'DRAW' else self.map_.hide_dc()
+        # clear the geo_json saved features to start from scratch
+        if self.map_:
+            if change['new'] == 'DRAW': 
+                self.map_.show_dc()
+                self.model.geo_json = None
+            else:
+                self.map_.hide_dc()
+            
     
         # clear the inputs
         [w.reset() for w in self.components.values()]

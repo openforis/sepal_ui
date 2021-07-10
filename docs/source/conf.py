@@ -17,16 +17,18 @@ from pathlib import Path
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../..'))
 
+from sepal_ui import __version__, __author__
+
 
 # -- Project information -----------------------------------------------------
 
 # General information about the project.
 project = 'sepal-ui'
 copyright = f"2020-{datetime.now().year}, the sepal development team"
-author = 'Pierrick Rambaud'
+author = __author__
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.5'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
