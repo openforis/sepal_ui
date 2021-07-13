@@ -18,4 +18,4 @@ class ResizeTrigger(v.VuetifyTemplate):
     resize = Int(0).tag(sync=True)
 
 rt = ResizeTrigger()
-display(rt)
+#display(rt)

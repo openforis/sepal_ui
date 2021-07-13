@@ -3,11 +3,12 @@ from datetime import datetime
 
 import ipyvuetify as v
 import traitlets
+from IPython.display import display
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
 from sepal_ui.frontend.styles import *
-from sepal_ui.frontend.js import *
+from sepal_ui.frontend.js import ResizeTrigger
 
 class AppBar (v.AppBar, SepalWidget):
     """
@@ -76,6 +77,10 @@ class DrawerItem(v.ListItem, SepalWidget):
     
     def __init__(self, title, icon=None, card=None, href=None, **kwargs):
         
+        # set the resizetrigger
+        self.rt = ResizeTrigger()
+        display(self.rt)
+        
         icon = icon if icon else 'mdi-folder-outline'
         
         children = [
@@ -133,7 +138,7 @@ class DrawerItem(v.ListItem, SepalWidget):
                 tile.hide()
 
         # trigger the risize event 
-        rt.resize += 1
+        self.rt.resize += 1
                 
         # change the cuurent item status 
         self.input_value = True
