@@ -185,7 +185,7 @@ class AoiModel(Model):
         # create a gdf form te feature_collection
         # cannot be used before geemap 0.8.17 (not released)
         #self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-        self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features'])
+        self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features']).set_crs(epsg=4326)
         
         
         # set the name 
@@ -320,7 +320,7 @@ class AoiModel(Model):
             # transform it into gdf
             # cannot be used before geemap 0.8.17 (not released)
             #self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-            self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features'])
+            self.gdf = gpd.GeoDataFrame.from_features(self.feature_collection.getInfo()['features']).set_crs(epsg=4326)
             
         else:     
             # save the country iso_code 
