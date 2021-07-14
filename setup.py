@@ -41,7 +41,8 @@ setup(
         'colorama',
         'Deprecated',
         'Unidecode',
-        'natsort'
+        'natsort',
+        'pipreqs'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
