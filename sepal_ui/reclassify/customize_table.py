@@ -162,13 +162,13 @@ class EditDialog(v.Dialog):
         self.overlay_opcity=0.7
         
         # Action buttons
-        self.save = v.Btn(children=['Save'], class_='mr-2')
+        self.save = sw.Btn('Save')
         save_tool = sw.Tooltip(self.save, 'Create new element',  bottom=True)
         
-        self.cancel = v.Btn(children=['Cancel'])
+        self.cancel = sw.Btn('Cancel', outlined=True, class_='ml-2')
         cancel_tool = sw.Tooltip(self.cancel, 'Ignore changes',  bottom=True)
         
-        self.modify = v.Btn(children=['Modify'], class_='mr-2')
+        self.modify = sw.Btn('Modify')
         modify_tool = sw.Tooltip(self.modify, 'Update row', bottom=True)
         
         save = [save_tool, cancel_tool]
@@ -281,10 +281,10 @@ class SaveDialog(v.Dialog):
         )
         
         # Action buttons
-        self.save = v.Btn(children=['Save'])
+        self.save = sw.Btn('Save')
         save = sw.Tooltip(self.save, 'Save table', bottom=True, class_='pr-2')
         
-        self.cancel = v.Btn(children=['Cancel'])
+        self.cancel = sw.Btn('Cancel', outlined=True, class_='ml-2')
         cancel = sw.Tooltip(self.cancel, 'Cancel', bottom=True)
         
         info = sw.Alert().add_msg(
