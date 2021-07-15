@@ -4,6 +4,7 @@ from traitlets import Int, Dict, link
 from ipywidgets import Output
 import ipyvuetify as v
 import sepal_ui.sepalwidgets as sw
+from sepal_ui.scripts import utils as su
 
 
 class ClassTable(v.DataTable, sw.SepalWidget):
@@ -205,7 +206,6 @@ class EditDialog(v.Dialog):
         ] 
         
         # Create events
-        
         self.save.on_event('click', self._save)
         self.modify.on_event('click', self._modify)
         self.cancel.on_event('click', self._cancel)
@@ -293,7 +293,7 @@ class SaveDialog(v.Dialog):
         self.w_file_name = v.TextField(
             label='Insert output file name', 
             type='string', 
-            v_model='new_table.csv'
+            v_model='new_table'
         )
         
         # Action buttons
@@ -322,17 +322,23 @@ class SaveDialog(v.Dialog):
         # Create events
         self.save.on_event('click', self._save)
         self.cancel.on_event('click', self._cancel)
+        self.w_file_name.on_event('blur', self._normalize_name)
+        
+    def _normalize_name(self, widget, event, data):
+        """replace the name with it's normalized version"""
+        
+        # normalized the name
+        widget.v_model = su.normalize_str(widget.v_model)
+
+        return
     
     def _save(self, *args):
         """Write current table on a text file"""
         
-        file_name = self.w_file_name.v_model
-        file_name = file_name.strip()
-        if not '.csv'in file_name:
-            file_name = f'{file_name}.csv'
+        # set the file name
+        out_file = self.out_path/su.normalize_str(self.w_file_name.v_model)
         
-        out_file = self.out_path/file_name
-        with open(out_file, 'w') as f:
+        with out_file.with_suffix('.csv').open('w') as f:
             for line in self._get_lines():
                 f.write(",".join(line)+'\n')
         
@@ -342,8 +348,12 @@ class SaveDialog(v.Dialog):
         
         self.v_model=False
         
+        return
+        
     def _cancel(self, *args):
         self.v_model=False
+        
+        return
             
     def _get_lines(self):
         """Get list of lines from table"""
