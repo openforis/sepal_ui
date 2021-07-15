@@ -30,7 +30,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         self.dialog = Output()
 
         self.edit_icon = v.Icon(children=['mdi-pencil'])
-        edit_icon = sw.Tooltip(self.edit_icon, 'Edit selelcted row', bottom=True)
+        edit_icon = sw.Tooltip(self.edit_icon, 'Edit selected row', bottom=True)
         
         self.delete_icon = v.Icon(children=['mdi-delete'])
         delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
@@ -104,13 +104,20 @@ class ClassTable(v.DataTable, sw.SepalWidget):
     
     def _save_event(self, widget, event, data):
         
+        if not self.items:
+            return 
+        
         with self.dialog:
             self.dialog.clear_output()
             self.save_dialog.v_model=True
             display(self.save_dialog)
             
-        
+        return
+            
     def _edit_event(self, widget, event, data):
+        
+        if not self.v_model:
+            return 
 
         dial = EditDialog(
             schema = self.schema, 
@@ -120,6 +127,8 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         )
         with self.dialog:
             display(dial)
+            
+        return 
                     
     def _add_event(self, widget, event, data):
         
@@ -130,14 +139,21 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         with self.dialog:
             display(dial)
         
+        return
+        
     def _remove_event(self, widget, event, data):
         """Remove current selected (self.v_model) element from table"""
+        
+        if not self.v_model:
+            return 
         
         current_items = self.items.copy()
         current_items.remove(self.v_model[0])
         
         self.items = current_items
         
+        return
+    
 class EditDialog(v.Dialog):
     
     model = Dict().tag(sync=True)
