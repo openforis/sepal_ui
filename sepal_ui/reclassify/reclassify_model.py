@@ -16,10 +16,10 @@ ee.Initialize()
 
 class ReclassifyModel(Model):
     
-    in_raster = Unicode('').tag(sync=True)
-    dst_raster = Unicode('').tag(sync=True)
+    in_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
+    dst_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
     
-    asset_id = Unicode('').tag(sync=True)
+    asset_id = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
     code_col = Any('').tag(sync=True)
     
     matrix = Dict({}).tag(sync=True)
@@ -29,11 +29,14 @@ class ReclassifyModel(Model):
     # Create a state var, to determine if an asset has been remaped
     remaped = Bool(False).tag(sync=True)
     
-    def __init__(self, results_dir, *args, **kwargs):
+    def __init__(self, gee=False, results_dir=None, **kwargs):
         
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         
         self.results_dir = results_dir
+        
+        # save relation with gee 
+        self.gee = gee
         
         self.asset_type = None
         self.ee_object = None
@@ -44,25 +47,23 @@ class ReclassifyModel(Model):
         self.reclass_ee = None
     
     def unique(self):
-        """Retreive all the existing feature in the byte file"""
+        """Retreive all the existing feature in the file according to the file type"""
         
-        if not Path(self.in_raster).is_file():
-            raise Exception('There is not any raster file selected')
-
-        features = []
-
-        raster = Path(self.in_raster)
-
-        with rio.open(raster) as src:
-
-            data = src.read(1)
-            count = np.bincount(data.flatten())
-            del data
-
-            features = np.where(count!=0)[0]
-            features = features.tolist()
-
-        return features
+        if self.gee:
+            pass
+        else:
+            
+            raster = Path(self.in_raster)
+            
+            if not raster.is_file():
+                raise Exception('There is not any raster file selected')
+            
+            with rio.open(raster) as src:
+                
+                count = np.bincount(src.read(1).flatten())
+                features = np.nonzero(count!=0)[0].tolist()
+            
+            return features
     
     def get_unique_ee(self, maxBuckets=40000):
         """Get unique values (or classes) from a categorical EE image"""

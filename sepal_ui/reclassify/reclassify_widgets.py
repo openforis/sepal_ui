@@ -1,3 +1,4 @@
+from pathlib import Path
 from functools import partial
 from traitlets import Int, link, Dict
 from ipywidgets import Output
@@ -7,10 +8,9 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
 class EditTableDialog(v.Dialog):
+    """Edit dialog tile to load, reclassify and save classes"""
     
-    def __init__(self, reclassify_table, model, classes_dir, *args, **kwargs):
-        
-        """Edit dialog tile to load, reclassify and save classes"""
+    def __init__(self, model, folder=Path.home(), alert=sw.Alert(), **kwargs):
         
         self.v_model=False
         self.max_width=650
@@ -18,16 +18,18 @@ class EditTableDialog(v.Dialog):
         self.overlay_opcity=0.7
         
         # Input widgets
-        self.reclassify_table = reclassify_table
+        self.reclassify_table = ReclassifyTable()
         
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         
-        alert=sw.Alert()
+        # bind the alert to the provided one 
+        # if non a default one will be created
+        self.alert = alert
         
         self.load_btn = sw.Btn('Load values', class_='ml-1')
-        self.input_file = sw.FileInput(['.csv'], classes_dir)
+        self.input_file = sw.FileInput(['.csv'], folder)
         
-        w_load = v.ExpansionPanels(children=[
+        w_panel_load = v.ExpansionPanels(children=[
             v.ExpansionPanel(children=[
                 v.ExpansionPanelHeader(children=['Use a custom csv file']),
                 v.ExpansionPanelContent(children=[
@@ -42,16 +44,17 @@ class EditTableDialog(v.Dialog):
         ])
 
         self.w_save =  sw.Btn('Ok', class_='ml-2 my-2')
-        self.w_save_matrix = SaveReclass(model, classes_dir)
+        self.w_save_matrix = SaveReclass(model, folder)
         
         self.save_matrix_btn = sw.Btn('Save table', x_small=True)
         
+        # create the layout
         self.children=[
             v.Card(children=[
                 self.w_save_matrix, # This is a dialog
                 v.CardTitle(children=['Reclassify to new values']),
-                alert,
-                w_load,
+                self.alert,
+                w_panel_load,
                 self.reclassify_table, 
                 v.Flex(children=[self.save_matrix_btn]),
                 self.w_save, 
@@ -59,15 +62,10 @@ class EditTableDialog(v.Dialog):
         ]
         
         # Decorate functions
+        self.save_matrix = su.loading_button(self.alert, self.save_matrix_btn, debug=True)(self.save_matrix)
+        self.load_csv_file = su.loading_button(self.alert, self.load_btn, debug=True)(self.load_csv_file)
         
-        self.save_matrix = su.loading_button(
-            alert, self.save_matrix_btn
-        )(self.save_matrix)
-        
-        self.load_csv_file = su.loading_button(
-            alert, self.load_btn
-        )(self.load_csv_file)
-        
+        # js events
         self.w_save.on_event('click', self.save)
         self.save_matrix_btn.on_event('click', self.save_matrix)
         self.load_btn.on_event('click', self.load_csv_file)
@@ -118,7 +116,28 @@ class Tabs(v.Card):
         
         super().__init__(**kwargs)
         
+
+class ClassSelector(v.Combobox, sw.SepalWidget):
+    """
+    class selector combobox to select an existing class or create on the fly a new one. 
+    When a item list is provided, it will be used as preloaded class name
     
+    Args:
+        code (int): id to link local (raster, fc) with new classes (from file)
+        items (list): the list of items to preload in the object
+        
+    """
+    def __init__(self, code, items, **kwargs):
+        
+        super().__init__(
+            _metadata={'name': code},
+            items=items,
+            dense=True,
+            hide_details=True,
+            v_model = int(code)
+        )
+        
+        
 class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     
     matrix = Dict({}).tag(sync=True)
@@ -126,13 +145,14 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     def __init__(self, *args, **kwargs):
         """Widget to reclassify raster/feature_class into local classes"""
         
+        # each combobox selector will be gathered in a list 
+        self.combos = {}
+        
+        # default parameters 
         self.dense = True
 
         # Create table
         super().__init__(*args, **kwargs)
-        
-        self.combos = {}
-        
 
     def _get_matrix(self, code_fields, classes_file=''):
         """ Init table reading local classes file and code/categories fields
@@ -142,43 +162,32 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             classes_file (str) : Classes file containing code/category and description
         """
         
-        
-        self.matrix = {}
-        
         # Set empty items if there is not a file selected
-        self.items = []
-        
-        if classes_file: self.items = self.read_classes_from_file(classes_file)
+        self.items = self.read_classes_from_file(classes_file) if classes_file else []
         
         headers = ['From: user code', 'To: Custom Code']
         
-        # Instantiate an empty dictionary with code as 
-        # keys and empty values
-        for code in code_fields:
-            self.matrix[code] = ''
+        # Instantiate an empty dictionary with code as keys and default value 
+        self.matrix = {code: int(code) for code in code_fields}
             
-        header = [
-            v.Html(
-                tag = 'tr', 
-                children = (
-                    [v.Html(tag = 'th', children = [h]) for h in headers]
-                )
-            )
-        ]
-        
+        # init the class selectors
+        # and link it to the matrix
+        self.combos = {code: ClassSelector(code, self.items) for code in code_fields}
+        [self.combos[code].observe(partial(self.store, code), 'v_model') for code in code_fields]
+            
+        # init the table header and rows 
+        header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in headers])]
         rows = [
             v.Html(tag='tr', children=[
-                v.Html(tag = 'td', children=[str(code)]), 
-                self.get_classes(code),
-                
+                v.Html(tag='td', children=[str(code)]), 
+                v.Html(tag='td', children=[self.combos[code]])
             ]) for code in code_fields
         ]
         
-        self.children = [v.Html(tag = 'tbody', children = header + rows)]
+        self.children = [v.Html(tag='tbody', children= header + rows)]
         
         return self
-
-        
+                       
     def read_classes_from_file(self, class_file):
         """ Read classes from .csv file
         
@@ -200,33 +209,6 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     def store(self, code, change):
         """Store user row code and new select value (file class)"""
         self.matrix[code] = change['new']
-        
-
-    def get_classes(self, code):
-        """ Get class selector on the fly and store code to matrix
-        
-        Args:
-            code (str) : id to link local (raster, fc) with new classes (from file)
-        """
-                
-        select = v.Combobox(
-            _metadata={'name':code}, 
-            items=self.items, 
-            v_model=None, 
-            dense=True,
-            hide_details=True,
-#             type='number'
-        )
-        
-        select.observe(partial(self.store, code), 'v_model')
-        
-        #Trigger the event and save it into the matrix
-        select.v_model = int(code)
-        
-        # Save all combos in a dictionary
-        self.combos[code] = select
-        
-        return select
     
     def fill_combos_from_file(self, csv_file):
         """Fill combos v_model from a csv_file
