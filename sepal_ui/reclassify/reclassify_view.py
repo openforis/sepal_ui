@@ -23,7 +23,7 @@ class ReclassifyView(v.Card):
                  class_path, 
                  gee=False, 
                  save=True, 
-                 *args, 
+                 *args,
                  **kwargs):
         
         self.class_='pa-2'
@@ -38,7 +38,7 @@ class ReclassifyView(v.Card):
         self.w_reclassify_table = w_reclassify_table
         
         self.dialog = EditTableDialog(self.w_reclassify_table, self.model, class_path)
-        self.alert_dialog = sw.Alert().hide()
+        self.alert_dialog = sw.Alert()
                 
         self.w_class_file = v.Select(
             label=ms.reclassify.class_file_label, 
@@ -260,99 +260,4 @@ class ReclassifyView(v.Card):
         
         self.dialog.v_mdel=False
         self.action_buttons.hide()
-    
-
-class CustomizeView(v.Card):
-    
-    def __init__(
-        self, 
-        model,
-        class_path, 
-        *args, **kwargs):
-        
-        """Stand-alone tile composed by a select widget containing 
-        .csv reclassify files found in the class_path, and a ClassTable 
-        to edit and/or create a new classification table,
-        
-        Args:
-            class_path (str) (optional): Folder path containing 
-            classification tables
-        """
-        
-        super().__init__(*args, **kwargs)
-        
-        self.model = model
-        self.title = v.CardTitle(children=[ms.reclassify.customize.title])
-        self.class_path = class_path
-        
-        alert = sw.Alert()
-        
-        self.w_class_file = v.Select(
-            label=ms.reclassify.class_file_label, 
-            items=self.get_items(), 
-            v_model='',
-            dense=True
-        )
-        self.class_table = ClassTable(
-            out_path=self.class_path,
-            schema = {'id':'number', 'code':'number', 'description':'string'},
-        ).hide()
-
-        use_btn = sw.Btn(ms.reclassify.get_custom_table_btn, class_='ml-2')
-        self.children=[
-            self.title,
-            v.Flex(class_='ml-2 d-flex', children=[
-                self.w_class_file,
-                use_btn,
-            ]),
-            alert,
-            self.class_table
-        ]
-        self.get_classes_files()
-        
-        # Decorate functions
-        self.get_class_table = loading_button(
-            alert, use_btn
-        )(self.get_class_table)
-        
-        # Events
-        
-        # Listen Class table save dialog to refresh the classes widget
-        self.class_table.save_dialog.observe(self._refresh_files, 'reload')
-        
-        # Get the corresponding table
-        use_btn.on_event('click', self.get_class_table)
-        
-    def get_class_table(self, *args):
-        """Display class table widget in view"""
-
-        # Call class table method to build items
-        self.class_table.populate_table(self.w_class_file.v_model)
-        self.class_table.show()
-                
-    def _refresh_files(self, *args):
-        """Trigger event when a new file is created"""
-        self.get_classes_files()
-        self.w_class_file.items = self.get_items()
-        
-    def get_classes_files(self):
-        """Search for classes files inside module path"""
-
-        look_up_folder = Path(self.class_path).glob('*.csv')
-        module_classes_folder = (Path(os.getcwd())/'component/parameter').glob('*.csv')
-        
-        # Store list of .csv classes into model
-        self.model.classes_files = [str(f) for f in (list(look_up_folder) + \
-                                               list(module_classes_folder))]
-    
-    def get_items(self):
-        """Get items for widget selection"""
-        
-        self.get_classes_files()
-        classes_files = [{'divider':True}, {'header':ms.reclassify.customize.new_classification}] + \
-                        [{'text':ms.reclassify.customize.create_new, 'value':''}] + \
-                        [{'divider':True}, {'header':ms.reclassify.customize.local}] + \
-                        [{'text':Path(f).name, 'value':f}  for f in self.model.classes_files]
-
-        return classes_files
         

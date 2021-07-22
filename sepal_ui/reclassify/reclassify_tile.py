@@ -33,8 +33,7 @@ class ReclassifyTile(Tabs, SepalWidget):
         self._metadata = {'mount_id':'reclassify'}
         
         # Class parameters
-                
-        self.results_dir = results_dir if results_dir else Path('~').expanduser()/'downloads'
+        self.results_dir = results_dir if results_dir else Path.home()/'downloads'
         self.class_dir = results_dir/'custom_classifications'
         
         Path(self.class_dir).mkdir(parents=True, exist_ok=True)
