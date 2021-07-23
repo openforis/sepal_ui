@@ -1,6 +1,7 @@
 import warnings
 from pathlib import Path
 
+import pandas as pd
 from pandas import DataFrame
 import numpy as np
 import rasterio as rio
@@ -25,7 +26,7 @@ class ReclassifyModel(Model):
     
     matrix = Dict({}).tag(sync=True)
 
-    classes_files = List([]).tag(sync=True)
+    dst_class_file = Any(None).tag(sync=True)
     
     # Create a state var, to determine if an asset has been remaped
     remaped = Bool(False).tag(sync=True)
@@ -46,6 +47,24 @@ class ReclassifyModel(Model):
         self.raster_reclass = None
         self.out_profile = None
         self.reclass_ee = None
+        
+    def get_dst_classes(self):
+        """extract the classes from the class file"""
+        
+        df = pd.read_csv(self.dst_class_file, header=None)
+        
+        # dst_class_file should be set on the model csv output of the custom view 
+        # 3 column: 1: code, 2: name, 3: color 
+        
+        # guess if there are header
+        if all(df.iloc[0].apply(lambda x: isinstance(x, str))):
+            df = df[1:].reset_index(drop=True)
+        
+        df = df.rename(columns={0: 'code', 1: 'name'})#, 2: 'color'})
+        
+        # create a dict out of it 
+        return {row.code: row.name for i, row in df.iterrows()}
+        
         
     def get_bands(self):
         """get the band number for raster/asset"""

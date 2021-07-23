@@ -28,6 +28,7 @@ class ComboSelect(v.Select, sw.SepalWidget):
         self.chips = True
         self.deletable_chips = True
         self._metadata = {'class': new_code}
+        self.v_model = []
         
         # init the select
         super().__init__(**kwargs)
@@ -36,8 +37,36 @@ class ComboSelect(v.Select, sw.SepalWidget):
         self.codes = codes 
         self.items = codes
         
+    def link_combos(self, combo_list):
+        """
+        Synchronise all the combo select so that any value that is already selected cannot be reselected
+        """
         
+        # remove self from the combo list
+        combos = [c for c in combo_list.values() if c != self]
         
+        # apply the observe method on every one of them 
+        for combo in combos: 
+            combo.observe(self._update_items, 'v_model')
+            
+        return self
+        
+    def _update_items(self, change):
+        """change the item list based on the change in another combo"""
+        
+        # extract the dif between the 2 lists
+        diff = list(set(change['old']).symmetric_difference(change['new']))[0] # I assume that there is only one
+        remove = len(change['old']) > len(change['new'])
+        
+        # adapt the item list 
+        init_items = self.items.copy()
+        if remove: 
+            self.items = sorted(init_items + [diff])
+        else:
+            self.items = [i for i in init_items if i != diff]
+            
+        return self
+    
 class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     """
     Table to store the reclassifying information. 
@@ -78,8 +107,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         # create the select list
         # they need to observe each other to adapt the available class list dynamically 
         self.combos  = {k: ComboSelect(k, codes) for k in new_classes.keys()}
-        for combo in self.combos: 
-            combo.link_combos([c for c in self.combos if c != combo])
+        for combo in self.combos.values(): 
+            combo.link_combos(self.combos)
         
         rows = [
             v.Html(tag='tr', children=[
@@ -127,15 +156,15 @@ class ReclassifyView(v.Card):
         
         self.reclassify_table = ReclassifyTable()
         
-        self.edit_btn = sw.Btn(ms.reclassify.edit_table_btn, 'mdi-pencil', class_='my-2', outlined=True, disabled=True)
-        self.reclassify_btn = sw.Btn(ms.reclassify.reclassify_btn, 'mdi-checkerboard', class_='ml-2 my-2',disabled=True)        
-        self.action_buttons = v.Flex(class_='d-flex align-center mb-2', children=[
-            self.edit_btn, self.reclassify_btn
-        ])
+        self.reclassify_btn = sw.Btn(ms.reclassify.reclassify_btn, 'mdi-checkerboard', class_='ml-2 my-2',disabled=True)
         
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
-        self.model.bind(self.w_raster, 'in_raster').bind(self.w_asset, 'asset_id')
+        self.model \
+            .bind(self.w_raster, 'in_raster') \
+            .bind(self.w_asset, 'asset_id') \
+            .bind(self.w_band, 'band') \
+            .bind(self.w_class_file, 'dst_class_file')
 
         # create the layout
         self.children = [
@@ -146,7 +175,7 @@ class ReclassifyView(v.Card):
             self.w_class_file,
             self.get_table_btn,
             self.reclassify_table,
-            self.action_buttons
+            self.reclassify_btn
         ]
              
         # Decorate functions
@@ -221,6 +250,26 @@ class ReclassifyView(v.Card):
         Display a reclassify table which will lead the user to select
         a local code 'from user' to a target code based on a classes file
         """
+        
+        # check that everythin is set 
+        if not self.w_image.v_model: raise Exception('missing image')
+        if not self.w_band.v_model: raise Exception('missing band')
+        if not self.w_class_file.v_model: raise Exception('missing file')
+            
+        # get the destination classes
+        dst_classes = self.model.get_dst_classes()
+        
+        # get the src_classes
+        src_classes = self.model.unique()
+        
+        # reset the table 
+        self.reclassify_table.set_table(dst_classes, src_classes)
+        
+        # enable the reclassify btn 
+        self.reclassify_btn.disabled = False
+        
+        return self
+        
     #    
     #    code_fields = self.model.unique()
     #    
