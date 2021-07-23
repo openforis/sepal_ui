@@ -34,7 +34,6 @@ class ComboSelect(v.Select, sw.SepalWidget):
         super().__init__(**kwargs)
         
         # set the initial codes list 
-        self.codes = codes 
         self.items = codes
         
     def link_combos(self, combo_list):
@@ -74,47 +73,47 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     One can select multiple class to be reclassify in the new classification
     
     Args:
-        new_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-        codes (list|optional): the list of existing values within the asset/raster
+        dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
+        src_classes (list|optional): the list of existing values within the asset/raster
     """
     
     HEADERS = ['To: Custom Code', 'From: user code']
     
-    def __init__(self, new_classes={}, codes=[], **kwargs):
-        
-        self.toto = "toto"
+    def __init__(self, dst_classes={}, src_classes=[], **kwargs):
         
         # create the table 
         super().__init__(**kwargs)
         
         # save the init complete code list
-        self.codes = codes
+        self.codes = src_classes
         
         # create the table elements
         self.header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
-        self.set_table(new_classes, codes)
+        self.set_table(dst_classes, src_classes)
         
         
-    def set_table(self, new_classes, codes):
+    def set_table(self, dst_classes, src_classes):
         """
         rebuild the table content based on the new_classes and codes provided
         
         Args:
-            new_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-            codes (list|optional): the list of existing values within the asset/raster
+            dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
+            src_classes (list|optional): the list of existing values within the asset/raster
         """
         
         # create the select list
         # they need to observe each other to adapt the available class list dynamically 
-        self.combos  = {k: ComboSelect(k, codes) for k in new_classes.keys()}
+        self.combos  = {k: ComboSelect(k, src_classes) for k in dst_classes.keys()}
         for combo in self.combos.values(): 
             combo.link_combos(self.combos)
+            
+        print(dst_classes)
         
         rows = [
             v.Html(tag='tr', children=[
                 v.Html(tag='td', children=[str(name)]), 
-                v.Html(tag='td', children=[self.combos[k]])
-            ]) for k, name in new_classes.items()
+                v.Html(tag='td', children=[self.combos[code]])
+            ]) for code, name in dst_classes.items()
         ]
         
         self.children = [v.Html(tag='tbody', children= self.header + rows)]

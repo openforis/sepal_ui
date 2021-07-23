@@ -60,10 +60,10 @@ class ReclassifyModel(Model):
         if all(df.iloc[0].apply(lambda x: isinstance(x, str))):
             df = df[1:].reset_index(drop=True)
         
-        df = df.rename(columns={0: 'code', 1: 'name'})#, 2: 'color'})
+        df = df.rename(columns={0: 'code', 1: 'desc'})#, 2: 'color'})
         
         # create a dict out of it 
-        return {row.code: row.name for i, row in df.iterrows()}
+        return {row.code: row.desc for i, row in df.iterrows()}
         
         
     def get_bands(self):
