@@ -73,19 +73,20 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     One can select multiple class to be reclassify in the new classification
     
     Args:
+        model (ReclassifyModel): model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
         dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
         src_classes (list|optional): the list of existing values within the asset/raster
     """
     
     HEADERS = ['To: Custom Code', 'From: user code']
     
-    def __init__(self, dst_classes={}, src_classes=[], **kwargs):
+    def __init__(self, model, dst_classes={}, src_classes=[], **kwargs):
         
         # create the table 
         super().__init__(**kwargs)
         
-        # save the init complete code list
-        self.codes = src_classes
+        # save the model 
+        self.model = model
         
         # create the table elements
         self.header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
@@ -101,11 +102,15 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             src_classes (list|optional): the list of existing values within the asset/raster
         """
         
+        # reset the matrix
+        self.model.matrix = {code: [] for code in dst_classes.keys()}
+        
         # create the select list
         # they need to observe each other to adapt the available class list dynamically 
         self.combos  = {k: ComboSelect(k, src_classes) for k in dst_classes.keys()}
         for combo in self.combos.values(): 
             combo.link_combos(self.combos)
+            combo.observe(self._update_matrix_values, 'v_model')
             
         print(dst_classes)
         
@@ -117,6 +122,17 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         ]
         
         self.children = [v.Html(tag='tbody', children= self.header + rows)]
+        
+        return self
+    
+    def _update_matrix_values(self, change):
+        """update the appropriate matrix value when a Combo select change"""
+        
+        # get the code of the class in the dst classification
+        code = change['owner']._metadata['class']
+        
+        # bind it to classes in the src classification
+        self.model.matrix[code] = change['new']
         
         return self
         
@@ -153,7 +169,7 @@ class ReclassifyView(v.Card):
         self.w_class_file = sw.FileInput(['.csv'], label="Select classification system", folder=self.folder)
         action_image = v.Flex(class_="d-flex", children=[self.w_image, self.get_table_btn])
         
-        self.reclassify_table = ReclassifyTable()
+        self.reclassify_table = ReclassifyTable(self.model)
         
         self.reclassify_btn = sw.Btn(ms.reclassify.reclassify_btn, 'mdi-checkerboard', class_='ml-2 my-2',disabled=True)
         
@@ -267,19 +283,6 @@ class ReclassifyView(v.Card):
         # enable the reclassify btn 
         self.reclassify_btn.disabled = False
         
-        return self
-        
-    #    
-    #    code_fields = self.model.unique()
-    #    
-    #    self.dialog.reclassify_table._get_matrix(code_fields).show()
-    #    
-    #    # Link widget after get the matrix,otherwise it won't work.
-    #    link((self.dialog.reclassify_table, 'matrix'), (self.model, 'matrix'))
-    #    
-    #    self.dialog.v_model=True
-    #    self.action_buttons.show()  
-    #    
         return self
         
     #def fill_cols(self, *args):
