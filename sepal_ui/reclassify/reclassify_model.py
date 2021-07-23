@@ -2,7 +2,7 @@ import warnings
 from pathlib import Path
 
 import pandas as pd
-from pandas import DataFrame
+import geopandas as gpd
 import numpy as np
 import rasterio as rio
 
@@ -10,6 +10,7 @@ from traitlets import Unicode, Any, Dict, List, Bool
 
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
+from sepal_ui.scripts import utils as su
 
 
 import ee
@@ -17,36 +18,38 @@ ee.Initialize()
 
 class ReclassifyModel(Model):
     
-    in_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
-    dst_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
+    # should be unicode but we need to handle when nothing is set (None)
+    
+    # parameters of the model linked to widgets
     band = Any(None).tag(sync=True)
-    
-    asset_id = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
-    code_col = Any('').tag(sync=True)
-    
-    matrix = Dict({}).tag(sync=True)
-
+    src_local = Any(None).tag(sync=True)
+    src_gee = Any(None).tag(sync=True)
     dst_class_file = Any(None).tag(sync=True)
+    
+    # data manipulation
+    matrix = Dict({}).tag(sync=True)
     
     # Create a state var, to determine if an asset has been remaped
     remaped = Bool(False).tag(sync=True)
     
-    def __init__(self, gee=False, results_dir=None, **kwargs):
+    def __init__(self, gee=False, dst_dir=None, **kwargs):
         
+        # init the model
         super().__init__(**kwargs)
         
-        self.results_dir = results_dir
+        # save the folder where the results should be stored
+        # only used for local export
+        self.dst_dir = Path(dst_dir) if dst_dir else Path.home()
         
         # save relation with gee 
         self.gee = gee
         
-        self.asset_type = None
-        self.ee_object = None
-        
-        # Memory assets
-        self.raster_reclass = None
-        self.out_profile = None
-        self.reclass_ee = None
+        # init output to None 
+        self.input_type = None # 1 raster, 0 vector
+        self.src_class = None
+        self.dst_class = None
+        self.dst_local = None
+        self.dst_gee = None
         
     def get_dst_classes(self):
         """extract the classes from the class file"""
@@ -56,70 +59,136 @@ class ReclassifyModel(Model):
         # dst_class_file should be set on the model csv output of the custom view 
         # 3 column: 1: code, 2: name, 3: color 
         
-        # guess if there are header
+        # guess if there is a header
         if all(df.iloc[0].apply(lambda x: isinstance(x, str))):
             df = df[1:].reset_index(drop=True)
         
         df = df.rename(columns={0: 'code', 1: 'desc'})#, 2: 'color'})
         
+        # save the df for reclassify useage
+        self.dst_class = df
+        
         # create a dict out of it 
         return {row.code: row.desc for i, row in df.iterrows()}
+    
+    def get_type(self):
+        """
+        Guess the type of the input and set the input type attribute for the model
+        """
         
+        if self.gee: 
+            if not self.src_gee: raise Exception ('no input')
+                
+            asset_info = ee.data.getAsset(self.src_gee)['type']
         
-    def get_bands(self):
-        """get the band number for raster/asset"""
-        
-        if self.gee:
-            bands = ee.Image(self.asset_id).bandnames().getInfo()
+            if asset_info == 'TABLE':
+                self.input_type = False
+            elif asset_info == 'IMAGE':
+                self.input_type = True
+            else:
+                raise AttributeError("wrong type")
+                
         else:
-            with rio.open(self.in_raster) as f:
+            if not self.src_local: raise Exception ('no input')
+            
+            input_path = Path(self.src_local)
+            
+            if input_path.suffix in ['.geojson', '.shp']:
+                self.input_type = False
+            elif input_path.suffix in ['.tif', '.tiff', '.vrt']:
+                self.input_type = True
+            else:
+                raise AttributeError("wrong type")
+                
+        return self
+    
+    def get_bands(self):
+        """
+        based on the input type and use the appropriate band request 
+        get the available bands/feature from the input
+        """
+    
+        @su.need_ee
+        def _ee_image(self):
+
+            return sorted(ee.Image(self.src_gee).bandNames().getInfo())
+
+        @su.need_ee
+        def _ee_vector(self):
+
+            columns = ee.FeatureCollection(self.src_gee).first().getInfo()['properties']
+
+            return sorted(str(c) for c in columns.keys() if c not in ['system:index', 'Shape_Area'])
+
+        def _local_image(self):
+
+            with rio.open(self.src_local) as f:
                 bands = [i for i in range(1,f.count+1)]
+
+            return sorted(bands)
+
+        def _local_vector(self):
+
+            df = gpd.read_file(self.src_local)
+
+            return [c for c in df.columns.tolist() if c != 'geometry']
         
-        return bands
+        # map all the function in the guess matrix (gee, type) 
+        band_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]
+        
+        # return the selected function 
+        # remember to use self as a parameter
+        return band_func[self.gee][self.input_type](self)
     
     def unique(self):
-        """Retreive all the existing feature in the file according to the file type"""
+        """
+        Retreive all the existing feature in the input according to the model parameters
+        """
         
-        if self.gee:
-            pass
-        else:
+        @su.need_ee
+        def _ee_image(self):
             
-            raster = Path(self.in_raster)
+            # reduce the image
+            image = ee.Image(self.src_gee).select(self.band)
+            reduction = image.reduceRegion(ee.Reducer.frequencyHistogram(), image.geometry())
             
-            if not raster.is_file():
-                raise Exception('There is not any raster file selected')
+            # Remove all the unnecessary reducer output structure and make a list of values.
+            values = ee.Dictionary(reduction.get(image.bandNames().get(0))) \
+                .keys() \
+                .getInfo()
             
-            with rio.open(raster) as src:
-                
-                count = np.bincount(src.read(1).flatten())
-                features = np.nonzero(count!=0)[0].tolist()
-            
-            return features
-    
-    def get_unique_ee(self, maxBuckets=40000):
-        """Get unique values (or classes) from a categorical EE image"""
-        
-        if not self.code_col:
-            raise Exception("Please select a band")
-        
-        # Reduce image
-        reduced = self.ee_object.reduceRegion(
-          reducer = ee.Reducer.autoHistogram(maxBuckets=maxBuckets), 
-          geometry = self.ee_object.geometry(), 
-          scale=30, 
-          maxPixels=1e13
-        )
+            return [int(v) for v in values]
 
-        array = ee.Array(ee.List(reduced.get(self.code_col))).getInfo()
+        @su.need_ee
+        def _ee_vector(self):
+            
+            # get the feature
+            values = ee.FeatureCollection(self.src_gee).aggregate_array(self.band).getInfo()
+            
+            return list(set(values))
+
+        def _local_image(self):
+
+            with rio.open(self.src_local) as src:
+                
+                count = np.bincount(src.read(self.band).flatten())
+                features = np.nonzero(count!=0)[0].tolist()
+
+            return features
+
+        def _local_vector(self):
+            """get the band list from ee image"""
+
+            df = gpd.read_file(self.src_local)
+
+            return df[self.band].unique().tolist()
         
-        if len(array) > 256:
-            raise Exception("Too many values to reclassify. Are you trying " + \
-            "to reclassify a coded Asset?")
-                            
-        df = DataFrame(data=array, columns=['code', 'count'])
+        # map all the function in the guess matrix (gee, type) 
+        unique_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]
         
-        return list(df[df['count']>0]['code'].unique())
-        
+        # return the selected function 
+        # remember to use self as a parameter
+        return unique_func[self.gee][self.input_type](self)        
 
     def reclassify_raster(self, 
                           map_values, 
@@ -263,23 +332,8 @@ class ReclassifyModel(Model):
         task = ee.batch.Export.image.toAsset(**params)
         task.start()
 
-        return task.id, asset_id
-            
-    def validate_asset(self):
+        return task.id, asset_id        
         
-        asset = self.asset_id
-        
-        asset_info = ee.data.getAsset(asset)
-        self.asset_type = asset_info['type']
-        
-        if self.asset_type == 'TABLE':
-            self.ee_object = ee.FeatureCollection(asset)
-            
-        elif self.asset_type == 'IMAGE':
-            self.ee_object = ee.Image(asset)
-        
-        else:
-            raise AttributeError("cm.remap.error_type")
             
     def get_fields(self, ee_object=None, code_col=None):
         """Get fields from Feature Collection"""

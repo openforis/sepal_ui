@@ -3,6 +3,7 @@ from functools import partial
 from pathlib import Path
 from traitlets import List, Dict, Int, link
 import ipyvuetify as v
+import ee
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
@@ -160,7 +161,7 @@ class ReclassifyView(v.Card):
         self.title = v.CardTitle(children=['Reclassify image'])
             
         self.w_asset = sw.AssetSelect(label=ms.reclassify.gee.widgets.asset_label)
-        self.w_raster = sw.FileInput(['.tif'], label=ms.reclassify.class_file_label, folder=self.folder)
+        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.reclassify.class_file_label, folder=self.folder)
         self.w_image = self.w_asset if self.gee else self.w_raster
         self.w_band = v.Select(label="Select band", hint="The band to use or the vector feature", v_model = None, items=[], persistent_hint=True)
         
@@ -176,8 +177,8 @@ class ReclassifyView(v.Card):
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
         self.model \
-            .bind(self.w_raster, 'in_raster') \
-            .bind(self.w_asset, 'asset_id') \
+            .bind(self.w_raster, 'src_local') \
+            .bind(self.w_asset, 'src_gee') \
             .bind(self.w_band, 'band') \
             .bind(self.w_class_file, 'dst_class_file')
 
@@ -194,20 +195,33 @@ class ReclassifyView(v.Card):
         ]
              
         # Decorate functions
-        #self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(self.reclassify)
+        self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(self.reclassify)
         self.get_reclassify_table = loading_button(self.alert, self.get_table_btn, debug=True)(self.get_reclassify_table)
 
         # Events
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table_btn.on_event('click', self.get_reclassify_table)
-        #self.edit_btn.on_event('click', lambda *args: self.dialog.show())
-        #self.reclassify_btn.on_event('click', partial(self.reclassify, save=self.save))
+        self.reclassify_btn.on_event('click', self.reclassify)
 
         # Refresh tables        
         #self.model.observe(self.get_items, 'classes_files')
 
-    #def reclassify(self, *args, save=False):
-    #    """Reclassify the input raster and store it in memory"""
+    def reclassify(self, *args, save=False):
+        """
+        Reclassify the input raster and store it in the model. 
+        If the view was init with save = True, then the output will be stored in the same format as the original file
+        """
+        
+        # create the output file 
+        self.model.reclassify()
+        
+        # save it 
+        if self.save:
+            self.model.save_output()
+            
+        return self
+        
+        
     #    
     #    change_matrix = self.w_reclassify_table.matrix
 #
@@ -249,12 +263,17 @@ class ReclassifyView(v.Card):
     #        self.alert_dialog.add_msg(
     #            ms.reclassify.raster.success_reclass.format(dst_raster), type_='success'
     #        )
+        return self
 
     def _update_band(self, change):
         """
         Update the band possibility to the availabel band of the raster/asset
         """
         
+        # guess the file type and save it in the model 
+        self.model.get_type()
+        
+        # update the bands values
         self.w_band.v_model = None
         self.w_band.items = self.model.get_bands()
         
