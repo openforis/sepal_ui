@@ -18,6 +18,7 @@ class ReclassifyModel(Model):
     
     in_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
     dst_raster = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
+    band = Any(None).tag(sync=True)
     
     asset_id = Any(None).tag(sync=True) # should be unicode but we need to handle when nothing is set (None)
     code_col = Any('').tag(sync=True)
@@ -45,6 +46,17 @@ class ReclassifyModel(Model):
         self.raster_reclass = None
         self.out_profile = None
         self.reclass_ee = None
+        
+    def get_bands(self):
+        """get the band number for raster/asset"""
+        
+        if self.gee:
+            bands = ee.Image(self.asset_id).bandnames().getInfo()
+        else:
+            with rio.open(self.in_raster) as f:
+                bands = [i for i in range(1,f.count+1)]
+        
+        return bands
     
     def unique(self):
         """Retreive all the existing feature in the file according to the file type"""
@@ -282,11 +294,11 @@ class ReclassifyModel(Model):
                 in columns if col not in ['system:index', 'Shape_Area']
             ])
     
-    def get_bands(self):
-        """Get bands from Image asset"""
-        
-        if not self.ee_object:
-            raise Exception('To get bands of an asset you must select one')
-            
-        return list(self.ee_object.bandTypes().getInfo().keys())
+    #def get_bands(self):
+    #    """Get bands from Image asset"""
+    #    
+    #    if not self.ee_object:
+    #        raise Exception('To get bands of an asset you must select one')
+    #        
+    #    return list(self.ee_object.bandTypes().getInfo().keys())
         
