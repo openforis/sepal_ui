@@ -9,8 +9,7 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 
 from sepal_ui.scripts.utils import loading_button
-from sepal_ui.reclassify.reclassify_model import ReclassifyModel
-from sepal_ui.reclassify.reclassify_widgets import EditTableDialog, ReclassifyTable
+from .reclassify_model import ReclassifyModel
         
 class ComboSelect(v.Select, sw.SepalWidget):
     """
@@ -112,8 +111,6 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         for combo in self.combos.values(): 
             combo.link_combos(self.combos)
             combo.observe(self._update_matrix_values, 'v_model')
-            
-        print(dst_classes)
         
         rows = [
             v.Html(tag='tr', children=[

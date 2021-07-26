@@ -1,24 +1,18 @@
 from pathlib import Path
 import ipyvuetify as v
-from sepal_ui.sepalwidgets import SepalWidget
-from sepal_ui.reclassify import (
-    ReclassifyView, CustomizeView, 
-    ReclassifyTable, Tabs, ReclassifyModel
-)
+from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
+from sepal_ui import reclassify as rec
+from traitlets import link
 
-class ReclassifyTile(Tabs, SepalWidget):
+class ReclassifyTile(sw.Tile):
     
-    def __init__(self, 
-                 results_dir,
-                 gee=True, 
-                 save=True,
-                 *args, **kwargs):
+    def __init__(self, results_dir, gee=True, save=True, **kwargs):
         
         """All in one tile to reclassify GEE assets or local raster 
         
         Args:
-            results_dir (str) : Directory to store the 
+            results_dir (str|pathlike object) : Directory to store the 
                                 outputs (rasters, and csv_files)
             
             gee (bool) : Use GEE variant, to reclassify assets 
@@ -30,36 +24,50 @@ class ReclassifyTile(Tabs, SepalWidget):
 
         """
 
-        self._metadata = {'mount_id':'reclassify'}
+        self._metadata = {'mount_id':'reclassify_tile'}
         
-        # Class parameters
-        self.results_dir = results_dir if results_dir else Path.home()/'downloads'
-        self.class_dir = results_dir/'custom_classifications'
+        # output directory
+        # ensure it's initialized
+        self.results_dir = Path(results_dir)
+        self.results_dir.mkdir(parents=True, exist_ok=True)
         
-        Path(self.class_dir).mkdir(parents=True, exist_ok=True)
-
-        self.model = ReclassifyModel(results_dir)
+        # create the model
+        self.model = rec.ReclassifyModel(self.results_dir)
         
+        # set the tabs elements
+        self.reclassify_view = rec.ReclassifyView(self.results_dir, gee, save)
+        self.reclassify_view.elevation = False
+        self.table_view = rec.TableView()
+        self.table_view.elevation = False
         
-        self.w_reclassify_table = ReclassifyTable()
-        self.view = ReclassifyView(
-            self.model,
-            w_reclassify_table = self.w_reclassify_table,
-            class_path=self.class_dir,
-            gee=gee,
-            save=save
+        # create the tab 
+        titles = {
+            'reclassify': self.reclassify_view,
+            'table': self.table_view 
+        }
+        
+        self.tabs = v.Tabs(
+            v_model=0,
+            children=[
+                v.Tab(children=[title], key=key) 
+                for key, title in enumerate(titles.keys())
+            ]
         )
-        self.customize_view = CustomizeView(
-            self.model,
-            class_path=self.class_dir
+        
+        self.content = v.TabsItems(
+            v_model=0,
+            children=[
+                v.TabItem(children=[content], key=key) 
+                for key, content in enumerate(titles.values())
+            ]
         )
         
-        tabs_titles = ['Reclassify', 'Customize classification']
-        tab_content = [
-            self.view,
-            self.customize_view
-        ]
+        super().__init__(
+            id_ = 'reclassify_tile',
+            title = 'Reclassification',
+            inputs = [self.tabs, self.content],
+            **kwargs
+        )
         
-        super().__init__(titles=tabs_titles,
-                         content=tab_content,
-                         *args, **kwargs)
+        # js interaction
+        link((self.tabs, 'v_model'),(self.content, 'v_model'))
