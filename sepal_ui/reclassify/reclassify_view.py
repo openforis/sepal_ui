@@ -203,21 +203,14 @@ class ReclassifyView(v.Card):
         self.get_table_btn.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
 
-        # Refresh tables        
-        #self.model.observe(self.get_items, 'classes_files')
-
     def reclassify(self, *args, save=False):
         """
-        Reclassify the input raster and store it in the model. 
-        If the view was init with save = True, then the output will be stored in the same format as the original file
+        Reclassify the input and store it in the appropriate format.
+        We don't store the input locally to avoid memory overload.
         """
         
         # create the output file 
         self.model.reclassify()
-        
-        # save it 
-        if self.save:
-            self.model.save_output()
             
         return self
         
