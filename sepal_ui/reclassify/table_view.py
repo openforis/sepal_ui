@@ -42,9 +42,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         # set the class general attributes
         self.out_path =Path(out_path)
         
-        # open a Output widget to display the edit and validation dialog
-        # edit dialog 
-        self.dialog = Output()
+        # dialogs
         self.save_dialog = SaveDialog(table=self, out_path=self.out_path, transition=False)
         self.edit_dialog = EditDialog(table = self)
 
@@ -66,7 +64,8 @@ class ClassTable(v.DataTable, sw.SepalWidget):
             class_='d-flex mb-6',
             flat=True, 
             children=[
-                self.dialog,
+                self.edit_dialog,
+                self.save_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
                 v.Flex(class_='ml-auto', children=[edit_icon, delete_icon, add_icon]),
@@ -131,10 +130,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         if not self.items:
             return 
         
-        with self.dialog:
-            self.dialog.clear_output()
-            self.save_dialog.v_model=True
-            display(self.save_dialog)
+        self.save_dialog.v_model=True
             
         return
             
@@ -144,20 +140,14 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         if not self.v_model:
             return 
         
-        with self.dialog:
-            self.dialog.clear_output()
-            self.edit_dialog.update([v for v in self.v_model[0].values()])
-            display(self.edit_dialog)
+        self.edit_dialog.update([v for v in self.v_model[0].values()])
             
         return 
                     
     def _add_event(self, widget, event, data):
         """Open the edit dialog to create a new line to the table"""
-        
-        with self.dialog:
-            self.dialog.clear_output()
-            self.edit_dialog.update()
-            display(self.edit_dialog)
+
+        self.edit_dialog.update()
         
         return
         
