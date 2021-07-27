@@ -14,6 +14,7 @@ import ipyvuetify as v
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from matplotlib.colors import to_rgb
+import pandas as pd
 
 
 class ClassTable(v.DataTable, sw.SepalWidget):
@@ -117,10 +118,20 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         
         items = []
         keys = self.SCHEMA
-        with open(items_path) as f:
-            for i, line in enumerate(f.readlines()):
-                item = [it.replace('\n','') if isinstance(it, str) else it for it in [i]+line.split(',')]
-                items+=[(dict(zip(keys, item)))]
+        
+        # read the file using pandas
+        df = pd.read_csv(items_path, header=None)
+        
+        # small sanity check 
+        if len(df.columns)<2 or len(df.columns)>3:
+            raise Exception('The file is not a valid classification file')
+        
+        # add a color column if necessary 
+        if len(df.columns) == 2:
+            df[2] = ['#000000' for _ in range(len(df))]
+        
+        for i, row in df.iterrows():
+            items.append(dict(zip(keys, [i] + row.tolist())))
                 
         return items
     
@@ -415,8 +426,6 @@ class SaveDialog(v.Dialog):
         lines = [list(item.values())[1:] for item in self.table.items]
         txt = [','.join(l)+'\n' for l in lines]
         out_file.with_suffix('.csv').write_text(''.join(txt))
-        
-        print('toto')
         
         # Every time a file is saved, we update the current widget state
         # so it can be observed by other objects.
