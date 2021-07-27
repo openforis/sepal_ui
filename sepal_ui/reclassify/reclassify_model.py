@@ -11,6 +11,7 @@ from traitlets import Unicode, Any, Dict, List, Bool
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from matplotlib.colors import to_rgba
 
 
 import ee
@@ -58,12 +59,7 @@ class ReclassifyModel(Model):
         
         # dst_class_file should be set on the model csv output of the custom view 
         # 3 column: 1: code, 2: name, 3: color 
-        
-        # guess if there is a header
-        if all(df.iloc[0].apply(lambda x: isinstance(x, str))):
-            df = df[1:].reset_index(drop=True)
-        
-        df = df.rename(columns={0: 'code', 1: 'desc'})#, 2: 'color'})
+        df = df.rename(columns={0: 'code', 1: 'desc', 2: 'color'})
         
         # save the df for reclassify useage
         self.dst_class = df
@@ -192,7 +188,7 @@ class ReclassifyModel(Model):
     
     def reclassify(self):
         """
-        Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end
+        Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end. vizualization colors will be set.
         """
         
         @su.need_ee
@@ -207,6 +203,8 @@ class ReclassifyModel(Model):
             to_ = [v for v in matrix.values()]
             
             ee_image = ee.Image(self.src_ee).remap(from_, to_, 0, self.band)
+            
+            # add colormapping parameters
             
             # export 
             params = {
@@ -236,6 +234,8 @@ class ReclassifyModel(Model):
             
             ee_fc = ee.FeatureCollection(self.src_ee).map(add_prop)
             
+            # add colormapping parameters
+            
             # export 
             params = {
                 'collection': ee_fc,
@@ -253,27 +253,39 @@ class ReclassifyModel(Model):
             # set the output file 
             self.dst_local = self.dst_dir/f'{Path(self.src_local).stem}_reclass.tif'
                         
-            with rio.open(self.src_local) as src_f, rio.open(self.dst_local) as dst_f: 
+            with rio.open(self.src_local) as src_f: 
                 
-                profile = f.profile
+                profile = src_f.profile
                 profile.update(driver='GTiff', count=1, compress='lzw', dtype=np.uint8)
                 
-                # workon each window to avoid memory problems
-                windows = [w for _, w in src.block_windows()]
-                for window in windows:
-                    
-                    # read the window 
-                    raw = f.read(self.band, window=window).astype(np.uint8)
-                    
-                    # reclassify the image based on the matrix 
-                    # every value that is not specified will be set to 0 
-                    data = np.zeros_like(raw)
-                    
-                    for old_val, new_val  in matrix.items():
-                        data += (raw == old_val) * new_val 
-                    
-                    # write it in the destination file
-                    dst.write(data, 1, window=window)
+                with rio.open(self.dst_local, 'w', **profile) as dst_f:
+                
+                    # workon each window to avoid memory problems
+                    windows = [w for _, w in src_f.block_windows()]
+                    for window in windows:
+
+                        # read the window 
+                        raw = src_f.read(self.band, window=window)
+
+                        # reclassify the image based on the matrix 
+                        # every value that is not specified will be set to 0 
+                        data = np.zeros_like(raw, dtype=np.int64)
+
+                        for old_val, new_val  in matrix.items():
+                            data += (raw == old_val) * new_val 
+
+                        # write it in the destination file
+                        dst_f.write(data.astype(np.uint8), 1, window=window)
+
+                    # add the colors to the image
+                    colormap = {}
+                    for i, row in self.dst_class.iterrows():
+                        print(row.color)
+                        print(to_rgba(row.color))
+                        print(type(to_rgba(row.color)))
+                        colormap[row.code] = tuple(int(c*255) for c in to_rgba(row.color))
+
+                    dst_f.write_colormap(self.band, colormap)
             
             return
 
@@ -288,6 +300,9 @@ class ReclassifyModel(Model):
             # map the new column 
             gdf['reclass'] = gdf.apply(lambda row: matrix[row[self.band]])
             
+            # add the colors to the gdf 
+            # waiting for an answer there : https://gis.stackexchange.com/questions/404946/how-can-i-save-my-geopandas-symbology
+        
             # save the file 
             gdf.to_file(self.dst_local)
             
@@ -298,7 +313,7 @@ class ReclassifyModel(Model):
         
         # reshape the matrix so that every value correspond to 1 key
         matrix = {}
-        for new_val, list_ in self.matrix:
+        for new_val, list_ in self.matrix.items():
             for old_val in list_:
                 matrix[old_val] = new_val
         

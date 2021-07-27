@@ -32,10 +32,10 @@ class ReclassifyTile(sw.Tile):
         self.results_dir.mkdir(parents=True, exist_ok=True)
         
         # create the model
-        self.model = rec.ReclassifyModel(self.results_dir)
+        self.model = rec.ReclassifyModel(dst_dir= self.results_dir, gee=gee)
         
         # set the tabs elements
-        self.reclassify_view = rec.ReclassifyView(self.results_dir, gee, save)
+        self.reclassify_view = rec.ReclassifyView(self.model, self.results_dir, gee, save)
         self.reclassify_view.elevation = False
         self.table_view = rec.TableView()
         self.table_view.elevation = False

@@ -128,6 +128,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
         # get the code of the class in the dst classification
         code = change['owner']._metadata['class']
+        print(code)
+        print(change['new'])
         
         # bind it to classes in the src classification
         self.model.matrix[code] = change['new']
@@ -136,14 +138,14 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
 class ReclassifyView(v.Card):
 
-    def __init__(self, folder=None, gee=False, save=True, **kwargs):
+    def __init__(self, model=None, folder=None, gee=False, save=True, **kwargs):
         
         self.class_='pa-2'
         
         super().__init__(**kwargs)
         
         # create a default model 
-        self.model = ReclassifyModel(gee=gee)
+        self.model = model if model else ReclassifyModel(gee=gee)
         
         # save the object parameters 
         self.save = save # rember if the reclassify asset needs to be saved
@@ -210,50 +212,6 @@ class ReclassifyView(v.Card):
         self.model.reclassify()
             
         return self
-        
-        
-    #    
-    #    change_matrix = self.w_reclassify_table.matrix
-#
-    #    if self.gee:
-    #        if self.save:
-    #            # Reclassify an gee asset and save it
-    #            task, new_asset_id = self.model.remap_ee_object(
-    #                band=self.w_code.v_model, 
-    #                change_matrix=change_matrix,
-    #                save=save
-    #            )
-    #            self.alert_dialog.add_msg(
-    #                ms.reclassify.gee.success_export.format(task, new_asset_id), 
-    #                type_='success'
-    #            )
-    #        else:
-    #            # Reclassify an gee asset and store it in memory
-    #            self.model.remap_ee_object(
-    #                band=self.w_code.v_model, 
-    #                change_matrix=change_matrix,
-    #                save=save
-    #            )
-    #            self.alert_dialog.add_msg(
-    #                ms.reclassify.gee.success_reclass, type_='success')
-    #        
-    #    else:
-    #        
-    #        # Get reclassify path raster
-    #        filename = Path(self.model.in_raster).stem
-    #        dst_raster = Path(self.model.results_dir)/f'{filename}_reclassified.tif'
-#
-    #        self.model.reclassify_raster(
-    #            change_matrix,
-    #            dst_raster=dst_raster, 
-    #            overwrite=True,
-    #            save=save
-    #        )
-#
-    #        self.alert_dialog.add_msg(
-    #            ms.reclassify.raster.success_reclass.format(dst_raster), type_='success'
-    #        )
-        return self
 
     def _update_band(self, change):
         """
@@ -293,35 +251,4 @@ class ReclassifyView(v.Card):
         self.reclassify_btn.disabled = False
         
         return self
-        
-    #def fill_cols(self, *args):
-    #    """Get columns or bands from a featurecollection or an Image"""
-    #    # Hide previous loaded components
-    #    
-    #    self.hide_components()
-    #    
-    #    self.w_code.items=[]
-    #    self.w_asset.show()
-    #    
-    #    self.model.validate_asset()
-#
-    #    self.w_code.loading=True
-#
-    #    # Get columns of dataset
-    #    if self.model.asset_type == 'TABLE':
-    #        self.w_code.label = ms.reclassify.w_code_table
-    #        columns = self.model.get_cols()
-#
-    #    elif self.model.asset_type == 'IMAGE':
-    #        self.w_code.label = ms.reclassify.w_code_image
-    #        columns = self.model.get_bands()
-#
-    #    # Fill widgets with column names
-    #    self.w_code.items = columns
-    #    self.w_code.loading=False
-    #    
-    #def hide_components(self):
-    #    
-    #    self.dialog.v_mdel=False
-    #    self.action_buttons.hide()
         
