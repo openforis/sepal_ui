@@ -312,6 +312,10 @@ class EditDialog(v.Dialog):
         # hide the dialog
         self.v_model=False
         
+        # deselect the value for next time 
+        # if not deselected the previous item will remain in the v_model 
+        self.table.v_model = []
+        
         return
     
     def _save(self, widget, event, data):
@@ -424,7 +428,7 @@ class SaveDialog(v.Dialog):
         
         # read each line values but not the id 
         lines = [list(item.values())[1:] for item in self.table.items]
-        txt = [','.join(l)+'\n' for l in lines]
+        txt = [','.join(str(e) for e in l)+'\n' for l in lines]
         out_file.with_suffix('.csv').write_text(''.join(txt))
         
         # Every time a file is saved, we update the current widget state
