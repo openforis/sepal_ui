@@ -195,22 +195,40 @@ class ReclassifyModel(Model):
         def _ee_image(self, matrix):
             
             # create the asset description 
-            self.dst_ee = f'{Path(self.ee_local).stem}_reclass'
+            self.dst_gee = Path(self.src_gee).with_name(f'{Path(self.src_gee).stem}_reclass')
             
             # load the image
             # remap according to the matrix
             from_ = [v for v in matrix.keys()]
             to_ = [v for v in matrix.values()]
             
-            ee_image = ee.Image(self.src_ee).remap(from_, to_, 0, self.band)
+            ee_image = ee.Image(self.src_gee) \
+                .remap(from_, to_, 0, self.band) \
+                .select(['remapped'], [self.band])
+            
+            # gather all the other band in the image 
+            ee_image = ee.Image(self.src_gee).addBands(ee_image, overwrite=True)
             
             # add colormapping parameters
+            # set return an element so we force cast it to ee.Image
+            desc = [str(e) for e in self.dst_class.desc.tolist()]
+            color = [str(e) for e in self.dst_class.color.tolist()]
+            code = [str(e) for e in self.dst_class.code.tolist()]
+            
+            ee_image = ee.Image(ee_image.set({
+                'visualization_0_name': 'Classification',
+                'visualization_0_bands': self.band,
+                'visualization_0_type': 'categorical',
+                'visualization_0_labels': ','.join(desc),
+                'visualization_0_palette': ','.join(color),
+                'visualization_0_values': ','.join(code)   
+            }))
             
             # export 
             params = {
                 'image': ee_image,
-                'assetId': self.dst_ee,
-                'description': self.dst_ee,
+                'assetId': str(self.dst_gee),
+                'description': self.dst_gee.stem,
                 'scale': 30, # it should be the native resolution of the original image
                 'maxPixels': 1e13,
             }
@@ -224,7 +242,7 @@ class ReclassifyModel(Model):
         def _ee_vector(self):
             
             # create the asset description 
-            self.dst_ee = f'{Path(self.ee_local).stem}_reclass'
+            self.dst_ee = f'{Path(self.src_gee).stem}_reclass'
             
             # add a new propertie
             def add_prop(feat):
@@ -232,15 +250,15 @@ class ReclassifyModel(Model):
                 new_val = feat.get(self.band)
                 return ee.Feature(new_val).copyProperties(feat, keepProperties)
             
-            ee_fc = ee.FeatureCollection(self.src_ee).map(add_prop)
+            ee_fc = ee.FeatureCollection(self.src_gee).map(add_prop)
             
             # add colormapping parameters
             
             # export 
             params = {
                 'collection': ee_fc,
-                'assetId': self.dst_ee,
-                'description': self.dst_ee,
+                'assetId': self.dst_gee,
+                'description': self.dst_gee,
             }
 
             task = ee.batch.Export.table.toAsset(**params)

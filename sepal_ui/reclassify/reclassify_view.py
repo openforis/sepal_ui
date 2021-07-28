@@ -128,8 +128,6 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
         # get the code of the class in the dst classification
         code = change['owner']._metadata['class']
-        print(code)
-        print(change['new'])
         
         # bind it to classes in the src classification
         self.model.matrix[code] = change['new']
