@@ -13,6 +13,8 @@ import numpy as np
 import rioxarray
 import xarray_leaflet # do not remove: plugin for rioxarray so it is never called but always used
 import matplotlib.pyplot as plt
+from matplotlib import colors as mpc
+from matplotlib import colorbar
 import ipywidgets as widgets
 from ipyleaflet import (
     AttributionControl, DrawControl, LayersControl, 
@@ -21,6 +23,7 @@ from ipyleaflet import (
 )
 from traitlets import Bool, link, observe
 import ipyvuetify as v
+import ipyleaflet
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -438,6 +441,93 @@ class SepalMap(geemap.Map):
                 self.remove_control(self.dc)
                 
         return self
+    
+    def add_colorbar(
+        self,
+        colors,
+        cmap='viridis',
+        vmin=0,
+        vmax=1.0,
+        index=None,
+        categorical=False,
+        step=None,
+        height="45px",
+        transparent_bg=False,
+        position="bottomright",
+        layer_name=None,
+        **kwargs,
+    ):
+        """Add a colorbar to the map.
+        Args:
+            colors (list, optional): The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
+            cmap (str): a matplotlib colormap default to viridis
+            vmin (int, optional): The minimal value for the colormap. Values lower than vmin will be bound directly to colors[0].. Defaults to 0.
+            vmax (float, optional): The maximal value for the colormap. Values higher than vmax will be bound directly to colors[-1]. Defaults to 1.0.
+            index (list, optional):The values corresponding to each color. It has to be sorted, and have the same length as colors. If None, a regular grid between vmin and vmax is created.. Defaults to None.
+            categorical (bool, optional): Whether or not to create a categorical colormap. Defaults to False.
+            step (int, optional): The step to split the LinearColormap into a StepColormap. Defaults to None.
+            height (str, optional): The height of the colormap widget. Defaults to "45px".
+            position (str, optional): The position for the colormap widget. Defaults to "bottomright".
+            layer_name (str, optional): Layer name of the colorbar to be associated with. Defaults to None.
+            kwargs (any): any other argument of the colorbar object from matplotlib
+        """
+
+        width, height = 6.0, 0.4
+
+        alpha = 1
+        
+        if colors is not None:
+            
+            # transform colors in hex colors 
+            hexcodes = [su.to_colors(c) for c in colors]
+            
+            if categorical:
+                cmap = mpc.ListedColormap(hexcodes)
+                vals = np.linspace(vmin, vmax, cmap.N + 1)
+                norm = mpc.BoundaryNorm(vals, cmap.N)
+
+            else:
+                cmap = mpc.LinearSegmentedColormap.from_list("custom", hexcodes, N=256)
+                norm = mpc.Normalize(vmin=vmin, vmax=vmax)
+
+        elif cmap is not None:
+
+            cmap = plt.get_cmap(cmap)
+            norm = mpc.Normalize(vmin=vmin, vmax=vmax)
+
+        else:
+            raise ValueError('cmap keyword or "palette" key in vis_params must be provided.')
+
+        style = 'dark_background' if v.theme.dark == True else 'classic'
+        
+        with plt.style.context(style):
+            fig, ax = plt.subplots(figsize=(width, height))
+            fig.patch.set_alpha(.0)
+            ax.patch.set_alpha(.0)
+            cb = colorbar.ColorbarBase(ax, norm=norm, alpha=alpha, cmap=cmap, orientation='horizontal', **kwargs)
+        
+        if layer_name:
+            cb.set_label(layer_name)
+
+        output = widgets.Output()
+        colormap_ctrl = ipyleaflet.WidgetControl(
+            widget=output,
+            position=position,
+            transparent_bg=True,
+        )
+        with output:
+            output.clear_output()
+            plt.show()
+
+        self.colorbar = colormap_ctrl
+        if layer_name in self.ee_layer_names:
+            if "colorbar" in self.ee_layer_dict[layer_name]:
+                self.remove_control(self.ee_layer_dict[layer_name]["colorbar"])
+            self.ee_layer_dict[layer_name]["colorbar"] = colormap_ctrl
+
+        self.add_control(colormap_ctrl)
+        
+        return
         
     @staticmethod   
     def get_basemap_list():

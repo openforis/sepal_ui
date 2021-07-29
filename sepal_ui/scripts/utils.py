@@ -11,6 +11,7 @@ from functools import wraps
 
 import ee
 from cryptography.fernet import Fernet
+from matplotlib import colors as c
 
 import sepal_ui
 
@@ -269,4 +270,47 @@ def normalize_str(msg, folder=True):
     regex = '[^a-zA-Z\d\-\_]' if folder else '[^a-zA-Z\d\-\_\ \']'
     
     return re.sub(regex, '_', unidecode(msg))
+
+def to_colors(in_color, out_type="hex"):
+    """
+    Transform any color type into a color in the specified output format
+    avalable format: hex
+    
+    Args:
+        in_color (str or tuple): It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0)).
+        out_type (str, optional): the type of the output color from ['hex']. default to 'hex'
+
+    Returns:
+        (str|tuple): The color in the specified format. default to black.
+    """
+
+    # list of the color function used for the translatio 
+    c_func = {'hex': c.to_hex}
+    transform = c_func[out_type]
+    
+    out_color = "#000000"  # default black color
+    
+    if isinstance(in_color, tuple) and len(in_color) == 3:
+        
+        # rescale color if necessary
+        if all(isinstance(item, int) for item in in_color):
+            in_color = [c / 255.0 for c in in_color]
+        
+        return transform(in_color)
+    
+    else:
+        
+        # try to guess the color system 
+        try:
+            return transform(in_color)
+        except:
+            pass
+        
+        # try again by adding an extra # (GEE handle hex codes without #)
+        try:
+            return transform(f'#{in_color}')
+        except:
+            pass
+        
+    return transform(out_color)
     
