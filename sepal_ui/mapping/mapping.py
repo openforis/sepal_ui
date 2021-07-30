@@ -502,9 +502,13 @@ class SepalMap(geemap.Map):
         
         with plt.style.context(style):
             fig, ax = plt.subplots(figsize=(width, height))
-            fig.patch.set_alpha(.0)
-            ax.patch.set_alpha(.0)
             cb = colorbar.ColorbarBase(ax, norm=norm, alpha=alpha, cmap=cmap, orientation='horizontal', **kwargs)
+            
+            #cosmetic improvement 
+            cb.outline.set_visible(False) #remove border of the color bar
+            ax.tick_params(size=0) # remove ticks 
+            fig.patch.set_alpha(.0) # remove bg of the fig 
+            ax.patch.set_alpha(.0) # remove bg of the ax
         
         if layer_name:
             cb.set_label(layer_name)
