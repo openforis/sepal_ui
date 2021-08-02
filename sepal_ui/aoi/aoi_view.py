@@ -271,7 +271,7 @@ class AoiView(v.Card):
         self.btn.on_event('click', self._update_aoi) # load the informations
         if self.map_: self.map_.dc.on_draw(self._handle_draw) # handle map drawing
             
-    @su.loading_button(debug=False)
+    @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
         

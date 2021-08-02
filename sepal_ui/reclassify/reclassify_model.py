@@ -1,12 +1,10 @@
-import warnings
+from traitlets import Unicode, Any, Dict, List, Bool
 from pathlib import Path
 
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 import rasterio as rio
-
-from traitlets import Unicode, Any, Dict, List, Bool
 
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
@@ -18,20 +16,50 @@ import ee
 ee.Initialize()
 
 class ReclassifyModel(Model):
+    """
+    Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
     
+    Attributes:
+        band (str|int): the band name or number to use for the reclassification if raster type. Use property name if vector type  
+        src_local (str): the source file to reclassify (from a local path) only used if :code:`gee=False`
+        src_gee: (str): AssetId of the used input asset for reclassification. Only used if :code:`gee=True`
+        dst_class_file (str): the filename/assetId of the reclassification
+        dst_dir (str): the dir used to store the output
+        gee (bool): either to use the gee backend or not
+        matrix (dict): the transfer matrix between the input and the output using the following format: {new_value: [old_values], ...}
+        input_type (bool): the input type, 1 for raster and 0 for vector
+        src_class (list): the sorted list of properties/band unique classes from the input file
+        dst_class (pd.Dataframe): the pandas dataframe of the destination classes using the following columns: 'code, 'desc', 'color'
+        dst_local (str): the output file. default to :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}``
+        dst_gee (str): the output assetId. default to :code:`dst_dir/f'{src_gee.stem}_reclass``
+        remaped (int): state var updated each time an input is remapped
+        
+    Args:
+        gee (bool): either or not to set :code:`gee` to True
+        dst_dir (str): the destination forlder for outputs
+    """
+    
+    # inputs 
     # should be unicode but we need to handle when nothing is set (None)
-    
-    # parameters of the model linked to widgets
     band = Any(None).tag(sync=True)
     src_local = Any(None).tag(sync=True)
     src_gee = Any(None).tag(sync=True)
     dst_class_file = Any(None).tag(sync=True)
+    dst_dir = Any(None).tag(sync=True)
+    gee = Bool(False).tag(sync=True)
     
     # data manipulation
     matrix = Dict({}).tag(sync=True)
     
+    # outputs
+    input_type = Bool(False).tag(sync=True) # 1 raster, 0 vector
+    src_class = Any(None).tag(sync=True)
+    dst_class = Any(None).tag(sync=True)
+    dst_local = Any(None).tag(sync=True)
+    dst_gee = Any(None).tag(sync=True)
+    
     # Create a state var, to determine if an asset has been remaped
-    remaped = Bool(False).tag(sync=True)
+    remaped = Int(False).tag(sync=True)
     
     def __init__(self, gee=False, dst_dir=None, **kwargs):
         
@@ -40,20 +68,18 @@ class ReclassifyModel(Model):
         
         # save the folder where the results should be stored
         # only used for local export
-        self.dst_dir = Path(dst_dir) if dst_dir else Path.home()
+        self.dst_dir = str(Path(dst_dir) if dst_dir else Path.home())
         
         # save relation with gee 
         self.gee = gee
         
-        # init output to None 
-        self.input_type = None # 1 raster, 0 vector
-        self.src_class = None
-        self.dst_class = None
-        self.dst_local = None
-        self.dst_gee = None
-        
     def get_dst_classes(self):
-        """extract the classes from the class file"""
+        """
+        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
+        
+        Return:
+            (dict): the dict of the destination classes using following format {code: desc}
+        """
         
         df = pd.read_csv(self.dst_class_file, header=None)
         
@@ -69,7 +95,10 @@ class ReclassifyModel(Model):
     
     def get_type(self):
         """
-        Guess the type of the input and set the input type attribute for the model
+        Guess the type of the input and set the input type attribute for the model (vector or raster)
+        
+        Return:
+            (bool): the type of input (1 for raster, 0 for vector)
         """
         
         if self.gee: 
@@ -96,12 +125,14 @@ class ReclassifyModel(Model):
             else:
                 raise AttributeError("wrong type")
                 
-        return self
+        return self.input_type
     
     def get_bands(self):
         """
-        based on the input type and use the appropriate band request 
-        get the available bands/feature from the input
+        Use the input_type to extract all the bands/properties from the input
+        
+        Return:
+            (list): sorted list of all the available bands/properties as integer or str
         """
     
         @su.need_ee
@@ -138,7 +169,10 @@ class ReclassifyModel(Model):
     
     def unique(self):
         """
-        Retreive all the existing feature in the input according to the model parameters
+        Retreive all the existing class from the specified band/property according to the input_type
+        
+        Return:
+            (list): the unique class value found in the specified band/property
         """
         
         @su.need_ee
@@ -173,7 +207,6 @@ class ReclassifyModel(Model):
             return features
 
         def _local_vector(self):
-            """get the band list from ee image"""
 
             df = gpd.read_file(self.src_local)
 
@@ -188,7 +221,10 @@ class ReclassifyModel(Model):
     
     def reclassify(self):
         """
-        Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end. vizualization colors will be set.
+        Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
+        
+        Return:
+            self
         """
         
         @su.need_ee
@@ -337,5 +373,10 @@ class ReclassifyModel(Model):
         
         # return the selected function 
         # remember to use self as a parameter
-        return reclassify_func[self.gee][self.input_type](self, matrix) 
+        reclassify_func[self.gee][self.input_type](self, matrix) 
+        
+        # tel the rest of the apps that a reclassification is finished 
+        self.remaped += 1
+        
+        return self
         
