@@ -1,4 +1,4 @@
-from traitlets import Unicode, Any, Dict, List, Bool
+from traitlets import Unicode, Any, Dict, List, Bool, Int
 from pathlib import Path
 
 import pandas as pd
