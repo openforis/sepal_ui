@@ -47,10 +47,10 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         self.edit_icon = v.Icon(children=['mdi-pencil'])
         edit_icon = sw.Tooltip(self.edit_icon, 'Edit selected row', bottom=True)
         
-        self.delete_icon = v.Icon(children=['mdi-delete'])
+        self.delete_icon = v.Icon(children=['mdi-delete'], color='error')
         delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
         
-        self.add_icon = v.Icon(children=['mdi-plus'])
+        self.add_icon = v.Icon(children=['mdi-plus'], color='success')
         add_icon = sw.Tooltip(self.add_icon, 'Create a new element',  bottom=True)
         
         self.save_icon = v.Icon(children=['mdi-content-save'])
@@ -64,7 +64,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
                 self.save_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
-                v.Flex(class_='ml-auto', children=[edit_icon, delete_icon, add_icon]),
+                v.Flex(class_='ml-auto', children=[add_icon, edit_icon, delete_icon]),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
                 save_icon
             ]
@@ -477,7 +477,7 @@ class TableView(v.Card, sw.SepalWidget):
         
     """
     
-    def __init__(self, class_path=None, **kwargs):
+    def __init__(self, class_path=Path.home(), out_path=Path.home()/'downloads', **kwargs):
         
         # set some default params 
         self.class_ = 'pa-2'
@@ -486,8 +486,8 @@ class TableView(v.Card, sw.SepalWidget):
         super().__init__(**kwargs)
         
         # set the folders
-        self.class_path = Path(class_path) if class_path else Path.home()
-        self.out_path = Path(out_path) if out_path else Path.home()/'downloads'
+        self.class_path = Path(class_path)
+        self.out_path = Path(out_path)
         
         # set a title to the card
         title = v.CardTitle(children=["Classification editor"])
@@ -499,7 +499,7 @@ class TableView(v.Card, sw.SepalWidget):
             folder = self.class_path
         )
         
-        self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, class_='ml-2')
+        self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, icon='mdi-table', color='success')
         
         ep_optional_file = v.ExpansionPanels(children=[v.ExpansionPanel(class_='ma-5', children=[
             v.ExpansionPanelHeader(children=['Select preexisting table']),

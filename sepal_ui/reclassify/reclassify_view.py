@@ -1,23 +1,21 @@
-import os
-from functools import partial
 from pathlib import Path
 from traitlets import List, Dict, Int, link
+
 import ipyvuetify as v
 import ee
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
-
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
         
 class ComboSelect(v.Select, sw.SepalWidget):
     """
-    Custom select to pick values from the initial raster. They can be linked to each other to adapt their list of items according to what have already been selected
+    Custom select to pick values from the input classification. They can be linked to each other to adapt their list of items according to what have already been selected/deselected. 
     
     Args:
         new_code (int): the code of the new class 
-        codes (list(int)): the complete list of values available in the raster
+        codes (list(int)): the complete list of values available in the inputs
     """
     
     def __init__(self, new_code, codes, **kwargs):
@@ -38,7 +36,13 @@ class ComboSelect(v.Select, sw.SepalWidget):
         
     def link_combos(self, combo_list):
         """
-        Synchronise all the combo select so that any value that is already selected cannot be reselected
+        Synchronise all the combo select so that any value that is already selected cannot be reselected. Using the same process, once a value is freed elswhere, it is repopulated in every ComboSelect.
+        
+        Args:
+            combo_list (list): the list of the other COmboSelect that share the same list of items
+        
+        Return:
+            self
         """
         
         # remove self from the combo list
@@ -54,7 +58,7 @@ class ComboSelect(v.Select, sw.SepalWidget):
         """change the item list based on the change in another combo"""
         
         # extract the dif between the 2 lists
-        diff = list(set(change['old']).symmetric_difference(change['new']))[0] # I assume that there is only one
+        diff = list(set(change['old']).symmetric_difference(change['new']))[0] # I assume that there is only one change
         remove = len(change['old']) > len(change['new'])
         
         # adapt the item list 
@@ -69,13 +73,17 @@ class ComboSelect(v.Select, sw.SepalWidget):
 class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     """
     Table to store the reclassifying information. 
-    2 columns are integrated, the new class value and the value in the original asset/raster
+    2 columns are integrated, the new class value and the values in the original input
     One can select multiple class to be reclassify in the new classification
     
     Args:
         model (ReclassifyModel): model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
         dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-        src_classes (list|optional): the list of existing values within the asset/raster
+        src_classes (list|optional): the list of existing values within the input file
+        
+    Attributes:
+        HEADER (list): name of the column header (to, from)
+        model (ReclassifyModel): the reclassifyModel object to manipulate the input file and save parameters
     """
     
     HEADERS = ['To: Custom Code', 'From: user code']
@@ -89,17 +97,20 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         self.model = model
         
         # create the table elements
-        self.header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
+        self._header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
         self.set_table(dst_classes, src_classes)
         
         
     def set_table(self, dst_classes, src_classes):
         """
-        rebuild the table content based on the new_classes and codes provided
+        Rebuild the table content based on the new_classes and codes provided
         
         Args:
             dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
             src_classes (list|optional): the list of existing values within the asset/raster
+            
+        Return:
+            self
         """
         
         # reset the matrix
@@ -119,12 +130,12 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             ]) for code, name in dst_classes.items()
         ]
         
-        self.children = [v.Html(tag='tbody', children= self.header + rows)]
+        self.children = [v.Html(tag='tbody', children= self._header + rows)]
         
         return self
     
     def _update_matrix_values(self, change):
-        """update the appropriate matrix value when a Combo select change"""
+        """Update the appropriate matrix value when a Combo select change"""
         
         # get the code of the class in the dst classification
         code = change['owner']._metadata['class']
@@ -135,21 +146,49 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         return self
         
 class ReclassifyView(v.Card):
-
-    def __init__(self, model=None, folder=None, gee=False, save=True, **kwargs):
+    """
+    Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE). 
+    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app.
+    
+    Args:
+        model (ReclassifyModel): the reclassify model to manipulate the classification dataset. default to a new one
+        class_path (str|optional): Folder path containing already existing classes. Default to ~/
+        out_path (str|optional): the folder to save the created classifications. default to ~/downloads
+        gee (bool): either or not to set :code:`gee` to True. default to False
         
+    Attributes:
+        model (ReclassifyModel): the reclassify model to manipulate the classification dataset
+        gee (bool): either being linked to gee or not (use local file or GEE asset for the rest of the app)
+        alert (sw.Alert): the alert to display informations about computation
+        title (v.Cardtitle): the title of the card
+        w_asset (sw.AssetSelect): the widget to select an asset input 
+        w_raster (sw.FileInput): the widget to select a file input
+        w_image (Any): wraper of the input. linked to w_asset if gee=True, else to w_raster
+        w_band (int|str): widget to select the band/property used as init classification in the input file
+        get_table_btn (sw.Btn): the btn to load the data in the reclassification table
+        w_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
+        reclassify_table (ReclassifyTable): the reclassification table populated via the previous widgets
+        reclassify_btn (sw.Btn): the btn to launch the reclassifying process
+    """
+
+    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, **kwargs):
+        
+        # init card parameters
         self.class_='pa-2'
         
+        # create the object
         super().__init__(**kwargs)
         
-        # create a default model 
-        self.model = model if model else ReclassifyModel(gee=gee)
+        # set up a default model 
+        self.model = model if model else ReclassifyModel(gee=gee, dst_dir=out_path)
         
-        # save the object parameters 
-        self.save = save # rember if the reclassify asset needs to be saved
-        self.folder = Path(folder) if folder else Path.home() # save rasters in a specific folder
+        # set the folders
+        self.class_path = Path(class_path)
+        self.out_path = Path(out_path)
+        
+        # save the gee binding
         self.gee = gee
-        if gee: ee.Initialize() # save the gee binding
+        if gee: ee.Initialize() 
         
         # create an alert to display information to the user
         self.alert = sw.Alert()
@@ -158,13 +197,13 @@ class ReclassifyView(v.Card):
         self.title = v.CardTitle(children=['Reclassify image'])
             
         self.w_asset = sw.AssetSelect(label=ms.reclassify.gee.widgets.asset_label)
-        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.reclassify.class_file_label, folder=self.folder)
+        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.reclassify.class_file_label)
         self.w_image = self.w_asset if self.gee else self.w_raster
         self.w_band = v.Select(label="Select band", hint="The band to use or the vector feature", v_model = None, items=[], persistent_hint=True)
         
         self.get_table_btn = sw.Btn(ms.reclassify.get_table_btn, 'mdi-table',class_='ma-5', color='success')
         
-        self.w_class_file = sw.FileInput(['.csv'], label="Select classification system", folder=self.folder)
+        self.w_class_file = sw.FileInput(['.csv'], label="Select classification system", folder=self.class_path)
         action_image = v.Flex(class_="d-flex", children=[self.w_image, self.get_table_btn])
         
         self.reclassify_table = ReclassifyTable(self.model)
@@ -195,15 +234,18 @@ class ReclassifyView(v.Card):
         self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(self.reclassify)
         self.get_reclassify_table = loading_button(self.alert, self.get_table_btn, debug=True)(self.get_reclassify_table)
 
-        # Events
+        # JS Events
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table_btn.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
 
-    def reclassify(self, *args, save=False):
+    def reclassify(self, widget, event, data):
         """
         Reclassify the input and store it in the appropriate format.
-        We don't store the input locally to avoid memory overload.
+        The input is not saved locally to avoid memory overload.
+        
+        Return:
+            self
         """
         
         # create the output file 
@@ -212,9 +254,7 @@ class ReclassifyView(v.Card):
         return self
 
     def _update_band(self, change):
-        """
-        Update the band possibility to the availabel band of the raster/asset
-        """
+        """Update the band possibility to the available bands/properties of the input"""
         
         # guess the file type and save it in the model 
         self.model.get_type()
@@ -229,9 +269,12 @@ class ReclassifyView(v.Card):
         """
         Display a reclassify table which will lead the user to select
         a local code 'from user' to a target code based on a classes file
+        
+        Return:
+            self
         """
         
-        # check that everythin is set 
+        # check that everything is set 
         if not self.w_image.v_model: raise Exception('missing image')
         if not self.w_band.v_model: raise Exception('missing band')
         if not self.w_class_file.v_model: raise Exception('missing file')
