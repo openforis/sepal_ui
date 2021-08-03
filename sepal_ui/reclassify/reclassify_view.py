@@ -293,4 +293,22 @@ class ReclassifyView(v.Card):
         self.reclassify_btn.disabled = False
         
         return self
+    
+    def nest_tile(self):
+        """
+        Prepare the view to be used as a nested component in a tile. the elevation will be set to 0 and the title remove from children
+        
+        Return:
+            self
+        """
+        
+        # remove elevation 
+        self.elevation =  False
+        
+        # remove title 
+        without_title = self.children.copy()
+        without_title.remove(self.title)
+        self.children = without_title
+        
+        return self
         

@@ -105,7 +105,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         """
         
         # If there is not any file passed as an argument, populate and empy table
-        if not item_file:
+        if not items_file:
             self.items = []
             return self
         
@@ -113,17 +113,18 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         
         items = []
         # read the file using pandas
-        df = pd.read_csv(items_path, header=None)
+        df = pd.read_csv(items_file, header=None)
         
         # small sanity check 
-        if len(df.columns)<2 or len(df.columns)>3:
+        if not len(df.columns) in [2,3]:
             raise Exception('The file is not a valid classification file')
         
         # add a color column if necessary 
         if len(df.columns) == 2:
             df[2] = ['#000000' for _ in range(len(df))]
         
-        self.items = [dict(zip(self.SCHEMA, [i] + row.tolist()) for i, row in df.iterrows())]
+        # set the lines
+        self.items = [dict(zip(self.SCHEMA, [i] + row.tolist())) for i, row in df.iterrows()]
         
         return self
     
@@ -468,6 +469,7 @@ class TableView(v.Card, sw.SepalWidget):
         out_path (str|optional): the folder to save the created classifications. default to ~/downloads
         
     Attributes:
+        title (v.CardTitle): the title of the card
         class_path (str|optional): Folder path containing already existing classes
         out_path (str|optional): the folder to save the created classifications
         w_class_file (sw.FileInput): the file input of the existing classification system
@@ -490,7 +492,7 @@ class TableView(v.Card, sw.SepalWidget):
         self.out_path = Path(out_path)
         
         # set a title to the card
-        title = v.CardTitle(children=[v.Html(tag='h2', children=["Classification editor"])])
+        self.title = v.CardTitle(children=[v.Html(tag='h2', children=["Classification editor"])])
         
         # add the widgets
         w_class_title = v.Html(tag='h2', children=['Select preexisting table'], class_='mt-2')
@@ -510,7 +512,7 @@ class TableView(v.Card, sw.SepalWidget):
         
         # assemble a layout
         self.children=[
-            title,
+            self.title,
             w_class_title, self.w_class_file, self.btn,
             self.alert,
             w_table_title, self.w_class_table
@@ -530,5 +532,23 @@ class TableView(v.Card, sw.SepalWidget):
 
         # load the existing file into the table
         self.w_class_table.populate_table(self.w_class_file.v_model)
+        
+        return self
+    
+    def nest_tile(self):
+        """
+        Prepare the view to be used as a nested component in a tile. the elevation will be set to 0 and the title remove from children
+        
+        Return:
+            self
+        """
+        
+        # remove elevation 
+        self.elevation =  False
+        
+        # remove title 
+        without_title = self.children.copy()
+        without_title.remove(self.title)
+        self.children = without_title
         
         return self
