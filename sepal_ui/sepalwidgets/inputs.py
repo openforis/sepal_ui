@@ -214,6 +214,8 @@ class FileInput(v.Flex, SepalWidget):
         # select the appropriate file 
         self._on_file_select({'new': path})
         
+        return self
+        
     def _on_file_select(self, change):
         """Dispatch the behavior between file selection and folder change"""
         

@@ -12,11 +12,18 @@ class ReclassifyTile(sw.Tile):
     All in one tile to reclassify GEE assets or local raster and create custom classifications
         
     Args:
-        results_dir (str|pathlike object) : Directory to store the outputs (rasters, and csv_files). default to ~/downloads
-        gee (bool) : Use GEE variant, to reclassify assets or local input. default True
+        results_dir (str|pathlike object): Directory to store the outputs (rasters, and csv_files). default to ~/downloads
+        gee (bool): Use GEE variant, to reclassify assets or local input. default True
+        default_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+        
+    Attributes: 
+        result_dir (pathlib.Path): Directory to store the outputs (rasters, and csv_files).
+        model (ReclassifyModel): the reclassify model to use with these inputs
+        reclassify_view (ReclassifyView): a fully qualified ReclassifyView object
+        table_view (TableView): a fully qualified TableView object
     """
     
-    def __init__(self, results_dir=Path.home()/'downloads', gee=True, **kwargs):
+    def __init__(self, results_dir=Path.home()/'downloads', gee=True, default_class=None, **kwargs):
         
         # output directory
         self.results_dir = Path(results_dir)
@@ -25,13 +32,13 @@ class ReclassifyTile(sw.Tile):
         self.model = rec.ReclassifyModel(dst_dir=self.results_dir, gee=gee)
         
         # set the tabs elements
-        self.reclassify_view = rec.ReclassifyView(self.model, out_path=self.results_dir, gee=gee).nest_tile()        
+        self.reclassify_view = rec.ReclassifyView(self.model, out_path=self.results_dir, gee=gee, default_class=default_class).nest_tile()        
         self.table_view = rec.TableView(out_path=self.results_dir).nest_tile()
         
         # create the tab 
         tiles = [self.reclassify_view, self.table_view]
         
-        self.tabs = v.Tabs(
+        self._tabs = v.Tabs(
             class_='mt-5',
             grow=True,
             #background_color='grey darken-4',
@@ -42,7 +49,7 @@ class ReclassifyTile(sw.Tile):
             ]
         )
         
-        self.content = v.TabsItems(
+        self._content = v.TabsItems(
             v_model=0,
             children=[
                 v.TabItem(children=[t], key=i) 
@@ -53,9 +60,9 @@ class ReclassifyTile(sw.Tile):
         super().__init__(
             id_ = 'reclassify_tile',
             title = ms.rec.tile.title,
-            inputs = [self.tabs, self.content],
+            inputs = [self._tabs, self._content],
             **kwargs
         )
         
         # js interaction
-        link((self.tabs, 'v_model'),(self.content, 'v_model'))
+        link((self._tabs, 'v_model'),(self._content, 'v_model'))

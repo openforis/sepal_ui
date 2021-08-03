@@ -158,9 +158,10 @@ class ReclassifyView(v.Card):
     
     Args:
         model (ReclassifyModel): the reclassify model to manipulate the classification dataset. default to a new one
-        class_path (str|optional): Folder path containing already existing classes. Default to ~/
-        out_path (str|optional): the folder to save the created classifications. default to ~/downloads
+        class_path (str,optional): Folder path containing already existing classes. Default to ~/
+        out_path (str,optional): the folder to save the created classifications. default to ~/downloads
         gee (bool): either or not to set :code:`gee` to True. default to False
+        default_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the classification dataset
@@ -177,7 +178,7 @@ class ReclassifyView(v.Card):
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
 
-    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, **kwargs):
+    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, default_class=None, **kwargs):
         
         # create metadata to make it compatible with the framwork app system
         self._metadata = {'mount_id':'reclassify_tile'}
@@ -213,6 +214,8 @@ class ReclassifyView(v.Card):
         
         w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-2')
         self.w_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
+        if default_class:
+            self.w_class_file.select_file(default_class).hide()
         
         self.get_table_btn = sw.Btn(ms.rec.rec.input.btn, 'mdi-table',class_='ma-5', color='success', outlined=True)
         
