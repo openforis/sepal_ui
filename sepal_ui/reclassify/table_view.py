@@ -303,15 +303,21 @@ class EditDialog(v.Dialog):
         """Modify elements in the data_table and close the dialog"""
         
         # modify a local copy of the items
+        # modifying does not trigger the display so a dummy element is also added
+        # just to be removed afterward
         current_items = self.table.items.copy()
         for i, item in enumerate(current_items):
             if item['id'] == self.widgets[0].v_model:
                 for j, w in enumerate(self.widgets):
                     val = w.v_model if j != 3 else w.v_model['hex']
                     current_items[i][self.table.SCHEMA[j]] = val
+        current_items.append([str(e) for e in [0, 0, 'niet', '#000000']])
         
         # update the table values
         self.table.items = current_items
+        
+        # remove the dummy element to trigger the display
+        self.table.items = self.table.items.copy()[:-1]
         
         # hide the dialog
         self.v_model=False
