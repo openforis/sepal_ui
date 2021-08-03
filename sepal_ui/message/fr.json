@@ -37,5 +37,79 @@
     },
         "mapping": {
         "no_image": "Le fichier image n'existe pas."
+    },
+    "rec": {
+        "table": {
+            "title": "Editeur de classification",
+            "classif": {
+                "title": "Selectionnez une classification existante",
+                "file_select": "fichier de classes",
+                "btn": "Récuperer table"
+            },
+            "table": "Table de classification",
+            "schema": ["id", "code", "description", "couleur"],
+            "btn": {
+                "edit": "editer",
+                "save": "sauver",
+                "add": "ajouter",
+                "delete": "supprimer"
+            },
+            "edit_dialog": {
+                "titles": ["Nouvel élément", "modifier un élément"],
+                "btn": {
+                    "save": {
+                        "name": "sauver",
+                        "tooltip": "creer une nouvelle classe"
+                    },
+                    "modify": {
+                        "name": "modifier",
+                        "tooltip": "modifier une classe existante"
+                    },
+                    "cancel": {
+                        "name": "annuler",
+                        "tooltip": "annuler l'operation"
+                    }
+                }
+            },
+            "save_dialog": {
+                "filename": "Inserer un nom de fichier de sortie",
+                "placeholder": "nouvelle_table",
+                "btn": {
+                    "save": {
+                        "name": "sauver",
+                        "tooltip": "sauver la table"
+                    },
+                    "cancel": {
+                        "name": "annuler",
+                        "tooltip": "annuler l'opération"
+                    }
+                },
+                "title": "sauver la table de classification",
+                "info": "la table sera sauvegardé dans {}"
+            }
+        },
+        "rec": {
+            "title": "Reclassificateur d'image",
+            "headers": ["Vers (nouveau code)", "Depuis (codes d'origine)From: user code"],
+            "input": {
+                "title": "Selectionner les entrées de classification",
+                "asset": "Asset",
+                "file": "fichier",
+                "band": {
+                    "label": "selectionner bande/propriétée",
+                    "hint": "la bande/propriété à utiliser pour les classes de référence"
+                },
+                "classif": {
+                    "title": "Selectionner la classification de destination",
+                    "label": "fichier de classif"
+                },
+                "btn": "Récupérer la table"
+            },
+            "table": "Table de reclassification",
+            "btn": "Reclassifer"
+        },
+        "tile": {
+            "title": "Reclassification"
+        }
     }
 }

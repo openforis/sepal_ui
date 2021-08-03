@@ -42,7 +42,7 @@
         "table": {
             "title": "Classification editor",
             "classif": {
-                "title": "select preexisting table",
+                "title": "select existing table",
                 "file_select": "Class file",
                 "btn": "Get table"
             },
@@ -90,7 +90,7 @@
         },
         "rec": {
             "title": "Reclassify image",
-            "headers": ["To: Custom Code", "From: user code"],
+            "headers": ["To (new code)", "From (init codes)"],
             "input": {
                 "title": "Select input classification",
                 "asset": "input asset",
