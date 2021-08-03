@@ -205,7 +205,7 @@ class ReclassifyView(v.Card):
         w_class_title = v.Html(tag='h2', children=['Select destination classification system'], class_='mt-2')
         self.w_class_file = sw.FileInput(['.csv'], label="class file", folder=self.class_path)
         
-        self.get_table_btn = sw.Btn('Get table', 'mdi-table',class_='ma-5', color='success')
+        self.get_table_btn = sw.Btn('Get table', 'mdi-table',class_='ma-5', color='success', outlined=True)
         
         w_table_title = v.Html(tag='h2', children=['Reclassify table'], class_='mt-2')
         self.reclassify_table = ReclassifyTable(self.model)

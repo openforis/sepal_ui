@@ -44,17 +44,17 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # create the 4 CRUD btn 
         # and set them in the top slot of the table
-        self.edit_icon = v.Icon(children=['mdi-pencil'])
-        edit_icon = sw.Tooltip(self.edit_icon, 'Edit selected row', bottom=True)
+        self.edit_btn = sw.Btn('edit', icon='mdi-pencil', class_='ml-2 mr-2', color='secondary', small=True) #v.Icon(children=['mdi-pencil'])
+        #edit_icon = sw.Tooltip(self.edit_icon, 'Edit selected row', bottom=True)
         
-        self.delete_icon = v.Icon(children=['mdi-delete'], color='error')
-        delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
+        self.delete_btn = sw.Btn('delete', icon='mdi-delete', color='error', small=True) #v.Icon(children=['mdi-delete'], color='error')
+        #delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
         
-        self.add_icon = v.Icon(children=['mdi-plus'], color='success')
-        add_icon = sw.Tooltip(self.add_icon, 'Create a new element',  bottom=True)
+        self.add_btn = sw.Btn('add', icon='mdi-plus', color='success', small=True) #v.Icon(children=['mdi-plus'], color='success')
+        #add_icon = sw.Tooltip(self.add_icon, 'Create a new element',  bottom=True)
         
-        self.save_icon = v.Icon(children=['mdi-content-save'])
-        save_icon = sw.Tooltip(self.save_icon, 'Write current table on SEPAL space',  bottom=True)
+        self.save_btn = sw.Btn('save', icon='mdi-content-save', small=True) #v.Icon(children=['mdi-content-save'])
+        #save_icon = sw.Tooltip(self.save_icon, 'Write current table on SEPAL space',  bottom=True)
         
         slot = v.Toolbar(
             class_='d-flex mb-6',
@@ -64,9 +64,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
                 self.save_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
-                v.Flex(class_='ml-auto', children=[add_icon, edit_icon, delete_icon]),
+                v.Flex(class_='ml-auto', children=[self.add_btn, self.edit_btn, self.delete_btn]),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
-                save_icon
+                self.save_btn
             ]
         )
         
@@ -88,10 +88,10 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         super().__init__(**kwargs)
         
         # js events
-        self.edit_icon.on_event('click', self._edit_event)
-        self.delete_icon.on_event('click', self._remove_event)
-        self.add_icon.on_event('click', self._add_event)
-        self.save_icon.on_event('click', self._save_event)
+        self.edit_btn.on_event('click', self._edit_event)
+        self.delete_btn.on_event('click', self._remove_event)
+        self.add_btn.on_event('click', self._add_event)
+        self.save_btn.on_event('click', self._save_event)
         
     def populate_table(self, items_file=None):
         """ 
@@ -500,8 +500,9 @@ class TableView(v.Card, sw.SepalWidget):
             folder = self.class_path
         )
         
-        self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, icon='mdi-table', color='success')
+        self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, icon='mdi-table', color='success', outlined=True)
         
+        w_table_title = v.Html(tag='h2', children=['Classification table'], class_='mt-5')
         self.w_class_table = ClassTable(out_path=self.out_path, class_='mt-5')
         
         # create an alert to display error and outputs
@@ -512,7 +513,7 @@ class TableView(v.Card, sw.SepalWidget):
             title,
             w_class_title, self.w_class_file, self.btn,
             self.alert,
-            self.w_class_table
+            w_table_title, self.w_class_table
         ]
         
         # Events
