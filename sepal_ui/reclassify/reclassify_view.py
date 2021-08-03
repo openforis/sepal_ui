@@ -174,7 +174,7 @@ class ReclassifyView(v.Card):
     def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, **kwargs):
         
         # init card parameters
-        self.class_='pa-2'
+        self.class_='pa-5'
         
         # create the object
         super().__init__(**kwargs)
@@ -194,18 +194,20 @@ class ReclassifyView(v.Card):
         self.alert = sw.Alert()
                 
         # create the widgets
-        self.title = v.CardTitle(children=['Reclassify image'])
-            
-        self.w_asset = sw.AssetSelect(label=ms.reclassify.gee.widgets.asset_label)
-        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.reclassify.class_file_label)
+        self.title = v.CardTitle(children=[v.Html(tag='h2', children=['Reclassify image'])])
+        
+        w_input_title = v.Html(tag='h2', children=['Select input classification'], class_='mt-2')
+        self.w_asset = sw.AssetSelect(label='input asset')
+        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label='input file')
         self.w_image = self.w_asset if self.gee else self.w_raster
         self.w_band = v.Select(label="Select band", hint="The band to use or the vector feature", v_model = None, items=[], persistent_hint=True)
         
-        self.get_table_btn = sw.Btn(ms.reclassify.get_table_btn, 'mdi-table',class_='ma-5', color='success')
+        w_class_title = v.Html(tag='h2', children=['Select destination classification system'], class_='mt-2')
+        self.w_class_file = sw.FileInput(['.csv'], label="class file", folder=self.class_path)
         
-        self.w_class_file = sw.FileInput(['.csv'], label="Select classification system", folder=self.class_path)
-        action_image = v.Flex(class_="d-flex", children=[self.w_image, self.get_table_btn])
+        self.get_table_btn = sw.Btn('Get table', 'mdi-table',class_='ma-5', color='success')
         
+        w_table_title = v.Html(tag='h2', children=['Reclassify table'], class_='mt-2')
         self.reclassify_table = ReclassifyTable(self.model)
         
         self.reclassify_btn = sw.Btn(ms.reclassify.reclassify_btn, 'mdi-checkerboard', class_='ml-2 my-2',disabled=True)
@@ -221,12 +223,11 @@ class ReclassifyView(v.Card):
         # create the layout
         self.children = [
             self.title,
-            self.alert,
-            self.w_image, 
-            self.w_band,
-            self.w_class_file,
+            w_input_title, self.w_image, self.w_band,
+            w_class_title, self.w_class_file,
             self.get_table_btn,
-            self.reclassify_table,
+            self.alert,
+            w_table_title, self.reclassify_table,
             self.reclassify_btn
         ]
              
