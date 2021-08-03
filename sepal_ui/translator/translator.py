@@ -20,9 +20,13 @@ class Translator(SimpleNamespace):
     Attributes:
         default_dict (dict): the source language dictionary
         target_dict (dict): the target language dictionary 
+        FORBIDDEN_KEYS (const list): list of the forbidden keys. using one of them in a translation dict will throw an error
         (keys): all the keys can be acceced as attributes. make sure to never use default_dict and target_dict
     
     """
+    
+    FORBIDDEN_KEYS = ['default_dict', 'target_dict', 'in', 'class']
+    
     def __init__(self, json_folder, target_lan, default_lan='en'):
         
         super().__init__()
@@ -48,8 +52,7 @@ class Translator(SimpleNamespace):
         ms_dict = self._update(self.default_dict, self.target_dict)
         
         # verify if 'default_dict' or 'target_dict' is in use
-        self.search_key(ms_dict, 'default_dict')
-        self.search_key(ms_dict, 'target_dict')
+        [self.search_key(ms_dict, k) for k in self.FORBIDDEN_KEYS]
         
         # transform it into a json str
         ms_json = json.dumps(ms_dict)
