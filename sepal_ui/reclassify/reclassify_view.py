@@ -130,6 +130,12 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
             ]) for code, name in dst_classes.items()
         ]
         
+        # add an empty row at the end to make the table more visible when it's empty 
+        rows += [v.Html(tag='tr', children=[
+            v.Html(tag='td', children=['']),
+            v.Html(tag='td', children=['' if len(dst_classes) else 'No data available'])
+        ])]
+        
         self.children = [v.Html(tag='tbody', children= self._header + rows)]
         
         return self
