@@ -50,6 +50,29 @@ class Tile(v.Layout, SepalWidget):
             **kwargs
         )
         
+    def nest_tile(self):
+        """
+        Prepare the tile to be used as a nested component in a tile. 
+        the elevation will be set to 0 and the title remove from children.
+        The mount_id will also be changed to nested
+        
+        Return:
+            self
+        """
+        
+        # remove id 
+        self._metadata['mount_id'] = 'nested_tile'
+        
+        # remove elevation 
+        self.elevation =  False
+        
+        # remove title 
+        without_title = self.children[0].children.copy()
+        without_title.remove(self.title)
+        self.children[0].children = without_title
+        
+        return self
+        
     def set_content(self, inputs):
         """
         Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
@@ -64,10 +87,10 @@ class Tile(v.Layout, SepalWidget):
         # create the widgets 
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
         
-        # add the title  
-        content = [self.children[0].children[0]] + content
-        
         # add the output (if existing)
+        if self.title:
+            content = [self.title] + content
+            
         if self.alert:
             content = content + [self.alert]
             
