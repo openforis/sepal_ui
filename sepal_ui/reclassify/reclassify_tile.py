@@ -15,8 +15,6 @@ class ReclassifyTile(sw.Tile):
     """
     
     def __init__(self, results_dir=Path.home()/'downloads', gee=True, **kwargs):
-
-        self._metadata = {'mount_id':'reclassify_tile'}
         
         # output directory
         self.results_dir = Path(results_dir)

@@ -468,7 +468,7 @@ class SaveDialog(v.Dialog):
 
 class TableView(v.Card, sw.SepalWidget):
     """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color.
+    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
         
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
@@ -486,6 +486,9 @@ class TableView(v.Card, sw.SepalWidget):
     """
     
     def __init__(self, class_path=Path.home(), out_path=Path.home()/'downloads', **kwargs):
+        
+        # create metadata to make it compatible with the framwork app system
+        self._metadata = {'mount_id':'reclassify_tile'}
         
         # set some default params 
         self.class_ = 'pa-5'
@@ -543,11 +546,16 @@ class TableView(v.Card, sw.SepalWidget):
     
     def nest_tile(self):
         """
-        Prepare the view to be used as a nested component in a tile. the elevation will be set to 0 and the title remove from children
+        Prepare the view to be used as a nested component in a tile. 
+        the elevation will be set to 0 and the title remove from children.
+        The mount_id will also be changed to nested
         
         Return:
             self
         """
+        
+        # remove id 
+        self._metadata['mount_id'] = 'nested_tile'
         
         # remove elevation 
         self.elevation =  False
