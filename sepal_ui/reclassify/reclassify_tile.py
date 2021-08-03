@@ -1,9 +1,11 @@
 from pathlib import Path
+from traitlets import link
+
 import ipyvuetify as v
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui import reclassify as rec
-from traitlets import link
 
 class ReclassifyTile(sw.Tile):
     """
@@ -50,7 +52,7 @@ class ReclassifyTile(sw.Tile):
         
         super().__init__(
             id_ = 'reclassify_tile',
-            title = 'Reclassification',
+            title = ms.rec.tile.title,
             inputs = [self.tabs, self.content],
             **kwargs
         )

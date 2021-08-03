@@ -38,37 +38,78 @@
     "mapping": {
         "no_image": "The image file does not exist."
     },
-    "reclassify": {
-        "class_file_label":"Select a classes file",
-        "get_table_btn" : "Get reclassify table",
-        "reclassify_btn" : "Reclassify",
-        "edit_table_btn" : "Edit table",
-        "get_custom_table_btn" : "Get table",
-        "manual_class" : "Manual classification",
-        "w_code_table": "Select a column",
-        "w_code_image": "Select a band",
-        "raster": {
-            "title": "Reclassify local rasters",
-            "description": "This module will allow you to reclassify your local raster values into a new custom codes. <h2>Usage</h2></br>Navigate over your sepal storage environment and select the input `.tif` image, in the next dropdown use a manual classification if you don't have a classification `.csv` table, otherwise select the corresponding file. </br> Go to the 'Customize Classification' tab in order to create or modify existing classification files, and use them after in the workflow.<br><br>Once you have updated your files, click over the 'Get reclassify table' and choose the target values for each class.",
-            "w_select_raster": "Search raster",
-            "success_reclass" : "File {} succesfully reclassified"
-
-        },
-        "gee": {
-            "title" : "Reclassify Earth Engine Asset",
-            "description" : "This module allows you to reclassify the values of a Google Earth Engine asset (FeatureCollection or Image) into a new custom codes. <h2>Usage</h2> If you have a classes file, search it in the corresponding dropdown list (the list is searching in `../downloads/custom_classification`), otherwise select manual classification. </br> Go to the 'Customize Classification' tab in order to create or modify existing classification files, and use them after in the workflow.</br></br>Once you have updated your files, click over the 'Get reclassify table' and choose the target values for each class.",
-            "widgets" : {
-                "asset_label" : "Select an asset ID"
+    "rec": {
+        "table": {
+            "title": "Classification editor",
+            "classif": {
+                "title": "select preexisting table",
+                "file_select": "Class file",
+                "btn": "Get table"
             },
-            "success_export" : "Task {} successfully created in GEE under asset id: {}",
-            "success_reclass" : "Asset successfully reclassified",
-            "wrong_asset" : "Not recognizable asset type"
+            "table": "Classification table",
+            "schema": ["id", "code", "description", "color"],
+            "btn": {
+                "edit": "edit",
+                "save": "save",
+                "add": "add",
+                "delete": "delete"
+            },
+            "edit_dialog": {
+                "titles": ["New element", "Modify element"],
+                "btn": {
+                    "save": {
+                        "name": "save",
+                        "tooltip": "create new class"
+                    },
+                    "modify": {
+                        "name": "modify",
+                        "tooltip": "modify existing class"
+                    },
+                    "cancel": {
+                        "name": "cancel",
+                        "tooltip": "cancel operation"
+                    }
+                }
+            },
+            "save_dialog": {
+                "filename": "Insert output file name",
+                "placeholder": "new_table",
+                "btn": {
+                    "save": {
+                        "name": "save",
+                        "tooltip": "save table"
+                    },
+                    "cancel": {
+                        "name": "cancel",
+                        "tooltip": "cancel operation"
+                    }
+                },
+                "title": "save classifcation table",
+                "info": "The table will be stored in {}"
+            }
         },
-        "customize" : {
-            "title":"Edit or create new classifications",
-            "new_classification":"New classification",
-            "create_new":"Create new classification",
-            "local": "Local classification"
+        "rec": {
+            "title": "Reclassify image",
+            "headers": ["To: Custom Code", "From: user code"],
+            "input": {
+                "title": "Select input classification",
+                "asset": "input asset",
+                "file": "input file",
+                "band": {
+                    "label": "select band/property",
+                    "hint": "The band/property to use as class reference"
+                },
+                "classif": {
+                    "title": "Select destination classification system",
+                    "label": "class file"
+                },
+                "btn": "get table"
+            },
+            "table": "Reclassify table",
+            "btn": "Reclassify"
+        },
+        "tile": {
+            "title": "Reclassification"
         }
     }
 }

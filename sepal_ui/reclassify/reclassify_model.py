@@ -102,7 +102,7 @@ class ReclassifyModel(Model):
         """
         
         if self.gee: 
-            if not self.src_gee: raise Exception ('no input')
+            if not self.src_gee: raise Exception('Missing gee input')
                 
             asset_info = ee.data.getAsset(self.src_gee)['type']
         
@@ -111,7 +111,7 @@ class ReclassifyModel(Model):
             elif asset_info == 'IMAGE':
                 self.input_type = True
             else:
-                raise AttributeError("wrong type")
+                raise AttributeError(f"Unrecognized asset type: {asset_info}")
                 
         else:
             if not self.src_local: raise Exception ('no input')
@@ -123,7 +123,7 @@ class ReclassifyModel(Model):
             elif input_path.suffix in ['.tif', '.tiff', '.vrt']:
                 self.input_type = True
             else:
-                raise AttributeError("wrong type")
+                raise AttributeError(f"Unrecognized file format: {input_path.suffix}")
                 
         return self.input_type
     

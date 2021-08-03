@@ -31,7 +31,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         out_path (str|optional): output path where table will be saved, default to ~/downloads/
     """
     
-    SCHEMA = ['id', 'code', 'description', 'color']
+    SCHEMA = ms.rec.table.schema
         
     def __init__(self, out_path=Path.home()/'downloads', **kwargs):
         
@@ -44,17 +44,10 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # create the 4 CRUD btn 
         # and set them in the top slot of the table
-        self.edit_btn = sw.Btn('edit', icon='mdi-pencil', class_='ml-2 mr-2', color='secondary', small=True) #v.Icon(children=['mdi-pencil'])
-        #edit_icon = sw.Tooltip(self.edit_icon, 'Edit selected row', bottom=True)
-        
-        self.delete_btn = sw.Btn('delete', icon='mdi-delete', color='error', small=True) #v.Icon(children=['mdi-delete'], color='error')
-        #delete_icon = sw.Tooltip(self.delete_icon, 'Permanently delete the selected row',  bottom=True)
-        
-        self.add_btn = sw.Btn('add', icon='mdi-plus', color='success', small=True) #v.Icon(children=['mdi-plus'], color='success')
-        #add_icon = sw.Tooltip(self.add_icon, 'Create a new element',  bottom=True)
-        
-        self.save_btn = sw.Btn('save', icon='mdi-content-save', small=True) #v.Icon(children=['mdi-content-save'])
-        #save_icon = sw.Tooltip(self.save_icon, 'Write current table on SEPAL space',  bottom=True)
+        self.edit_btn = sw.Btn(ms.rec.table.btn.edit, icon='mdi-pencil', class_='ml-2 mr-2', color='secondary', small=True)
+        self.delete_btn = sw.Btn(ms.rec.table.btn.delete, icon='mdi-delete', color='error', small=True)
+        self.add_btn = sw.Btn(ms.rec.table.btn.add, icon='mdi-plus', color='success', small=True)
+        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon='mdi-content-save', small=True)
         
         slot = v.Toolbar(
             class_='d-flex mb-6',
@@ -117,7 +110,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         
         # small sanity check 
         if not len(df.columns) in [2,3]:
-            raise Exception('The file is not a valid classification file')
+            raise AssertionError(f'The file is not a valid classification file as it has {len(df.columns)} columns instead of 2 or 3')
         
         # add a color column if necessary 
         if len(df.columns) == 2:
@@ -176,7 +169,7 @@ class EditDialog(v.Dialog):
         table (ClassTable, v.DataTable): Table linked with dialog
         
     Attributes:
-        TITLE (list): the list of potential header (translated at the start of the application)
+        TITLES (list): the list of potential header (translated at the start of the application)
         table (classTable): the classTable associated with the dialog 
         title (v.CardTitle): the title of the card ('modify' or 'new')
         save (sw.Btn): the btn to validate the new line and save it in the datatable
@@ -185,7 +178,7 @@ class EditDialog(v.Dialog):
         widgets (list): the list of widget to control the new element state (id, code, description, color) in this order.
     """
     
-    TITLE = ["New element", "Modify element"]
+    TITLES = ms.rec.table.edit_dialog.titles
     
     def __init__(self, table, **kwargs):
 
@@ -193,17 +186,18 @@ class EditDialog(v.Dialog):
         self.table = table
         
         # set the title
-        self.title = v.CardTitle(children=[self.TITLE[0]])
+        self.title = v.CardTitle(children=[self.TITLES[0]])
         
         # Action buttons
-        self.save = sw.Btn('Save')
-        save_tool = sw.Tooltip(self.save, 'Create new element',  bottom=True)
+        btn_txt = ms.rec.table.edit_dialog.btn
+        self.save = sw.Btn(btn_txt.save.name)
+        save_tool = sw.Tooltip(self.save, btn_txt.save.tooltip,  bottom=True)
         
-        self.modify = sw.Btn('Modify').hide() # by default modify is hidden
-        modify_tool = sw.Tooltip(self.modify, 'Update row', bottom=True)
+        self.modify = sw.Btn(btn_txt.modify.name).hide() # by default modify is hidden
+        modify_tool = sw.Tooltip(self.modify, btn_txt.modify.tooltip, bottom=True)
         
-        self.cancel = sw.Btn('Cancel', outlined=True, class_='ml-2')
-        cancel_tool = sw.Tooltip(self.cancel, 'Ignore changes',  bottom=True)
+        self.cancel = sw.Btn(btn_txt.cancel.name, outlined=True, class_='ml-2')
+        cancel_tool = sw.Tooltip(self.cancel, btn_txt.cancel.tooltip,  bottom=True)
         
         actions = v.CardActions(children=[save_tool, modify_tool, cancel_tool])
         
@@ -248,7 +242,7 @@ class EditDialog(v.Dialog):
         """
         
         # change the title accodring to the presence of data
-        self.title.children = [self.TITLE[not any(data)]]
+        self.title.children = [self.TITLES[not any(data)]]
         
         # change the btns visiblity
         if not any(data):
@@ -293,8 +287,8 @@ class EditDialog(v.Dialog):
         # this value should not interfere with the currently existing one. I'll thus just take the biggest +1
         if not any(data):
             self.widgets[0].v_model = 1 if not self.table.items else max([i['id'] for i in self.table.items])+1
-        
-        # activate it
+            
+        # activate the dialog
         self.v_model = True
         
         return self
@@ -311,7 +305,7 @@ class EditDialog(v.Dialog):
                 for j, w in enumerate(self.widgets):
                     val = w.v_model if j != 3 else w.v_model['hex']
                     current_items[i][self.table.SCHEMA[j]] = val
-        current_items.append([str(e) for e in [0, 0, 'niet', '#000000']])
+        current_items.append(['' for _ in range(4)])
         
         # update the table values
         self.table.items = current_items
@@ -390,13 +384,13 @@ class SaveDialog(v.Dialog):
         super().__init__(**kwargs)
         
         # build widgets
-        self.w_file_name = v.TextField(label='Insert output file name', v_model='new_table')
+        self.w_file_name = v.TextField(label=ms.rec.table.save_dialog.filename, v_model=ms.rec.table.save_dialog.placeholder)
         
-        self.save = sw.Btn('Save')
-        save = sw.Tooltip(self.save, 'Save table', bottom=True, class_='pr-2')
+        self.save = sw.Btn(ms.rec.table.save_dialog.btn.save.name)
+        save = sw.Tooltip(self.save, ms.rec.table.save_dialog.btn.save.tooltip, bottom=True, class_='pr-2')
         
-        self.cancel = sw.Btn('Cancel', outlined=True, class_='ml-2')
-        cancel = sw.Tooltip(self.cancel, 'Cancel', bottom=True)
+        self.cancel = sw.Btn(ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_='ml-2')
+        cancel = sw.Tooltip(self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True)
         
         self.alert = sw.Alert()
         
@@ -404,7 +398,7 @@ class SaveDialog(v.Dialog):
         self.children=[v.Card(
             class_='pa-4',
             children=[
-                v.CardTitle(children=['Save table']),
+                v.CardTitle(children=[ms.rec.table.save_dialog.title]),
                 self.w_file_name,
                 self.alert,
                 save,
@@ -428,7 +422,7 @@ class SaveDialog(v.Dialog):
         self.v_model = True
         
         # the message is display after the show so that it's not cut by the display
-        self.alert.add_msg(f'The table will be stored in {self.out_path}')
+        self.alert.add_msg(ms.rec.table.save_dialog.info.format(self.out_path))
         
         return self
         
@@ -501,19 +495,19 @@ class TableView(v.Card, sw.SepalWidget):
         self.out_path = Path(out_path)
         
         # set a title to the card
-        self.title = v.CardTitle(children=[v.Html(tag='h2', children=["Classification editor"])])
+        self.title = v.CardTitle(children=[v.Html(tag='h2', children=[ms.rec.table.title])])
         
         # add the widgets
-        w_class_title = v.Html(tag='h2', children=['Select preexisting table'], class_='mt-2')
+        w_class_title = v.Html(tag='h2', children=[ms.rec.table.classif.title], class_='mt-2')
         self.w_class_file = sw.FileInput(
             extentions = ['.csv'],
-            label='class file',
+            label=ms.rec.table.classif.file_select,
             folder = self.class_path
         )
         
-        self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, icon='mdi-table', color='success', outlined=True)
+        self.btn = sw.Btn(ms.rec.table.classif.btn, icon='mdi-table', color='success', outlined=True)
         
-        w_table_title = v.Html(tag='h2', children=['Classification table'], class_='mt-5')
+        w_table_title = v.Html(tag='h2', children=[ms.rec.table.table], class_='mt-5')
         self.w_class_table = ClassTable(out_path=self.out_path, class_='mt-5')
         
         # create an alert to display error and outputs

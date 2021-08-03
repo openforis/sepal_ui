@@ -86,7 +86,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         model (ReclassifyModel): the reclassifyModel object to manipulate the input file and save parameters
     """
     
-    HEADERS = ['To: Custom Code', 'From: user code']
+    HEADERS = ms.rec.rec.headers
     
     def __init__(self, model, dst_classes={}, src_classes=[], **kwargs):
         
@@ -203,23 +203,23 @@ class ReclassifyView(v.Card):
         self.alert = sw.Alert()
                 
         # create the widgets
-        self.title = v.CardTitle(children=[v.Html(tag='h2', children=['Reclassify image'])])
+        self.title = v.CardTitle(children=[v.Html(tag='h2', children=[ms.rec.rec.title])])
         
-        w_input_title = v.Html(tag='h2', children=['Select input classification'], class_='mt-2')
-        self.w_asset = sw.AssetSelect(label='input asset')
-        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label='input file')
+        w_input_title = v.Html(tag='h2', children=[ms.rec.rec.input.title], class_='mt-2')
+        self.w_asset = sw.AssetSelect(label=ms.rec.rec.input.asset)
+        self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.rec.rec.input.file)
         self.w_image = self.w_asset if self.gee else self.w_raster
-        self.w_band = v.Select(label="Select band", hint="The band to use or the vector feature", v_model = None, items=[], persistent_hint=True)
+        self.w_band = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model = None, items=[], persistent_hint=True)
         
-        w_class_title = v.Html(tag='h2', children=['Select destination classification system'], class_='mt-2')
-        self.w_class_file = sw.FileInput(['.csv'], label="class file", folder=self.class_path)
+        w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-2')
+        self.w_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
         
-        self.get_table_btn = sw.Btn('Get table', 'mdi-table',class_='ma-5', color='success', outlined=True)
+        self.get_table_btn = sw.Btn(ms.rec.rec.input.btn, 'mdi-table',class_='ma-5', color='success', outlined=True)
         
-        w_table_title = v.Html(tag='h2', children=['Reclassify table'], class_='mt-2')
+        w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-2')
         self.reclassify_table = ReclassifyTable(self.model)
         
-        self.reclassify_btn = sw.Btn(ms.reclassify.reclassify_btn, 'mdi-checkerboard', class_='ml-2 my-2',disabled=True)
+        self.reclassify_btn = sw.Btn(ms.rec.rec.btn, 'mdi-checkerboard', disabled=True)
         
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
@@ -285,9 +285,9 @@ class ReclassifyView(v.Card):
         """
         
         # check that everything is set 
-        if not self.w_image.v_model: raise Exception('missing image')
-        if not self.w_band.v_model: raise Exception('missing band')
-        if not self.w_class_file.v_model: raise Exception('missing file')
+        if not self.w_image.v_model: raise AttributeError('missing image')
+        if not self.w_band.v_model: raise AttributeError('missing band')
+        if not self.w_class_file.v_model: raise AttributeError('missing file')
             
         # get the destination classes
         dst_classes = self.model.get_dst_classes()
