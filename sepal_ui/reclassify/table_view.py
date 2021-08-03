@@ -480,7 +480,7 @@ class TableView(v.Card, sw.SepalWidget):
     def __init__(self, class_path=Path.home(), out_path=Path.home()/'downloads', **kwargs):
         
         # set some default params 
-        self.class_ = 'pa-2'
+        self.class_ = 'pa-5'
         
         # init the card
         super().__init__(**kwargs)
@@ -490,23 +490,19 @@ class TableView(v.Card, sw.SepalWidget):
         self.out_path = Path(out_path)
         
         # set a title to the card
-        title = v.CardTitle(children=["Classification editor"])
+        title = v.CardTitle(children=[v.Html(tag='h2', children=["Classification editor"])])
         
         # add the widgets
+        w_class_title = v.Html(tag='h2', children=['Select preexisting table'], class_='mt-2')
         self.w_class_file = sw.FileInput(
             extentions = ['.csv'],
-            label=ms.reclassify.class_file_label,
+            label='class file',
             folder = self.class_path
         )
         
         self.btn = sw.Btn(ms.reclassify.get_custom_table_btn, icon='mdi-table', color='success')
         
-        ep_optional_file = v.ExpansionPanels(children=[v.ExpansionPanel(class_='ma-5', children=[
-            v.ExpansionPanelHeader(children=['Select preexisting table']),
-            v.ExpansionPanelContent(children=[self.w_class_file, self.btn])
-        ])])
-        
-        self.w_class_table = ClassTable(out_path=self.out_path)
+        self.w_class_table = ClassTable(out_path=self.out_path, class_='mt-5')
         
         # create an alert to display error and outputs
         self.alert = sw.Alert()
@@ -514,7 +510,7 @@ class TableView(v.Card, sw.SepalWidget):
         # assemble a layout
         self.children=[
             title,
-            ep_optional_file,
+            w_class_title, self.w_class_file, self.btn,
             self.alert,
             self.w_class_table
         ]
