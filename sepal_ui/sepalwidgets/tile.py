@@ -50,7 +50,7 @@ class Tile(v.Layout, SepalWidget):
             **kwargs
         )
         
-    def nest_tile(self):
+    def nest(self):
         """
         Prepare the tile to be used as a nested component in a tile. 
         the elevation will be set to 0 and the title remove from children.
@@ -67,9 +67,7 @@ class Tile(v.Layout, SepalWidget):
         self.elevation =  False
         
         # remove title 
-        without_title = self.children[0].children.copy()
-        without_title.remove(self.title)
-        self.children[0].children = without_title
+        self.set_title()
         
         return self
         
@@ -101,19 +99,29 @@ class Tile(v.Layout, SepalWidget):
         
         return self 
     
-    def set_title(self, title):
+    def set_title(self, title=None):
         """
-        Replace the current title
+        Replace the current title and activate it.
+        If no title is provided, the title is removed from the tile content
         
         Args:
-            title (str): the new title of the object
+            title (str, optional): the new title of the object
             
         Return:
             self
         """
         
-        self.title.children = [title]
+        # set the title text
+        self.title.children = [str(title)]
         
+        # add the title if it's deactivated
+        if title and not self.title in self.children[0].children:
+            self.children[0].children = [self.title] + self.children[0].children.copy()
+        
+        # remove it if it's deactivated
+        elif self.title in self.children[0].children and not title:
+            self.children[0].children = self.children[0].children.copy()[1:] # it's the first one
+            
         return self
     
     def get_title(self):

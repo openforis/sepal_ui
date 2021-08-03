@@ -51,6 +51,7 @@ class TestTile(unittest.TestCase):
         input_ = v.Slider()
         tile = sw.Tile(id_, title, [input_])
         
+        # add a title
         title2 = "title2"
         res = tile.set_title(title2)
         
@@ -58,8 +59,30 @@ class TestTile(unittest.TestCase):
         self.assertEqual(tile.children[0].children[0].children[0], title2)
         self.assertEqual(tile.children[0].children[1].children[0], input_)
         
+        # remove a title 
+        res = tile.set_title()
+        self.assertEqual(res, tile)
+        self.assertEqual(tile.children[0].children[0].children[0], input_)
+        
         return 
     
+    def test_nest(self):
+        
+        id_ = "id"
+        title = "title"
+        input_ = v.Slider()
+        tile = sw.Tile(id_, title, [input_])
+        
+        # nest the tile 
+        res = tile.nest()
+        
+        self.assertEqual(res, tile)
+        self.assertEqual(tile._metadata['mount_id'], 'nested_tile')
+        self.assertFalse(tile.elevation)
+        self.assertEqual(len(tile.children[0].children), 1)
+        
+        return 
+        
     def test_hide(self):
         
         id_ = "id"
