@@ -26,7 +26,7 @@ class ReclassifyModel(Model):
         dst_class_file (str): the filename/assetId of the reclassification
         dst_dir (str): the dir used to store the output
         gee (bool): either to use the gee backend or not
-        matrix (dict): the transfer matrix between the input and the output using the following format: {new_value: [old_values], ...}
+        matrix (dict): the transfer matrix between the input and the output using the following format: {old_value: new_value, ...}
         input_type (bool): the input type, 1 for raster and 0 for vector
         src_class (list): the sorted list of properties/band unique classes from the input file
         dst_class (pd.Dataframe): the pandas dataframe of the destination classes using the following columns: 'code, 'desc', 'color'
@@ -277,15 +277,15 @@ class ReclassifyModel(Model):
             return
 
         @su.need_ee
-        def _ee_vector(self):
+        def _ee_vector(self, matrix):
             
             # create the asset description 
             self.dst_ee = f'{Path(self.src_gee).stem}_reclass'
             
             # add a new propertie
             def add_prop(feat):
-                props = feat.getInfo()['properties']
-                new_val = feat.get(self.band)
+                matrix = ee.Dictionary(matrix)
+                new_val = matrix.get(self.feat.get(self.band))
                 return ee.Feature(new_val).copyProperties(feat, keepProperties)
             
             ee_fc = ee.FeatureCollection(self.src_gee).map(add_prop)
