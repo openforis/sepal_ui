@@ -14,7 +14,8 @@ class ReclassifyTile(sw.Tile):
     Args:
         results_dir (str|pathlike object): Directory to store the outputs (rasters, and csv_files). default to ~/downloads
         gee (bool): Use GEE variant, to reclassify assets or local input. default True
-        default_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+        dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+        default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
         
     Attributes: 
         result_dir (pathlib.Path): Directory to store the outputs (rasters, and csv_files).
@@ -23,7 +24,7 @@ class ReclassifyTile(sw.Tile):
         table_view (TableView): a fully qualified TableView object
     """
     
-    def __init__(self, results_dir=Path.home()/'downloads', gee=True, default_class=None, **kwargs):
+    def __init__(self, results_dir=Path.home()/'downloads', gee=True, dst_class=None, default_class={}, **kwargs):
         
         # output directory
         self.results_dir = Path(results_dir)

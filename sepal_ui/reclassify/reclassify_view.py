@@ -127,7 +127,8 @@ class ReclassifyView(v.Card):
         class_path (str,optional): Folder path containing already existing classes. Default to ~/
         out_path (str,optional): the folder to save the created classifications. default to ~/downloads
         gee (bool): either or not to set :code:`gee` to True. default to False
-        default_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+        dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+        default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
         
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the classification dataset
@@ -137,14 +138,14 @@ class ReclassifyView(v.Card):
         w_asset (sw.AssetSelect): the widget to select an asset input 
         w_raster (sw.FileInput): the widget to select a file input
         w_image (Any): wraper of the input. linked to w_asset if gee=True, else to w_raster
-        w_band (int|str): widget to select the band/property used as init classification in the input file
+        w_code (int|str): widget to select the band/property used as init classification in the input file
         get_table_btn (sw.Btn): the btn to load the data in the reclassification table
         w_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
         reclassify_table (ReclassifyTable): the reclassification table populated via the previous widgets
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
 
-    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, default_class=None, **kwargs):
+    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, dst_class=None, default_class={}, **kwargs):
         
         # create metadata to make it compatible with the framwork app system
         self._metadata = {'mount_id':'reclassify_tile'}
@@ -169,53 +170,81 @@ class ReclassifyView(v.Card):
         # create an alert to display information to the user
         self.alert = sw.Alert()
                 
-        # create the widgets
+        # set the title of the card
         self.title = v.CardTitle(children=[v.Html(tag='h2', children=[ms.rec.rec.title])])
         
-        w_input_title = v.Html(tag='h2', children=[ms.rec.rec.input.title], class_='mt-2')
+        # create the input widgets
+        w_input_title = v.Html(tag='h2', children=[ms.rec.rec.input.title], class_='mt-5')
+        
         self.w_asset = sw.AssetSelect(label=ms.rec.rec.input.asset)
         self.w_raster = sw.FileInput(['.tif', '.vrt', '.tiff', '.geojson', '.shp'], label=ms.rec.rec.input.file)
         self.w_image = self.w_asset if self.gee else self.w_raster
-        self.w_band = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model = None, items=[], persistent_hint=True)
         
-        w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-2')
+        self.w_code = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model=None, items=[], persistent_hint=True)
+        
+        self.w_name = v.Select(label='select the class name from a property', hint='blablabla', v_model=None, items=None, persistent_hint=True)
+        
+        self.w_init_class_file = sw.FileInput(['.csv'], label='ini class', folder=self.class_path)
+        w_optional_title = v.Html(tag='h3', children=['Optional'], class_='mb-5')
+        
+        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_name, self.w_init_class_file])
+        
+        
+        # create the destination class widgetss
+        w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-5')
         self.w_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
-        if default_class:
-            self.w_class_file.select_file(default_class).hide()
+        if dst_class:
+            self.w_class_file.select_file(dst_class).hide()
+            
+        btn_list = [sw.Btn(f'use {name}', _metadata={'path': path}, small=True, class_='mr-2') for name, path in default_class.items()]
+        w_default = v.Flex(children=btn_list)
         
-        self.get_table_btn = sw.Btn(ms.rec.rec.input.btn, 'mdi-table',class_='ma-5', color='success', outlined=True)
+        # set the table and its toolbar
+        w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-5')
         
-        w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-2')
+        self.get_table = sw.Btn(ms.rec.rec.input.btn, 'mdi-table', color='success', small=True)
+        self.import_table = sw.Btn('import', 'mdi-download', color='secondary', small=True, class_='ml-2 mr-2')
+        self.save_table = sw.Btn('save', 'mdi-content-save', small=True)
+        self.reclassify_btn = sw.Btn(ms.rec.rec.btn, 'mdi-checkerboard', small=True)
+        
+        toolbar = v.Toolbar(
+            class_='d-flex mb-6',
+            flat=True, 
+            children=[
+                v.ToolbarTitle(children=['Actions']),
+                v.Divider(class_='mx-4', inset=True, vertical=True),
+                v.Flex(class_='ml-auto', children=[self.get_table, self.import_table, self.save_table]),
+                v.Divider(class_='mx-4', inset=True, vertical=True),
+                self.reclassify_btn
+            ]
+        )
+        
         self.reclassify_table = ReclassifyTable(self.model)
-        
-        self.reclassify_btn = sw.Btn(ms.rec.rec.btn, 'mdi-checkerboard', disabled=True)
         
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
         self.model \
             .bind(self.w_raster, 'src_local') \
             .bind(self.w_asset, 'src_gee') \
-            .bind(self.w_band, 'band') \
+            .bind(self.w_code, 'band') \
             .bind(self.w_class_file, 'dst_class_file')
         
         # create the layout
         self.children = [
             self.title,
-            w_input_title, self.w_image, self.w_band,
-            w_class_title, self.w_class_file,
-            self.get_table_btn,
+            w_input_title, self.w_image, self.w_code, w_optional,
+            w_class_title, self.w_class_file, w_default,
             self.alert,
-            w_table_title, self.reclassify_table,
-            self.reclassify_btn
+            w_table_title, toolbar, self.reclassify_table,
         ]
              
         # Decorate functions
         self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(self.reclassify)
-        self.get_reclassify_table = loading_button(self.alert, self.get_table_btn, debug=True)(self.get_reclassify_table)
+        self.get_reclassify_table = loading_button(self.alert, self.get_table, debug=True)(self.get_reclassify_table)
 
         # JS Events
         self.w_image.observe(self._update_band, 'v_model')
-        self.get_table_btn.on_event('click', self.get_reclassify_table)
+        self.get_table.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
 
     def reclassify(self, widget, event, data):
@@ -239,8 +268,8 @@ class ReclassifyView(v.Card):
         self.model.get_type()
         
         # update the bands values
-        self.w_band.v_model = None
-        self.w_band.items = self.model.get_bands()
+        self.w_code.v_model = None
+        self.w_code.items = self.model.get_bands()
         
         return self
     
@@ -255,7 +284,7 @@ class ReclassifyView(v.Card):
         
         # check that everything is set 
         if not self.w_image.v_model: raise AttributeError('missing image')
-        if not self.w_band.v_model: raise AttributeError('missing band')
+        if not self.w_code.v_model: raise AttributeError('missing band')
         if not self.w_class_file.v_model: raise AttributeError('missing file')
             
         # get the destination classes
