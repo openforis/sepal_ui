@@ -90,7 +90,7 @@
         },
         "rec": {
             "title": "Reclassify image",
-            "headers": ["To (new code)", "From (init codes)"],
+            "headers": ["Original class", "Destination class"],
             "input": {
                 "title": "Select input classification",
                 "asset": "input asset",

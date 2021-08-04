@@ -187,15 +187,16 @@ class ReclassifyModel(Model):
                 .keys() \
                 .getInfo()
             
-            return [int(v) for v in values]
+            return {v: int(v) for v in values}
 
         @su.need_ee
         def _ee_vector(self):
             
             # get the feature
             values = ee.FeatureCollection(self.src_gee).aggregate_array(self.band).getInfo()
+            values = list(set(values))
             
-            return list(set(values))
+            return {v: int(v) for v in values}
 
         def _local_image(self):
 
@@ -204,13 +205,14 @@ class ReclassifyModel(Model):
                 count = np.bincount(src.read(self.band).flatten())
                 features = np.nonzero(count!=0)[0].tolist()
 
-            return features
+            return {v: v for v in features}
 
         def _local_vector(self):
 
             df = gpd.read_file(self.src_local)
-
-            return df[self.band].unique().tolist()
+            values = df[self.band].unique().tolist()
+            
+            return {v: int(v) for v in values}
         
         # map all the function in the guess matrix (gee, type) 
         unique_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]

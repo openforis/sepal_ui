@@ -89,7 +89,7 @@
         },
         "rec": {
             "title": "Reclasificar imagen",
-            "headers": ["A (nuevo código)", "De (códigos originales)"],
+            "headers": ["Clase originale", 'Clase de destino"],
             "input": {
                 "title": "Seleccionar clasificación de entrada",
                 "asset": "Asset de entrada",

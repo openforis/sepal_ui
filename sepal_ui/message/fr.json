@@ -90,7 +90,7 @@
         },
         "rec": {
             "title": "Reclassificateur d'image",
-            "headers": ["Vers (nouveau code)", "Depuis (codes d'origine)From: user code"],
+            "headers": ["Classe initiale", "Classe de destination"],
             "input": {
                 "title": "Selectionner les entrées de classification",
                 "asset": "Asset",

@@ -8,67 +8,30 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
-        
-class ComboSelect(v.Select, sw.SepalWidget):
+
+class ClassSelect(v.Select, sw.SepalWidget):
     """
-    Custom select to pick values from the input classification. They can be linked to each other to adapt their list of items according to what have already been selected/deselected. 
+    Custom widget to pick the value of a original class in the new classification system
     
     Args:
-        new_code (int): the code of the new class 
-        codes (list(int)): the complete list of values available in the inputs
+        new_codes(dict): the dict of the new codes to use as items {code: name}
+        code (int): the orginal code of the class
     """
     
-    def __init__(self, new_code, codes, **kwargs):
+    def __init__(self, new_codes, old_code, **kwargs):
+        
+        print(new_codes)
         
         # set default parameters
+        self.items = [{'text': f'{code}: {name}', 'value': code} for code, name in new_codes.items()]
         self.dense = True
-        self.multiple = True
+        self.multiple = False
         self.chips = True
-        self.deletable_chips = True
-        self._metadata = {'class': new_code}
-        self.v_model = []
+        self._metadata = {'class': old_code}
+        self.v_model = None
         
-        # init the select
+        # init the select 
         super().__init__(**kwargs)
-        
-        # set the initial codes list 
-        self.items = codes
-        
-    def link_combos(self, combo_list):
-        """
-        Synchronise all the combo select so that any value that is already selected cannot be reselected. Using the same process, once a value is freed elswhere, it is repopulated in every ComboSelect.
-        
-        Args:
-            combo_list (list): the list of the other COmboSelect that share the same list of items
-        
-        Return:
-            self
-        """
-        
-        # remove self from the combo list
-        combos = [c for c in combo_list.values() if c != self]
-        
-        # apply the observe method on every one of them 
-        for combo in combos: 
-            combo.observe(self._update_items, 'v_model')
-            
-        return self
-        
-    def _update_items(self, change):
-        """change the item list based on the change in another combo"""
-        
-        # extract the dif between the 2 lists
-        diff = list(set(change['old']).symmetric_difference(change['new']))[0] # I assume that there is only one change
-        remove = len(change['old']) > len(change['new'])
-        
-        # adapt the item list 
-        init_items = self.items.copy()
-        if remove: 
-            self.items = sorted(init_items + [diff])
-        else:
-            self.items = [i for i in init_items if i != diff]
-            
-        return self
     
 class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     """
@@ -79,16 +42,19 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     Args:
         model (ReclassifyModel): model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
         dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-        src_classes (list|optional): the list of existing values within the input file
+        src_classes (dict|optional): the list of existing values within the input file {class_code: class_name}
         
     Attributes:
-        HEADER (list): name of the column header (to, from)
+        HEADER (list): name of the column header (from, to)
         model (ReclassifyModel): the reclassifyModel object to manipulate the input file and save parameters
     """
     
     HEADERS = ms.rec.rec.headers
     
-    def __init__(self, model, dst_classes={}, src_classes=[], **kwargs):
+    def __init__(self, model, dst_classes={}, src_classes={}, **kwargs):
+        
+        # default parameters 
+        self.dense = True
         
         # create the table 
         super().__init__(**kwargs)
@@ -100,6 +66,9 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         self._header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
         self.set_table(dst_classes, src_classes)
         
+        # js behaviour
+        [w.observe(self._update_matrix_values, 'v_model') for w in self.class_select_list.values()]
+        
         
     def set_table(self, dst_classes, src_classes):
         """
@@ -107,27 +76,24 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
         Args:
             dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-            src_classes (list|optional): the list of existing values within the asset/raster
+            src_classes (dict|optional): the list of existing values within the input file {class_code: class_name}
             
         Return:
             self
         """
         
         # reset the matrix
-        self.model.matrix = {code: [] for code in dst_classes.keys()}
+        self.model.matrix = {code: None for code in src_classes.keys()}
         
         # create the select list
         # they need to observe each other to adapt the available class list dynamically 
-        self.combos  = {k: ComboSelect(k, src_classes) for k in dst_classes.keys()}
-        for combo in self.combos.values(): 
-            combo.link_combos(self.combos)
-            combo.observe(self._update_matrix_values, 'v_model')
+        self.class_select_list = {k: ClassSelect(dst_classes, k) for k in src_classes.keys()}
         
         rows = [
             v.Html(tag='tr', children=[
-                v.Html(tag='td', children=[str(name)]), 
-                v.Html(tag='td', children=[self.combos[code]])
-            ]) for code, name in dst_classes.items()
+                v.Html(tag='td', children=[f'{code}: {name}']), 
+                v.Html(tag='td', children=[self.class_select_list[code]])
+            ]) for code, name in src_classes.items()
         ]
         
         # add an empty row at the end to make the table more visible when it's empty 
@@ -143,10 +109,10 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     def _update_matrix_values(self, change):
         """Update the appropriate matrix value when a Combo select change"""
         
-        # get the code of the class in the dst classification
+        # get the code of the class in the src classification
         code = change['owner']._metadata['class']
         
-        # bind it to classes in the src classification
+        # bind it to classes in the dst classification
         self.model.matrix[code] = change['new']
         
         return self
@@ -231,7 +197,7 @@ class ReclassifyView(v.Card):
             .bind(self.w_asset, 'src_gee') \
             .bind(self.w_band, 'band') \
             .bind(self.w_class_file, 'dst_class_file')
-
+        
         # create the layout
         self.children = [
             self.title,
