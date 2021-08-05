@@ -329,8 +329,8 @@ class ReclassifyView(v.Card):
         if dst_class:
             self.w_class_file.select_file(dst_class).hide()
             
-        btn_list = [sw.Btn(f'use {name}', _metadata={'path': path}, small=True, class_='mr-2') for name, path in default_class.items()]
-        w_default = v.Flex(children=btn_list)
+        self.btn_list = [sw.Btn(f'use {name}', _metadata={'path': path}, small=True, class_='mr-2', outlined=True) for name, path in default_class.items()]
+        w_default = v.Flex(children=self.btn_list)
         
         # set the table and its toolbar
         w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-5')
@@ -370,7 +370,7 @@ class ReclassifyView(v.Card):
         self.children = [
             self.title,
             w_input_title, self.w_image, self.w_code, w_optional,
-            w_class_title, self.w_class_file, w_default,
+            w_class_title, w_default, self.w_class_file,
             self.alert,
             w_table_title, toolbar, self.reclassify_table,
         ]
@@ -387,6 +387,31 @@ class ReclassifyView(v.Card):
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
+        self.w_class_file.observe(self._check_dst_file, 'v_model')
+        [btn.on_event('click', self._set_dst_class_file) for btn in self.btn_list]
+        
+    def _check_dst_file(self, change):
+        """check the selected file is not a default btn. change their styling accordingly"""
+        
+        filename = change['new']
+        
+        for btn in self.btn_list:
+            btn.outlined = False if btn._metadata['path'] == filename else True
+            
+        return self
+        
+    def _set_dst_class_file(self, widget, event, data):
+        """Set the destination classification according to the one selected with btn. alter the widgets properties to reflect this change"""
+        
+        # get the filename 
+        filename = widget._metadata['path']
+        self.w_class_file.select_file(filename)
+        
+        # change the visibility of the btns
+        for btn in self.btn_list:
+            btn.outlined = False if btn == widget else True 
+            
+        return self
         
     def load_matrix_content(self, change):
         """
