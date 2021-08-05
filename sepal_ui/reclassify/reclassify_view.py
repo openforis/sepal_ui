@@ -9,6 +9,18 @@ from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
 
+class FileNameDialog(v.Dialog):
+    """
+    Dialog to setup the name of the output matrix file 
+    """
+    
+    def __init__(self, folder):
+        
+        w_file = sw.FileInput()
+        
+        super().__init__()
+        
+
 class ClassSelect(v.Select, sw.SepalWidget):
     """
     Custom widget to pick the value of a original class in the new classification system
@@ -66,9 +78,6 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         self._header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
         self.set_table(dst_classes, src_classes)
         
-        # js behaviour
-        [w.observe(self._update_matrix_values, 'v_model') for w in self.class_select_list.values()]
-        
         
     def set_table(self, dst_classes, src_classes):
         """
@@ -103,6 +112,9 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         ])]
         
         self.children = [v.Html(tag='tbody', children= self._header + rows)]
+        
+        # js behaviour
+        [w.observe(self._update_matrix_values, 'v_model') for w in self.class_select_list.values()]
         
         return self
     

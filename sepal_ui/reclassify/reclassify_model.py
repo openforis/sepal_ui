@@ -73,6 +73,22 @@ class ReclassifyModel(Model):
         # save relation with gee 
         self.gee = gee
         
+    def save_matrix(self, filename):
+        """
+        Save the matrix i a csv file
+        
+        Return:
+            self
+        """
+        
+        if not len(self.matrix):
+            return self
+        
+        df = pd.Dataframe({'src': [c for c in self.matrix.keys()], 'dst': [c for c in self.matrix.values()]})
+        df.to_csv(filename)
+        
+        return self
+    
     def get_dst_classes(self):
         """
         Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
@@ -169,7 +185,7 @@ class ReclassifyModel(Model):
     
     def unique(self):
         """
-        Retreive all the existing class from the specified band/property according to the input_type
+        Retreive all the existing class from the specified band/property according to the input_type in the following format {code: name}
         
         Return:
             (list): the unique class value found in the specified band/property
@@ -187,7 +203,7 @@ class ReclassifyModel(Model):
                 .keys() \
                 .getInfo()
             
-            return {v: int(v) for v in values}
+            return {int(v): v for v in values}
 
         @su.need_ee
         def _ee_vector(self):
@@ -196,7 +212,7 @@ class ReclassifyModel(Model):
             values = ee.FeatureCollection(self.src_gee).aggregate_array(self.band).getInfo()
             values = list(set(values))
             
-            return {v: int(v) for v in values}
+            return {int(v): v for v in values}
 
         def _local_image(self):
 
@@ -205,14 +221,14 @@ class ReclassifyModel(Model):
                 count = np.bincount(src.read(self.band).flatten())
                 features = np.nonzero(count!=0)[0].tolist()
 
-            return {v: v for v in features}
+            return {int(v): v for v in features}
 
         def _local_vector(self):
 
             df = gpd.read_file(self.src_local)
             values = df[self.band].unique().tolist()
             
-            return {v: int(v) for v in values}
+            return {int(v): v for v in values}
         
         # map all the function in the guess matrix (gee, type) 
         unique_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]
@@ -239,6 +255,9 @@ class ReclassifyModel(Model):
             # remap according to the matrix
             from_ = [v for v in matrix.keys()]
             to_ = [v for v in matrix.values()]
+            
+            print(from_)
+            print(to_)
             
             ee_image = ee.Image(self.src_gee) \
                 .remap(from_, to_, 0, self.band) \
@@ -269,6 +288,7 @@ class ReclassifyModel(Model):
                 'description': self.dst_gee.stem,
                 'scale': 30, # it should be the native resolution of the original image
                 'maxPixels': 1e13,
+                'pyramidingPolicy': {'.default': 'mode'}
             }
 
             task = ee.batch.Export.image.toAsset(**params)
@@ -368,10 +388,7 @@ class ReclassifyModel(Model):
         reclassify_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]
         
         # reshape the matrix so that every value correspond to 1 key
-        matrix = {}
-        for new_val, list_ in self.matrix.items():
-            for old_val in list_:
-                matrix[old_val] = new_val
+        matrix = self.matrix
         
         # return the selected function 
         # remember to use self as a parameter
