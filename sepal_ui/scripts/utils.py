@@ -27,7 +27,7 @@ def hide_component(widget):
     elif not 'd-none' in str(widget.class_):
         widget.class_ = str(widget.class_).strip() + ' d-none'
         
-    return
+    return widget
 
 def show_component(widget):
     """
@@ -42,7 +42,7 @@ def show_component(widget):
     elif 'd-none' in str(widget.class_):
         widget.class_ = widget.class_.replace('d-none', '')
         
-    return
+    return widget
     
 def create_download_link(pathname):
     """
