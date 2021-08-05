@@ -274,7 +274,7 @@ class ReclassifyView(v.Card):
         w_image (Any): wraper of the input. linked to w_asset if gee=True, else to w_raster
         w_code (int|str): widget to select the band/property used as init classification in the input file
         get_table_btn (sw.Btn): the btn to load the data in the reclassification table
-        w_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
+        w_dst_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
         reclassify_table (ReclassifyTable): the reclassification table populated via the previous widgets
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
@@ -316,18 +316,16 @@ class ReclassifyView(v.Card):
         
         self.w_code = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model=None, items=[], persistent_hint=True)
         
-        self.w_name = v.Select(label='select the class name from a property', hint='blablabla', v_model=None, items=None, persistent_hint=True)
-        
-        self.w_init_class_file = sw.FileInput(['.csv'], label='ini class', folder=self.class_path)
         w_optional_title = v.Html(tag='h3', children=['Optional'], class_='mb-5')
-        
-        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_name, self.w_init_class_file])
+        self.w_src_name = su.hide_component(v.Select(label='select the class name from a property', hint='blablabla', v_model=None, items=None, persistent_hint=True))
+        self.w_src_class_file = sw.FileInput(['.csv'], label='source class', folder=self.class_path)
+        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_src_name, self.w_src_class_file])
         
         # create the destination class widgetss
         w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-5')
-        self.w_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
+        self.w_dst_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
         if dst_class:
-            self.w_class_file.select_file(dst_class).hide()
+            self.w_dst_class_file.select_file(dst_class).hide()
             
         self.btn_list = [sw.Btn(f'use {name}', _metadata={'path': path}, small=True, class_='mr-2', outlined=True) for name, path in default_class.items()]
         w_default = v.Flex(children=self.btn_list)
@@ -364,13 +362,13 @@ class ReclassifyView(v.Card):
             .bind(self.w_raster, 'src_local') \
             .bind(self.w_asset, 'src_gee') \
             .bind(self.w_code, 'band') \
-            .bind(self.w_class_file, 'dst_class_file')
+            .bind(self.w_dst_class_file, 'dst_class_file')
         
         # create the layout
         self.children = [
             self.title,
             w_input_title, self.w_image, self.w_code, w_optional,
-            w_class_title, w_default, self.w_class_file,
+            w_class_title, w_default, self.w_dst_class_file,
             self.alert,
             w_table_title, toolbar, self.reclassify_table,
         ]
@@ -387,7 +385,7 @@ class ReclassifyView(v.Card):
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
-        self.w_class_file.observe(self._check_dst_file, 'v_model')
+        self.w_dst_class_file.observe(self._check_dst_file, 'v_model')
         [btn.on_event('click', self._set_dst_class_file) for btn in self.btn_list]
         
     def _check_dst_file(self, change):
@@ -405,7 +403,7 @@ class ReclassifyView(v.Card):
         
         # get the filename 
         filename = widget._metadata['path']
-        self.w_class_file.select_file(filename)
+        self.w_dst_class_file.select_file(filename)
         
         # change the visibility of the btns
         for btn in self.btn_list:
@@ -475,6 +473,13 @@ class ReclassifyView(v.Card):
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
         
+        # if the file is a vector 
+        su.hide_component(self.w_src_name)
+        if self.model.input_type == 0:
+            self.w_src_name.v_model = None
+            self.w_src_name.items = self.model.get_bands()
+            su.show_component(self.w_src_name)
+        
         return self
     
     def get_reclassify_table(self, widget, event, data):
@@ -489,7 +494,7 @@ class ReclassifyView(v.Card):
         # check that everything is set 
         if not self.w_image.v_model: raise AttributeError('missing image')
         if not self.w_code.v_model: raise AttributeError('missing band')
-        if not self.w_class_file.v_model: raise AttributeError('missing file')
+        if not self.w_dst_class_file.v_model: raise AttributeError('missing file')
             
         # get the destination classes
         dst_classes = self.model.get_dst_classes()
