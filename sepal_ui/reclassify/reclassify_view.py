@@ -5,22 +5,86 @@ import ipyvuetify as v
 import ee
 
 import sepal_ui.sepalwidgets as sw
+from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
 
-class FileNameDialog(v.Dialog):
+class SaveMatrixDialog(v.Dialog):
     """
     Dialog to setup the name of the output matrix file 
+    
+    Args:
+        folder (pathlike object): the path to the save folder. default to ~/
     """
     
-    def __init__(self, folder):
+    def __init__(self, folder=Path.home(), **kwargs):
         
-        w_file = sw.FileInput()
+        # save the matrix 
+        self._matrix = {}
+        self.folder = Path(folder)
         
+        # create the widgets
+        title = v.CardTitle(children=["Save matrix"])
+        self.w_file = v.TextField(label='filename', v_model=None)
+        btn = sw.Btn('Save matrix')
+        cancel = sw.Btn('Cancel', outlined=True)
+        actions = v.CardActions(children=[cancel, btn])
+        
+        # default parameters 
+        self.value=False
+        self.max_width=500
+        self.overlay_opcity=0.7
+        self.persistent=True
+        self.children = [v.Card(
+            class_='pa-4',
+            children=[title, self.w_file, actions]
+        )]
+        
+        # create the dialog
         super().__init__()
         
-
+        # js behaviour
+        cancel.on_event('click', self._cancel)
+        btn.on_event('click', self._save)
+        self.w_file.on_event('blur', self._sanitize)
+        
+    def _cancel(self, widget, event, data):
+        """do nothing and exit"""
+        
+        self.w_file.v_model = None
+        self.value = False
+        
+        return self
+        
+    def _save(self, widget, event, data):
+        """save the matrix in a specified file"""
+        
+        file = self.folder/f'{su.normalize_str(self.w_file.v_model)}.csv'
+        
+        lines = [f'{src},{dst}' for src, dst in self._matrix.items()]
+        file.write_text('\n'.join(lines))
+        
+        # hide the dialog
+        self.value = False
+        
+        return self
+    
+    def show(self, matrix):
+        """show the dialog and set the matrix values"""
+        
+        self._matrix = matrix
+        self.value = True
+        
+        return self
+    
+    def _sanitize(self, widget, event, data):
+        """sanitize the used name when saving"""
+        
+        self.w_file.v_model = su.normalize_str(self.w_file.v_model)
+        
+        return self
+    
 class ClassSelect(v.Select, sw.SepalWidget):
     """
     Custom widget to pick the value of a original class in the new classification system
@@ -201,7 +265,6 @@ class ReclassifyView(v.Card):
         
         w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_name, self.w_init_class_file])
         
-        
         # create the destination class widgetss
         w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-5')
         self.w_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
@@ -214,6 +277,7 @@ class ReclassifyView(v.Card):
         # set the table and its toolbar
         w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-5')
         
+        self.save_dialog = SaveMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(ms.rec.rec.input.btn, 'mdi-table', color='success', small=True)
         self.import_table = sw.Btn('import', 'mdi-download', color='secondary', small=True, class_='ml-2 mr-2')
         self.save_table = sw.Btn('save', 'mdi-content-save', small=True)
@@ -223,6 +287,7 @@ class ReclassifyView(v.Card):
             class_='d-flex mb-6',
             flat=True, 
             children=[
+                self.save_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
                 v.Flex(class_='ml-auto', children=[self.get_table, self.import_table, self.save_table]),
@@ -255,6 +320,7 @@ class ReclassifyView(v.Card):
         self.get_reclassify_table = loading_button(self.alert, self.get_table, debug=True)(self.get_reclassify_table)
 
         # JS Events
+        self.save_table.on_event('click', lambda *args: self.save_dialog.show(self.model.matrix))
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
