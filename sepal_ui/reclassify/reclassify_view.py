@@ -1,14 +1,74 @@
 from pathlib import Path
-from traitlets import List, Dict, Int, link
+from traitlets import List, Dict, Int, link, Unicode
 
 import ipyvuetify as v
 import ee
+import pandas as pd
+import numpy as np
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
+
+class importMatrixDialog(v.Dialog):
+    """
+    Dialog to select the file to use and fill the matrix
+    
+    Args:
+        folder (pathlike object): the path to the saved classifications
+    
+    Attributes:
+        file (str): the file to use
+    """
+    file = Unicode('').tag(sync=True)
+    
+    def __init__(self, folder, **kwargs):
+        
+        # create the 3 widgets
+        title = v.CardTitle(children=["Load reclassification matrix"])
+        self.w_file = sw.FileInput(label='filename',folder=folder)
+        btn = sw.Btn('Load')
+        cancel = sw.Btn('Cancel', outlined=True)
+        actions = v.CardActions(children=[cancel, btn])
+        
+        # default params
+        self.value = False
+        self.max_width = 500
+        self.overlay_opacity = .7
+        self.persistent = True
+        self.children = [v.Card(class_='pa-4', children=[title, self.w_file, actions])] 
+        
+        # create the dialog 
+        super().__init__(**kwargs)
+        
+        # js behaviour 
+        btn.on_event('click', self._load)
+        cancel.on_event('click', self._cancel)
+        
+    def _cancel(self, widget, event, data):
+        """exit and do nothing"""
+        
+        self.value = False 
+        
+        return self
+    
+    def _load(self, widget, event, data):
+        """modify the file traitlet to trigger the loading of the values"""
+        
+        self.value = False
+        
+        self.file = self.w_file.v_model
+        self.w_file.reset()
+
+        return self
+    
+    def show(self):
+        
+        self.value = True
+        
+        return self
 
 class SaveMatrixDialog(v.Dialog):
     """
@@ -32,17 +92,17 @@ class SaveMatrixDialog(v.Dialog):
         actions = v.CardActions(children=[cancel, btn])
         
         # default parameters 
-        self.value=False
-        self.max_width=500
-        self.overlay_opcity=0.7
-        self.persistent=True
+        self.value = False
+        self.max_width = 500
+        self.overlay_opcity = .7
+        self.persistent = True
         self.children = [v.Card(
             class_='pa-4',
             children=[title, self.w_file, actions]
         )]
         
         # create the dialog
-        super().__init__()
+        super().__init__(**kwargs)
         
         # js behaviour
         cancel.on_event('click', self._cancel)
@@ -95,8 +155,6 @@ class ClassSelect(v.Select, sw.SepalWidget):
     """
     
     def __init__(self, new_codes, old_code, **kwargs):
-        
-        print(new_codes)
         
         # set default parameters
         self.items = [{'text': f'{code}: {name}', 'value': code} for code, name in new_codes.items()]
@@ -278,6 +336,7 @@ class ReclassifyView(v.Card):
         w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-5')
         
         self.save_dialog = SaveMatrixDialog(folder=out_path)
+        self.import_dialog = importMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(ms.rec.rec.input.btn, 'mdi-table', color='success', small=True)
         self.import_table = sw.Btn('import', 'mdi-download', color='secondary', small=True, class_='ml-2 mr-2')
         self.save_table = sw.Btn('save', 'mdi-content-save', small=True)
@@ -288,6 +347,7 @@ class ReclassifyView(v.Card):
             flat=True, 
             children=[
                 self.save_dialog,
+                self.import_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
                 v.Flex(class_='ml-auto', children=[self.get_table, self.import_table, self.save_table]),
@@ -318,12 +378,53 @@ class ReclassifyView(v.Card):
         # Decorate functions
         self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(self.reclassify)
         self.get_reclassify_table = loading_button(self.alert, self.get_table, debug=True)(self.get_reclassify_table)
-
+        self.load_matrix_content = loading_button(self.alert, self.import_table, debug=True)(self.load_matrix_content)
+        
         # JS Events
+        self.import_table.on_event('click', lambda *args: self.import_dialog.show())
+        self.import_dialog.observe(self.load_matrix_content, 'file')
         self.save_table.on_event('click', lambda *args: self.save_dialog.show(self.model.matrix))
         self.w_image.observe(self._update_band, 'v_model')
         self.get_table.on_event('click', self.get_reclassify_table)
         self.reclassify_btn.on_event('click', self.reclassify)
+        
+    def load_matrix_content(self, change):
+        """
+        Load the content of the file in the matrix. The table need to be already set to perform this operation
+        
+        Return:
+            self
+        """
+        
+        # exit if no files are selected 
+        if not change['new']:
+            raise Exception('No file have been selected')
+        
+        # exit if no table is loaded 
+        if len(self.reclassify_table.children[0].children) < 3:
+            raise Exception('A classification system need to be selected first')
+            
+        # load the file 
+        # sanity checks 
+        input_data = pd.read_csv(change['new'], names=['src', 'dst'])
+        if not all(t==np.int64 for t in input_data.dtypes) or len(input_data.columns) != 2:
+            raise Exception("This file is not a properly formatted classification matrix")
+            
+        # check that the destination values are all available
+        widget = list(self.reclassify_table.class_select_list.values())[0]
+        classes = [i['value'] for i in widget.items]
+        if not all(v in classes for v in input_data.dst.unique()):
+            raise Exception("Some of the destination data are not existing in the destination dataset")
+            
+        # fill the data 
+        for _, row in input_data.iterrows():
+            src_code, dst_code = row.src, row.dst
+            
+            if src_code in self.reclassify_table.class_select_list:
+                self.reclassify_table.class_select_list[src_code].v_model = dst_code
+        
+        
+        return self
 
     def reclassify(self, widget, event, data):
         """
