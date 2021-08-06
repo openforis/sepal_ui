@@ -317,9 +317,8 @@ class ReclassifyView(v.Card):
         self.w_code = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model=None, items=[], persistent_hint=True)
         
         w_optional_title = v.Html(tag='h3', children=['Optional'], class_='mb-5')
-        self.w_src_name = su.hide_component(v.Select(label='select the class name from a property', hint='blablabla', v_model=None, items=None, persistent_hint=True))
         self.w_src_class_file = sw.FileInput(['.csv'], label='source class', folder=self.class_path)
-        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_src_name, self.w_src_class_file])
+        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_src_class_file])
         
         # create the destination class widgetss
         w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-5')
@@ -362,7 +361,6 @@ class ReclassifyView(v.Card):
             .bind(self.w_raster, 'src_local') \
             .bind(self.w_asset, 'src_gee') \
             .bind(self.w_code, 'band') \
-            .bind(self.w_dst_class_file, 'dst_class_file')
         
         # create the layout
         self.children = [
@@ -473,13 +471,6 @@ class ReclassifyView(v.Card):
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
         
-        # if the file is a vector 
-        su.hide_component(self.w_src_name)
-        if self.model.input_type == 0:
-            self.w_src_name.v_model = None
-            self.w_src_name.items = self.model.get_bands()
-            su.show_component(self.w_src_name)
-        
         return self
     
     def get_reclassify_table(self, widget, event, data):
@@ -497,13 +488,17 @@ class ReclassifyView(v.Card):
         if not self.w_dst_class_file.v_model: raise AttributeError('missing file')
             
         # get the destination classes
-        dst_classes = self.model.get_dst_classes()
+        self.model.dst_class = self.model.get_classes(self.w_dst_class_file.v_model)
         
         # get the src_classes
-        src_classes = self.model.unique()
+        self.model.src_class = self.model.unique()   
+            
+        # if the src_class_file is set overwrite src_class:
+        if self.w_src_class_file.v_model:
+            self.model.src_class = self.model.get_classes(self.w_src_class_file.v_model)
         
         # reset the table 
-        self.reclassify_table.set_table(dst_classes, src_classes)
+        self.reclassify_table.set_table(self.model.dst_class, self.model.src_class)
         
         # enable the reclassify btn 
         self.reclassify_btn.disabled = False

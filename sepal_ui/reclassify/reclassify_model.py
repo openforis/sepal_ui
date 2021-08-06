@@ -23,7 +23,6 @@ class ReclassifyModel(Model):
         band (str|int): the band name or number to use for the reclassification if raster type. Use property name if vector type  
         src_local (str): the source file to reclassify (from a local path) only used if :code:`gee=False`
         src_gee: (str): AssetId of the used input asset for reclassification. Only used if :code:`gee=True`
-        dst_class_file (str): the filename/assetId of the reclassification
         dst_dir (str): the dir used to store the output
         gee (bool): either to use the gee backend or not
         matrix (dict): the transfer matrix between the input and the output using the following format: {old_value: new_value, ...}
@@ -44,7 +43,6 @@ class ReclassifyModel(Model):
     band = Any(None).tag(sync=True)
     src_local = Any(None).tag(sync=True)
     src_gee = Any(None).tag(sync=True)
-    dst_class_file = Any(None).tag(sync=True)
     dst_dir = Any(None).tag(sync=True)
     gee = Bool(False).tag(sync=True)
     
@@ -89,25 +87,33 @@ class ReclassifyModel(Model):
         
         return self
     
-    def get_dst_classes(self):
+    @staticmethod
+    def get_classes(file):
         """
-        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used. The data will be saved in self.dst_class.
+        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
+        
+        Args:
+            file (pathlike object): the pathlib object of the class file
         
         Return:
-            (dict): the dict of the destination classes using following format {code: desc}
+            (dict): the dict of the classes using following format {code: (name, color)}
         """
         
-        df = pd.read_csv(self.dst_class_file, header=None)
+        path = Path(file)
+        if not path.is_file():
+            raise Exception (f'{file} is not existing')
+        
+        df = pd.read_csv(file, header=None)
         
         # dst_class_file should be set on the model csv output of the custom view 
         # 3 column: 1: code, 2: name, 3: color 
         df = df.rename(columns={0: 'code', 1: 'desc', 2: 'color'})
         
         # save the df for reclassify usage
-        self.dst_class = {row.code: (row.desc, row.color) for _, row in df.iterrows()}
+        class_list = {row.code: (row.desc, row.color) for _, row in df.iterrows()}
         
         # create a dict out of it 
-        return self.dst_class
+        return class_list
     
     def get_type(self):
         """
@@ -260,9 +266,6 @@ class ReclassifyModel(Model):
             from_ = [v for v in matrix.keys()]
             to_ = [v for v in matrix.values()]
             
-            print(from_)
-            print(to_)
-            
             ee_image = ee.Image(self.src_gee) \
                 .remap(from_, to_, 0, self.band) \
                 .select(['remapped'], [self.band])
@@ -272,9 +275,9 @@ class ReclassifyModel(Model):
             
             # add colormapping parameters
             # set return an element so we force cast it to ee.Image
-            desc = [str(e) for e in self.dst_class.desc.tolist()]
-            color = [str(e) for e in self.dst_class.color.tolist()]
-            code = [str(e) for e in self.dst_class.code.tolist()]
+            desc = [str(e[0]) for e in self.dst_class.values()]
+            color = [str(e[1]) for e in self.dst_class.values()]
+            code = [str(e) for e in self.dst_class.keys()]
             
             ee_image = ee.Image(ee_image.set({
                 'visualization_0_name': 'Classification',
@@ -359,11 +362,8 @@ class ReclassifyModel(Model):
 
                     # add the colors to the image
                     colormap = {}
-                    for i, row in self.dst_class.iterrows():
-                        print(row.color)
-                        print(to_rgba(row.color))
-                        print(type(to_rgba(row.color)))
-                        colormap[row.code] = tuple(int(c*255) for c in to_rgba(row.color))
+                    for code, item in self.dst_class.items():
+                        colormap[code] = tuple(int(c*255) for c in to_rgba(item[1]))
 
                     dst_f.write_colormap(self.band, colormap)
             
