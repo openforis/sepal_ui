@@ -27,3 +27,4 @@ sepal_ui
 natsort
 pipreqs
 black
+pre-commit
