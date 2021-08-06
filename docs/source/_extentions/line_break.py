@@ -9,6 +9,7 @@ Example::
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
+
 class LineBreak(Directive):
     has_content = False
     required_arguments = 0
@@ -16,10 +17,10 @@ class LineBreak(Directive):
     final_argument_whitespace = False
     option_spec = {}
     html = "<br/>"
-    
+
     def run(self):
-        return [nodes.raw('', self.html, format='html')]
-    
+        return [nodes.raw("", self.html, format="html")]
+
+
 def setup(builder):
-    directives.register_directive('line-break', LineBreak)
-        
+    directives.register_directive("line-break", LineBreak)
