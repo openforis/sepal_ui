@@ -92,6 +92,7 @@
             "title": "Reclassificateur d'image",
             "headers": ["Classe initiale", "Classe de destination"],
             "input": {
+                "optional": "Optionnel",
                 "title": "Selectionner les entrées de classification",
                 "asset": "Asset",
                 "file": "fichier",

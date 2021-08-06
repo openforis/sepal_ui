@@ -89,8 +89,9 @@
         },
         "rec": {
             "title": "Reclasificar imagen",
-            "headers": ["Clase originale", 'Clase de destino"],
+            "headers": ["Clase originale", "Clase de destino"],
             "input": {
+                "optional": "Opcional",
                 "title": "Seleccionar clasificación de entrada",
                 "asset": "Asset de entrada",
                 "file": "archivo de entrada",

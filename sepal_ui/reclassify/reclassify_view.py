@@ -316,8 +316,8 @@ class ReclassifyView(v.Card):
         
         self.w_code = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model=None, items=[], persistent_hint=True)
         
-        w_optional_title = v.Html(tag='h3', children=['Optional'])
-        self.w_src_class_file = sw.FileInput(['.csv'], label='source class', folder=self.class_path)
+        w_optional_title = v.Html(tag='h3', children=[ms.rec.rec.input.optional])
+        self.w_src_class_file = sw.FileInput(['.csv'], label=ms.rec.rec.input.classif.label, folder=self.class_path)
         w_optional = v.ExpansionPanels(class_='mt-5', children=[
             v.ExpansionPanel(children=[
                 v.ExpansionPanelHeader(children=[w_optional_title]),

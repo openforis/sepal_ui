@@ -92,6 +92,7 @@
             "title": "Reclassify image",
             "headers": ["Original class", "Destination class"],
             "input": {
+                "optional": "Optional",
                 "title": "Select input classification",
                 "asset": "input asset",
                 "file": "input file",
