@@ -82,6 +82,7 @@ class FileInput(v.Flex, SepalWidget):
         folder (str | pathlib.Path): the starting folder of the file input
         label (str): the label of the input
         v_model (str, optional): the default value
+        clearable (bool, optional): wether or not to make the widget clearable. default to False 
         
     Attributes:
         extentions ([str]): the extention list
@@ -90,7 +91,8 @@ class FileInput(v.Flex, SepalWidget):
         loading (v.ProgressLinear): loading top bar of the menu component
         file_list (v.List): the list of files and folder that are available in the current folder
         file_menu (v.Menu): the menu that hide and show the file_list
-        reload (v.Btn): reload btn to reload the file list on the current folder 
+        reload (v.Btn): reload btn to reload the file list on the current folder
+        clear (v.Btn): clear btn to remove everything and set back to the ini folder
     """
 
     file = Any('')
@@ -99,7 +101,8 @@ class FileInput(v.Flex, SepalWidget):
                  extentions = [], 
                  folder=Path('~').expanduser(), 
                  label='search file', 
-                 v_model = None, 
+                 v_model = None,
+                 clearable=False,
                  **kwargs):
         
         if type(folder) == str:
@@ -152,11 +155,19 @@ class FileInput(v.Flex, SepalWidget):
             children = [v.Icon(children=['mdi-cached'])]
         )
         
+        self.clear = v.Btn(
+            icon = True,
+            color = 'primary',
+            children = [v.Icon(children=['mdi-close'])]
+        )
+        if not clearable: su.hide_component(self.clear)
+        
         super().__init__(
             row          = True,
             class_       = 'd-flex align-center mb-2',
             align_center = True,
             children     = [
+                self.clear,
                 self.reload,
                 self.file_menu,
                 self.selected_file,
@@ -169,8 +180,9 @@ class FileInput(v.Flex, SepalWidget):
 
         self.file_list.children[0].observe(self._on_file_select, 'v_model')
         self.reload.on_event('click', self._on_reload)
+        self.clear.on_event('click', self.reset)
         
-    def reset(self):
+    def reset(self, *args):
         """
         Clear the File selection and move to the root folder if something was selected
         
