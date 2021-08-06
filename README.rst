@@ -26,6 +26,9 @@ Sepal_ui
 .. image:: https://readthedocs.org/projects/sepal-ui/badge/?version=latest
     :target: https://sepal-ui.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+    
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
 
 :code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
