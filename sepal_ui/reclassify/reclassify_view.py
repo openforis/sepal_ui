@@ -150,14 +150,14 @@ class ClassSelect(v.Select, sw.SepalWidget):
     Custom widget to pick the value of a original class in the new classification system
     
     Args:
-        new_codes(dict): the dict of the new codes to use as items {code: name}
+        new_codes(dict): the dict of the new codes to use as items {code: (name, color)}
         code (int): the orginal code of the class
     """
     
     def __init__(self, new_codes, old_code, **kwargs):
         
         # set default parameters
-        self.items = [{'text': f'{code}: {name}', 'value': code} for code, name in new_codes.items()]
+        self.items = [{'text': f'{code}: {item[0]}', 'value': code} for code, item in new_codes.items()]
         self.dense = True
         self.multiple = False
         self.chips = True
@@ -175,8 +175,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     
     Args:
         model (ReclassifyModel): model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
-        dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-        src_classes (dict|optional): the list of existing values within the input file {class_code: class_name}
+        dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
+        src_classes (dict|optional): the list of existing values within the input file {class_code: (class_name, class_color)}
         
     Attributes:
         HEADER (list): name of the column header (from, to)
@@ -206,8 +206,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         Rebuild the table content based on the new_classes and codes provided
         
         Args:
-            dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: class_name}. class_code must be ints and class_name str.
-            src_classes (dict|optional): the list of existing values within the input file {class_code: class_name}
+            dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
+            src_classes (dict|optional): the list of existing values within the input file {class_code: (class_name, class_color)}
             
         Return:
             self
@@ -222,9 +222,9 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
         rows = [
             v.Html(tag='tr', children=[
-                v.Html(tag='td', children=[f'{code}: {name}']), 
+                v.Html(tag='td', children=[f'{code}: {item[0]}']), 
                 v.Html(tag='td', children=[self.class_select_list[code]])
-            ]) for code, name in src_classes.items()
+            ]) for code, item in src_classes.items()
         ]
         
         # add an empty row at the end to make the table more visible when it's empty 

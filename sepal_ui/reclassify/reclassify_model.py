@@ -28,8 +28,8 @@ class ReclassifyModel(Model):
         gee (bool): either to use the gee backend or not
         matrix (dict): the transfer matrix between the input and the output using the following format: {old_value: new_value, ...}
         input_type (bool): the input type, 1 for raster and 0 for vector
-        src_class (list): the sorted list of properties/band unique classes from the input file
-        dst_class (pd.Dataframe): the pandas dataframe of the destination classes using the following columns: 'code, 'desc', 'color'
+        src_class (dict): the source classes using the following columns: {code: (desc, color)}
+        dst_class (dict): the destination classes using the following columns: {code: (desc, color)}
         dst_local (str): the output file. default to :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}``
         dst_gee (str): the output assetId. default to :code:`dst_dir/f'{src_gee.stem}_reclass``
         remaped (int): state var updated each time an input is remapped
@@ -53,8 +53,8 @@ class ReclassifyModel(Model):
     
     # outputs
     input_type = Bool(False).tag(sync=True) # 1 raster, 0 vector
-    src_class = Any(None).tag(sync=True)
-    dst_class = Any(None).tag(sync=True)
+    src_class = Dict({}).tag(sync=True)
+    dst_class = Dict({}).tag(sync=True)
     dst_local = Any(None).tag(sync=True)
     dst_gee = Any(None).tag(sync=True)
     
@@ -91,7 +91,7 @@ class ReclassifyModel(Model):
     
     def get_dst_classes(self):
         """
-        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
+        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used. The data will be saved in self.dst_class.
         
         Return:
             (dict): the dict of the destination classes using following format {code: desc}
@@ -103,11 +103,11 @@ class ReclassifyModel(Model):
         # 3 column: 1: code, 2: name, 3: color 
         df = df.rename(columns={0: 'code', 1: 'desc', 2: 'color'})
         
-        # save the df for reclassify useage
-        self.dst_class = df
+        # save the df for reclassify usage
+        self.dst_class = {row.code: (row.desc, row.color) for _, row in df.iterrows()}
         
         # create a dict out of it 
-        return {row.code: row.desc for i, row in df.iterrows()}
+        return self.dst_class
     
     def get_type(self):
         """
@@ -185,10 +185,11 @@ class ReclassifyModel(Model):
     
     def unique(self):
         """
-        Retreive all the existing class from the specified band/property according to the input_type in the following format {code: name}
+        Retreive all the existing class from the specified band/property according to the input_type.
+        The data will be saved in self.src_class with no_name and black as a color.
         
         Return:
-            (list): the unique class value found in the specified band/property
+            (Dict): the unique class value found in the specified band/property and there color/name defaulted to none and black
         """
         
         @su.need_ee
@@ -203,39 +204,42 @@ class ReclassifyModel(Model):
                 .keys() \
                 .getInfo()
             
-            return {int(v): v for v in values}
+            return values
 
         @su.need_ee
         def _ee_vector(self):
             
             # get the feature
             values = ee.FeatureCollection(self.src_gee).aggregate_array(self.band).getInfo()
-            values = list(set(values))
             
-            return {int(v): v for v in values}
+            return list(set(values))
 
         def _local_image(self):
 
             with rio.open(self.src_local) as src:
                 
                 count = np.bincount(src.read(self.band).flatten())
-                features = np.nonzero(count!=0)[0].tolist()
-
-            return {int(v): v for v in features}
+            
+            return np.nonzero(count!=0)[0].tolist()
 
         def _local_vector(self):
 
             df = gpd.read_file(self.src_local)
-            values = df[self.band].unique().tolist()
             
-            return {int(v): v for v in values}
+            return df[self.band].unique().tolist()
         
         # map all the function in the guess matrix (gee, type) 
         unique_func = [[_local_vector, _local_image],[_ee_vector, _ee_image]]
         
-        # return the selected function 
+        # get values from the selected func
         # remember to use self as a parameter
-        return unique_func[self.gee][self.input_type](self) 
+        values = unique_func[self.gee][self.input_type](self) 
+        
+        # create the init dictionnary
+        self.src_class = {v: ('no_name', "#000000") for v in values}
+        
+        return self.src_class
+        
     
     def reclassify(self):
         """
