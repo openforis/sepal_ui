@@ -316,9 +316,14 @@ class ReclassifyView(v.Card):
         
         self.w_code = v.Select(label=ms.rec.rec.input.band.label, hint=ms.rec.rec.input.band.hint, v_model=None, items=[], persistent_hint=True)
         
-        w_optional_title = v.Html(tag='h3', children=['Optional'], class_='mb-5')
+        w_optional_title = v.Html(tag='h3', children=['Optional'])
         self.w_src_class_file = sw.FileInput(['.csv'], label='source class', folder=self.class_path)
-        w_optional = v.Alert(dense=True, text=True, class_='mt-5', color='light', children=[w_optional_title, self.w_src_class_file])
+        w_optional = v.ExpansionPanels(class_='mt-5', children=[
+            v.ExpansionPanel(children=[
+                v.ExpansionPanelHeader(children=[w_optional_title]),
+                v.ExpansionPanelContent(children=[self.w_src_class_file])
+            ])
+        ])
         
         # create the destination class widgetss
         w_class_title = v.Html(tag='h2', children=[ms.rec.rec.input.classif.title], class_='mt-5')
@@ -327,7 +332,7 @@ class ReclassifyView(v.Card):
             self.w_dst_class_file.select_file(dst_class).hide()
             
         self.btn_list = [sw.Btn(f'use {name}', _metadata={'path': path}, small=True, class_='mr-2', outlined=True) for name, path in default_class.items()]
-        w_default = v.Flex(children=self.btn_list)
+        w_default = v.Flex(class_='mt-5', children=self.btn_list)
         
         # set the table and its toolbar
         w_table_title = v.Html(tag='h2', children=[ms.rec.rec.table], class_='mt-5')
@@ -336,7 +341,7 @@ class ReclassifyView(v.Card):
         self.import_dialog = importMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(ms.rec.rec.input.btn, 'mdi-table', color='success', small=True)
         self.import_table = sw.Btn('import', 'mdi-download', color='secondary', small=True, class_='ml-2 mr-2')
-        self.save_table = sw.Btn('save', 'mdi-content-save', small=True)
+        self.save_table = sw.Btn('save', 'mdi-content-save', color='secondary', small=True)
         self.reclassify_btn = sw.Btn(ms.rec.rec.btn, 'mdi-checkerboard', small=True)
         
         toolbar = v.Toolbar(
@@ -347,7 +352,9 @@ class ReclassifyView(v.Card):
                 self.import_dialog,
                 v.ToolbarTitle(children=['Actions']),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
-                v.Flex(class_='ml-auto', children=[self.get_table, self.import_table, self.save_table]),
+                self.get_table,
+                v.Divider(class_='mx-4', inset=True, vertical=True),
+                v.Flex(class_='ml-auto', children=[self.import_table, self.save_table]),
                 v.Divider(class_='mx-4', inset=True, vertical=True),
                 self.reclassify_btn
             ]
