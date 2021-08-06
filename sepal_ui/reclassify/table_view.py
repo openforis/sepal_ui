@@ -498,14 +498,15 @@ class TableView(v.Card, sw.SepalWidget):
         self.title = v.CardTitle(children=[v.Html(tag='h2', children=[ms.rec.table.title])])
         
         # add the widgets
-        w_class_title = v.Html(tag='h2', children=[ms.rec.table.classif.title], class_='mt-2')
-        self.w_class_file = sw.FileInput(
-            extentions = ['.csv'],
-            label=ms.rec.table.classif.file_select,
-            folder = self.class_path
-        )
-        
+        w_class_title = v.Html(tag='h3', children=[ms.rec.table.classif.title], class_='mt-2')
+        self.w_class_file = sw.FileInput(extentions = ['.csv'], label=ms.rec.table.classif.file_select,folder = self.class_path)
         self.btn = sw.Btn(ms.rec.table.classif.btn, icon='mdi-table', color='success', outlined=True)
+        w_panels = v.ExpansionPanels(children=[
+            v.ExpansionPanel(children=[
+                v.ExpansionPanelHeader(children=[w_class_title]),
+                v.ExpansionPanelContent(children=[self.w_class_file, self.btn])
+            ])
+        ])
         
         w_table_title = v.Html(tag='h2', children=[ms.rec.table.table], class_='mt-5')
         self.w_class_table = ClassTable(out_path=self.out_path, class_='mt-5')
@@ -516,7 +517,7 @@ class TableView(v.Card, sw.SepalWidget):
         # assemble a layout
         self.children=[
             self.title,
-            w_class_title, self.w_class_file, self.btn,
+            w_panels,
             self.alert,
             w_table_title, self.w_class_table
         ]
