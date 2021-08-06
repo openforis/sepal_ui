@@ -26,3 +26,4 @@ sphinx-copybutton
 sepal_ui
 natsort
 pipreqs
+black
