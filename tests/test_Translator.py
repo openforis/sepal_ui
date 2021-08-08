@@ -12,6 +12,7 @@ class TestTranslator(unittest.TestCase):
         # assert that the test key exist in fr
         target_lan = "fr"
         translator = Translator(self._get_message_json_folder(), target_lan)
+
         self.assertEqual(translator.test_key, "Clef test")
 
         # assert that the the code work if the path is a str
@@ -21,6 +22,7 @@ class TestTranslator(unittest.TestCase):
 
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
+
         translator = Translator(self._get_message_json_folder(), target_lan)
         self.assertEqual(translator.test_key, "Test key")
 
@@ -46,11 +48,11 @@ class TestTranslator(unittest.TestCase):
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
         translator = Translator(self._get_message_json_folder(), target_lan)
-
-        self.assertIn("root['test_key']", translator.missing_keys())
-
-        return
-
+        
+        self.assertEqual("root['test_key']", translator.missing_keys())
+        
+        return 
+    
     def test_search_key(self):
 
         # assert that having a wrong key in the json will raise an error

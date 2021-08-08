@@ -37,5 +37,80 @@
     },
     "mapping": {
         "no_image": "The image file does not exist."
+    },
+    "rec": {
+        "table": {
+            "title": "Classification editor",
+            "classif": {
+                "title": "select existing table",
+                "file_select": "Class file",
+                "btn": "Get table"
+            },
+            "table": "Classification table",
+            "schema": ["id", "code", "description", "color"],
+            "btn": {
+                "edit": "edit",
+                "save": "save",
+                "add": "add",
+                "delete": "delete"
+            },
+            "edit_dialog": {
+                "titles": ["New element", "Modify element"],
+                "btn": {
+                    "save": {
+                        "name": "save",
+                        "tooltip": "create new class"
+                    },
+                    "modify": {
+                        "name": "modify",
+                        "tooltip": "modify existing class"
+                    },
+                    "cancel": {
+                        "name": "cancel",
+                        "tooltip": "cancel operation"
+                    }
+                }
+            },
+            "save_dialog": {
+                "filename": "Insert output file name",
+                "placeholder": "new_table",
+                "btn": {
+                    "save": {
+                        "name": "save",
+                        "tooltip": "save table"
+                    },
+                    "cancel": {
+                        "name": "cancel",
+                        "tooltip": "cancel operation"
+                    }
+                },
+                "title": "save classifcation table",
+                "info": "The table will be stored in {}"
+            }
+        },
+        "rec": {
+            "title": "Reclassify image",
+            "headers": ["Original class", "Destination class"],
+            "input": {
+                "optional": "Optional",
+                "title": "Select input classification",
+                "asset": "input asset",
+                "file": "input file",
+                "band": {
+                    "label": "select band/property",
+                    "hint": "The band/property to use as class reference"
+                },
+                "classif": {
+                    "title": "Select destination classification system",
+                    "label": "class file"
+                },
+                "btn": "get table"
+            },
+            "table": "Reclassify table",
+            "btn": "Reclassify"
+        },
+        "tile": {
+            "title": "Reclassification"
+        }
     }
 }
