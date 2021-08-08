@@ -18,7 +18,7 @@ class TestTranslator(unittest.TestCase):
         # assert that the the code work if the path is a str
         target_lan = "fr"
         translator = Translator(str(self._get_message_json_folder()), target_lan)
-        self.assertEqual(translator.test_key, "Clef test")
+        self.assertEqual(translator.test_key, "Clef de test")
 
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
