@@ -27,9 +27,9 @@ def hide_component(widget):
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
 
-    elif not 'd-none' in str(widget.class_):
-        widget.class_ = str(widget.class_).strip() + ' d-none'
-        
+    elif not "d-none" in str(widget.class_):
+        widget.class_ = str(widget.class_).strip() + " d-none"
+
     return widget
 
 
@@ -44,12 +44,12 @@ def show_component(widget):
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
 
-    elif 'd-none' in str(widget.class_):
-        widget.class_ = widget.class_.replace('d-none', '')
-        
+    elif "d-none" in str(widget.class_):
+        widget.class_ = widget.class_.replace("d-none", "")
+
     return widget
-    
-    
+
+
 def create_download_link(pathname):
     """
     Create a clickable link to download the pathname target

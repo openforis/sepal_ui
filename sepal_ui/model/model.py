@@ -16,13 +16,13 @@ class Model(HasTraits):
     """
 
     def __init__(self, traits=[]):
-        
+
         # didn't manage to make it work and it seems dodgy has it creates a simlink to new class at each call
         # if len(traits):
         #    [self.add_traits(Any(val).tag(sync=True), label) for label, val in traits.items()]
-        
+
         super().__init__()
-        
+
     def __repr__(self):
         """Method to represent the Model objects as a string"""
 

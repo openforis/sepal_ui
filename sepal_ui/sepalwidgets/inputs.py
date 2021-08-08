@@ -218,13 +218,12 @@ class FileInput(v.Flex, SepalWidget):
             raise Exception(f"{path} is not a file")
 
         # set the menu to the folder of the file
-        self._on_file_select({'new': path.parent})
-        
-        # select the appropriate file 
-        self._on_file_select({'new': path})
-        
+        self._on_file_select({"new": path.parent})
+
+        # select the appropriate file
+        self._on_file_select({"new": path})
+
         return self
-        
 
     def _on_file_select(self, change):
         """Dispatch the behavior between file selection and folder change"""

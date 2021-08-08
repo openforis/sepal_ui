@@ -48,11 +48,11 @@ class TestTranslator(unittest.TestCase):
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
         translator = Translator(self._get_message_json_folder(), target_lan)
-        
+
         self.assertEqual("root['test_key']", translator.missing_keys())
-        
-        return 
-    
+
+        return
+
     def test_search_key(self):
 
         # assert that having a wrong key in the json will raise an error
