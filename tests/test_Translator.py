@@ -13,7 +13,7 @@ class TestTranslator(unittest.TestCase):
         target_lan = "fr"
         translator = Translator(self._get_message_json_folder(), target_lan)
 
-        self.assertEqual(translator.test_key, "Clef test")
+        self.assertEqual(translator.test_key, "Clef de test")
 
         # assert that the the code work if the path is a str
         target_lan = "fr"
