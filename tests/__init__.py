@@ -1,1 +1,1 @@
-print('toto')
+print("toto")

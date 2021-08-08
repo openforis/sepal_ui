@@ -12,12 +12,113 @@ During your development, you may have encounter some trouble  using the preinsta
 
     $ pip install <my_lib>
 
-As a regular Sepal user, you don't have the rights to write in the :code:`usr/` so your installation have been performed using the :code:`--user` option. All the other Sepal user thus don't have access to your lib. 
-To verify that your module is still working try to launch it using the :code:`python3 module` kernel. This kernel only use the default libraries and will help you pinpoint what is missing in Sepal. 
+As a regular Sepal user, you don't have the rights to write in the :code:`/usr/` folder so your installations have been performed using the :code:`--user` option. All the other Sepal user thus don't have access to your libs. 
+in order to make your application work, Sepal will create a specific virtual environment (:code:`venv`) for your specific application. for that purpose you need to update the :code:`requirements.txt` file that is hold at the root of your module. By default the following content is already set: 
+
+Standard environment
+^^^^^^^^^^^^^^^^^^^^
+.. code-block:: python
+
+    # these libs are requested to build common python libs 
+    # if you are an advance user and are sure to not use them you can comment the following lines
+    wheel
+    Cython
+    pybind11
+
+    # if you require GDAL and or pyproj in your module please uncomment these lines
+    # there are set up to be inlined with SEPAL implementation of GDAL and PROJ version
+    GDAL==3.0.4
+    pyproj<3.0.0
+
+    # the base lib to run any sepal_ui based app 
+    # don't forget to fix it to a specific version when you're app is ready
+    sepal_ui
+    
+The 3 first libs are compiling tools that are usually required for common Python libs, comment them only if you are sure that none of your libs are using them. 
+
+The gdal and pyproj libs are working on top of the PROJ and GDAL C++ libs that are already installed in SEPAL. The version suggested here are inlined with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
+
+Sepal_ui is off course a mandatory requirements.
+
+Customize the env
+^^^^^^^^^^^^^^^^^
+
+To customize this environment add any libs that are useful for your module. For this purpose use the :code:`module_deploy` command. it will automatically add your dependencies to the requirements and deal with the already known troubleshoutings:
+
+.. code-block:: console
+
+    $ cd <my_module_path>
+    $ module_deploy
+
+    ##########################################
+    #                                        #
+    #      SEPAL MODULE DEPLOYMENT TOOL      #
+    #                                        #
+    ##########################################
+    
+    Welcome in the module deployment interface.
+    This interface will help you prepare your module for deployment.
+    Please read the documentation of the library before launching this script
+    
+    
+    Export the env configuration of your module
+    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    INFO: Successfully saved requirements file in /home/prambaud/modules/sepal_ui_template/req_tmp.txt
+    Removing sepal_ui from reqs, duplicated from default.
+    Removing earthengine_api from reqs, included in sepal_ui.
+    Removing ee from reqs, included in sepal_ui.
+    sepal_ui version have been freezed to  2.0.6
+    
+    WARNING: The requirements.txt file have been updated. The tool does not cover every possible configuration so don't forget to check the final file before pushing to release
+    
+.. note::
+
+    If you want to import a file directly from the source, use the git import syntax: 
+    
+    .. code-block::
+    
+        git+git://github.com/12rambau/sepal_ui.git#egg=sepal_ui
+        
+    with everything after "git+" being the ssh link to the repository and "egg=" the name used by the lib in your file. If you want to know more about this method please refer to `this blog post <https://codeinthehole.com/tips/using-pip-and-requirementstxt-to-install-from-the-head-of-a-github-branch/>`_.
+    
+Check your env
+^^^^^^^^^^^^^^
+
+As mentioned at the end of the the command you should test your environment in sepal to check if everything is working. 
+
+first create a new **venv** anywhere in your home directory: 
+
+.. code-block:: console
+
+    $ python3 -m venv <path_to_venv_folder/venv_name>
+    
+Then activate this virtual environment: 
+
+.. code-block:: console
+
+    $ source <path_to_venv_folder/venv_name>/bin/activate
+    (venv_name) $
+    
+the name in parenthesis show to the user that the terminal is now running in a specific environment. 
 
 .. tip::
 
-    keep a list of all the missing python libraries
+    to return to the general environment simply run:
+    
+    .. code-block:: console
+    
+        (venv_name) $ deactivate
+        $ 
+        
+    The parenthesis should disapear.
+    
+in this new environment run the following command using your requirement.txt file:
+
+.. code-block:: console 
+
+    $ grep -v "^#" <path-to-module>/requirements.txt | xargs -n 1 -L 1 pip3 install
+
+It will recursivelly install all your libs in the virtual env. If you are expeincing difficulties, please contact us in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`_. 
 
 Add documentation
 -----------------
@@ -48,7 +149,6 @@ You'll be asked to provide :
 - the name of the repository 
 - the name of the app to display in the dashboard
 - a short description of the module (1 liner)
-- the missing python libraries
 
 Our maintainers will then study your request and may ask you to make modifications to your repository before pulling. 
 
