@@ -90,7 +90,7 @@ class SaveMatrixDialog(v.Dialog):
         btn = sw.Btn('Save matrix')
         cancel = sw.Btn('Cancel', outlined=True)
         actions = v.CardActions(children=[cancel, btn])
-        self.alert = sw.Alert().show()
+        self.alert = sw.Alert()
         
         # default parameters 
         self.value = False
@@ -117,7 +117,7 @@ class SaveMatrixDialog(v.Dialog):
         new_val = change['new']
         msg = self.folder/f'{su.normalize_str(new_val)}.csv'
         
-        self.alert.children=[f'Your file will be stored in: {msg}']
+        self.alert.add_msgf('Your file will be stored in: {msg}')
         
     def _cancel(self, widget, event, data):
         """do nothing and exit"""
@@ -167,7 +167,11 @@ class ClassSelect(v.Select, sw.SepalWidget):
     def __init__(self, new_codes, old_code, **kwargs):
         
         # set default parameters
-        self.items = [{'text': f'{code}: {item[0]}', 'value': code} for code, item in new_codes.items()]
+        self.items = [
+            {'text': f'{code}: {item[0]}', 'value': code} 
+            for code, item 
+            in new_codes.items()
+        ]
         self.dense = True
         self.multiple = False
         self.chips = True
@@ -180,17 +184,24 @@ class ClassSelect(v.Select, sw.SepalWidget):
 class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
     """
     Table to store the reclassifying information. 
-    2 columns are integrated, the new class value and the values in the original input
-    One can select multiple class to be reclassify in the new classification
+    2 columns are integrated, the new class value and the values in the 
+    original input. One can select multiple class to be reclassify in the new 
+    classification
     
     Args:
-        model (ReclassifyModel): model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
-        dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
-        src_classes (dict|optional): the list of existing values within the input file {class_code: (class_name, class_color)}
+        model (ReclassifyModel): model embeding the traitlet dict to store the 
+            reclassifying matrix. keys: class value in dst, values: list of 
+            values in src.
+        dst_classes (dict|optional): a dictionnary that represent the classes 
+            of new the new classification table as {class_code: (class_name, class_color)}. 
+            class_code must be ints and class_name str.
+        src_classes (dict|optional): the list of existing values within the 
+            input file {class_code: (class_name, class_color)}
         
     Attributes:
         HEADER (list): name of the column header (from, to)
-        model (ReclassifyModel): the reclassifyModel object to manipulate the input file and save parameters
+        model (ReclassifyModel): the reclassifyModel object to manipulate the 
+            input file and save parameters
     """
     
     HEADERS = ms.rec.rec.headers
@@ -207,7 +218,12 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         self.model = model
         
         # create the table elements
-        self._header = [v.Html(tag='tr', children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS])]
+        self._header = [
+            v.Html(
+                tag='tr', 
+                children=[v.Html(tag = 'th', children = [h]) for h in self.HEADERS]
+            )
+        ]
         self.set_table(dst_classes, src_classes)
         
         
@@ -216,8 +232,12 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         Rebuild the table content based on the new_classes and codes provided
         
         Args:
-            dst_classes (dict|optional): a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
-            src_classes (dict|optional): the list of existing values within the input file {class_code: (class_name, class_color)}
+            dst_classes (dict|optional): a dictionnary that represent the 
+                classes of new the new classification table as 
+                {class_code: (class_name, class_color)}. class_code must be ints 
+                and class_name str.
+            src_classes (dict|optional): the list of existing values within the 
+                input file {class_code: (class_name, class_color)}
             
         Return:
             self
@@ -228,7 +248,9 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
         # create the select list
         # they need to observe each other to adapt the available class list dynamically 
-        self.class_select_list = {k: ClassSelect(dst_classes, k) for k in src_classes.keys()}
+        self.class_select_list = {
+            k: ClassSelect(dst_classes, k) for k in src_classes.keys()
+        }
         
         rows = [
             v.Html(tag='tr', children=[
@@ -263,29 +285,50 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         
 class ReclassifyView(v.Card):
     """
-    Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE). 
-    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
+    Stand-alone Card object allowing the user to reclassify a input file. 
+    the input can be of any type (vector or raster) and from any source 
+    (local or GEE). 
+    The user need to provide a destination classification file (table) in the 
+    following format : 3 headless columns: 'code', 'desc', 'color'. Once all 
+    the old class have been attributed to their new class the file can be 
+    exported in the source format to local memory or GEE. the output is also 
+    savec in memory for further use in the app. It can be used as a tile in a 
+    sepal_ui app. The id_ of the tile is set to "reclassify_tile"
     
     Args:
-        model (ReclassifyModel): the reclassify model to manipulate the classification dataset. default to a new one
-        class_path (str,optional): Folder path containing already existing classes. Default to ~/
-        out_path (str,optional): the folder to save the created classifications. default to ~/downloads
+        model (ReclassifyModel): the reclassify model to manipulate the 
+            classification dataset. default to a new one
+        class_path (str,optional): Folder path containing already existing 
+            classes. Default to ~/
+        out_path (str,optional): the folder to save the created classifications. 
+            default to ~/downloads
         gee (bool): either or not to set :code:`gee` to True. default to False
-        dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
-        default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
+        dst_class (str|pathlib.Path, optional): the file to be used as 
+            destination classification. for app that require specific code 
+            system the file can be set prior and the user won't have the 
+            oportunity to change it.
+        default_class (dict|optional): the default classification system to 
+            use, need to point to existing sytem: {name: absolute_path}
         
     Attributes:
-        model (ReclassifyModel): the reclassify model to manipulate the classification dataset
-        gee (bool): either being linked to gee or not (use local file or GEE asset for the rest of the app)
+        model (ReclassifyModel): the reclassify model to manipulate the 
+            classification dataset
+        gee (bool): either being linked to gee or not (use local file or GEE 
+            asset for the rest of the app)
         alert (sw.Alert): the alert to display informations about computation
         title (v.Cardtitle): the title of the card
         w_asset (sw.AssetSelect): the widget to select an asset input 
         w_raster (sw.FileInput): the widget to select a file input
-        w_image (Any): wraper of the input. linked to w_asset if gee=True, else to w_raster
-        w_code (int|str): widget to select the band/property used as init classification in the input file
-        get_table_btn (sw.Btn): the btn to load the data in the reclassification table
-        w_dst_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
-        reclassify_table (ReclassifyTable): the reclassification table populated via the previous widgets
+        w_image (Any): wraper of the input. linked to w_asset if gee=True, 
+            else to w_raster
+        w_code (int|str): widget to select the band/property used as init 
+            classification in the input file
+        get_table_btn (sw.Btn): the btn to load the data in the 
+            reclassification table
+        w_dst_class_file (sw.FileInput): widget to select the new 
+            classification system file (3 headless columns: 'code', 'desc', 'color')
+        reclassify_table (ReclassifyTable): the reclassification table 
+            populated via the previous widgets
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
 
@@ -298,6 +341,7 @@ class ReclassifyView(v.Card):
         dst_class=None, 
         default_class={},
         aoi_model=None,
+        save=True,
         **kwargs
     ):
         
@@ -311,7 +355,11 @@ class ReclassifyView(v.Card):
         super().__init__(**kwargs)
         
         # set up a default model 
-        self.model = model if model else ReclassifyModel(gee=gee, dst_dir=out_path, aoi_model=aoi_model)
+        self.model = (
+            model 
+            if model 
+            else ReclassifyModel(gee=gee, dst_dir=out_path, aoi_model=aoi_model)
+        )
         
         # set the folders
         self.class_path = Path(class_path)
