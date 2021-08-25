@@ -90,6 +90,7 @@ class SaveMatrixDialog(v.Dialog):
         btn = sw.Btn('Save matrix')
         cancel = sw.Btn('Cancel', outlined=True)
         actions = v.CardActions(children=[cancel, btn])
+        self.alert = sw.Alert().show()
         
         # default parameters 
         self.value = False
@@ -98,7 +99,7 @@ class SaveMatrixDialog(v.Dialog):
         self.persistent = True
         self.children = [v.Card(
             class_='pa-4',
-            children=[title, self.w_file, actions]
+            children=[title, self.w_file, self.alert, actions]
         )]
         
         # create the dialog
@@ -108,6 +109,15 @@ class SaveMatrixDialog(v.Dialog):
         cancel.on_event('click', self._cancel)
         btn.on_event('click', self._save)
         self.w_file.on_event('blur', self._sanitize)
+        self.w_file.observe(self._store_info, 'v_model')
+        
+    def _store_info(self, change):
+        """Display where will be the file written"""
+        
+        new_val = change['new']
+        msg = self.folder/f'{su.normalize_str(new_val)}.csv'
+        
+        self.alert.children=[f'Your file will be stored in: {msg}']
         
     def _cancel(self, widget, event, data):
         """do nothing and exit"""
@@ -279,7 +289,17 @@ class ReclassifyView(v.Card):
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
 
-    def __init__(self, model=None, class_path=Path.home(), out_path=Path.home()/'downloads', gee=False, dst_class=None, default_class={}, **kwargs):
+    def __init__(
+        self, 
+        model=None, 
+        class_path=Path.home(), 
+        out_path=Path.home()/'downloads', 
+        gee=False, 
+        dst_class=None, 
+        default_class={},
+        aoi_model=None,
+        **kwargs
+    ):
         
         # create metadata to make it compatible with the framwork app system
         self._metadata = {'mount_id':'reclassify_tile'}
@@ -291,7 +311,7 @@ class ReclassifyView(v.Card):
         super().__init__(**kwargs)
         
         # set up a default model 
-        self.model = model if model else ReclassifyModel(gee=gee, dst_dir=out_path)
+        self.model = model if model else ReclassifyModel(gee=gee, dst_dir=out_path, aoi_model=aoi_model)
         
         # set the folders
         self.class_path = Path(class_path)
