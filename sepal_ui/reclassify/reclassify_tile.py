@@ -9,31 +9,59 @@ from sepal_ui import reclassify as rec
 
 class ReclassifyTile(sw.Tile):
     """
-    All in one tile to reclassify GEE assets or local raster and create custom classifications
+    All in one tile to reclassify GEE assets or local raster and create custom 
+    classifications
         
     Args:
-        results_dir (str|pathlike object): Directory to store the outputs (rasters, and csv_files). default to ~/downloads
-        gee (bool): Use GEE variant, to reclassify assets or local input. default True
-        dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
-        default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
+        results_dir (str|pathlike object): Directory to store the outputs 
+            (rasters, and csv_files). default to ~/downloads
+        gee (bool): Use GEE variant, to reclassify assets or local input. 
+            default True
+        dst_class (str|pathlib.Path, optional): the file to be used as 
+            destination classification. for app that require specific code 
+            system the file can be set prior and the user won't have the 
+            oportunity to change it
+        default_class (dict|optional): the default classification system to 
+            use, need to point to existing sytem: {name: absolute_path}
         
     Attributes: 
-        result_dir (pathlib.Path): Directory to store the outputs (rasters, and csv_files).
+        result_dir (pathlib.Path): Directory to store the outputs 
+            (rasters, and csv_files).
         model (ReclassifyModel): the reclassify model to use with these inputs
         reclassify_view (ReclassifyView): a fully qualified ReclassifyView object
         table_view (TableView): a fully qualified TableView object
     """
     
-    def __init__(self, results_dir=Path.home()/'downloads', gee=True, dst_class=None, default_class={}, **kwargs):
+    def __init__(
+        self, 
+        results_dir=Path.home()/'downloads', 
+        gee=True, 
+        dst_class=None, 
+        default_class={}, 
+        aoi_model=None, 
+        **kwargs
+    ):
         
         # output directory
         self.results_dir = Path(results_dir)
-        
+
+        self.aoi_model = aoi_model
         # create the model
-        self.model = rec.ReclassifyModel(dst_dir=self.results_dir, gee=gee)
+        self.model = rec.ReclassifyModel(
+            dst_dir=self.results_dir, gee=gee, aoi_model=self.aoi_model
+        )
+
         
         # set the tabs elements
-        self.reclassify_view = rec.ReclassifyView(self.model, out_path=self.results_dir, gee=gee, default_class=default_class).nest_tile()        
+        self.reclassify_view = rec.ReclassifyView(
+            self.model, 
+            out_path=self.results_dir, 
+            gee=gee, 
+            default_class=default_class, 
+            aoi_model=aoi_model,
+            save=True
+        ).nest_tile()
+        
         self.table_view = rec.TableView(out_path=self.results_dir).nest_tile()
         
         # create the tab 
