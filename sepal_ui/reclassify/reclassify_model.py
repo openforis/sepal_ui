@@ -11,6 +11,7 @@ from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 from matplotlib.colors import to_rgba
 
+NO_VALUE = 999
 
 import ee
 ee.Initialize()
@@ -390,13 +391,24 @@ class ReclassifyModel(Model):
             )
             
             # add a new propertie
-            ee_matrix = ee.Dictionary(matrix)
             
             def add_prop(feat):
-                new_val = ee_matrix.get(feat.get(self.band))
-                return ee.Feature(new_val).copyProperties(feat)
-
-            self.dst_gee_memory = ee.FeatureCollection(self.src_gee).map(add_prop)
+                """Add reclass column to the new feature"""
+                index = ee_from.indexOf(feat.get(self.band))
+                # if search value is not in from, -1 is returned
+                new_val = ee.Algorithms.If(index.eq(-1), NO_VALUE, ee_to.get(index))
+                return feat.set({'reclass': new_val})
+            
+            ee_matrix = ee.List(list(matrix.items())).unzip()
+            ee_from, ee_to = ee.List(ee_matrix.get(0)), ee.List(ee_matrix.get(1))
+            
+            if self.aoi_model: 
+                aoi_geometry = self.get_aoi() 
+                self.dst_gee_memory = ee.FeatureCollection(self.src_gee)\
+                                        .filterBounds(aoi_geometry)\
+                                        .map(add_prop)
+            else:
+                self.dst_gee_memory = ee.FeatureCollection(self.src_gee).map(add_prop)
             
             # add colormapping parameters
             
