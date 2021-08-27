@@ -6,6 +6,7 @@ import ee
 import pandas as pd
 import numpy as np
 
+from .parameters import *
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -93,22 +94,40 @@ class SaveMatrixDialog(v.Dialog):
         btn = sw.Btn("Save matrix")
         cancel = sw.Btn("Cancel", outlined=True)
         actions = v.CardActions(children=[cancel, btn])
-
-        # default parameters
+        self.alert = sw.Alert(children=['Choose a name for the output']).show()
+        
+        # default parameters 
         self.value = False
         self.max_width = 500
         self.overlay_opcity = 0.7
         self.persistent = True
-        self.children = [v.Card(class_="pa-4", children=[title, self.w_file, actions])]
-
+        self.children = [v.Card(
+            class_='pa-4',
+            children=[title, self.w_file, self.alert, actions]
+        )]
+        
         # create the dialog
         super().__init__(**kwargs)
 
         # js behaviour
-        cancel.on_event("click", self._cancel)
-        btn.on_event("click", self._save)
-        self.w_file.on_event("blur", self._sanitize)
-
+        cancel.on_event('click', self._cancel)
+        btn.on_event('click', self._save)
+        self.w_file.on_event('blur', self._sanitize)
+        self.w_file.observe(self._store_info, 'v_model')
+        
+    def _store_info(self, change):
+        """Display where will be the file written"""
+        
+        new_val = change['new']
+        
+        out_file = self.folder/f'{su.normalize_str(new_val)}.csv'
+        msg = f'Your file will be saved as: {out_file}'
+        
+        if not new_val:
+            msg = 'Choose a name for the output'
+            
+        self.alert.add_msg(msg)
+        
     def _cancel(self, widget, event, data):
         """do nothing and exit"""
 
@@ -119,12 +138,13 @@ class SaveMatrixDialog(v.Dialog):
 
     def _save(self, widget, event, data):
         """save the matrix in a specified file"""
-
-        file = self.folder / f"{su.normalize_str(self.w_file.v_model)}.csv"
-
-        lines = [f"{src},{dst}" for src, dst in self._matrix.items()]
-        file.write_text("\n".join(lines))
-
+        
+        file = self.folder/f'{su.normalize_str(self.w_file.v_model)}.csv'
+        
+        matrix = pd.DataFrame.from_dict(self._matrix, orient='index').reset_index()
+        matrix.columns = MATRIX_NAMES
+        matrix.to_csv(file, index=False)
+        
         # hide the dialog
         self.value = False
 
@@ -134,6 +154,10 @@ class SaveMatrixDialog(v.Dialog):
         """show the dialog and set the matrix values"""
 
         self._matrix = matrix
+        
+        # Reset file name
+        self.w_file.v_model=''
+        
         self.value = True
 
         return self
@@ -159,8 +183,9 @@ class ClassSelect(v.Select, sw.SepalWidget):
 
         # set default parameters
         self.items = [
-            {"text": f"{code}: {item[0]}", "value": code}
-            for code, item in new_codes.items()
+            {'text': f'{code}: {item[0]}', 'value': code} 
+            for code, item 
+            in new_codes.items()
         ]
         self.dense = True
         self.multiple = False
@@ -185,7 +210,8 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
 
     Attributes:
         HEADER (list): name of the column header (from, to)
-        model (ReclassifyModel): the reclassifyModel object to manipulate the input file and save parameters
+        model (ReclassifyModel): the reclassifyModel object to manipulate the 
+            input file and save parameters
     """
 
     HEADERS = ms.rec.rec.headers
@@ -226,11 +252,11 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         self.model.matrix = {code: None for code in src_classes.keys()}
 
         # create the select list
-        # they need to observe each other to adapt the available class list dynamically
+        # they need to observe each other to adapt the available class list dynamically 
         self.class_select_list = {
             k: ClassSelect(dst_classes, k) for k in src_classes.keys()
         }
-
+        
         rows = [
             v.Html(
                 tag="tr",
@@ -284,39 +310,51 @@ class ReclassifyView(v.Card):
     The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
 
     Args:
-        model (ReclassifyModel): the reclassify model to manipulate the classification dataset. default to a new one
-        class_path (str,optional): Folder path containing already existing classes. Default to ~/
-        out_path (str,optional): the folder to save the created classifications. default to ~/downloads
+        model (ReclassifyModel): the reclassify model to manipulate the 
+            classification dataset. default to a new one
+        class_path (str,optional): Folder path containing already existing 
+            classes. Default to ~/
+        out_path (str,optional): the folder to save the created classifications. 
+            default to ~/downloads
         gee (bool): either or not to set :code:`gee` to True. default to False
         dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
 
     Attributes:
-        model (ReclassifyModel): the reclassify model to manipulate the classification dataset
-        gee (bool): either being linked to gee or not (use local file or GEE asset for the rest of the app)
+        model (ReclassifyModel): the reclassify model to manipulate the 
+            classification dataset
+        gee (bool): either being linked to gee or not (use local file or GEE 
+            asset for the rest of the app)
         alert (sw.Alert): the alert to display informations about computation
         title (v.Cardtitle): the title of the card
         w_asset (sw.AssetSelect): the widget to select an asset input
         w_raster (sw.FileInput): the widget to select a file input
-        w_image (Any): wraper of the input. linked to w_asset if gee=True, else to w_raster
-        w_code (int|str): widget to select the band/property used as init classification in the input file
-        get_table_btn (sw.Btn): the btn to load the data in the reclassification table
-        w_dst_class_file (sw.FileInput): widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')
-        reclassify_table (ReclassifyTable): the reclassification table populated via the previous widgets
+        w_image (Any): wraper of the input. linked to w_asset if gee=True, 
+            else to w_raster
+        w_code (int|str): widget to select the band/property used as init 
+            classification in the input file
+        get_table_btn (sw.Btn): the btn to load the data in the 
+            reclassification table
+        w_dst_class_file (sw.FileInput): widget to select the new 
+            classification system file (3 headless columns: 'code', 'desc', 'color')
+        reclassify_table (ReclassifyTable): the reclassification table 
+            populated via the previous widgets
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
     """
 
     def __init__(
-        self,
-        model=None,
-        class_path=Path.home(),
-        out_path=Path.home() / "downloads",
-        gee=False,
-        dst_class=None,
+        self, 
+        model=None, 
+        class_path=Path.home(), 
+        out_path=Path.home()/'downloads', 
+        gee=False, 
+        dst_class=None, 
         default_class={},
-        **kwargs,
+        aoi_model=None,
+        save=True,
+        **kwargs
     ):
-
+        
         # create metadata to make it compatible with the framwork app system
         self._metadata = {"mount_id": "reclassify_tile"}
 
@@ -325,10 +363,14 @@ class ReclassifyView(v.Card):
 
         # create the object
         super().__init__(**kwargs)
-
-        # set up a default model
-        self.model = model if model else ReclassifyModel(gee=gee, dst_dir=out_path)
-
+        
+        # set up a default model 
+        self.model = (
+            model 
+            if model 
+            else ReclassifyModel(gee=gee, dst_dir=out_path, aoi_model=aoi_model)
+        )
+        
         # set the folders
         self.class_path = Path(class_path)
         self.out_path = Path(out_path)
@@ -518,18 +560,23 @@ class ReclassifyView(v.Card):
 
         # exit if no table is loaded
         if len(self.reclassify_table.children[0].children) < 3:
-            raise Exception("A classification system need to be selected first")
-
-        # load the file
-        # sanity checks
-        input_data = pd.read_csv(change["new"], names=["src", "dst"])
-        if (
-            not all(t == np.int64 for t in input_data.dtypes)
-            or len(input_data.columns) != 2
-        ):
-            raise Exception(
-                "This file is not a properly formatted classification matrix"
-            )
+            raise Exception('A classification system need to be selected first')
+            
+        # load the file 
+        # sanity checks 
+        input_data = pd.read_csv(change['new']).fillna(NO_VALUE)
+        
+        try:
+            input_data.astype('int64')
+        except:
+            raise Exception("This file may contain non supported charaters for reclassification.")
+        
+        if len(input_data.columns) != 2:
+            # Try to identify the oclumns and subset them
+            if all([colname in list(input_data.columns) for colname in MATRIX_NAMES]):
+                input_data = input_data[MATRIX_NAMES]
+            else:
+                raise Exception("This file is not a properly formatted as classification matrix")
 
         # check that the destination values are all available
         widget = list(self.reclassify_table.class_select_list.values())[0]

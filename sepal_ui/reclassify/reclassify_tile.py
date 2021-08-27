@@ -3,6 +3,7 @@ from traitlets import link
 
 import ipyvuetify as v
 
+from .parameters import *
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui import reclassify as rec
@@ -10,6 +11,7 @@ from sepal_ui import reclassify as rec
 
 class ReclassifyTile(sw.Tile):
     """
+
     All in one tile to reclassify GEE assets or local raster and create custom classifications
 
     Args:
@@ -24,26 +26,37 @@ class ReclassifyTile(sw.Tile):
         reclassify_view (ReclassifyView): a fully qualified ReclassifyView object
         table_view (TableView): a fully qualified TableView object
     """
-
+    
     def __init__(
-        self,
-        results_dir=Path.home() / "downloads",
-        gee=True,
-        dst_class=None,
-        default_class={},
+        self, 
+        results_dir=Path.home()/'downloads', 
+        gee=True, 
+        dst_class=None, 
+        default_class={}, 
+        aoi_model=None, 
         **kwargs
     ):
-
+        
         # output directory
         self.results_dir = Path(results_dir)
 
+        self.aoi_model = aoi_model
         # create the model
-        self.model = rec.ReclassifyModel(dst_dir=self.results_dir, gee=gee)
+        self.model = rec.ReclassifyModel(
+            dst_dir=self.results_dir, gee=gee, aoi_model=self.aoi_model
+        )
 
+        
         # set the tabs elements
         self.reclassify_view = rec.ReclassifyView(
-            self.model, out_path=self.results_dir, gee=gee, default_class=default_class
+            self.model, 
+            out_path=self.results_dir, 
+            gee=gee, 
+            default_class=default_class, 
+            aoi_model=aoi_model,
+            save=True
         ).nest_tile()
+        
         self.table_view = rec.TableView(out_path=self.results_dir).nest_tile()
 
         # create the tab

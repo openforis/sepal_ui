@@ -7,7 +7,8 @@ import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
 
-from sepal_ui import sepalwidgets as sw
+from .parameters import *
+from sepal_ui import sepalwidgets as sw 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
@@ -413,22 +414,13 @@ class SaveDialog(v.Dialog):
         )
 
         self.save = sw.Btn(ms.rec.table.save_dialog.btn.save.name)
-        save = sw.Tooltip(
-            self.save,
-            ms.rec.table.save_dialog.btn.save.tooltip,
-            bottom=True,
-            class_="pr-2",
-        )
-
-        self.cancel = sw.Btn(
-            ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
-        )
-        cancel = sw.Tooltip(
-            self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True
-        )
-
-        self.alert = sw.Alert()
-
+        save = sw.Tooltip(self.save, ms.rec.table.save_dialog.btn.save.tooltip, bottom=True, class_='pr-2')
+        
+        self.cancel = sw.Btn(ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_='ml-2')
+        cancel = sw.Tooltip(self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True)
+        
+        self.alert = sw.Alert(children=['Choose a name for the output']).show()
+        
         # assemlble the layout
         self.children = [
             v.Card(
@@ -444,10 +436,24 @@ class SaveDialog(v.Dialog):
         ]
 
         # Create events
-        self.save.on_event("click", self._save)
-        self.cancel.on_event("click", self._cancel)
-        self.w_file_name.on_event("blur", self._normalize_name)
-
+        self.save.on_event('click', self._save)
+        self.cancel.on_event('click', self._cancel)
+        self.w_file_name.on_event('blur', self._normalize_name)
+        self.w_file_name.observe(self._store_info, 'v_model')
+        
+    def _store_info(self, change):
+        """Display where will be the file written"""
+        
+        new_val = change['new']
+        out_file = self.out_path/f'{su.normalize_str(new_val)}.csv'
+        
+        msg = f'Your file will be saved as: {out_file}'
+        
+        if not new_val:
+            msg = 'Choose a name for the output'
+            
+        self.alert.add_msg(msg)
+        
     def show():
         """
         display the dialog and write down the text in the alert
@@ -457,7 +463,8 @@ class SaveDialog(v.Dialog):
         """
 
         self.v_model = True
-
+        self.w_file_name.v_model = ''
+        
         # the message is display after the show so that it's not cut by the display
         self.alert.add_msg(ms.rec.table.save_dialog.info.format(self.out_path))
 

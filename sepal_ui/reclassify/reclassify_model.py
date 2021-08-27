@@ -6,6 +6,7 @@ import geopandas as gpd
 import numpy as np
 import rasterio as rio
 
+from .parameters import *
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
@@ -27,13 +28,20 @@ class ReclassifyModel(Model):
         src_gee: (str): AssetId of the used input asset for reclassification. Only used if :code:`gee=True`
         dst_dir (str): the dir used to store the output
         gee (bool): either to use the gee backend or not
-        matrix (dict): the transfer matrix between the input and the output using the following format: {old_value: new_value, ...}
         input_type (bool): the input type, 1 for raster and 0 for vector
-        src_class (dict): the source classes using the following columns: {code: (desc, color)}
-        dst_class (dict): the destination classes using the following columns: {code: (desc, color)}
-        dst_local (str): the output file. default to :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}``
-        dst_gee (str): the output assetId. default to :code:`dst_dir/f'{src_gee.stem}_reclass``
+        matrix (dict): the transfer matrix between the input and the output
+            using the following format: {old_value: new_value, ...}
+        src_class (dict): the source classes using the following
+            columns: {code: (desc, color)}
+        dst_class (dict): the destination classes using the following columns:
+            {code: (desc, color)}
+        dst_local (str): the output file. default to
+            :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}``
+        dst_gee (str): the output assetId. default to
+            :code:`dst_dir/f'{src_gee.stem}_reclass``
         remaped (int): state var updated each time an input is remapped
+        aoi_model (aoi.model): AOI model object to get an area of interest it
+             is selected
 
     Args:
         gee (bool): either or not to set :code:`gee` to True
@@ -61,17 +69,24 @@ class ReclassifyModel(Model):
     # Create a state var, to determine if an asset has been remaped
     remaped = Int(False).tag(sync=True)
 
-    def __init__(self, gee=False, dst_dir=None, **kwargs):
+    def __init__(self, gee=False, dst_dir=None, aoi_model=None, **kwargs):
+
 
         # init the model
         super().__init__(**kwargs)
 
         # save the folder where the results should be stored
         # only used for local export
-        self.dst_dir = str(Path(dst_dir) if dst_dir else Path.home())
+        self.dst_dir = Path(dst_dir) if dst_dir else Path.home()
 
         # save relation with gee
         self.gee = gee
+        self.aoi_model = aoi_model
+
+        # memory outputs
+        self.dst_local_memory = None
+        self.dst_gee_memory = None
+
 
     def save_matrix(self, filename):
         """
@@ -103,7 +118,8 @@ class ReclassifyModel(Model):
             file (pathlike object): the pathlib object of the class file
 
         Return:
-            (dict): the dict of the classes using following format {code: (name, color)}
+            (dict): the dict of the classes using following format:
+                {code: (name, color)}
         """
 
         path = Path(file)
@@ -142,7 +158,6 @@ class ReclassifyModel(Model):
                 self.input_type = True
             else:
                 raise AttributeError(f"Unrecognized asset type: {asset_info}")
-
         else:
             if not self.src_local:
                 raise Exception("no input")
@@ -155,7 +170,6 @@ class ReclassifyModel(Model):
                 self.input_type = True
             else:
                 raise AttributeError(f"Unrecognized file format: {input_path.suffix}")
-
         return self.input_type
 
     def get_bands(self):
@@ -163,16 +177,17 @@ class ReclassifyModel(Model):
         Use the input_type to extract all the bands/properties from the input
 
         Return:
-            (list): sorted list of all the available bands/properties as integer or str
+            (list): sorted list of all the available bands/properties as
+            integer or str
         """
 
         @su.need_ee
-        def _ee_image(self):
+        def _ee_image():
 
             return sorted(ee.Image(self.src_gee).bandNames().getInfo())
 
         @su.need_ee
-        def _ee_vector(self):
+        def _ee_vector():
 
             columns = ee.FeatureCollection(self.src_gee).first().getInfo()["properties"]
 
@@ -182,14 +197,14 @@ class ReclassifyModel(Model):
                 if c not in ["system:index", "Shape_Area"]
             )
 
-        def _local_image(self):
+        def _local_image():
 
             with rio.open(self.src_local) as f:
                 bands = [i for i in range(1, f.count + 1)]
 
             return sorted(bands)
 
-        def _local_vector(self):
+        def _local_vector():
 
             df = gpd.read_file(self.src_local)
 
@@ -200,7 +215,18 @@ class ReclassifyModel(Model):
 
         # return the selected function
         # remember to use self as a parameter
-        return band_func[self.gee][self.input_type](self)
+        return band_func[self.gee][self.input_type]()
+
+    def get_aoi(self):
+        """Validate and get feature collection from aoi_model"""
+
+        # TODO: Validate if the aoi is within the bounds of the inputs
+
+        if self.aoi_model:
+            if not self.aoi_model.feature_collection:
+                raise Exception("You have to select an area of interest before")
+            else:
+                return self.aoi_model.feature_collection.geometry()
 
     def unique(self):
         """
@@ -208,19 +234,20 @@ class ReclassifyModel(Model):
         The data will be saved in self.src_class with no_name and black as a color.
 
         Return:
-            (Dict): the unique class value found in the specified band/property and there color/name defaulted to none and black
+            (Dict): the unique class value found in the specified band/property
+            and there color/name defaulted to none and black
         """
 
         @su.need_ee
-        def _ee_image(self):
+        def _ee_image():
 
             # reduce the image
             image = ee.Image(self.src_gee).select(self.band)
-            reduction = image.reduceRegion(
-                ee.Reducer.frequencyHistogram(), image.geometry()
-            )
+            geometry = image.geometry() if not self.aoi_model else self.get_aoi()
+            reduction = image.reduceRegion(ee.Reducer.frequencyHistogram(), geometry)
 
-            # Remove all the unnecessary reducer output structure and make a list of values.
+            # Remove all the unnecessary reducer output structure and make a
+            # list of values.
             values = (
                 ee.Dictionary(reduction.get(image.bandNames().get(0))).keys().getInfo()
             )
@@ -228,24 +255,34 @@ class ReclassifyModel(Model):
             return values
 
         @su.need_ee
-        def _ee_vector(self):
+        def _ee_vector():
 
-            # get the feature
-            values = (
-                ee.FeatureCollection(self.src_gee).aggregate_array(self.band).getInfo()
-            )
+            if self.aoi_model:
+                geometry = self.get_aoi()
 
+                # get the feature
+                values = (
+                    ee.FeatureCollection(self.src_gee)
+                    .filterBounds(geometry)
+                    .aggregate_array(self.band)
+                    .getInfo()
+                )
+            else:
+                values = (
+                    ee.FeatureCollection(self.src_gee)
+                    .aggregate_array(self.band)
+                    .getInfo()
+                )
             return list(set(values))
 
-        def _local_image(self):
+        def _local_image():
 
             with rio.open(self.src_local) as src:
 
                 count = np.bincount(src.read(self.band).flatten())
-
             return np.nonzero(count != 0)[0].tolist()
 
-        def _local_vector(self):
+        def _local_vector():
 
             df = gpd.read_file(self.src_local)
 
@@ -256,14 +293,15 @@ class ReclassifyModel(Model):
 
         # get values from the selected func
         # remember to use self as a parameter
-        values = unique_func[self.gee][self.input_type](self)
+        values = unique_func[self.gee][self.input_type]()
 
         # create the init dictionnary
         self.src_class = {v: ("no_name", "#000000") for v in values}
 
         return self.src_class
 
-    def reclassify(self):
+
+    def reclassify(self, save=True):
         """
         Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
 
@@ -272,7 +310,7 @@ class ReclassifyModel(Model):
         """
 
         @su.need_ee
-        def _ee_image(self, matrix):
+        def _ee_image():
 
             # create the asset description
             self.dst_gee = Path(self.src_gee).with_name(
@@ -281,25 +319,27 @@ class ReclassifyModel(Model):
 
             # load the image
             # remap according to the matrix
-            from_ = [v for v in matrix.keys()]
-            to_ = [v for v in matrix.values()]
+            from_, to_ = list(zip(*matrix.items()))
+
+            image = ee.Image(self.src_gee)
+            geometry = image.geometry() if not self.aoi_model else self.get_aoi()
 
             ee_image = (
-                ee.Image(self.src_gee)
+                image.clip(geometry)
                 .remap(from_, to_, 0, self.band)
                 .select(["remapped"], [self.band])
             )
 
             # gather all the other band in the image
-            ee_image = ee.Image(self.src_gee).addBands(ee_image, overwrite=True)
+            # ee_image = ee.Image(self.src_gee).addBands(ee_image, overwrite=True)
 
             # add colormapping parameters
             # set return an element so we force cast it to ee.Image
-            desc = [str(e[0]) for e in self.dst_class.values()]
-            color = [str(e[1]) for e in self.dst_class.values()]
-            code = [str(e) for e in self.dst_class.keys()]
+            code, desc, color = zip(
+                *[(str(k), str(v[0]), str(v[1])) for k, v in self.dst_class.items()]
+            )
 
-            ee_image = ee.Image(
+            self.dst_gee_memory = ee.Image(
                 ee_image.set(
                     {
                         "visualization_0_name": "Classification",
@@ -312,50 +352,65 @@ class ReclassifyModel(Model):
                 )
             )
 
-            # export
-            params = {
-                "image": ee_image,
-                "assetId": str(self.dst_gee),
-                "description": self.dst_gee.stem,
-                "scale": 30,  # it should be the native resolution of the original image
-                "maxPixels": 1e13,
-                "pyramidingPolicy": {".default": "mode"},
-            }
+            if save:
+                # export
+                params = {
+                    "image": self.dst_gee_memory,
+                    "assetId": str(self.dst_gee),
+                    "description": self.dst_gee.stem,
+                    "scale": 30,  # it should be the native resolution of the original img
+                    "maxPixels": 1e13,
+                    "pyramidingPolicy": {".default": "mode"},
+                }
 
-            task = ee.batch.Export.image.toAsset(**params)
-            task.start()
-
+                task = ee.batch.Export.image.toAsset(**params)
+                task.start()
             return
 
         @su.need_ee
-        def _ee_vector(self, matrix):
+        def _ee_vector():
 
             # create the asset description
-            self.dst_ee = f"{Path(self.src_gee).stem}_reclass"
+            self.dst_gee = Path(self.src_gee).with_name(
+                f"{Path(self.src_gee).stem}_reclass"
+            )
 
             # add a new propertie
+
             def add_prop(feat):
-                matrix = ee.Dictionary(matrix)
-                new_val = matrix.get(self.feat.get(self.band))
-                return ee.Feature(new_val).copyProperties(feat, keepProperties)
+                """Add reclass column to the new feature"""
+                index = ee_from.indexOf(feat.get(self.band))
+                # if search value is not in from, -1 is returned
+                new_val = ee.Algorithms.If(index.eq(-1), NO_VALUE, ee_to.get(index))
+                return feat.set({"reclass": new_val})
 
-            ee_fc = ee.FeatureCollection(self.src_gee).map(add_prop)
+            ee_matrix = ee.List(list(matrix.items())).unzip()
+            ee_from, ee_to = ee.List(ee_matrix.get(0)), ee.List(ee_matrix.get(1))
 
+            if self.aoi_model:
+                aoi_geometry = self.get_aoi()
+                self.dst_gee_memory = (
+                    ee.FeatureCollection(self.src_gee)
+                    .filterBounds(aoi_geometry)
+                    .map(add_prop)
+                )
+            else:
+                self.dst_gee_memory = ee.FeatureCollection(self.src_gee).map(add_prop)
             # add colormapping parameters
 
-            # export
-            params = {
-                "collection": ee_fc,
-                "assetId": self.dst_gee,
-                "description": self.dst_gee,
-            }
+            if save:
+                # export
+                params = {
+                    "collection": self.dst_gee_memory,
+                    "assetId": str(self.dst_gee),
+                    "description": str(self.dst_gee.stem),
+                }
 
-            task = ee.batch.Export.table.toAsset(**params)
-            task.start()
-
+                task = ee.batch.Export.table.toAsset(**params)
+                task.start()
             return
 
-        def _local_image(self, matrix):
+        def _local_image():
 
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.tif"
@@ -382,18 +437,23 @@ class ReclassifyModel(Model):
                             data += (raw == old_val) * new_val
 
                         # write it in the destination file
-                        dst_f.write(data.astype(np.uint8), 1, window=window)
+                        if save:
+                            dst_f.write(data.astype(np.uint8), 1, window=window)
+                    # Save raster in memory
+                    self.dst_local_memory = data
 
                     # add the colors to the image
                     colormap = {}
                     for code, item in self.dst_class.items():
                         colormap[code] = tuple(int(c * 255) for c in to_rgba(item[1]))
-
                     dst_f.write_colormap(self.band, colormap)
 
             return
 
-        def _local_vector(self):
+        def _local_vector():
+
+            # set the output file
+            self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
 
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
@@ -405,22 +465,25 @@ class ReclassifyModel(Model):
             gdf["reclass"] = gdf.apply(lambda row: matrix[row[self.band]])
 
             # add the colors to the gdf
-            # waiting for an answer there : https://gis.stackexchange.com/questions/404946/how-can-i-save-my-geopandas-symbology
+            # waiting for an answer there :
+            # https://gis.stackexchange.com/questions/404946/how-can-i-save-my-geopandas-symbology
+            self.dst_local_memory = gdf
 
-            # save the file
-            gdf.to_file(self.dst_local)
-
+            if save:
+                # save the file
+                gdf.to_file(self.dst_local)
             return
 
         # map all the function in the guess matrix (gee, type)
         reclassify_func = [[_local_vector, _local_image], [_ee_vector, _ee_image]]
 
         # reshape the matrix so that every value correspond to 1 key
-        matrix = self.matrix
+        # Cast np.int64 to int
+        matrix = {int(k): int(v) for k, v in self.matrix.items()}
 
         # return the selected function
         # remember to use self as a parameter
-        reclassify_func[self.gee][self.input_type](self, matrix)
+        reclassify_func[self.gee][self.input_type]()
 
         # tel the rest of the apps that a reclassification is finished
         self.remaped += 1
