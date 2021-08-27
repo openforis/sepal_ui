@@ -3,6 +3,7 @@ from traitlets import link
 
 import ipyvuetify as v
 
+from .parameters import *
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui import reclassify as rec

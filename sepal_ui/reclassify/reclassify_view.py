@@ -6,6 +6,7 @@ import ee
 import pandas as pd
 import numpy as np
 
+from .parameters import *
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -90,7 +91,7 @@ class SaveMatrixDialog(v.Dialog):
         btn = sw.Btn('Save matrix')
         cancel = sw.Btn('Cancel', outlined=True)
         actions = v.CardActions(children=[cancel, btn])
-        self.alert = sw.Alert()
+        self.alert = sw.Alert(children=['Choose a name for the output']).show()
         
         # default parameters 
         self.value = False
@@ -115,9 +116,14 @@ class SaveMatrixDialog(v.Dialog):
         """Display where will be the file written"""
         
         new_val = change['new']
-        msg = self.folder/f'{su.normalize_str(new_val)}.csv'
         
-        self.alert.add_msgf('Your file will be stored in: {msg}')
+        out_file = self.folder/f'{su.normalize_str(new_val)}.csv'
+        msg = f'Your file will be stored as: {out_file}'
+        
+        if not new_val:
+            msg = 'Choose a name for the output'
+            
+        self.alert.add_msg(msg)
         
     def _cancel(self, widget, event, data):
         """do nothing and exit"""
@@ -132,8 +138,9 @@ class SaveMatrixDialog(v.Dialog):
         
         file = self.folder/f'{su.normalize_str(self.w_file.v_model)}.csv'
         
-        lines = [f'{src},{dst}' for src, dst in self._matrix.items()]
-        file.write_text('\n'.join(lines))
+        matrix = pd.DataFrame.from_dict(self._matrix, orient='index').reset_index()
+        matrix.columns = MATRIX_NAMES
+        matrix.to_csv(file, index=False)
         
         # hide the dialog
         self.value = False
@@ -144,6 +151,10 @@ class SaveMatrixDialog(v.Dialog):
         """show the dialog and set the matrix values"""
         
         self._matrix = matrix
+        
+        # Reset file name
+        self.w_file.v_model=''
+        
         self.value = True
         
         return self
@@ -486,7 +497,8 @@ class ReclassifyView(v.Card):
         
     def load_matrix_content(self, change):
         """
-        Load the content of the file in the matrix. The table need to be already set to perform this operation
+        Load the content of the file in the matrix. The table need to be 
+        already set to perform this operation
         
         Return:
             self
@@ -502,10 +514,20 @@ class ReclassifyView(v.Card):
             
         # load the file 
         # sanity checks 
-        input_data = pd.read_csv(change['new'], names=['src', 'dst'])
-        if not all(t==np.int64 for t in input_data.dtypes) or len(input_data.columns) != 2:
-            raise Exception("This file is not a properly formatted classification matrix")
-            
+        input_data = pd.read_csv(change['new']).fillna(NO_VALUE)
+        
+        try:
+            input_data.astype('int64')
+        except:
+            raise Exception("This file may contain non supported charaters for reclassification.")
+        
+        if len(input_data.columns) != 2:
+            # Try to identify the oclumns and subset them
+            if all([colname in list(input_data.columns) for colname in MATRIX_NAMES]):
+                input_data = input_data[MATRIX_NAMES]
+            else:
+                raise Exception("This file is not a properly formatted as classification matrix")
+
         # check that the destination values are all available
         widget = list(self.reclassify_table.class_select_list.values())[0]
         classes = [i['value'] for i in widget.items]
