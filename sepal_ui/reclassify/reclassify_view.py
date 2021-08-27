@@ -118,7 +118,7 @@ class SaveMatrixDialog(v.Dialog):
         new_val = change['new']
         
         out_file = self.folder/f'{su.normalize_str(new_val)}.csv'
-        msg = f'Your file will be stored as: {out_file}'
+        msg = f'Your file will be saved as: {out_file}'
         
         if not new_val:
             msg = 'Choose a name for the output'
