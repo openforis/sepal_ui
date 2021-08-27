@@ -20,23 +20,12 @@ ee.Initialize()
 
 class ReclassifyModel(Model):
     """
-    Reclassification model to store information about the current
-    reclassification and share them within your app. save all the input and
-    output of the reclassification + the the matrix to move from one to another
-    It is embeding 2 backends, one based on GEE that will use assets
-    as in/out and another based on python that will use local files as in/out.
-    The model can handle both vector and raster data, the format and name of
-    the output will be determined from the the input format/name. The developer
-    will still have the possiblity to choose where to save the outputs
-    (folder name).
+    Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
 
     Attributes:
-        band (str|int): the band name or number to use for the reclassification
-            if raster type. Use property name if vector type
-        src_local (str): the source file to reclassify (from a local path) only
-            used if :code:`gee=False`
-        src_gee: (str): AssetId of the used input asset for reclassification.
-            Only used if :code:`gee=True`
+        band (str|int): the band name or number to use for the reclassification if raster type. Use property name if vector type
+        src_local (str): the source file to reclassify (from a local path) only used if :code:`gee=False`
+        src_gee: (str): AssetId of the used input asset for reclassification. Only used if :code:`gee=True`
         dst_dir (str): the dir used to store the output
         gee (bool): either to use the gee backend or not
         input_type (bool): the input type, 1 for raster and 0 for vector
@@ -82,6 +71,7 @@ class ReclassifyModel(Model):
 
     def __init__(self, gee=False, dst_dir=None, aoi_model=None, **kwargs):
 
+
         # init the model
         super().__init__(**kwargs)
 
@@ -97,6 +87,7 @@ class ReclassifyModel(Model):
         self.dst_local_memory = None
         self.dst_gee_memory = None
 
+
     def save_matrix(self, filename):
         """
         Save the matrix i a csv file
@@ -107,7 +98,13 @@ class ReclassifyModel(Model):
 
         if not len(self.matrix):
             return self
-        df = pd.Dataframe.from_dict(self.matrix, columns=["src", "dst"])
+
+        df = pd.Dataframe(
+            {
+                "src": [c for c in self.matrix.keys()],
+                "dst": [c for c in self.matrix.values()],
+            }
+        )
         df.to_csv(filename)
 
         return self
@@ -115,10 +112,7 @@ class ReclassifyModel(Model):
     @staticmethod
     def get_classes(file):
         """
-        Extract the classes from the class file. The class file need to be
-        compatible with the reclassify tool i.e. a table file with 3 headerless
-        columns using the following format: 'code', 'desc', 'color'. Color need
-        to be set in hexadecimal to be read else black will be used.
+        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
 
         Args:
             file (pathlike object): the pathlib object of the class file
@@ -131,6 +125,7 @@ class ReclassifyModel(Model):
         path = Path(file)
         if not path.is_file():
             raise Exception(f"{file} is not existing")
+
         df = pd.read_csv(file, header=None)
 
         # dst_class_file should be set on the model csv output of the custom view
@@ -145,8 +140,7 @@ class ReclassifyModel(Model):
 
     def get_type(self):
         """
-        Guess the type of the input and set the input type attribute for the
-        model (vector or raster)
+        Guess the type of the input and set the input type attribute for the model (vector or raster)
 
         Return:
             (bool): the type of input (1 for raster, 0 for vector)
@@ -207,6 +201,7 @@ class ReclassifyModel(Model):
 
             with rio.open(self.src_local) as f:
                 bands = [i for i in range(1, f.count + 1)]
+
             return sorted(bands)
 
         def _local_vector():
@@ -235,10 +230,8 @@ class ReclassifyModel(Model):
 
     def unique(self):
         """
-        Retreive all the existing class from the specified band/property
-        according to the input_type.
-        The data will be saved in self.src_class with no_name and black as a
-        color.
+        Retreive all the existing class from the specified band/property according to the input_type.
+        The data will be saved in self.src_class with no_name and black as a color.
 
         Return:
             (Dict): the unique class value found in the specified band/property
@@ -307,16 +300,10 @@ class ReclassifyModel(Model):
 
         return self.src_class
 
+
     def reclassify(self, save=True):
         """
-        Reclassify the input according to the provided matrix. For vector file
-        type reclassifying correspond to add an extra column at the end, for
-        raster the initial class band will be replaced by the new class, the
-        oher being kept unmodified. vizualization colors will be set for both
-        local (QGIS compatible) and assets (SEPAL vizualization compatible).
-
-        Args:
-            save (bool): either the result has to be written or saved in memory
+        Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
 
         Return:
             self
@@ -448,6 +435,7 @@ class ReclassifyModel(Model):
 
                         for old_val, new_val in matrix.items():
                             data += (raw == old_val) * new_val
+
                         # write it in the destination file
                         if save:
                             dst_f.write(data.astype(np.uint8), 1, window=window)
@@ -459,9 +447,13 @@ class ReclassifyModel(Model):
                     for code, item in self.dst_class.items():
                         colormap[code] = tuple(int(c * 255) for c in to_rgba(item[1]))
                     dst_f.write_colormap(self.band, colormap)
+
             return
 
         def _local_vector():
+
+            # set the output file
+            self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
 
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
