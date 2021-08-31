@@ -19,7 +19,7 @@ from docutils.parsers.rst import Directive, directives
 
 def align(argument):
     """Conversion function for the "align" option."""
-    return directives.choice(argument, ('start', 'center', 'end'))
+    return directives.choice(argument, ("start", "center", "end"))
 
 
 class IframeVideo(Directive):
@@ -28,26 +28,26 @@ class IframeVideo(Directive):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec = {
-        'height': directives.nonnegative_int,
-        'width': directives.nonnegative_int,
-        'align': align,
+        "height": directives.nonnegative_int,
+        "width": directives.nonnegative_int,
+        "align": align,
     }
     default_width = 500
     default_height = 281
 
     def run(self):
-        self.options['video_id'] = directives.uri(self.arguments[0])
-        if not self.options.get('width'):
-            self.options['width'] = self.default_width
-        if not self.options.get('height'):
-            self.options['height'] = self.default_height
-        if not self.options.get('align'):
-            self.options['align'] = 'left'
-        return [nodes.raw('', self.html % self.options, format='html')]
+        self.options["video_id"] = directives.uri(self.arguments[0])
+        if not self.options.get("width"):
+            self.options["width"] = self.default_width
+        if not self.options.get("height"):
+            self.options["height"] = self.default_height
+        if not self.options.get("align"):
+            self.options["align"] = "left"
+        return [nodes.raw("", self.html % self.options, format="html")]
 
 
 class Youtube(IframeVideo):
-    html = '''
+    html = """
     <div class="d-flex justify-content-%(align)s">
         <iframe 
             src="http://www.youtube.com/embed/%(video_id)s"
@@ -60,11 +60,11 @@ class Youtube(IframeVideo):
         >
         </iframe>
     </div>
-    '''
+    """
 
 
 class Vimeo(IframeVideo):
-    html = '''
+    html = """
     <div class="d-flex justify-content-%(align)s">
         <iframe 
             src="http://player.vimeo.com/video/%(video_id)s"
@@ -78,9 +78,9 @@ class Vimeo(IframeVideo):
         >
         </iframe>
     </div>
-    '''
+    """
 
 
 def setup(builder):
-    directives.register_directive('youtube', Youtube)
-    directives.register_directive('vimeo', Vimeo)
+    directives.register_directive("youtube", Youtube)
+    directives.register_directive("vimeo", Vimeo)

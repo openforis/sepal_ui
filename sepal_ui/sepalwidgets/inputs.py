@@ -541,7 +541,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             k: sorted([e["id"] for e in raw_assets if e["type"] == k])
             for k in self.types
         }
-        
+
         self.items = []
         if self.default_asset:
             self.items+=[
