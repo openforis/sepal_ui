@@ -207,3 +207,5 @@ class TileDisclaimer(Tile):
         content = Markdown(disclaimer)
 
         super().__init__("about_tile", "Disclaimer", inputs=[content], **kwargs)
+
+__all__ = ['Tile','TileAbout','TileDisclaimer']

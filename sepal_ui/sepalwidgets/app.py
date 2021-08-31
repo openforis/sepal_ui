@@ -315,3 +315,5 @@ class App(v.App, SepalWidget):
                     i.input_value = True
 
         return self
+
+# __all__ = ['AppBar','DrawerItem','NavDrawer','Footer','App']

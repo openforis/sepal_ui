@@ -83,3 +83,5 @@ class Model(HasTraits):
         # maybe I would add the possiblity to add an alert to display stuff to the user with the same options as in alert.bind
 
         return self
+
+__all__ = ['Model']

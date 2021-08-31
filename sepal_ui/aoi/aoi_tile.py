@@ -45,3 +45,5 @@ class AoiTile(sw.Tile):
 
         # create the tile
         super().__init__("aoi_tile", "Select AOI", inputs=[layout], **kwargs)
+        
+__all__=['AoiTile']

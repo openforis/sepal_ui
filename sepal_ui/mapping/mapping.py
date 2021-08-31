@@ -574,3 +574,6 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
+
+    
+__all__=['SepalMap']

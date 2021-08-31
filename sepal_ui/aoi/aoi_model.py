@@ -539,3 +539,5 @@ class AoiModel(Model):
         )
 
         return self.ipygeojson
+
+__all__=['AoiModel']

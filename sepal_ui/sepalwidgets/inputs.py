@@ -719,3 +719,8 @@ class VectorField(v.Col, SepalWidget):
         self.v_model["value"] = change["new"]
 
         return self
+
+__all__ = [
+    'DatePicker','FileInput','LoadTableField','AssetSelect',
+    'PasswordField','NumberField','VectorField'
+]

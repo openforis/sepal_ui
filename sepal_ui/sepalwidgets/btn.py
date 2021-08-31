@@ -102,3 +102,5 @@ class DownloadBtn(v.Btn, SepalWidget):
         self.disabled = path == "#"
 
         return self
+
+__all__ = ['Btn', 'DownloadBtn']
