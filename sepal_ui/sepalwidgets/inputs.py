@@ -457,6 +457,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder (str): the folder of the user assets
         valid (Bool): whether the selected asset is valid (user has access) or not
         type (TYPES): Type of the selected asset if is valid. None if is not accessible.
+        asset_info (dict): The selected asset informations
     """
 
     TYPES = {
