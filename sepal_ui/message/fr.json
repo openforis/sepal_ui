@@ -1,6 +1,15 @@
 {
     "test_key": "Clef de test",
     "status": "Status: {}",
+    "widgets" : {
+        "asset_select" : {
+            "types": ["Raster", "Table", "Collection d'images", "Algorithme", "Dossier"],
+            "label": "Sélectionnez un Asset",
+            "custom" : "Personnaliser",
+            "no_access" : "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
+            "hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser."
+        }
+    },
     "aoi_sel": {
         "title": "Selectionner la zone d'interêt (AOI)",
         "administrative": "Définition administrative",

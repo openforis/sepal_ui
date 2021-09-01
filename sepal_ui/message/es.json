@@ -1,5 +1,14 @@
 {
     "status": "Status: {}",
+    "widgets" : {
+        "asset_select" : {
+            "types": ["Raster", "Tabla/Vector", "Image collection", "Algoritmo", "Directorio"],
+            "label": "Selecciona un Asset",
+            "custom" : "Personalizado",
+            "no_access" : "Parece que no tienes acceso al asset seleccionado o este no existe.",
+            "hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo."
+        }
+    },
     "aoi_sel": {
         "title": "Seleccionar área de interés (AOI)",
         "administrative": "Definiciones administrativas",

@@ -1,6 +1,15 @@
 {
     "test_key": "Test key",
     "status": "Status: {}",
+    "widgets" : {
+        "asset_select" : {
+            "types": ["Raster", "Table", "Image collection", "Algorithm", "Folder"],
+            "label": "Select an asset",
+            "custom" : "Custom",
+            "no_access" : "It seems like you do not have access to the input asset or it does not exist.",
+            "hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it"
+        }
+    },
     "aoi_sel": {
         "title": "Select area of interest (AOI)",
         "administrative": "Administrative definitions",
