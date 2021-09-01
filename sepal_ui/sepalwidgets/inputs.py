@@ -461,7 +461,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     TYPES = {
         "IMAGE": ms.widgets.asset_select.types[0],
-        "TABLE": ms.widgets.asset_select.types[1], 
+        "TABLE": ms.widgets.asset_select.types[1],
         "IMAGE_COLLECTION": ms.widgets.asset_select.types[2],
         "ALGORITHM": ms.widgets.asset_select.types[3],
         "FOLDER": ms.widgets.asset_select.types[4],
@@ -479,12 +479,13 @@ class AssetSelect(v.Combobox, SepalWidget):
     ):
         self.valid = False
         self.asset_info = None
-        
+        self.type = None
+
         # Validate the input as soon as the object is insantiated
-        self.observe(self._validate, 'v_model')
-        
+        self.observe(self._validate, "v_model")
+
         self.default_asset = default_asset
-        
+
         # save the types
         self.types = [el for el in types if el in self.TYPES.keys()]
 
@@ -493,8 +494,8 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         self.label = label
         self.hint = ms.widgets.asset_select.hint
-        
-#         self.v_model = None # Set as none, and trigger a change in the next line
+
+        #         self.v_model = None # Set as none, and trigger a change in the next line
         self.v_model = self.default_asset[0] if self.default_asset else None
 
         self.clearable = True
@@ -504,39 +505,40 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         self.class_ = "my-5"
         self.placeholder = "users/someCustomUser/customAsset"
-        
+
         self._get_items()
 
         super().__init__(**kwargs)
 
         self.on_event("click:prepend", self._get_items)
-        
-    
+
     def _validate(self, change):
         """Validate the selected access. Thow an error message if is not accesible."""
-        
+
         self.error = False
         self.error_messages = None
-        
-        if change['new']:
-            
+
+        if change["new"]:
+
             try:
-                self.asset_info = ee.data.getAsset(change['new'])
+                self.asset_info = ee.data.getAsset(change["new"])
+                self.type = self.asset_info["type"]
                 self.valid = True
-                
+
             except Exception:
-                
+
                 self.asset_info = None
+                self.type = None
                 self.valid = False
                 self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
                 pass
 
     def _get_items(self, *args):
-        
+
         self.loading = True
         self.disabled = True
-        
+
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
 
@@ -547,11 +549,11 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         self.items = []
         if self.default_asset:
-            self.items+=[
-                    {"divider": True},
-                    {"header": ms.widgets.asset_select.custom},
+            self.items += [
+                {"divider": True},
+                {"header": ms.widgets.asset_select.custom},
             ] + [default for default in self.default_asset]
-        
+
         for k in self.types:
             if len(assets[k]):
                 self.items += [
@@ -559,10 +561,10 @@ class AssetSelect(v.Combobox, SepalWidget):
                     {"header": self.TYPES[k]},
                     *assets[k],
                 ]
-        
+
         self.disabled = False
         self.loading = False
-        
+
         return self
 
 
