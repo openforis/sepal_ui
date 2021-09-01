@@ -3,6 +3,8 @@ import json
 
 from ipywidgets import dlink
 
+__all__ = ["Model"]
+
 
 class Model(HasTraits):
     """

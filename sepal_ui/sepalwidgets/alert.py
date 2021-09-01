@@ -8,6 +8,8 @@ from traitlets import Unicode, observe, directional_link, List, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
+__all__ = ["Divider", "Alert", "StateBar"]
+
 
 class Divider(v.Divider, SepalWidget):
     """

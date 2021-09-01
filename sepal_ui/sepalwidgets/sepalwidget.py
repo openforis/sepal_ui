@@ -2,6 +2,8 @@ import ipyvuetify as v
 from markdown import markdown
 from traitlets import Unicode
 
+__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip"]
+
 TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
 
 

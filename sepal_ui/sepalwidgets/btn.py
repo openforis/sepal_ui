@@ -3,6 +3,8 @@ import ipyvuetify as v
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from ..scripts import utils
 
+__all__ = ["Btn", "DownloadBtn"]
+
 
 class Btn(v.Btn, SepalWidget):
     """

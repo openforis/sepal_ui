@@ -6,6 +6,8 @@ from sepal_ui.message import ms
 
 from sepal_ui.aoi.aoi_view import *
 
+__all__ = ["AoiTile"]
+
 
 class AoiTile(sw.Tile):
     """
