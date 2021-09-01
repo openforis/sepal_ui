@@ -490,7 +490,6 @@ class AssetSelect(v.Combobox, SepalWidget):
     ):
         self.valid = False
         self.asset_info = None
-        self.type = None
 
         # Validate the input as soon as the object is insantiated
         self.observe(self._validate, "v_model")
@@ -533,13 +532,11 @@ class AssetSelect(v.Combobox, SepalWidget):
 
             try:
                 self.asset_info = ee.data.getAsset(change["new"])
-                self.type = self.asset_info["type"]
                 self.valid = True
 
             except Exception:
 
                 self.asset_info = None
-                self.type = None
                 self.valid = False
                 self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
