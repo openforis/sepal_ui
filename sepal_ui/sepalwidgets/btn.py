@@ -3,6 +3,8 @@ import ipyvuetify as v
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from ..scripts import utils
 
+__all__ = ["Btn", "DownloadBtn"]
+
 
 class Btn(v.Btn, SepalWidget):
     """
@@ -102,5 +104,3 @@ class DownloadBtn(v.Btn, SepalWidget):
         self.disabled = path == "#"
 
         return self
-
-__all__ = ['Btn', 'DownloadBtn']

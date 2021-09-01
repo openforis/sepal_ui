@@ -2,6 +2,8 @@ import ipyvuetify as v
 from markdown import markdown
 from traitlets import Unicode
 
+__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip"]
+
 TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
 
 
@@ -142,6 +144,3 @@ class Tooltip(v.Tooltip):
                     f"You can't modify the attributes of the {self.__class__} after instantiated"
                 )
         super().__setattr__(name, value)
-
-
-__all__ = ['SepalWidget','Markdown','Tooltip']

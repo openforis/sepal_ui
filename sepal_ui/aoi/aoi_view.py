@@ -18,6 +18,8 @@ ADMIN = AoiModel.ADMIN
 ALL = "All"
 select_methods = AoiModel.METHODS
 
+__all__ = ["AoiView"]
+
 
 class Select(v.Select, sw.SepalWidget):
     """A classic Vuetify Select widget inheriting from sepalwidgets"""
@@ -425,5 +427,3 @@ class AoiView(v.Card):
         json["geometry"] = circle[0].__geo_interface__
 
         return json
-
-__all__=['AoiView']

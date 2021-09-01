@@ -6,6 +6,8 @@ from sepal_ui.message import ms
 
 from sepal_ui.aoi.aoi_view import *
 
+__all__ = ["AoiTile"]
+
 
 class AoiTile(sw.Tile):
     """
@@ -45,5 +47,3 @@ class AoiTile(sw.Tile):
 
         # create the tile
         super().__init__("aoi_tile", "Select AOI", inputs=[layout], **kwargs)
-        
-__all__=['AoiTile']

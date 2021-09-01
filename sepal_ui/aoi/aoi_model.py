@@ -15,6 +15,8 @@ from sepal_ui.scripts import gee
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 
+__all__ = ["AoiModel"]
+
 
 class AoiModel(Model):
     """
@@ -539,5 +541,3 @@ class AoiModel(Model):
         )
 
         return self.ipygeojson
-
-__all__=['AoiModel']

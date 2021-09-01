@@ -15,6 +15,16 @@ from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.btn import Btn
 
+__all__ = [
+    "DatePicker",
+    "FileInput",
+    "LoadTableField",
+    "AssetSelect",
+    "PasswordField",
+    "NumberField",
+    "VectorField",
+]
+
 
 class DatePicker(v.Layout, SepalWidget):
     """
@@ -719,8 +729,3 @@ class VectorField(v.Col, SepalWidget):
         self.v_model["value"] = change["new"]
 
         return self
-
-__all__ = [
-    'DatePicker','FileInput','LoadTableField','AssetSelect',
-    'PasswordField','NumberField','VectorField'
-]

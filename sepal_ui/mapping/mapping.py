@@ -35,6 +35,8 @@ import ipyleaflet
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
+__all__ = ["SepalMap"]
+
 
 class SepalMap(geemap.Map):
     """
@@ -574,6 +576,3 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
-
-    
-__all__=['SepalMap']

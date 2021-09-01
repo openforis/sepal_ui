@@ -10,6 +10,8 @@ from sepal_ui import color
 from sepal_ui.frontend.styles import *
 from sepal_ui.frontend.js import ResizeTrigger
 
+__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App"]
+
 
 class AppBar(v.AppBar, SepalWidget):
     """
@@ -315,5 +317,3 @@ class App(v.App, SepalWidget):
                     i.input_value = True
 
         return self
-
-# __all__ = ['AppBar','DrawerItem','NavDrawer','Footer','App']
