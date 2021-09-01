@@ -334,3 +334,32 @@ def to_colors(in_color, out_type="hex"):
             pass
 
     return transform(out_color)
+
+def switch(*params, debug=True):
+    """
+    Decorator to switch the state of input boolean parameters.
+    
+    Args:
+        *params (str): any boolean parameter of a SepalWidget.
+        
+    """
+    def decorator_switch(func):
+        @wraps(func)
+        def wrapper_switch(self, *args, **kwargs):
+            [setattr(self, param, True) for param in params]
+            
+            try:
+                func(self, *args, **kwargs)
+
+            except Exception as e:
+                [setattr(self, param, False) for param in params]
+                if debug:
+                    [setattr(self, param, False) for param in params]
+                    raise e
+
+            [setattr(self, param, False) for param in params]
+
+        return wrapper_switch
+
+    return decorator_switch
+
