@@ -1,5 +1,5 @@
-Install the project
--------------------
+Contribute
+----------
 
 run the following command to start developing on the develop branch 
 
@@ -7,9 +7,28 @@ run the following command to start developing on the develop branch
 
     $ git clone https://github.com/12rambau/sepal_ui.git
     $ git checkout --track origin/develop
+    
+Activate the pre-commit
+=======================
+
+The project embed some git hooks that allows better CI and improve code quality. To activate themplease follow these few steps: 
+
+Before you can run hooks, you need to have the pre-commit package manager installed.
+
+.. code-block:: pyhton
+
+    $ pip install pre-commit
+    
+Then install the git hook scripts by running pre-commit install to set up the git hook scripts:
+
+.. code-block:: python
+
+    $ pre-commit install
+    
+Now :code:`pre-commit` will run automatically on :code:`git commit` !
 
 Develop within the project
---------------------------
+==========================
 
 Since 2020-08-14, this repository follows these [development guidelines](https://nvie.com/posts/a-successful-git-branching-model/). The git flow is thus the following:
 
@@ -22,7 +41,7 @@ Since 2020-08-14, this repository follows these [development guidelines](https:/
 Please consider using the :code:`--no-ff` option when merging to keep the repository consistent with PR. 
 
 Install  your local modification instead of the Pypi lib 
---------------------------------------------------------
+========================================================
 
 To validate you modification go to the root folder of the package and run:
 
@@ -40,9 +59,17 @@ then install the sepal_ui from your local folder:
 .. warning::
 
     Remember that if you create modifications that alter the lib standard functioning It will break the applications that use it on the SEPAL app dashboard. 
+    
+How to commit
+=============
+
+In this reposiroy we use the Conventional Commits specification.
+The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with SemVer, by describing the features, fixes, and breaking changes made in commit messages.
+
+You can learn more about Conventional Commits following this `link <https://www.conventionalcommits.org/en/v1.0.0/>`
 
 What can I push and where
--------------------------
+=========================
 
 Our branching system embed some rules to avoid crash of the production environment. If you want to contribute to this framework, here are some basic rules that we try our best to follow :
 
@@ -51,8 +78,6 @@ Our branching system embed some rules to avoid crash of the production environme
 -   the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to develop**
 
 the maintainers will try their best to use PR for new features, to help the community follow the development, for other modification they will simply push to the appropriate branch
-Contribute
-==========
 
 Create a new release
 --------------------

@@ -405,6 +405,7 @@ class ReclassifyView(v.Card):
             v_model=None,
             items=[],
             persistent_hint=True,
+            disabled=True,
         )
 
         w_optional_title = v.Html(tag="h3", children=[ms.rec.rec.input.optional])
@@ -427,13 +428,24 @@ class ReclassifyView(v.Card):
         w_class_title = v.Html(
             tag="h2", children=[ms.rec.rec.input.classif.title], class_="mt-5"
         )
-        self.w_dst_class_file = sw.FileInput(
-            [".csv"], label=ms.rec.rec.input.classif.label, folder=self.class_path
-        )
-        if dst_class:
+        
+        
+        if not dst_class:
+            self.w_dst_class_file = sw.FileInput(
+                [".csv"], label=ms.rec.rec.input.classif.label, folder=self.class_path
+            ).hide()
+        else:
+            # We could save a little of time without creating this 
             self.w_dst_class_file.select_file(dst_class).hide()
 
         self.btn_list = [
+            sw.Btn(
+                'Custom',
+                _metadata={"path": 'custom'},
+                small=True,
+                class_="mr-2",
+                outlined=True,
+            )] + [
             sw.Btn(
                 f"use {name}",
                 _metadata={"path": path},
@@ -529,7 +541,10 @@ class ReclassifyView(v.Card):
         filename = change["new"]
 
         for btn in self.btn_list:
-            btn.outlined = False if btn._metadata["path"] == filename else True
+            if btn._metadata["path"] in [filename, 'custom']:
+                btn.outlined = False
+            else:
+                btn.outlined = True
 
         return self
 
@@ -538,7 +553,12 @@ class ReclassifyView(v.Card):
 
         # get the filename
         filename = widget._metadata["path"]
-        self.w_dst_class_file.select_file(filename)
+        
+        if filename == 'custom':
+            self.w_dst_class_file.show()
+        else:
+            self.w_dst_class_file.hide()
+            self.w_dst_class_file.select_file(filename)
 
         # change the visibility of the btns
         for btn in self.btn_list:
@@ -611,14 +631,18 @@ class ReclassifyView(v.Card):
 
     def _update_band(self, change):
         """Update the band possibility to the available bands/properties of the input"""
-
+        
+        self.w_code.loading=True
         # guess the file type and save it in the model
         self.model.get_type()
 
         # update the bands values
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
-
+        
+        self.w_code.loading=False
+        self.w_code.disabled=False
+        
         return self
 
     def get_reclassify_table(self, widget, event, data):
