@@ -7,8 +7,8 @@ import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
 
-from .parameters import *
-from sepal_ui import sepalwidgets as sw 
+from sepal_ui.reclassify import parameters as param
+from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
@@ -32,7 +32,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         out_path (str|optional): output path where table will be saved, default to ~/downloads/
     """
 
-    SCHEMA = ms.rec.table.schema
+    SCHEMA = param.SCHEMA
 
     def __init__(self, out_path=Path.home() / "downloads", **kwargs):
 
@@ -89,7 +89,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         self.show_select = True
         self.single_select = True
         self.hide_default_footer = True
-        self.headers = [{"text": k.capitalize(), "value": k} for k in self.SCHEMA]
+        self.headers = [
+            {"text": v[0].capitalize(), "value": t} for t, v in self.SCHEMA.items()
+        ]
 
         # create the object
         super().__init__(**kwargs)
@@ -122,6 +124,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         # read the file using pandas
         df = pd.read_csv(items_file, header=None)
 
+        # TODO: We can check if the input file has header names, and if so, extract the
+        # corresponding values with the SCHEMA.
+
         # small sanity check
         if not len(df.columns) in [2, 3]:
             raise AssertionError(
@@ -132,9 +137,11 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         if len(df.columns) == 2:
             df[2] = ["#000000" for _ in range(len(df))]
 
+        # TODO: Warning, here we are asumming that the values are in the same order as the schema keys
         # set the lines
         self.items = [
-            dict(zip(self.SCHEMA, [i] + row.tolist())) for i, row in df.iterrows()
+            dict(zip(self.SCHEMA.keys(), [i] + row.tolist()))
+            for i, row in df.iterrows()
         ]
 
         return self
@@ -222,10 +229,16 @@ class EditDialog(v.Dialog):
 
         # create the widgets
         self.widgets = [
-            v.TextField(label=self.table.SCHEMA[0], type="number", v_model=None),
-            v.TextField(label=self.table.SCHEMA[1], type="number", v_model=None),
-            v.TextField(label=self.table.SCHEMA[2], type="string", v_model=None),
-            v.ColorPicker(label=self.table.SCHEMA[3], mode="hexa", v_model=None),
+            v.TextField(label=val[0], type=val[1], v_model=None, _metadata={"name": k})
+            for k, val in param.SCHEMA.items()
+            if k in ["id", "code", "desc"]
+        ] + [
+            v.ColorPicker(
+                label=param.SCHEMA["color"][0],
+                mode=param.SCHEMA["color"][1],
+                _metadata={"name": "color"},
+                v_model=None,
+            )
         ]
 
         self.widgets[0].disabled = True  # it's the id
@@ -324,9 +337,14 @@ class EditDialog(v.Dialog):
         current_items = self.table.items.copy()
         for i, item in enumerate(current_items):
             if item["id"] == self.widgets[0].v_model:
-                for j, w in enumerate(self.widgets):
-                    val = w.v_model if j != 3 else w.v_model["hex"]
-                    current_items[i][self.table.SCHEMA[j]] = val
+                for w in self.widgets:
+                    val = (
+                        w.v_model
+                        if w._metadata["name"] != "color"
+                        else w.v_model["hex"]
+                    )
+                    current_items[i][w._metadata["name"]] = val
+
         current_items.append(["" for _ in range(4)])
 
         # update the table values
@@ -351,9 +369,9 @@ class EditDialog(v.Dialog):
         current_items = self.table.items.copy()
 
         item_to_add = {}
-        for i, w in enumerate(self.widgets):
-            item_to_add[self.table.SCHEMA[i]] = (
-                w.v_model if i != 3 else w.v_model["hex"]
+        for w in self.widgets:
+            item_to_add[w._metadata["name"]] = (
+                w.v_model if w._metadata["name"] != "color" else w.v_model["hex"]
             )
 
         current_items.insert(0, item_to_add)
@@ -414,13 +432,22 @@ class SaveDialog(v.Dialog):
         )
 
         self.save = sw.Btn(ms.rec.table.save_dialog.btn.save.name)
-        save = sw.Tooltip(self.save, ms.rec.table.save_dialog.btn.save.tooltip, bottom=True, class_='pr-2')
-        
-        self.cancel = sw.Btn(ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_='ml-2')
-        cancel = sw.Tooltip(self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True)
-        
-        self.alert = sw.Alert(children=['Choose a name for the output']).show()
-        
+        save = sw.Tooltip(
+            self.save,
+            ms.rec.table.save_dialog.btn.save.tooltip,
+            bottom=True,
+            class_="pr-2",
+        )
+
+        self.cancel = sw.Btn(
+            ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+        )
+        cancel = sw.Tooltip(
+            self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True
+        )
+
+        self.alert = sw.Alert(children=["Choose a name for the output"]).show()
+
         # assemlble the layout
         self.children = [
             v.Card(
@@ -436,24 +463,24 @@ class SaveDialog(v.Dialog):
         ]
 
         # Create events
-        self.save.on_event('click', self._save)
-        self.cancel.on_event('click', self._cancel)
-        self.w_file_name.on_event('blur', self._normalize_name)
-        self.w_file_name.observe(self._store_info, 'v_model')
-        
+        self.save.on_event("click", self._save)
+        self.cancel.on_event("click", self._cancel)
+        self.w_file_name.on_event("blur", self._normalize_name)
+        self.w_file_name.observe(self._store_info, "v_model")
+
     def _store_info(self, change):
         """Display where will be the file written"""
-        
-        new_val = change['new']
-        out_file = self.out_path/f'{su.normalize_str(new_val)}.csv'
-        
-        msg = f'Your file will be saved as: {out_file}'
-        
+
+        new_val = change["new"]
+        out_file = self.out_path / f"{su.normalize_str(new_val)}.csv"
+
+        msg = f"Your file will be saved as: {out_file}"
+
         if not new_val:
-            msg = 'Choose a name for the output'
-            
+            msg = "Choose a name for the output"
+
         self.alert.add_msg(msg)
-        
+
     def show():
         """
         display the dialog and write down the text in the alert
@@ -463,8 +490,8 @@ class SaveDialog(v.Dialog):
         """
 
         self.v_model = True
-        self.w_file_name.v_model = ''
-        
+        self.w_file_name.v_model = ""
+
         # the message is display after the show so that it's not cut by the display
         self.alert.add_msg(ms.rec.table.save_dialog.info.format(self.out_path))
 
