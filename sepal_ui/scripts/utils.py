@@ -335,31 +335,54 @@ def to_colors(in_color, out_type="hex"):
 
     return transform(out_color)
 
-def switch(*params, debug=True):
+
+def switch(*params, debug=True, on_widgets=[]):
     """
-    Decorator to switch the state of input boolean parameters.
-    
+    Decorator to switch the state of input boolean parameters on class widgets or the
+    class itself. If on_widgets are defined, it will switch the state of every widget
+    parameter, otherwise it will change the state of the class (self). You can also set
+    two decorators on the same function, one for
+
     Args:
         *params (str): any boolean parameter of a SepalWidget.
-        
+        on_widgets (list(widget_names)): List of widget names into the class
+
     """
+
     def decorator_switch(func):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
-            [setattr(self, param, True) for param in params]
-            
+
+            if on_widgets:
+
+                def w_assign(value):
+                    if not all([hasattr(self, w_name) for w_name in on_widgets]):
+                        raise Exception(
+                            "The provided widget(s) not exist in the current class"
+                        )
+
+                    for w_name in on_widgets:
+                        widget = eval(f"self.{w_name}")
+                        [setattr(widget, param, value) for param in params]
+
+            else:
+
+                def w_assign(value):
+                    [setattr(self, param, value) for param in params]
+
+            w_assign(True)
+
             try:
                 func(self, *args, **kwargs)
 
             except Exception as e:
-                [setattr(self, param, False) for param in params]
+                w_assign(False)
                 if debug:
-                    [setattr(self, param, False) for param in params]
+                    w_assign(False)
                     raise e
 
-            [setattr(self, param, False) for param in params]
+            w_assign(False)
 
         return wrapper_switch
 
     return decorator_switch
-
