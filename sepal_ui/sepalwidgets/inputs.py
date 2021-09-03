@@ -545,7 +545,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             # Check if there are previously custom items and replace them, instead
             # of append them
 
-            if {"header": "Custom"} in self.items:
+            if {"header": ms.widgets.asset_select.custom} in self.items:
 
                 next_div_index = new_items.index({"divider": True}, 1)
                 new_items[0:next_div_index] = default_items
