@@ -55,7 +55,12 @@
                 "btn": "Conseguir tabla"
             },
             "table": "Tabla de clasificación",
-            "schema": ["id", "código", "descripción", "color"],
+            "schema": {
+                "id" : "id",
+                "code" : "código",
+                "description" : "descripción",
+                "color" : "color"
+            },            
             "btn": {
                 "edit": "editar",
                 "save": "guardar",

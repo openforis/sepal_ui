@@ -56,7 +56,12 @@
                 "btn": "Get table"
             },
             "table": "Classification table",
-            "schema": ["id", "code", "description", "color"],
+            "schema": {
+                "id" : "id",
+                "code" : "code",
+                "description" : "description",
+                "color" : "color"
+            },
             "btn": {
                 "edit": "edit",
                 "save": "save",
