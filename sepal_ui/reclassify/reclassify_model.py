@@ -71,7 +71,6 @@ class ReclassifyModel(Model):
 
     def __init__(self, gee=False, dst_dir=None, aoi_model=None, **kwargs):
 
-
         # init the model
         super().__init__(**kwargs)
 
@@ -86,7 +85,6 @@ class ReclassifyModel(Model):
         # memory outputs
         self.dst_local_memory = None
         self.dst_gee_memory = None
-
 
     def save_matrix(self, filename):
         """
@@ -300,7 +298,6 @@ class ReclassifyModel(Model):
 
         return self.src_class
 
-
     def reclassify(self, save=True):
         """
         Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
@@ -339,18 +336,26 @@ class ReclassifyModel(Model):
                 *[(str(k), str(v[0]), str(v[1])) for k, v in self.dst_class.items()]
             )
 
-            self.dst_gee_memory = ee.Image(
-                ee_image.set(
-                    {
-                        "visualization_0_name": "Classification",
-                        "visualization_0_bands": self.band,
-                        "visualization_0_type": "categorical",
-                        "visualization_0_labels": ",".join(desc),
-                        "visualization_0_palette": ",".join(color),
-                        "visualization_0_values": ",".join(code),
-                    }
-                )
+            self.dst_gee_memory = ee_image.visualize(
+                **{
+                    "bands": self.band,
+                    "palette": color,
+                    "min": min(code),
+                    "max": max(code),
+                }
             )
+            #             ee.Image(
+            #                 ee_image.set(
+            #                     {
+            #                         "visualization_0_name": "Classification",
+            #                         "visualization_0_bands": self.band,
+            #                         "visualization_0_type": "categorical",
+            #                         "visualization_0_labels": ",".join(desc),
+            #                         "visualization_0_palette": ",".join(color),
+            #                         "visualization_0_values": ",".join(code),
+            #                     }
+            #                 )
+            #             )
 
             if save:
                 # export
