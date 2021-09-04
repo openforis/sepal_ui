@@ -336,7 +336,12 @@ class ReclassifyModel(Model):
                 *[(str(k), str(v[0]), str(v[1])) for k, v in self.dst_class.items()]
             )
 
-            self.dst_gee_memory = ee_image.visualize(
+            self.dst_gee_memory = ee_image
+
+            # This will create a new image with three bands. It will be only useful
+            # for displaying purposes. So let's create another variable to store it.
+            # Could we check this?
+            self.dst_gee_memory_vis = ee_image.visualize(
                 **{
                     "bands": self.band,
                     "palette": color,
