@@ -30,7 +30,7 @@ Now :code:`pre-commit` will run automatically on :code:`git commit` !
 Develop within the project
 ==========================
 
-Since 2020-08-14, this repository follows these [development guidelines](https://nvie.com/posts/a-successful-git-branching-model/). The git flow is thus the following:
+Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
 .. figure:: https://nvie.com/img/git-model@2x.png
     :alt: the Git branching model 
@@ -39,6 +39,8 @@ Since 2020-08-14, this repository follows these [development guidelines](https:/
     The git branching model
 
 Please consider using the :code:`--no-ff` option when merging to keep the repository consistent with PR. 
+
+In the project to adapt to :code:`JupyterLab` intelsense, we decided to expicitely write the `return` statement for every function.
 
 Install  your local modification instead of the Pypi lib 
 ========================================================
@@ -66,7 +68,7 @@ How to commit
 In this reposiroy we use the Conventional Commits specification.
 The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with SemVer, by describing the features, fixes, and breaking changes made in commit messages.
 
-You can learn more about Conventional Commits following this `link <https://www.conventionalcommits.org/en/v1.0.0/>`
+You can learn more about Conventional Commits following this `link <https://www.conventionalcommits.org/en/v1.0.0/>`_
 
 What can I push and where
 =========================
@@ -92,7 +94,7 @@ Then push the current master branch to the release branch. You can now create a 
 
 .. warning::
 
-    The target branch of the new release is :code:`release` not :code:`master`. 
+    The target branch of the new release is :code:`release` not :code:`master`_. 
     
 Now publish the new version of the lib on Pypi : 
 
