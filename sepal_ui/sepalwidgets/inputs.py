@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any
+from traitlets import link, Int, Any, List, observe
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -460,7 +460,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     Args:
         label (str): the label of the input
         folder (str): the folder of the user assets
-        default_asset (str): the id of a default asset
+        default_asset (str, List): the id of a default asset or a list of defaults
         types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM'. Default to 'IMAGE' & 'TABLE'
 
     Attributes:
@@ -468,6 +468,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         valid (Bool): whether the selected asset is valid (user has access) or not
         type (TYPES): Type of the selected asset if is valid. None if is not accessible.
         asset_info (dict): The selected asset informations
+        default_asset (str, List): the id of a default asset or a list of default assets
     """
 
     TYPES = {
@@ -479,12 +480,13 @@ class AssetSelect(v.Combobox, SepalWidget):
         # UNKNOWN type is ignored
     }
 
+    default_asset = Any().tag(sync=True)
+
     @su.need_ee
     def __init__(
         self,
         label=ms.widgets.asset_select.label,
         folder=None,
-        default_asset=[],
         types=["IMAGE", "TABLE"],
         **kwargs,
     ):
@@ -493,8 +495,6 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # Validate the input as soon as the object is insantiated
         self.observe(self._validate, "v_model")
-
-        self.default_asset = default_asset
 
         # save the types
         self.types = [el for el in types if el in self.TYPES.keys()]
@@ -505,9 +505,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.label = label
         self.hint = ms.widgets.asset_select.hint
 
-        #         self.v_model = None # Set as none, and trigger a change in the next line
-        self.v_model = self.default_asset[0] if self.default_asset else None
-
+        self.v_model = None
         self.clearable = True
         self.dense = True
         self.persistent_hint = True
@@ -522,8 +520,43 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         self.on_event("click:prepend", self._get_items)
 
+    @observe("default_asset")
+    def _add_default(self, change=None):
+        """Add default element(s) to item list"""
+
+        new_val = change["new"]
+
+        if new_val:
+
+            new_items = self.items.copy()
+
+            if isinstance(new_val, str):
+                new_val = [new_val]
+
+            self.v_model = new_val[0]
+
+            default_items = [
+                {"divider": True},
+                {"header": ms.widgets.asset_select.custom},
+            ] + [default for default in new_val]
+
+            # Check if there are previously custom items and replace them, instead
+            # of append them
+
+            if {"header": ms.widgets.asset_select.custom} in self.items:
+
+                next_div_index = new_items.index({"divider": True}, 1)
+                new_items[0:next_div_index] = default_items
+
+            else:
+                new_items = default_items + self.items
+
+            self.items = new_items
+
+        return
+
     def _validate(self, change):
-        """Validate the selected access. Thow an error message if is not accesible."""
+        """Validate the selected access. Throw an error message if is not accesible."""
 
         self.error = False
         self.error_messages = None
@@ -540,12 +573,11 @@ class AssetSelect(v.Combobox, SepalWidget):
                 self.valid = False
                 self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
-                pass
 
+        return
+
+    @su.switch("loading", "disabled")
     def _get_items(self, *args):
-
-        self.loading = True
-        self.disabled = True
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
@@ -556,12 +588,6 @@ class AssetSelect(v.Combobox, SepalWidget):
         }
 
         self.items = []
-        if self.default_asset:
-            self.items += [
-                {"divider": True},
-                {"header": ms.widgets.asset_select.custom},
-            ] + [default for default in self.default_asset]
-
         for k in self.types:
             if len(assets[k]):
                 self.items += [
@@ -569,9 +595,6 @@ class AssetSelect(v.Combobox, SepalWidget):
                     {"header": self.TYPES[k]},
                     *assets[k],
                 ]
-
-        self.disabled = False
-        self.loading = False
 
         return self
 

@@ -26,17 +26,17 @@ class ReclassifyTile(sw.Tile):
         reclassify_view (ReclassifyView): a fully qualified ReclassifyView object
         table_view (TableView): a fully qualified TableView object
     """
-    
+
     def __init__(
-        self, 
-        results_dir=Path.home()/'downloads', 
-        gee=True, 
-        dst_class=None, 
-        default_class={}, 
-        aoi_model=None, 
+        self,
+        results_dir=Path.home() / "downloads",
+        gee=True,
+        dst_class=None,
+        default_class={},
+        aoi_model=None,
         **kwargs
     ):
-        
+
         # output directory
         self.results_dir = Path(results_dir)
 
@@ -46,17 +46,16 @@ class ReclassifyTile(sw.Tile):
             dst_dir=self.results_dir, gee=gee, aoi_model=self.aoi_model
         )
 
-        
         # set the tabs elements
         self.reclassify_view = rec.ReclassifyView(
-            self.model, 
-            out_path=self.results_dir, 
-            gee=gee, 
-            default_class=default_class, 
+            self.model,
+            out_path=self.results_dir,
+            gee=gee,
+            default_class=default_class,
             aoi_model=aoi_model,
-            save=True
+            save=True,
         ).nest_tile()
-        
+
         self.table_view = rec.TableView(out_path=self.results_dir).nest_tile()
 
         # create the tab

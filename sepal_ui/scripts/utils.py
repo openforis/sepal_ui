@@ -335,31 +335,70 @@ def to_colors(in_color, out_type="hex"):
 
     return transform(out_color)
 
-def switch(*params, debug=True):
+
+def switch(*params, debug=True, on_widgets=[]):
     """
-    Decorator to switch the state of input boolean parameters.
-    
+    Decorator to switch the state of input boolean parameters on class widgets or the
+    class itself. If on_widgets is defined, it will switch the state of every widget
+    parameter, otherwise it will change the state of the class (self). You can also set
+    two decorators on the same function, one could affect the class and other the widgets.
+
     Args:
         *params (str): any boolean parameter of a SepalWidget.
-        
+        debug (bool): Whether trigger or not an Exception if the decorated function fails.
+        on_widgets (list(widget_names,)): List of widget names into the class
+
     """
+
     def decorator_switch(func):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
-            [setattr(self, param, True) for param in params]
-            
+
+            if on_widgets:
+
+                # Verify that the input elements are strings
+                wrong_types = [
+                    (w, type(w)) for w in on_widgets if not isinstance(w, str)
+                ]
+                if wrong_types:
+                    errors = ""
+                    for wrong in wrong_types:
+                        errors += f"Received:{wrong[1]} for widget: {wrong[0]}."
+
+                    raise TypeError(
+                        f"All on_widgets list elements has to be strings. [{errors}]"
+                    )
+
+                missing_widgets = [w for w in on_widgets if not hasattr(self, w)]
+
+                if missing_widgets:
+                    raise Exception(
+                        f"The provided {missing_widgets} widget(s) does not exist in the current class"
+                    )
+
+                def w_assign(value):
+                    for w_name in on_widgets:
+                        widget = getattr(self, w_name)
+                        [setattr(widget, param, value) for param in params]
+
+            else:
+
+                def w_assign(value):
+                    [setattr(self, param, value) for param in params]
+
+            w_assign(True)
+
             try:
                 func(self, *args, **kwargs)
 
             except Exception as e:
-                [setattr(self, param, False) for param in params]
+                w_assign(False)
                 if debug:
-                    [setattr(self, param, False) for param in params]
+                    w_assign(False)
                     raise e
 
-            [setattr(self, param, False) for param in params]
+            w_assign(False)
 
         return wrapper_switch
 
     return decorator_switch
-
