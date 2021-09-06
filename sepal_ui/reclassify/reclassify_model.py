@@ -71,7 +71,6 @@ class ReclassifyModel(Model):
 
     def __init__(self, gee=False, dst_dir=None, aoi_model=None, **kwargs):
 
-
         # init the model
         super().__init__(**kwargs)
 
@@ -86,7 +85,6 @@ class ReclassifyModel(Model):
         # memory outputs
         self.dst_local_memory = None
         self.dst_gee_memory = None
-
 
     def save_matrix(self, filename):
         """
@@ -299,7 +297,6 @@ class ReclassifyModel(Model):
         self.src_class = {v: ("no_name", "#000000") for v in values}
 
         return self.src_class
-
 
     def reclassify(self, save=True):
         """
