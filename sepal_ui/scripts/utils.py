@@ -358,7 +358,7 @@ def switch(*params, debug=True, on_widgets=[]):
                 def w_assign(value):
                     if not all([hasattr(self, w_name) for w_name in on_widgets]):
                         raise Exception(
-                            "The provided widget(s) not exist in the current class"
+                            "The provided widget(s) does not exist in the current class"
                         )
 
                     for w_name in on_widgets:
