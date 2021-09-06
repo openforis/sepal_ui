@@ -468,6 +468,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         valid (Bool): whether the selected asset is valid (user has access) or not
         type (TYPES): Type of the selected asset if is valid. None if is not accessible.
         asset_info (dict): The selected asset informations
+        default_asset (str, List): the id of a default asset or a list of default assets
     """
 
     TYPES = {
@@ -504,10 +505,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.label = label
         self.hint = ms.widgets.asset_select.hint
 
-        #         self.v_model = None # Set as none, and trigger a change in the next line
-
         self.v_model = None
-
         self.clearable = True
         self.dense = True
         self.persistent_hint = True
@@ -555,8 +553,10 @@ class AssetSelect(v.Combobox, SepalWidget):
 
             self.items = new_items
 
+        return
+
     def _validate(self, change):
-        """Validate the selected access. Thow an error message if is not accesible."""
+        """Validate the selected access. Throw an error message if is not accesible."""
 
         self.error = False
         self.error_messages = None
@@ -573,7 +573,8 @@ class AssetSelect(v.Combobox, SepalWidget):
                 self.valid = False
                 self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
-                pass
+
+        return
 
     @su.switch("loading", "disabled")
     def _get_items(self, *args):
