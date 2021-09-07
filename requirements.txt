@@ -28,3 +28,4 @@ natsort
 pipreqs
 black
 pre-commit
+pytest
