@@ -27,8 +27,8 @@ jobs:
       - name: Test formatting
         uses: psf/black@stable
       - name: test with unittest
-        run: coverage run -m unittest discover -s tests
+        run: coverage run -m pytest tests
       - name: coverage
         run: coverage report -m
-      - name: cadecov
+      - name: codecov
         run: bash <(curl -s https://codecov.io/bash)
