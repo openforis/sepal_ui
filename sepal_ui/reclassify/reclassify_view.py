@@ -574,6 +574,7 @@ class ReclassifyView(v.Card):
         # load the file
         # sanity checks
         input_data = pd.read_csv(file).fillna(NO_VALUE)
+
         try:
             input_data.astype("int64")
         except:
