@@ -29,6 +29,11 @@ Sepal_ui
     
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
+   :alt: Black badge
+   
+.. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
+   :target: https://conventionalcommits.org
+   :alt: conventional commit
 
 :code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
