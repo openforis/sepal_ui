@@ -1,4 +1,3 @@
-import unittest
 import ee
 from pathlib import Path
 
@@ -6,7 +5,7 @@ from sepal_ui import aoi
 from sepal_ui import sepalwidgets as sw
 
 
-class TestAoiModel(unittest.TestCase):
+class TestAoiModel:
 
     # test folder
     FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
@@ -18,30 +17,30 @@ class TestAoiModel(unittest.TestCase):
 
         # default init
         aoi_model = aoi.AoiModel(alert, folder=self.FOLDER)
-        self.assertIsInstance(aoi_model, aoi.AoiModel)
-        self.assertEqual(aoi_model.ee, True)
+        assert isinstance(aoi_model, aoi.AoiModel)
+        assert aoi_model.ee == True
 
         # with default assetId
         asset_id = "users/bornToBeAlive/sepal_ui_test/italy"
         aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
 
-        self.assertEqual(aoi_model.asset_name, asset_id)
-        self.assertEqual(aoi_model.default_asset, asset_id)
-        self.assertNotEqual(all(aoi_model.gdf), None)
-        self.assertNotEqual(aoi_model.feature_collection, None)
-        self.assertEqual(aoi_model.name, "italy")
+        assert aoi_model.asset_name == asset_id
+        assert aoi_model.default_asset == asset_id
+        assert all(aoi_model.gdf) != None
+        assert aoi_model.feature_collection != None
+        assert aoi_model.name == "italy"
 
         # with a default admin
         admin = 85  # GAUL France
         aoi_model = aoi.AoiModel(alert, admin=admin, folder=self.FOLDER)
 
-        self.assertEqual(aoi_model.name, "FRA")
+        assert aoi_model.name == "FRA"
 
         # test with a non ee definition
         admin = "FRA"  # GADM France
         aoi_model = aoi.AoiModel(alert, gee=False, admin=admin, folder=self.FOLDER)
 
-        self.assertEqual(aoi_model.name, "FRA")
+        assert aoi_model.name == "FRA"
 
         return
 
@@ -67,7 +66,7 @@ class TestAoiModel(unittest.TestCase):
 
         res = aoi_model.get_columns()
 
-        self.assertEqual(res, test_data)
+        assert res == test_data
 
         return
 
@@ -83,7 +82,7 @@ class TestAoiModel(unittest.TestCase):
 
         res = aoi_model.get_fields(column)
 
-        self.assertEqual(res, [85])
+        assert res == [85]
 
         return
 
@@ -106,7 +105,7 @@ class TestAoiModel(unittest.TestCase):
         feature_geom = feature.geometry().getInfo()
         france_geom = ee_france.geometry().getInfo()
 
-        self.assertEqual(feature_geom, france_geom)
+        assert feature_geom == france_geom
 
         return
 
@@ -134,19 +133,19 @@ class TestAoiModel(unittest.TestCase):
         # clear them
         aoi_model.clear_attributes()
 
-        self.assertEqual(aoi_model.method, None)
-        self.assertEqual(aoi_model.point_json, None)
-        self.assertEqual(aoi_model.vector_json, None)
-        self.assertEqual(aoi_model.geo_json, None)
-        self.assertEqual(aoi_model.admin, None)
-        self.assertEqual(aoi_model.asset_name, None)
-        self.assertEqual(aoi_model.name, None)
-        self.assertEqual(aoi_model.gdf, None)
-        self.assertEqual(aoi_model.feature_collection, None)
-        self.assertEqual(aoi_model.ipygeojson, None)
-        self.assertEqual(aoi_model.default_asset, None)
-        self.assertEqual(aoi_model.default_admin, None)
-        self.assertEqual(aoi_model.default_vector, None)
+        assert aoi_model.method == None
+        assert aoi_model.point_json == None
+        assert aoi_model.vector_json == None
+        assert aoi_model.geo_json == None
+        assert aoi_model.admin == None
+        assert aoi_model.asset_name == None
+        assert aoi_model.name == None
+        assert aoi_model.gdf == None
+        assert aoi_model.feature_collection == None
+        assert aoi_model.ipygeojson == None
+        assert aoi_model.default_asset == None
+        assert aoi_model.default_admin == None
+        assert aoi_model.default_vector == None
 
         # check that default are saved
         aoi_model = aoi.AoiModel(alert, admin=85, folder=self.FOLDER)  # GAUL for France
@@ -167,7 +166,7 @@ class TestAoiModel(unittest.TestCase):
         aoi_model.clear_attributes()
 
         # assert that it's still france
-        self.assertEqual(aoi_model.name, "FRA")
+        assert aoi_model.name == "FRA"
 
         return
 
@@ -190,7 +189,7 @@ class TestAoiModel(unittest.TestCase):
 
         bounds = aoi_model.total_bounds()
 
-        self.assertEqual(bounds, expected_bounds)
+        assert bounds == expected_bounds
 
         return
 

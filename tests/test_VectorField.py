@@ -1,4 +1,3 @@
-import unittest
 from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
@@ -8,13 +7,13 @@ import pandas as pd
 from sepal_ui import sepalwidgets as sw
 
 
-class TestVectorField(unittest.TestCase):
+class TestVectorField:
     def test_init(self):
 
         # init variables
         load_table = sw.VectorField()
 
-        self.assertIsInstance(load_table, sw.VectorField)
+        assert isinstance(load_table, sw.VectorField)
 
         return
 
@@ -33,7 +32,7 @@ class TestVectorField(unittest.TestCase):
             "value": None,
         }
 
-        self.assertEqual(load_vector.v_model, test_data)
+        assert load_vector.v_model == test_data
 
         # delete the test file
         for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
@@ -54,7 +53,7 @@ class TestVectorField(unittest.TestCase):
         load_vector.reset()
 
         # assert the current values
-        self.assertEqual(load_vector.v_model, load_vector.default_v_model)
+        assert load_vector.v_model == load_vector.default_v_model
 
         return
 
@@ -75,7 +74,3 @@ class TestVectorField(unittest.TestCase):
         file.unlink()
 
         return root_dir / f"{name}.shp"
-
-
-if __name__ == "__main__":
-    unittest.main()

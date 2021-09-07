@@ -1,4 +1,3 @@
-import unittest
 from pathlib import Path
 
 import pandas as pd
@@ -6,13 +5,13 @@ import pandas as pd
 from sepal_ui import sepalwidgets as sw
 
 
-class TestLoadTableField(unittest.TestCase):
+class TestLoadTableField:
     def test_init(self):
 
         # init variables
         load_table = sw.LoadTableField()
 
-        self.assertIsInstance(load_table, sw.LoadTableField)
+        assert isinstance(load_table, sw.LoadTableField)
 
         return
 
@@ -32,7 +31,7 @@ class TestLoadTableField(unittest.TestCase):
             "lat_column": "lat",
         }
 
-        self.assertEqual(load_table.v_model, test_data)
+        assert load_table.v_model == test_data
 
         # delete the test file
         test_file.unlink()
@@ -52,7 +51,7 @@ class TestLoadTableField(unittest.TestCase):
         load_table.reset()
 
         # assert the current values
-        self.assertEqual(load_table.v_model, load_table.default_v_model)
+        assert load_table.v_model == load_table.default_v_model
 
         # delete the test file
         test_file.unlink()
@@ -61,8 +60,7 @@ class TestLoadTableField(unittest.TestCase):
 
     def _create_fake_table(self):
 
-        root_dir = Path("~").expanduser()
-        filename = root_dir / "test.csv"
+        filename = Path.home() / "test.csv"
 
         coloseo = [1, 41.89042582290999, 12.492241627092199]
         fao = [2, 41.88369224629387, 12.489216069409004]
@@ -71,7 +69,3 @@ class TestLoadTableField(unittest.TestCase):
         df.to_csv(filename, index=False)
 
         return filename
-
-
-if __name__ == "__main__":
-    unittest.main()

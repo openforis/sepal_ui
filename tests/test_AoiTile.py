@@ -1,12 +1,10 @@
-import unittest
-
 import ee
 
 from sepal_ui import aoi
 from sepal_ui.message import ms
 
 
-class TestAoiTile(unittest.TestCase):
+class TestAoiTile:
 
     FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
 
@@ -14,11 +12,11 @@ class TestAoiTile(unittest.TestCase):
 
         # default init
         tile = aoi.AoiTile(folder=self.FOLDER)
-        self.assertIsInstance(tile, aoi.AoiTile)
+        assert isinstance(tile, aoi.AoiTile)
 
         # init with ee
         tile = aoi.AoiTile(folder=self.FOLDER, gee=False)
-        self.assertFalse(tile.view.model.ee)
+        assert tile.view.model.ee == False
 
         return
 

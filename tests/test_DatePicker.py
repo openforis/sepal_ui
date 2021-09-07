@@ -1,18 +1,16 @@
-import unittest
-
 from sepal_ui import sepalwidgets as sw
 
 
-class TestDatePicker(unittest.TestCase):
+class TestDatePicker:
     def test_init(self):
 
         # default init
         datepicker = sw.DatePicker()
-        self.assertIsInstance(datepicker, sw.DatePicker)
+        assert isinstance(datepicker, sw.DatePicker)
 
         # exhaustive
         datepicker = sw.DatePicker("toto")
-        self.assertIsInstance(datepicker, sw.DatePicker)
+        assert isinstance(datepicker, sw.DatePicker)
 
         return
 
@@ -32,11 +30,7 @@ class TestDatePicker(unittest.TestCase):
         date = "2020-06-12"
         datepicker.v_model = date
 
-        self.assertEqual(test_io.out, date)
-        self.assertTrue(output.viz)
+        assert test_io.out == date
+        assert output.viz == True
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

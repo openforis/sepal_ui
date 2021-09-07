@@ -1,4 +1,4 @@
-import unittest
+import pytest
 from pathlib import Path
 import io
 from contextlib import redirect_stdout
@@ -6,34 +6,32 @@ from contextlib import redirect_stdout
 from sepal_ui.translator import Translator
 
 
-class TestTranslator(unittest.TestCase):
+class TestTranslator:
     def test_init(self):
 
         # assert that the test key exist in fr
         target_lan = "fr"
         translator = Translator(self._get_message_json_folder(), target_lan)
 
-        self.assertEqual(translator.test_key, "Clef de test")
+        assert translator.test_key == "Clef de test"
 
         # assert that the the code work if the path is a str
         target_lan = "fr"
         translator = Translator(str(self._get_message_json_folder()), target_lan)
-        self.assertEqual(translator.test_key, "Clef de test")
+        assert translator.test_key == "Clef de test"
 
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
 
         translator = Translator(self._get_message_json_folder(), target_lan)
-        self.assertEqual(translator.test_key, "Test key")
+        assert translator.test_key == "Test key"
 
         # assert that using a non existing lang lead to an error
         target_lan = "it"
         f = io.StringIO()
         with redirect_stdout(f):
             translator = Translator(self._get_message_json_folder(), target_lan)
-        self.assertEqual(
-            f.getvalue(), 'No json file is provided for "it", fallback to "en"\n'
-        )
+        assert f.getvalue() == 'No json file is provided for "it", fallback to "en"\n'
 
         return
 
@@ -43,13 +41,14 @@ class TestTranslator(unittest.TestCase):
         target_lan = "fr"
         translator = Translator(self._get_message_json_folder(), target_lan)
 
-        self.assertEqual(translator.missing_keys(), "All messages are translated")
+        assert translator.missing_keys() == "All messages are translated"
 
         # assert that the test does not exist in es and we fallback to en
         target_lan = "es"
         translator = Translator(self._get_message_json_folder(), target_lan)
 
-        self.assertEqual("root['test_key']", translator.missing_keys())
+        assert "root['test_key']" == translator.missing_keys()
+        assert translator.test_key == "Test key"
 
         return
 
@@ -59,7 +58,7 @@ class TestTranslator(unittest.TestCase):
         key = "toto"
         d = {"a": {"toto": "b"}, "c": "d"}
 
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             Translator.search_key(d, key)
 
         return
@@ -71,7 +70,3 @@ class TestTranslator(unittest.TestCase):
         path = home / "sepal_ui" / "message"
 
         return path
-
-
-if __name__ == "__main__":
-    unittest.main()
