@@ -7,7 +7,7 @@ import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
 
-from .parameters import *
+from sepal_ui.reclassify import parameters as param
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -32,7 +32,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         out_path (str|optional): output path where table will be saved, default to ~/downloads/
     """
 
-    SCHEMA = ms.rec.table.schema
+    SCHEMA = param.SCHEMA
 
     def __init__(self, out_path=Path.home() / "downloads", **kwargs):
 
@@ -89,7 +89,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         self.show_select = True
         self.single_select = True
         self.hide_default_footer = True
-        self.headers = [{"text": k.capitalize(), "value": k} for k in self.SCHEMA]
+        self.headers = [
+            {"text": v[0].capitalize(), "value": t} for t, v in self.SCHEMA.items()
+        ]
 
         # create the object
         super().__init__(**kwargs)
@@ -122,6 +124,9 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         # read the file using pandas
         df = pd.read_csv(items_file, header=None)
 
+        # TODO: We can check if the input file has header names, and if so, extract the
+        # corresponding values with the SCHEMA.
+
         # small sanity check
         if not len(df.columns) in [2, 3]:
             raise AssertionError(
@@ -132,9 +137,11 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         if len(df.columns) == 2:
             df[2] = ["#000000" for _ in range(len(df))]
 
+        # TODO: Warning, here we are asumming that the values are in the same order as the schema keys
         # set the lines
         self.items = [
-            dict(zip(self.SCHEMA, [i] + row.tolist())) for i, row in df.iterrows()
+            dict(zip(self.SCHEMA.keys(), [i] + row.tolist()))
+            for i, row in df.iterrows()
         ]
 
         return self
@@ -222,10 +229,16 @@ class EditDialog(v.Dialog):
 
         # create the widgets
         self.widgets = [
-            v.TextField(label=self.table.SCHEMA[0], type="number", v_model=None),
-            v.TextField(label=self.table.SCHEMA[1], type="number", v_model=None),
-            v.TextField(label=self.table.SCHEMA[2], type="string", v_model=None),
-            v.ColorPicker(label=self.table.SCHEMA[3], mode="hexa", v_model=None),
+            v.TextField(label=val[0], type=val[1], v_model=None, _metadata={"name": k})
+            for k, val in param.SCHEMA.items()
+            if k in ["id", "code", "desc"]
+        ] + [
+            v.ColorPicker(
+                label=param.SCHEMA["color"][0],
+                mode=param.SCHEMA["color"][1],
+                _metadata={"name": "color"},
+                v_model=None,
+            )
         ]
 
         self.widgets[0].disabled = True  # it's the id
@@ -324,9 +337,14 @@ class EditDialog(v.Dialog):
         current_items = self.table.items.copy()
         for i, item in enumerate(current_items):
             if item["id"] == self.widgets[0].v_model:
-                for j, w in enumerate(self.widgets):
-                    val = w.v_model if j != 3 else w.v_model["hex"]
-                    current_items[i][self.table.SCHEMA[j]] = val
+                for w in self.widgets:
+                    val = (
+                        w.v_model
+                        if w._metadata["name"] != "color"
+                        else w.v_model["hex"]
+                    )
+                    current_items[i][w._metadata["name"]] = val
+
         current_items.append(["" for _ in range(4)])
 
         # update the table values
@@ -351,9 +369,9 @@ class EditDialog(v.Dialog):
         current_items = self.table.items.copy()
 
         item_to_add = {}
-        for i, w in enumerate(self.widgets):
-            item_to_add[self.table.SCHEMA[i]] = (
-                w.v_model if i != 3 else w.v_model["hex"]
+        for w in self.widgets:
+            item_to_add[w._metadata["name"]] = (
+                w.v_model if w._metadata["name"] != "color" else w.v_model["hex"]
             )
 
         current_items.insert(0, item_to_add)

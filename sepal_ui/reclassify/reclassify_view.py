@@ -32,9 +32,9 @@ class importMatrixDialog(v.Dialog):
         # create the 3 widgets
         title = v.CardTitle(children=["Load reclassification matrix"])
         self.w_file = sw.FileInput(label="filename", folder=folder)
-        btn = sw.Btn("Load")
+        self.load_btn = sw.Btn("Load")
         cancel = sw.Btn("Cancel", outlined=True)
-        actions = v.CardActions(children=[cancel, btn])
+        actions = v.CardActions(children=[cancel, self.load_btn])
 
         # default params
         self.value = False
@@ -47,23 +47,12 @@ class importMatrixDialog(v.Dialog):
         super().__init__(**kwargs)
 
         # js behaviour
-        btn.on_event("click", self._load)
         cancel.on_event("click", self._cancel)
 
     def _cancel(self, widget, event, data):
         """exit and do nothing"""
 
         self.value = False
-
-        return self
-
-    def _load(self, widget, event, data):
-        """modify the file traitlet to trigger the loading of the values"""
-
-        self.value = False
-
-        self.file = self.w_file.v_model
-        self.w_file.reset()
 
         return self
 
@@ -523,7 +512,7 @@ class ReclassifyView(v.Card):
 
         # JS Events
         self.import_table.on_event("click", lambda *args: self.import_dialog.show())
-        self.import_dialog.observe(self.load_matrix_content, "file")
+        self.import_dialog.load_btn.on_event("click", self.load_matrix_content)
         self.save_table.on_event(
             "click", lambda *args: self.save_dialog.show(self.model.matrix)
         )
@@ -564,16 +553,18 @@ class ReclassifyView(v.Card):
 
         return self
 
-    def load_matrix_content(self, change):
+    def load_matrix_content(self, widget, event, data):
         """
         Load the content of the file in the matrix. The table need to be already set to perform this operation
 
         Return:
             self
         """
+        self.import_dialog.value = False
+        file = self.import_dialog.w_file.v_model
 
         # exit if no files are selected
-        if not change["new"]:
+        if not file:
             raise Exception("No file have been selected")
 
         # exit if no table is loaded
@@ -582,7 +573,7 @@ class ReclassifyView(v.Card):
 
         # load the file
         # sanity checks
-        input_data = pd.read_csv(change["new"]).fillna(NO_VALUE)
+        input_data = pd.read_csv(file).fillna(NO_VALUE)
 
         try:
             input_data.astype("int64")
@@ -607,13 +598,15 @@ class ReclassifyView(v.Card):
             raise Exception(
                 "Some of the destination data are not existing in the destination dataset"
             )
-
         # fill the data
         for _, row in input_data.iterrows():
             src_code, dst_code = row.src, row.dst
+            if str(src_code) in self.reclassify_table.class_select_list:
+                self.reclassify_table.class_select_list[
+                    str(src_code)
+                ].v_model = dst_code
 
-            if src_code in self.reclassify_table.class_select_list:
-                self.reclassify_table.class_select_list[src_code].v_model = dst_code
+        self.import_dialog.w_file.reset()
 
         return self
 
@@ -637,7 +630,6 @@ class ReclassifyView(v.Card):
         self.w_code.loading = True
         # guess the file type and save it in the model
         self.model.get_type()
-
         # update the bands values
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
