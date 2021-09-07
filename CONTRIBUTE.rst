@@ -15,17 +15,23 @@ The project embed some git hooks that allows better CI and improve code quality.
 
 Before you can run hooks, you need to have the pre-commit package manager installed.
 
-.. code-block:: pyhton
+.. code-block:: console
 
     $ pip install pre-commit
     
 Then install the git hook scripts by running pre-commit install to set up the git hook scripts:
 
-.. code-block:: python
+.. code-block:: console
 
     $ pre-commit install
+    $ pre-commit install --hook-type commit-msg
     
 Now :code:`pre-commit` will run automatically on :code:`git commit` !
+
+.. danger:: 
+
+    Now that the :code:`pre-commits` are installed, every commit that does not respect the conventional commits framework will be refused. 
+    you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommand to use the :code:`commitizen` lib to create your commits: https://commitizen-tools.github.io/commitizen`.
 
 Develop within the project
 ==========================
