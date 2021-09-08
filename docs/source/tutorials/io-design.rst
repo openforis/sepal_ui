@@ -9,7 +9,7 @@ the concept is easier to grasp with a simple example
 
 .. code-block:: python 
 
-    def double(a)
+    def double(a):
         """multiply the value of "a" by two"""
         
         a *= 2
@@ -191,7 +191,7 @@ model objects are Python objects so they can also embed specific methods to help
 
 In this framework the AOI selection is hard-coded in the :code:`AoiIModel` object and the :code:`AoiView` object. 
 If you look at the documentation of the lib you'll see that :code:`AoiModel` has a lot of embedded useful method that you can call anywhere.
-e.g: with the :code:`AoiIo.total_bounds` method, you can get the AOI bounding box coordnates. 
+e.g: with the :code:`AoiIo.total_bounds` method, you can get the AOI bounding box coordinates. 
 
 .. code-block:: python 
 

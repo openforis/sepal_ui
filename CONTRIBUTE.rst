@@ -11,7 +11,7 @@ run the following command to start developing on the develop branch
 Activate the pre-commit
 =======================
 
-The project embed some git hooks that allows better CI and improve code quality. To activate themplease follow these few steps: 
+The project embed some git hooks that allows better CI and improve code quality. To activate them, please follow these few steps: 
 
 Before you can run hooks, you need to have the pre-commit package manager installed.
 
@@ -31,7 +31,7 @@ Now :code:`pre-commit` will run automatically on :code:`git commit` !
 .. danger:: 
 
     Now that the :code:`pre-commits` are installed, every commit that does not respect the conventional commits framework will be refused. 
-    you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommand to use the :code:`commitizen` lib to create your commits: https://commitizen-tools.github.io/commitizen`.
+    you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `https://commitizen-tools.github.io/commitizen`_.
 
 Develop within the project
 ==========================
@@ -46,7 +46,7 @@ Since 2020-08-14, this repository follows these `development guidelines <https:/
 
 Please consider using the :code:`--no-ff` option when merging to keep the repository consistent with PR. 
 
-In the project to adapt to :code:`JupyterLab` intelsense, we decided to expicitely write the `return` statement for every function.
+In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the `return` statement for every function.
 
 Install  your local modification instead of the Pypi lib 
 ========================================================
@@ -71,7 +71,7 @@ then install the sepal_ui from your local folder:
 How to commit
 =============
 
-In this reposiroy we use the Conventional Commits specification.
+In this repository we use the Conventional Commits specification.
 The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with SemVer, by describing the features, fixes, and breaking changes made in commit messages.
 
 You can learn more about Conventional Commits following this `link <https://www.conventionalcommits.org/en/v1.0.0/>`_
@@ -100,7 +100,7 @@ Then push the current master branch to the release branch. You can now create a 
 
 .. warning::
 
-    The target branch of the new release is :code:`release` not :code:`master`_. 
+    The target branch of the new release is :code:`release` not :code:`master`. 
     
 Now publish the new version of the lib on Pypi : 
 
@@ -111,3 +111,7 @@ Now publish the new version of the lib on Pypi :
     $ twine upload dist/sepal_ui-<version number>.tar.gz
     
 Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>` with the latest version number and the rebuild will start automatically. 
+
+.. spelling:: 
+
+    pre
