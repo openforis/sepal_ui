@@ -3,7 +3,7 @@ About tile
 
 :code:`TileAbout` is a widget to display `markdown <https://www.markdownguide.org/basic-syntax/>`_ flavored file to describe the module. it inherits from the :code:`Tile` class.
 
-.. code-block:: python 
+.. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path 
@@ -15,15 +15,22 @@ About tile
         f.write(' Lorem ipsum')
     
     about_tile = sw.TileAbout(tmp_file)
-    about_tile
+    #about_tile
+    
+    
+.. jupyter-execute::
 
+    import ipywidgets as w
+    from IPython.display import display
+
+    a = w.IntSlider()
+    b = w.IntText()
+    w.jslink((a, 'value'), (b, 'value'))
+    display(a, b)
+    
 .. tip:: 
 
     The file should be starting with a level 2 header as the title of the tile ("About") is already using the level 1
-
-
-.. image:: ../../img/about_tile.png
-    :alt: about_tile
 
 .. note::
 
