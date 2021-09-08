@@ -31,7 +31,7 @@ Now :code:`pre-commit` will run automatically on :code:`git commit` !
 .. danger:: 
 
     Now that the :code:`pre-commits` are installed, every commit that does not respect the conventional commits framework will be refused. 
-    you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `https://commitizen-tools.github.io/commitizen`_.
+    you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `<https://commitizen-tools.github.io/commitizen>`_.
 
 Develop within the project
 ==========================
@@ -110,7 +110,7 @@ Now publish the new version of the lib on Pypi :
     $ python setup.py sdist
     $ twine upload dist/sepal_ui-<version number>.tar.gz
     
-Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>` with the latest version number and the rebuild will start automatically. 
+Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically. 
 
 .. spelling:: 
 
