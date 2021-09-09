@@ -6,7 +6,6 @@ Example
     :maxdepth: 1
     :hidden:
 
-    about_test
     sepal_widget
     markdown
     btn

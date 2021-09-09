@@ -1,12 +1,10 @@
-import unittest
-
 from sepal_ui import sepalwidgets as sw
 
 
-class TestSepalWidget(unittest.TestCase):
+class TestSepalWidget:
     def test_init(self):
         widget = sw.SepalWidget()
-        self.assertTrue(widget.viz, "widget not visible")
+        assert widget.viz == True
 
         return
 
@@ -14,10 +12,8 @@ class TestSepalWidget(unittest.TestCase):
         widget = sw.SepalWidget()
         widget.class_ = "d-none"
         widget.show()
-        self.assertTrue(widget.viz, "widget not visible")
-        self.assertNotIn(
-            "d-none", str(widget.class_).strip(), "widget has d-none class"
-        )
+        assert widget.viz == True
+        assert not "d-none" in str(widget.class_)
 
         return
 
@@ -25,32 +21,24 @@ class TestSepalWidget(unittest.TestCase):
         widget = sw.SepalWidget()
         widget.class_ = None
         widget.hide()
-        self.assertFalse(widget.viz, "widget remain visible")
-        self.assertIn(
-            "d-none", str(widget.class_).strip(), "widget hasn't d-none class"
-        )
+        assert widget.viz == False
+        assert "d-none" in str(widget.class_)
 
         return
 
     def test_toggle_viz(self):
         widget = sw.SepalWidget()
         widget.class_ = None
-        self.assertTrue(widget.viz, "widget not visible")
-        self.assertNotIn(
-            "d-none", str(widget.class_).strip(), "widget has d-none class"
-        )
+        assert widget.viz == True
+        assert not "d-none" in str(widget.class_)
 
         widget.toggle_viz()
-        self.assertFalse(widget.viz, "widget remain visible")
-        self.assertIn(
-            "d-none", str(widget.class_).strip(), "widget hasn't d-none class"
-        )
+        assert widget.viz == False
+        assert "d-none" in str(widget.class_)
 
         widget.toggle_viz()
-        self.assertTrue(widget.viz, "widget not visible")
-        self.assertNotIn(
-            "d-none", str(widget.class_).strip(), "widget has d-none class"
-        )
+        assert widget.viz == True
+        assert not "d-none" in str(widget.class_)
 
         return
 
@@ -61,10 +49,6 @@ class TestSepalWidget(unittest.TestCase):
 
         widget.reset()
 
-        self.assertEqual(widget.v_model, None)
+        assert widget.v_model == None
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

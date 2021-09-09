@@ -1,4 +1,3 @@
-import unittest
 from datetime import datetime
 
 import ipyvuetify as v
@@ -6,7 +5,7 @@ import ipyvuetify as v
 from sepal_ui import sepalwidgets as sw
 
 
-class TestMarkdown(unittest.TestCase):
+class TestMarkdown:
     def test_init(self):
 
         ###################################################
@@ -15,8 +14,8 @@ class TestMarkdown(unittest.TestCase):
 
         # default init
         mkd_widget = sw.Markdown()
-        self.assertIsInstance(mkd_widget, v.Layout)
-        self.assertIsInstance(mkd_widget.children[0], v.Flex)
+        assert isinstance(mkd_widget, v.Layout)
+        assert isinstance(mkd_widget.children[0], v.Flex)
         # self.assertEqual(mkd_widget.children[0], '<div>\n\n</div>')
 
         # exhaustive
@@ -25,7 +24,3 @@ class TestMarkdown(unittest.TestCase):
         # self.assertEqual(mkd_widget.children[0], '<div>\n{}\n</div>'.format(txt))
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,16 +1,14 @@
-import unittest
-
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestStateBar(unittest.TestCase):
+class TestStateBar:
     def test_init(self):
 
         # minimal state bar
         state_bar = sw.StateBar()
-        self.assertEqual(len(state_bar.children), 2)
+        assert len(state_bar.children) == 2
 
         return
 
@@ -22,13 +20,13 @@ class TestStateBar(unittest.TestCase):
         msg = "not finished"
         state_bar.add_msg(msg, True)
 
-        self.assertEqual(state_bar.children[0].indeterminate, True)
-        self.assertEqual(state_bar.msg, msg)
+        assert state_bar.children[0].indeterminate == True
+        assert state_bar.msg == msg
 
         # assert that add message can stop the loading
         msg = "finished"
         state_bar.add_msg(msg)
 
-        self.assertEqual(state_bar.children[0].indeterminate, False)
+        assert state_bar.children[0].indeterminate == False
 
         return

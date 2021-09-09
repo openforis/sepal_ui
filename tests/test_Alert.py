@@ -1,68 +1,73 @@
-import unittest
-
 import ipyvuetify as v
+import pytest
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestAlert(unittest.TestCase):
+class TestAlert:
     def test_init(self):
-        alert = sw.Alert()
-        self.assertFalse(alert.viz)
-        self.assertEqual(alert.type, "info")
 
+        # default init
+        alert = sw.Alert()
+        assert alert.viz == False
+        assert alert.type == "info"
+
+        # every legit types
         for type_ in sw.TYPES:
             alert = sw.Alert(type_)
-            self.assertEqual(alert.type, type_)
+            assert alert.type == type_
 
+        # wrong type
         alert = sw.Alert("random")
-        self.assertEqual(alert.type, "info")
+        assert alert.type == "info"
 
         return
 
     def test_add_msg(self):
+
         alert = sw.Alert()
         msg = "toto"
 
         # single msg
         res = alert.add_msg(msg)
-        self.assertEqual(res, alert)
-        self.assertTrue(alert.viz)
-        self.assertEqual(alert.children[0].children[0], msg)
+        assert res == alert
+        assert alert.viz == True
+        assert alert.children[0].children[0] == msg
 
         # single msg with type
         for type_ in sw.TYPES:
             alert.add_msg(msg, type_)
-            self.assertEqual(alert.type, type_)
-            self.assertEqual(alert.children[0].children[0], msg)
+            assert alert.type == type_
+            assert alert.children[0].children[0] == msg
 
         # single msg with rdm type
         alert.add_msg(msg, "random")
-        self.assertEqual(alert.type, "info")
-        self.assertEqual(alert.children[0].children[0], msg)
+        assert alert.type == "info"
+        assert alert.children[0].children[0] == msg
 
         return
 
     def test_add_live_msg(self):
+
         alert = sw.Alert()
         msg = "toto"
 
         # single msg
         res = alert.add_live_msg(msg)
-        self.assertEqual(res, alert)
-        self.assertTrue(alert.viz)
-        self.assertEqual(alert.children[1].children[0], msg)
+        assert res == alert
+        assert alert.viz == True
+        assert alert.children[1].children[0] == msg
 
         # single msg with type
         for type_ in sw.TYPES:
             alert.add_live_msg(msg, type_)
-            self.assertEqual(alert.type, type_)
-            self.assertEqual(alert.children[1].children[0], msg)
+            assert alert.type == type_
+            assert alert.children[1].children[0] == msg
 
         # single msg with rdm type
         alert.add_live_msg(msg, "random")
-        self.assertEqual(alert.type, "info")
-        self.assertEqual(alert.children[1].children[0], msg)
+        assert alert.type == "info"
+        assert alert.children[1].children[0] == msg
 
         return
 
@@ -75,32 +80,32 @@ class TestAlert(unittest.TestCase):
         alert = sw.Alert()
         res = alert.append_msg(msg)
 
-        self.assertEqual(res, alert)
-        self.assertEqual(len(alert.children), 1)
-        self.assertEqual(alert.children[0].children[0], msg)
+        assert res == alert
+        assert len(alert.children) == 1
+        assert alert.children[0].children[0] == msg
 
         # test from non empty alert without divider
         alert = sw.Alert().add_msg(start)
         res = alert.append_msg(msg)
 
-        self.assertEqual(res, alert)
-        self.assertEqual(len(alert.children), 2)
-        self.assertEqual(alert.children[0].children[0], start)
-        self.assertEqual(alert.children[1].children[0], msg)
+        assert res == alert
+        assert len(alert.children) == 2
+        assert alert.children[0].children[0] == start
+        assert alert.children[1].children[0] == msg
 
         # test from non empty alert with divider
         alert = sw.Alert().add_msg(start)
         res = alert.append_msg(msg, section=True)
 
-        self.assertEqual(res, alert)
-        self.assertEqual(len(alert.children), 3)
-        self.assertEqual(alert.children[0].children[0], start)
-        self.assertIsInstance(alert.children[1], sw.Divider)
-        self.assertEqual(alert.children[2].children[0], msg)
+        assert res == alert
+        assert len(alert.children) == 3
+        assert alert.children[0].children[0] == start
+        assert isinstance(alert.children[1], sw.Divider)
+        assert alert.children[2].children[0] == msg
 
         # check that the divider is changing color
         alert.type = "success"
-        self.assertIn(alert.children[1].type_, "success")
+        assert alert.children[1].type_ == "success"
 
     def test_bind(self):
         class Test_io:
@@ -121,25 +126,20 @@ class TestAlert(unittest.TestCase):
         alert3.bind(widget, test_io, "out", verbose=False)
         alert4.bind(widget, test_io, "out", secret=True)
 
-        self.assertEqual(res, alert)
+        assert res == alert
 
         # check when value change
         msg = "toto"
         widget.v_model = msg
 
-        self.assertTrue(alert.viz)
-        self.assertEqual(test_io.out, widget.v_model)
-
-        self.assertEqual(
-            alert.children[0].children[0], "The selected variable is: {}".format(msg)
-        )
-        self.assertEqual(
-            alert2.children[0].children[0], "new variable : {}".format(msg)
-        )
-        self.assertFalse(len(alert3.children))
-        self.assertEqual(
-            alert4.children[0].children[0],
-            "The selected variable is: {}".format("*" * len(msg)),
+        assert alert.viz == True
+        assert test_io.out == widget.v_model
+        assert alert.children[0].children[0] == f"The selected variable is: {msg}"
+        assert alert2.children[0].children[0] == f"new variable : {msg}"
+        assert len(alert3.children) == False
+        assert (
+            alert4.children[0].children[0]
+            == f"The selected variable is: {'*'*len(msg)}"
         )
 
         return
@@ -150,28 +150,26 @@ class TestAlert(unittest.TestCase):
 
         var_test = None
         res = alert.check_input(var_test)
-        self.assertFalse(res)
-        self.assertTrue(alert.viz)
-        self.assertEqual(
-            alert.children[0].children[0], "The value has not been initialized"
-        )
+        assert res == False
+        assert alert.viz == True
+        assert alert.children[0].children[0] == "The value has not been initialized"
 
         res = alert.check_input(var_test, "toto")
-        self.assertEqual(alert.children[0].children[0], "toto")
+        assert alert.children[0].children[0] == "toto"
 
         var_test = 1
         res = alert.check_input(var_test)
-        self.assertTrue(res)
+        assert res == True
 
         # test lists
         var_test = [range(2)]
         res = alert.check_input(var_test)
-        self.assertTrue(res)
+        assert res == True
 
         # test empty list
         var_test = []
         res = alert.check_input(var_test)
-        self.assertFalse(res)
+        assert res == False
 
         return
 
@@ -179,9 +177,9 @@ class TestAlert(unittest.TestCase):
 
         alert = sw.Alert().add_msg("toto").reset()
 
-        self.assertFalse(alert.viz)
-        self.assertEqual(len(alert.children), 1)
-        self.assertEqual(alert.children[0], "")
+        assert alert.viz == False
+        assert len(alert.children) == 1
+        assert alert.children[0] == ""
 
         return
 
@@ -190,14 +188,14 @@ class TestAlert(unittest.TestCase):
         # check with a no msg alert
         alert = sw.Alert().remove_last_msg()
 
-        self.assertFalse(alert.viz)
-        self.assertEqual(alert.children[0], "")
+        assert alert.viz == False
+        assert alert.children[0] == ""
 
         # check with a 1 msg alert
         alert = sw.Alert().add_msg("toto").remove_last_msg()
 
-        self.assertFalse(alert.viz)
-        self.assertEqual(alert.children[0], "")
+        assert alert.viz == False
+        assert alert.children[0] == ""
 
         # check with a multiple msg alert
         alert = sw.Alert()
@@ -209,9 +207,9 @@ class TestAlert(unittest.TestCase):
 
         alert.remove_last_msg()
 
-        self.assertTrue(alert.viz)
-        self.assertEqual(len(alert.children), 4)
-        self.assertEqual(alert.children[nb_msg - 2].children[0], f"{string}{nb_msg-2}")
+        assert alert.viz == True
+        assert len(alert.children) == 4
+        assert alert.children[nb_msg - 2].children[0] == f"{string}{nb_msg-2}"
 
         return
 
@@ -222,14 +220,8 @@ class TestAlert(unittest.TestCase):
 
         # test a random update
         alert.update_progress(0.5)
-        self.assertEqual(
-            alert.children[1].children[0].children[2].children[0], " 50.0%"
-        )
+        assert alert.children[1].children[0].children[2].children[0] == " 50.0%"
 
         # show that a value > 1 raise an error
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             alert.update_progress(1.5)
-
-
-if __name__ == "__main__":
-    unittest.main()

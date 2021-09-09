@@ -1,11 +1,9 @@
-import unittest
-import os
 from pathlib import Path
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestFileInput(unittest.TestCase):
+class TestFileInput:
     def test_init(self):
 
         # default init
@@ -14,8 +12,8 @@ class TestFileInput(unittest.TestCase):
         # init with a string
         file_input = sw.FileInput(folder=str(self._get_sepal_parent()))
 
-        self.assertIsInstance(file_input, sw.FileInput)
-        self.assertEqual(file_input.v_model, "")
+        assert isinstance(file_input, sw.FileInput)
+        assert file_input.v_model == ""
 
         # get all the names
         list_names = []
@@ -24,7 +22,7 @@ class TestFileInput(unittest.TestCase):
             list_item_title = list_item_content.children[0]
             list_names.append(list_item_title.children[0])
 
-        self.assertIn("sepal_ui", list_names)
+        assert "sepal_ui" in list_names
 
         # default init
         file_input = sw.FileInput([".shp"], folder=self._get_sepal_parent())
@@ -47,8 +45,8 @@ class TestFileInput(unittest.TestCase):
         path = "toto.ici.shp"
         file_input.v_model = path
 
-        self.assertEqual(test_io.out, path)
-        self.assertTrue(output.viz)
+        assert test_io.out == path
+        assert output.viz == True
 
         return
 
@@ -69,25 +67,24 @@ class TestFileInput(unittest.TestCase):
             list_item_title = list_item_content.children[0]
             list_names.append(list_item_title.children[0])
 
-        self.assertEqual(file_input.v_model, "")
-        self.assertIn("README.rst", list_names)
+        assert file_input.v_model == ""
+        assert "README.rst" in list_names
 
         # select readme
         file_input._on_file_select({"new": readme})
-        self.assertEqual(file_input.v_model, str(readme))
+        assert file_input.v_model in str(readme)
 
         return
 
     def test_on_reload(self):
 
-        home = Path("~").expanduser()
+        home = Path.home()
         file_input = sw.FileInput(folder=home)
 
         # create a fake file
         test_name = "test.txt"
         tmp_file = home / test_name
-        with tmp_file.open("w") as f:
-            f.write("a test \n")
+        tmp_file.write_text("a test \n")
 
         # reload the folder
         file_input._on_reload(None, None, None)
@@ -99,7 +96,7 @@ class TestFileInput(unittest.TestCase):
             list_item_title = list_item_content.children[0]
             list_names.append(list_item_title.children[0])
 
-        self.assertIn(test_name, list_names)
+        assert test_name in list_names
 
         # remove the test file
         tmp_file.unlink()
@@ -116,9 +113,9 @@ class TestFileInput(unittest.TestCase):
 
         file_input.reset()
 
-        # assert that the folder has bee reset
-        self.assertEqual(file_input.v_model, "")
-        self.assertNotEqual(file_input.folder, str(sepal_ui))
+        # assert that the folder has been reset
+        assert file_input.v_model == ""
+        assert file_input.folder != str(sepal_ui)
 
         return
 
@@ -133,15 +130,10 @@ class TestFileInput(unittest.TestCase):
         file_input.select_file(readme)
 
         # assert that the file has been selected
-        self.assertEqual(file_input.v_model, str(readme))
+        assert file_input.v_model == str(readme)
 
         return
 
     def _get_sepal_parent(self):
 
-        path = Path(__file__).parent.parent.absolute()
-        return path
-
-
-if __name__ == "__main__":
-    unittest.main()
+        return Path(__file__).parent.parent.absolute()

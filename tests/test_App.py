@@ -1,20 +1,18 @@
-import unittest
-
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestApp(unittest.TestCase):
+class TestApp:
     def test_init(self):
 
         # default init
         app = sw.App()
-        self.assertIsInstance(app, sw.App)
-        self.assertEqual(len(app.children), 3)
-        self.assertIsInstance(app.children[0], v.Overlay)
-        self.assertIsInstance(app.children[1], sw.AppBar)
-        self.assertIsInstance(app.children[2], v.Content)
+        assert isinstance(app, sw.App)
+        assert len(app.children) == 3
+        assert isinstance(app.children[0], v.Overlay)
+        assert isinstance(app.children[1], sw.AppBar)
+        assert isinstance(app.children[2], v.Content)
 
         # exhaustive
         navDrawer = sw.NavDrawer([sw.DrawerItem(f"title {i}") for i in range(5)])
@@ -25,13 +23,13 @@ class TestApp(unittest.TestCase):
         footer = sw.Footer()
 
         app = sw.App(tiles, appBar, footer, navDrawer)
-        self.assertIsInstance(app, sw.App)
-        self.assertEqual(len(app.children), 5)
-        self.assertIsInstance(app.children[0], v.Overlay)
-        self.assertIsInstance(app.children[1], sw.AppBar)
-        self.assertIsInstance(app.children[2], sw.NavDrawer)
-        self.assertIsInstance(app.children[3], v.Content)
-        self.assertIsInstance(app.children[4], sw.Footer)
+        assert isinstance(app, sw.App)
+        assert len(app.children) == 5
+        assert isinstance(app.children[0], v.Overlay)
+        assert isinstance(app.children[1], sw.AppBar)
+        assert isinstance(app.children[2], sw.NavDrawer)
+        assert isinstance(app.children[3], v.Content)
+        assert isinstance(app.children[4], sw.Footer)
 
         return
 
@@ -52,19 +50,19 @@ class TestApp(unittest.TestCase):
         app = sw.App(tiles, appBar, footer, sw.NavDrawer(drawer_items))
         res = app.show_tile(id_)
 
-        self.assertEqual(res, app)
+        assert res == app
 
         for tile in tiles:
             if tile == main_tile:
-                self.assertTrue(tile.viz)
+                assert tile.viz == True
             else:
-                self.assertFalse(tile.viz)
+                assert tile.viz == False
 
         for di in drawer_items:
             if di._metadata["card_id"] == id_:
-                self.assertTrue(di.input_value)
+                assert di.input_value == True
             else:
-                self.assertFalse(di.input_value)
+                assert di.input_value == False
 
 
 if __name__ == "__main__":

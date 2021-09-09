@@ -164,7 +164,7 @@ called in the end of my :code:`__init__` method by
 link to the :code:`Model`
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The newly created widget embed a :code:`v_model` trait so it can be binded to any :code:`Model` object using the :code:`bind` method.
+The newly created widget embed a :code:`v_model` trait so it can be bonded to any :code:`Model` object using the :code:`bind` method.
 
 .. code-block:: python 
 

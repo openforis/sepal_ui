@@ -1,4 +1,3 @@
-import unittest
 from datetime import datetime
 
 import ipyvuetify as v
@@ -6,7 +5,7 @@ import ipyvuetify as v
 from sepal_ui import sepalwidgets as sw
 
 
-class TestDrawerItem(unittest.TestCase):
+class TestDrawerItem:
     def test_init_cards(self):
         title = "toto"
         id_ = "toto_id"
@@ -14,25 +13,23 @@ class TestDrawerItem(unittest.TestCase):
 
         # default init
         drawerItem = sw.DrawerItem(title)
-        self.assertIsInstance(drawerItem, v.ListItem)
-        self.assertIsInstance(drawerItem.children[0].children[0], v.Icon)
-        self.assertEqual(
-            drawerItem.children[0].children[0].children[0], "mdi-folder-outline"
-        )
-        self.assertIsInstance(drawerItem.children[1].children[0], v.ListItemTitle)
-        self.assertEqual(drawerItem.children[1].children[0].children[0], title)
+        assert isinstance(drawerItem, v.ListItem)
+        assert isinstance(drawerItem.children[0].children[0], v.Icon)
+        assert drawerItem.children[0].children[0].children[0] == "mdi-folder-outline"
+        assert isinstance(drawerItem.children[1].children[0], v.ListItemTitle)
+        assert drawerItem.children[1].children[0].children[0] == title
 
         # exhaustive
         drawerItem = sw.DrawerItem(title, icon, id_)
-        self.assertEqual(drawerItem.children[0].children[0].children[0], icon)
-        self.assertEqual(drawerItem.children[1].children[0].children[0], title)
-        self.assertEqual(drawerItem._metadata["card_id"], id_)
+        assert drawerItem.children[0].children[0].children[0] == icon
+        assert drawerItem.children[1].children[0].children[0] == title
+        assert drawerItem._metadata["card_id"] == id_
 
         # too much args
         drawerItem = sw.DrawerItem(title, icon, id_, "#")
-        self.assertEqual(drawerItem.href, "#")
-        self.assertEqual(drawerItem.target, "_blank")
-        self.assertEqual(drawerItem._metadata, None)
+        assert drawerItem.href == "#"
+        assert drawerItem.target == "_blank"
+        assert drawerItem._metadata == None
 
         return
 
@@ -41,8 +38,8 @@ class TestDrawerItem(unittest.TestCase):
         # build fake tiles
         tiles = []
         for i in range(5):
-            title = "name_{}".format(i)
-            id_ = "id_{}".format(i)
+            title = f"name_{i}"
+            id_ = f"id_{i}"
             tiles.append(sw.Tile(id_, title))
 
         # create the real tile
@@ -60,12 +57,8 @@ class TestDrawerItem(unittest.TestCase):
         # check the viz parameter of each tiles
         for tile in tiles:
             if tile.get_title() == title:
-                self.assertTrue(tile.viz)
+                assert tile.viz == True
             else:
-                self.assertFalse(tile.viz)
+                assert tile.viz == False
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

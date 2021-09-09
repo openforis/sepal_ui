@@ -1,6 +1,6 @@
-import unittest
-import random
 from unittest.mock import patch
+
+import random
 import os
 from pathlib import Path
 
@@ -10,18 +10,18 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils:
     def test_hide_component(self):
 
         # hide a normal v component
         widget = v.Btn()
         su.hide_component(widget)
-        self.assertIn("d-none", widget.class_)
+        assert "d-none" in widget.class_
 
         # hide a sepalwidget
         widget = sw.Btn()
         su.hide_component(widget)
-        self.assertFalse(widget.viz)
+        assert widget.viz == False
 
         return
 
@@ -31,13 +31,13 @@ class TestUtils(unittest.TestCase):
         widget = v.Btn()
         su.hide_component(widget)
         su.show_component(widget)
-        self.assertNotIn("d-none", widget.class_)
+        assert not "d-none" in widget.class_
 
         # show a sepalwidget
         widget = sw.Btn()
         su.hide_component(widget)
         su.show_component(widget)
-        self.assertTrue(widget.viz)
+        assert widget.viz == True
 
         return
 
@@ -50,7 +50,7 @@ class TestUtils(unittest.TestCase):
 
         res = su.create_download_link(path)
 
-        self.assertIn(expected_link, res)
+        assert expected_link in res
 
         return
 
@@ -58,11 +58,11 @@ class TestUtils(unittest.TestCase):
 
         # test an absolute URL (wikipedia home page)
         link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
-        self.assertTrue(su.is_absolute(link))
+        su.is_absolute(link) == True
 
         # test a relative URL ('toto/tutu.html')
         link = "toto/tutu.html"
-        self.assertFalse(su.is_absolute(link))
+        assert su.is_absolute(link) == False
 
         return
 
@@ -73,13 +73,13 @@ class TestUtils(unittest.TestCase):
 
         # check default length
         str_ = su.random_string()
-        self.assertEqual(len(str_), 3)
-        self.assertEqual(str_, "esz")
+        assert len(str_) == 3
+        assert str_ == "esz"
 
         # check parameter length
         str_ = su.random_string(6)
-        self.assertEqual(len(str_), 6)
-        self.assertEqual(str_, "ycidpy")
+        assert len(str_) == 6
+        assert str_ == "ycidpy"
 
         return
 
@@ -94,7 +94,7 @@ class TestUtils(unittest.TestCase):
             stat.return_value.st_size = 0
 
             txt = su.get_file_size("random")
-            self.assertEqual(txt, "0B")
+            assert txt == "0B"
 
         # mock every pow of 1024 to YB
         for i in range(9):
@@ -102,23 +102,13 @@ class TestUtils(unittest.TestCase):
                 stat.return_value.st_size = test_value * (1024 ** i)
 
                 txt = su.get_file_size("random")
-                self.assertEqual(txt, f"7.5 {size_name[i]}")
+                assert txt == f"7.5 {size_name[i]}"
 
         return
 
     def test_init_ee(self):
 
         # check that no error is raised
-        res = 1
-        try:
-            res = su.init_ee()
-        except:
-            pass
-
-        self.assertFalse(res)
+        res = su.init_ee()
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -1,5 +1,3 @@
-import unittest
-
 import ee
 
 from sepal_ui import aoi
@@ -7,7 +5,7 @@ from sepal_ui.mapping import SepalMap
 from sepal_ui.message import ms
 
 
-class TestAoiTile(unittest.TestCase):
+class TestAoiTile:
 
     FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
 
@@ -15,16 +13,16 @@ class TestAoiTile(unittest.TestCase):
 
         # default init
         view = aoi.AoiView(folder=self.FOLDER)
-        self.assertIsInstance(view, aoi.AoiView)
+        assert isinstance(view, aoi.AoiView)
 
         # init with ee
         view = aoi.AoiView(gee=False)
-        self.assertFalse(view.model.ee)
+        assert view.model.ee == False
 
         # init with a map
         m = SepalMap(dc=True)
         view = aoi.AoiView(map_=m, folder=self.FOLDER)
-        self.assertEqual(view.map_, m)
+        assert view.map_ == m
 
         return
 
@@ -33,12 +31,12 @@ class TestAoiTile(unittest.TestCase):
         # test if admin0 is in Gaul
         view = aoi.AoiView(folder=self.FOLDER)
         first_gaul_item = {"text": "Abyei", "value": 102}
-        self.assertEqual(first_gaul_item, view.w_admin_0.items[0])
+        assert first_gaul_item == view.w_admin_0.items[0]
 
         # test if admin0 is in gadm
         view = aoi.AoiView(gee=False, folder=self.FOLDER)
         first_gadm_item = {"text": "Afghanistan", "value": "AFG"}
-        self.assertEqual(first_gadm_item, view.w_admin_0.items[0])
+        assert first_gadm_item == view.w_admin_0.items[0]
 
         return
 
@@ -54,14 +52,12 @@ class TestAoiTile(unittest.TestCase):
             for k, c in view.components.items():
 
                 if k == method:
-                    self.assertNotIn("d-none", c.class_)
+                    assert not "d-none" in c.class_
                 elif hasattr(c, "parent"):
-                    if (
-                        view.components[k].parent == c
-                    ):  # or view.components[k].parent.parent == c:
-                        self.assertNotIn("d-none", c.class_)
+                    if view.components[k].parent == c:
+                        assert not "d-none" in c.class_
                 else:
-                    self.assertIn("d-none", c.class_)
+                    assert "d-none" in c.class_
 
         return
 

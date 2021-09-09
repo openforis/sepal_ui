@@ -1,12 +1,10 @@
-import unittest
-
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts.utils import create_download_link
 
 
-class TestDownloadBtn(unittest.TestCase):
+class TestDownloadBtn:
     def test_init(self):
 
         # default init
@@ -14,23 +12,23 @@ class TestDownloadBtn(unittest.TestCase):
         btn = sw.DownloadBtn(txt)
         start = "/api/files/download?path="
 
-        self.assertIsInstance(btn, sw.DownloadBtn)
-        self.assertEqual(btn.children[0].children[0], "mdi-download")
-        self.assertEqual(btn.children[1], txt)
-        self.assertIn(start, btn.href)
-        self.assertIn("#", btn.href)
-        self.assertTrue(btn.disabled)
+        assert isinstance(btn, sw.DownloadBtn)
+        assert btn.children[0].children[0] == "mdi-download"
+        assert btn.children[1] == txt
+        assert start in btn.href
+        assert "#" in btn.href
+        assert btn.disabled == True
 
         # exhaustive
         link = "toto/ici"
         btn = sw.DownloadBtn(txt, link)
-        self.assertIn(link, btn.href)
-        self.assertFalse(btn.disabled)
+        assert link in btn.href
+        assert btn.disabled == False
 
         # absolute link
         absolute_link = "http://www.fao.org/home/en/"
         btn = sw.DownloadBtn(txt, absolute_link)
-        self.assertEqual(absolute_link, btn.href)
+        assert absolute_link == btn.href
 
         return
 
@@ -47,14 +45,14 @@ class TestDownloadBtn(unittest.TestCase):
         # add a link
         res = btn.set_url(link)
 
-        self.assertEqual(res, btn)
-        self.assertIn(link, btn.href)
-        self.assertFalse(btn.disabled)
+        assert res == btn
+        assert link in btn.href
+        assert btn.disabled == False
 
         # reset
         btn.set_url()
-        self.assertIn("#", btn.href)
-        self.assertTrue(btn.disabled)
+        assert "#" in btn.href
+        assert btn.disabled == True
 
         return
 
@@ -66,11 +64,7 @@ class TestDownloadBtn(unittest.TestCase):
 
         path = create_download_link(relative_link)
 
-        self.assertIn(start, path)
-        self.assertIn(relative_link, path)
+        assert start in path
+        assert relative_link in path
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()
