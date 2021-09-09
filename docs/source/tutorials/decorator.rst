@@ -9,16 +9,15 @@ users to click over other buttons while the main process is running.
 In this tutorial, you will be introduced to the sepal_ui decorators and how they
 will help you tackle that tasks by taking the following topics:
 
-- Description: ¿what is a decorator and what is its basic syntax?
-- Types: interactive and validation
-- Use cases: when and where to use decorators
-- Example: practical example of usage
+- Description: what is a decorator and what is its basic syntax?
+- Types: interactive and validation.
+- Use cases: when and where to use decorators? practical example.
 
 Description
 -----------
 
 The sepal_ui decorators are a simple and useful way to improve the 
-readability and functionality of your code. Basically, a decorator is 
+readability and functionality of your code. A decorator is 
 a function that allows you to add extra functionality to an existing object 
 (such as a function) without modifying its structure: it takes a function as an 
 argument, adds some functionality (could be after and/or before), and returns it.
@@ -53,18 +52,19 @@ manually in the :code:`__init__` function, just as is shown below:
    the decorator objectives.
 
 Decorator types
-===============
+---------------
 
 In the sepal_ui we have two types of decorators:
 
 - Interactive: those that will trigger traits over objects, and
 - Validation: those that will validate the minimum requirements to 
-run a method/function.
+  run a method/function.
 
-.. note:: This classification is only valid for this tutorial scope and is not
-   applicable for external use.
+.. note:: This classification is only valid for this tutorial scope and might not
+   be applicable for external use.
 
 Interactive
+^^^^^^^^^^^
 
 The interactive decorators are intended to be used inside a class 
 inheriting from ipyvuetify widgets (such the SepalWdigets). The
@@ -79,6 +79,7 @@ of a method.
   or SepalWidget class.
 
 Validation
+^^^^^^^^^^
 
 The validation decorators are useful when you want to perform some test
 prior the use of a method or a function, the decorator will perform a validation
@@ -90,7 +91,7 @@ exception is raised.
 
 
 Use cases
-=========
+---------
 
 Imagine that you are developing a tile that requires to be connected to your GEE
 account, request your root asset id's and fill up a selection widget. To improve the
@@ -154,7 +155,7 @@ the :code:`selection` widget items with the GEE root assets ids, and the
    syntax in the :code:`__init__` class method...
    
 
-.. code:: python
+.. code-block:: python
 
         @su.loading_button()
         @su.switch('loading', 'disabled', on_widgets=['w_select'])
@@ -178,4 +179,11 @@ the :code:`selection` widget items with the GEE root assets ids, and the
                 for asset 
                 in ee.data.listAssets({"parent": folder})["assets"]
             ]
+            
+And finally, when putting all together, you will end with a simple coded interface
+that has useful behaviors to the end user.
 
+
+.. figure:: ../../img/tutorials/decorator/decorators-example.gif
+   :alt: decorator example
+   :align: center
