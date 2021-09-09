@@ -45,7 +45,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "jupyter_sphinx",
     "notfound.extension",
-    # "sphinxcontrib.spelling",
+    "sphinxcontrib.spelling",
     "_extentions.video",
     "_extentions.line_break",
 ]
@@ -125,3 +125,12 @@ spelling_word_list_filename = [
 ]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
+
+
+# -- Options for jupyter execute ----------------------------------------------------
+jupyter_sphinx_thebelab_config = {
+    "requestKernel": True,
+    "binderOptions": {
+        "repo": "binder-examples/requirements",
+    },
+}
