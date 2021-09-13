@@ -15,8 +15,6 @@ from matplotlib.colors import to_rgba
 
 import ee
 
-ee.Initialize()
-
 
 class ReclassifyModel(Model):
     """
@@ -81,6 +79,9 @@ class ReclassifyModel(Model):
         # save relation with gee
         self.gee = gee
         self.aoi_model = aoi_model
+
+        if self.gee:
+            ee.Initialize()
 
         # memory outputs
         self.dst_local_memory = None
