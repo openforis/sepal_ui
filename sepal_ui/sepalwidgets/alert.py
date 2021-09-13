@@ -203,7 +203,7 @@ class Alert(v.Alert, SepalWidget):
 
     def remove_last_msg(self):
         """
-        Remove the last msg printed in the Aler widget
+        Remove the last msg printed in the Alert widget
 
         Return:
             self

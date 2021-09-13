@@ -18,9 +18,6 @@ from pathlib import Path
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 
-package_path = os.path.abspath("../..")
-os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
-
 from sepal_ui import __version__, __author__
 
 
@@ -41,11 +38,11 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "jupyter_sphinx",
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
-    "jupyter_sphinx",
     "notfound.extension",
-    "sphinxcontrib.spelling",
+    # "sphinxcontrib.spelling",
     "_extentions.video",
     "_extentions.line_break",
 ]
@@ -125,12 +122,3 @@ spelling_word_list_filename = [
 ]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
-
-
-# -- Options for jupyter execute ----------------------------------------------------
-jupyter_sphinx_thebelab_config = {
-    "requestKernel": True,
-    "binderOptions": {
-        "repo": "binder-examples/requirements",
-    },
-}
