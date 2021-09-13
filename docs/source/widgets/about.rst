@@ -4,7 +4,7 @@ About tile
 Overview
 --------
 
-:code:`TileAbout` is a widget to display `markdown <https://www.markdownguide.org/basic-syntax/>`_ flavored file to describe the module. it inherits from the :code:`Tile` class. To use it create a file containing some mkd content and use it as a first argument of the tile. The content will be display as in GitHub.
+:code:`TileAbout` is a widget to display `markdown <https://www.markdownguide.org/basic-syntax/>`__ flavored file to describe the module. it inherits from the :code:`Tile` class. To use it create a file containing some mkd content and use it as a first argument of the tile. The content will be display as in GitHub.
 
 In the following example we create a fake file on the fly and use it to display somme text in a :code:`AboutTile`. 
 
@@ -12,10 +12,10 @@ In the following example we create a fake file on the fly and use it to display 
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path 
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     # create the widget

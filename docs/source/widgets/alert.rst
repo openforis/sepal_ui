@@ -14,10 +14,10 @@ Any argument from the original :code:`Alert` ipyvuetify class can be used to com
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert().show()
@@ -41,10 +41,10 @@ Update the Alert message with a progress bar
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
@@ -57,10 +57,10 @@ Add a message in the alert by replacing all the existing one.
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
@@ -77,10 +77,10 @@ Add a message in the alert by replacing all the existing one and add a timestamp
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
@@ -97,10 +97,10 @@ Append a message in a new parragraph, with or without :code:`Divider`.
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
@@ -119,10 +119,10 @@ Remove the last msg printed in the Alert widget.
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
@@ -144,10 +144,10 @@ If not return :code:`False` and display an error message else return :code:`True
 .. jupyter-execute::
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
+    import ipyvuetify as v
     v.theme.dark = False
     
     output = sw.Alert()
