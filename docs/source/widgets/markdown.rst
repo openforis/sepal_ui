@@ -60,4 +60,4 @@ Then In your notebook you can call the key in a markdown widget and display it a
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.Markdown>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.Markdown>`__.

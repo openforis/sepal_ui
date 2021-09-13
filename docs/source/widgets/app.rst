@@ -37,4 +37,4 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
 
 .. note::
     The :code:`App` component is the main widget of the framework. To learn how to use it, read our cookbook.  
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.app>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.app>`__.

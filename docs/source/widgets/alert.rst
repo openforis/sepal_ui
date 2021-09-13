@@ -37,4 +37,4 @@ To display messages in the component 3 methods are available :
 
 .. note::
     The Alert component is a key component of the tile component as it can test variable initialization, bind variable to widget, and display processes in voila dashboard. 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`__.

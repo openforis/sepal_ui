@@ -28,4 +28,4 @@ the value can be retrieve from the :code:`v_model` trait.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.AssetSelect>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.AssetSelect>`__.

@@ -26,4 +26,4 @@ the linked URL can be dynamically set with the :code:`set_url` method.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.btn.DownloadBtn>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.btn.DownloadBtn>`__.

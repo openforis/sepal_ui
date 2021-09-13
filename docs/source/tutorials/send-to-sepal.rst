@@ -126,7 +126,7 @@ Add documentation
 To be used by other Sepal users, your module will need to provide a complete documentation. This documentation will be linked in the official documentation of sepal so it needs to respect some basic rules.
 
 - use only 1 page to describe the full process 
-- use the .rst standard (cheat-set can be found `here <https://docutils.sourceforge.io/docs/user/rst/quickref.html#section-structure>`_)
+- use the .rst standard (cheat-set can be found `here <https://docutils.sourceforge.io/docs/user/rst/quickref.html#section-structure>`__)
 - make sure that the used external contents are set as absolute path
 
 Create a release branch 
@@ -155,7 +155,7 @@ Our maintainers will then study your request and may ask you to make modificatio
 Add the documentation to sepal-doc 
 ----------------------------------
 
-Now that your module is available on SEPAL you need help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described here: `<https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`_.
+Now that your module is available on SEPAL you need help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described `here <https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`__.
 
 Once your PR have been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.sepal.io/modules>`_:
 

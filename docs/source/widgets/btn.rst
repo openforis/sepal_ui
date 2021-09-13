@@ -26,4 +26,4 @@ Btn can be used to launch function on any Javascript event such as "click".
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.btn.Btn>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.btn.Btn>`__.

@@ -39,7 +39,7 @@ release = __version__
 # ones.
 extensions = [
     "sphinx_copybutton",
-    "nbsphinx",
+    "jupyter_sphinx.execute",
     "sphinx.ext.napoleon",
     "notfound.extension",
     "sphinxcontrib.spelling",

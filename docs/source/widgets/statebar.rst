@@ -26,4 +26,4 @@ State bar can be stopped using the following code. The :code:`msg` can be change
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.StateBar>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.StateBar>`__.
