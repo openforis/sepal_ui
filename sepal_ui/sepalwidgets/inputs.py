@@ -213,7 +213,7 @@ class FileInput(v.Flex, SepalWidget):
 
     def select_file(self, path):
         """
-        Manually select a file from it's path. no verification on the extension is performed
+        Manually select a file from it's path. No verification on the extension is performed
 
         Params:
             path (str|pathlib.Path): the path to the file

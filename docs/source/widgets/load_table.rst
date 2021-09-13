@@ -1,5 +1,8 @@
-Load table
-==========
+LoadTableField
+==============
+
+Overview
+--------
 
 :code:`LoadTableField` is a field widget to load points data. 
 The user will provide a .csv or .txt file containing labeled dataset. 
@@ -8,14 +11,17 @@ Once everything is set, the widget will populate itself with a json dict. {pathn
 It inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Layout` ipyvuetify class can be used to complement it.
 
-.. code-block:: python 
+.. jupyter-execute:: 
 
     from sepal_ui import sepalwidgets as sw
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
 
     point_file = sw.LoadTableField()
-
-.. image:: ../../img/load_table.png
-    :alt: point_file
+    point_file
 
 the value can be retrieve from the :code:`v_model` trait. 
 

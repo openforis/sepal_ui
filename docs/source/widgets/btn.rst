@@ -1,28 +1,49 @@
 Btn
 ===
 
+Overview
+--------
+
 :code:`Btn` is custom widget to provide easy to use button in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
-any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The button icon needs to be searched in the `mdi library <https://materialdesignicons.com>`_, if none is set, a :code:`mdi-check` will be used.
+Any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The button icon needs to be searched in the `mdi library <https://materialdesignicons.com>`_, if none is set, a :code:`mdi-check` will be used.
 The default color is set to "primary".  
 
-.. code-block:: python 
+.. jupyter-execute:: 
 
-    from sepal_ui import sepalwidgets as sw
-
+    from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+    
     btn = sw.Btn(
         text = "The One btn",
         icon = "mdi-cogs"
     )
     btn
-
-.. image:: ../../img/btn.png
-    :alt: btn
+    
+Methods
+-------
 
 Btn can be used to launch function on any Javascript event such as "click".
 
-.. code-block:: python 
+.. jupyter-execute:: 
 
-    btn.on_event('click', lambda widget, event, data: print('Hello world!'))
+    from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+    
+    btn = sw.Btn(
+        text = "The One btn",
+        icon = "mdi-cogs"
+    )
+    btn.on_event('click', lambda *args: print('Hello world!'))
+    
+    btn
 
 .. note::
 

@@ -197,7 +197,7 @@ e.g: with the :code:`AoiIo.total_bounds` method, you can get the AOI bounding bo
 
     from sepal_ui import aoi
     aoi_model = aoi.AoiModel(asset = 'users/yourself/anAsset')
-    bb = aoi_io.total_bounds()
+    bb = aoi_model.total_bounds()
 
 
 In our previous example the double function is not a very useful scripts. instead we should have added it to the AOI member methods

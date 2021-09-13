@@ -14,6 +14,7 @@ Subpackage
    sepal_ui.scripts
    sepal_ui.sepalwidgets
    sepal_ui.translator
+   sepal_ui.reclassify
 
 Module contents
 ---------------
