@@ -397,6 +397,7 @@ class LoadTableField(v.Col, SepalWidget):
         # clear the fileInput
         self.fileInput.reset()
 
+    @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
 
@@ -739,6 +740,7 @@ class VectorField(v.Col, SepalWidget):
 
         return self
 
+    @su.switch("loading", on_widgets=["w_column", "w_value"])
     def _update_file(self, change):
         """update the file name, the v_model and reset the other widgets"""
 
@@ -766,6 +768,7 @@ class VectorField(v.Col, SepalWidget):
 
         return self
 
+    @su.switch("loading", on_widgets=["w_value"])
     def _update_column(self, change):
         """Update the column name and empty the value list"""
 
