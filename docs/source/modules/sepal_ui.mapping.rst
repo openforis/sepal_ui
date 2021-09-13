@@ -12,7 +12,7 @@ sepal\_ui.mapping package
 
       from sepal_ui import mapping as sm
 
-      sm.SepalMap() 
+      sm.SepalMap(gee=False) 
 
 Submodules
 ----------
