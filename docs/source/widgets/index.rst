@@ -21,6 +21,10 @@ In this section, an example of each of our component will be given. You should r
         # set to dark in SEPAL by default 
         import ipyvuetify as v
         v.theme.dark = False
+        
+.. danger::
+
+    Any cell that are supposed to trigger kernel events will not work as the kernel is dead in the documentation. A executable kernel will soon be added.
    
 .. toctree::
     :maxdepth: 1
