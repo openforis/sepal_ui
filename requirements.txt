@@ -28,4 +28,4 @@ pipreqs
 black
 pre-commit
 pytest
-git+git@github.com:jupyter/jupyter-sphinx.git#egg=jupyter-sphinx
+git+git://github.com/jupyter/jupyter-sphinx.git
