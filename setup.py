@@ -21,6 +21,7 @@ setup(
         "sepal_ui": [
             "scripts/*.csv",
             "scripts/*.md",
+            "scripts/*.json",
             "message/*.json",
             "bin/module_factory",
         ]
