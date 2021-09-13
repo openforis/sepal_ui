@@ -30,23 +30,31 @@ In this section, an example of each of our component will be given. You should r
     :maxdepth: 1
     :hidden:
 
+    tile_aoi
+    
+    tile_reclassify
+    
     sepal_widget
     markdown
+    tooltip
+    
+    alert
+    statebar
+    
+    app
+    
     btn
     download_btn
+    
     number
     password
     date_picker
     file_input
     load_table
     asset_select
+    
+    tile
     about
     disclaimer
-    tile
-    tile_aoi
-    alert
-    app
-    tooltip
-    statebar
     vector
-    tile_reclassify
+    
