@@ -48,3 +48,5 @@ In this section, an example of each of our component will be given. You should r
     app
     tooltip
     statebar
+    vector
+    tile_reclassify
