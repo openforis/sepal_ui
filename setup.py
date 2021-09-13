@@ -15,6 +15,7 @@ setup(
         "sepal_ui.mapping",
         "sepal_ui.translator",
         "sepal_ui.model",
+        "sepal_ui.reclassify",
     ],
     package_data={
         "sepal_ui": [

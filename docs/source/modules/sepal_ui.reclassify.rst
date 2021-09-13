@@ -23,7 +23,7 @@ Submodules
 reclassify.parameters module
 ----------------------------
 
-.. automodule:: reclassify.parameters
+.. automodule:: sepal_ui.reclassify.parameters
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ reclassify.parameters module
 reclassify.reclassify\_model module
 -----------------------------------
 
-.. automodule:: reclassify.reclassify_model
+.. automodule:: sepal_ui.reclassify.reclassify_model
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ reclassify.reclassify\_model module
 reclassify.reclassify\_tile module
 ----------------------------------
 
-.. automodule:: reclassify.reclassify_tile
+.. automodule:: sepal_ui.reclassify.reclassify_tile
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,7 +47,7 @@ reclassify.reclassify\_tile module
 reclassify.reclassify\_view module
 ----------------------------------
 
-.. automodule:: reclassify.reclassify_view
+.. automodule:: sepal_ui.reclassify.reclassify_view
    :members:
    :undoc-members:
    :show-inheritance:
@@ -55,7 +55,7 @@ reclassify.reclassify\_view module
 reclassify.table\_view module
 -----------------------------
 
-.. automodule:: reclassify.table_view
+.. automodule:: sepal_ui.reclassify.table_view
    :members:
    :undoc-members:
    :show-inheritance:
@@ -63,7 +63,7 @@ reclassify.table\_view module
 Module contents
 ---------------
 
-.. automodule:: reclassify
+.. automodule:: sepal_ui.reclassify
    :members:
    :undoc-members:
    :show-inheritance:
