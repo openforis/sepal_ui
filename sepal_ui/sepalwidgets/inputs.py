@@ -503,12 +503,10 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
 
         self.label = label
-        self.hint = ms.widgets.asset_select.hint
 
         self.v_model = None
         self.clearable = True
         self.dense = True
-        self.persistent_hint = True
         self.prepend_icon = "mdi-cached"
 
         self.class_ = "my-5"
@@ -555,6 +553,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return
 
+    @su.switch("loading")
     def _validate(self, change):
         """Validate the selected access. Throw an error message if is not accesible."""
 
