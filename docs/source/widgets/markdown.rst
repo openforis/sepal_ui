@@ -1,25 +1,27 @@
 Markdown
 ========
 
-Basic Example
+Overview
 -------------
 
 :code:`Markdown` is a widget to display `markdown <https://www.markdownguide.org/basic-syntax/>`_ flavored strings. it inherits from the :code:`SepalWidget` class.
 
-.. code-block:: python 
+.. jupyter-execute::
 
-    from sepal_ui import sepalwidgets as sw
+    from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v 
+    v.theme.dark = False
 
-    str = """  
+    str_ = """  
     **I am a title**    
     I am some regular text
     """
 
-    mkd = sw.Markdown(str)
+    mkd = sw.Markdown(str_)
     mkd
-
-.. image:: ../../img/markdown.png
-    :alt: markdown
 
 .. warning::
 
@@ -46,17 +48,27 @@ in :code:`en.json` use a list in your key with each element of the list correspo
 
 Then In your notebook you can call the key in a markdown widget and display it as multi-line text:
 
-.. code-block:: python 
+.. jupyter-execute:: 
 
-    from component.message import cm
     from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v 
+    v.theme.dark = False
+    
+    multiline_key = [
+        "this is",
+        " a multiline",
+        "key"
+    ]
 
-    mkd = sw.Markdown('  \n'.join(cm.multiline_key))
+    mkd = sw.Markdown('  \n'.join(multiline_key))
     mkd
 
 .. tip::
 
-    line break in markdown need to be set with to blank space, if not they will not be interpreted
+    line break in markdown need to be set with 2 blank space to be interpreted.
 
 .. note::
 

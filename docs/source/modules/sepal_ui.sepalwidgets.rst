@@ -8,11 +8,14 @@ sepal\_ui.sepalwidgets package
 
    example : 
    
-   .. code-block:: python 
+   .. jupyter-execute:: 
 
       from sepal_ui import sepalwidgets as sw
+      import ipyvuetify as v 
+      
+      v.theme.dark = False
 
-      date_picker = sw.DatePicker() 
+      sw.DatePicker() 
 
 Submodules
 ----------

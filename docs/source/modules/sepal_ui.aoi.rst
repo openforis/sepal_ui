@@ -8,11 +8,14 @@ sepal\_ui.aoi package
 
    example : 
    
-   .. code-block:: python 
+   .. jupyter-execute:: 
 
       from sepal_ui import aoi
+      import ipyvuetify as v 
+      
+      v.theme.dark = False
 
-      io = aoi.AoiModel() 
+      aoi.AoiTile(gee=False) 
 
 Submodules
 ----------
