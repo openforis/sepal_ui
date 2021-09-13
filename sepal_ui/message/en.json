@@ -11,7 +11,7 @@
         }
     },
     "aoi_sel": {
-        "title": "Select area of interest (AOI)",
+        "title": "Select Area Of Interest (AOI)",
         "administrative": "Administrative definitions",
         "custom": "Custom geometries",
         "method": "AOI selection method",
@@ -24,8 +24,8 @@
         "draw": "Drawn shapes",
         "points": "Point file",
         "aoi_name": "Select an AOI name",
-        "asset": "Asset name",
-        "btn": "Select these inputs",
+        "asset": "GEE Asset name",
+        "btn": "Select AOI",
         "no_inputs": "Provided fully qualified inputs before validating your AOI",
         "complete": "The AOI has been selected",
         "shape_drawn": "A shape has been drawn",
