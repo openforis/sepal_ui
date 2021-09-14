@@ -8,6 +8,9 @@
             "custom" : "Personnaliser",
             "no_access" : "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
             "hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser."
+        },
+        "load_table" : {
+            "too_small" : "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
         }
     },
     "aoi_sel": {

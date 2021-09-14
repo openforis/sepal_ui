@@ -7,6 +7,9 @@
             "custom" : "Personalizado",
             "no_access" : "Parece que no tienes acceso al asset seleccionado o este no existe.",
             "hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo."
+        },
+        "load_table" : {
+            "too_small" : "El archivo indicado tiene menos de 3 columnas. Por favor, indique un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
         }
     },
     "aoi_sel": {
