@@ -1,26 +1,26 @@
-How to upload your module on the SEPAL dashboard ? 
+How to upload your module on the SEPAL dashboard? 
 ==================================================
 
-You're module is now completely ready and functional and you want to let everyone use your workflow, here are the few tips to send your repository to the sepal dashboard. 
+Your module is now completely ready and functional and you want to let everyone use your workflow, here are the few tips to send your repository to the SEPAL dashboard. 
 
 Check your dependencies 
 -----------------------
 
-During your development, you may have encounter some trouble  using the preinstalled python libraries of Sepal and you decided to install new one using the terminal :
+During your development, you may have encountered some troubles using the preinstalled Python libraries of SEPAL and you have decided to install a new one using the terminal:
 
 .. code-block:: bash
 
     $ pip install <my_lib>
 
-As a regular Sepal user, you don't have the rights to write in the :code:`/usr/` folder so your installations have been performed using the :code:`--user` option. All the other Sepal user thus don't have access to your libraries. 
-in order to make your application work, Sepal will create a specific virtual environment (:code:`venv`) for your specific application. for that purpose you need to update the :code:`requirements.txt` file that is hold at the root of your module. By default the following content is already set: 
+As a regular SEPAL user, you don't have the rights to write in the :code:`/usr/` folder, so your installations have been performed using the :code:`--user` option. All the other SEPAL users thus don't have access to your libraries. 
+In order to make your application work, SEPAL will create a specific virtual environment (:code:`venv`) for your application. For that purpose, you will need to update the :code:`requirements.txt` file that is held at the root of your module. By default the following content is already set:
 
 Standard environment
 ^^^^^^^^^^^^^^^^^^^^
 .. code-block:: python
 
-    # these libs are requested to build common python libs
-    # if you are an advance user and are sure to not use them you can comment the following lines
+    # These libs are requested to build common python libs
+    # If you are an advanced user and you are sure to not use them, you can comment the following lines
     wheel
     Cython
     pybind11
@@ -30,20 +30,20 @@ Standard environment
     GDAL==3.0.4
     pyproj<3.0.0
 
-    # the base lib to run any sepal_ui based app 
-    # don't forget to fix it to a specific version when you're app is ready
+    # The base lib to run any sepal_ui based app 
+    # Don't forget to fix it to a specific version when you're app is ready
     sepal_ui
     
-The 3 first libraries are compiling tools that are usually required for common Python libraries, comment them only if you are sure that none of your libraries are using them. 
+The first three libraries are compiling tools that are usually required for common Python libraries, comment them only if you are sure that none of your libraries are using them. 
 
-The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here are aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
+The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
 
-Sepal_ui is off course a mandatory requirements.
+sepal_ui is off course a mandatory requirement.
 
 Customize the env
 ^^^^^^^^^^^^^^^^^
 
-To customize this environment add any libraries that are useful for your module. For this purpose use the :code:`module_deploy` command. it will automatically add your dependencies to the requirements and deal with the already known troubleshooting:
+To customize this environment add any libraries that are useful for your module. For this purpose use the :code:`module_deploy` command. It will automatically add your dependencies to the requirements and will deal with the already known troubleshooting:
 
 .. code-block:: console
 
@@ -56,7 +56,7 @@ To customize this environment add any libraries that are useful for your module.
     #                                        #
     ##########################################
     
-    Welcome in the module deployment interface.
+    Welcome to the module deployment interface.
     This interface will help you prepare your module for deployment.
     Please read the documentation of the library before launching this script
     
@@ -84,9 +84,9 @@ To customize this environment add any libraries that are useful for your module.
 Check your env
 ^^^^^^^^^^^^^^
 
-As mentioned at the end of the the command you should test your environment in sepal to check if everything is working. 
+As mentioned at the end of the command you should test your environment in SEPAL to check if everything is working. 
 
-first create a new **venv** anywhere in your home directory: 
+First, create a new **venv** anywhere in your home directory: 
 
 .. code-block:: console
 
@@ -99,7 +99,7 @@ Then activate this virtual environment:
     $ source <path_to_venv_folder/venv_name>/bin/activate
     (venv_name) $
     
-the name in parenthesis show to the user that the terminal is now running in a specific environment. 
+The name in parenthesis shows to the user that the terminal is now running in a specific environment. 
 
 .. tip::
 
@@ -112,7 +112,7 @@ the name in parenthesis show to the user that the terminal is now running in a s
         
     The parenthesis should disappear.
     
-in this new environment run the following command using your requirement.txt file:
+In this new environment run the following command using your requirement.txt file:
 
 .. code-block:: console 
 
@@ -123,11 +123,11 @@ It will recursively install all your libraries in the virtual env. If you are ex
 Add documentation
 -----------------
 
-To be used by other Sepal users, your module will need to provide a complete documentation. This documentation will be linked in the official documentation of sepal so it needs to respect some basic rules.
+To be used by other SEPAL users, your module will need to provide complete documentation. This documentation will be linked in the official documentation of SEPAL so it needs to respect some basic rules.
 
-- use only 1 page to describe the full process 
-- use the .rst standard (cheat-set can be found `here <https://docutils.sourceforge.io/docs/user/rst/quickref.html#section-structure>`__)
-- make sure that the used external contents are set as absolute path
+- Use only 1 page to describe the full process 
+- Use the .rst standard (cheat-set can be found `here <https://docutils.sourceforge.io/docs/user/rst/quickref.html#section-structure>`__)
+- Make sure that the used external contents are set as an absolute path
 
 Create a release branch 
 -----------------------
@@ -137,27 +137,27 @@ The SEPAL :code:`test` environment will be listening to the :code:`master` branc
 
 .. warning::
 
-    After it's publication every push to the :code:`release` branch will be updated on the :code:`prod` environment so prefer to continue developing in the :code:`master` branch and merge in release only when everything is ready. As the :code:`master` branch will still be listened by the :code:`test` environment, Your Beta tester will still have something to play with without sending half finished tools to the public SEPAL website.
+    After its publication every push to the :code:`release` branch will be updated on the :code:`prod` environment so prefer to continue developing in the :code:`master` branch and merge in release only when everything is ready. As the :code:`master` branch will still be listened by the :code:`test` environment, Your Beta tester will still have something to play with without sending half-finished tools to the public SEPAL website.
 
-Open an issue on the Sepal repository 
+Open an issue on the SEPAL repository 
 -------------------------------------
 
-Everything is ready to fly so open an issue on the sepal `issue tracker <https://github.com/openforis/sepal/issues>`_ respecting the :code:`new module` template. 
+Everything is ready to fly so open an issue on the SEPAL `issue tracker <https://github.com/openforis/sepal/issues>`_ respecting the :code:`new module` template. 
 
 You'll be asked to provide : 
 
-- the name of the repository 
-- the name of the app to display in the dashboard
-- a short description of the module (1 liner)
+- Name of the repository 
+- Name of the app to display in the dashboard
+- Short description of the module (1 liner)
 
-Our maintainers will then study your request and may ask you to make modifications to your repository before pulling. 
+Our maintainers will then study your request and may ask you to make modifications to your repository before pulling it. 
 
 Add the documentation to sepal-doc 
 ----------------------------------
 
-Now that your module is available on SEPAL you need help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described `here <https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`__.
+Now that your module is available on SEPAL you need to help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described `here <https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`__.
 
-Once your PR have been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.sepal.io/modules>`_:
+Once your PR has been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.sepal.io/modules>`_:
 
 .. code-block:: python 
 
