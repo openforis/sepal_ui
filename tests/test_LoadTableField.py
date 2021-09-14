@@ -33,8 +33,18 @@ class TestLoadTableField:
 
         assert load_table.v_model == test_data
 
+        # change for a empty update
+        load_table._on_file_input_change({"new": None})
+        assert load_table.v_model == load_table.default_v_model
+
         # delete the test file
         test_file.unlink()
+
+        # test if the csv have not enough columns
+        test_file = self._create_fake_table(valid=False)
+        load_table._on_file_input_change({"new": str(test_file)})
+        assert load_table.v_model == load_table.default_v_model
+        assert load_table.fileInput.selected_file.error_messages != None
 
         return
 
@@ -58,13 +68,16 @@ class TestLoadTableField:
 
         return
 
-    def _create_fake_table(self):
+    def _create_fake_table(self, valid=True):
 
         filename = Path.home() / "test.csv"
 
+        end = 3 if valid else 2
+
         coloseo = [1, 41.89042582290999, 12.492241627092199]
         fao = [2, 41.88369224629387, 12.489216069409004]
-        df = pd.DataFrame([coloseo, fao], columns=["id", "lat", "lng"])
+        columns = ["id", "lat", "lng"]
+        df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
 
         df.to_csv(filename, index=False)
 

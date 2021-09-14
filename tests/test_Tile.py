@@ -62,6 +62,11 @@ class TestTile:
         assert res == tile
         assert tile.children[0].children[0].children[0] == input_
 
+        # add a title after removing it
+        res = tile.set_title(title2)
+        assert tile.children[0].children[0].children[0] == title2
+        assert tile.children[0].children[1].children[0] == input_
+
         return
 
     def test_nest(self):
@@ -154,9 +159,11 @@ class TestTile:
         assert isinstance(tile, sw.TileAbout)
         assert tile._metadata["mount_id"] == "about_tile"
 
-        ##########################################
-        ##      didn't add a test pathname      ##
-        ##########################################
+        # check with str path
+        tile = sw.TileAbout(str(pathname))
+
+        assert isinstance(tile, sw.TileAbout)
+        assert tile._metadata["mount_id"] == "about_tile"
 
         return
 

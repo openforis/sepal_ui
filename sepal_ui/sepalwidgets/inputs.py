@@ -416,6 +416,9 @@ class LoadTableField(v.Col, SepalWidget):
 
         if len(df.columns) < 3:
             self._clear_select()
+            self.fileInput.selected_file.error_messages = (
+                ms.widgets.load_table.too_small
+            )
             return
 
         # set the items
@@ -440,6 +443,7 @@ class LoadTableField(v.Col, SepalWidget):
     def _clear_select(self):
         """clear the selects components"""
 
+        self.fileInput.selected_file.error_messages = None
         self.IdSelect.items = []  # all the others are listening to this one
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
 

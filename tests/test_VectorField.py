@@ -34,6 +34,10 @@ class TestVectorField:
 
         assert load_vector.v_model == test_data
 
+        # change for a empty file
+        load_vector._update_file({"new": None})
+        assert load_vector.v_model == load_vector.default_v_model
+
         # delete the test file
         for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
             f.unlink()
@@ -54,6 +58,52 @@ class TestVectorField:
 
         # assert the current values
         assert load_vector.v_model == load_vector.default_v_model
+
+        # delete the test file
+        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
+            f.unlink()
+
+        return
+
+    def test_update_column(self):
+
+        # init var
+        test_file = self._create_fake_vector()
+        load_vector = sw.VectorField()
+
+        # change the value of the file
+        load_vector._update_file({"new": test_file})
+
+        # read a column
+        load_vector.w_column.v_model = "GID_0"  # first one to select
+        assert load_vector.v_model["column"] == "GID_0"
+        assert "d-none" not in load_vector.w_value.class_
+        assert load_vector.w_value.items == ["VAT"]
+
+        # delete the test file
+        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
+            f.unlink()
+
+        return
+
+    def test_update_value(self):
+
+        # init var
+        test_file = self._create_fake_vector()
+        load_vector = sw.VectorField()
+
+        # change the value of the file
+        load_vector._update_file({"new": test_file})
+
+        # read a column
+        load_vector.w_column.v_model = "GID_0"  # first one to select
+        load_vector.w_value.v_model = "VAT"  # unique possible value
+
+        assert load_vector.v_model["value"] == "VAT"
+
+        # delete the test file
+        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
+            f.unlink()
 
         return
 

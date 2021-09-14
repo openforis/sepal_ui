@@ -1,4 +1,5 @@
 from pathlib import Path
+import pytest
 
 from sepal_ui import sepalwidgets as sw
 
@@ -74,6 +75,10 @@ class TestFileInput:
         file_input._on_file_select({"new": readme})
         assert file_input.v_model in str(readme)
 
+        # check that select is not changed if nothing is provided
+        file_input._on_file_select({"new": None})
+        assert file_input.v_model in str(readme)
+
         return
 
     def test_on_reload(self):
@@ -107,6 +112,7 @@ class TestFileInput:
 
         sepal_ui = self._get_sepal_parent()
         file_input = sw.FileInput(folder=sepal_ui)
+        file_input._on_file_select({"new": str(sepal_ui)})
 
         # move into sepal_ui folders
         readme = sepal_ui / "README.rst"
@@ -131,6 +137,10 @@ class TestFileInput:
 
         # assert that the file has been selected
         assert file_input.v_model == str(readme)
+
+        # assert exeption if path is not a file
+        with pytest.raises(Exception):
+            file_input.select_file(readme.parent)
 
         return
 
