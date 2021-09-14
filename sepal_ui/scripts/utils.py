@@ -8,6 +8,7 @@ import re
 import warnings
 from unidecode import unidecode
 from functools import wraps
+from itertools import product
 
 import ee
 from cryptography.fernet import Fernet
@@ -354,19 +355,21 @@ def switch(*params, debug=True, on_widgets=[]):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
 
-            if on_widgets:
+            if len(on_widgets):
 
                 # Verify that the input elements are strings
                 wrong_types = [
                     (w, type(w)) for w in on_widgets if not isinstance(w, str)
                 ]
-                if wrong_types:
-                    errors = ""
-                    for wrong in wrong_types:
-                        errors += f"Received:{wrong[1]} for widget: {wrong[0]}."
+
+                if len(wrong_types):
+                    errors = [
+                        f"Received:{w_type} for widget: {w}."
+                        for w, w_type in wrong_types
+                    ]
 
                     raise TypeError(
-                        f"All on_widgets list elements has to be strings. [{errors}]"
+                        f"All on_widgets list elements has to be strings. [{' '.join(errors)}]"
                     )
 
                 missing_widgets = [w for w in on_widgets if not hasattr(self, w)]
@@ -376,28 +379,28 @@ def switch(*params, debug=True, on_widgets=[]):
                         f"The provided {missing_widgets} widget(s) does not exist in the current class"
                     )
 
-                def w_assign(value):
-                    for w_name in on_widgets:
+                def w_assign():
+                    for (w_name, p) in product(on_widgets, params):
                         widget = getattr(self, w_name)
-                        [setattr(widget, param, value) for param in params]
+                        setattr(widget, p, not getattr(widget, p))
 
             else:
 
-                def w_assign(value):
-                    [setattr(self, param, value) for param in params]
+                def w_assign():
+                    for p in params:
+                        setattr(self, p, not getattr(self, p))
 
-            w_assign(True)
+            w_assign()
 
             try:
                 func(self, *args, **kwargs)
 
             except Exception as e:
-                w_assign(False)
                 if debug:
-                    w_assign(False)
+                    w_assign()
                     raise e
 
-            w_assign(False)
+            w_assign()
 
         return wrapper_switch
 

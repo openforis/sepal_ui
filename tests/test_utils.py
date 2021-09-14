@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import patch
 
 import random
@@ -110,5 +111,188 @@ class TestUtils:
 
         # check that no error is raised
         res = su.init_ee()
+
+        return
+
+    def test_catch_errors(self):
+
+        # create a fake object that uses the decorator
+        class Obj:
+            def __init__(self):
+                self.alert = sw.Alert()
+                self.btn = sw.Btn()
+
+                self.func = su.catch_errors(alert=self.alert)(self.func)
+                self.btn.on_event("click", self.func)
+
+            def func(self, *args):
+                return 1 / 0
+
+        obj = Obj()
+        obj.btn.fire_event("click", None)
+
+        assert obj.alert.type == "error"
+
+        return
+
+    def test_loading_button(self):
+
+        # create a fake object that uses the decorator
+        class Obj:
+            def __init__(self):
+                self.alert = sw.Alert()
+                self.btn = sw.Btn()
+                self.func = su.loading_button(
+                    alert=self.alert, button=self.btn, debug=False
+                )(self.func)
+
+                self.btn.on_event("click", self.func)
+
+            def func(sel, *args):
+                return 1 / 0
+
+        obj = Obj()
+        obj.btn.fire_event("click", None)
+
+        assert obj.btn.disabled == False
+        assert obj.alert.type == "error"
+
+        # create a fake object that uses the decorator
+        class Obj:
+            def __init__(self):
+                self.alert = sw.Alert()
+                self.btn = sw.Btn()
+
+                self.btn.on_event("click", self.func)
+
+            @su.loading_button(debug=True)
+            def func(self, *args):
+                return 1 / 0
+
+        obj = Obj()
+        obj.btn.fire_event("click", None)
+
+        assert obj.btn.disabled == False
+        assert obj.alert.type == "error"
+
+        return
+
+    def test_to_colors(self):
+
+        # setup the same color in several formats
+        colors = {
+            "hex": "#b8860b",
+            "rgb": (0.7215686274509804, 0.5254901960784314, 0.043137254901960784),
+            "rgb_int": (184, 134, 11),
+            "gee_hex": "b8860b",
+            "text": "darkgoldenrod",
+        }
+
+        for c in colors.values():
+            res = su.to_colors(c)
+            assert res == colors["hex"]
+
+        # test that a fake one return black
+        res = su.to_colors("toto")
+        assert res == "#000000"
+
+        return
+
+    def test_switch(self, capsys):
+
+        # create a fake object that uses the decorator
+        # apply the widget on the object itself
+        class Obj:
+            def __init__(self):
+                self.valid = True
+                self.btn = sw.Btn()
+                self.btn.on_event("click", self.func)
+
+            @su.switch("valid")
+            def func(self, *args):
+                return True
+
+        obj = Obj()
+        obj.btn.fire_event("click", None)
+        assert obj.valid == True
+
+        # create a fake object that uses the decorator
+        # apply the widget on members of the object
+        class Obj:
+            def __init__(self):
+                self.select = v.Select(disabled=False)
+                self.select2 = v.Select(disabled=False)
+                self.btn = sw.Btn()
+
+                self.func = su.switch(
+                    "disabled", on_widgets=[self.select, self.select2]
+                )(self.func)
+
+                self.btn.on_event("click", self.func)
+
+            def func(self, *args):
+                return True
+
+        obj = Obj()
+        obj.btn.fire_event("click", None)
+        assert obj.select.disabled == False
+        assert obj.select2.disabled == False
+
+        # create a fake object that uses the decorator
+        # apply it on a non existent widget
+        class Obj:
+            def __init__(self):
+                self.btn = sw.Btn()
+                self.func = su.switch("niet", on_widgets=[self.fake_widget])(self.func)
+                self.btn.on_event("click", self.func)
+
+            def func(self, *args):
+                return True
+
+        with pytest.raises(Exception):
+            obj = Obj()
+
+        ########################################
+        ##   no exception is raised,          ##
+        ##   it lives in the callback         ##
+        ##   I don't know how to test it yet  ##
+        ########################################
+        # create a fake object that uses the decorator
+        # apply on non string
+        # class Obj:
+        #
+        #    def __init__(self):
+        #        self.select = v.Select(disabled=False)
+        #        self.btn = sw.Btn()
+        #
+        #        self.func = su.switch('disabled',on_widgets=[self.select])(self.func)
+        #        self.btn.on_event('click', self.func)
+        #
+        #    def func(self, *args):
+        #        return True
+        #
+        # obj = Obj()
+        # obj.btn.fire_event('click', None)
+        # out, err = capsys.readouterr()
+        # assert "All on_widgets list elements has to be strings." in out
+        #
+        ## create a fake object that uses the decorator
+        ## apply on a error func with debug = True
+        # class Obj:
+        #
+        #    def __init__(self):
+        #        self.valid = True
+        #        self.btn = sw.Btn()
+        #
+        #        self.btn.on_event('click', self.func)
+        #
+        #    @su.switch('valid', debug=True)
+        #    def func(self, *args):
+        #        return 1/0
+        #
+        #
+        # obj = Obj()
+        # with pytest.warns(Warning):
+        #    obj.btn.fire_event('click', None)
 
         return
