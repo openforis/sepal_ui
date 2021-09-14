@@ -80,9 +80,8 @@ class Translator(SimpleNamespace):
                     raise Exception(
                         f"You cannot use the key {key} in your translation dictionary"
                     )
-                    break
 
-        return None
+        return
 
     def _update(self, d, u):
         """
