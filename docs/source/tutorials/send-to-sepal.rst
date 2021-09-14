@@ -30,13 +30,13 @@ Standard environment
     GDAL==3.0.4
     pyproj<3.0.0
 
-    # The base lib to run any SEPAL_ui based app 
+    # The base lib to run any sepal_ui based app 
     # Don't forget to fix it to a specific version when you're app is ready
     sepal_ui
     
 The first three libraries are compiling tools that are usually required for common Python libraries, comment them only if you are sure that none of your libraries are using them. 
 
-The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/SEPAL/issues>`_.
+The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
 
 sepal_ui is off course a mandatory requirement.
 
@@ -63,11 +63,11 @@ To customize this environment add any libraries that are useful for your module.
     
     Export the env configuration of your module
     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-    INFO: Successfully saved requirements file in /home/prambaud/modules/SEPAL_ui_template/req_tmp.txt
-    Removing SEPAL_ui from reqs, duplicated from default.
-    Removing earthengine_api from reqs, included in SEPAL_ui.
-    Removing ee from reqs, included in SEPAL_ui.
-    SEPAL_ui version have been freezed to  2.0.6
+    INFO: Successfully saved requirements file in /home/prambaud/modules/sepal_ui_template/req_tmp.txt
+    Removing sepal_ui from reqs, duplicated from default.
+    Removing earthengine_api from reqs, included in sepal_ui.
+    Removing ee from reqs, included in sepal_ui.
+    sepal_ui version have been freezed to  2.0.6
     
     WARNING: The requirements.txt file have been updated. The tool does not cover every possible configuration so don't forget to check the final file before pushing to release
     
@@ -77,7 +77,7 @@ To customize this environment add any libraries that are useful for your module.
     
     .. code-block::
     
-        git+git://github.com/12rambau/SEPAL_ui.git#egg=SEPAL_ui
+        git+git://github.com/12rambau/sepal_ui.git#egg=sepal_ui
         
     with everything after "git+" being the ssh link to the repository and "egg=" the name used by the lib in your file. If you want to know more about this method please refer to `this blog post <https://codeinthehole.com/tips/using-pip-and-requirementstxt-to-install-from-the-head-of-a-github-branch/>`_.
     
@@ -112,13 +112,13 @@ The name in parenthesis shows to the user that the terminal is now running in a 
         
     The parenthesis should disappear.
     
-Tn this new environment run the following command using your requirement.txt file:
+In this new environment run the following command using your requirement.txt file:
 
 .. code-block:: console 
 
     $ grep -v "^#" <path-to-module>/requirements.txt | xargs -n 1 -L 1 pip3 install
 
-It will recursively install all your libraries in the virtual env. If you are experiencing difficulties, please contact us in the `issue tracker <https://github.com/12rambau/SEPAL_ui/issues>`_. 
+It will recursively install all your libraries in the virtual env. If you are experiencing difficulties, please contact us in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`_. 
 
 Add documentation
 -----------------
@@ -142,7 +142,7 @@ The SEPAL :code:`test` environment will be listening to the :code:`master` branc
 Open an issue on the SEPAL repository 
 -------------------------------------
 
-Everything is ready to fly so open an issue on the SEPAL `issue tracker <https://github.com/openforis/SEPAL/issues>`_ respecting the :code:`new module` template. 
+Everything is ready to fly so open an issue on the SEPAL `issue tracker <https://github.com/openforis/sepal/issues>`_ respecting the :code:`new module` template. 
 
 You'll be asked to provide : 
 
@@ -152,12 +152,12 @@ You'll be asked to provide :
 
 Our maintainers will then study your request and may ask you to make modifications to your repository before pulling it. 
 
-Add the documentation to SEPAL-doc 
+Add the documentation to sepal-doc 
 ----------------------------------
 
-Now that your module is available on SEPAL you need to help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/SEPAL-doc>`_ following the steps described `here <https://docs.SEPAL.io/en/latest/team/contribute.html#new-modules>`__.
+Now that your module is available on SEPAL you need to help the users with an adapted documentation. If you followed all the steps of these tutorials you have already created/modified the 3 :code:`.rst` files that live in the :code:`doc` folder. create a PR on the `documentation of SEPAL <https://github.com/openforis/sepal-doc>`_ following the steps described `here <https://docs.sepal.io/en/latest/team/contribute.html#new-modules>`__.
 
-Once your PR has been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.SEPAL.io/modules>`_:
+Once your PR has been accepted you should change in the ui.ipynb the link to the documentation to make it point to the page in `<https://docs.sepal.io/modules>`_:
 
 .. code-block:: python 
 
@@ -166,7 +166,7 @@ Once your PR has been accepted you should change in the ui.ipynb the link to the
     # !!! not mandatory !!! 
     # Add the links to the code, wiki and issue tracker of your
     code_link = 'https://github.com/<profile>/<repository>'
-    wiki_link = 'https://docs.SEPAL.io/module/<module_name>.html'
+    wiki_link = 'https://docs.sepal.io/module/<module_name>.html'
     issue_link = 'https://github.com/<profile>/<repository>/issues/new'
 
 .. spelling:: 
