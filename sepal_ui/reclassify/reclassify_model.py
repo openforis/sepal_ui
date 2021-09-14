@@ -81,7 +81,7 @@ class ReclassifyModel(Model):
         self.aoi_model = aoi_model
 
         if self.gee:
-            ee.Initialize()
+            su.init_ee()
 
         # memory outputs
         self.dst_local_memory = None

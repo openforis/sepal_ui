@@ -365,7 +365,7 @@ class ReclassifyView(v.Card):
         # save the gee binding
         self.gee = gee
         if gee:
-            ee.Initialize()
+            su.init_ee()
 
         # create an alert to display information to the user
         self.alert = sw.Alert()
