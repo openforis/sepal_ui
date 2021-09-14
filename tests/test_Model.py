@@ -1,4 +1,5 @@
 from traitlets import Any
+import json
 
 from sepal_ui import model
 
@@ -32,6 +33,24 @@ class TestModel:
         # assert the result
         assert dummy.dummy1 == self.test_data["dummy1"]
         assert dummy.dummy2 == self.test_data["dummy2"]
+
+        # create a fake model class using a str
+        dummy = self.DummyClass()
+        dummy.import_data(json.dumps(self.test_data))
+
+        # assert the result
+        assert dummy.dummy1 == self.test_data["dummy1"]
+        assert dummy.dummy2 == self.test_data["dummy2"]
+
+        return
+
+    def test_str(self):
+
+        # create a fake model class with 2 traits
+        dummy = self.DummyClass()
+        dummy.import_data(self.test_data)
+
+        assert str(dummy) == "DummyClass(dummy1=test1, dummy2=test2)"
 
         return
 
