@@ -22,20 +22,20 @@ class TestAoiView:
         assert view.model.ee == False
 
         # init with ADMIN
-        view = aoi.AoiView("ADMIN")
+        view = aoi.AoiView("ADMIN", folder=self.FOLDER)
         assert {"header": "CUSTOM"} not in view.w_method.items
 
         # init with CUSTOM
-        view = aoi.AoiView("CUSTOM")
+        view = aoi.AoiView("CUSTOM", folder=self.FOLDER)
         assert {"header": "ADMIN"} not in view.w_method.items
 
         # init with a list
-        view = aoi.AoiView(["POINTS"])
+        view = aoi.AoiView(["POINTS"], folder=self.FOLDER)
         assert {"text": ms.aoi_sel.points, "value": "POINTS"} in view.w_method.items
         assert len(view.w_method.items) == 1 + 1  # 1 for the header, 1 for the object
 
         # init with a remove list
-        view = aoi.AoiView(["-POINTS"])
+        view = aoi.AoiView(["-POINTS"], folder=self.FOLDER)
         assert {"text": ms.aoi_sel.points, "value": "POINTS"} not in view.w_method.items
         assert (
             len(view.w_method.items) == len(aoi.AoiModel.METHODS) + 2 - 1
@@ -43,11 +43,11 @@ class TestAoiView:
 
         # init with a mix of both
         with pytest.raises(Exception):
-            view = aoi.AoiView(["-POINTS", "DRAW"])
+            view = aoi.AoiView(["-POINTS", "DRAW"], folder=self.FOLDER)
 
         # init with a non existing keyword
         with pytest.raises(Exception):
-            view = aoi.AoiView(["TOTO"])
+            view = aoi.AoiView(["TOTO"], folder=self.FOLDER)
 
         # init with a map
         m = SepalMap(dc=True)

@@ -14,12 +14,8 @@ class TestAoiTile:
         tile = aoi.AoiTile(folder=self.FOLDER)
         assert isinstance(tile, aoi.AoiTile)
 
-        # init with ee
+        # init without ee
         tile = aoi.AoiTile(folder=self.FOLDER, gee=False)
         assert tile.view.model.ee == False
 
         return
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -218,7 +218,3 @@ class TestAoiModel:
         file.unlink()
 
         return root_dir / f"{name}.shp"
-
-
-if __name__ == "__main__":
-    unittest.main()
