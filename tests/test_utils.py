@@ -201,98 +201,55 @@ class TestUtils:
     def test_switch(self, capsys):
 
         # create a fake object that uses the decorator
-        # apply the widget on the object itself
         class Obj:
             def __init__(self):
                 self.valid = True
-                self.btn = sw.Btn()
-                self.btn.on_event("click", self.func)
-
-            @su.switch("valid")
-            def func(self, *args):
-                return True
-
-        obj = Obj()
-        obj.btn.fire_event("click", None)
-        assert obj.valid == True
-
-        # create a fake object that uses the decorator
-        # apply the widget on members of the object
-        class Obj:
-            def __init__(self):
                 self.select = v.Select(disabled=False)
                 self.select2 = v.Select(disabled=False)
-                self.btn = sw.Btn()
 
-                self.func = su.switch(
-                    "disabled", on_widgets=[self.select, self.select2]
-                )(self.func)
+                # apply on non string
+                self.func4 = su.switch("disabled", on_widgets=[self.select])(self.func4)
 
-                self.btn.on_event("click", self.func)
-
-            def func(self, *args):
+            # apply the widget on the object itself
+            @su.switch("valid")
+            def func1(self, *args):
                 return True
 
+            # apply the widget on members of the object
+            @su.switch("disabled", on_widgets=["select", "select2"])
+            def func2(self, *args):
+                return True
+
+            # apply it on a non existent widget
+            @su.switch("niet", on_widgets=["fake_widget"])
+            def func3(self, *args):
+                return True
+
+            def func4(self, *args):
+                return True
+
+            # apply on a error func with debug = True
+            @su.switch("valid", debug=True)
+            def func5(self, *args):
+                return 1 / 0
+
         obj = Obj()
-        obj.btn.fire_event("click", None)
+
+        # assert
+        obj.func1()
+        assert obj.valid == True
+
+        obj.func2()
         assert obj.select.disabled == False
         assert obj.select2.disabled == False
 
-        # create a fake object that uses the decorator
-        # apply it on a non existent widget
-        class Obj:
-            def __init__(self):
-                self.btn = sw.Btn()
-                self.func = su.switch("niet", on_widgets=[self.fake_widget])(self.func)
-                self.btn.on_event("click", self.func)
-
-            def func(self, *args):
-                return True
+        with pytest.raises(Exception):
+            obj.func3()
 
         with pytest.raises(Exception):
-            obj = Obj()
+            obj.func4()
 
-        ########################################
-        ##   no exception is raised,          ##
-        ##   it lives in the callback         ##
-        ##   I don't know how to test it yet  ##
-        ########################################
-        # create a fake object that uses the decorator
-        # apply on non string
-        # class Obj:
-        #
-        #    def __init__(self):
-        #        self.select = v.Select(disabled=False)
-        #        self.btn = sw.Btn()
-        #
-        #        self.func = su.switch('disabled',on_widgets=[self.select])(self.func)
-        #        self.btn.on_event('click', self.func)
-        #
-        #    def func(self, *args):
-        #        return True
-        #
-        # obj = Obj()
-        # obj.btn.fire_event('click', None)
-        # out, err = capsys.readouterr()
-        # assert "All on_widgets list elements has to be strings." in out
-        #
-        ## create a fake object that uses the decorator
-        ## apply on a error func with debug = True
-        # class Obj:
-        #
-        #    def __init__(self):
-        #        self.valid = True
-        #        self.btn = sw.Btn()
-        #
-        #        self.btn.on_event('click', self.func)
-        #
-        #    @su.switch('valid', debug=True)
-        #    def func(self, *args):
-        #        return 1/0
-        #
-        #
-        # obj = Obj()
-        # with pytest.warns(Warning):
-        #    obj.btn.fire_event('click', None)
+        with pytest.raises(Exception):
+            obj.func5()
 
         return

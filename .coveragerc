@@ -7,4 +7,4 @@ source = sepal_ui
 omit = 
     sepal_ui/*/__init__.py
     sepal_ui/scripts/messages.py
-    
+    sepal_ui/reclassify/parameters.py

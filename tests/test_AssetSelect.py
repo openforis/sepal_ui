@@ -44,6 +44,10 @@ class TestAssetSelect:
         asset_select.default_asset = self.default_items
         assert self.default_items[0] in asset_select.items
 
+        # add one item as a string
+        asset_select.default_asset = self.default_items[0]
+        assert self.default_items[0] in asset_select.items
+
         return
 
     def test_validate(self):

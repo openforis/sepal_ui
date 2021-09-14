@@ -112,10 +112,10 @@ class TestFileInput:
 
         sepal_ui = self._get_sepal_parent()
         file_input = sw.FileInput(folder=sepal_ui)
-        file_input._on_file_select({"new": str(sepal_ui)})
 
         # move into sepal_ui folders
         readme = sepal_ui / "README.rst"
+        file_input.select_file(readme)
 
         file_input.reset()
 

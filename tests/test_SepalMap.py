@@ -208,8 +208,7 @@ class TestSepalMap:
         res = m.show_dc()
 
         assert res == m
-        # check that dc is clear
-        # check that dc is in the control list
+        assert m.dc in m.controls
 
         return
 
@@ -221,13 +220,43 @@ class TestSepalMap:
         # show dc
         m.show_dc()
 
-        # draw something
-
         # hide it
         res = m.hide_dc()
 
         assert res == m
-        # check that dc is clear
-        # check that dc is not in the control list anymore
+        assert m.dc not in m.controls
+
+        return
+
+    def test_change_cursor(self):
+
+        # add a map
+        m = sm.SepalMap()
+
+        # change the vinspector trait
+        m.vinspector = True
+        assert m.default_style.get_state("cursor") == {"cursor": "crosshair"}
+
+        # change it back
+        m.vinspector = False
+        assert m.default_style.get_state("cursor") == {"cursor": "grab"}
+
+        return
+
+    def test_get_basemap_list(self):
+
+        res = sm.SepalMap.get_basemap_list()
+
+        assert isinstance(res, list)
+
+        return
+
+    def test_add_colorbar(self):
+
+        # create a map and add a colorbar
+        m = sm.SepalMap()
+        m.add_colorbar(colors=["#fc8d59", "#ffffbf", "#91bfdb"], vmin=0, vmax=5)
+
+        assert len(m.controls) == 6  # only thing I can check
 
         return

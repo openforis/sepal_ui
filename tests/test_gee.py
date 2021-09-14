@@ -1,4 +1,5 @@
 import os
+import time
 
 import pytest
 import ee
@@ -71,7 +72,7 @@ class TestGee:
         list_ = gee.get_assets(folder)
 
         # check that they are all there
-        names = ["corsica_template", "france", "italy"]
+        names = ["corsica_template", "folder", "france", "italy"]
 
         for item, name in zip(list_, names):
             assert item["name"] == f"{folder}/{name}"
@@ -89,6 +90,30 @@ class TestGee:
         # fake asset
         res = gee.is_asset(f"{folder}/toto", folder)
         assert res == False
+
+        return
+
+    def test_is_running(self):
+
+        # create an output alert
+        alert = sw.Alert()
+
+        task = self._create_fake_task()
+
+        i = 0
+        for _ in range(30):
+            time.sleep(1)
+            res = gee.is_running(self.DESCRIPTION)
+            if res != None:
+                break
+
+        assert res != None
+
+        # wait for the task to finish
+        gee.wait_for_completion(self.DESCRIPTION, alert)
+
+        # delete the asset
+        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
 
         return
 

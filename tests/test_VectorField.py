@@ -39,8 +39,7 @@ class TestVectorField:
         assert load_vector.v_model == load_vector.default_v_model
 
         # delete the test file
-        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
-            f.unlink()
+        [f.unlink() for f in Path("~").expanduser().glob(f"{test_file.stem}.*")]
 
         return
 
@@ -60,8 +59,7 @@ class TestVectorField:
         assert load_vector.v_model == load_vector.default_v_model
 
         # delete the test file
-        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
-            f.unlink()
+        [f.unlink() for f in Path("~").expanduser().glob(f"{test_file.stem}.*")]
 
         return
 
@@ -81,8 +79,7 @@ class TestVectorField:
         assert load_vector.w_value.items == ["VAT"]
 
         # delete the test file
-        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
-            f.unlink()
+        [f.unlink() for f in Path("~").expanduser().glob(f"{test_file.stem}.*")]
 
         return
 
@@ -102,8 +99,7 @@ class TestVectorField:
         assert load_vector.v_model["value"] == "VAT"
 
         # delete the test file
-        for f in Path("~").expanduser().glob(f"{test_file.stem}.*"):
-            f.unlink()
+        [f.unlink() for f in Path("~").expanduser().glob(f"{test_file.stem}.*")]
 
         return
 

@@ -77,7 +77,7 @@ def is_running(task_descripsion):
 
     current_task = is_task(task_descripsion)
     if current_task:
-        if current_task.state != "RUNNING":
+        if current_task.state not in ["RUNNING", "READY"]:
             current_task = None
 
     return current_task
