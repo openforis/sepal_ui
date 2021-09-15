@@ -1,51 +1,10 @@
-## Unreleased
+## v_2.1.0
 
-### Fix
+## v_2.0.6
 
-- folder init in reclassifyTile
-- typo in json dict
-- display the btn at the bottom of the table
-- display a message to the user when reclassify
-- default to 0 if class is not specified
-- use the SEPAL coloring parameters
-- use the folder name
-- small UI bug
-- use init_ee instead of ee.initialize()
-- import table
-- minor typo
-- remove type
+## v_2.0.5
 
-### Refactor
-
-- **lang**: add keys
-- remove test notebook
-- ensure a value is set to the func
-- only set w_image to the appropriate widget
-- add new keys in translation
-- remove ununsed break
-- fix merge conflict
-- only init ee if needed
-- remove usage of gee in documentation
-- remove unused file
-- change the image visualization function (black-formatter).
-- extend the behavior of switch decorator with the last comments. closes #263
-- adapt table view widget to the parameter SCHEME. Remove ambiguity when handling widgets values by adding _metadata attribute
-- move SCHEMA variable from translation key to parameters to avoid ambiguity
-- drop pre-commit autoupdate
-- typo
-- reintroduce type attribute
-- fix french typos
-- place __all__ at the file start
-
-### Feat
-
-- change state when something is loaded
-- test asset validity
-- add commitizen check
-- improve sanity checks
-- separate the reclassified image and its visualization
-- define default_asset trait in SelectAsset. it will accept whether strings for unique default assets or lists for multiple. The trait can be observed to update the list anytime
-- introducing switch decorator
+## v_2.0.4
 
 ## v_2.0.3 (2021-06-09)
 
