@@ -5,9 +5,9 @@ from sepal_ui.message import ms
 
 
 class TestReclassifyTile:
-    
+
     FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-    
+
     def test_init(self):
 
         # default init
