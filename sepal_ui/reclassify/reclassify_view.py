@@ -332,7 +332,10 @@ class ReclassifyView(v.Card):
         reclassify_table (ReclassifyTable): the reclassification table
             populated via the previous widgets
         reclassify_btn (sw.Btn): the btn to launch the reclassifying process
+        MAX_CLASS  (int): the number of line in the table to trigger the display of an extra toolbar and alert
     """
+
+    MAX_CLASS = 20
 
     def __init__(
         self,
@@ -488,6 +491,11 @@ class ReclassifyView(v.Card):
 
         self.reclassify_table = ReclassifyTable(self.model)
 
+        # create a duplicate layout that include the alert and the different btns
+        # it will be displayed if the number of class > MAX_CLASS
+        self.duplicate_layout = v.Layout(children=[toolbar, self.alert])
+        su.hide_component(self.duplicate_layout)
+
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
         self.model = self.model.bind(
@@ -508,6 +516,7 @@ class ReclassifyView(v.Card):
             w_table_title,
             toolbar,
             self.reclassify_table,
+            self.duplicate_layout,
         ]
 
         # Decorate functions
@@ -685,6 +694,11 @@ class ReclassifyView(v.Card):
 
         # enable the reclassify btn
         self.reclassify_btn.disabled = False
+
+        # check if the duplicate_layout need to be displayed ?
+        su.hide_component(self.duplicate_layout)
+        if len(self.reclassify_table.children[0].children) - 1 > self.MAX_CLASS:
+            su.show_component(self.duplicate_layout)
 
         return self
 
