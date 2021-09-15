@@ -11,3 +11,7 @@
     --pst-color-h2: var(--pts-color-sepal);
     --pst-color-active-navigation: var(--pts-color-sepal);
  }
+
+div.jupyter_container.docutils {
+    padding: .4em;
+}

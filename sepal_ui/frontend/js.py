@@ -1,21 +1,28 @@
-import ipyvuetify as v 
+import ipyvuetify as v
 from traitlets import Int, Unicode
 from IPython.display import display
 
+
 class ResizeTrigger(v.VuetifyTemplate):
-    template = Unicode('''
-    <script>
-        modules.export = {
-            watch: {
-                resize() {
-                    window.dispatchEvent(new Event('resize'));
-                }
-            }
-        }
+
+    js_command = """ 
+        <script>
+            modules.export = {
+                watch: {
+                    resize() {
+                        window.dispatchEvent(new Event('resize'));
+                     }
+                 }
+             }
         </script>
-    ''').tag(sync=True)
-    
+    """
+
+    js_command = "".join(js_command.split())
+
+    template = Unicode(js_command).tag(sync=True)
+
     resize = Int(0).tag(sync=True)
 
+
 rt = ResizeTrigger()
-display(rt)
+# display(rt)

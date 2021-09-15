@@ -1,31 +1,75 @@
 File input
 ==========
 
-:code:`FileInput` is a field widget to search for files in the Sepal folders. it inherits from the :code:`SepalWidget` class.
+Overview
+--------
+
+:code:`FileInput` is a field widget to search for files in the SEPAL folders. it inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Layout` ipyvuetify class can be used to complement it.
 
-.. code-block:: python 
+.. jupyter-execute:: 
 
     from sepal_ui import sepalwidgets as sw
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
 
     file_input = sw.FileInput()
+    file_input
 
-.. image:: ../../img/file_input.png
-    :alt: file_input
+the value can be retrieve from the :code:`v_model` trait.
 
-the value can be retrieve from the :code:`v_model` trait. 
+Methods 
+-------
 
-.. code-block:: python 
+select_file
+^^^^^^^^^^^
 
-    # will return the value of the widget 
-    file_input.v_model 
+Manually select a file from it's path. No verification on the extension is performed.
 
-    # will be thown when v_model change
-    file_input.observe(lambda change: print(change['new'])) 
+.. jupyter-execute:: 
 
-    # bin the value to a io object using an Alert widget
-    sw.Alert().bind(file_input, io, 'file_attr') 
+    from sepal_ui import sepalwidgets as sw
+    from pathlib import Path
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+    
+    path = Path.home()/'test.txt'
+    path.write_text("hello world")
+
+    file_input = sw.FileInput()
+    file_input.select_file(path)
+    file_input
+
+reset
+^^^^^
+
+    
+Clear the File selection and move to the root folder if something was selected.
+
+.. jupyter-execute:: 
+
+    from sepal_ui import sepalwidgets as sw
+    from pathlib import Path
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+    
+    path = Path.home()/'test.txt'
+    path.write_text("hello world")
+
+    file_input = sw.FileInput()
+    file_input.select_file(path)
+    file_input.reset()
+    file_input
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.FileInput>`_.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.FileInput>`__.

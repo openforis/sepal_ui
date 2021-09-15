@@ -8,11 +8,11 @@ sepal\_ui.mapping package
 
    example : 
    
-   .. code-block:: python 
+   .. jupyter-execute:: 
 
       from sepal_ui import mapping as sm
 
-      m = sm.SepalMap() 
+      sm.SepalMap(gee=False) 
 
 Submodules
 ----------

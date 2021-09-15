@@ -33,4 +33,5 @@ By the end, you will have an overview of the library usage and you'll be able to
     add-tile
     io-design
     sepalize
+    create_asset
     send-to-sepal
