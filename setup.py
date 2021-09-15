@@ -1,7 +1,7 @@
 from distutils.core import setup
 from pathlib import Path
 
-version = "2.1.0"
+version = "2.1.1"
 
 setup(
     name="sepal_ui",
