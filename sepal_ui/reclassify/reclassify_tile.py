@@ -45,7 +45,7 @@ class ReclassifyTile(sw.Tile):
         self.aoi_model = aoi_model
         # create the model
         self.model = rec.ReclassifyModel(
-            dst_dir=self.results_dir, gee=gee, aoi_model=self.aoi_model
+            dst_dir=self.results_dir, gee=gee, aoi_model=self.aoi_model, folder=folder
         )
 
         # set the tabs elements
