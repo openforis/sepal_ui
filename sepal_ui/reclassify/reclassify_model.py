@@ -344,9 +344,9 @@ class ReclassifyModel(Model):
                         "visualization_0_name": "Classification",
                         "visualization_0_bands": self.band,
                         "visualization_0_type": "categorical",
-                        "visualization_0_labels": ",".join(desc),
-                        "visualization_0_palette": ",".join(color),
-                        "visualization_0_values": ",".join(code),
+                        "visualization_0_labels": f"no_data,{','.join(desc)}",
+                        "visualization_0_palette": f"#000000,{','.join(color)}",
+                        "visualization_0_values": f"0,{','.join(code)}",
                     }
                 )
             )
@@ -444,7 +444,7 @@ class ReclassifyModel(Model):
                     self.dst_local_memory = data
 
                     # add the colors to the image
-                    colormap = {}
+                    colormap = {0: (0, 0, 0)}
                     for code, item in self.dst_class.items():
                         colormap[code] = tuple(int(c * 255) for c in to_rgba(item[1]))
                     dst_f.write_colormap(self.band, colormap)

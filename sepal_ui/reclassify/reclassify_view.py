@@ -182,6 +182,7 @@ class ClassSelect(v.Select, sw.SepalWidget):
         self.chips = True
         self._metadata = {"class": old_code}
         self.v_model = None
+        self.clearable = True
 
         # init the select
         super().__init__(**kwargs)
@@ -239,7 +240,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         """
 
         # reset the matrix
-        self.model.matrix = {code: None for code in src_classes.keys()}
+        self.model.matrix = {code: 0 for code in src_classes.keys()}
 
         # create the select list
         # they need to observe each other to adapt the available class list dynamically
@@ -289,7 +290,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         code = change["owner"]._metadata["class"]
 
         # bind it to classes in the dst classification
-        self.model.matrix[code] = change["new"]
+        self.model.matrix[code] = change["new"] if change["new"] else 0
 
         return self
 
