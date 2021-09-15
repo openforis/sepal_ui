@@ -4,7 +4,8 @@ Tooltip
 :code:`Tooltip` is a custom widget to provide easy to use tooltip in the sepal_ui framework. We are based on the Vuetify web structure so the design of the tooltip design can be surprising for users coming from different platform. Here the tooltip is the main widget, and it owns the widget it describes. Here is an example for a :code:`Btn`.
 
 .. jupyter-execute::
-
+    :raises:
+    
     from sepal_ui import sepalwidgets as sw 
     
     # correct colors for the documentation 
