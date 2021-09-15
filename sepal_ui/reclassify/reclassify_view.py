@@ -306,6 +306,7 @@ class ReclassifyView(v.Card):
         gee (bool): either or not to set :code:`gee` to True. default to False
         dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
+        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
 
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -339,6 +340,7 @@ class ReclassifyView(v.Card):
         default_class={},
         aoi_model=None,
         save=True,
+        folder=None,
         **kwargs,
     ):
 
@@ -380,7 +382,7 @@ class ReclassifyView(v.Card):
             tag="h2", children=[ms.rec.rec.input.title], class_="mt-5"
         )
 
-        self.w_asset = sw.AssetSelect(label=ms.rec.rec.input.asset)
+        self.w_asset = sw.AssetSelect(label=ms.rec.rec.input.asset, folder=folder)
         self.w_raster = sw.FileInput(
             [".tif", ".vrt", ".tiff", ".geojson", ".shp"], label=ms.rec.rec.input.file
         )

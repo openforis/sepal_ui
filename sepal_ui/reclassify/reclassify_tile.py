@@ -19,6 +19,7 @@ class ReclassifyTile(sw.Tile):
         gee (bool): Use GEE variant, to reclassify assets or local input. default True
         dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
+        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
 
     Attributes:
         result_dir (pathlib.Path): Directory to store the outputs (rasters, and csv_files).
@@ -34,6 +35,7 @@ class ReclassifyTile(sw.Tile):
         dst_class=None,
         default_class={},
         aoi_model=None,
+        folder=None,
         **kwargs
     ):
 
@@ -54,6 +56,7 @@ class ReclassifyTile(sw.Tile):
             default_class=default_class,
             aoi_model=aoi_model,
             save=True,
+            folder=folder,
         ).nest_tile()
 
         self.table_view = rec.TableView(out_path=self.results_dir).nest_tile()
