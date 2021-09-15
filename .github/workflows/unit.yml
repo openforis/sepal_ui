@@ -27,7 +27,7 @@ jobs:
       - name: Test formatting
         uses: psf/black@stable
       - name: test with unittest
-        run: coverage run -m pytest tests
+        run: coverage run -m pytest --color=yes tests
       - name: coverage
         run: coverage report -m
       - name: codecov
