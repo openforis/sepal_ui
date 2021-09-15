@@ -95,19 +95,13 @@ Create a new release
     
 In the files change the version number in the following file: :code:`VERSION`
 
-Then push the current master branch to the release branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`.
+Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`: :code:`v_$minor.$major.$patch$prerelease`.
 
 .. warning::
 
     The target branch of the new release is :code:`release` not :code:`master`. 
     
-Now publish the new version of the lib on Pypi : 
-
-.. code-block:: console
-
-    $ cd sepal_ui
-    $ python setup.py sdist
-    $ twine upload dist/sepal_ui-<version number>.tar.gz
+The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://badge.fury.io/py/sepal-ui>`_.
     
 Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically. 
 
