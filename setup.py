@@ -26,7 +26,7 @@ setup(
             "bin/module_factory",
         ]
     },
-    version=_version,
+    version=version,
     license="MIT",
     description="Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform",
     long_description=open("README.rst").read(),
