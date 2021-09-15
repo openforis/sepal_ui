@@ -1,7 +1,7 @@
 from distutils.core import setup
 from pathlib import Path
 
-_version = (Path(__file__).parent / "VERSION").read_text()
+version = "2.0.6"
 
 setup(
     name="sepal_ui",
@@ -34,7 +34,7 @@ setup(
     author="Pierrick Rambaud",
     author_email="pierrick.rambaud49@gmail.com",
     url="https://github.com/12rambau/sepal_ui",
-    download_url=f"https://github.com/12rambau/sepal_ui/archive/v_{_version}.tar.gz",
+    download_url=f"https://github.com/12rambau/sepal_ui/archive/v_{version}.tar.gz",
     keywords=["UI", "Python", "widget", "sepal"],
     install_requires=[
         "haversine",

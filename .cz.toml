@@ -1,0 +1,4 @@
+[tool.commitizen]
+version = "2.1.0"
+tag_format = "v_$major.$minor.$patch$prerelease"
+version_files = ["setup.py", "sepal_ui/__init__.py"]
