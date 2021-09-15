@@ -360,7 +360,9 @@ class ReclassifyView(v.Card):
         self.model = (
             model
             if model
-            else ReclassifyModel(gee=gee, dst_dir=out_path, aoi_model=aoi_model)
+            else ReclassifyModel(
+                gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder
+            )
         )
 
         # set the folders

@@ -40,10 +40,12 @@ class ReclassifyModel(Model):
         remaped (int): state var updated each time an input is remapped
         aoi_model (aoi.model): AOI model object to get an area of interest it
              is selected
+        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
 
     Args:
         gee (bool): either or not to set :code:`gee` to True
         dst_dir (str): the destination forlder for outputs
+        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
     """
 
     # inputs
@@ -67,7 +69,7 @@ class ReclassifyModel(Model):
     # Create a state var, to determine if an asset has been remaped
     remaped = Int(False).tag(sync=True)
 
-    def __init__(self, gee=False, dst_dir=None, aoi_model=None, **kwargs):
+    def __init__(self, gee=False, dst_dir=None, aoi_model=None, folder=None, **kwargs):
 
         # init the model
         super().__init__(**kwargs)
@@ -82,6 +84,7 @@ class ReclassifyModel(Model):
 
         if self.gee:
             su.init_ee()
+            self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
 
         # memory outputs
         self.dst_local_memory = None
@@ -311,9 +314,7 @@ class ReclassifyModel(Model):
         def _ee_image():
 
             # create the asset description
-            self.dst_gee = Path(self.src_gee).with_name(
-                f"{Path(self.src_gee).stem}_reclass"
-            )
+            self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
 
             # load the image
             # remap according to the matrix
@@ -342,14 +343,15 @@ class ReclassifyModel(Model):
             # This will create a new image with three bands. It will be only useful
             # for displaying purposes. So let's create another variable to store it.
             # Could we check this?
-            self.dst_gee_memory_vis = ee_image.visualize(
-                **{
-                    "bands": self.band,
-                    "palette": color,
-                    "min": min(code),
-                    "max": max(code),
-                }
-            )
+            # self.dst_gee_memory_vis = ee_image.visualize(
+            #    **{
+            #        "bands": self.band,
+            #        "palette": color,
+            #        "min": min(code),
+            #        "max": max(code),
+            #
+            #    }
+            # )
             #             ee.Image(
             #                 ee_image.set(
             #                     {
@@ -366,7 +368,7 @@ class ReclassifyModel(Model):
             if save:
                 # export
                 params = {
-                    "image": self.dst_gee_memory,
+                    "image": ee_image,
                     "assetId": str(self.dst_gee),
                     "description": self.dst_gee.stem,
                     "scale": 30,  # it should be the native resolution of the original img
@@ -382,9 +384,7 @@ class ReclassifyModel(Model):
         def _ee_vector():
 
             # create the asset description
-            self.dst_gee = Path(self.src_gee).with_name(
-                f"{Path(self.src_gee).stem}_reclass"
-            )
+            self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
 
             # add a new propertie
 
