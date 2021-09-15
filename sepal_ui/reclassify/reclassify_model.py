@@ -367,7 +367,8 @@ class ReclassifyModel(Model):
 
                 task = ee.batch.Export.image.toAsset(**params)
                 task.start()
-            return
+
+            return self.dst_gee.stem
 
         @su.need_ee
         def _ee_vector():
@@ -409,7 +410,8 @@ class ReclassifyModel(Model):
 
                 task = ee.batch.Export.table.toAsset(**params)
                 task.start()
-            return
+
+            return self.dst_gee.stem
 
         def _local_image():
 
@@ -449,7 +451,7 @@ class ReclassifyModel(Model):
                         colormap[code] = tuple(int(c * 255) for c in to_rgba(item[1]))
                     dst_f.write_colormap(self.band, colormap)
 
-            return
+            return self.dst_local
 
         def _local_vector():
 
@@ -473,7 +475,8 @@ class ReclassifyModel(Model):
             if save:
                 # save the file
                 gdf.to_file(self.dst_local)
-            return
+
+            return self.dst_local
 
         # map all the function in the guess matrix (gee, type)
         reclassify_func = [[_local_vector, _local_image], [_ee_vector, _ee_image]]
@@ -484,9 +487,9 @@ class ReclassifyModel(Model):
 
         # return the selected function
         # remember to use self as a parameter
-        reclassify_func[self.gee][self.input_type]()
+        res = reclassify_func[self.gee][self.input_type]()
 
         # tel the rest of the apps that a reclassification is finished
         self.remaped += 1
 
-        return self
+        return ms.rec.rec.export[self.gee][self.input_type].format(res)

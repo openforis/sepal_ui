@@ -124,7 +124,17 @@
                 "btn": "get table"
             },
             "table": "Reclassify table",
-            "btn": "Reclassify"
+            "btn": "Reclassify",
+            "export": [
+                [
+                    "The Vector has been created and added to your SEPAL Folder: {}",
+                    "The Image has been created and added to your SEPAL folder: {}"
+                ],
+                [
+                    "The FeatureCollection has been exported to GEE as {}. Use the code editor interface to follow the exportation process",
+                    "The Image has been exported to GEE as {}. Use the code editor interface to follow the exportation process"
+                ]
+            ]
         },
         "tile": {
             "title": "Reclassification"

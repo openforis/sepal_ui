@@ -631,7 +631,10 @@ class ReclassifyView(v.Card):
         """
 
         # create the output file
-        self.model.reclassify()
+        msg = self.model.reclassify()
+
+        # display a message to the user
+        self.alert.add_msg(msg, "success")
 
         return self
 
