@@ -124,6 +124,16 @@
             },
             "table": "Tabla de recalificación",
             "btn": "Reclasificar"
+            "export": [
+                [
+                    "El Vector ha sido creado y añadido a su archivo SEPAL: {}",
+                    "La Imagen ha sido creada y añadida a su archivo SEPAL: {}"
+                ],
+                [
+                    "La ee.FeatureCollection ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación.",
+                    "La ee.Image ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación"
+                ]
+            ]
         },
         "tile": {
             "title": "Recalificación"

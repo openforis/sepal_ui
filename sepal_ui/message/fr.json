@@ -124,7 +124,17 @@
                 "btn": "Récupérer la table"
             },
             "table": "Table de reclassification",
-            "btn": "Reclassifer"
+            "btn": "Reclassifer",
+            "export": [
+                [
+                    "Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
+                    "L'Image a été créé et ajouté à votre dossier SEPAL: {}"
+                ],
+                [
+                    "La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
+                    "La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
+                ]
+            ]
         },
         "tile": {
             "title": "Reclassification"
