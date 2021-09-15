@@ -382,11 +382,13 @@ class ReclassifyView(v.Card):
             tag="h2", children=[ms.rec.rec.input.title], class_="mt-5"
         )
 
-        self.w_asset = sw.AssetSelect(label=ms.rec.rec.input.asset, folder=folder)
-        self.w_raster = sw.FileInput(
-            [".tif", ".vrt", ".tiff", ".geojson", ".shp"], label=ms.rec.rec.input.file
-        )
-        self.w_image = self.w_asset if self.gee else self.w_raster
+        if self.gee:
+            self.w_image = sw.AssetSelect(label=ms.rec.rec.input.asset, folder=folder)
+        else:
+            self.w_image = sw.FileInput(
+                [".tif", ".vrt", ".tiff", ".geojson", ".shp"],
+                label=ms.rec.rec.input.file,
+            )
 
         self.w_code = v.Select(
             label=ms.rec.rec.input.band.label,
@@ -482,9 +484,10 @@ class ReclassifyView(v.Card):
 
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
-        self.model.bind(self.w_raster, "src_local").bind(self.w_asset, "src_gee").bind(
-            self.w_code, "band"
-        )
+        self.model = self.model.bind(
+            self.w_image, "src_gee" if self.gee else "src_local"
+        ).bind(self.w_code, "band")
+
         # create the layout
         self.children = [
             self.title,
