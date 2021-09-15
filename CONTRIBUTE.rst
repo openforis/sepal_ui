@@ -93,9 +93,19 @@ Create a new release
 
     for maintainers only 
     
-In the files change the version number in the following file: :code:`VERSION`
+ .. warning::
+ 
+     You need to use the :code:`commitizen` lib to create your release: `<https://commitizen-tools.github.io/commitizen>`_
+    
+In the files change the version number by runnning commitizen `bump`: 
 
-Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`: :code:`v_$minor.$major.$patch$prerelease`.
+.. code-block:: console
+
+    cz bump
+
+It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to sementic versionning thanks to the conventional commit that we use in the lib. It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories. 
+
+Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`.cz.yaml`: :code:`v_$minor.$major.$patch$prerelease`.
 
 .. warning::
 
