@@ -122,16 +122,18 @@ class TestUtils:
                 self.alert = sw.Alert()
                 self.btn = sw.Btn()
 
-                self.func = su.catch_errors(alert=self.alert)(self.func)
-                self.btn.on_event("click", self.func)
+                self.func1 = su.catch_errors(alert=self.alert)(self.func)
+                self.func2 = su.catch_errors(alert=self.alert, debug=True)(self.func)
 
             def func(self, *args):
                 return 1 / 0
 
         obj = Obj()
-        obj.btn.fire_event("click", None)
 
+        obj.func1()
         assert obj.alert.type == "error"
+        with pytest.raises(Exception):
+            obj.func2()
 
         return
 

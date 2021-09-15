@@ -187,6 +187,7 @@ def catch_errors(alert, debug=False):
     def decorator_alert_error(func):
         @wraps(func)
         def wrapper_alert_error(*args, **kwargs):
+            value = None
             try:
                 value = func(*args, **kwargs)
             except Exception as e:
