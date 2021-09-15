@@ -5,3 +5,4 @@ commitizen:
   version_files:
   - setup.py
   - sepal_ui/__init__.py
+  update_changelog_on_bump: true

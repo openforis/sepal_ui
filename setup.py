@@ -1,7 +1,7 @@
 from distutils.core import setup
 from pathlib import Path
 
-version = "2.1.0"
+version = "2.1.1"
 
 setup(
     name="sepal_ui",
@@ -26,7 +26,7 @@ setup(
             "bin/module_factory",
         ]
     },
-    version=_version,
+    version=version,
     license="MIT",
     description="Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform",
     long_description=open("README.rst").read(),
