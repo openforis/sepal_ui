@@ -23,8 +23,7 @@ Then install the git hook scripts by running pre-commit install to set up the gi
 
 .. code-block:: console
 
-    $ pre-commit install
-    $ pre-commit install --hook-type commit-msg
+    $ pre-commit install --install-hooks -t pre-commit -t commit-msg
     
 Now :code:`pre-commit` will run automatically on :code:`git commit` !
 
