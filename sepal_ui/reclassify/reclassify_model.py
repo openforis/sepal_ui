@@ -338,32 +338,21 @@ class ReclassifyModel(Model):
                 *[(str(k), str(v[0]), str(v[1])) for k, v in self.dst_class.items()]
             )
 
-            self.dst_gee_memory = ee_image
+            ee_image = ee.Image(
+                ee_image.set(
+                    {
+                        "visualization_0_name": "Classification",
+                        "visualization_0_bands": self.band,
+                        "visualization_0_type": "categorical",
+                        "visualization_0_labels": ",".join(desc),
+                        "visualization_0_palette": ",".join(color),
+                        "visualization_0_values": ",".join(code),
+                    }
+                )
+            )
 
-            # This will create a new image with three bands. It will be only useful
-            # for displaying purposes. So let's create another variable to store it.
-            # Could we check this?
-            # self.dst_gee_memory_vis = ee_image.visualize(
-            #    **{
-            #        "bands": self.band,
-            #        "palette": color,
-            #        "min": min(code),
-            #        "max": max(code),
-            #
-            #    }
-            # )
-            #             ee.Image(
-            #                 ee_image.set(
-            #                     {
-            #                         "visualization_0_name": "Classification",
-            #                         "visualization_0_bands": self.band,
-            #                         "visualization_0_type": "categorical",
-            #                         "visualization_0_labels": ",".join(desc),
-            #                         "visualization_0_palette": ",".join(color),
-            #                         "visualization_0_values": ",".join(code),
-            #                     }
-            #                 )
-            #             )
+            # save the file in a in_memeory variable
+            self.dst_gee_memory = ee_image
 
             if save:
                 # export
@@ -407,6 +396,7 @@ class ReclassifyModel(Model):
                 )
             else:
                 self.dst_gee_memory = ee.FeatureCollection(self.src_gee).map(add_prop)
+
             # add colormapping parameters
 
             if save:
