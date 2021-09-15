@@ -156,9 +156,6 @@ If not return :code:`False` and display an error message else return :code:`True
     
     output.check_input(input)
 
-<<<<<<< HEAD
 .. note::
     The Alert component is a key component of the tile component as it can test variable initialization, bind variable to widget, and display processes in voila dashboard. 
     More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`__.
-=======
->>>>>>> 1e06332158e609c67ea699c42646442fe522d4df

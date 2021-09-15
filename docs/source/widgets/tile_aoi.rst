@@ -23,8 +23,4 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
 
 .. note::
 
-<<<<<<< HEAD
     More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.tile.Tile>`__.
-=======
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.aoi.aoi_tile.AoiTile>`_.
->>>>>>> 1e06332158e609c67ea699c42646442fe522d4df
