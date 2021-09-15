@@ -153,6 +153,9 @@ class SaveMatrixDialog(v.Dialog):
     def _sanitize(self, widget, event, data):
         """sanitize the used name when saving"""
 
+        if not self.w_file.v_model:
+            return self
+
         self.w_file.v_model = su.normalize_str(self.w_file.v_model)
 
         return self
