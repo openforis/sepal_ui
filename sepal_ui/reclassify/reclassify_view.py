@@ -387,7 +387,7 @@ class ReclassifyView(v.Card):
         )
 
         # create the input widgets
-        w_input_title = v.Html(
+        self.w_input_title = v.Html(
             tag="h2", children=[ms.rec.rec.input.title], class_="mt-5"
         )
 
@@ -405,14 +405,13 @@ class ReclassifyView(v.Card):
             v_model=None,
             items=[],
             persistent_hint=True,
-            disabled=True,
         )
 
         w_optional_title = v.Html(tag="h3", children=[ms.rec.rec.input.optional])
         self.w_src_class_file = sw.FileInput(
             [".csv"], label=ms.rec.rec.input.classif.label, folder=self.class_path
         )
-        w_optional = v.ExpansionPanels(
+        self.w_optional = v.ExpansionPanels(
             class_="mt-5",
             children=[
                 v.ExpansionPanel(
@@ -425,7 +424,7 @@ class ReclassifyView(v.Card):
         )
 
         # create the destination class widgetss
-        w_class_title = v.Html(
+        self.w_class_title = v.Html(
             tag="h2", children=[ms.rec.rec.input.classif.title], class_="mt-5"
         )
 
@@ -455,10 +454,12 @@ class ReclassifyView(v.Card):
             )
             for name, path in default_class.items()
         ]
-        w_default = v.Flex(class_="mt-5", children=self.btn_list)
+        self.w_default = v.Flex(class_="mt-5", children=self.btn_list)
 
         # set the table and its toolbar
-        w_table_title = v.Html(tag="h2", children=[ms.rec.rec.table], class_="mt-5")
+        self.w_table_title = v.Html(
+            tag="h2", children=[ms.rec.rec.table], class_="mt-5"
+        )
 
         self.save_dialog = SaveMatrixDialog(folder=out_path)
         self.import_dialog = importMatrixDialog(folder=out_path)
@@ -473,7 +474,7 @@ class ReclassifyView(v.Card):
         )
         self.reclassify_btn = sw.Btn(ms.rec.rec.btn, "mdi-checkerboard", small=True)
 
-        toolbar = v.Toolbar(
+        self.toolbar = v.Toolbar(
             class_="d-flex mb-6",
             flat=True,
             children=[
@@ -493,7 +494,7 @@ class ReclassifyView(v.Card):
 
         # create a duplicate layout that include the alert and the different btns
         # it will be displayed if the number of class > MAX_CLASS
-        self.duplicate_layout = v.Layout(children=[toolbar, self.alert])
+        self.duplicate_layout = v.Layout(children=[self.toolbar, self.alert])
         su.hide_component(self.duplicate_layout)
 
         # bind to the model
@@ -505,16 +506,16 @@ class ReclassifyView(v.Card):
         # create the layout
         self.children = [
             self.title,
-            w_input_title,
+            self.w_input_title,
             self.w_image,
             self.w_code,
-            w_optional,
-            w_class_title,
-            w_default,
+            self.w_optional,
+            self.w_class_title,
+            self.w_default,
             self.w_dst_class_file,
             self.alert,
-            w_table_title,
-            toolbar,
+            self.w_table_title,
+            self.toolbar,
             self.reclassify_table,
             self.duplicate_layout,
         ]
@@ -647,18 +648,15 @@ class ReclassifyView(v.Card):
 
         return self
 
+    @su.switch("loading", "disabled", on_widgets=["w_code"])
     def _update_band(self, change):
         """Update the band possibility to the available bands/properties of the input"""
 
-        self.w_code.loading = True
         # guess the file type and save it in the model
         self.model.get_type()
         # update the bands values
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
-
-        self.w_code.loading = False
-        self.w_code.disabled = False
 
         return self
 
