@@ -405,7 +405,6 @@ class ReclassifyView(v.Card):
             v_model=None,
             items=[],
             persistent_hint=True,
-            disabled=True,
         )
 
         w_optional_title = v.Html(tag="h3", children=[ms.rec.rec.input.optional])
@@ -649,18 +648,15 @@ class ReclassifyView(v.Card):
 
         return self
 
+    @su.switch("loading", "disabled", on_widgets=["w_code"])
     def _update_band(self, change):
         """Update the band possibility to the available bands/properties of the input"""
 
-        self.w_code.loading = True
         # guess the file type and save it in the model
         self.model.get_type()
         # update the bands values
         self.w_code.v_model = None
         self.w_code.items = self.model.get_bands()
-
-        self.w_code.loading = False
-        self.w_code.disabled = False
 
         return self
 
