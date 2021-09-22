@@ -14,7 +14,7 @@ from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
 
 
-class importMatrixDialog(v.Dialog):
+class ImportMatrixDialog(v.Dialog):
     """
     Dialog to select the file to use and fill the matrix
 
@@ -464,7 +464,7 @@ class ReclassifyView(v.Card):
         )
 
         self.save_dialog = SaveMatrixDialog(folder=out_path)
-        self.import_dialog = importMatrixDialog(folder=out_path)
+        self.import_dialog = ImportMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(
             ms.rec.rec.input.btn, "mdi-table", color="success", small=True
         )
