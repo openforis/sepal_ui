@@ -68,6 +68,7 @@ class ReclassifyModel(Model):
 
     # Create a state var, to determine if an asset has been remaped
     remaped = Int(False).tag(sync=True)
+    table_created = Bool(False).tag(sync=True)
 
     def __init__(
         self, gee=False, dst_dir=None, aoi_model=None, folder=None, save=True, **kwargs

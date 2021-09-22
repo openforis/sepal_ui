@@ -496,8 +496,9 @@ class ReclassifyView(v.Card):
 
         # create a duplicate layout that include the alert and the different btns
         # it will be displayed if the number of class > MAX_CLASS
-        self.duplicate_layout = v.Layout(children=[self.toolbar, self.alert])
-        su.hide_component(self.duplicate_layout)
+        self.duplicate_layout = v.Layout(
+            class_="d-none", children=[self.toolbar, self.alert]
+        )
 
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
@@ -591,8 +592,8 @@ class ReclassifyView(v.Card):
             raise Exception("No file has been selected")
 
         # exit if no table is loaded
-        if len(self.reclassify_table.children[0].children) < 3:
-            raise Exception("A classification system need to be selected first")
+        if not self.model.table_created:
+            raise Exception("You have to get the table before.")
 
         # load the file
         # sanity checks
@@ -662,6 +663,7 @@ class ReclassifyView(v.Card):
 
         return self
 
+    #     TODO: @switch('table_created', on_widgets=['model']) Not possible yet.
     def get_reclassify_table(self, widget, event, data):
         """
         Display a reclassify table which will lead the user to select
@@ -670,6 +672,8 @@ class ReclassifyView(v.Card):
         Return:
             self
         """
+
+        self.model.table_created = False
 
         # check that everything is set
         if not self.w_image.v_model:
@@ -696,9 +700,11 @@ class ReclassifyView(v.Card):
         self.reclassify_btn.disabled = False
 
         # check if the duplicate_layout need to be displayed ?
-        su.hide_component(self.duplicate_layout)
+        self.duplicate_layout.class_ = "d-none"
         if len(self.reclassify_table.children[0].children) - 1 > self.MAX_CLASS:
-            su.show_component(self.duplicate_layout)
+            self.duplicate_layout.class_ = "d-block"
+
+        self.model.table_created = True
 
         return self
 
