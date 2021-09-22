@@ -311,6 +311,8 @@ class ReclassifyView(v.Card):
         dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+        save (bool, optional): Whether to write/export the result or not.
+
 
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -365,7 +367,7 @@ class ReclassifyView(v.Card):
             model
             if model
             else ReclassifyModel(
-                gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder
+                gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder, save=save
             )
         )
 

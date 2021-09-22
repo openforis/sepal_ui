@@ -69,7 +69,9 @@ class ReclassifyModel(Model):
     # Create a state var, to determine if an asset has been remaped
     remaped = Int(False).tag(sync=True)
 
-    def __init__(self, gee=False, dst_dir=None, aoi_model=None, folder=None, **kwargs):
+    def __init__(
+        self, gee=False, dst_dir=None, aoi_model=None, folder=None, save=True, **kwargs
+    ):
 
         # init the model
         super().__init__(**kwargs)
@@ -81,6 +83,7 @@ class ReclassifyModel(Model):
         # save relation with gee
         self.gee = gee
         self.aoi_model = aoi_model
+        self.save = save
 
         if self.gee:
             su.init_ee()
@@ -246,7 +249,9 @@ class ReclassifyModel(Model):
             # reduce the image
             image = ee.Image(self.src_gee).select(self.band)
             geometry = image.geometry() if not self.aoi_model else self.get_aoi()
-            reduction = image.reduceRegion(ee.Reducer.frequencyHistogram(), geometry)
+            reduction = image.reduceRegion(
+                ee.Reducer.frequencyHistogram(), geometry, maxPixels=1e13
+            )
 
             # Remove all the unnecessary reducer output structure and make a
             # list of values.
@@ -302,7 +307,7 @@ class ReclassifyModel(Model):
 
         return self.src_class
 
-    def reclassify(self, save=True):
+    def reclassify(self):
         """
         Reclassify the input according to the provided matrix. For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
 
@@ -354,7 +359,7 @@ class ReclassifyModel(Model):
             # save the file in a in_memeory variable
             self.dst_gee_memory = ee_image
 
-            if save:
+            if self.save:
                 # export
                 params = {
                     "image": ee_image,
@@ -400,7 +405,7 @@ class ReclassifyModel(Model):
 
             # add colormapping parameters
 
-            if save:
+            if self.save:
                 # export
                 params = {
                     "collection": self.dst_gee_memory,
@@ -440,7 +445,7 @@ class ReclassifyModel(Model):
                             data += (raw == old_val) * new_val
 
                         # write it in the destination file
-                        if save:
+                        if self.save:
                             dst_f.write(data.astype(np.uint8), 1, window=window)
                     # Save raster in memory
                     self.dst_local_memory = data
@@ -472,7 +477,7 @@ class ReclassifyModel(Model):
             # https://gis.stackexchange.com/questions/404946/how-can-i-save-my-geopandas-symbology
             self.dst_local_memory = gdf
 
-            if save:
+            if self.save:
                 # save the file
                 gdf.to_file(self.dst_local)
 
@@ -491,5 +496,7 @@ class ReclassifyModel(Model):
 
         # tel the rest of the apps that a reclassification is finished
         self.remaped += 1
+        if self.save:
+            return ms.rec.rec.export[self.gee][self.input_type].format(res)
 
-        return ms.rec.rec.export[self.gee][self.input_type].format(res)
+        return "Asset successfully reclassified."
