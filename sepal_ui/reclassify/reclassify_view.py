@@ -588,7 +588,7 @@ class ReclassifyView(v.Card):
 
         # exit if no files are selected
         if not file:
-            raise Exception("No file have been selected")
+            raise Exception("No file has been selected")
 
         # exit if no table is loaded
         if len(self.reclassify_table.children[0].children) < 3:
