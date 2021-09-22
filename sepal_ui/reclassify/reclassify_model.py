@@ -315,8 +315,18 @@ class ReclassifyModel(Model):
             self
         """
 
+        if not self.matrix:
+            raise Exception(
+                "You need a reclassification matrix to reclassify an asset."
+            )
+        if not self.band:
+            raise Exception("You need to provide a band/property to reclassify.")
+
         @su.need_ee
         def _ee_image():
+
+            if not self.src_gee:
+                raise Exception("You need to provide source asset.")
 
             # create the asset description
             self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
@@ -378,6 +388,9 @@ class ReclassifyModel(Model):
         @su.need_ee
         def _ee_vector():
 
+            if not self.src_gee:
+                raise Exception("You need to provide source asset.")
+
             # create the asset description
             self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
 
@@ -420,6 +433,9 @@ class ReclassifyModel(Model):
 
         def _local_image():
 
+            if not self.src_local:
+                raise Exception("You need to provide source asset.")
+
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.tif"
 
@@ -459,6 +475,9 @@ class ReclassifyModel(Model):
             return self.dst_local
 
         def _local_vector():
+
+            if not self.src_local:
+                raise Exception("You need need to provide source asset.")
 
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
