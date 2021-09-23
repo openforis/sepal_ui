@@ -357,12 +357,11 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
 
-            if len(on_widgets):
+            if not len(targets):
+                w = on_widgets[0] if len(on_widgets) else self
+                targets = [getattr(w, p) for p in params]
 
-                if not len(targets):
-                    # only use the first one to define default values
-                    w = on_widgets[0]
-                    targets = [not getattr(w, p) for p in params]
+            if len(on_widgets):
 
                 # Verify that the input elements are strings
                 wrong_types = [
@@ -399,16 +398,12 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
             else:
 
-                if not len(targets):
-                    for p in params:
-                        targets = [not getattr(self, p) for p in params]
-
                 def w_assign(bool_targets):
                     for i, p in enumerate(params):
                         setattr(self, p, bool_targets[i])
 
-            # assgn the parameters to the target
-            w_assign(targets)
+            # assgn the parameters to the target inverse
+            w_assign([not t for t in targets])
 
             # execute the function and catch errors
             try:
@@ -416,11 +411,11 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
             except Exception as e:
                 if debug:
-                    w_assign([not t for t in targets])
+                    w_assign(targets)
                     raise e
 
-            # reassign the parameters to the inverse of the targets
-            w_assign([not t for t in targets])
+            # reassign the parameters to the targets
+            w_assign(targets)
 
         return wrapper_switch
 
