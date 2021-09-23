@@ -359,7 +359,9 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
             if not len(targets):
                 w = on_widgets[0] if len(on_widgets) else self
-                targets = [getattr(w, p) for p in params]
+                targets_ = [getattr(w, p) for p in params]
+            else:
+                targets_ = targets
 
             if len(on_widgets):
 
@@ -403,7 +405,7 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
                         setattr(self, p, bool_targets[i])
 
             # assgn the parameters to the target inverse
-            w_assign([not t for t in targets])
+            w_assign([not t for t in targets_])
 
             # execute the function and catch errors
             try:
@@ -411,11 +413,11 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
             except Exception as e:
                 if debug:
-                    w_assign(targets)
+                    w_assign(targets_)
                     raise e
 
             # reassign the parameters to the targets
-            w_assign(targets)
+            w_assign(targets_)
 
         return wrapper_switch
 
