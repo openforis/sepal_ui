@@ -357,16 +357,26 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
 
-            # crezate the list of target values based on the target list
+            widgets_len = len(on_widgets)
+            targets_len = len(targets)
+
+            # sanity check on targets and on_widgets
+            if widgets_len and targets_len:
+                if widgets_len != targets_len:
+                    raise IndexError(
+                        f'the length of "on_widgets" ({widgets_len}) is different from the length of "targets" ({targets_len})'
+                    )
+
+            # create the list of target values based on the target list
             # or the initial values of the widgets params
             # The first one is taken as reference
-            if not len(targets):
-                w = getattr(self, on_widgets[0]) if len(on_widgets) else self
+            if not targets_len:
+                w = getattr(self, on_widgets[0]) if widgets_len else self
                 targets_ = [bool(getattr(w, p)) for p in params]
             else:
                 targets_ = targets
 
-            if len(on_widgets):
+            if widgets_len:
 
                 # Verify that the input elements are strings
                 wrong_types = [
