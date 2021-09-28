@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import re 
+import re
 from pathlib import Path
 import subprocess
 import json
@@ -8,123 +8,137 @@ from distutils.util import strtobool
 
 from colorama import init, Fore, Style
 
-#init colors for all plateforms
+# init colors for all plateforms
 init()
+
 
 def set_default_readme(folder, module_name, description, repository):
     """write a default README.md file and overwrite the existing one"""
-    
-    print('Write a default README.md file')
-    
+
+    print("Write a default README.md file")
+
     license = f"{repository.replace('.git','')}/blob/master/LICENSE"
-    
-    file = folder/'README.md'
+
+    file = folder / "README.md"
     with file.open("w") as readme:
-        
-        readme.write(f'# {module_name}  \n')
-        readme.write(f'[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n')
-        readme.write('  \n')
-        readme.write('## About  \n')
-        readme.write('  \n')
-        readme.write(f'{description}  \n')
-    
-    return 
+
+        readme.write(f"# {module_name}  \n")
+        readme.write(
+            f"[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n"
+        )
+        readme.write("  \n")
+        readme.write("## About  \n")
+        readme.write("  \n")
+        readme.write(f"{description}  \n")
+
+    return
+
 
 def set_default_about(folder, description):
     """write a default ABOUT.md file and overwrite the existing one"""
-    
-    print('Write a default ABOUT.md file')
-    
-    file = folder/'utils'/'ABOUT.md'
+
+    print("Write a default ABOUT.md file")
+
+    file = folder / "utils" / "ABOUT.md"
     with file.open("w") as about:
-        
-        about.write(f'{description}  \n')
-        
+
+        about.write(f"{description}  \n")
+
     return
+
 
 def set_module_name(folder, module_name):
     """use the module name in the different translation dictionaries"""
-    
-    print('Update the module name in the json translation dictionaries')
-    
-    #loop in the available languages
-    languages = ['en', 'fr']
+
+    print("Update the module name in the json translation dictionaries")
+
+    # loop in the available languages
+    languages = ["en", "fr"]
     for lang in languages:
-    
-        file = folder/'component'/'message'/f'{lang}.json'
-        
+
+        file = folder / "component" / "message" / f"{lang}.json"
+
         with file.open("r") as f:
             data = json.load(f)
 
-        data['app']['title'] = module_name
+        data["app"]["title"] = module_name
 
         with file.open("w") as f:
             json.dump(data, f, indent=4)
-            
+
     return
+
 
 def set_contribute_file(folder, repository, module_name):
     """complete the contributing file with the appropriate informations"""
-    
-    print('Update the module name in the contribute file')
-    
-    contrib = folder/'CONTRIBUTE.md'
-    
+
+    print("Update the module name in the contribute file")
+
+    contrib = folder / "CONTRIBUTE.md"
+
     with contrib.open() as f:
         data = f.read()
-        
-    data = data.replace('SEPAL_UI_TEMPLATE', module_name)
-    data = data.replace('https://github.com/12rambau/sepal_ui_template.git', repository)
-    
-    with contrib.open('w') as f:
+
+    data = data.replace("SEPAL_UI_TEMPLATE", module_name)
+    data = data.replace("https://github.com/12rambau/sepal_ui_template.git", repository)
+
+    with contrib.open("w") as f:
         f.write(data)
-        
+
     return
+
 
 def set_module_name_doc(folder, repository, module_name):
     """set the module name in each documentation file and set the appropriate repository in the link"""
-    
-    # loop in the available languages 
-    languages = ['fr', 'en', 'es']
+
+    # loop in the available languages
+    languages = ["fr", "en", "es"]
     for lang in languages:
-        
-        file = folder/'doc'/f'{lang}.rst'
-        
+
+        file = folder / "doc" / f"{lang}.rst"
+
         with file.open() as f:
             text = f.read()
-            
+
         text = text.replace("Module_name", module_name)
-        text = text.replace("===========", "="*len(module_name))
-        text = text.replace("https://github.com/12rambau/sepal_ui_template", repository.replace('.git', ''))
-        
-        with file.open('w') as f:
+        text = text.replace("===========", "=" * len(module_name))
+        text = text.replace(
+            "https://github.com/12rambau/sepal_ui_template",
+            repository.replace(".git", ""),
+        )
+
+        with file.open("w") as f:
             f.write(text)
     return
 
+
 def set_drawer_link(folder, repository):
     """replace the reference to the default repository to the one provided by the use"""
-    
-    print('Update the drawers link with the new repository one')
-    
+
+    print("Update the drawers link with the new repository one")
+
     # get the ui file
-    ui = folder/'ui.ipynb'
-    
-    # read the file 
+    ui = folder / "ui.ipynb"
+
+    # read the file
     with ui.open() as f:
         ui_content = f.read()
-        
-    # replace the target strings 
-    ui_content = ui_content.replace('https://github.com/12rambau/sepal_ui_template', repository.replace('.git', ''))
-    
-    # write everything down again 
-    with ui.open('w') as f:
+
+    # replace the target strings
+    ui_content = ui_content.replace(
+        "https://github.com/12rambau/sepal_ui_template", repository.replace(".git", "")
+    )
+
+    # write everything down again
+    with ui.open("w") as f:
         f.write(ui_content)
-        
-    return 
-    
+
+    return
+
+
 if __name__ == "__main__":
-    
-    # welcome the user 
+
+    # welcome the user
     print(Fore.YELLOW)
     print("##################################")
     print("#                                #")
@@ -133,7 +147,9 @@ if __name__ == "__main__":
     print("##################################")
     print(Fore.RESET)
     print(f"Welcome in the {Style.BRIGHT}module factory{Style.NORMAL} interface.")
-    print("This interface will help you building a dashboard app based on the sepal_ui library")
+    print(
+        "This interface will help you building a dashboard app based on the sepal_ui library"
+    )
     print("Please read the documentation of the library before launching this script")
     print()
     print()
@@ -141,96 +157,146 @@ if __name__ == "__main__":
     print("Initializing module creation by setting up your module parameters")
     print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
     print()
-    
-    # ask the name of the module 
-    module_name = input(f'{Fore.CYAN}Provide a module name: \n{Fore.RESET}')
+
+    # ask the name of the module
+    module_name = input(f"{Fore.CYAN}Provide a module name: \n{Fore.RESET}")
     if not module_name:
         raise Exception(f"{Fore.RED}A module name should be set")
-        
-    # set the module github URL 
-    github_url = input(f'{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}')
+
+    # set the module github URL
+    github_url = input(
+        f"{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}"
+    )
     if not github_url:
-        raise Exception(f"{Fore.RED}A module name should be set with an asociated github repository")
-        
-    # ask for a short description 
-    description = input(f'{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}')
-    
+        raise Exception(
+            f"{Fore.RED}A module name should be set with an asociated github repository"
+        )
+
+    # ask for a short description
+    description = input(
+        f"{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}"
+    )
+
     # default to the default branch (obviously)
-    branch = 'default'
-    
-    # ask if the user need the default function 
-    default = input(f'{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.RESET}')
+    branch = "default"
+
+    # ask if the user need the default function
+    default = input(
+        f"{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.RESET}"
+    )
     if not strtobool(default):
-        branch= 'no_default'
-        
-        # ask if the user need the aoi 
-        aoi = input(f'{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}')
+        branch = "no_default"
+
+        # ask if the user need the aoi
+        aoi = input(
+            f"{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}"
+        )
         if not strtobool(aoi):
-            branch = 'no_aoi'
-    
+            branch = "no_aoi"
+
+        else:
+
+            gee = input(
+                f"{Fore.CYAN}Do you need a connection to GEE in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}"
+            )
+            if not strtobool(gee):
+                branch = "no_gee"
+
     # adapt the name of the module to remove any special characters and spaces
-    normalized_name = re.sub('[^a-zA-Z\d\-\_]', '_', module_name)
-    
+    normalized_name = re.sub("[^a-zA-Z\d\-\_]", "_", module_name)
+
     print()
     print("Build the module init configuration")
     print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
     print()
-    
-    # clone the repository in a folder that has the normalized module name 
-    folder = Path.cwd()/normalized_name
+
+    # clone the repository in a folder that has the normalized module name
+    folder = Path.cwd() / normalized_name
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
-    command = ['git', 'clone', '--single-branch', '--branch', branch, template_url, str(folder)]
+    command = [
+        "git",
+        "clone",
+        "--single-branch",
+        "--branch",
+        branch,
+        template_url,
+        str(folder),
+    ]
     res = subprocess.run(command, cwd=Path.cwd())
-    
-    # remove the .git folder 
-    command = ["rm", "-rf", str(folder/'.git')]
+
+    # remove the .git folder
+    command = ["rm", "-rf", str(folder / ".git")]
     res = subprocess.run(command, cwd=Path.cwd())
-    
-    # replace the placeholders 
+
+    # replace the placeholders
     set_default_readme(folder, module_name, description, github_url)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
     set_drawer_link(folder, github_url)
     set_module_name_doc(folder, github_url, module_name)
     set_contribute_file(folder, github_url, module_name)
-    
+
     # init the new git repository
-    command = ['git', 'init']
+    command = ["git", "init"]
     res = subprocess.run(command, cwd=folder)
-    
+
     # add the configuration of the git repository
-    # create strange behavior I need to check again
-    #command = ['git', 'config', '--local', 'include.path', '../.gitconfig']
-    #res = subprocess.run(command, cwd=folder)
-    
+    command = ["pre-commit", "install"]
+    res = subprocess.run(command, cwd=folder)
+
+    # The dev version of black is used in sepal_ui_template so we cannot autoupdate yet
+    # command = ["pre-commit", "autoupdate"]
+    # res = subprocess.run(command, cwd=folder)
+
     # add all the files in the git repo
-    command = ['git', 'add', '.']
+    command = ["git", "add", "."]
     res = subprocess.run(command, cwd=folder)
-    
-    # first commit 
-    command = ['git', 'commit', '-m', "first commit"]
+
+    # first commit
+    command = ["git", "commit", "-m", "first commit"]
     res = subprocess.run(command, cwd=folder)
-    
-    # create a branch   
-    command = ['git', 'branch', '-M', 'master']
+
+    # create a branch
+    command = ["git", "branch", "-M", "master"]
     res = subprocess.run(command, cwd=folder)
-    
-    # add the remote 
-    command = ['git', 'remote', 'add', 'origin', github_url]
+
+    # add the remote
+    command = ["git", "remote", "add", "origin", github_url]
     res = subprocess.run(command, cwd=folder)
-    
-    # make the first push 
-    command = ['git', 'push', '-u', 'origin', 'master']
+
+    # make the first push
+    command = ["git", "push", "-u", "origin", "master"]
     res = subprocess.run(command, cwd=folder)
-    
+
+    # create a release branch and push it to the server
+    command = ["git", "checkout", "-b", "release"]
+    res = subprocess.run(command, cwd=folder)
+
+    command = ["git", "push", "--set-upstream", "origin", "release"]
+    res = subprocess.run(command, cwd=folder)
+
+    # checkout to master
+    command = ["git", "checkout", "master"]
+    res = subprocess.run(command, cwd=folder)
+
     # exit message
     print(Fore.YELLOW)
-    print('WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created')
-    print("If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues")
+    print(
+        "WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
+    )
+    print(
+        "If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues"
+    )
     print(Fore.GREEN)
-    print(f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}")
-    print(f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment.")
-    print("To go further in the development of your application you can have a look at the sepalizing documentation.")
+    print(
+        f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
+    )
+    print(
+        f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment."
+    )
+    print(
+        "To go further in the development of your application you can have a look at the sepalizing documentation."
+    )
     print()
     print("Let's code !")
     print(Fore.RESET)

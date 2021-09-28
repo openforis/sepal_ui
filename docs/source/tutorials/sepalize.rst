@@ -6,7 +6,7 @@ Sepalizing is a 2 step process that will be presented in this tutorial through t
 
 .. tip::
     
-    If your workflow is using CLI or is already in python (notebook) you don't need to read the first one and can directly jump to "wire my process to a tile"
+    If your workflow is using CLI or is already in python (notebook) you don't need to read the first section and can directly jump to "wire my process to a tile"
 
 From GEE to Python
 ------------------
@@ -15,7 +15,7 @@ Most of the process that requires sepalization are based on Google Earth Engine 
 Fortunately the Seapl framework can use the Earth Engine Python API so anything that exist in Javascript can be translated into python ! 
 
 For this tutorial we will translate the following script. It analyses the cloud coverage on top of an selected AOI between 2 dates. 
-The script provide both images and plots. It is available `here <https://code.earthengine.google.com/8d5747ccd50da69aef3fa56d87fb626a>`_.  
+The script provide both images and plots. It is available `here <https://code.earthengine.google.com/8d5747ccd50da69aef3fa56d87fb626a>`__.  
 
 .. code-block:: javascript
 
@@ -252,7 +252,7 @@ Now we want to get the images collection that will be used for the rest of the p
 display the results on a map 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-to display our result we will use the SepalMap class embedded in the sepal_ui :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <#>`_.
+to display our result we will use the :code:`SepalMap` class embedded in the sepal_ui :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <../modules/sepal_ui.mapping.html#Ssepal_ui.mapping.sepalMap>`__.
 
 At the bottom of the script you see some visualization parameters. These parameters needs to be set in the :code:`parameter` component. 
 
@@ -437,7 +437,7 @@ here we will launch a function on every click on it:
         return self
 
 
-Some explanation on what we just coded. The :code:`on_event` method is linking the button Javascripts behavior to the python function. a complete list of Javascript's events can be found `here <https://developer.mozilla.org/en-US/docs/Web/Events>`_.
+Some explanation on what we just coded. The :code:`on_event` method is linking the button Javascripts behavior to the python function. a complete list of Javascript's events can be found `here <https://developer.mozilla.org/en-US/docs/Web/Events>`__.
 this event is linked to a callback function. This function can only have 3 arguments : 
 
 - widget: the widget that thrown the event
@@ -453,8 +453,8 @@ A process should look like the following :
     def _on_click(self, widget, event, data):
             
         # check that the input that you're gonna use are set (Not mandatory)
-        if not self.output.check_input(self.aoi_io.get_aoi_name()): return widget.toggle_loading()
-        if not self.output.check_input(self.io.year): return widget.toggle_loading()
+        if not self.output.check_input(self.aoi_io.get_aoi_name()): return
+        if not self.output.check_input(self.io.year): return
        
         # do stuff 
         

@@ -19,8 +19,13 @@ sphinx-notfound-page>=0.6
 Sphinx>=3.5.1
 sphinxcontrib-spelling
 Unidecode
-nbsphinx
 pandoc
 ipykernel
 sphinx-copybutton
 sepal_ui
+natsort
+pipreqs
+black
+pre-commit
+pytest
+git+git://github.com/jupyter/jupyter-sphinx.git

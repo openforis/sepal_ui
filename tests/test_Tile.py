@@ -1,148 +1,177 @@
-import unittest
-import os
+from pathlib import Path
 
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 
-class TestTile(unittest.TestCase):
-    
+
+class TestTile:
     def test_init(self):
-        
-        #default init
+
+        # default init
         id_ = "id"
         title = "title"
         tile = sw.Tile(id_, title)
-        
-        self.assertIsInstance(tile, sw.Tile)
-        self.assertEqual(tile.children[0].children[0].children[0], title)
-        self.assertEqual(len(tile.children[0].children), 2)
-        
-        
-        #exhaustive 
+
+        assert isinstance(tile, sw.Tile)
+        assert tile.children[0].children[0].children[0] == title
+        assert len(tile.children[0].children) == 2
+
+        # exhaustive
         btn = sw.Btn()
         alert = sw.Alert()
-        tile = sw.Tile(id_, title, [''], btn, alert)
-        self.assertIsInstance(tile, sw.Tile)
-        self.assertEqual(len(tile.children[0].children), 4)
-        
+        tile = sw.Tile(id_, title, [""], btn, alert)
+        assert isinstance(tile, sw.Tile)
+        assert len(tile.children[0].children) == 4
+
         return
-    
+
     def test_set_content(self):
-        
+
         id_ = "id"
         title = "title"
-        tile = sw.Tile(id_, title, alert = sw.Alert(), btn = sw.Btn())
-        
+        tile = sw.Tile(id_, title, alert=sw.Alert(), btn=sw.Btn())
+
         input_ = v.Slider()
-        
+
         res = tile.set_content([input_])
-        
-        self.assertEqual(res, tile)
-        self.assertEqual(tile.children[0].children[0].children[0], title)
-        self.assertEqual(tile.children[0].children[1].children[0], input_)
-        
-        return 
-    
+
+        assert res == tile
+        assert tile.children[0].children[0].children[0] == title
+        assert tile.children[0].children[1].children[0] == input_
+
+        return
+
     def test_set_title(self):
-        
+
         id_ = "id"
         title = "title"
         input_ = v.Slider()
         tile = sw.Tile(id_, title, [input_])
-        
+
+        # add a title
         title2 = "title2"
         res = tile.set_title(title2)
-        
-        self.assertEqual(res, tile)
-        self.assertEqual(tile.children[0].children[0].children[0], title2)
-        self.assertEqual(tile.children[0].children[1].children[0], input_)
-        
-        return 
-    
+
+        assert res == tile
+        assert tile.children[0].children[0].children[0] == title2
+        assert tile.children[0].children[1].children[0] == input_
+
+        # remove a title
+        res = tile.set_title()
+        assert res == tile
+        assert tile.children[0].children[0].children[0] == input_
+
+        # add a title after removing it
+        res = tile.set_title(title2)
+        assert tile.children[0].children[0].children[0] == title2
+        assert tile.children[0].children[1].children[0] == input_
+
+        return
+
+    def test_nest(self):
+
+        id_ = "id"
+        title = "title"
+        input_ = v.Slider()
+        tile = sw.Tile(id_, title, [input_])
+
+        # nest the tile
+        res = tile.nest()
+
+        assert res == tile
+        assert tile._metadata["mount_id"] == "nested_tile"
+        assert tile.elevation == False
+        assert len(tile.children[0].children) == 1
+
+        return
+
     def test_hide(self):
-        
+
         id_ = "id"
         title = "title"
         tile = sw.Tile(id_, title)
-        
+
         res = tile.hide()
-        
-        self.assertEqual(res, tile)
-        self.assertFalse(tile.viz)
-        self.assertNotIn('d-inline', str(tile.class_).strip())
-        
+
+        assert res == tile
+        assert tile.viz == False
+        assert not "d-inline" in tile.class_
+
+        return
+
     def test_show(self):
-        
+
         id_ = "id"
         title = "title"
         tile = sw.Tile(id_, title).hide()
-        
+
         res = tile.show()
-        
-        self.assertEqual(res, tile)
-        self.assertTrue(tile.viz)
-        self.assertIn('d-inline', str(tile.class_).strip())
-        
-        return 
-    
+
+        assert res == tile
+        assert tile.viz == True
+        assert "d-inline" in tile.class_
+
+        return
+
     def test_toggle_inputs(self):
-        
+
         inputs = []
         for i in range(5):
             inputs.append(v.Slider())
-            
+
         input_2_show = v.Slider()
         inputs.append(input_2_show)
-        
+
         id_ = "id"
         title = "title"
         tile = sw.Tile(id_, title, inputs)
-        
+
         res = tile.toggle_inputs([input_2_show], inputs)
-        
-        self.assertEqual(res, tile)
-        
+
+        assert res == tile
+
         for input_ in inputs:
             if input_ == input_2_show:
-                self.assertNotIn('d-none', str(input_.class_).strip())
+                assert not "d-none" in str(input_.class_)
             else:
-                self.assertIn('d-none', str(input_.class_).strip())
-        
+                assert "d-none" in input_.class_
+
         return
-    
+
     def test_get_id(self):
-        
+
         id_ = "id"
-        tile = sw.Tile(id_, "title", [''])
-        
-        self.assertEqual(tile.get_id(), id_)
-        
+        tile = sw.Tile(id_, "title", [""])
+
+        assert tile.get_id() == id_
+
         return
-    
+
     def test_tile_about(self):
-        
-        pathname = os.path.join(os.path.dirname(__file__), '..', 'sepal_ui', 'scripts', 'disclaimer.md')
-        
+
+        pathname = (
+            Path(__file__).parent / ".." / "sepal_ui" / "scripts" / "disclaimer.md"
+        )
+
         tile = sw.TileAbout(pathname)
-        
-        self.assertIsInstance(tile, sw.TileAbout)
-        self.assertEqual(tile._metadata['mount_id'], 'about_tile')
-        
-        ##########################################
-        ##      didn't add a test pathname      ##
-        ##########################################
-        
-        return 
-    
-    def test_tile_disclaimer(self):
-        
-        tile = sw.TileDisclaimer()
-        
-        self.assertIsInstance(tile, sw.TileDisclaimer)
-        self.assertEqual(tile._metadata['mount_id'], 'about_tile')
-        
+
+        assert isinstance(tile, sw.TileAbout)
+        assert tile._metadata["mount_id"] == "about_tile"
+
+        # check with str path
+        tile = sw.TileAbout(str(pathname))
+
+        assert isinstance(tile, sw.TileAbout)
+        assert tile._metadata["mount_id"] == "about_tile"
+
         return
-    
-if __name__ == '__main__':
-    unittest.main()
+
+    def test_tile_disclaimer(self):
+
+        tile = sw.TileDisclaimer()
+
+        assert isinstance(tile, sw.TileDisclaimer)
+        assert tile._metadata["mount_id"] == "about_tile"
+
+        return
