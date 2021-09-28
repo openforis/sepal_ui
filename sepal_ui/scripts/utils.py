@@ -338,7 +338,7 @@ def to_colors(in_color, out_type="hex"):
     return transform(out_color)
 
 
-def switch(*params, debug=True, on_widgets=[]):
+def switch(*params, debug=True, on_widgets=[], targets=[]):
     """
     Decorator to switch the state of input boolean parameters on class widgets or the
     class itself. If on_widgets is defined, it will switch the state of every widget
@@ -348,7 +348,8 @@ def switch(*params, debug=True, on_widgets=[]):
     Args:
         *params (str): any boolean parameter of a SepalWidget.
         debug (bool): Whether trigger or not an Exception if the decorated function fails.
-        on_widgets (list(widget_names,)): List of widget names into the class
+        on_widgets (list(widget_names,)|optional): List of widget names into the class
+        targets (list(bool,)|optional); list of the target value (value taht will be set on switch. default to the inverse of the current state.
 
     """
 
@@ -356,7 +357,26 @@ def switch(*params, debug=True, on_widgets=[]):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
 
-            if len(on_widgets):
+            widgets_len = len(on_widgets)
+            targets_len = len(targets)
+
+            # sanity check on targets and on_widgets
+            if widgets_len and targets_len:
+                if widgets_len != targets_len:
+                    raise IndexError(
+                        f'the length of "on_widgets" ({widgets_len}) is different from the length of "targets" ({targets_len})'
+                    )
+
+            # create the list of target values based on the target list
+            # or the initial values of the widgets params
+            # The first one is taken as reference
+            if not targets_len:
+                w = getattr(self, on_widgets[0]) if widgets_len else self
+                targets_ = [bool(getattr(w, p)) for p in params]
+            else:
+                targets_ = targets
+
+            if widgets_len:
 
                 # Verify that the input elements are strings
                 wrong_types = [
@@ -380,28 +400,37 @@ def switch(*params, debug=True, on_widgets=[]):
                         f"The provided {missing_widgets} widget(s) does not exist in the current class"
                     )
 
-                def w_assign():
-                    for (w_name, p) in product(on_widgets, params):
+                def w_assign(bool_targets):
+
+                    params_targets = [
+                        (p, bool_targets[i]) for i, p in enumerate(params)
+                    ]
+
+                    for (w_name, p_t) in product(on_widgets, params_targets):
+                        param, target = p_t
                         widget = getattr(self, w_name)
-                        setattr(widget, p, not getattr(widget, p))
+                        setattr(widget, param, target)
 
             else:
 
-                def w_assign():
-                    for p in params:
-                        setattr(self, p, not getattr(self, p))
+                def w_assign(bool_targets):
+                    for i, p in enumerate(params):
+                        setattr(self, p, bool_targets[i])
 
-            w_assign()
+            # assgn the parameters to the target inverse
+            w_assign([not t for t in targets_])
 
+            # execute the function and catch errors
             try:
                 func(self, *args, **kwargs)
 
             except Exception as e:
                 if debug:
-                    w_assign()
+                    w_assign(targets_)
                     raise e
 
-            w_assign()
+            # reassign the parameters to the targets
+            w_assign(targets_)
 
         return wrapper_switch
 
