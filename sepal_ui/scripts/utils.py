@@ -357,9 +357,12 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
 
+            # crezate the list of target values based on the target list
+            # or the initial values of the widgets params
+            # The first one is taken as reference
             if not len(targets):
-                w = on_widgets[0] if len(on_widgets) else self
-                targets_ = [getattr(w, p) for p in params]
+                w = getattr(self, on_widgets[0]) if len(on_widgets) else self
+                targets_ = [bool(getattr(w, p)) for p in params]
             else:
                 targets_ = targets
 
@@ -390,7 +393,7 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
                 def w_assign(bool_targets):
 
                     params_targets = [
-                        tuple(p, bool_targets[i]) for i, p in enumerate(params)
+                        (p, bool_targets[i]) for i, p in enumerate(params)
                     ]
 
                     for (w_name, p_t) in product(on_widgets, params_targets):
