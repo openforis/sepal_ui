@@ -3,7 +3,7 @@ from markdown import markdown
 from traitlets import Unicode, Any
 from ipywidgets import link
 
-__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip", "Clip"]
+__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip", "CopyToClip"]
 
 TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
 
@@ -147,7 +147,7 @@ class Tooltip(v.Tooltip):
         super().__setattr__(name, value)
 
 
-class Clip(v.VuetifyTemplate):
+class CopyToClip(v.VuetifyTemplate):
     """
     Custom textField that provides a handy copy-to-clipboard javascript behaviour.
     When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.

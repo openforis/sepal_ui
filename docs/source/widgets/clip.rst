@@ -1,10 +1,10 @@
-Copy to clipboard
-=================
+CopyToClip
+==========
 
 Overview
 --------
 
-:code:`Clip` is a custom textField that provides a handy copy-to-clipboard javascript behaviour. When the clipboard btn is clicked the :code:`v_model` will be copied in the local browser clipboard. You just have to change the clipboard :code:`v_model`before displaying it to the end user to have a custom value. When copied, the icon change from a copy to a check.
+:code:`CopyToClip` is a custom textField that provides a handy copy-to-clipboard javascript behaviour. When the clipboard btn is clicked the :code:`v_model` will be copied in the local browser clipboard. You just have to change the clipboard :code:`v_model`before displaying it to the end user to have a custom value. When copied, the icon change from a copy to a check.
 Any argument from the original :code:`TextField` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute:: 
@@ -16,7 +16,7 @@ Any argument from the original :code:`TextField` ipyvuetify class can be used to
     import ipyvuetify as v
     v.theme.dark = False
 
-    clip = sw.Clip(v_model="toto")
+    clip = sw.CopyToClip(v_model="toto")
     clip
 
 You can also dynamically change the :code:`v_model` value. 
@@ -34,10 +34,10 @@ You can also dynamically change the :code:`v_model` value.
     import ipyvuetify as v
     v.theme.dark = False
 
-    clip = sw.Clip()
+    clip = sw.CopyToClip()
     clip.v_model = "toto"
     clip
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.Clip>`__.
+    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.CopyToClip>`__.

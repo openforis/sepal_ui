@@ -7,14 +7,14 @@ class TestClip:
     def test_init(self):
 
         # minimal clip
-        clip = sw.Clip()
+        clip = sw.CopyToClip()
         assert clip.tf.outlined == True
         assert isinstance(clip.tf.label, str)
         assert clip.tf.append_icon == "mdi-clipboard-outline"
         assert clip.tf.v_model == None
 
         # clip with extra options
-        clip = sw.Clip(outlined=False, dense=True)
+        clip = sw.CopyToClip(outlined=False, dense=True)
         assert clip.tf.outlined == False
         assert clip.tf.dense == True
 
@@ -22,7 +22,7 @@ class TestClip:
 
     def test_copy(self):
 
-        clip = sw.Clip(v_model="value")
+        clip = sw.CopyToClip(v_model="value")
         clip.tf.fire_event("click:append", None)
 
         # I don't know how to check the clipboard
@@ -38,7 +38,7 @@ class TestClip:
         test_value = "toto"
 
         # change the widget value
-        clip = sw.Clip()
+        clip = sw.CopyToClip()
         clip.v_model = test_value
 
         # check
