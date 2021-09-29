@@ -8,6 +8,7 @@ Overview
 Any argument from the original :code:`TextField` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute:: 
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -25,7 +26,8 @@ You can also dynamically change the :code:`v_model` value.
 
     The :code:`TextField` widget is in readonly mode to aoid modifications from the end user.
     
-.. jupyter-execute:: 
+.. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     

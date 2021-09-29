@@ -8,6 +8,7 @@ Overview
 Any argument from the original :code:`Card` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -39,6 +40,7 @@ nest
 Prepare the tile to be used as a nested component in a tile. The elevation will be set to 0 and the title remove from children. The mount_id will also be changed to "nested".
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -63,6 +65,7 @@ set_content
 Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -87,6 +90,7 @@ set_title
 Replace the current title and activate it. If no title is provided, the title is removed from the tile content.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -111,6 +115,7 @@ get_title
 Return the current title of the tile
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -135,6 +140,7 @@ toggle_inputs
 Display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 

@@ -9,6 +9,7 @@ Any argument from the original :code:`Btn` ipyvuetify class can be used to compl
 The default color is set to "primary".  
 
 .. jupyter-execute:: 
+    :raises:
 
     from sepal_ui import sepalwidgets as sw 
     
@@ -28,7 +29,8 @@ Methods
 
 Btn can be used to launch function on any Javascript event such as "click".
 
-.. jupyter-execute:: 
+.. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw 
     

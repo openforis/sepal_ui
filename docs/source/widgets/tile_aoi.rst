@@ -10,6 +10,7 @@ If you use a custom AOI, it will create a asset in you gee account with the name
 It inherits from the :code:`SepalWidget` class. Any argument from the original :code:`Card` ipyvuetify class can be used to complement it. You can choose either or not you want to use the gee binding.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import aoi 
     
