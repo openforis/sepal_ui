@@ -175,6 +175,8 @@ class Clip(v.VuetifyTemplate):
             kwargs["append_icon"] = "mdi-clipboard-outline"
         if "v_model" not in kwargs:
             kwargs["v_model"] = None
+        if "class_" not in kwargs:
+            kwargs["class_"] = "ma-5"
 
         # set the default v_model
         self.v_model = kwargs["v_model"]
