@@ -1,28 +1,31 @@
-import ipyvuetify as v
-from traitlets import Int, Unicode
 from IPython.display import display
+import ipyvuetify as v
 
 
 class ResizeTrigger(v.VuetifyTemplate):
+    def __init__(self):
 
-    js_command = """ 
-        <script>
-            modules.export = {
-                watch: {
-                    resize() {
+        self.template = """
+            <script>
+                {methods: {
+                    jupyter_resize(){
                         window.dispatchEvent(new Event('resize'));
-                     }
-                 }
-             }
-        </script>
-    """
+                    }
+                }}
+            </script>
+        """
 
-    js_command = "".join(js_command.split())
+        super().__init__()
 
-    template = Unicode(js_command).tag(sync=True)
+    def resize(self):
 
-    resize = Int(0).tag(sync=True)
+        self.send({"method": "resize"})
+
+        return
 
 
+# create one single resizetrigger that will be used as a singleton everywhere
+# singletons are bad but if we display multiple instances of rt for every DrawItem
+# the initial offset will be impossible to manage
 rt = ResizeTrigger()
-# display(rt)
+display(rt)
