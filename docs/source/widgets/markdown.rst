@@ -7,6 +7,7 @@ Overview
 :code:`Markdown` is a widget to display `markdown <https://www.markdownguide.org/basic-syntax/>`_ flavored strings. it inherits from the :code:`SepalWidget` class.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw 
     
@@ -49,6 +50,7 @@ in :code:`en.json` use a list in your key with each element of the list correspo
 Then In your notebook you can call the key in a markdown widget and display it as multi-line text:
 
 .. jupyter-execute:: 
+    :raises:
 
     from sepal_ui import sepalwidgets as sw 
     

@@ -9,6 +9,7 @@ Overview
 In the following example we create a fake file on the fly and use it to display somme text in a :code:`AboutTile`. 
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path 
@@ -29,11 +30,7 @@ In the following example we create a fake file on the fly and use it to display 
     
 .. tip:: 
 
-<<<<<<< HEAD
-    The file should be starting with a level 2 header as the title of the tile ("About") is already using the level 1
-=======
-    The file should be starting with a level 2 header (`-`) as the title of the tile ("About") is already using the level 1.
->>>>>>> 1e06332158e609c67ea699c42646442fe522d4df
+    The file should be starting with a level 2 header (##) as the title of the tile ("About") is already using the level 1
 
 .. note::
 

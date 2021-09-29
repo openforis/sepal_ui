@@ -8,7 +8,8 @@ Overview
 Any argument from the original :code:`Combobox` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute:: 
-
+    :raises:
+    
     from sepal_ui import sepalwidgets as sw
     
     # correct colors for the documentation 
