@@ -1,8 +1,9 @@
 import ipyvuetify as v
 from markdown import markdown
-from traitlets import Unicode
+from traitlets import Unicode, Any
+from ipywidgets import link
 
-__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip"]
+__all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip", "Clip"]
 
 TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
 
@@ -146,11 +147,6 @@ class Tooltip(v.Tooltip):
         super().__setattr__(name, value)
 
 
-import ipyvuetify as v
-from traitlets import Any
-from ipywidgets import link
-
-
 class Clip(v.VuetifyTemplate):
     """
     Custom textField that provides a handy copy-to-clipboard javascript behaviour.
@@ -198,7 +194,7 @@ class Clip(v.VuetifyTemplate):
                     document.body.appendChild(tempInput);
                     tempInput.focus();
                     tempInput.select();
-                    alert(document.execCommand("copy"));
+                    document.execCommand("copy");
                     document.body.removeChild(tempInput); 
                 }
             }}
