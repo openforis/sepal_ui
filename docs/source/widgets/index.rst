@@ -37,6 +37,7 @@ In this section, an example of each of our component will be given. You should r
     sepal_widget
     markdown
     tooltip
+    clip
     
     alert
     statebar
