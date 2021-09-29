@@ -144,3 +144,72 @@ class Tooltip(v.Tooltip):
                     f"You can't modify the attributes of the {self.__class__} after instantiated"
                 )
         super().__setattr__(name, value)
+
+
+import ipyvuetify as v
+from traitlets import Any
+from ipywidgets import link
+
+
+class Clip(v.VuetifyTemplate):
+    """
+    Custom textField that provides a handy copy-to-clipboard javascript behaviour.
+    When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
+
+    Args:
+        kwargs: any argument that can be used with a v.TextField
+
+    Attributes:
+        tf (v.TextField): the textfield widget that holds the v_model to copy
+        v_model (Any trait): a v_model trait that embed the string to copy
+    """
+
+    v_model = Any(None).tag(sync=True)
+
+    def __init__(self, **kwargs):
+
+        # add the default params to kwargs
+        if "outlined" not in kwargs:
+            kwargs["outlined"] = True
+        if "label" not in kwargs:
+            kwargs["label"] = "Copy to clipboard"
+        if "readonly" not in kwargs:
+            kwargs["readonly"] = True
+        if "append_icon" not in kwargs:
+            kwargs["append_icon"] = "mdi-clipboard-outline"
+        if "v_model" not in kwargs:
+            kwargs["v_model"] = None
+
+        # set the default v_model
+        self.v_model = kwargs["v_model"]
+
+        # create component
+        self.tf = v.TextField(**kwargs)
+        self.components = {"mytf": self.tf}
+
+        # template with js behaviour
+        self.template = """
+        <mytf/>
+        <script> 
+            {methods: {
+                jupyter_clip(_txt) {
+                    var tempInput = document.createElement("input");
+                    tempInput.value = _txt;
+                    document.body.appendChild(tempInput);
+                    tempInput.focus();
+                    tempInput.select();
+                    alert(document.execCommand("copy"));
+                    document.body.removeChild(tempInput); 
+                }
+            }}
+        </script>"""
+
+        super().__init__()
+
+        # js behaviour
+        self.tf.on_event("click:append", self._clip)
+        link((self, "v_model"), (self.tf, "v_model"))
+
+    def _clip(self, widget, event, data):
+        self.send({"method": "clip", "args": [self.tf.v_model]})
+        self.tf.append_icon = "mdi-check"
