@@ -3,8 +3,7 @@ from datetime import datetime
 
 from ipywidgets import jslink
 import ipyvuetify as v
-from deprecated import deprecated
-from deprecated import sphinx
+from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, List, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
@@ -231,7 +230,6 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
-    @sphinx.deprecated(version="2.1.0", reason="use a Model object instead")
     @deprecated(version="2.1.0", reason="use a Model object instead")
     def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
         """

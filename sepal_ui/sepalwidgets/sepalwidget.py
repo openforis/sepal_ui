@@ -84,7 +84,6 @@ class SepalWidget(v.VuetifyWidget):
         return self
 
 
-@versionadded(version="2.2.0", reason="New clipping widget")
 class Markdown(v.Layout, SepalWidget):
     """
     Custom Layout based on the markdown text given
@@ -149,6 +148,7 @@ class Tooltip(v.Tooltip):
         super().__setattr__(name, value)
 
 
+@versionadded(version="2.2.0", reason="New clipping widget")
 class CopyToClip(v.VuetifyTemplate):
     """
     Custom textField that provides a handy copy-to-clipboard javascript behaviour.
