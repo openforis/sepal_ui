@@ -1,8 +1,43 @@
-## v_2.1.1
+## v_2.2.1 (2021-09-30)
+
+### Fix
+
+- typo in version naming
+
+## v_2.2.0 (2021-09-30)
+
+### Fix
+
+- use ssh url in module_factory Fix #283
+- typo
+- clip margins
+- use RPC to serve the resize method
+- catch when on_widget and targets have different length
+- get the widget instead of the widget name
+- local variable referenced before assignment
+
+### Refactor
+
+- renamed Clip -> CopyToClip
+- only set targets at the begining
+- use switch decorator
+- make all view children elements part of the View class
+
+### Feat
+
+- add copy-to-clipboard widget
+- add a target parameter in the switch method
+
+## v_2.1.1 (2021-09-15)
 
 ### Fix
 
 - typo in setup
+
+## v_2.1.0 (2021-09-15)
+
+### Fix
+
 - folder init in reclassifyTile
 - typo in json dict
 - display the btn at the bottom of the table
@@ -47,6 +82,12 @@
 - separate the reclassified image and its visualization
 - define default_asset trait in SelectAsset. it will accept whether strings for unique default assets or lists for multiple. The trait can be observed to update the list anytime
 - introducing switch decorator
+
+## v_2.0.6 (2021-06-22)
+
+## v_2.0.5 (2021-06-17)
+
+## v_2.0.4 (2021-06-15)
 
 ## v_2.0.3 (2021-06-09)
 
