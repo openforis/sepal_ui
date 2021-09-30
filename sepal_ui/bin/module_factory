@@ -12,12 +12,12 @@ from colorama import init, Fore, Style
 init()
 
 
-def set_default_readme(folder, module_name, description, repository):
+def set_default_readme(folder, module_name, description, url):
     """write a default README.md file and overwrite the existing one"""
 
     print("Write a default README.md file")
 
-    license = f"{repository.replace('.git','')}/blob/master/LICENSE"
+    license = f"{url}/blob/master/LICENSE"
 
     file = folder / "README.md"
     with file.open("w") as readme:
@@ -69,7 +69,7 @@ def set_module_name(folder, module_name):
     return
 
 
-def set_contribute_file(folder, repository, module_name):
+def set_contribute_file(folder, url, module_name):
     """complete the contributing file with the appropriate informations"""
 
     print("Update the module name in the contribute file")
@@ -80,7 +80,7 @@ def set_contribute_file(folder, repository, module_name):
         data = f.read()
 
     data = data.replace("SEPAL_UI_TEMPLATE", module_name)
-    data = data.replace("https://github.com/12rambau/sepal_ui_template.git", repository)
+    data = data.replace("https://github.com/12rambau/sepal_ui_template.git", url)
 
     with contrib.open("w") as f:
         f.write(data)
@@ -88,7 +88,7 @@ def set_contribute_file(folder, repository, module_name):
     return
 
 
-def set_module_name_doc(folder, repository, module_name):
+def set_module_name_doc(folder, url, module_name):
     """set the module name in each documentation file and set the appropriate repository in the link"""
 
     # loop in the available languages
@@ -102,17 +102,14 @@ def set_module_name_doc(folder, repository, module_name):
 
         text = text.replace("Module_name", module_name)
         text = text.replace("===========", "=" * len(module_name))
-        text = text.replace(
-            "https://github.com/12rambau/sepal_ui_template",
-            repository.replace(".git", ""),
-        )
+        text = text.replace("https://github.com/12rambau/sepal_ui_template", url)
 
         with file.open("w") as f:
             f.write(text)
     return
 
 
-def set_drawer_link(folder, repository):
+def set_drawer_link(folder, url):
     """replace the reference to the default repository to the one provided by the use"""
 
     print("Update the drawers link with the new repository one")
@@ -126,7 +123,7 @@ def set_drawer_link(folder, repository):
 
     # replace the target strings
     ui_content = ui_content.replace(
-        "https://github.com/12rambau/sepal_ui_template", repository.replace(".git", "")
+        "https://github.com/12rambau/sepal_ui_template", url
     )
 
     # write everything down again
@@ -229,12 +226,16 @@ if __name__ == "__main__":
     res = subprocess.run(command, cwd=Path.cwd())
 
     # replace the placeholders
-    set_default_readme(folder, module_name, description, github_url)
+    url = github_url.replace(".git", "").replace(
+        "git@github.com:", "https://github.com/"
+    )
+
+    set_default_readme(folder, module_name, description, url)
     set_default_about(folder, description)
     set_module_name(folder, module_name)
-    set_drawer_link(folder, github_url)
-    set_module_name_doc(folder, github_url, module_name)
-    set_contribute_file(folder, github_url, module_name)
+    set_drawer_link(folder, url)
+    set_module_name_doc(folder, url, module_name)
+    set_contribute_file(folder, url, module_name)
 
     # init the new git repository
     command = ["git", "init"]
