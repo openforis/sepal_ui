@@ -1,5 +1,6 @@
 from traitlets import Unicode, Any, Dict, List, Bool, Int
 from pathlib import Path
+from natsort import natsorted
 
 import pandas as pd
 import geopandas as gpd
@@ -10,6 +11,7 @@ from .parameters import *
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 from matplotlib.colors import to_rgba
 
 import ee
@@ -170,14 +172,14 @@ class ReclassifyModel(Model):
         @su.need_ee
         def _ee_image():
 
-            return sorted(ee.Image(self.src_gee).bandNames().getInfo())
+            return ee.Image(self.src_gee).bandNames().getInfo()
 
         @su.need_ee
         def _ee_vector():
 
             columns = ee.FeatureCollection(self.src_gee).first().getInfo()["properties"]
 
-            return sorted(
+            return (
                 str(c)
                 for c in columns.keys()
                 if c not in ["system:index", "Shape_Area"]
@@ -188,7 +190,7 @@ class ReclassifyModel(Model):
             with rio.open(self.src_local) as f:
                 bands = [i for i in range(1, f.count + 1)]
 
-            return sorted(bands)
+            return bands
 
         def _local_vector():
 
@@ -201,7 +203,7 @@ class ReclassifyModel(Model):
 
         # return the selected function
         # remember to use self as a parameter
-        return band_func[self.gee][self.input_type]()
+        return natsorted(band_func[self.gee][self.input_type]())
 
     def get_aoi(self):
         """Validate and get feature collection from aoi_model"""
@@ -281,7 +283,7 @@ class ReclassifyModel(Model):
 
         # get values from the selected func
         # remember to use self as a parameter
-        values = unique_func[self.gee][self.input_type]()
+        values = natsorted(unique_func[self.gee][self.input_type]())
 
         # create the init dictionnary
         self.src_class = {v: ("no_name", "#000000") for v in values}
@@ -470,7 +472,7 @@ class ReclassifyModel(Model):
             gdf = gpd.read_file(self.src_local)
 
             # map the new column
-            gdf["reclass"] = gdf.apply(lambda row: matrix[row[self.band]])
+            gdf["reclass"] = gdf.apply(lambda row: matrix[row[self.band]], axis=1)
 
             # add the colors to the gdf
             # waiting for an answer there :
