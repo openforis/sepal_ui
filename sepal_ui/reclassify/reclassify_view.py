@@ -13,6 +13,8 @@ from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
 
+__all__ = ["ReclassifyView"]
+
 
 class ImportMatrixDialog(v.Dialog):
     """

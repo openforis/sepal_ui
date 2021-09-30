@@ -8,6 +8,8 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui import reclassify as rec
 
+__all__ = ["ReclassifyTile"]
+
 
 class ReclassifyTile(sw.Tile):
     """

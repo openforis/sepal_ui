@@ -12,8 +12,9 @@ from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 from matplotlib.colors import to_rgba
 
-
 import ee
+
+__all__ = ["ReclassifyModel"]
 
 
 class ReclassifyModel(Model):
