@@ -2,6 +2,7 @@ import ipyvuetify as v
 from markdown import markdown
 from traitlets import Unicode, Any
 from ipywidgets import link
+from deprecated.sphinx import versionadded
 
 __all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip", "CopyToClip"]
 
@@ -83,6 +84,7 @@ class SepalWidget(v.VuetifyWidget):
         return self
 
 
+@versionadded(version="2.2.0", reason="New clipping widget")
 class Markdown(v.Layout, SepalWidget):
     """
     Custom Layout based on the markdown text given

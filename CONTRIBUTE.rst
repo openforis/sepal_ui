@@ -47,6 +47,31 @@ Please consider using the :code:`--no-ff` option when merging to keep the reposi
 
 In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the `return` statement for every function.
 
+As we are holding a single documentation page, we need to provide the users with version informations. When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>_`lib to specify that the feature is new in the documentation. 
+
+.. code-block:: python
+
+    from deprecated.sphinx import deprecated
+    from deprecated.sphinx import versionadded
+    from deprecated.sphinx import versionchanged
+
+
+    @versionadded(version='1.0', reason="This function is new")
+    def function_one():
+        '''This is the function one'''
+
+
+    @versionchanged(version='1.0', reason="This function is modified")
+    def function_two():
+        '''This is the function two'''
+
+
+    @deprecated(version='1.0', reason="This function will be removed soon")
+    def function_three():
+        '''This is the function three'''
+
+
+
 Install  your local modification instead of the Pypi lib 
 ========================================================
 
