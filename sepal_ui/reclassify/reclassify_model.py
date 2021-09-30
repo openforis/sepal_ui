@@ -95,27 +95,6 @@ class ReclassifyModel(Model):
         self.dst_local_memory = None
         self.dst_gee_memory = None
 
-    def save_matrix(self, filename):
-        """
-        Save the matrix i a csv file
-
-        Return:
-            self
-        """
-
-        if not len(self.matrix):
-            return self
-
-        df = pd.Dataframe(
-            {
-                "src": [c for c in self.matrix.keys()],
-                "dst": [c for c in self.matrix.values()],
-            }
-        )
-        df.to_csv(filename)
-
-        return self
-
     @staticmethod
     def get_classes(file):
         """
