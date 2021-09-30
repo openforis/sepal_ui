@@ -2,7 +2,7 @@ from pathlib import Path
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "2.2.0"
+__version__ = "2.2.1"
 
 # direct access to colors
 from sepal_ui.frontend import styles
