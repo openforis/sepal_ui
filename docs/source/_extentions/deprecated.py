@@ -39,7 +39,7 @@ class VersionAdded(Admonition):
     options = {"type": "tip", "text": "Added in"}
 
 
-class VestionChanged(Admonition):
+class VersionChanged(Admonition):
     options = {"type": "warning", "text": "changed in"}
 
 
