@@ -1,8 +1,8 @@
 commitizen:
   changelog_file: CHANGELOG.md
   tag_format: v_$major.$minor.$patch$prerelease
-  version: 2.1.0
+  update_changelog_on_bump: false
+  version: 2.2.1
   version_files:
-  - setup.py
-  - sepal_ui/__init__.py
-  update_changelog_on_bump: true
+  - setup.py:version
+  - sepal_ui/__init__.py:__version__

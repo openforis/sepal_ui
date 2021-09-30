@@ -7,6 +7,7 @@ Overview
 :code:`SepalWidget` is an abstract object that embed special classes, it can be used with any ipyvuetify widget component:
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -35,6 +36,7 @@ hide
 Hide the component by changing its class.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -58,6 +60,7 @@ show
 Show the component by changing its class.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -81,6 +84,7 @@ reset
 remove the :code:`v_model` of the component and replace it by :code:`None`.
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 

@@ -11,6 +11,7 @@ It inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Layout` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute:: 
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     

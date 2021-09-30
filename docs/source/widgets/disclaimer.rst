@@ -9,6 +9,7 @@ Overview
 In the following example we create a fake file on the fly and use it to display somme text in a :code:`AboutTile`. 
 
 .. jupyter-execute::
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path 
