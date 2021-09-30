@@ -6,7 +6,7 @@ Sepalizing is a 2 step process that will be presented in this tutorial through t
 
 .. tip::
     
-    If your workflow is using CLI or is already in python (notebook) you don't need to read the first one and can directly jump to "wire my process to a tile"
+    If your workflow is using CLI or is already in python (notebook) you don't need to read the first section and can directly jump to "wire my process to a tile"
 
 From GEE to Python
 ------------------
@@ -453,8 +453,8 @@ A process should look like the following :
     def _on_click(self, widget, event, data):
             
         # check that the input that you're gonna use are set (Not mandatory)
-        if not self.output.check_input(self.aoi_io.get_aoi_name()): return widget.toggle_loading()
-        if not self.output.check_input(self.io.year): return widget.toggle_loading()
+        if not self.output.check_input(self.aoi_io.get_aoi_name()): return
+        if not self.output.check_input(self.io.year): return
        
         # do stuff 
         

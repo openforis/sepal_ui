@@ -235,6 +235,11 @@ class TestUtils:
             def func5(self, *args):
                 return 1 / 0
 
+            # apply the switch with a non matching number of targets
+            @su.switch("disabled", on_widgets=["select", "select2"], targets=[True])
+            def func6(self, *args):
+                return True
+
         obj = Obj()
 
         # assert
@@ -253,5 +258,8 @@ class TestUtils:
 
         with pytest.raises(Exception):
             obj.func5()
+
+        with pytest.raises(IndexError):
+            obj.func6()
 
         return

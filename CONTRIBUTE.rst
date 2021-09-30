@@ -47,6 +47,31 @@ Please consider using the :code:`--no-ff` option when merging to keep the reposi
 
 In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the `return` statement for every function.
 
+As we are holding a single documentation page, we need to provide the users with version informations. When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>_`lib to specify that the feature is new in the documentation. 
+
+.. code-block:: python
+
+    from deprecated.sphinx import deprecated
+    from deprecated.sphinx import versionadded
+    from deprecated.sphinx import versionchanged
+
+
+    @versionadded(version='1.0', reason="This function is new")
+    def function_one():
+        '''This is the function one'''
+
+
+    @versionchanged(version='1.0', reason="This function is modified")
+    def function_two():
+        '''This is the function two'''
+
+
+    @deprecated(version='1.0', reason="This function will be removed soon")
+    def function_three():
+        '''This is the function three'''
+
+
+
 Install  your local modification instead of the Pypi lib 
 ========================================================
 
@@ -93,9 +118,19 @@ Create a new release
 
     for maintainers only 
     
-In the files change the version number in the following file: :code:`VERSION`
+ .. warning::
+ 
+     You need to use the :code:`commitizen` lib to create your release: `<https://commitizen-tools.github.io/commitizen>`_
+    
+In the files change the version number by runnning commitizen `bump`: 
 
-Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`setup.py`: :code:`v_$minor.$major.$patch$prerelease`.
+.. code-block:: console
+
+    cz bump
+
+It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to sementic versionning thanks to the conventional commit that we use in the lib. It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories. 
+
+Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`.cz.yaml`: :code:`v_$minor.$major.$patch$prerelease`.
 
 .. warning::
 

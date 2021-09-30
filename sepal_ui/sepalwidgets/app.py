@@ -8,7 +8,7 @@ from IPython.display import display
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
 from sepal_ui.frontend.styles import *
-from sepal_ui.frontend.js import ResizeTrigger
+from sepal_ui.frontend import js
 
 __all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App"]
 
@@ -80,8 +80,7 @@ class DrawerItem(v.ListItem, SepalWidget):
     def __init__(self, title, icon=None, card=None, href=None, **kwargs):
 
         # set the resizetrigger
-        self.rt = ResizeTrigger()
-        display(self.rt)
+        self.rt = js.rt
 
         icon = icon if icon else "mdi-folder-outline"
 
@@ -124,10 +123,10 @@ class DrawerItem(v.ListItem, SepalWidget):
             else:
                 tile.hide()
 
-        # trigger the risize event
-        self.rt.resize += 1
+        # trigger the resize event
+        self.rt.resize()
 
-        # change the cuurent item status
+        # change the current item status
         self.input_value = True
 
         return self

@@ -1,7 +1,8 @@
-## Unreleased
+## v_2.1.1
 
 ### Fix
 
+- typo in setup
 - folder init in reclassifyTile
 - typo in json dict
 - display the btn at the bottom of the table

@@ -14,6 +14,7 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
     This component should never be launched from the kernel but only in voila dashboard. The Javascript components would overlay on top of the Notebook window.
 
 .. jupyter-execute:: 
+    :raises:
 
     from sepal_ui import sepalwidgets as sw
     from sepal_ui import aoi
@@ -24,7 +25,7 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
     v.theme.dark = False
 
     app = sw.App(
-        tiles    = [sw.TileDisclaimer(), aoi.AoiTile()], 
+        tiles    = [sw.TileDisclaimer(), aoi.AoiTile(gee=False)], 
         appBar   = sw.AppBar(), 
         footer   = sw.Footer(), 
         navDrawer= sw.NavDrawer([
@@ -41,5 +42,6 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
 
 
 .. note::
+
     The :code:`App` component is the main widget of the framework. To learn how to use it, read our cookbook.  
     More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.app>`__.
