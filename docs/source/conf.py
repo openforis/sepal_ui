@@ -48,6 +48,7 @@ extensions = [
     "sphinxcontrib.spelling",
     "_extentions.video",
     "_extentions.line_break",
+    "_extentions.deprecated",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
