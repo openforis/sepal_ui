@@ -438,7 +438,7 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
 
 def next_string(string):
-    """Create a string followed by a consecutive underscore and number"""
+    """Create a string followed by an underscore and a consecutive number"""
 
     if string[-1].isdigit():
         last_number = int(string[-1])
