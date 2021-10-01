@@ -1,8 +1,19 @@
 from pathlib import Path
-from copy import deepcopy
 import pytest
-
+from copy import deepcopy
 from sepal_ui.reclassify import ReclassifyModel
+import ee
+from sepal_ui.scripts import utils as su
+
+
+@pytest.fixture
+def dum_dir(dum_dir):
+    """Creates a dummy directory"""
+
+    new_dir = dum_dir / "reclassify/"
+    new_dir.mkdir(exist_ok=True, parents=True)
+
+    return new_dir
 
 
 @pytest.fixture
@@ -10,7 +21,7 @@ def model_gee(aoi_model_gee, dum_dir):
     """Reclassify model using Google Earth Engine assets"""
 
     return ReclassifyModel(
-        gee=True, dst_dir=dum_dir, aoi_model=aoi_model_gee, folder=dum_dir, save=True
+        gee=True, dst_dir=dum_dir, aoi_model=aoi_model_gee, save=True
     )
 
 
@@ -19,7 +30,7 @@ def model_local(aoi_model_local, dum_dir):
     """Reclassify model using local raster assets"""
 
     return ReclassifyModel(
-        gee=False, dst_dir=dum_dir, aoi_model=aoi_model_local, folder=dum_dir, save=True
+        gee=False, dst_dir=dum_dir, aoi_model=aoi_model_local, save=True
     )
 
 
@@ -84,7 +95,8 @@ def test_get_classes(model_gee, dum_dir):
     """Test if the matrix is saved and corresponds with the the output"""
 
     with pytest.raises(Exception):
-        model_gee.get_classes("I/dont/exist.nothing")
+        model_gee.dst_class_file = "I/dont/exist.nothing"
+        model_gee.get_classes()
 
     # Arrange
     reclass_file = dum_dir / "dum_map_matrix.csv"
@@ -107,7 +119,8 @@ def test_get_classes(model_gee, dum_dir):
     }
 
     # Act
-    class_dict = model_gee.get_classes(reclass_file)
+    model_gee.dst_class_file = reclass_file
+    class_dict = model_gee.get_classes()
 
     # Assert
     assert class_dict == expected_class_dict
@@ -370,6 +383,49 @@ def test_reclassify_initial_exceptions(model_gee):
         model_gee.reclassify()
 
 
+def test_reclassify_gee_vector(model_gee_vector):
+    """Test reclassification of vectors when using an area of interest"""
+
+    matrix = {
+        231: 1,
+        233: 1,
+        244: 2,
+        313: 2,
+        314: 2,
+        323: 3,
+        333: 3,
+        511: 3,
+        3131: 4,
+        3132: 4,
+        31111: 4,
+        31121: 5,
+    }
+
+    new_unique_values = {
+        231: ("no_name", "#000000"),
+        233: ("no_name", "#000000"),
+        244: ("no_name", "#000000"),
+        313: ("no_name", "#000000"),
+        314: ("no_name", "#000000"),
+        323: ("no_name", "#000000"),
+        333: ("no_name", "#000000"),
+        511: ("no_name", "#000000"),
+        3131: ("no_name", "#000000"),
+        3132: ("no_name", "#000000"),
+        31111: ("no_name", "#000000"),
+        31121: ("no_name", "#000000"),
+    }
+
+    model_gee_vector.matrix = matrix
+    model_gee_vector.band = "CODIGO"
+    model_gee_vector.aoi_model.set_default(
+        asset="users/dafguerrerom/FAO/TESTS/LULC_2012_AOI_inner_gometry"
+    )
+    model_gee_vector.reclassify()
+
+    assert model_gee_vector.dst_gee is not None
+
+
 def test_reclassify_local_image(model_local_image):
 
     # Create a dummy translation matrix for local image
@@ -415,3 +471,32 @@ def test_reclassify_local_vector(model_local_vector):
     )
 
     assert matrix == reclassify_matrix
+
+
+def test_create_dst_gee_name(model_gee):
+
+    su.init_ee()
+    folder = ee.data.getAssetRoots()[0]["id"]
+    user = Path(folder).parts[-1]
+    first_asset_id = ee.data.listAssets({"parent": folder})["assets"][0]["id"]
+    root = "projects/earthengine-legacy/assets/"
+
+    dst_gee = str(model_gee.create_dst_gee_name(first_asset_id))
+
+    if first_asset_id.endswith("_reclass"):
+
+        if first_asset_id.stem[-1].isdigit():
+
+            last_digit = int(first_asset_id.stem[-1])
+            assert dst_gee == str(Path(root, first_asset_id + f"{last_digit+1}"))
+
+        else:
+            assert dst_gee == str(Path(root, first_asset_id + "1"))
+
+    else:
+        assert dst_gee == str(Path(root, first_asset_id + f"_reclass"))
+
+    asset_id = f"users/{user}/sub/folder/new_asset"
+    dst_gee = str(model_gee.create_dst_gee_name(asset_id))
+
+    assert dst_gee == str(Path(root, f"users/{user}/sub/folder/", "new_asset_reclass"))
