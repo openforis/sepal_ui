@@ -435,3 +435,15 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
         return wrapper_switch
 
     return decorator_switch
+
+
+def next_string(string):
+    """Create a string followed by a consecutive underscore and number"""
+
+    if string[-1].isdigit():
+        last_number = int(string[-1])
+        string = string[:-1] + f"{last_number+1}"
+    else:
+        string += "_1"
+
+    return string
