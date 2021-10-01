@@ -56,6 +56,7 @@ class ReclassifyModel(Model):
     band = Any(None).tag(sync=True)
     src_local = Any(None).tag(sync=True)
     src_gee = Any(None).tag(sync=True)
+    dst_class_file = Any(None).tag(sync=True)
     dst_dir = Any(None).tag(sync=True)
     gee = Bool(False).tag(sync=True)
 
@@ -97,8 +98,7 @@ class ReclassifyModel(Model):
         self.dst_local_memory = None
         self.dst_gee_memory = None
 
-    @staticmethod
-    def get_classes(file):
+    def get_classes(self):
         """
         Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
 
@@ -109,6 +109,11 @@ class ReclassifyModel(Model):
             (dict): the dict of the classes using following format:
                 {code: (name, color)}
         """
+
+        file = self.dst_class_file
+
+        if not file:
+            raise AttributeError("missing file")
 
         path = Path(file)
         if not path.is_file():
@@ -225,6 +230,9 @@ class ReclassifyModel(Model):
             (Dict): the unique class value found in the specified band/property
             and there color/name defaulted to none and black
         """
+
+        if not self.band:
+            raise Exception("You need to provide a band/property to reclassify.")
 
         @su.need_ee
         def _ee_image():
