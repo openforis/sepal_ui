@@ -92,7 +92,6 @@ class ReclassifyModel(Model):
 
         if self.gee:
             su.init_ee()
-            self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
 
         # memory outputs
         self.dst_local_memory = None
@@ -320,7 +319,7 @@ class ReclassifyModel(Model):
                 raise Exception("You need to provide source asset.")
 
             # create the asset description
-            self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
+            self.dst_gee = self.create_dst_gee_name(self.src_gee)
 
             # load the image
             # remap according to the matrix
@@ -383,7 +382,7 @@ class ReclassifyModel(Model):
                 raise Exception("You need to provide source asset.")
 
             # create the asset description
-            self.dst_gee = Path(self.folder) / f"{Path(self.src_gee).stem}_reclass"
+            self.dst_gee = self.create_dst_gee_name(self.src_gee)
 
             # add a new propertie
 
@@ -414,7 +413,7 @@ class ReclassifyModel(Model):
                 params = {
                     "collection": self.dst_gee_memory,
                     "assetId": str(self.dst_gee),
-                    "description": str(self.dst_gee.stem),
+                    "description": self.dst_gee.stem,
                 }
 
                 task = ee.batch.Export.table.toAsset(**params)
@@ -473,9 +472,6 @@ class ReclassifyModel(Model):
             # set the output file
             self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
 
-            # set the output file
-            self.dst_local = self.dst_dir / f"{Path(self.src_local).stem}_reclass.shp"
-
             # read the dataset
             gdf = gpd.read_file(self.src_local)
 
@@ -510,3 +506,37 @@ class ReclassifyModel(Model):
             return ms.rec.rec.export[self.gee][self.input_type].format(res)
 
         return "Asset successfully reclassified."
+
+    @staticmethod
+    def create_dst_gee_name(src_gee, folder=None):
+        """Creates an unique and consecutive asset name based on a source
+
+        Args:
+            src_gee (str): source gee asset id
+            folder (str, optional): user gee folder where the new asset_id will
+                be placed
+        """
+
+        # create the asset_id
+        asset_name = f"{Path(src_gee).stem}_reclass"
+
+        if folder:
+            dst_gee = str(Path(folder, asset_name))
+
+        else:
+            # Get subfolders (asset/user/xx/xx/xx/aset_name) if has...
+            src_gee_path = Path().joinpath(*Path(src_gee).parts[2:-1])
+            folder = ee.data.getAssetRoots()[0]["id"]
+
+            # Store in the same folder as the source
+            dst_gee = str(Path(folder, src_gee_path, asset_name))
+
+        # check if the name already exist
+        current_assets = [asset["name"] for asset in gee.get_assets(folder)]
+
+        # An user could reclassify twice an asset,
+        # So let's create an unique name
+        while dst_gee in current_assets:
+            dst_gee = Path(su.next_string(dst_gee))
+
+        return Path(dst_gee)
