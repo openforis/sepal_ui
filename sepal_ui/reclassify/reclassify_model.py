@@ -537,6 +537,6 @@ class ReclassifyModel(Model):
         # An user could reclassify twice an asset,
         # So let's create an unique name
         while dst_gee in current_assets:
-            dst_gee = Path(su.next_string(dst_gee))
+            dst_gee = su.next_string(dst_gee)
 
         return Path(dst_gee)
