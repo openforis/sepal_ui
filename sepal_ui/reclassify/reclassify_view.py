@@ -355,6 +355,13 @@ class ReclassifyView(v.Card):
         **kwargs,
     ):
 
+        if aoi_model:
+            if not aoi_model.ee == gee:
+                raise Exception(
+                    "Both aoi_model.gee and self.gee parameters has to be equals. "
+                    f"Received {aoi_model.ee} for aoi_model and {gee} for self."
+                )
+
         # create metadata to make it compatible with the framwork app system
         self._metadata = {"mount_id": "reclassify_tile"}
 
@@ -476,7 +483,9 @@ class ReclassifyView(v.Card):
         self.save_table = sw.Btn(
             "save", "mdi-content-save", color="secondary", small=True
         )
-        self.reclassify_btn = sw.Btn(ms.rec.rec.btn, "mdi-checkerboard", small=True)
+        self.reclassify_btn = sw.Btn(
+            ms.rec.rec.btn, "mdi-checkerboard", small=True, disabled=True
+        )
 
         self.toolbar = v.Toolbar(
             class_="d-flex mb-6",
@@ -504,9 +513,11 @@ class ReclassifyView(v.Card):
 
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
-        self.model = self.model.bind(
-            self.w_image, "src_gee" if self.gee else "src_local"
-        ).bind(self.w_code, "band")
+        self.model = (
+            self.model.bind(self.w_image, "src_gee" if self.gee else "src_local")
+            .bind(self.w_code, "band")
+            .bind(self.w_dst_class_file, "dst_class_file")
+        )
 
         # create the layout
         self.children = [
@@ -545,21 +556,7 @@ class ReclassifyView(v.Card):
         self.w_image.observe(self._update_band, "v_model")
         self.get_table.on_event("click", self.get_reclassify_table)
         self.reclassify_btn.on_event("click", self.reclassify)
-        self.w_dst_class_file.observe(self._check_dst_file, "v_model")
         [btn.on_event("click", self._set_dst_class_file) for btn in self.btn_list]
-
-    def _check_dst_file(self, change):
-        """check the selected file is not a default btn. change their styling accordingly"""
-
-        filename = change["new"]
-
-        for btn in self.btn_list:
-            if btn._metadata["path"] in [filename, "custom"]:
-                btn.outlined = False
-            else:
-                btn.outlined = True
-
-        return self
 
     def _set_dst_class_file(self, widget, event, data):
         """Set the destination classification according to the one selected with btn. alter the widgets properties to reflect this change"""
@@ -665,7 +662,8 @@ class ReclassifyView(v.Card):
 
         return self
 
-    #     TODO: @switch('table_created', on_widgets=['model']) Not possible yet.
+    @su.switch("disabled", on_widgets=["reclassify_btn"], targets=[False])
+    @su.switch("table_created", on_widgets=["model"], targets=[True])
     def get_reclassify_table(self, widget, event, data):
         """
         Display a reclassify table which will lead the user to select
@@ -675,38 +673,23 @@ class ReclassifyView(v.Card):
             self
         """
 
-        self.model.table_created = False
-
-        # check that everything is set
-        if not self.w_image.v_model:
-            raise AttributeError("missing image")
-        if not self.w_code.v_model:
-            raise AttributeError("missing band")
-        if not self.w_dst_class_file.v_model:
-            raise AttributeError("missing file")
-
         # get the destination classes
-        self.model.dst_class = self.model.get_classes(self.w_dst_class_file.v_model)
+        self.model.dst_class = self.model.get_classes()
 
         # get the src_classes
         self.model.src_class = self.model.unique()
 
         # if the src_class_file is set overwrite src_class:
         if self.w_src_class_file.v_model:
-            self.model.src_class = self.model.get_classes(self.w_src_class_file.v_model)
+            self.model.src_class = self.model.get_classes()
 
         # reset the table
         self.reclassify_table.set_table(self.model.dst_class, self.model.src_class)
-
-        # enable the reclassify btn
-        self.reclassify_btn.disabled = False
 
         # check if the duplicate_layout need to be displayed ?
         self.duplicate_layout.class_ = "d-none"
         if len(self.reclassify_table.children[0].children) - 1 > self.MAX_CLASS:
             self.duplicate_layout.class_ = "d-block"
-
-        self.model.table_created = True
 
         return self
 
