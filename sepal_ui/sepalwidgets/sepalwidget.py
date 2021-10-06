@@ -142,9 +142,10 @@ class Tooltip(v.Tooltip):
 
         if hasattr(self, "_model_id"):
             if self._model_id:
-                raise RuntimeError(
-                    f"You can't modify the attributes of the {self.__class__} after instantiated"
-                )
+                if name != "_cross_validation_lock":
+                    raise RuntimeError(
+                        f"You can't modify the attributes of the {self.__class__} after instantiated"
+                    )
         super().__setattr__(name, value)
 
 
