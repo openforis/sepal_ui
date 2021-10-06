@@ -5,35 +5,32 @@ from sepal_ui import sepalwidgets as sw
 
 
 class TestFileInput:
-    def test_init(self):
+    def test_init(self, root_dir):
 
         # default init
-        file_input = sw.FileInput(folder=self._get_sepal_parent())
+        file_input = sw.FileInput()
+
+        assert isinstance(file_input, sw.FileInput)
+        assert file_input.v_model == ""
 
         # init with a string
-        file_input = sw.FileInput(folder=str(self._get_sepal_parent()))
+        file_input = sw.FileInput(folder=str(root_dir))
 
         assert isinstance(file_input, sw.FileInput)
         assert file_input.v_model == ""
 
         # get all the names
-        list_names = []
-        for list_item in file_input.file_list.children[0].children:
-            list_item_content = list_item.children[1]
-            list_item_title = list_item_content.children[0]
-            list_names.append(list_item_title.children[0])
-
-        assert "sepal_ui" in list_names
+        assert "sepal_ui" in self.get_names(file_input)
 
         # default init
-        file_input = sw.FileInput([".shp"], folder=self._get_sepal_parent())
+        file_input = sw.FileInput([".rst"], folder=root_dir)
+
+        assert "LICENSE" not in self.get_names(file_input)
+        assert "AUTHORS.rst" in self.get_names(file_input)
 
         return
 
-    def test_bind(self):
-
-        file_input = sw.FileInput()
-
+    def test_bind(self, file_input):
         class Test_io:
             def __init__(self):
                 self.out = None
@@ -51,25 +48,12 @@ class TestFileInput:
 
         return
 
-    def test_on_file_select(self):
+    def test_on_file_select(self, root_dir, file_input, readme):
 
-        sepal_ui = self._get_sepal_parent()
-        file_input = sw.FileInput(folder=sepal_ui)
-
-        # move into sepal_ui folders
-        readme = sepal_ui / "README.rst"
-
-        file_input._on_file_select({"new": sepal_ui})
-
-        # get all the names
-        list_names = []
-        for list_item in file_input.file_list.children[0].children:
-            list_item_content = list_item.children[1]
-            list_item_title = list_item_content.children[0]
-            list_names.append(list_item_title.children[0])
+        file_input._on_file_select({"new": root_dir})
 
         assert file_input.v_model == ""
-        assert "README.rst" in list_names
+        assert "README.rst" in self.get_names(file_input)
 
         # select readme
         file_input._on_file_select({"new": readme})
@@ -81,58 +65,44 @@ class TestFileInput:
 
         return
 
-    def test_on_reload(self):
+    def test_on_reload(self, file_input, tmp_dir):
 
-        home = Path.home()
-        file_input = sw.FileInput(folder=home)
+        # move to the tmp directory
+        file_input._on_file_select({"new": tmp_dir})
 
-        # create a fake file
-        test_name = "test.txt"
-        tmp_file = home / test_name
+        # assert that the file does not exist
+        name = "text.txt"
+
+        assert name not in self.get_names(file_input)
+
+        # create the file and reload the widget
+        tmp_file = tmp_dir / name
         tmp_file.write_text("a test \n")
-
-        # reload the folder
         file_input._on_reload(None, None, None)
 
-        # check that the new file is in the list
-        list_names = []
-        for list_item in file_input.file_list.children[0].children:
-            list_item_content = list_item.children[1]
-            list_item_title = list_item_content.children[0]
-            list_names.append(list_item_title.children[0])
+        assert name in self.get_names(file_input)
 
-        assert test_name in list_names
-
-        # remove the test file
+        # delete the file
         tmp_file.unlink()
 
         return
 
-    def test_reset(self):
-
-        sepal_ui = self._get_sepal_parent()
-        file_input = sw.FileInput(folder=sepal_ui)
+    def test_reset(self, file_input, root_dir, readme):
 
         # move into sepal_ui folders
-        readme = sepal_ui / "README.rst"
         file_input.select_file(readme)
 
         file_input.reset()
 
         # assert that the folder has been reset
         assert file_input.v_model == ""
-        assert file_input.folder != str(sepal_ui)
+        assert file_input.folder != str(root_dir)
 
         return
 
-    def test_select_file(self):
-
-        sepal_ui = self._get_sepal_parent()
-        file_input = sw.FileInput()
+    def test_select_file(self, file_input, readme):
 
         # move into sepal_ui folders
-        readme = sepal_ui / "README.rst"
-
         file_input.select_file(readme)
 
         # assert that the file has been selected
@@ -144,6 +114,18 @@ class TestFileInput:
 
         return
 
-    def _get_sepal_parent(self):
+    @pytest.fixture
+    def file_input(self, root_dir):
+        """create a default file_input in the root_dir"""
 
-        return Path(__file__).parent.parent.absolute()
+        return sw.FileInput(folder=root_dir)
+
+    @staticmethod
+    def get_names(widget):
+        """get the list name of a fileinput object"""
+
+        name_list = []
+        for item_list in widget.file_list.children[0].children:
+            name_list.append(item_list.children[1].children[0].children[0])
+
+        return name_list

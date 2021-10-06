@@ -12,6 +12,8 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
+__all__ = ["TableView"]
+
 
 class ClassTable(v.DataTable, sw.SepalWidget):
 

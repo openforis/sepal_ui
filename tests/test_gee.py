@@ -16,117 +16,98 @@ su.init_ee()
     "EE_DECRYPT_KEY" in os.environ, reason="Don't work with Gservice account"
 )
 class TestGee:
+    def test_wait_for_completion(
+        self, alert, fake_task, asset_description, asset_france
+    ):
 
-    DESCRIPTION = "test_travis"
-    ASSET_ID = "users/bornToBeAlive/sepal_ui_test/{}"
-
-    @su.need_ee
-    def test_wait_for_completion(self):
-
-        # create an output alert
-        alert = sw.Alert()
-
-        task = self._create_fake_task()
-
-        res = gee.wait_for_completion(self.DESCRIPTION, alert)
+        res = gee.wait_for_completion(asset_description, alert)
 
         assert res == "COMPLETED"
         assert alert.type == "success"
         assert alert.children[1].children[0] == ms.status.format("COMPLETED")
 
-        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
-
         # check that an error is raised when trying to overwrite a existing asset
         description = "france"
-        task = self._create_fake_task(description, False)
+        point = ee.FeatureCollection(ee.Geometry.Point([1.5, 1.5]))
+        task_config = {
+            "collection": point,
+            "description": description,
+            "assetId": asset_france,
+        }
+        task = ee.batch.Export.table.toAsset(**task_config)
+        task.start()
 
         with pytest.raises(Exception):
             res = gee.wait_for_completion(description, alert)
 
         return
 
-    def test_is_task(self):
-
-        # create an output alert
-        alert = sw.Alert()
-
-        task = self._create_fake_task()
-
-        # wait for the task to finish
-        gee.wait_for_completion(self.DESCRIPTION, alert)
+    def test_is_task(self, fake_task, asset_description):
 
         # check if it exist
-        res = gee.is_task(self.DESCRIPTION)
+        res = gee.is_task(asset_description)
 
         assert res != None
 
-        # delete the asset
-        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
-
         return
 
-    def test_get_assets(self):
+    def test_get_assets(self, gee_dir):
 
         # get the assets from the test repository
-        folder = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-        list_ = gee.get_assets(folder)
+        list_ = gee.get_assets(gee_dir)
 
         # check that they are all there
         names = ["corsica_template", "folder", "france", "italy"]
 
         for item, name in zip(list_, names):
-            assert item["name"] == f"{folder}/{name}"
+            assert item["name"] == f"{gee_dir}/{name}"
 
         return
 
-    def test_isAsset(self):
+    def test_isAsset(self, gee_dir, asset_france):
 
         folder = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
 
         # real asset
-        res = gee.is_asset(f"{folder}/france", folder)
+        res = gee.is_asset(asset_france, gee_dir)
         assert res == True
 
         # fake asset
-        res = gee.is_asset(f"{folder}/toto", folder)
+        res = gee.is_asset(f"{gee_dir}/toto", gee_dir)
         assert res == False
 
         return
 
-    def test_is_running(self):
-
-        # create an output alert
-        alert = sw.Alert()
-
-        task = self._create_fake_task()
+    def test_is_running(self, fake_task, asset_description):
 
         i = 0
         for _ in range(30):
             time.sleep(1)
-            res = gee.is_running(self.DESCRIPTION)
+            res = gee.is_running(asset_description)
             if res != None:
                 break
 
         assert res != None
 
-        # wait for the task to finish
-        gee.wait_for_completion(self.DESCRIPTION, alert)
-
-        # delete the asset
-        ee.data.deleteAsset(self.ASSET_ID.format(self.DESCRIPTION))
-
         return
 
-    def _create_fake_task(self, description=DESCRIPTION, delete=True):
+    @pytest.fixture
+    def fake_task(self, asset_id, asset_description, alert):
 
         # create a fake exportation task
         point = ee.FeatureCollection(ee.Geometry.Point([1.5, 1.5]))
         task_config = {
             "collection": point,
-            "description": description,
-            "assetId": self.ASSET_ID.format(description),
+            "description": asset_description,
+            "assetId": asset_id,
         }
         task = ee.batch.Export.table.toAsset(**task_config)
         task.start()
 
-        return task
+        yield task
+
+        # delete the task asset
+        gee.wait_for_completion(asset_description, alert)
+        ee.data.deleteAsset(asset_id)
+
+        return

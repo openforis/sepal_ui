@@ -1,5 +1,7 @@
 from sepal_ui.message import ms
 
+__all__ = ["MATRIX_NAMES", "TABLE_NAMES", "NO_VALUE", "SCHEMA"]
+
 MATRIX_NAMES = ["src", "dst"]
 TABLE_NAMES = ["code", "desc", "color"]
 
