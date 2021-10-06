@@ -113,7 +113,7 @@ class FileInput(v.Flex, SepalWidget):
     def __init__(
         self,
         extentions=[],
-        folder=Path("~").expanduser(),
+        folder=Path.home(),
         label="search file",
         v_model=None,
         clearable=False,

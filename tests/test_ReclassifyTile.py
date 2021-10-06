@@ -5,13 +5,10 @@ from sepal_ui.message import ms
 
 
 class TestReclassifyTile:
-
-    FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-
-    def test_init(self):
+    def test_init(self, gee_dir):
 
         # default init
-        tile = rec.ReclassifyTile(Path.home(), gee=True, folder=self.FOLDER)
+        tile = rec.ReclassifyTile(Path.home(), gee=True, folder=gee_dir)
         assert isinstance(tile, rec.ReclassifyTile)
 
         # init without ee

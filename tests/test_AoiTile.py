@@ -5,17 +5,14 @@ from sepal_ui.message import ms
 
 
 class TestAoiTile:
-
-    FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-
-    def test_init(self):
+    def test_init(self, gee_dir):
 
         # default init
-        tile = aoi.AoiTile(folder=self.FOLDER)
+        tile = aoi.AoiTile(folder=gee_dir)
         assert isinstance(tile, aoi.AoiTile)
 
         # init without ee
-        tile = aoi.AoiTile(folder=self.FOLDER, gee=False)
+        tile = aoi.AoiTile(gee=False)
         assert tile.view.model.ee == False
 
         return
