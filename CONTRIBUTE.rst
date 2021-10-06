@@ -128,7 +128,13 @@ In the files change the version number by runnning commitizen `bump`:
 
     cz bump
 
-It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to sementic versionning thanks to the conventional commit that we use in the lib. It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories. 
+It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to sementic versionning thanks to the conventional commit that we use in the lib. 
+
+It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories if you run the following code, using the version bumped in the previous commit.
+
+.. code-block:: console 
+
+    cz changelog --unreleased-version="v_x.x.x"
 
 Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`.cz.yaml`: :code:`v_$minor.$major.$patch$prerelease`.
 
