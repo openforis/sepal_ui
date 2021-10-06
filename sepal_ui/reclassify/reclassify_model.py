@@ -249,7 +249,7 @@ class ReclassifyModel(Model):
         # test gdf as it's set whatever the type of AoiModel (gee or not)
         if self.aoi_model.gdf is None:
             if self.enforce_aoi:
-                raise ("You have to select an area of interest before")
+                raise Exception("You have to select an area of interest before")
             else:
                 aoi = None
 

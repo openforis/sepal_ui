@@ -113,7 +113,12 @@ class TestReclassifyModel:
 
     def test_get_aoi(self, model_gee):
 
+        # default to error if no asset is set in the aoi_model
+        with pytest.raises(Exception):
+            assert model_gee.get_aoi() == None
+
         # Test when there is an aoi but there is not a feature collection selected
+        model_gee.enforce_aoi = False
         assert model_gee.get_aoi() == None
 
         # set the aoi to france
@@ -242,16 +247,22 @@ class TestReclassifyModel:
 
         return
 
-    def test_reclassify_initial_exceptions(self, model_gee):
+    def test_reclassify_initial_exceptions(self, model_gee_image):
 
         # Test reclassify method without matrix
         with pytest.raises(Exception):
-            model_gee.reclassify()
+            model_gee_image.reclassify()
 
         # Test reclassify method without band
         with pytest.raises(Exception):
-            model_gee.matrix = {1: 1}
-            model_gee.reclassify()
+            model_gee_image.matrix = {1: 1}
+            model_gee_image.reclassify()
+
+        # test reclassify without setting an aoi
+        with pytest.raises(Exception):
+            model_gee_image.matrix = {1: 1}
+            model_gee_image.band = "y1992"
+            model_gee_image.reclassify()
 
         return
 
@@ -393,6 +404,7 @@ class TestReclassifyModel:
         aoi_model = aoi.AoiModel(alert, gee=True, folder=gee_dir)
 
         return ReclassifyModel(
+            enforce_aoi=True,
             gee=True,
             dst_dir=tmp_dir,
             aoi_model=aoi_model,
