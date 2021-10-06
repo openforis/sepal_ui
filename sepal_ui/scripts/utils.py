@@ -440,9 +440,12 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 def next_string(string):
     """Create a string followed by an underscore and a consecutive number"""
 
-    if string[-1].isdigit():
-        last_number = int(string[-1])
-        string = string[:-1] + f"{last_number+1}"
+    # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
+    split = string.split("_")
+    end = split[-1]
+
+    if end.isdigit():
+        string = "_".join(split[:-1]) + f"_{int(end)+1}"
     else:
         string += "_1"
 
