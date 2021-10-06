@@ -263,3 +263,14 @@ class TestUtils:
             obj.func6()
 
         return
+
+    def test_next_string(self):
+
+        # Arrange
+        input_string = "name"
+        output_string = "name_1"
+
+        # Act - assert
+        assert su.next_string(input_string) == output_string
+        assert su.next_string(input_string)[-1].isdigit()
+        assert su.next_string("name_1") == "name_2"
