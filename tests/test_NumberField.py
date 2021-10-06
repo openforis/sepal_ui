@@ -1,11 +1,10 @@
+import pytest
+
 from sepal_ui import sepalwidgets as sw
 
 
 class TestNumberField:
-    def test_init(self):
-
-        # default init
-        number = sw.NumberField()
+    def test_init(self, number):
 
         assert isinstance(number, sw.NumberField)
         assert number.type == "number"
@@ -14,10 +13,7 @@ class TestNumberField:
 
         return
 
-    def test_increment(self):
-
-        # default init
-        number = sw.NumberField()
+    def test_increment(self, number):
 
         # increment to 5
         [number.increment(None, None, None) for i in range(5)]
@@ -31,10 +27,7 @@ class TestNumberField:
 
         return
 
-    def test_decrement(self):
-
-        # default init
-        number = sw.NumberField()
+    def test_decrement(self, number):
 
         # increment to 5
         [number.decrement(None, None, None) for i in range(5)]
@@ -47,3 +40,9 @@ class TestNumberField:
         assert number.v_model == -2
 
         return
+
+    @pytest.fixture
+    def number(self):
+        """return a NumberField"""
+
+        return sw.NumberField()

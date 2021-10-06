@@ -1,3 +1,26 @@
+## v_2.3.0 (2021-10-06)
+
+### Fix
+
+- add enforce_aoi to reclassify_model
+- use split instead of indexing Fix #302
+- prevent tooltip error when calling. closes #298
+- little typo
+- fiix some minor bugs and add human sorted
+
+### Refactor
+
+- create destination gee unique name before export
+- move exceptions from view to model
+- remove _chk_dst_file method, its process was duplicated in the _set_dst_class file method
+
+### Feat
+
+- new script to Create a string followed by a consecutive underscore and number
+- test reclassify model coverage=80%
+- create useful fixtures to implement in related tests.
+- create a tests rasters to test reclassify methods
+
 ## v_2.2.1 (2021-09-30)
 
 ### Fix
@@ -15,29 +38,9 @@
 - catch when on_widget and targets have different length
 - get the widget instead of the widget name
 - local variable referenced before assignment
-
-### Refactor
-
-- renamed Clip -> CopyToClip
-- only set targets at the begining
-- use switch decorator
-- make all view children elements part of the View class
-
-### Feat
-
-- add copy-to-clipboard widget
-- add a target parameter in the switch method
-
-## v_2.1.1 (2021-09-15)
-
-### Fix
-
+- **docs**: fix typo
+- include the save parameter to the view when someones initialize the view without the model
 - typo in setup
-
-## v_2.1.0 (2021-09-15)
-
-### Fix
-
 - folder init in reclassifyTile
 - typo in json dict
 - display the btn at the bottom of the table
@@ -53,6 +56,12 @@
 
 ### Refactor
 
+- remove un-used method
+- renamed Clip -> CopyToClip
+- only set targets at the begining
+- create a state bar to control if a table is already created
+- use switch decorator
+- make all view children elements part of the View class
 - **lang**: add keys
 - remove test notebook
 - ensure a value is set to the func
@@ -75,6 +84,12 @@
 
 ### Feat
 
+- declare all variable
+- add copy-to-clipboard widget
+- create common used fixtures
+- test reclassify model
+- add a target parameter in the switch method
+- create validation for the reclassify model method
 - change state when something is loaded
 - test asset validity
 - add commitizen check
@@ -82,12 +97,6 @@
 - separate the reclassified image and its visualization
 - define default_asset trait in SelectAsset. it will accept whether strings for unique default assets or lists for multiple. The trait can be observed to update the list anytime
 - introducing switch decorator
-
-## v_2.0.6 (2021-06-22)
-
-## v_2.0.5 (2021-06-17)
-
-## v_2.0.4 (2021-06-15)
 
 ## v_2.0.3 (2021-06-09)
 

@@ -13,8 +13,10 @@ from sepal_ui.message import ms
 from sepal_ui.scripts.utils import loading_button
 from .reclassify_model import ReclassifyModel
 
+__all__ = ["ReclassifyView"]
 
-class importMatrixDialog(v.Dialog):
+
+class ImportMatrixDialog(v.Dialog):
     """
     Dialog to select the file to use and fill the matrix
 
@@ -311,6 +313,8 @@ class ReclassifyView(v.Card):
         dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+        save (bool, optional): Whether to write/export the result or not.
+        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
 
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -348,6 +352,7 @@ class ReclassifyView(v.Card):
         aoi_model=None,
         save=True,
         folder=None,
+        enforce_aoi=False,
         **kwargs,
     ):
 
@@ -361,13 +366,20 @@ class ReclassifyView(v.Card):
         super().__init__(**kwargs)
 
         # set up a default model
-        self.model = (
-            model
-            if model
-            else ReclassifyModel(
-                gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder
-            )
+        self.model = model or ReclassifyModel(
+            gee=gee,
+            dst_dir=out_path,
+            aoi_model=aoi_model,
+            folder=folder,
+            save=save,
+            enforce_aoi=enforce_aoi,
         )
+
+        if enforce_aoi != self.model.enforce_aoi:
+            raise Exception(
+                "Both reclassify_model.gee and reclassify_view parameters has to be equals."
+                + f"Received {enforce_aoi} for reclassify_view and {self.model.enforce_aoi} for reclassify_model."
+            )
 
         # set the folders
         self.class_path = Path(class_path)
@@ -462,7 +474,7 @@ class ReclassifyView(v.Card):
         )
 
         self.save_dialog = SaveMatrixDialog(folder=out_path)
-        self.import_dialog = importMatrixDialog(folder=out_path)
+        self.import_dialog = ImportMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(
             ms.rec.rec.input.btn, "mdi-table", color="success", small=True
         )
@@ -472,7 +484,9 @@ class ReclassifyView(v.Card):
         self.save_table = sw.Btn(
             "save", "mdi-content-save", color="secondary", small=True
         )
-        self.reclassify_btn = sw.Btn(ms.rec.rec.btn, "mdi-checkerboard", small=True)
+        self.reclassify_btn = sw.Btn(
+            ms.rec.rec.btn, "mdi-checkerboard", small=True, disabled=True
+        )
 
         self.toolbar = v.Toolbar(
             class_="d-flex mb-6",
@@ -494,14 +508,17 @@ class ReclassifyView(v.Card):
 
         # create a duplicate layout that include the alert and the different btns
         # it will be displayed if the number of class > MAX_CLASS
-        self.duplicate_layout = v.Layout(children=[self.toolbar, self.alert])
-        su.hide_component(self.duplicate_layout)
+        self.duplicate_layout = v.Layout(
+            class_="d-none", children=[self.toolbar, self.alert]
+        )
 
         # bind to the model
         # bind to the 2 raster and asset as they cannot be displayed at the same time
-        self.model = self.model.bind(
-            self.w_image, "src_gee" if self.gee else "src_local"
-        ).bind(self.w_code, "band")
+        self.model = (
+            self.model.bind(self.w_image, "src_gee" if self.gee else "src_local")
+            .bind(self.w_code, "band")
+            .bind(self.w_dst_class_file, "dst_class_file")
+        )
 
         # create the layout
         self.children = [
@@ -540,21 +557,7 @@ class ReclassifyView(v.Card):
         self.w_image.observe(self._update_band, "v_model")
         self.get_table.on_event("click", self.get_reclassify_table)
         self.reclassify_btn.on_event("click", self.reclassify)
-        self.w_dst_class_file.observe(self._check_dst_file, "v_model")
         [btn.on_event("click", self._set_dst_class_file) for btn in self.btn_list]
-
-    def _check_dst_file(self, change):
-        """check the selected file is not a default btn. change their styling accordingly"""
-
-        filename = change["new"]
-
-        for btn in self.btn_list:
-            if btn._metadata["path"] in [filename, "custom"]:
-                btn.outlined = False
-            else:
-                btn.outlined = True
-
-        return self
 
     def _set_dst_class_file(self, widget, event, data):
         """Set the destination classification according to the one selected with btn. alter the widgets properties to reflect this change"""
@@ -586,11 +589,11 @@ class ReclassifyView(v.Card):
 
         # exit if no files are selected
         if not file:
-            raise Exception("No file have been selected")
+            raise Exception("No file has been selected")
 
         # exit if no table is loaded
-        if len(self.reclassify_table.children[0].children) < 3:
-            raise Exception("A classification system need to be selected first")
+        if not self.model.table_created:
+            raise Exception("You have to get the table before.")
 
         # load the file
         # sanity checks
@@ -660,6 +663,8 @@ class ReclassifyView(v.Card):
 
         return self
 
+    @su.switch("disabled", on_widgets=["reclassify_btn"], targets=[False])
+    @su.switch("table_created", on_widgets=["model"], targets=[True])
     def get_reclassify_table(self, widget, event, data):
         """
         Display a reclassify table which will lead the user to select
@@ -669,34 +674,23 @@ class ReclassifyView(v.Card):
             self
         """
 
-        # check that everything is set
-        if not self.w_image.v_model:
-            raise AttributeError("missing image")
-        if not self.w_code.v_model:
-            raise AttributeError("missing band")
-        if not self.w_dst_class_file.v_model:
-            raise AttributeError("missing file")
-
         # get the destination classes
-        self.model.dst_class = self.model.get_classes(self.w_dst_class_file.v_model)
+        self.model.dst_class = self.model.get_classes()
 
         # get the src_classes
         self.model.src_class = self.model.unique()
 
         # if the src_class_file is set overwrite src_class:
         if self.w_src_class_file.v_model:
-            self.model.src_class = self.model.get_classes(self.w_src_class_file.v_model)
+            self.model.src_class = self.model.get_classes()
 
         # reset the table
         self.reclassify_table.set_table(self.model.dst_class, self.model.src_class)
 
-        # enable the reclassify btn
-        self.reclassify_btn.disabled = False
-
         # check if the duplicate_layout need to be displayed ?
-        su.hide_component(self.duplicate_layout)
+        self.duplicate_layout.class_ = "d-none"
         if len(self.reclassify_table.children[0].children) - 1 > self.MAX_CLASS:
-            su.show_component(self.duplicate_layout)
+            self.duplicate_layout.class_ = "d-block"
 
         return self
 

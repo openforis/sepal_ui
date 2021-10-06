@@ -26,7 +26,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Test formatting
         uses: psf/black@stable
-      - name: test with unittest
+      - name: test with pytest
         run: coverage run -m pytest --color=yes tests
       - name: coverage
         run: coverage report -m

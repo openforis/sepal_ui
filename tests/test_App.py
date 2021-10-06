@@ -64,6 +64,4 @@ class TestApp:
             else:
                 assert di.input_value == False
 
-
-if __name__ == "__main__":
-    unittest.main()
+        return
