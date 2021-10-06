@@ -1,7 +1,45 @@
-## v_2.1.1
+## v_2.3.0 (2021-10-06)
 
 ### Fix
 
+- add enforce_aoi to reclassify_model
+- use split instead of indexing Fix #302
+- prevent tooltip error when calling. closes #298
+- little typo
+- fiix some minor bugs and add human sorted
+
+### Refactor
+
+- create destination gee unique name before export
+- move exceptions from view to model
+- remove _chk_dst_file method, its process was duplicated in the _set_dst_class file method
+
+### Feat
+
+- new script to Create a string followed by a consecutive underscore and number
+- test reclassify model coverage=80%
+- create useful fixtures to implement in related tests.
+- create a tests rasters to test reclassify methods
+
+## v_2.2.1 (2021-09-30)
+
+### Fix
+
+- typo in version naming
+
+## v_2.2.0 (2021-09-30)
+
+### Fix
+
+- use ssh url in module_factory Fix #283
+- typo
+- clip margins
+- use RPC to serve the resize method
+- catch when on_widget and targets have different length
+- get the widget instead of the widget name
+- local variable referenced before assignment
+- **docs**: fix typo
+- include the save parameter to the view when someones initialize the view without the model
 - typo in setup
 - folder init in reclassifyTile
 - typo in json dict
@@ -18,6 +56,12 @@
 
 ### Refactor
 
+- remove un-used method
+- renamed Clip -> CopyToClip
+- only set targets at the begining
+- create a state bar to control if a table is already created
+- use switch decorator
+- make all view children elements part of the View class
 - **lang**: add keys
 - remove test notebook
 - ensure a value is set to the func
@@ -40,6 +84,12 @@
 
 ### Feat
 
+- declare all variable
+- add copy-to-clipboard widget
+- create common used fixtures
+- test reclassify model
+- add a target parameter in the switch method
+- create validation for the reclassify model method
 - change state when something is loaded
 - test asset validity
 - add commitizen check
