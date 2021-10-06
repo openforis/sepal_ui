@@ -45,12 +45,14 @@ class ReclassifyModel(Model):
         remaped (int): state var updated each time an input is remapped
         aoi_model (aoi.AoiModel): AOI model object to get an area of interest if one is selected
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
 
     Args:
         gee (bool): either or not to set :code:`gee` to True
         dst_dir (str): the destination forlder for outputs
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
         aoi_model (aoi.AoiModel, optional): the aoi model to link to the reclassify workflow
+        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
     """
 
     # inputs
@@ -83,6 +85,7 @@ class ReclassifyModel(Model):
         aoi_model=None,
         folder=None,
         save=True,
+        enforce_aoi=False,
         **kwargs,
     ):
 
@@ -95,6 +98,9 @@ class ReclassifyModel(Model):
 
         # save relation with gee
         self.gee = gee
+
+        if self.gee:
+            su.init_ee()
 
         if self.gee:
             self.folder = folder or ee.data.getAssetRoots()[0]["id"]
@@ -111,8 +117,7 @@ class ReclassifyModel(Model):
                     + f"Received {self.aoi_model.ee} for aoi_model and {self.gee} for reclassify_model."
                 )
 
-        if self.gee:
-            su.init_ee()
+        self.enforce_aoi = enforce_aoi
 
         # set if the model need to save by default
         self.save = save
@@ -243,10 +248,18 @@ class ReclassifyModel(Model):
         # return none if no aoi is selected
         # test gdf as it's set whatever the type of AoiModel (gee or not)
         if self.aoi_model.gdf is None:
-            return
+            if self.enforce_aoi:
+                raise ("You have to select an area of interest before")
+            else:
+                aoi = None
 
-        # return the aoi as a vector
-        return self.aoi_model.feature_collection if self.gee else self.aoi_model.gdf
+        else:  # return the aoi as a vector
+            if self.gee:
+                aoi = self.aoi_model.feature_collection
+            else:
+                aoi = self.aoi_model.gdf
+
+        return aoi
 
     def unique(self):
         """

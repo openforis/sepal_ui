@@ -314,7 +314,7 @@ class ReclassifyView(v.Card):
         default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
         save (bool, optional): Whether to write/export the result or not.
-
+        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
 
     Attributes:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -352,6 +352,7 @@ class ReclassifyView(v.Card):
         aoi_model=None,
         save=True,
         folder=None,
+        enforce_aoi=False,
         **kwargs,
     ):
 
@@ -366,8 +367,19 @@ class ReclassifyView(v.Card):
 
         # set up a default model
         self.model = model or ReclassifyModel(
-            gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder, save=save
+            gee=gee,
+            dst_dir=out_path,
+            aoi_model=aoi_model,
+            folder=folder,
+            save=save,
+            enforce_aoi=enforce_aoi,
         )
+
+        if enforce_aoi != self.model.enforce_aoi:
+            raise Exception(
+                "Both reclassify_model.gee and reclassify_view parameters has to be equals."
+                + f"Received {enforce_aoi} for reclassify_view and {self.model.enforce_aoi} for reclassify_model."
+            )
 
         # set the folders
         self.class_path = Path(class_path)
