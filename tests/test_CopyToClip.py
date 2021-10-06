@@ -1,4 +1,5 @@
 import ipyvuetify as v
+import pytest
 
 from sepal_ui import sepalwidgets as sw
 
@@ -20,9 +21,8 @@ class TestClip:
 
         return
 
-    def test_copy(self):
+    def test_copy(self, clip):
 
-        clip = sw.CopyToClip(v_model="value")
         clip.tf.fire_event("click:append", None)
 
         # I don't know how to check the clipboard
@@ -32,10 +32,10 @@ class TestClip:
 
         return
 
-    def test_change(self):
+    def test_change(self, clip):
 
         # test value
-        test_value = "toto"
+        test_value = "tot"
 
         # change the widget value
         clip = sw.CopyToClip()
@@ -45,3 +45,9 @@ class TestClip:
         assert clip.tf.v_model == test_value
 
         return
+
+    @pytest.fixture
+    def clip(self):
+        """create a simple clip-to-clipboard with a v_model set to "value"."""
+
+        return sw.CopyToClip(v_model="value")

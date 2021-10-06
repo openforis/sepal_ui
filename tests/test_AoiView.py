@@ -8,13 +8,10 @@ from sepal_ui.message import ms
 
 
 class TestAoiView:
-
-    FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-
-    def test_init(self):
+    def test_init(self, gee_dir):
 
         # default init
-        view = aoi.AoiView(folder=self.FOLDER)
+        view = aoi.AoiView(folder=gee_dir)
         assert isinstance(view, aoi.AoiView)
 
         # init without ee
@@ -22,20 +19,20 @@ class TestAoiView:
         assert view.model.ee == False
 
         # init with ADMIN
-        view = aoi.AoiView("ADMIN", folder=self.FOLDER)
+        view = aoi.AoiView("ADMIN", folder=gee_dir)
         assert {"header": "CUSTOM"} not in view.w_method.items
 
         # init with CUSTOM
-        view = aoi.AoiView("CUSTOM", folder=self.FOLDER)
+        view = aoi.AoiView("CUSTOM", folder=gee_dir)
         assert {"header": "ADMIN"} not in view.w_method.items
 
         # init with a list
-        view = aoi.AoiView(["POINTS"], folder=self.FOLDER)
+        view = aoi.AoiView(["POINTS"], folder=gee_dir)
         assert {"text": ms.aoi_sel.points, "value": "POINTS"} in view.w_method.items
         assert len(view.w_method.items) == 1 + 1  # 1 for the header, 1 for the object
 
         # init with a remove list
-        view = aoi.AoiView(["-POINTS"], folder=self.FOLDER)
+        view = aoi.AoiView(["-POINTS"], folder=gee_dir)
         assert {"text": ms.aoi_sel.points, "value": "POINTS"} not in view.w_method.items
         assert (
             len(view.w_method.items) == len(aoi.AoiModel.METHODS) + 2 - 1
@@ -43,37 +40,36 @@ class TestAoiView:
 
         # init with a mix of both
         with pytest.raises(Exception):
-            view = aoi.AoiView(["-POINTS", "DRAW"], folder=self.FOLDER)
+            view = aoi.AoiView(["-POINTS", "DRAW"], folder=gee_dir)
 
         # init with a non existing keyword
         with pytest.raises(Exception):
-            view = aoi.AoiView(["TOTO"], folder=self.FOLDER)
+            view = aoi.AoiView(["TOTO"], folder=gee_dir)
 
         # init with a map
         m = SepalMap(dc=True)
-        view = aoi.AoiView(map_=m, folder=self.FOLDER)
+        view = aoi.AoiView(map_=m, folder=gee_dir)
         assert view.map_ == m
 
         return
 
-    def test_admin(self):
+    def test_admin(self, gee_dir):
 
         # test if admin0 is in Gaul
-        view = aoi.AoiView(folder=self.FOLDER)
+        view = aoi.AoiView(folder=gee_dir)
         first_gaul_item = {"text": "Abyei", "value": 102}
         assert first_gaul_item == view.w_admin_0.items[0]
 
         # test if admin0 is in gadm
-        view = aoi.AoiView(gee=False, folder=self.FOLDER)
+        view = aoi.AoiView(gee=False)
         first_gadm_item = {"text": "Afghanistan", "value": "AFG"}
         assert first_gadm_item == view.w_admin_0.items[0]
 
         return
 
-    def test_activate(self):
+    def test_activate(self, aoi_gee_view):
 
-        # test the activation of the widgets
-        view = aoi.AoiView(folder=self.FOLDER)
+        view = aoi_gee_view
 
         for method in aoi.AoiModel.METHODS:
 
@@ -90,7 +86,6 @@ class TestAoiView:
                     assert "d-none" in c.class_
 
         # test the cascade of the admin selector
-        view = aoi.AoiView(gee=False)
         view.w_method.v_model = "ADMIN2"
 
         view.w_admin_0.v_model = view.w_admin_0.items[0]["value"]
@@ -101,65 +96,55 @@ class TestAoiView:
 
         return
 
-    def test_update_aoi(self):
-
-        # init with a map
-        m = SepalMap(dc=True)
-        view = aoi.AoiView(map_=m, gee=False)
+    def test_update_aoi(self, aoi_gee_view, aoi_local_view):
 
         # select Italy
-        item = next(i for i in view.w_admin_0.items if i["text"] == "Italy")
-        view.w_method.v_model = "ADMIN0"
-        view.w_admin_0.v_model = item["value"]
+        item = next(i for i in aoi_gee_view.w_admin_0.items if i["text"] == "Italy")
+        aoi_gee_view.w_method.v_model = "ADMIN0"
+        aoi_gee_view.w_admin_0.v_model = item["value"]
 
         # launch the update
-        view._update_aoi(None, None, None)
+        aoi_gee_view._update_aoi(None, None, None)
 
         # perform checks
-        assert view.updated == 1
-        assert view.model.name == "ITA"
-        assert len(view.map_.layers) == 2
+        assert aoi_gee_view.updated == 1
+        assert aoi_gee_view.model.name == "ITA"
+        assert len(aoi_gee_view.map_.layers) == 2
 
-        # same with GEE
-        m = SepalMap(dc=True)
-        view = aoi.AoiView(map_=m, folder=self.FOLDER)
+        # same without GEE
 
         # select Italy
-        item = next(i for i in view.w_admin_0.items if i["text"] == "Italy")
-        view.w_method.v_model = "ADMIN0"
-        view.w_admin_0.v_model = item["value"]
+        item = next(i for i in aoi_local_view.w_admin_0.items if i["text"] == "Italy")
+        aoi_local_view.w_method.v_model = "ADMIN0"
+        aoi_local_view.w_admin_0.v_model = item["value"]
 
         # launch the update
-        view._update_aoi(None, None, None)
+        aoi_local_view._update_aoi(None, None, None)
 
         # perform checks
-        assert view.updated == 1
-        assert view.model.name == "ITA"
-        assert len(view.map_.layers) == 2
+        assert aoi_local_view.updated == 1
+        assert aoi_local_view.model.name == "ITA"
+        assert len(aoi_local_view.map_.layers) == 2
 
         return
 
-    def test_reset(self):
-
-        # select a model
-        m = SepalMap(dc=True)
-        view = aoi.AoiView(map_=m, folder=self.FOLDER)
+    def test_reset(self, aoi_gee_view):
 
         # select Italy
-        item = next(i for i in view.w_admin_0.items if i["text"] == "Italy")
-        view.w_method.v_model == "ADMIN0"
-        view.w_admin_0.v_model = item["value"]
+        item = next(i for i in aoi_gee_view.w_admin_0.items if i["text"] == "Italy")
+        aoi_gee_view.w_method.v_model == "ADMIN0"
+        aoi_gee_view.w_admin_0.v_model = item["value"]
 
         # launch the update
-        view._update_aoi(None, None, None)
+        aoi_gee_view._update_aoi(None, None, None)
 
         # reset
-        view.reset()
+        aoi_gee_view.reset()
 
         # checks
-        assert len(view.map_.layers) == 1
-        assert view.w_method.v_model == None
-        assert view.model.name == None
+        assert len(aoi_gee_view.map_.layers) == 1
+        assert aoi_gee_view.w_method.v_model == None
+        assert aoi_gee_view.model.name == None
 
         return
 
@@ -251,3 +236,17 @@ class TestAoiView:
         assert aoi.AoiView.polygonize(src_json) == dst_json
 
         return
+
+    @pytest.fixture
+    def aoi_gee_view(self, gee_dir):
+        """create an AoiView based on GEE with a silent sepalMap"""
+
+        m = SepalMap(dc=True)
+        return aoi.AoiView(map_=m, folder=gee_dir)
+
+    @pytest.fixture
+    def aoi_local_view(self, gee_dir):
+        """create an AoiView based on GADM with a silent sepalMap"""
+
+        m = SepalMap(dc=True)
+        return aoi.AoiView(map_=m, gee=False)

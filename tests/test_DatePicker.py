@@ -1,3 +1,5 @@
+import pytest
+
 from sepal_ui import sepalwidgets as sw
 
 
@@ -14,10 +16,7 @@ class TestDatePicker:
 
         return
 
-    def test_bind(self):
-
-        datepicker = sw.DatePicker()
-
+    def test_bind(self, datepicker):
         class Test_io:
             def __init__(self):
                 self.out = None
@@ -34,3 +33,9 @@ class TestDatePicker:
         assert output.viz == True
 
         return
+
+    @pytest.fixture
+    def datepicker(self):
+        """create a default datepicker"""
+
+        return sw.DatePicker()

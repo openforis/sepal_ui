@@ -3,63 +3,47 @@ from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
+import pytest
+
 from sepal_ui import aoi
 from sepal_ui import sepalwidgets as sw
 
 
 class TestAoiModel:
-
-    # test folder
-    FOLDER = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-
-    def test_init(self):
-
-        # dummy alert
-        alert = sw.Alert()
+    def test_init(self, alert, gee_dir, asset_italy, fake_vector):
 
         # default init
-        aoi_model = aoi.AoiModel(alert, folder=self.FOLDER)
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
         assert isinstance(aoi_model, aoi.AoiModel)
         assert aoi_model.ee == True
 
         # with default assetId
-        asset_id = "users/bornToBeAlive/sepal_ui_test/italy"
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
+        aoi_model = aoi.AoiModel(alert, asset=asset_italy, folder=gee_dir)
 
-        assert aoi_model.asset_name == asset_id
-        assert aoi_model.default_asset == asset_id
+        assert aoi_model.asset_name == asset_italy
+        assert aoi_model.default_asset == asset_italy
         assert all(aoi_model.gdf) != None
         assert aoi_model.feature_collection != None
         assert aoi_model.name == "italy"
 
         # with a default admin
         admin = 85  # GAUL France
-        aoi_model = aoi.AoiModel(alert, admin=admin, folder=self.FOLDER)
+        aoi_model = aoi.AoiModel(alert, admin=admin, folder=gee_dir)
         assert aoi_model.name == "FRA"
 
         # with a default vector
-        vector = self._create_fake_vector()
-        aoi_model = aoi.AoiModel(alert, vector=vector, gee=False)
+        aoi_model = aoi.AoiModel(alert, vector=fake_vector, gee=False)
         assert aoi_model.name == "gadm36_VAT_0"
-
-        [f.unlink() for f in Path("~").expanduser().glob(f"{vector.stem}.*")]
 
         # test with a non ee definition
         admin = "FRA"  # GADM France
-        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin, folder=self.FOLDER)
+        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin)
 
         assert aoi_model.name == "FRA"
 
         return
 
-    def test_get_columns(self):
-
-        # dummy alert
-        alert = sw.Alert()
-
-        # init
-        asset_id = "users/bornToBeAlive/sepal_ui_test/france"
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
+    def test_get_columns(self, aoi_model_france):
 
         # test data
         test_data = [
@@ -72,43 +56,33 @@ class TestAoiModel:
             "Shape_Leng",
         ]
 
-        res = aoi_model.get_columns()
+        res = aoi_model_france.get_columns()
 
         assert res == test_data
 
         return
 
-    def test_get_fields(self):
-
-        # dummy alert
-        alert = sw.Alert()
+    def test_get_fields(self, aoi_model_france):
 
         # init
-        asset_id = "users/bornToBeAlive/sepal_ui_test/france"
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
         column = "ADM0_CODE"
 
-        res = aoi_model.get_fields(column)
+        res = aoi_model_france.get_fields(column)
 
         assert res == [85]
 
         return
 
-    def test_get_selected(self):
-
-        # dummy alert
-        alert = sw.Alert()
+    def test_get_selected(self, aoi_model_france, asset_france):
 
         # init
-        asset_id = "users/bornToBeAlive/sepal_ui_test/france"
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
-        ee_france = ee.FeatureCollection(asset_id)
+        ee_france = ee.FeatureCollection(asset_france)
 
         # select the geometry associated with france (all of it)
         column = "ADM0_CODE"
         field = 85
 
-        feature = aoi_model.get_selected(column, field)
+        feature = aoi_model_france.get_selected(column, field)
 
         feature_geom = feature.geometry().getInfo()
         france_geom = ee_france.geometry().getInfo()
@@ -117,12 +91,9 @@ class TestAoiModel:
 
         return
 
-    def test_clear_attributes(self):
+    def test_clear_attributes(self, alert, gee_dir):
 
-        # dummy alert
-        alert = sw.Alert()
-
-        aoi_model = aoi.AoiModel(alert, folder=self.FOLDER)
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
 
         dum = "dum"
 
@@ -156,7 +127,7 @@ class TestAoiModel:
         assert aoi_model.default_vector == None
 
         # check that default are saved
-        aoi_model = aoi.AoiModel(alert, admin=85, folder=self.FOLDER)  # GAUL for France
+        aoi_model = aoi.AoiModel(alert, admin=85, folder=gee_dir)  # GAUL for France
 
         # insert dummy args
         aoi_model.method = dum
@@ -178,14 +149,7 @@ class TestAoiModel:
 
         return
 
-    def test_total_bounds(self):
-
-        # dummy alert
-        alert = sw.Alert()
-
-        # init
-        asset_id = "users/bornToBeAlive/sepal_ui_test/france"
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=self.FOLDER)
+    def test_total_bounds(self, aoi_model_france):
 
         # test data
         expected_bounds = (
@@ -195,17 +159,18 @@ class TestAoiModel:
             51.09281241936492,
         )
 
-        bounds = aoi_model.total_bounds()
+        bounds = aoi_model_france.total_bounds()
 
         assert bounds == expected_bounds
 
         return
 
-    def _create_fake_vector(self):
+    @pytest.fixture
+    def fake_vector(self, tmp_dir):
+        """create a fake vector file from the GADM definition of vatican city and save it in the tmp dir. the tmp files will be destroyed after the test."""
 
         # download vatican city from GADM
-        root_dir = Path("~").expanduser()
-        file = root_dir / "test.zip"
+        file = tmp_dir / "test.zip"
 
         gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
         name = "gadm36_VAT_0"
@@ -213,8 +178,19 @@ class TestAoiModel:
         urlretrieve(gadm_vat_link, file)
 
         with ZipFile(file, "r") as zip_ref:
-            zip_ref.extractall(root_dir)
+            zip_ref.extractall(tmp_dir)
 
         file.unlink()
 
-        return root_dir / f"{name}.shp"
+        yield tmp_dir / f"{name}.shp"
+
+        # destroy the file after the test
+        [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
+
+        return
+
+    @pytest.fixture
+    def aoi_model_france(self, alert, gee_dir, asset_france):
+        """create a dummy alert and a test aoi model based on GEE that use the france asset available on the test account"""
+
+        return aoi.AoiModel(alert, asset=asset_france, folder=gee_dir)

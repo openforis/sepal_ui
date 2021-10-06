@@ -355,13 +355,6 @@ class ReclassifyView(v.Card):
         **kwargs,
     ):
 
-        if aoi_model:
-            if not aoi_model.ee == gee:
-                raise Exception(
-                    "Both aoi_model.gee and self.gee parameters has to be equals. "
-                    f"Received {aoi_model.ee} for aoi_model and {gee} for self."
-                )
-
         # create metadata to make it compatible with the framwork app system
         self._metadata = {"mount_id": "reclassify_tile"}
 
@@ -372,12 +365,8 @@ class ReclassifyView(v.Card):
         super().__init__(**kwargs)
 
         # set up a default model
-        self.model = (
-            model
-            if model
-            else ReclassifyModel(
-                gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder, save=save
-            )
+        self.model = model or ReclassifyModel(
+            gee=gee, dst_dir=out_path, aoi_model=aoi_model, folder=folder, save=save
         )
 
         # set the folders

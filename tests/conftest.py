@@ -3,41 +3,101 @@ import pytest
 from pathlib import Path
 from zipfile import ZipFile
 from urllib.request import urlretrieve
+import os
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.aoi import AoiModel
 
 
 @pytest.fixture
-def dum_dir():
-    """Creates a dummy directory"""
+def gee_ready(scope="session"):
+    """return if exporting is possible with the current GEE authentification method"""
 
-    dum_dir = Path("~").expanduser() / "tmp/sepal_ui_tests/"
-    dum_dir.mkdir(exist_ok=True, parents=True)
-
-    return dum_dir
+    return "EE_DECRYPT_KEY" not in os.environ
 
 
 @pytest.fixture
-def aoi_model_gee(dum_dir):
-    """Creates a default AOI GEE model using a default asset_id"""
+def root_dir(scope="session"):
+    """path to the root dir of the librairy"""
 
-    asset_id = "users/bornToBeAlive/sepal_ui_test/italy"
-
-    return AoiModel(alert=sw.Alert(), folder=dum_dir, asset=asset_id)
+    return Path(__file__).parents[1].absolute()
 
 
 @pytest.fixture
-def aoi_model_local(dum_dir):
-    """Creates a default AOI NOT-GEE model with a default vector"""
+def tmp_dir(scope="session"):
+    """Creates a temporary local directory"""
 
-    # Get a dummy asset
-    file = Path(gpd.datasets.get_path("nybb").replace("zip:", ""))
-    vector = (dum_dir / "nybb").with_suffix(".shp")
+    tmp_dir = Path.home() / "tmp" / "sepal_ui_tests"
+    tmp_dir.mkdir(exist_ok=True, parents=True)
 
-    if not vector.exists():
+    return tmp_dir
 
-        with ZipFile(file, "r") as zip_ref:
-            zip_ref.extractall(dum_dir)
 
-    return AoiModel(alert=sw.Alert(), folder=dum_dir, gee=False, vector=vector)
+@pytest.fixture
+def gee_dir(scope="session"):
+    """the test dir allowed with the service account credentials"""
+
+    return "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
+
+
+@pytest.fixture
+def asset_france(gee_dir, scope="session"):
+    """return the france asset available in our test account"""
+
+    return f"{gee_dir}/france"
+
+
+@pytest.fixture
+def asset_italy(gee_dir, scope="session"):
+    """return the italy asset available in our test account"""
+
+    return f"{gee_dir}/italy"
+
+
+@pytest.fixture
+def asset_table_aoi(gee_dir, scope="session"):
+    """return the aoi for the reclassify tests available in our test account"""
+
+    return f"{gee_dir}/reclassify_table_aoi"
+
+
+@pytest.fixture
+def asset_image_aoi(gee_dir, scope="session"):
+    """return the aoi for the reclassify tests available in our test account"""
+
+    return f"{gee_dir}/reclassify_image_aoi"
+
+
+@pytest.fixture
+def no_name(scope="session"):
+    """return a no-name tuple"""
+
+    return ("no_name", "#000000")
+
+
+@pytest.fixture
+def alert():
+    """return a dummy alert that can be used everywhere to display informations"""
+
+    return sw.Alert()
+
+
+@pytest.fixture
+def readme(root_dir, scope="session"):
+    """return the readme file path"""
+
+    return root_dir / "README.rst"
+
+
+@pytest.fixture
+def asset_description(scope="session"):
+    """return a test asset name"""
+
+    return "test_travis"
+
+
+@pytest.fixture
+def asset_id(asset_description, scope="session"):
+    """return a test asset id"""
+
+    return f"users/bornToBeAlive/sepal_ui_test/{asset_description}"

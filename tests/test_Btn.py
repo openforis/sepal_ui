@@ -1,4 +1,5 @@
 import ipyvuetify as v
+import pytest
 
 from sepal_ui import sepalwidgets as sw
 
@@ -20,11 +21,11 @@ class TestBtn:
 
         return
 
-    def test_set_icon(self):
+    def test_set_icon(self, btn):
 
         # new icon
         icon = "mdi-folder"
-        btn = sw.Btn().set_icon(icon)
+        btn = btn.set_icon(icon)
 
         assert isinstance(btn.v_icon, v.Icon)
         assert btn.v_icon.children[0] == icon
@@ -36,9 +37,9 @@ class TestBtn:
 
         return
 
-    def test_toggle_loading(self):
+    def test_toggle_loading(self, btn):
 
-        btn = sw.Btn().toggle_loading()
+        btn = btn.toggle_loading()
 
         assert btn.loading == True
         assert btn.disabled == True
@@ -48,3 +49,9 @@ class TestBtn:
         assert btn.disabled == False
 
         return
+
+    @pytest.fixture
+    def btn(self):
+        """Create a simple btn"""
+
+        return sw.Btn()
