@@ -703,13 +703,22 @@ class VectorField(v.Col, SepalWidget):
         {"divider": True},
     ]
 
-    def __init__(self, label="vector_file", **kwargs):
+    def __init__(self, label="vector_file", gee=False, **kwargs):
 
         # save the df for column naming (not using a gdf as geometry are useless)
         self.df = None
+        self.feature_collection = None
+
+        asset_select_kwargs = {
+            k: v for k, v in kwargs.items() if k in ["folder", "types"]
+        }
 
         # set the 3 wigets
-        self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
+        self.w_file = (
+            FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
+            if not gee
+            else AssetSelect(**asset_select_kwargs)
+        )
         self.w_column = v.Select(
             _metadata={"name": "column"},
             items=self.column_base_items,
@@ -752,6 +761,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_column.items = self.w_value.items = []
         self.w_column.v_model = self.w_value.v_model = None
         self.df = None
+        self.feature_collection = None
 
         # set the pathname value
         self.v_model["pathname"] = change["new"]
@@ -760,13 +770,19 @@ class VectorField(v.Col, SepalWidget):
         if not change["new"]:
             return self
 
-        # read the file
-        self.df = gpd.read_file(change["new"], ignore_geometry=True)
+        if isinstance(self.w_file, FileInput):
+            # read the file
+            self.df = gpd.read_file(change["new"], ignore_geometry=True)
+            columns = self.df.columns.to_list()
+        else:
+            self.feature_collection = ee.FeatureCollection(change["new"])
+            columns = self.feature_collection.first().getInfo()["properties"]
+            columns = [
+                str(col) for col in columns if col not in ["system:index", "Shape_Area"]
+            ]
 
         # update the columns
-        self.w_column.items = self.column_base_items + sorted(
-            set(self.df.columns.to_list())
-        )
+        self.w_column.items = self.column_base_items + sorted(set(columns))
 
         self.w_column.v_model = "ALL"
 
@@ -789,7 +805,17 @@ class VectorField(v.Col, SepalWidget):
             return self
 
         # read the colmun
-        self.w_value.items = sorted(set(self.df[change["new"]].to_list()))
+        if isinstance(self.w_file, FileInput):
+            values = self.df[change["new"]].to_list()
+        else:
+            values = (
+                self.feature_collection.distinct(change["new"])
+                .aggregate_array(change["new"])
+                .getInfo()
+            )
+
+        self.w_value.items = sorted(set(values))
+
         su.show_component(self.w_value)
 
         return self

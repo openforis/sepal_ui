@@ -187,11 +187,22 @@ class AoiModel(Model):
     def _from_asset(self, asset_name):
         """set the ee.FeatureCollection output from an existing asset"""
 
-        # check that I have access to the asset
-        ee_col = ee.FeatureCollection(asset_name)
-        ee_col.geometry().bounds().coordinates().get(
-            0
-        ).getInfo()  # it will raise and error if we cannot access the asset
+        if not (asset_name["pathname"]):
+            raise Exception("Please select an asset.")
+
+        if asset_name["column"] != "ALL":
+            if asset_name["value"] is None:
+                raise Exception("Please select a value.")
+
+        self.name = Path(asset_name["pathname"]).stem.replace(self.ASSET_SUFFIX, "")
+        ee_col = ee.FeatureCollection(asset_name["pathname"])
+
+        if asset_name["column"] != "ALL":
+
+            column = asset_name["column"]
+            value = asset_name["value"]
+            ee_col = ee_col.filterMetadata(column, "equals", value)
+            self.name = self.name + f"_{column}_{value}"
 
         # set the feature collection
         self.feature_collection = ee_col
@@ -204,7 +215,6 @@ class AoiModel(Model):
         ).set_crs(epsg=4326)
 
         # set the name
-        self.name = Path(asset_name).stem.replace(self.ASSET_SUFFIX, "")
 
         return self
 
