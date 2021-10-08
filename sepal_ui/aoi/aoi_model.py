@@ -512,7 +512,10 @@ class AoiModel(Model):
         asset_id = str(Path(self.folder, asset_name))
 
         # set the asset name
-        self.asset_name = asset_id
+        # the model is failing here with this assignation... doing this change we
+        # probably will break something...
+        # self.asset_name = asset_id
+        self.dst_asset_id = asset_id
 
         # check if the table already exist
         if asset_id in [a["name"] for a in gee.get_assets(self.folder)]:
