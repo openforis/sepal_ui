@@ -274,7 +274,7 @@ class AoiModel(Model):
         self.name = vector_file.stem
 
         # filter it if necessary
-        if vector_json["value"]:
+        if vector_json["value"] != None:
             self.gdf = self.gdf[self.gdf[vector_json["column"]] == vector_json["value"]]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
 
