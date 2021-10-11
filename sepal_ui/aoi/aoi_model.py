@@ -49,6 +49,9 @@ class AoiModel(Model):
         feature_collection (ee.FeatureCollection): the featurecollection of the aoi (only in ee model)
         gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
         ipygeojson (GeoJson layer): the ipyleaflet representation of the selected aoi
+
+    ..deprecated:: 2.3.2 : 'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
+
     """
 
     # const params
@@ -511,10 +514,6 @@ class AoiModel(Model):
         asset_name = self.ASSET_SUFFIX + self.name
         asset_id = str(Path(self.folder, asset_name))
 
-        # set the asset name
-        # the model is failing here with this assignation... doing this change we
-        # probably will break something...
-        # self.asset_name = asset_id
         self.dst_asset_id = asset_id
 
         # check if the table already exist
