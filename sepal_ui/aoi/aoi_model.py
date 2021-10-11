@@ -202,7 +202,7 @@ class AoiModel(Model):
             column = asset_name["column"]
             value = asset_name["value"]
             ee_col = ee_col.filterMetadata(column, "equals", value)
-            self.name = self.name + f"_{column}_{value}"
+            self.name = f"{self.name}_{column}_{value}"
 
         # set the feature collection
         self.feature_collection = ee_col
