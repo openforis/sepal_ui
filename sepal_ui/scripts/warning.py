@@ -1,3 +1,7 @@
+from deprecated.sphinx import versionadded
+
+
+@versionadded(version="2.3.1")
 class SepalWarning(Warning):
     """
     A custom warning class that will be the only one to be displayed in the Alert in voila.
