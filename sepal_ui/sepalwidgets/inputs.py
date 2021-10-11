@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict
+from traitlets import link, Int, Any, List, observe, Dict, Unicode
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -109,6 +109,7 @@ class FileInput(v.Flex, SepalWidget):
     """
 
     file = Any("")
+    v_model = Unicode(None, allow_none=True).tag(sync=True)
 
     def __init__(
         self,
@@ -125,10 +126,9 @@ class FileInput(v.Flex, SepalWidget):
 
         self.extentions = extentions
         self.folder = folder
-        self.v_model = v_model
 
         self.selected_file = v.TextField(
-            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=self.file
+            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=None
         )
 
         self.loading = v.ProgressLinear(
@@ -201,13 +201,13 @@ class FileInput(v.Flex, SepalWidget):
 
         root = Path("~").expanduser()
 
-        if self.v_model != "":
+        if self.v_model is not None:
 
             # move to root
             self._on_file_select({"new": root})
 
             # remove v_model
-            self.v_model = ""
+            self.v_model = None
 
         return self
 
