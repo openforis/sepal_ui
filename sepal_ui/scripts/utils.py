@@ -9,7 +9,6 @@ import warnings
 from unidecode import unidecode
 from functools import wraps
 from itertools import product
-import json
 
 import ee
 from cryptography.fernet import Fernet
