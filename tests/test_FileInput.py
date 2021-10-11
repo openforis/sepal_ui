@@ -11,13 +11,13 @@ class TestFileInput:
         file_input = sw.FileInput()
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model == ""
+        assert file_input.v_model == None
 
         # init with a string
         file_input = sw.FileInput(folder=str(root_dir))
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model == ""
+        assert file_input.v_model == None
 
         # get all the names
         assert "sepal_ui" in self.get_names(file_input)
@@ -52,7 +52,7 @@ class TestFileInput:
 
         file_input._on_file_select({"new": root_dir})
 
-        assert file_input.v_model == ""
+        assert file_input.v_model == None
         assert "README.rst" in self.get_names(file_input)
 
         # select readme
@@ -95,7 +95,7 @@ class TestFileInput:
         file_input.reset()
 
         # assert that the folder has been reset
-        assert file_input.v_model == ""
+        assert file_input.v_model == None
         assert file_input.folder != str(root_dir)
 
         return
