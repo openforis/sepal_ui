@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+import warnings
 
 import random
 import os
@@ -9,6 +10,7 @@ import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.warning import SepalWarning
 
 
 class TestUtils:
@@ -144,38 +146,60 @@ class TestUtils:
             def __init__(self):
                 self.alert = sw.Alert()
                 self.btn = sw.Btn()
-                self.func = su.loading_button(
-                    alert=self.alert, button=self.btn, debug=False
-                )(self.func)
 
-                self.btn.on_event("click", self.func)
-
-            def func(sel, *args):
+            @su.loading_button(debug=False)
+            def func1(self, *args):
                 return 1 / 0
-
-        obj = Obj()
-        obj.btn.fire_event("click", None)
-
-        assert obj.btn.disabled == False
-        assert obj.alert.type == "error"
-
-        # create a fake object that uses the decorator
-        class Obj:
-            def __init__(self):
-                self.alert = sw.Alert()
-                self.btn = sw.Btn()
-
-                self.btn.on_event("click", self.func)
 
             @su.loading_button(debug=True)
-            def func(self, *args):
+            def func2(self, *args):
                 return 1 / 0
 
-        obj = Obj()
-        obj.btn.fire_event("click", None)
+            @su.loading_button(debug=False)
+            def func3(self, *args):
+                warnings.warn("toto")
+                warnings.warn("sepal", SepalWarning)
+                return 1
 
+            @su.loading_button(debug=True)
+            def func4(self, *args):
+                warnings.warn("toto")
+                warnings.warn("sepal", SepalWarning)
+                return 1
+
+        obj = Obj()
+
+        # should only display error in the alert
+        obj.func1(obj.btn, None, None)
         assert obj.btn.disabled == False
         assert obj.alert.type == "error"
+
+        # should raise an error
+        obj.alert.reset()
+        with pytest.raises(Exception):
+            obj.fun2(obj.btn, None, None)
+        assert obj.btn.disabled == False
+        assert obj.alert.type == "error"
+
+        # should only display the sepal warning
+        obj.alert.reset()
+        obj.func3(obj.btn, None, None)
+        assert obj.btn.disabled == False
+        assert obj.alert.type == "warning"
+        assert "sepal" in obj.alert.children[1].children[0]
+        assert "toto" not in obj.alert.children[1].children[0]
+
+        # should raise warnings
+        obj.alert.reset()
+        with warnings.catch_warnings(record=True) as w_list:
+            obj.func4(obj.btn, None, None)
+        assert obj.btn.disabled == False
+        assert obj.alert.type == "warning"
+        assert "sepal" in obj.alert.children[1].children[0]
+        assert "toto" not in obj.alert.children[1].children[0]
+        msg_list = [w.message.args[0] for w in w_list]
+        assert any("sepal" in s for s in msg_list)
+        assert any("toto" in s for s in msg_list)
 
         return
 
