@@ -20,11 +20,29 @@ class TestAoiModel:
         # with default assetId
         aoi_model = aoi.AoiModel(alert, asset=asset_italy, folder=gee_dir)
 
-        assert aoi_model.asset_name == asset_italy
-        assert aoi_model.default_asset == asset_italy
+        assert aoi_model.asset_name["pathname"] == asset_italy
+        assert aoi_model.default_asset["pathname"] == asset_italy
         assert all(aoi_model.gdf) != None
         assert aoi_model.feature_collection != None
         assert aoi_model.name == "italy"
+
+        # chack that wrongly defined asset_name raise errors
+        with pytest.raises(Exception):
+            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+            aoi_model._from_asset({"pathname": None})
+
+        with pytest.raises(Exception):
+            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+            aoi_model._from_asset(
+                {"pathname": asset_italy, "column": "ADM0_CODE", "value": None}
+            )
+
+            # it should be the same with a different name
+            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+            aoi_model._from_asset(
+                {"pathname": asset_italy, "column": "ADM0_CODE", "value": 122}
+            )
+            assert aoi_model.name == "italy_ADM0_CODE_122"
 
         # with a default admin
         admin = 85  # GAUL France

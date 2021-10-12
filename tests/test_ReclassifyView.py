@@ -94,7 +94,7 @@ class TestReclassifyView:
             view_local.load_matrix_content(None, None, None)
 
         # When the table is not created before
-        view_local.import_dialog.w_file.v_model = map_file
+        view_local.import_dialog.w_file.v_model = str(map_file)
         view_local.model.table_created = False
         with pytest.raises(Exception):
             view_local.load_matrix_content(None, None, None)
