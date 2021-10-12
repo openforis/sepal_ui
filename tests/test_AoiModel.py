@@ -20,8 +20,8 @@ class TestAoiModel:
         # with default assetId
         aoi_model = aoi.AoiModel(alert, asset=asset_italy, folder=gee_dir)
 
-        assert aoi_model.asset_name == asset_italy
-        assert aoi_model.default_asset == asset_italy
+        assert aoi_model.asset_name["pathname"] == asset_italy
+        assert aoi_model.default_asset["pathname"] == asset_italy
         assert all(aoi_model.gdf) != None
         assert aoi_model.feature_collection != None
         assert aoi_model.name == "italy"

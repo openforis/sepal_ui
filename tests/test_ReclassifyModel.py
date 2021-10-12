@@ -152,7 +152,9 @@ class TestReclassifyModel:
         image_unique_aoi = [30, 40, 50, 100, 110, 120, 130, 160]
 
         model_gee_image.band = "y1992"
-        model_gee_image.aoi_model._from_asset(asset_image_aoi)
+        model_gee_image.aoi_model._from_asset(
+            {"pathname": asset_image_aoi, "column": "ALL", "value": None}
+        )
         print(model_gee_image.aoi_model.name)
         assert model_gee_image.unique() == {str(i): no_name for i in image_unique_aoi}
 
@@ -218,7 +220,9 @@ class TestReclassifyModel:
         ]
 
         model_gee_vector.band = "CODIGO"
-        model_gee_vector.aoi_model._from_asset(asset_table_aoi)
+        model_gee_vector.aoi_model._from_asset(
+            {"pathname": asset_table_aoi, "column": "ALL", "value": None}
+        )
         assert model_gee_vector.unique() == {i: no_name for i in vector_unique_aoi}
 
         model_gee_vector.aoi_model = None
@@ -289,7 +293,9 @@ class TestReclassifyModel:
 
         model_gee_vector.matrix = matrix
         model_gee_vector.band = "CODIGO"
-        model_gee_vector.aoi_model._from_asset(asset_table_aoi)
+        model_gee_vector.aoi_model._from_asset(
+            {"pathname": asset_table_aoi, "column": "ALL", "value": None}
+        )
         model_gee_vector.reclassify()
 
         if model_gee_vector.save:
@@ -316,7 +322,9 @@ class TestReclassifyModel:
 
         model_gee_image.matrix = matrix
         model_gee_image.band = "y1992"
-        model_gee_image.aoi_model._from_asset(asset_image_aoi)
+        model_gee_image.aoi_model._from_asset(
+            {"pathname": asset_image_aoi, "column": "ALL", "value": None}
+        )
         model_gee_image.reclassify()
 
         if model_gee_image.save:

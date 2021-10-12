@@ -136,7 +136,9 @@ class AoiModel(Model):
 
         # save the default values
         self.default_vector = vector
-        self.default_asset = self.asset_name = asset
+        self.default_asset = self.asset_name = (
+            {"pathname": asset, "column": "ALL", "value": None} if asset else None
+        )
         self.default_admin = self.admin = admin
 
         # cast the vector to json

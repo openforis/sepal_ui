@@ -149,10 +149,10 @@ class TestVectorField:
         return sw.VectorField()
 
     @pytest.fixture
-    def vector_field_gee(self):
+    def vector_field_gee(self, gee_dir):
         """Instance of VectorField using GEE"""
 
-        return sw.VectorField(gee=True)
+        return sw.VectorField(gee=True, folder=gee_dir)
 
     @pytest.fixture
     def fake_vector(self, tmp_dir):
@@ -179,7 +179,7 @@ class TestVectorField:
         return
 
     @pytest.fixture
-    def fake_asset(self):
+    def fake_asset(self, gee_dir):
         """Returns a fake asset"""
 
-        return "users/bornToBeAlive/sepal_ui_test/reclassify_table"
+        return f"{gee_dir}/reclassify_table"
