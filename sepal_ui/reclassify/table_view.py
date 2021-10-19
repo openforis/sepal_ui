@@ -137,7 +137,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # add a color column if necessary
         if len(df.columns) == 2:
-            df[2] = ["#000000" for _ in range(len(df))]
+            df[2] = ["#000000"] * len(df)
 
         # TODO: Warning, here we are asumming that the values are in the same order as the schema keys
         # set the lines
@@ -347,7 +347,7 @@ class EditDialog(v.Dialog):
                     )
                     current_items[i][w._metadata["name"]] = val
 
-        current_items.append(["" for _ in range(4)])
+        current_items.append([""] * 4)
 
         # update the table values
         self.table.items = current_items
