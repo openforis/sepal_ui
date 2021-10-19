@@ -4,7 +4,7 @@ from pathlib import Path
 version = "2.4.0"
 
 setup(
-    name="sepal_ui",
+    name="sepa-ui",
     packages=[
         "sepal_ui",
         "sepal_ui.scripts",
