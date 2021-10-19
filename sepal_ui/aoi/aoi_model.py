@@ -49,6 +49,9 @@ class AoiModel(Model):
         feature_collection (ee.FeatureCollection): the featurecollection of the aoi (only in ee model)
         gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
         ipygeojson (GeoJson layer): the ipyleaflet representation of the selected aoi
+
+    ..deprecated:: 2.3.2 : 'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
+
     """
 
     # const params
@@ -133,7 +136,9 @@ class AoiModel(Model):
 
         # save the default values
         self.default_vector = vector
-        self.default_asset = self.asset_name = asset
+        self.default_asset = self.asset_name = (
+            {"pathname": asset, "column": "ALL", "value": None} if asset else None
+        )
         self.default_admin = self.admin = admin
 
         # cast the vector to json
@@ -187,11 +192,22 @@ class AoiModel(Model):
     def _from_asset(self, asset_name):
         """set the ee.FeatureCollection output from an existing asset"""
 
-        # check that I have access to the asset
-        ee_col = ee.FeatureCollection(asset_name)
-        ee_col.geometry().bounds().coordinates().get(
-            0
-        ).getInfo()  # it will raise and error if we cannot access the asset
+        if not (asset_name["pathname"]):
+            raise Exception("Please select an asset.")
+
+        if asset_name["column"] != "ALL":
+            if asset_name["value"] is None:
+                raise Exception("Please select a value.")
+
+        self.name = Path(asset_name["pathname"]).stem.replace(self.ASSET_SUFFIX, "")
+        ee_col = ee.FeatureCollection(asset_name["pathname"])
+
+        if asset_name["column"] != "ALL":
+
+            column = asset_name["column"]
+            value = asset_name["value"]
+            ee_col = ee_col.filterMetadata(column, "equals", value)
+            self.name = f"{self.name}_{column}_{value}"
 
         # set the feature collection
         self.feature_collection = ee_col
@@ -204,7 +220,6 @@ class AoiModel(Model):
         ).set_crs(epsg=4326)
 
         # set the name
-        self.name = Path(asset_name).stem.replace(self.ASSET_SUFFIX, "")
 
         return self
 
@@ -264,7 +279,7 @@ class AoiModel(Model):
         self.name = vector_file.stem
 
         # filter it if necessary
-        if vector_json["value"]:
+        if vector_json["value"] != None:
             self.gdf = self.gdf[self.gdf[vector_json["column"]] == vector_json["value"]]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
 
@@ -501,8 +516,7 @@ class AoiModel(Model):
         asset_name = self.ASSET_SUFFIX + self.name
         asset_id = str(Path(self.folder, asset_name))
 
-        # set the asset name
-        self.asset_name = asset_id
+        self.dst_asset_id = asset_id
 
         # check if the table already exist
         if asset_id in [a["name"] for a in gee.get_assets(self.folder)]:

@@ -1,3 +1,22 @@
+## v_2.4.0 (2021-10-19)
+
+### Refactor
+
+- make v_model default and empty value as None instead of empty string
+- be consistent when concatenating
+
+### Fix
+
+- replace default v_model fon VectorField as trait
+- doc build failed
+- only display SepalWarning in Alerts
+- this assignation was overwritting the w_asset dict
+- vector field method. closes #306
+
+### Feat
+
+- filter by column and value in AOI. - closes: #296
+
 ## v_2.3.0 (2021-10-06)
 
 ### Fix

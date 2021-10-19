@@ -10,6 +10,10 @@ Sepal_ui
 .. image:: https://badge.fury.io/py/sepal-ui.svg
     :target: https://badge.fury.io/py/sepal-ui
     :alt: PyPI version
+    
+.. image:: https://img.shields.io/pypi/dm/sepal-ui?color=307CC2&logo=python&logoColor=gainsboro  
+    :target: https://pypi.org/project/sepal-ui/
+    :alt: PyPI - Downloads
 
 .. image:: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml/badge.svg
     :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml

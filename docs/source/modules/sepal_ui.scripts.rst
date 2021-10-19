@@ -20,6 +20,14 @@ sepal\_ui.scripts.utils module
    :undoc-members:
    :show-inheritance:
 
+sepal\_ui.scripts.warning module
+------------------------------
+
+.. automodule:: sepal_ui.scripts.warning
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

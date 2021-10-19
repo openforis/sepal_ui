@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe
+from traitlets import link, Int, Any, List, observe, Dict, Unicode
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -109,6 +109,7 @@ class FileInput(v.Flex, SepalWidget):
     """
 
     file = Any("")
+    v_model = Unicode(None, allow_none=True).tag(sync=True)
 
     def __init__(
         self,
@@ -125,10 +126,9 @@ class FileInput(v.Flex, SepalWidget):
 
         self.extentions = extentions
         self.folder = folder
-        self.v_model = v_model
 
         self.selected_file = v.TextField(
-            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=self.file
+            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=None
         )
 
         self.loading = v.ProgressLinear(
@@ -201,13 +201,13 @@ class FileInput(v.Flex, SepalWidget):
 
         root = Path("~").expanduser()
 
-        if self.v_model != "":
+        if self.v_model is not None:
 
             # move to root
             self._on_file_select({"new": root})
 
             # remove v_model
-            self.v_model = ""
+            self.v_model = None
 
         return self
 
@@ -677,11 +677,13 @@ class NumberField(v.TextField, SepalWidget):
 
 class VectorField(v.Col, SepalWidget):
     """
-    A custom input widget to load vector data. The user will provide a vector file compatible with fiona.
+    A custom input widget to load vector data. The user will provide a vector file compatible with fiona or a GEE feature collection.
     The user can then select a specific shape by setting column and value fields.
 
     Args:
         label (str): the label of the file input field, default to 'vector file'.
+        gee (bool, optional): whether to use GEE assets or local vectors.
+        **asset_select_kwargs: When gee=True, extra args will be used for AssetSelect
 
     Attributes:
         original_gdf (geopandas.gdf): The originally selected dataframe
@@ -692,24 +694,33 @@ class VectorField(v.Col, SepalWidget):
         w_value (v.Select): The Select widget to select the value in the selected column
     """
 
-    default_v_model = {
-        "pathname": None,
-        "column": None,
-        "value": None,
-    }
+    v_model = Dict(
+        {
+            "pathname": None,
+            "column": None,
+            "value": None,
+        }
+    )
 
-    column_base_items = [
-        {"text": "Use all features", "value": "ALL"},
-        {"divider": True},
-    ]
-
-    def __init__(self, label="vector_file", **kwargs):
+    def __init__(self, label="vector_file", gee=False, **kwargs):
 
         # save the df for column naming (not using a gdf as geometry are useless)
         self.df = None
+        self.feature_collection = None
+
+        self.column_base_items = [
+            {"text": "Use all features", "value": "ALL"},
+            {"divider": True},
+        ]
 
         # set the 3 wigets
-        self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
+        if not gee:
+            self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
+        else:
+            # Don't care about 'types' arg. It will only work with tables.
+            asset_select_kwargs = {k: v for k, v in kwargs.items() if k in ["folder"]}
+            self.w_file = AssetSelect(types=["TABLE"], **asset_select_kwargs)
+
         self.w_column = v.Select(
             _metadata={"name": "column"},
             items=self.column_base_items,
@@ -723,7 +734,6 @@ class VectorField(v.Col, SepalWidget):
 
         # create the Col Field
         self.children = [self.w_file, self.w_column, self.w_value]
-        self.v_model = self.default_v_model
 
         super().__init__(**kwargs)
 
@@ -752,6 +762,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_column.items = self.w_value.items = []
         self.w_column.v_model = self.w_value.v_model = None
         self.df = None
+        self.feature_collection = None
 
         # set the pathname value
         self.v_model["pathname"] = change["new"]
@@ -760,13 +771,20 @@ class VectorField(v.Col, SepalWidget):
         if not change["new"]:
             return self
 
-        # read the file
-        self.df = gpd.read_file(change["new"], ignore_geometry=True)
+        if isinstance(self.w_file, FileInput):
+            # read the file
+            self.df = gpd.read_file(change["new"], ignore_geometry=True)
+            columns = self.df.columns.to_list()
+
+        elif isinstance(self.w_file, AssetSelect):
+            self.feature_collection = ee.FeatureCollection(change["new"])
+            columns = self.feature_collection.first().getInfo()["properties"]
+            columns = [
+                str(col) for col in columns if col not in ["system:index", "Shape_Area"]
+            ]
 
         # update the columns
-        self.w_column.items = self.column_base_items + sorted(
-            set(self.df.columns.to_list())
-        )
+        self.w_column.items = self.column_base_items + sorted(set(columns))
 
         self.w_column.v_model = "ALL"
 
@@ -789,7 +807,18 @@ class VectorField(v.Col, SepalWidget):
             return self
 
         # read the colmun
-        self.w_value.items = sorted(set(self.df[change["new"]].to_list()))
+        if isinstance(self.w_file, FileInput):
+            values = self.df[change["new"]].to_list()
+
+        elif isinstance(self.w_file, AssetSelect):
+            values = (
+                self.feature_collection.distinct(change["new"])
+                .aggregate_array(change["new"])
+                .getInfo()
+            )
+
+        self.w_value.items = sorted(set(values))
+
         su.show_component(self.w_value)
 
         return self

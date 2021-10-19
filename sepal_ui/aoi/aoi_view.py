@@ -255,8 +255,8 @@ class AoiView(v.Card):
         if self.map_:
             self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
         if self.ee:
-            self.w_asset = sw.AssetSelect(
-                label=ms.aoi_sel.asset, folder=self.folder, types=["TABLE"]
+            self.w_asset = sw.VectorField(
+                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
             ).hide()
 
         # group them together with the same key as the select_method object

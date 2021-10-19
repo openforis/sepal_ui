@@ -15,7 +15,7 @@ class TestVectorField:
 
         return
 
-    def test_update_file(self, vector_field, fake_vector):
+    def test_update_file(self, vector_field, fake_vector, default_v_model):
 
         # change the value of the file
         vector_field._update_file({"new": str(fake_vector)})
@@ -30,20 +30,53 @@ class TestVectorField:
 
         # change for a empty file
         vector_field._update_file({"new": None})
-        assert vector_field.v_model == vector_field.default_v_model
+        assert vector_field.v_model == default_v_model
 
         return
 
-    def test_reset(self, vector_field, fake_vector):
+    def test_update_file_gee(self, vector_field_gee, default_v_model, fake_asset):
 
-        # change the value of the file
-        vector_field._update_file({"new": str(fake_vector)})
+        # Arrange
+        test_data = {
+            "pathname": fake_asset,
+            "column": "ALL",
+            "value": None,
+        }
+
+        # Act
+        vector_field_gee._update_file({"new": fake_asset})
+
+        # Assert
+        assert vector_field_gee.v_model == test_data
+
+        vector_field_gee._update_file({"new": None})
+        assert vector_field_gee.v_model == default_v_model
+
+        return
+
+    def test_reset(self, vector_field, fake_vector, default_v_model):
+
+        # trigger the event
+        vector_field.w_file.v_model = str(fake_vector)
 
         # reset the loadtable
         vector_field.reset()
 
         # assert the current values
-        assert vector_field.v_model == vector_field.default_v_model
+        assert vector_field.v_model == default_v_model
+
+        return
+
+    def test_reset_gee(self, vector_field_gee, default_v_model, fake_asset):
+
+        # It will trigger the
+        vector_field_gee.w_file.v_model = fake_asset
+
+        # reset the loadtable
+        vector_field_gee.reset()
+
+        # assert the current values
+        assert vector_field_gee.v_model == default_v_model
 
         return
 
@@ -60,6 +93,19 @@ class TestVectorField:
 
         return
 
+    def test_update_column_gee(self, vector_field_gee, fake_asset):
+
+        # change the value of the file
+        vector_field_gee._update_file({"new": fake_asset})
+
+        # read a column
+        vector_field_gee.w_column.v_model = "CAMBIO"
+        assert vector_field_gee.v_model["column"] == "CAMBIO"
+        assert "d-none" not in vector_field_gee.w_value.class_
+        assert vector_field_gee.w_value.items == [0, 1, 2, 3, 4, 5, 6, 7]
+
+        return
+
     def test_update_value(self, vector_field, fake_vector):
 
         # change the value of the file
@@ -73,11 +119,40 @@ class TestVectorField:
 
         return
 
+    def test_update_value_gee(self, vector_field_gee, fake_asset):
+
+        # change the value of the file
+        vector_field_gee._update_file({"new": fake_asset})
+
+        # read a column
+        vector_field_gee.w_column.v_model = "CAMBIO"
+        vector_field_gee.w_value.v_model = 1
+
+        assert vector_field_gee.v_model["value"] == 1
+
+        return
+
+    @pytest.fixture
+    def default_v_model(self):
+        """Returns default v_model"""
+
+        return {
+            "pathname": None,
+            "column": None,
+            "value": None,
+        }
+
     @pytest.fixture
     def vector_field(self):
         """return a VectorField"""
 
         return sw.VectorField()
+
+    @pytest.fixture
+    def vector_field_gee(self, gee_dir):
+        """Instance of VectorField using GEE"""
+
+        return sw.VectorField(gee=True, folder=gee_dir)
 
     @pytest.fixture
     def fake_vector(self, tmp_dir):
@@ -102,3 +177,9 @@ class TestVectorField:
         [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
 
         return
+
+    @pytest.fixture
+    def fake_asset(self, gee_dir):
+        """Returns a fake asset"""
+
+        return f"{gee_dir}/reclassify_table"
