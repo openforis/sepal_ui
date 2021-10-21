@@ -8,7 +8,7 @@ SEPAL-UI is a lib designed to create an elegant dashboard in the Sepal environme
 
 We are happy to receive feedback and we welcome any kind of contribution. 
 
-.. note:: The following sections will cover the SEPAL_UI framework, if you are looking for the SEPAL platform documentation, please go to this `link <https://docs.sepal.io/en/latest/index.html>`_.
+.. note:: The following sections will cover the :code:`sepal_ui` framework, if you are looking for the SEPAL platform documentation, please go to this `link <https://docs.sepal.io/en/latest/index.html>`_.
 
 Table of content 
 ================
