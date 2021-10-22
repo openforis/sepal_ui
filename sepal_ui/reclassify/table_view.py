@@ -87,6 +87,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # set up default parameters of the datatable
         self.v_model = []
+        self.items = []
         self.item_key = "id"
         self.show_select = True
         self.single_select = True
