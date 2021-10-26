@@ -4,6 +4,7 @@ from datetime import datetime
 import ipyvuetify as v
 import traitlets
 from IPython.display import display
+from deprecated.sphinx import versionadded
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
@@ -314,5 +315,42 @@ class App(v.App, SepalWidget):
             for i in items:
                 if name == i._metadata["card_id"]:
                     i.input_value = True
+
+        return self
+
+    @versionadded(version="2.4.1", reason="New end user interaction method")
+    def add_banner(self, msg, **kwargs):
+        """
+        Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
+
+        Args:
+            msg (str): the message to write in the Alert
+            kwargs: any arguments of the v.Alert constructor
+
+        Return:
+            self
+        """
+
+        default_params = {
+            "type": "info",
+            "border": "left",
+            "class_": "mt-5",
+            "transition": "slide-x-transition",
+            "prominent": True,
+            "dismissible": True,
+        }
+
+        for p, val in default_params.items():
+            if not p in kwargs:
+                kwargs[p] = val
+
+        # remove children from kwargs if set to avoid duplication
+        kwargs.pop("children", None)
+
+        # create the alert
+        alert = v.Alert(children=[msg], **kwargs)
+
+        # add the alert to the app
+        self.content.children = [alert] + self.content.children.copy()
 
         return self
