@@ -137,7 +137,7 @@ in the :code:`app_items` list, add a :code:`DrawerItem` corresponding to your ti
             title = ms.app.drawer_item.aoi, 
             icon 'mdi-cog',  # optional
             card="my_tile"
-        ).display_tile(app_content)
+        )
     ]
 
 
