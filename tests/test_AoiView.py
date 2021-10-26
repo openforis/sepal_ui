@@ -163,7 +163,7 @@ class TestAoiView:
         # check the transformation
         dst_json = aoi.AoiView.polygonize(src_json)
         assert dst_json["geometry"]["type"] == "Polygon"
-        assert len(dst_json["geometry"]["coordinates"][0]) == 66
+        assert len(dst_json["geometry"]["coordinates"][0]) == 65
 
         return
 
