@@ -40,7 +40,7 @@ setup(
         "haversine",
         "ipyvuetify",
         "geemap",
-        "earthengine-api",
+        "earthengine-api @ git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python",
         "markdown",
         "xarray_leaflet",
         "shapely",

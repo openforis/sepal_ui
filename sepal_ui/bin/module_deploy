@@ -30,7 +30,6 @@ def write_reqs(file):
     res = subprocess.run(command, cwd=Path.cwd())
 
     # add the libs in the final file
-
     with file.open("a") as dst:
         dst.write(tmp_file.read_text())
 
