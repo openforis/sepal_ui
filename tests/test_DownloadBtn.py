@@ -17,6 +17,7 @@ class TestDownloadBtn:
         assert btn.children[1] == txt
         assert start in btn.href
         assert "#" in btn.href
+        assert btn.target == "_blank"
         assert btn.disabled == True
 
         # exhaustive

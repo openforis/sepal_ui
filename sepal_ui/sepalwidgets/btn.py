@@ -78,6 +78,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         self.xs5 = True
         self.color = "success"
         self.children = [v.Icon(left=True, children=["mdi-download"]), text]
+        self.target = "_blank"
         super().__init__(**kwargs)
 
         # create the URL
