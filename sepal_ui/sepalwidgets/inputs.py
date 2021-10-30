@@ -591,12 +591,8 @@ class AssetSelect(v.Combobox, SepalWidget):
             for k in self.types
         }
 
-        print(assets)
-
         items = []
         for k in self.types:
-            print(k)
-            print(len(assets[k]))
             if len(assets[k]):
                 items += [
                     {"divider": True},
