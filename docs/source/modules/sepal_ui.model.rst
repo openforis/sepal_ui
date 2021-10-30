@@ -1,5 +1,5 @@
-sepal\_ui.translator package
-============================
+sepal\_ui.model package
+=======================
 
 .. tip::
 
@@ -18,7 +18,7 @@ Submodules
 ----------
 
 sepal\_ui.model.model module
---------------------------------------
+----------------------------
 
 .. automodule:: sepal_ui.model.model
    :members:
