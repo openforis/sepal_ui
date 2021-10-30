@@ -6,6 +6,7 @@
 			"label": "Selecciona un Asset",
 			"custom": "Personalizado",
 			"no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
+            "wrong_type": "El tipo del asset seleccionado ({}) no coincide con ningun tipo permitidos por el widget ({}).",
 			"hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo."
 		},
 		"load_table": {

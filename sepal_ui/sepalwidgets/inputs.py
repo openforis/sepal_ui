@@ -560,23 +560,30 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @su.switch("loading")
     def _validate(self, change):
-        """Validate the selected access. Throw an error message if is not accesible."""
+        """
+        Validate the selected access. Throw an error message if is not accesible or not in the type list.
+        """
 
-        self.error = False
         self.error_messages = None
 
         if change["new"]:
 
+            # check that the asset can be accessed
             try:
                 self.asset_info = ee.data.getAsset(change["new"])
-                self.valid = True
+
+                # check that the asset has the correct type
+                if not self.asset_info["type"] in self.types:
+                    self.error_messages = ms.widgets.asset_select.wrong_type.format(
+                        self.asset_info["type"], ",".join(self.types)
+                    )
 
             except Exception:
 
-                self.asset_info = None
-                self.valid = False
-                self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
+
+            self.valid = self.error_messages is None
+            self.error = self.error_messages is not None
 
         return
 

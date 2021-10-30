@@ -42,10 +42,21 @@ class TestAssetSelect:
         # set a legit asset
         asset_select._validate({"new": default_items[0]})
         assert asset_select.valid == True
+        assert asset_select.error_messages is None
+        assert asset_select.error == False
 
         # set a fake asset
         asset_select._validate({"new": "toto/tutu"})
-        assert asset_select.error_messages != None
+        assert asset_select.error_messages is not None
+        assert asset_select.valid == False
+        assert asset_select.error == True
+
+        # set a real asset but with wrong type
+        asset_select.types = ["TABLE"]
+        asset_select._validate({"new": default_items[0]})
+        assert asset_select.error_messages is not None
+        assert asset_select.valid == False
+        assert asset_select.error == True
 
         return
 
