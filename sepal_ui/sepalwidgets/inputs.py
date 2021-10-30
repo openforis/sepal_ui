@@ -469,11 +469,12 @@ class AssetSelect(v.Combobox, SepalWidget):
         types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM'. Default to 'IMAGE' & 'TABLE'
 
     Attributes:
+        TYPES (dict, const): Valid ypes of asset.
         folder (str): the folder of the user assets
         valid (Bool): whether the selected asset is valid (user has access) or not
-        type (TYPES): Type of the selected asset if is valid. None if is not accessible.
         asset_info (dict): The selected asset informations
         default_asset (str, List): the id of a default asset or a list of default assets
+        types (List): the list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items.
     """
 
     TYPES = {
@@ -486,6 +487,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     }
 
     default_asset = Any().tag(sync=True)
+    types = List().tag(sync=True)
 
     @su.need_ee
     def __init__(
@@ -517,11 +519,15 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.class_ = "my-5"
         self.placeholder = "users/someCustomUser/customAsset"
 
+        # load the assets in the combobox
         self._get_items()
 
+        # create the widget
         super().__init__(**kwargs)
 
+        # add js behaviours
         self.on_event("click:prepend", self._get_items)
+        self.observe(self._check_types, "types")
 
     @observe("default_asset")
     def _add_default(self, change=None):
@@ -610,6 +616,17 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.items = items
 
         return self
+
+    def _check_types(self, *args):
+        """clean the type list, keeping only the valid one"""
+
+        # check the type
+        self.types = [t for t in self.types if t in self.TYPES]
+
+        # trigger the reload
+        self._get_items()
+
+        return
 
 
 class PasswordField(v.TextField, SepalWidget):

@@ -60,6 +60,24 @@ class TestAssetSelect:
 
         return
 
+    def test_check_types(self, asset_select, asset_france):
+
+        # remove the project from asset name
+        asset_france = asset_france.replace("projects/earthengine-legacy/assets/", "")
+
+        # check that the list of asset is complete
+        assert asset_france in asset_select.items
+
+        # set an IMAGE type
+        asset_select.types = ["IMAGE"]
+        assert asset_france not in asset_select.items
+
+        # set a type list with a non legit asset type
+        asset_select.types = ["IMAGE", "toto"]
+        assert asset_select.types == ["IMAGE"]
+
+        return
+
     @pytest.fixture
     def default_items(self):
         """some default public data from GEE"""
