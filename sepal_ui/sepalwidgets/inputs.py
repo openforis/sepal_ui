@@ -591,7 +591,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         return
 
     @su.switch("loading", "disabled")
-    def _get_items(self, *args):
+    def _get_items(self, change=None):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
@@ -615,8 +615,10 @@ class AssetSelect(v.Combobox, SepalWidget):
         return self
 
     @observe("types")
-    def _check_types(self, *args):
+    def _check_types(self, change):
         """clean the type list, keeping only the valid one"""
+
+        self.v_model = None
 
         # check the type
         self.types = [t for t in self.types if t in self.TYPES]
