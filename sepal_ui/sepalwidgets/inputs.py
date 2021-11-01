@@ -465,8 +465,8 @@ class AssetSelect(v.Combobox, SepalWidget):
     Args:
         label (str): the label of the input
         folder (str): the folder of the user assets
-        default_asset (str, List): the id of a default asset or a list of defaults
-        types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM'. Default to 'IMAGE' & 'TABLE'
+        default_asset (str, list): the id of a default asset or a list of defaults
+        types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
 
     Attributes:
         TYPES (dict, const): Valid ypes of asset.
@@ -500,14 +500,12 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.valid = False
         self.asset_info = None
 
-        # Validate the input as soon as the object is insantiated
-        self.observe(self._validate, "v_model")
-
-        # save the types
-        self.types = [el for el in types if el in self.TYPES.keys()]
-
         # if folder is not set use the root one
         self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+        self.types = types
+
+        # Validate the input as soon as the object is insantiated
+        self.observe(self._validate, "v_model")
 
         self.label = label
 
@@ -527,7 +525,6 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
-        self.observe(self._check_types, "types")
 
     @observe("default_asset")
     def _add_default(self, change=None):
@@ -617,6 +614,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return self
 
+    @observe("types")
     def _check_types(self, *args):
         """clean the type list, keeping only the valid one"""
 
