@@ -2,7 +2,7 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
 
 .. raw:: html
 
-   <table class="table">
+   <table class="table table-bordered">
       <tr>
          <td align="center">
             <a href="https://www.linkedin.com/in/pierrickrambaud/">
