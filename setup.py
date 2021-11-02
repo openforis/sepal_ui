@@ -52,7 +52,7 @@ setup(
         "Unidecode",
         "natsort",
         "pipreqs",
-        "pre-commit"
+        "pre-commit",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
