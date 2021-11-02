@@ -208,7 +208,7 @@ The popup will display a fully functional app. A default process have been set-u
         
         from pathlib import Path
         
-        module_dir = Path('~','module_results').expanduser()
+        module_dir = Path.home()/"module_results"
         module_dir.mkdir(exist_ok=True)
         
     Please use it as a starting point for any results you want to export in SEPAL.
