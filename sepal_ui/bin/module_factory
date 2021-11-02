@@ -287,14 +287,14 @@ if __name__ == "__main__":
     # exit message
     print(Fore.YELLOW)
     print(
-        "WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
+        f"{Style.BRIGHT}WARNING{Style.NORMAL}: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
     )
     print(
         "If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues"
     )
     print(Fore.GREEN)
     print(
-        f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
+        f"{Style.BRIGHT}CONGRATULATION{Style.NORMAL}: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
     )
     print(
         f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment."
