@@ -20,16 +20,20 @@ def set_default_readme(folder, module_name, description, url):
     license = f"{url}/blob/master/LICENSE"
 
     file = folder / "README.md"
+    # write_text cannot handle append
     with file.open("w") as readme:
-
-        readme.write(f"# {module_name}  \n")
-        readme.write(
-            f"[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n"
+        readme.writelines(
+            [
+                f"# {module_name}\n",
+                "\n",
+                f"[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})\n",
+                "[![Black badge](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)\n",
+                "\n",
+                "# About\n",
+                "\n",
+                f"{description}\n",
+            ]
         )
-        readme.write("  \n")
-        readme.write("## About  \n")
-        readme.write("  \n")
-        readme.write(f"{description}  \n")
 
     return
 
