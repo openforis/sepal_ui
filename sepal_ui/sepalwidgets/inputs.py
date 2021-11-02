@@ -465,15 +465,16 @@ class AssetSelect(v.Combobox, SepalWidget):
     Args:
         label (str): the label of the input
         folder (str): the folder of the user assets
-        default_asset (str, List): the id of a default asset or a list of defaults
-        types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM'. Default to 'IMAGE' & 'TABLE'
+        default_asset (str, list): the id of a default asset or a list of defaults
+        types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
 
     Attributes:
+        TYPES (dict, const): Valid ypes of asset.
         folder (str): the folder of the user assets
         valid (Bool): whether the selected asset is valid (user has access) or not
-        type (TYPES): Type of the selected asset if is valid. None if is not accessible.
         asset_info (dict): The selected asset informations
         default_asset (str, List): the id of a default asset or a list of default assets
+        types (List): the list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items.
     """
 
     TYPES = {
@@ -486,6 +487,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     }
 
     default_asset = Any().tag(sync=True)
+    types = List().tag(sync=True)
 
     @su.need_ee
     def __init__(
@@ -498,14 +500,12 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.valid = False
         self.asset_info = None
 
-        # Validate the input as soon as the object is insantiated
-        self.observe(self._validate, "v_model")
-
-        # save the types
-        self.types = [el for el in types if el in self.TYPES.keys()]
-
         # if folder is not set use the root one
         self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+        self.types = types
+
+        # Validate the input as soon as the object is insantiated
+        self.observe(self._validate, "v_model")
 
         self.label = label
 
@@ -517,10 +517,13 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.class_ = "my-5"
         self.placeholder = "users/someCustomUser/customAsset"
 
+        # load the assets in the combobox
         self._get_items()
 
+        # create the widget
         super().__init__(**kwargs)
 
+        # add js behaviours
         self.on_event("click:prepend", self._get_items)
 
     @observe("default_asset")
@@ -560,28 +563,35 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @su.switch("loading")
     def _validate(self, change):
-        """Validate the selected access. Throw an error message if is not accesible."""
+        """
+        Validate the selected access. Throw an error message if is not accesible or not in the type list.
+        """
 
-        self.error = False
         self.error_messages = None
 
         if change["new"]:
 
+            # check that the asset can be accessed
             try:
                 self.asset_info = ee.data.getAsset(change["new"])
-                self.valid = True
+
+                # check that the asset has the correct type
+                if not self.asset_info["type"] in self.types:
+                    self.error_messages = ms.widgets.asset_select.wrong_type.format(
+                        self.asset_info["type"], ",".join(self.types)
+                    )
 
             except Exception:
 
-                self.asset_info = None
-                self.valid = False
-                self.error = True
                 self.error_messages = ms.widgets.asset_select.no_access
+
+            self.valid = self.error_messages is None
+            self.error = self.error_messages is not None
 
         return
 
     @su.switch("loading", "disabled")
-    def _get_items(self, *args):
+    def _get_items(self, change=None):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
@@ -603,6 +613,20 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.items = items
 
         return self
+
+    @observe("types")
+    def _check_types(self, change):
+        """clean the type list, keeping only the valid one"""
+
+        self.v_model = None
+
+        # check the type
+        self.types = [t for t in self.types if t in self.TYPES]
+
+        # trigger the reload
+        self._get_items()
+
+        return
 
 
 class PasswordField(v.TextField, SepalWidget):

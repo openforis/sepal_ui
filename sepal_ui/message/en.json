@@ -7,6 +7,7 @@
 			"label": "Select an asset",
 			"custom": "Custom",
 			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
+            "wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
 			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it"
 		},
 		"load_table": {

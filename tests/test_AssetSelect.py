@@ -42,10 +42,39 @@ class TestAssetSelect:
         # set a legit asset
         asset_select._validate({"new": default_items[0]})
         assert asset_select.valid == True
+        assert asset_select.error_messages is None
+        assert asset_select.error == False
 
         # set a fake asset
         asset_select._validate({"new": "toto/tutu"})
-        assert asset_select.error_messages != None
+        assert asset_select.error_messages is not None
+        assert asset_select.valid == False
+        assert asset_select.error == True
+
+        # set a real asset but with wrong type
+        asset_select.types = ["TABLE"]
+        asset_select._validate({"new": default_items[0]})
+        assert asset_select.error_messages is not None
+        assert asset_select.valid == False
+        assert asset_select.error == True
+
+        return
+
+    def test_check_types(self, asset_select, asset_france):
+
+        # remove the project from asset name
+        asset_france = asset_france.replace("projects/earthengine-legacy/assets/", "")
+
+        # check that the list of asset is complete
+        assert asset_france in asset_select.items
+
+        # set an IMAGE type
+        asset_select.types = ["IMAGE"]
+        assert asset_france not in asset_select.items
+
+        # set a type list with a non legit asset type
+        asset_select.types = ["IMAGE", "toto"]
+        assert asset_select.types == ["IMAGE"]
 
         return
 
