@@ -8,7 +8,8 @@
 			"custom": "Personnaliser",
 			"no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
             "wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
-			"hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser."
+			"hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser.",
+            "placeholder": "users/custom_user/custom_asset"
 		},
 		"load_table": {
 			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."

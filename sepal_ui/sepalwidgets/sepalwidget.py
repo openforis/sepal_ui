@@ -90,6 +90,7 @@ class Markdown(v.Layout, SepalWidget):
 
     Args:
         mkd_str (str): the text to display using the markdown convention. multi-line string are also interpreted
+        kwargs (optional): Any parameter from a v.Layout. If set, ['children'] will be overwritten
     """
 
     def __init__(self, mkd_str="", **kwargs):
@@ -112,9 +113,7 @@ class Markdown(v.Layout, SepalWidget):
         kwargs["row"] = kwargs.pop("row", True)
         kwargs["class_"] = kwargs.pop("class_", "pa-5")
         kwargs["align_center"] = kwargs.pop("align_center", True)
-        kwargs["children"] = kwargs.pop(
-            "children", [v.Flex(xs12=True, children=[content])]
-        )
+        kwargs["children"] = [v.Flex(xs12=True, children=[content])]
 
         # call the constructor
         super().__init__(**kwargs)

@@ -14,7 +14,7 @@ class Btn(v.Btn, SepalWidget):
     Args:
         text (str, optional): the text to display in the btn
         icon (str, optional): the full name of any mdi-icon
-        kwargs (dict, optional): any parameters from v.Btn
+        kwargs (dict, optional): any parameters from v.Btn. if set, ['children'] will be overwritten.
 
     Attributes:
         v_icon (v.icon): the icon in the btn
@@ -27,7 +27,7 @@ class Btn(v.Btn, SepalWidget):
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", "primary")
-        kwargs["children"] = kwargs.pop("children", [self.v_icon, text])
+        kwargs["children"] = [self.v_icon, text]
 
         # call the constructor
         super().__init__(**kwargs)
@@ -68,7 +68,7 @@ class DownloadBtn(v.Btn, SepalWidget):
     Args:
         text (str): the message inside the btn
         path (str, optional): the absolute to a downloadable content
-        args (dict, optional): any parameter from a v.Btn
+        args (dict, optional): any parameter from a v.Btn. if set, ['children', 'target'] will be overwritten.
     """
 
     def __init__(self, text, path="#", **kwargs):
@@ -80,8 +80,8 @@ class DownloadBtn(v.Btn, SepalWidget):
         kwargs["class_"] = kwargs.pop("class_", "ma-2")
         kwargs["xs5"] = kwargs.pop("xs5", True)
         kwargs["color"] = kwargs.pop("color", "success")
-        kwargs["children"] = kwargs.pop("children", [v_icon, text])
-        kwargs["target"] = kwargs.pop("target", "_blank")
+        kwargs["children"] = [v_icon, text]
+        kwargs["target"] = "_blank"
 
         # call the constructor
         super().__init__(**kwargs)

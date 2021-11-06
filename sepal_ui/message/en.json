@@ -8,7 +8,8 @@
 			"custom": "Custom",
 			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
             "wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
-			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it"
+			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it",
+            "placeholder": "users/custom_user/custom_asset"
 		},
 		"load_table": {
 			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."

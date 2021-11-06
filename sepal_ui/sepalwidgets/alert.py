@@ -18,7 +18,7 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. ['class_'] cannot be overwritten
+        kwargs (optional): any parameter from a v.Divider. if set  again, ['class_'] will be overwritten
 
     Attributes:
         type_ (str): the current color of the divider
