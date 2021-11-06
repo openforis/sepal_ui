@@ -686,6 +686,7 @@ class NumberField(v.TextField, SepalWidget):
 
     def __init__(self, max_=10, min_=0, increm=1, **kwargs):
 
+        # set the traits
         self.max_ = max_
         self.min_ = min_
         self.increm = increm
