@@ -50,6 +50,7 @@ class SepalMap(geemap.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        kwargs (optional): any parameter from a geemap.Map. if set ['ee_initialize'] will be overwritten.
 
 
     Attributes:
@@ -67,14 +68,16 @@ class SepalMap(geemap.Map):
 
         self.world_copy_jump = True
 
+        # set the default parameters
+        kwargs[
+            "ee_initialize"
+        ] = False  # we take care of the initialization on our side
+        kwargs["add_google_map"] = kwargs.pop("add_google_map", False)
+        kwargs["center"] = kwargs.pop("center", [0, 0])
+        kwargs["zoom"] = kwargs.pop("zoom", 2)
+
         # Init the map
-        super().__init__(
-            ee_initialize=False,  # we take care of the initialization on our side
-            add_google_map=False,
-            center=[0, 0],
-            zoom=2,
-            **kwargs,
-        )
+        super().__init__(**kwargs)
 
         # init ee
         self.ee = gee

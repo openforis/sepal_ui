@@ -42,15 +42,15 @@ class Tile(v.Layout, SepalWidget):
             class_="pa-5", raised=True, xs12=True, children=[self.title] + content
         )
 
-        super().__init__(
-            _metadata={"mount_id": id_},
-            row=True,
-            align_center=True,
-            class_="ma-5 d-inline",
-            xs12=True,
-            children=[card],
-            **kwargs
-        )
+        # set some default parameters
+        kwargs["_metadata"] = kwargs.pop("_metadata", {"mount_id": id_})
+        kwargs["row"] = kwargs.pop("row", True)
+        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs["class_"] = kwargs.pop("class_", "ma-5 d-inline")
+        kwargs["children"] = kwargs.pop("children", [card])
+
+        # call the constructor
+        super().__init__(**kwargs)
 
     def nest(self):
         """
