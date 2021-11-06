@@ -69,9 +69,7 @@ class SepalMap(geemap.Map):
         self.world_copy_jump = True
 
         # set the default parameters
-        kwargs[
-            "ee_initialize"
-        ] = False  # we take care of the initialization on our side
+        kwargs["ee_initialize"] = False  # we do it ourselves
         kwargs["add_google_map"] = kwargs.pop("add_google_map", False)
         kwargs["center"] = kwargs.pop("center", [0, 0])
         kwargs["zoom"] = kwargs.pop("zoom", 2)
