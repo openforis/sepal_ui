@@ -8,7 +8,7 @@ Interact with end user
 
 The End user doesn't know when a new version of the application is released or when a major issue is uncovered. To keep them engage with your application and make sure that it's not missused you must give them insight of what you are doing. 
 
-to do so use a banner to display information to the end user. In the :code:`ui.ipynb`file, you can modify the last cell as followed: 
+to do so use a banner to display information to the end user. In the :code:`ui.ipynb` file, you can modify the last cell as followed: 
 
 .. code-block:: python 
 
@@ -28,7 +28,7 @@ which will be displayed in your app as in the next figure:
    
 This alert is prominent and permanently display whatever the drawer item the user selects, forcing him to read your message. Once it is understood, the user can dismiss the banner clicking on the :guilabel:`x` button. 
 
-You can overwrite any arguments from the :code:`v.Alert`component, e.g if as persian army you are afraid of Sparta, you should display the banner as a danger:
+You can overwrite any arguments from the :code:`v.Alert` component, e.g if as persian army you are afraid of Sparta, you should display the banner as a danger:
 
 .. code-block:: python 
 

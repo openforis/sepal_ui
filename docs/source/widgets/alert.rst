@@ -27,11 +27,11 @@ Any argument from the original :code:`Alert` ipyvuetify class can be used to com
 Methods
 -------
 
-:code:`Alert`object embed several methods that will be displayed in this section.
+:code:`Alert` object embed several methods that will be displayed in this section.
 
 .. note::
 
-    More information on the methods and their options can be found in the full documentation `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`_ 
+    More information on the methods and their options can be found in the full documentation `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`__ 
 
 
 update_progress

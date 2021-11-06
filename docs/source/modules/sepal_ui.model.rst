@@ -18,7 +18,7 @@ Submodules
 ----------
 
 sepal\_ui.model.model module
---------------------------------------
+----------------------------
 
 .. automodule:: sepal_ui.model.model
    :members:

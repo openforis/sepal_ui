@@ -47,7 +47,7 @@ Please consider using the :code:`--no-ff` option when merging to keep the reposi
 
 In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the `return` statement for every function.
 
-As we are holding a single documentation page, we need to provide the users with version informations. When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>_`lib to specify that the feature is new in the documentation. 
+As we are holding a single documentation page, we need to provide the users with version informations. When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>`__ lib to specify that the feature is new in the documentation. 
 
 .. code-block:: python
 

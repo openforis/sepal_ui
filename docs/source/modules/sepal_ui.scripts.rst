@@ -21,7 +21,7 @@ sepal\_ui.scripts.utils module
    :show-inheritance:
 
 sepal\_ui.scripts.warning module
-------------------------------
+--------------------------------
 
 .. automodule:: sepal_ui.scripts.warning
    :members:

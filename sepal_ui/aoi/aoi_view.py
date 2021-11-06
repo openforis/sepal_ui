@@ -18,7 +18,7 @@ ADMIN = AoiModel.ADMIN
 ALL = "All"
 select_methods = AoiModel.METHODS
 
-__all__ = ["AoiView"]
+__all__ = ["AoiView", "select_methods"]
 
 
 class Select(v.Select, sw.SepalWidget):
