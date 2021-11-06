@@ -26,6 +26,7 @@ setup(
             "bin/module_factory",
         ]
     },
+    python_requires=">=3.6.9",
     version=version,
     license="MIT",
     description="Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform",
@@ -60,5 +61,8 @@ setup(
         "Topic :: Software Development :: Build Tools",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )
