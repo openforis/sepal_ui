@@ -50,7 +50,7 @@ class SepalMap(geemap.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-        kwargs (optional): any parameter from a geemap.Map. if set ['ee_initialize'] will be overwritten.
+        kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
 
 
     Attributes:

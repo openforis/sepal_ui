@@ -20,7 +20,7 @@ class AppBar(v.AppBar, SepalWidget):
 
     Args:
         title (str, optional): the title of the app
-        kwargs(dict, optional): any parameters from a v.AppBar. If set ['children', 'app'] will be overwritten.
+        kwargs(dict, optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
 
     Attributes:
         toggle_button (v.Btn): the btn to display or hide the drawer to the user
@@ -72,7 +72,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon(str, optional): the full name of a mdi-icon
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
-        kwargs (optional): any parameter from a v.ListItem. If set, ['_metadata', 'target', 'link', 'children'] will be overwritten.
+        kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
 
     Attributes:
         href (str): the absolute link to follow on click
@@ -152,7 +152,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         code (str, optional): the absolute link to the source code
         wiki (str, optional): the absolute link the the wiki page
         issue (str, optional): the absolute link to the issue tracker
-        kwargs (optional) any parameter from a v.NavigationDrawer. If set, ['app', 'children'] will be overwritten.
+        kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
     """
 
     def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
@@ -261,7 +261,7 @@ class App(v.App, SepalWidget):
         appBar (sw.AppBar, optional): the appBar of the application
         footer (sw.Footer, optional): the footer of the application
         navDrawer (sw.NavDrawer): the navdrawer of the application
-        kwargs (optional) any parameter from a v.App. If set, ['children'] will be overwritten.
+        kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
 
     Attributes:
         tiles ([sw.Tile]): the tiles of the app
@@ -350,7 +350,7 @@ class App(v.App, SepalWidget):
 
         Args:
             msg (str): the message to write in the Alert
-            kwargs: any arguments of the v.Alert constructor. if set, ['children'] will be overwritten.
+            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
 
         Return:
             self

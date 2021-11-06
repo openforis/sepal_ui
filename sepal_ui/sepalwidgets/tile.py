@@ -22,7 +22,7 @@ class Tile(v.Layout, SepalWidget):
         inputs ([list]): the list of widget to display inside the tile
         btn (v.Btn): the process btn
         alert (sw.Alert): the alert to display process informations to the end user
-        kwargs (optional): any parameter from a v.Layout. if set, ['children', '_metadata'] will be overwritten.
+        kwargs (optional): any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
     """
 
     def __init__(self, id_, title, inputs=[""], btn=None, alert=None, **kwargs):

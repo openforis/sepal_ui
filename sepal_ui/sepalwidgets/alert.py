@@ -18,7 +18,7 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. if set  again, ['class_'] will be overwritten
+        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
 
     Attributes:
         type_ (str): the current color of the divider
@@ -65,7 +65,7 @@ class Alert(v.Alert, SepalWidget):
 
     Args:
         type\_ (str, optional): The color of the Alert
-        kwargs (optional): any parameter from a v.Alert. If set ['type'] will be overwritten.
+        kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
     def __init__(self, type_=None, **kwargs):
@@ -314,7 +314,7 @@ class StateBar(v.SystemBar):
     """Widget to display quick messages on simple inline status bar
 
     Args:
-       kwargs (optional): any parameter from a v.SystemBar. If set, ['children'] will be overwritten.
+       kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
 
     Attributes:
         msg (Unicode): the msg to be displayed

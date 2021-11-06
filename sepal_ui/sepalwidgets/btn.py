@@ -14,7 +14,7 @@ class Btn(v.Btn, SepalWidget):
     Args:
         text (str, optional): the text to display in the btn
         icon (str, optional): the full name of any mdi-icon
-        kwargs (dict, optional): any parameters from v.Btn. if set, ['children'] will be overwritten.
+        kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
 
     Attributes:
         v_icon (v.icon): the icon in the btn
@@ -68,7 +68,7 @@ class DownloadBtn(v.Btn, SepalWidget):
     Args:
         text (str): the message inside the btn
         path (str, optional): the absolute to a downloadable content
-        args (dict, optional): any parameter from a v.Btn. if set, ['children', 'target'] will be overwritten.
+        args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
     """
 
     def __init__(self, text, path="#", **kwargs):

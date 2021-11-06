@@ -90,7 +90,7 @@ class Markdown(v.Layout, SepalWidget):
 
     Args:
         mkd_str (str): the text to display using the markdown convention. multi-line string are also interpreted
-        kwargs (optional): Any parameter from a v.Layout. If set, ['children'] will be overwritten
+        kwargs (optional): Any parameter from a v.Layout. If set, 'children' will be overwritten
     """
 
     def __init__(self, mkd_str="", **kwargs):

@@ -34,7 +34,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     Args:
         label (str, optional): the label of the datepicker field
-        kwargs (optional): any parameter from a v.Layout abject. If set, ['children'] will be overwritten.
+        kwargs (optional): any parameter from a v.Layout abject. If set, 'children' will be overwritten.
 
     Attributes:
         menu (v.Menu): the menu widget to display the datepicker
@@ -98,7 +98,7 @@ class FileInput(v.Flex, SepalWidget):
         label (str): the label of the input
         v_model (str, optional): the default value
         clearable (bool, optional): wether or not to make the widget clearable. default to False
-        kwargs (optional): any parameter from a v.Flex abject. If set, ['children'] will be overwritten.
+        kwargs (optional): any parameter from a v.Flex abject. If set, 'children' will be overwritten.
 
     Attributes:
         extentions ([str]): the extention list
@@ -348,7 +348,7 @@ class LoadTableField(v.Col, SepalWidget):
 
     Args:
         label (str, optional): the label of the widget
-        kwargs (optional): any parameter from a v.Col. If set, ['children', 'v_model'] will be overwritten.
+        kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
 
     Attributes:
         fileInput (sw.FileInput): the file input to select the .csv or .txt file
@@ -652,7 +652,7 @@ class PasswordField(v.TextField, SepalWidget):
 
     Args:
         label (str, optional): Header displayed in text area. Defaults to Password.
-        kwargs (dict); any parameter from a v.TextField. If set, ["type"] will be overwritten.
+        kwargs (dict); any parameter from a v.TextField. If set, 'type' will be overwritten.
     """
 
     def __init__(self, **kwargs):
@@ -688,7 +688,7 @@ class NumberField(v.TextField, SepalWidget):
     Args:
         max_ (int, optional): Maximum selectable number. Defaults to 10.
         min_ (int, optional): Minimum selectable number. Defaults to 0.
-        kwargs (dict, optional): Any parameter from a v.TextField. If set, ['type'] will be overwritten.
+        kwargs (dict, optional): Any parameter from a v.TextField. If set, 'type' will be overwritten.
 
     """
 
@@ -730,7 +730,7 @@ class VectorField(v.Col, SepalWidget):
         label (str): the label of the file input field, default to 'vector file'.
         gee (bool, optional): whether to use GEE assets or local vectors.
         folder (str, optional): When gee=True, extra args will be used for AssetSelect
-        kwargs (dict, optional): any parameter from a v.Col. if set, ['children'] will be overwritten.
+        kwargs (dict, optional): any parameter from a v.Col. if set, 'children' will be overwritten.
 
     Attributes:
         original_gdf (geopandas.gdf): The originally selected dataframe
