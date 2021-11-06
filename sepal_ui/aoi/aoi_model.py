@@ -50,7 +50,8 @@ class AoiModel(Model):
         gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
         ipygeojson (GeoJson layer): the ipyleaflet representation of the selected aoi
 
-    ..deprecated:: 2.3.2 : 'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
+    .. deprecated:: 2.3.2
+        'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
 
     """
 

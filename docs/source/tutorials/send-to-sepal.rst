@@ -1,5 +1,5 @@
 How to upload your module on the SEPAL dashboard? 
-==================================================
+=================================================
 
 Your module is now completely ready and functional and you want to let everyone use your workflow, here are the few tips to send your repository to the SEPAL dashboard. 
 
@@ -36,7 +36,7 @@ Standard environment
     
 The first three libraries are compiling tools that are usually required for common Python libraries, comment them only if you are sure that none of your libraries are using them. 
 
-The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`_.
+The :code:`gdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`__.
 
 sepal_ui is off course a mandatory requirement.
 
@@ -118,7 +118,7 @@ In this new environment run the following command using your requirement.txt fil
 
     $ grep -v "^#" <path-to-module>/requirements.txt | xargs -n 1 -L 1 pip3 install
 
-It will recursively install all your libraries in the virtual env. If you are experiencing difficulties, please contact us in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`_. 
+It will recursively install all your libraries in the virtual env. If you are experiencing difficulties, please contact us in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__. 
 
 Add documentation
 -----------------
@@ -142,7 +142,7 @@ The SEPAL :code:`test` environment will be listening to the :code:`master` branc
 Open an issue on the SEPAL repository 
 -------------------------------------
 
-Everything is ready to fly so open an issue on the SEPAL `issue tracker <https://github.com/openforis/sepal/issues>`_ respecting the :code:`new module` template. 
+Everything is ready to fly so open an issue on the SEPAL `issue tracker <https://github.com/openforis/sepal/issues>`__ respecting the :code:`new module` template. 
 
 You'll be asked to provide : 
 

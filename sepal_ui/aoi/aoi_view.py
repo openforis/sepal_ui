@@ -18,7 +18,7 @@ ADMIN = AoiModel.ADMIN
 ALL = "All"
 select_methods = AoiModel.METHODS
 
-__all__ = ["AoiView"]
+__all__ = ["AoiView", "select_methods"]
 
 
 class Select(v.Select, sw.SepalWidget):
@@ -44,7 +44,7 @@ class MethodSelect(Select):
     You cannot mix adding and removing behaviours.
 
     Params:
-        methods (str|[str]): a list of methods from the available list ({' '.join(select_methods.keys())})
+        methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
     """
 
     def __init__(self, methods="ALL", gee=True):
@@ -208,7 +208,7 @@ class AoiView(v.Card):
     Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False)
 
     Args:
-        methods (str, optional): the methods to use in the widget, default to 'ALL',
+        methods (list, optional): the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
         map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
