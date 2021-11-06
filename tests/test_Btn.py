@@ -10,8 +10,8 @@ class TestBtn:
         # minimal btn
         btn = sw.Btn()
         assert btn.color == "primary"
-        assert btn.v_icon == None
-        assert btn.children[0] == "Click"
+        assert btn.v_icon.children[0] == ""
+        assert btn.children[1] == "Click"
 
         # extensive btn
         btn = sw.Btn("toto", "mdi-folder")

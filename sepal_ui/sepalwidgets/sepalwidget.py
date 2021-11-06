@@ -90,6 +90,7 @@ class Markdown(v.Layout, SepalWidget):
 
     Args:
         mkd_str (str): the text to display using the markdown convention. multi-line string are also interpreted
+        kwargs (optional): Any parameter from a v.Layout. If set, 'children' will be overwritten
     """
 
     def __init__(self, mkd_str="", **kwargs):
@@ -108,13 +109,14 @@ class Markdown(v.Layout, SepalWidget):
 
         content = MyHTML()
 
-        super().__init__(
-            row=True,
-            class_="pa-5",
-            align_center=True,
-            children=[v.Flex(xs12=True, children=[content])],
-            **kwargs,
-        )
+        # set default parameters
+        kwargs["row"] = kwargs.pop("row", True)
+        kwargs["class_"] = kwargs.pop("class_", "pa-5")
+        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs["children"] = [v.Flex(xs12=True, children=[content])]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
 
 class Tooltip(v.Tooltip):
@@ -168,18 +170,12 @@ class CopyToClip(v.VuetifyTemplate):
     def __init__(self, **kwargs):
 
         # add the default params to kwargs
-        if "outlined" not in kwargs:
-            kwargs["outlined"] = True
-        if "label" not in kwargs:
-            kwargs["label"] = "Copy to clipboard"
-        if "readonly" not in kwargs:
-            kwargs["readonly"] = True
-        if "append_icon" not in kwargs:
-            kwargs["append_icon"] = "mdi-clipboard-outline"
-        if "v_model" not in kwargs:
-            kwargs["v_model"] = None
-        if "class_" not in kwargs:
-            kwargs["class_"] = "ma-5"
+        kwargs["outlined"] = kwargs.pop("outlined", True)
+        kwargs["label"] = kwargs.pop("label", "Copy To clipboard")
+        kwargs["readonly"] = kwargs.pop("readonly", True)
+        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-clipboard-outline")
+        kwargs["v_model"] = kwargs.pop("v_model", None)
+        kwargs["class_"] = kwargs.pop("class_", "ma-5")
 
         # set the default v_model
         self.v_model = kwargs["v_model"]
