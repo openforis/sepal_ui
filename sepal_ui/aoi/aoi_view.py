@@ -44,7 +44,7 @@ class MethodSelect(Select):
     You cannot mix adding and removing behaviours.
 
     Params:
-        methods (str|[str]): a list of methods from the available list ({' '.join(select_methods.keys())})
+        methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
     """
 
     def __init__(self, methods="ALL", gee=True):
