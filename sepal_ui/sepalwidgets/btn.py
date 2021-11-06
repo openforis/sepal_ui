@@ -14,20 +14,22 @@ class Btn(v.Btn, SepalWidget):
     Args:
         text (str, optional): the text to display in the btn
         icon (str, optional): the full name of any mdi-icon
+        kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
 
     Attributes:
         v_icon (v.icon): the icon in the btn
     """
 
-    def __init__(self, text="Click", icon=None, **kwargs):
+    def __init__(self, text="Click", icon="", **kwargs):
 
-        self.color = "primary"
-        self.v_icon = None
-        self.children = [text]
+        # create the default v_icon
+        self.v_icon = v.Icon(left=True, children=[icon])
 
-        if icon:
-            self.set_icon(icon)
+        # set the default parameters
+        kwargs["color"] = kwargs.pop("color", "primary")
+        kwargs["children"] = [self.v_icon, text]
 
+        # call the constructor
         super().__init__(**kwargs)
 
     def set_icon(self, icon):
@@ -40,17 +42,13 @@ class Btn(v.Btn, SepalWidget):
         Return:
             self
         """
-        if self.v_icon:
-            self.v_icon.children = [icon]
-        else:
-            self.v_icon = v.Icon(left=True, children=[icon])
-            self.children = [self.v_icon] + self.children
+        self.v_icon.children = [icon]
 
         return self
 
     def toggle_loading(self):
         """
-        Jump between to states : disabled and loading - enabled and not loading
+        Jump between two states : disabled and loading - enabled and not loading
 
         Return:
             self
@@ -70,15 +68,22 @@ class DownloadBtn(v.Btn, SepalWidget):
     Args:
         text (str): the message inside the btn
         path (str, optional): the absolute to a downloadable content
+        args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
     """
 
     def __init__(self, text, path="#", **kwargs):
 
-        self.class_ = "ma-2"
-        self.xs5 = True
-        self.color = "success"
-        self.children = [v.Icon(left=True, children=["mdi-download"]), text]
-        self.target = "_blank"
+        # create a download icon
+        v_icon = v.Icon(left=True, children=["mdi-download"])
+
+        # set default parameters
+        kwargs["class_"] = kwargs.pop("class_", "ma-2")
+        kwargs["xs5"] = kwargs.pop("xs5", True)
+        kwargs["color"] = kwargs.pop("color", "success")
+        kwargs["children"] = [v_icon, text]
+        kwargs["target"] = "_blank"
+
+        # call the constructor
         super().__init__(**kwargs)
 
         # create the URL
