@@ -1,7 +1,8 @@
 Create my first module
 ======================
 
-In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository
+In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository.    
+The steps presented bellow will demonstrate the safest and most complete way of creating a new module from scratch.
 
 Create the GitHub repository 
 ----------------------------
@@ -212,6 +213,19 @@ The popup will display a fully functional app. A default process have been set-u
         module_dir.mkdir(exist_ok=True)
         
     Please use it as a starting point for any results you want to export in SEPAL.
+    
+GitHub Template
+---------------
+
+.. warning::
+
+    For advanced users only
+    
+The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsability. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
+    
+.. danger:: 
+
+    Do not copy every branch while using the template generator
 
 
 
