@@ -18,6 +18,7 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
+        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
 
     Attributes:
         type_ (str): the current color of the divider
@@ -27,7 +28,7 @@ class Divider(v.Divider, SepalWidget):
     type_ = Unicode("").tag(sync=True)
 
     def __init__(self, class_="", **kwargs):
-        self.class_ = class_
+        kwargs["class_"] = class_
         super().__init__(**kwargs)
 
     @observe("type_")
@@ -64,14 +65,17 @@ class Alert(v.Alert, SepalWidget):
 
     Args:
         type\_ (str, optional): The color of the Alert
+        kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
     def __init__(self, type_=None, **kwargs):
 
-        self.text = True
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
-        self.class_ = "mt-5"
+        # set default parameters
+        kwargs["text"] = kwargs.pop("text", True)
+        kwargs["type"] = type_ if (type_ in TYPES) else TYPES[0]
+        kwargs["class_"] = kwargs.pop("class_", "mt-5")
 
+        # call the constructor
         super().__init__(**kwargs)
 
         self.hide()
@@ -309,6 +313,9 @@ class StateBar(v.SystemBar):
 
     """Widget to display quick messages on simple inline status bar
 
+    Args:
+       kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
+
     Attributes:
         msg (Unicode): the msg to be displayed
         loading (Bool): State of bar, it will display a loading spin wheel if not loading.
@@ -329,8 +336,10 @@ class StateBar(v.SystemBar):
             class_="mr-2",
         )
 
-        self.children = [self.progress, self.msg]
+        # set default parameter
+        kwargs["children"] = [self.progress, self.msg]
 
+        # call the constructor
         super().__init__(**kwargs)
 
         jslink((self, "loading"), (self.progress, "indeterminate"))

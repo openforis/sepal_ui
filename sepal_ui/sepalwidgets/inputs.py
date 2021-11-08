@@ -34,6 +34,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     Args:
         label (str, optional): the label of the datepicker field
+        kwargs (optional): any parameter from a v.Layout abject. If set, 'children' will be overwritten.
 
     Attributes:
         menu (v.Menu): the menu widget to display the datepicker
@@ -70,14 +71,15 @@ class DatePicker(v.Layout, SepalWidget):
             ],
         )
 
-        super().__init__(
-            v_model=None,
-            row=True,
-            class_="pa-5",
-            align_center=True,
-            children=[v.Flex(xs10=True, children=[self.menu])],
-            **kwargs,
-        )
+        # set the default parameter
+        kwargs["v_model"] = kwargs.pop("v_model", None)
+        kwargs["row"] = kwargs.pop("row", True)
+        kwargs["class_"] = kwargs.pop("class_", "pa-5")
+        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs["children"] = [v.Flex(xs10=True, children=[self.menu])]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
         jslink((date_picker, "v_model"), (date_text, "v_model"))
         jslink((date_picker, "v_model"), (self, "v_model"))
@@ -96,6 +98,7 @@ class FileInput(v.Flex, SepalWidget):
         label (str): the label of the input
         v_model (str, optional): the default value
         clearable (bool, optional): wether or not to make the widget clearable. default to False
+        kwargs (optional): any parameter from a v.Flex abject. If set, 'children' will be overwritten.
 
     Attributes:
         extentions ([str]): the extention list
@@ -171,18 +174,19 @@ class FileInput(v.Flex, SepalWidget):
         if not clearable:
             su.hide_component(self.clear)
 
-        super().__init__(
-            row=True,
-            class_="d-flex align-center mb-2",
-            align_center=True,
-            children=[
-                self.clear,
-                self.reload,
-                self.file_menu,
-                self.selected_file,
-            ],
-            **kwargs,
-        )
+        # set default parameters
+        kwargs["row"] = kwargs.pop("row", True)
+        kwargs["class_"] = kwargs.pop("class_", "d-flex align-center mb-2")
+        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs["children"] = [
+            self.clear,
+            self.reload,
+            self.file_menu,
+            self.selected_file,
+        ]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
         link((self.selected_file, "v_model"), (self, "file"))
         link((self.selected_file, "v_model"), (self, "v_model"))
@@ -342,6 +346,10 @@ class LoadTableField(v.Col, SepalWidget):
     The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
     {pathname, id_column, lat_column,lng_column}
 
+    Args:
+        label (str, optional): the label of the widget
+        kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
+
     Attributes:
         fileInput (sw.FileInput): the file input to select the .csv or .txt file
         v_model (Traitlet): the json saved v_model shaped as {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx} The values can be accessed separately with the appropriate getter methods
@@ -357,7 +365,7 @@ class LoadTableField(v.Col, SepalWidget):
         "lng_column": None,
     }
 
-    def __init__(self, label="Table file"):
+    def __init__(self, label="Table file", **kwargs):
 
         self.fileInput = FileInput([".csv", ".txt"], label=label)
 
@@ -371,10 +379,17 @@ class LoadTableField(v.Col, SepalWidget):
             _metadata={"name": "lat_column"}, items=[], label="Latitude", v_model=None
         )
 
-        super().__init__(
-            v_model=self.default_v_model,
-            children=[self.fileInput, self.IdSelect, self.LngSelect, self.LatSelect],
-        )
+        # set default parameters
+        kwargs["v_model"] = self.default_v_model  # format of v_model is fixed
+        kwargs["children"] = [
+            self.fileInput,
+            self.IdSelect,
+            self.LngSelect,
+            self.LatSelect,
+        ]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
         # link the dropdowns
         jslink((self.IdSelect, "items"), (self.LngSelect, "items"))
@@ -467,6 +482,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder (str): the folder of the user assets
         default_asset (str, list): the id of a default asset or a list of defaults
         types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
+        kwargs (optional): any parameter from a v.ComboBox.
 
     Attributes:
         TYPES (dict, const): Valid ypes of asset.
@@ -504,21 +520,21 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
         self.types = types
 
-        # Validate the input as soon as the object is insantiated
+        # Validate the input as soon as the object is instantiated
         self.observe(self._validate, "v_model")
-
-        self.label = label
-
-        self.v_model = None
-        self.clearable = True
-        self.dense = True
-        self.prepend_icon = "mdi-cached"
-
-        self.class_ = "my-5"
-        self.placeholder = "users/someCustomUser/customAsset"
 
         # load the assets in the combobox
         self._get_items()
+
+        # set the default parameters
+        kwargs["v_model"] = kwargs.pop("v_model", None)
+        kwargs["clearable"] = kwargs.pop("clearable", True)
+        kwargs["dense"] = kwargs.pop("dense", True)
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-cached")
+        kwargs["class_"] = kwargs.pop("class_", "my-5")
+        kwargs["placeholder"] = kwargs.pop(
+            "placeholder", ms.widgets.asset_select.placeholder
+        )
 
         # create the widget
         super().__init__(**kwargs)
@@ -636,16 +652,17 @@ class PasswordField(v.TextField, SepalWidget):
 
     Args:
         label (str, optional): Header displayed in text area. Defaults to Password.
+        kwargs (dict); any parameter from a v.TextField. If set, 'type' will be overwritten.
     """
 
     def __init__(self, **kwargs):
 
         # default behavior
-        self.label = "Password"
-        self.class_ = "mr-2"
-        self.v_model = ""
-        self.type = "password"
-        self.append_icon = "mdi-eye-off"
+        kwargs["label"] = kwargs.pop("label", "Password")
+        kwargs["class_"] = kwargs.pop("class_", "mr-2")
+        kwargs["v_model"] = kwargs.pop("v_model", "")
+        kwargs["type"] = "password"
+        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-ey-off")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -671,6 +688,7 @@ class NumberField(v.TextField, SepalWidget):
     Args:
         max_ (int, optional): Maximum selectable number. Defaults to 10.
         min_ (int, optional): Minimum selectable number. Defaults to 0.
+        kwargs (dict, optional): Any parameter from a v.TextField. If set, 'type' will be overwritten.
 
     """
 
@@ -679,12 +697,14 @@ class NumberField(v.TextField, SepalWidget):
 
     def __init__(self, **kwargs):
 
-        self.type = "number"
-        self.append_outer_icon = "mdi-plus"
-        self.prepend_icon = "mdi-minus"
-        self.v_model = 0
-        self.readonly = True
+        # set default params
+        kwargs["type"] = "number"
+        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "mdi-plus")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-minus")
+        kwargs["v_model"] = kwargs.pop("v_model", 0)
+        kwargs["readonly"] = kwargs.pop("readonly", True)
 
+        # call the constructor
         super().__init__(**kwargs)
 
         self.on_event("click:append-outer", self.increment)
@@ -709,7 +729,8 @@ class VectorField(v.Col, SepalWidget):
     Args:
         label (str): the label of the file input field, default to 'vector file'.
         gee (bool, optional): whether to use GEE assets or local vectors.
-        **asset_select_kwargs: When gee=True, extra args will be used for AssetSelect
+        folder (str, optional): When gee=True, extra args will be used for AssetSelect
+        kwargs (dict, optional): any parameter from a v.Col. if set, 'children' will be overwritten.
 
     Attributes:
         original_gdf (geopandas.gdf): The originally selected dataframe
@@ -744,7 +765,7 @@ class VectorField(v.Col, SepalWidget):
             self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
         else:
             # Don't care about 'types' arg. It will only work with tables.
-            asset_select_kwargs = {k: v for k, v in kwargs.items() if k in ["folder"]}
+            asset_select_kwargs = {"folder": kwargs.pop("folder", None)}
             self.w_file = AssetSelect(types=["TABLE"], **asset_select_kwargs)
 
         self.w_column = v.Select(
@@ -759,7 +780,7 @@ class VectorField(v.Col, SepalWidget):
         su.hide_component(self.w_value)
 
         # create the Col Field
-        self.children = [self.w_file, self.w_column, self.w_value]
+        kwargs["children"] = [self.w_file, self.w_column, self.w_value]
 
         super().__init__(**kwargs)
 
