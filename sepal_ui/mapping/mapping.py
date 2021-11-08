@@ -281,7 +281,7 @@ class SepalMap(geemap.Map):
         Get the proper zoom to the given ee geometry.
 
         Args:
-            ee_geometry (ee.Geometry): the geometry to zzom on
+            ee_geometry (ee.Geometry): the geometry to zoom on
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
