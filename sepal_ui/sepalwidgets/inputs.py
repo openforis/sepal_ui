@@ -688,14 +688,25 @@ class NumberField(v.TextField, SepalWidget):
     Args:
         max_ (int, optional): Maximum selectable number. Defaults to 10.
         min_ (int, optional): Minimum selectable number. Defaults to 0.
+        increm (int, optional): incremental value added at each step. default to 1
         kwargs (dict, optional): Any parameter from a v.TextField. If set, 'type' will be overwritten.
 
+    Attribute:
+        max_ (int): Maximum selectable number.
+        min_ (int): Minimum selectable number.
+        increm (int): incremental value added at each step.
     """
 
     max_ = Int(10).tag(sync=True)
     min_ = Int(0).tag(sync=True)
+    increm = Int(1).tag(sync=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, max_=10, min_=0, increm=1, **kwargs):
+
+        # set the traits
+        self.max_ = max_
+        self.min_ = min_
+        self.increm = increm
 
         # set default params
         kwargs["type"] = "number"
@@ -711,14 +722,18 @@ class NumberField(v.TextField, SepalWidget):
         self.on_event("click:prepend", self.decrement)
 
     def increment(self, widget, event, data):
-        """Adds 1 to the current v_model number"""
-        if self.v_model < self.max_:
-            self.v_model += 1
+        """Adds increm to the current v_model number"""
+
+        self.v_model = min((self.v_model + self.increm), self.max_)
+
+        return
 
     def decrement(self, widget, event, data):
-        """Substracts 1 to the current v_model number"""
-        if self.v_model > self.min_:
-            self.v_model -= 1
+        """Substracts increm to the current v_model number"""
+
+        self.v_model = max((self.v_model - self.increm), self.min_)
+
+        return
 
 
 class VectorField(v.Col, SepalWidget):
