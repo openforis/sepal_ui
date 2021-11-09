@@ -167,7 +167,7 @@ if you reload your GitHub page in your browser, you'll find out that all the fil
 Let's play
 ----------
 
-In the app dashboard open Jupyter Notebook. From here open :code:`my_first_repository/ui.ipnb` notebook
+In the app dashboard open Jupyter Notebook. From here open :code:`my_first_repository/ui.ipynb` notebook
 On the top bar of your window click on the :code:`voila` button.
 
 .. image:: ../../img/voila-btn.png
