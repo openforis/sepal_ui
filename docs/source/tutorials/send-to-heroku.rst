@@ -1,23 +1,23 @@
-How to deploy directly on the web
-=================================
+How to deploy on the web
+========================
 
 .. image:: https://pythonforundergradengineers.com/posts/voila/images/jupyter_voila_heroku.png
     :alt: setup image
     :target: https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html
-    :width: 100
+    :width: 100 %
 
-First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the `sepal-ui` framework is platform agnostic we'll also demonstrate how to create a and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__. 
+First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`sepal-ui` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__. 
 
 This tutorial has been inspired by: `<https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html>`__
 
 .. note:: 
 
-    This methodology have been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__
+    This methodology have been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/12rambau/sepal_ui_template/tree/heroku>`__.
 
 .. warning::
 
-    -   Heroku is a web deploying platform where deploying an app on a public account is free. If you prefer using your own favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
-    -   The web platform offered by Heroku have very limited computation power. PLease consider deploying to SEPAL if you require powerfull computation resources.
+    -   Heroku is a cloub hosting platform where deploying an app on a public account is free. If you prefer to use your own favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
+    -   The web platform offered by Heroku have very limited computation power. Please consider deploying to SEPAL if you require powerfull computation resources.
     
 .. danger::
 
@@ -29,13 +29,13 @@ Set up the app
 Create
 ******
 
-To start this tutorial let's create an application that doesn't require GEE and runs only on Python tools. For the example, we'll use the default template that onl include a GADM baed Aoi selector. The full process is described here: `<./tutorials/create-module.html>`__
+To start this tutorial let's create an application that doesn't require GEE and runs only on Python tools. For the example, we'll use the default template that only include a GADM baed Aoi selector. The full process is described in the `Create my first module <./create-module.html>`__ section.
 
 .. code-block:: console
 
     module_factory 
     
-using as parameters: 
+Using as parameters: 
 
 -   A module name
 -   An empty github url 
@@ -79,10 +79,10 @@ using as parameters:
 
     [...]
     
-Deploy libs
-***********
+Register libs
+*************
 
-To be working the app need to have a complete working requirements.txt file. to create and populate it, run the following command from within the app folder.
+To be working the app needs to have an up-to-date :code:`requirements.txt` file. to create and populate it, run the following command from within the app folder.
 
 .. code-block:: console
 
@@ -117,16 +117,14 @@ Deploy on heroku
 
 .. note::
 
-    This deployment can be done using the Heroku CLI but it's not installed on SEPAL so we will show to do it using the web interface
+    This deployment can be done using the Heroku CLI but it's not installed on SEPAL so we will show how to do it using the web interface
     
-Now that we have an working and tested application let's begin it's transformation into a working web app. 
+Now that we have a working and tested application let's begin its transformation into a working web app. Your application repository need adjustments to be compatible with the Heroku deploying environment. 
 
 change requirements 
-*******************
+******************* 
 
-Your application repository need adjustments to be compatible with the Heroku deploying environment. 
-
-The :code:`requirements.txt` created with the :code:`model_deploy` command is fully compatble with the current SEPAL environment. It needs some adjustment to be compatible with Heroku's. remove all lines refering to GDAL and PROJ installation, as they will be handled from the web interface. The final file should look like the following: 
+The :code:`requirements.txt` created with the :code:`model_deploy` command is fully compatible with the current SEPAL environment. It needs some adjustment to be compatible with Heroku's. remove all lines refering to GDAL and PROJ installation, as they will be handled from the web interface. The final file should look like the following: 
 
 .. code-block::
 
@@ -165,50 +163,50 @@ The last required file for our Heroku deployment is a Procfile. This file includ
     
 .. tip::
 
-    You can change the name of the root file, if the entry point of your app is not the default ui.ipynb
+    You can change the name of the root file, if the entry point of your app is not the default :code:`ui.ipynb`
     
 set the deployment env
 **********************
 
-.. important::
+.. warning::
 
-    all the preiously created file need to be up to date on GitHub before going on the Heroku web interface
+   All the preiously created files need to be up-to-date on GitHub before going on the Heroku web interface.
     
-from your Heroku dashboard click on :guilabel:`new` -> :guilabel:`Create new app` and follow the initial instructions (**app-name** and **region**). You can then click on :guilabel:`create app`. 
+From your Heroku dashboard click on :guilabel:`new` -> :guilabel:`Create new app` and follow the initial instructions (**app-name** and **region**). You can then click on :guilabel:`create app`. 
 
 .. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/heroku_init.png
     :alt: heroku init
     
-then feed the following parameters in the user interface 
+Then fill the following parameters in the user interface: 
 
--   deployment method: Use the github method
--   App connected to github: Find your repository name in the provided list clicking on :guilabel:`search`.
--   choose automatic or manual deploy. In both cases we higly suggest to use the `release` branch. 
+-   **deployment method:** Use the github method
+-   **App connected to github:** Find your repository name in the provided list clicking on :guilabel:`search`.
+-   choose **automatic** or **manual** deploy. In both cases we higly suggest to use the :code:`release` branch. 
 
 .. warning:: 
 
-    Do not build it yet it's goign to crash.
+    Do not build it yet it's going to crash.
     
 .. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/heroku_deploy.png
     :alt: heroku deploy
     
 Now we need to setup the GIS environment of the app. Go to :guilabel:`settings` and then :guilabel:`add buildpack`.
 
-There are 2 required buildpack to use for this app. First the official Python one and the the GDAL/PROJ one using this link: https://github.com/heroku/heroku-geo-buildpack.git.
+There are 2 required buildpack to use for this app. First the official Python buildpack (simply click on :guilabel:`Python`) and the the GDAL/PROJ buildpack using this link: `<https://github.com/heroku/heroku-geo-buildpack.git>`__.
 
 .. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/buildpacks.png
     :alt: buildpacks list
     
-Now you are ready to build your app, click on :guilabel:`deploy`at the bottom of the "deploy" tab.
+Now you are ready to build your app, click on :guilabel:`deploy` at the bottom of the "deploy" tab.
 
-At the very bottom of your build_log you'll find the web url that renders your app, here https://test-sepal.herokuapp.com/ (the link is no longer build, don't try to click it).
+At the very bottom of your build log you'll find the web url that renders your app.
 
 .. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/build_log.png
     :alt: buildpacks list
     
 .. important::
 
-    Congratulation you've build your first sepal-ui based app on Heroku ! 
+    Congratulation you've build your first :code:`sepal-ui` based app on Heroku! 
 
     
 
