@@ -8,7 +8,7 @@ How to deploy on the web
 
 First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`sepal-ui` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__. 
 
-This tutorial has been inspired by: `<https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html>`__
+This tutorial has been inspired by This `pythonforundergradengineers <https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html>`__ article.
 
 .. note:: 
 
