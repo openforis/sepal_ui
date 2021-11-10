@@ -174,7 +174,7 @@ set the deployment env
     
 From your Heroku dashboard click on :guilabel:`new` -> :guilabel:`Create new app` and follow the initial instructions (**app-name** and **region**). You can then click on :guilabel:`create app`. 
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/heroku_init.png
+.. image:: ../../img/tutorials/send-to-heroku/heroku_init.png
     :alt: heroku init
     
 Then fill the following parameters in the user interface: 
@@ -187,21 +187,21 @@ Then fill the following parameters in the user interface:
 
     Do not build it yet it's going to crash.
     
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/heroku_deploy.png
+.. image:: ../../img/tutorials/send-to-heroku/heroku_deploy.png
     :alt: heroku deploy
     
 Now we need to setup the GIS environment of the app. Go to :guilabel:`settings` and then :guilabel:`add buildpack`.
 
 There are 2 required buildpack to use for this app. First the official Python buildpack (simply click on :guilabel:`Python`) and the the GDAL/PROJ buildpack using this link: `<https://github.com/heroku/heroku-geo-buildpack.git>`__.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/buildpacks.png
+.. image:: ../../img/tutorials/send-to-heroku/buildpacks.png
     :alt: buildpacks list
     
 Now you are ready to build your app, click on :guilabel:`deploy` at the bottom of the "deploy" tab.
 
 At the very bottom of your build log you'll find the web url that renders your app.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/heroku/docs/img/tutorials/send-to-heroku/build_log.png
+.. image:: ../../img/tutorials/send-to-heroku/build_log.png
     :alt: buildpacks list
     
 .. important::
