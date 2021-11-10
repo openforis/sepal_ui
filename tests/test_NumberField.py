@@ -10,6 +10,12 @@ class TestNumberField:
         assert number.type == "number"
         assert number.max_ == 10
         assert number.min_ == 0
+        assert number.increm == 1
+
+        number = sw.NumberField(max_=100, min_=20, increm=10)
+        assert number.max_ == 100
+        assert number.min_ == 20
+        assert number.increm == 10
 
         return
 
@@ -25,6 +31,11 @@ class TestNumberField:
         [number.increment(None, None, None) for i in range(10)]
         assert number.v_model == 5
 
+        # increm with a different step
+        number = sw.NumberField(increm=2)
+        number.increment(None, None, None)
+        assert number.v_model == 2
+
         return
 
     def test_decrement(self, number):
@@ -39,10 +50,15 @@ class TestNumberField:
         [number.decrement(None, None, None) for i in range(2)]
         assert number.v_model == -2
 
+        # increm with a different step
+        number = sw.NumberField(increm=2, min_=-10)
+        number.decrement(None, None, None)
+        assert number.v_model == -2
+
         return
 
     @pytest.fixture
     def number(self):
-        """return a NumberField"""
+        """return a default NumberField"""
 
         return sw.NumberField()
