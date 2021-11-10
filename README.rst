@@ -46,7 +46,7 @@ The full documentation is available `here <https://sepal-ui.readthedocs.io/en/la
 
 We are happy to receive feedback and we welcome any kind of contribution
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/img/module-landing.png
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/img/sepal_ui_demo.gif
 
 Contribute
 ----------
