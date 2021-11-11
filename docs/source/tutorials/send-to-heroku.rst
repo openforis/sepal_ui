@@ -12,16 +12,16 @@ This tutorial has been inspired by This `pythonforundergradengineers <https://py
 
 .. note:: 
 
-    This methodology have been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/12rambau/sepal_ui_template/tree/heroku>`__.
+    This methodology has been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/12rambau/sepal_ui_template/tree/heroku>`__.
 
 .. warning::
 
-    -   Heroku is a cloub hosting platform where deploying an app on a public account is free. If you prefer to use your own favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
-    -   The web platform offered by Heroku have very limited computation power. Please consider deploying to SEPAL if you require powerfull computation resources.
+    -   Heroku is a cloud hosting platform where deploying an app on a public account is free. If you prefer to use your favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
+    -   The web platform offered by Heroku has very limited computation power. Please consider deploying on `SEPAL <https://sepal.io/>`_ if you require powerful computation resources.
     
 .. danger::
 
-    As of now the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/12rambau/sepal_ui/issues/336>`__ has been oppened, have a look if you require this feature.
+    As of now, the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/12rambau/sepal_ui/issues/336>`__ has been opened, have a look if you require this feature.
     
 Set up the app
 --------------
@@ -29,7 +29,7 @@ Set up the app
 Create
 ******
 
-To start this tutorial let's create an application that doesn't require GEE and runs only on Python tools. For the example, we'll use the default template that only include a GADM baed Aoi selector. The full process is described in the `Create my first module <./create-module.html>`__ section.
+To start this tutorial let's create an application that doesn't require GEE and runs only with Python tools. For the example, we'll use the default template that only includes a GADM baed Aoi selector. The full process is described in the `Create my first module <./create-module.html>`__ section.
 
 .. code-block:: console
 
@@ -39,21 +39,21 @@ Using as parameters:
 
 -   A module name
 -   An empty github url 
--   any description
+-   Any description
 -   Template function: :code:`no`
 -   Need aoi selector: :code:`yes`
 -   Need GEE: :code:`no`
     
 .. code-block:: console
-
+    
     ##################################
     #                                #
     #      SEPAL MODULE FACTORY      #
     #                                #
     ##################################
 
-    Welcome in the module factory interface.
-    This interface will help you building a dashboard app based on the sepal_ui library
+    Welcome to the module factory interface.
+    This interface will help you build a dashboard app based on the sepal_ui library
     Please read the documentation of the library before launching this script
 
 
@@ -82,7 +82,7 @@ Using as parameters:
 Register libs
 *************
 
-To be working the app needs to have an up-to-date :code:`requirements.txt` file. to create and populate it, run the following command from within the app folder.
+To be working the app needs to have an up-to-date :code:`requirements.txt` file. To create and populate it, run the following command from within the app folder.
 
 .. code-block:: console
 
@@ -94,7 +94,7 @@ You will get the following file:
 .. code-block::
 
     # these libs are requested to build common python libs 
-    # if you are an advance user and are sure to not use them you can comment the following lines
+    # if you are an advanced user and are sure to not use them you can comment the following lines
     wheel
     Cython
     pybind11
@@ -117,14 +117,14 @@ Deploy on heroku
 
 .. note::
 
-    This deployment can be done using the Heroku CLI but it's not installed on SEPAL so we will show how to do it using the web interface
+    This deployment can be done using the Heroku CLI but it's not installed on SEPAL so we will show how to do it using the web interface.
     
-Now that we have a working and tested application let's begin its transformation into a working web app. Your application repository need adjustments to be compatible with the Heroku deploying environment. 
+Now that we have a working and tested application let's begin its transformation into a working web app. Your application repository needs adjustments to be compatible with the Heroku deploying environment. 
 
-change requirements 
+Change requirements 
 ******************* 
 
-The :code:`requirements.txt` created with the :code:`model_deploy` command is fully compatible with the current SEPAL environment. It needs some adjustment to be compatible with Heroku's. remove all lines refering to GDAL and PROJ installation, as they will be handled from the web interface. The final file should look like the following: 
+The :code:`requirements.txt` file created with the :code:`model_deploy` command is fully compatible with the current SEPAL environment, however, it needs some adjustment to be compatible with Heroku's. Remove all lines referring to GDAL and PROJ installation, as they will be handled from the web interface. The final file should look like the following: 
 
 .. code-block::
 
@@ -142,17 +142,17 @@ The :code:`requirements.txt` created with the :code:`model_deploy` command is fu
 
     # custom libs
     
-create runtime
+Create runtime
 **************
 
 At the root of your repository create a :code:`runtime.txt` file containing the python version you want to use. Inside the file, just one line of text is needed. Note the lowercase python and the dash :code:`-`. The list of Heroku's supported versions can be found `here <https://devcenter.heroku.com/articles/python-support#supported-runtimes>`__.
-In this case we'll use **3.8.12**: 
+In this case, we'll use **3.8.12**: 
 
 .. code-block::
 
     python-3.8.12
     
-create Procfile
+Create Procfile
 ***************
 
 The last required file for our Heroku deployment is a Procfile. This file includes the instructions for Heroku to deploy our app. Create a new file named :code:`Procfile` (no extension) and include the text below:
@@ -163,14 +163,14 @@ The last required file for our Heroku deployment is a Procfile. This file includ
     
 .. tip::
 
-    You can change the name of the root file, if the entry point of your app is not the default :code:`ui.ipynb`
+    You can change the name of the root file if the entry point of your app is not the default :code:`ui.ipynb`
     
-set the deployment env
+Set the deployment env
 **********************
 
 .. warning::
 
-   All the preiously created files need to be up-to-date on GitHub before going on the Heroku web interface.
+   All the previously created files need to be up-to-date on GitHub before going on the Heroku web interface.
     
 From your Heroku dashboard click on :guilabel:`new` -> :guilabel:`Create new app` and follow the initial instructions (**app-name** and **region**). You can then click on :guilabel:`create app`. 
 
@@ -181,47 +181,31 @@ Then fill the following parameters in the user interface:
 
 -   **deployment method:** Use the github method
 -   **App connected to github:** Find your repository name in the provided list clicking on :guilabel:`search`.
--   choose **automatic** or **manual** deploy. In both cases we higly suggest to use the :code:`release` branch. 
+-   choose **automatic** or **manual** deploy. In both cases, we highly suggest using the :code:`release` branch. 
 
 .. warning:: 
 
-    Do not build it yet it's going to crash.
+    Do not build it yet, it's going to crash.
     
 .. image:: ../../img/tutorials/send-to-heroku/heroku_deploy.png
     :alt: heroku deploy
     
-Now we need to setup the GIS environment of the app. Go to :guilabel:`settings` and then :guilabel:`add buildpack`.
+Now we need to set up the GIS environment of the app. Go to :guilabel:`settings` and then :guilabel:`add buildpack`.
 
-There are 2 required buildpack to use for this app. First the official Python buildpack (simply click on :guilabel:`Python`) and the the GDAL/PROJ buildpack using this link: `<https://github.com/heroku/heroku-geo-buildpack.git>`__.
+There are 2 required buildpack to use for this app. First the official Python buildpack (simply click on :guilabel:`Python`) and the GDAL/PROJ buildpack using this link: `<https://github.com/heroku/heroku-geo-buildpack.git>`__.
 
 .. image:: ../../img/tutorials/send-to-heroku/buildpacks.png
     :alt: buildpacks list
     
 Now you are ready to build your app, click on :guilabel:`deploy` at the bottom of the "deploy" tab.
 
-At the very bottom of your build log you'll find the web url that renders your app.
+At the very bottom of your build log, you'll find the web URL that renders your app.
 
 .. image:: ../../img/tutorials/send-to-heroku/build_log.png
     :alt: buildpacks list
     
 .. important::
 
-    Congratulation you've build your first :code:`sepal-ui` based app on Heroku! 
+    Congratulation you've built your first :code:`sepal-ui` based app on Heroku! 
 
-    
-
-
-
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-
-    
+   
