@@ -3,29 +3,10 @@ sepal\_ui.model
 
 .. automodule:: sepal_ui.model
 
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
-.. rubric:: Modules
+.. rubric:: Classes
 
 .. autosummary::
    :toctree:
-   :recursive:
 
-   sepal_ui.model.model
+   sepal_ui.model.Model
 
