@@ -1,31 +1,11 @@
 sepal\_ui.mapping
 =================
 
-.. automodule:: sepal_ui.mapping
+.. automodule:: sepal_ui.mapping.mapping
 
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
-.. rubric:: Modules
+.. rubric:: Classes
 
 .. autosummary::
-   :toctree:
-   :recursive:
-
-   sepal_ui.mapping.mapping
-
+      :toctree:
+      
+      sepal_ui.mapping.SepalMap
