@@ -3,31 +3,13 @@ sepal\_ui.aoi
 
 .. automodule:: sepal_ui.aoi
 
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
-.. rubric:: Modules
+.. rubric:: Classes
 
 .. autosummary::
    :toctree:
-   :recursive:
+   :nosignatures:
 
-   sepal_ui.aoi.aoi_model
-   sepal_ui.aoi.aoi_tile
-   sepal_ui.aoi.aoi_view
+   sepal_ui.aoi.AoiModel
+   sepal_ui.aoi.AoiView
+   sepal_ui.aoi.AoiTile
 

@@ -97,10 +97,9 @@ Imagine that you are developing a tile that requires to be connected to your GEE
 account, request your root asset id's and fill up a selection widget. To improve the
 user experience, you also want the following:
 
-- Validate if the SEPAL user is connected to Google Earth Engine.
-- Create an alert and display errors (if there is any).
-- Turn on/off the :code:`loading` and :code:`disabled` parameters of the selection 
-widget while the process is running.
+-   Validate if the SEPAL user is connected to Google Earth Engine.
+-   Create an alert and display errors (if there is any).
+-   Turn on/off the :code:`loading` and :code:`disabled` parameters of the selection widget while the process is running.
 
 Let's import the required modules. All the decorators are stored in the utils module.
 
