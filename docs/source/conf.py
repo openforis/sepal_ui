@@ -44,6 +44,7 @@ extensions = [
     "jupyter_sphinx",
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
     "notfound.extension",
     "sphinxcontrib.spelling",
     "_extentions.video",
@@ -106,7 +107,6 @@ html_context = {
     "doc_path": "docs/source",
 }
 
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -125,3 +125,6 @@ spelling_word_list_filename = [
 ]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
+
+# -- Options for autosummary output -------------------------------------------------
+autosummary_generate = False

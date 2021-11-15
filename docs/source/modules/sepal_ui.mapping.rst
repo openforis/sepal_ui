@@ -1,34 +1,31 @@
-sepal\_ui.mapping package
-=========================
-
-.. tip::
-
-   All the submodule method and class are wrapped in the package :code:`__init__.py` file.
-   They can thus be called from the :code:`sepal_ui.mapping` package
-
-   example : 
-   
-   .. jupyter-execute:: 
-
-      from sepal_ui import mapping as sm
-
-      sm.SepalMap(gee=False) 
-
-Submodules
-----------
-
-sepal\_ui.mapping.mapping module
---------------------------------
-
-.. automodule:: sepal_ui.mapping.mapping
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
+sepal\_ui.mapping
+=================
 
 .. automodule:: sepal_ui.mapping
-   :members:
-   :undoc-members:
-   :show-inheritance:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   sepal_ui.mapping.mapping
+
