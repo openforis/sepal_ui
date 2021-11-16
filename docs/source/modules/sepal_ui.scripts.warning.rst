@@ -3,25 +3,13 @@ sepal\_ui.scripts.warning
 
 .. automodule:: sepal_ui.scripts.warning
 
-   
-   
-   
+    .. rubric:: Exceptions
 
+    .. autosummary::
    
-   
-   
-
-   
-   
-   
-
-   
-   
-   .. rubric:: Exceptions
-
-   .. autosummary::
-   
-      SepalWarning
+        SepalWarning
+      
+.. autoclass:: sepal_ui.scripts.warning.SepalWarning
    
    
 
