@@ -22,7 +22,7 @@ class Divider(v.Divider, SepalWidget):
     """
 
     type_ = Unicode("").tag(sync=True)
-    "trait: Added type_ trait to specify the current color of the divider"
+    "str: Added type_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
         kwargs["class_"] = class_
