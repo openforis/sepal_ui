@@ -8,7 +8,6 @@ sepal\_ui.sepalwidgets.LoadTableField
     .. autosummary::
     
         ~LoadTableField.fileInput
-        ~LoadTableField.v_model
         ~LoadTableField.IdSelect
         ~LoadTableField.LngSelect
         ~LoadTableField.LatSelect

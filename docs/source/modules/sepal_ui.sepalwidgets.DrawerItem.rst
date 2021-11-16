@@ -7,8 +7,6 @@ sepal\_ui.sepalwidgets.DrawerItem
     
     .. autosummary::
     
-        ~DrawerItem.href
-        ~DrawerItem._metadata
         ~DrawerItem.rt        
     
     .. rubric:: Methods

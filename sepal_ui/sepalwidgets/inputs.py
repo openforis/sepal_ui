@@ -107,6 +107,9 @@ class FileInput(v.Flex, SepalWidget):
     folder = Path.home()
     "pathlib.Path: the current folder"
 
+    file = Any("").tag(sync=True)
+    "str: the current file"
+
     selected_file = None
     "v.TextField: the textfield where the file pathname is stored"
 
@@ -368,9 +371,6 @@ class LoadTableField(v.Col, SepalWidget):
     fileInput = None
     "sw.FileInput: the file input to select the .csv or .txt file"
 
-    v_model = None
-    "Traitlet: the json saved v_model shaped as {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx} The values can be accessed separately with the appropriate getter methods"
-
     IdSelect = None
     "v.Select: input to select the id column"
 
@@ -386,7 +386,7 @@ class LoadTableField(v.Col, SepalWidget):
         "lat_column": None,
         "lng_column": None,
     }
-    "dict: The default v_model"
+    "dict: The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
     def __init__(self, label="Table file", **kwargs):
 

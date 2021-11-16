@@ -77,12 +77,6 @@ class DrawerItem(v.ListItem, SepalWidget):
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
     """
 
-    href = None
-    "str: the absolute link to follow on click"
-
-    _metadata = {}
-    "dict: single key dict to point to a mount_id. This ount_id will be used as parameter to know which tiles are to be shown on click event"
-
     rt = None
     "sw.ResizeTrigger: the trigger to resize maps and other javascript object when jumping from a tile to another"
 
