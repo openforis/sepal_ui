@@ -4,7 +4,7 @@ CopyToClip
 Overview
 --------
 
-:code:`CopyToClip` is a custom textField that provides a handy copy-to-clipboard javascript behaviour. When the clipboard btn is clicked the :code:`v_model` will be copied in the local browser clipboard. You just have to change the clipboard :code:`v_model`before displaying it to the end user to have a custom value. When copied, the icon change from a copy to a check.
+:code:`CopyToClip` is a custom textField that provides a handy copy-to-clipboard javascript behaviour. When the clipboard btn is clicked the :code:`v_model` will be copied in the local browser clipboard. You just have to change the clipboard :code:`v_model` before displaying it to the end user to have a custom value. When copied, the icon change from a copy to a check.
 Any argument from the original :code:`TextField` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute:: 
