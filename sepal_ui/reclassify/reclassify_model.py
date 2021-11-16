@@ -25,28 +25,6 @@ class ReclassifyModel(Model):
     """
     Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
 
-    Attributes:
-        band (str|int): the band name or number to use for the reclassification if raster type. Use property name if vector type
-        src_local (str): the source file to reclassify (from a local path) only used if :code:`gee=False`
-        src_gee: (str): AssetId of the used input asset for reclassification. Only used if :code:`gee=True`
-        dst_dir (str): the dir used to store the output
-        gee (bool): either to use the gee backend or not
-        input_type (bool): the input type, 1 for raster and 0 for vector
-        matrix (dict): the transfer matrix between the input and the output
-            using the following format: {old_value: new_value, ...}
-        src_class (dict): the source classes using the following
-            columns: {code: (desc, color)}
-        dst_class (dict): the destination classes using the following columns:
-            {code: (desc, color)}
-        dst_local (str): the output file. default to
-            :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}``
-        dst_gee (str): the output assetId. default to
-            :code:`dst_dir/f'{src_gee.stem}_reclass``
-        remaped (int): state var updated each time an input is remapped
-        aoi_model (aoi.AoiModel): AOI model object to get an area of interest if one is selected
-        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
-        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
-
     Args:
         gee (bool): either or not to set :code:`gee` to True
         dst_dir (str): the destination forlder for outputs
@@ -58,25 +36,67 @@ class ReclassifyModel(Model):
     # inputs
     # should be unicode but we need to handle when nothing is set (None)
     band = Any(None).tag(sync=True)
+    "str|int: the band name or number to use for the reclassification if raster type. Use property name if vector type"
+
     src_local = Any(None).tag(sync=True)
+    "str: the source file to reclassify (from a local path) only used if :code:`gee=False`"
+
     src_gee = Any(None).tag(sync=True)
+    "str: AssetId of the used input asset for reclassification. Only used if :code:`gee=True`"
+
     dst_class_file = Any(None).tag(sync=True)
+    "str: the destination file for reclassify matrix"
+
     dst_dir = Any(None).tag(sync=True)
+    "str: the dir used to store the output"
+
     gee = Bool(False).tag(sync=True)
+    "bool: either to use the gee backend or not"
+
+    aoi_model = None
+    "aoi.AoiModel: AOI model object to get an area of interest if one is selected"
+
+    folder = None
+    "str: the init GEE asset folder where the asset selector should start looking (debugging purpose)"
+
+    enforce_aoi = None
+    "bool: either or not an aoi should be set to allow the reclassification"
 
     # data manipulation
     matrix = Dict({}).tag(sync=True)
+    "dict: the transfer matrix between the input and the output using the following format: {old_value: new_value, ...}"
 
     # outputs
     input_type = Bool(False).tag(sync=True)  # 1 raster, 0 vector
+    "bool: the input type, 1 for raster and 0 for vector"
+
     src_class = Dict({}).tag(sync=True)
+    "dict: the source classes using the following columns: {code: (desc, color)}"
+
     dst_class = Dict({}).tag(sync=True)
+    "dict: the destination classes using the following columns: {code: (desc, color)}"
+
     dst_local = Any(None).tag(sync=True)
+    "str: the output file. default to :code:`dst_dir/f'{src_local.stem}_reclass.{src_local.suffix}'`"
+
     dst_gee = Any(None).tag(sync=True)
+    "str: the output assetId. default to :code:`dst_dir/f'{src_gee.stem}_reclass'`"
 
     # Create a state var, to determine if an asset has been remaped
     remaped = Int(False).tag(sync=True)
+    "int: state var updated each time an input is remapped"
+
+    save = False
+    "bool: either or not the relcassified dataset need to be saved"
+
+    dst_local_memory = None
+    "Any: the local output of the reclassification"
+
+    dst_gee_memory = None
+    "Any: the gee output of the reclassification"
+
     table_created = Bool(False).tag(sync=True)
+    "bool: either or not a table have been created"
 
     def __init__(
         self,
@@ -121,10 +141,6 @@ class ReclassifyModel(Model):
 
         # set if the model need to save by default
         self.save = save
-
-        # memory outputs
-        self.dst_local_memory = None
-        self.dst_gee_memory = None
 
     def get_classes(self):
         """
