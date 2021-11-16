@@ -1,7 +1,7 @@
 import ipyvuetify as v
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from ..scripts import utils
+from ..scripts import utils as su
 
 __all__ = ["Btn", "DownloadBtn"]
 
@@ -23,7 +23,8 @@ class Btn(v.Btn, SepalWidget):
     def __init__(self, text="Click", icon="", **kwargs):
 
         # create the default v_icon
-        self.v_icon = v.Icon(left=True, children=[icon])
+        self.v_icon = v.Icon(left=True, children=[""])
+        self.set_icon(icon)
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", "primary")
@@ -32,17 +33,22 @@ class Btn(v.Btn, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-    def set_icon(self, icon):
+    def set_icon(self, icon=""):
         """
-        set a new icon
+        set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
-            icon (str): the full name of a mdi-icon
+            icon (str, optional): the full name of a mdi-icon
 
         Return:
             self
         """
         self.v_icon.children = [icon]
+
+        if not icon:
+            su.hide_component(self.v_icon)
+        else:
+            su.show_component(self.v_icon)
 
         return self
 
@@ -101,10 +107,10 @@ class DownloadBtn(v.Btn, SepalWidget):
             self
         """
 
-        if utils.is_absolute(path):
+        if su.is_absolute(path):
             url = path
         else:
-            url = utils.create_download_link(path)
+            url = su.create_download_link(path)
 
         self.href = url
         self.disabled = path == "#"
