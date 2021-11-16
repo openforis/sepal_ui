@@ -86,6 +86,7 @@ html_logo = "../img/dwn/sepal.png"
 html_favicon = "../img/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "show_prev_next": False,
     "icon_links": [
         {
             "name": "GitHub",
