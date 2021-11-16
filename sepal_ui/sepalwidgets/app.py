@@ -21,11 +21,13 @@ class AppBar(v.AppBar, SepalWidget):
     Args:
         title (str, optional): the title of the app
         kwargs(dict, optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
-
-    Attributes:
-        toggle_button (v.Btn): the btn to display or hide the drawer to the user
-        title (v.ToolBarTitle): the widget containing the app title
     """
+
+    toogle_button = None
+    "v.Btn: The btn to display or hide the drawer to the user"
+
+    title = None
+    "v.ToolBarTitle: the widget containing the app title"
 
     def __init__(self, title="SEPAL module", **kwargs):
 
@@ -73,12 +75,16 @@ class DrawerItem(v.ListItem, SepalWidget):
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
-
-    Attributes:
-        href (str): the absolute link to follow on click
-        _metadata (dict): single key dict to point to a mount_id. This ount_id will be used as parameter to know which tiles are to be shown on click event
-        rt (ResizeTrigger): the trigger to resize maps and other javascript object when jumping from a tile to another
     """
+
+    href = None
+    "str: the absolute link to follow on click"
+
+    _metadata = {}
+    "dict: single key dict to point to a mount_id. This ount_id will be used as parameter to know which tiles are to be shown on click event"
+
+    rt = None
+    "sw.ResizeTrigger: the trigger to resize maps and other javascript object when jumping from a tile to another"
 
     def __init__(self, title, icon=None, card=None, href=None, **kwargs):
 
@@ -154,6 +160,9 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         issue (str, optional): the absolute link to the issue tracker
         kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
     """
+
+    items = []
+    "list: the list of all the drawerItem to display in the drawer"
 
     def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
 
@@ -262,15 +271,22 @@ class App(v.App, SepalWidget):
         footer (sw.Footer, optional): the footer of the application
         navDrawer (sw.NavDrawer): the navdrawer of the application
         kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
-
-    Attributes:
-        tiles ([sw.Tile]): the tiles of the app
-        appBar (sw.AppBar, optional): the appBar of the application
-        footer (sw.Footer, optional): the footer of the application
-        navDrawer (sw.NavDrawer): the navdrawer of the application
-        content (v.Content): the tiles organized in a fluid container
-
     """
+
+    tiles = []
+    "list: the tiles of the app"
+
+    appBar = None
+    "sw.AppBar: the AppBar of the application"
+
+    footer = None
+    "sw.Footer: the footer of the application"
+
+    navDrawer = None
+    "sw.NavDrawer: the navdrawer of the application"
+
+    content = None
+    "v.Content: the tiles organized in a fluid container"
 
     def __init__(self, tiles=[""], appBar=None, footer=None, navDrawer=None, **kwargs):
 
