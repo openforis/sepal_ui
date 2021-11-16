@@ -1,7 +1,7 @@
 sepal\_ui.mapping
 =================
 
-.. automodule:: sepal_ui.mapping.mapping
+.. automodule:: sepal_ui.mapping
 
 .. rubric:: Classes
 
