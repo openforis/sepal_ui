@@ -1,6 +1,6 @@
 import ipyvuetify as v
 from markdown import markdown
-from traitlets import Unicode, Any
+from traitlets import Unicode, Any, Bool, observe
 from ipywidgets import link
 from deprecated.sphinx import versionadded
 
@@ -14,11 +14,24 @@ class SepalWidget(v.VuetifyWidget):
     Custom vuetifyWidget to add specific methods
     """
 
-    viz = True
-    "bool:  weather the file is displayed or not"
+    viz = Bool(True).tag(sync=True)
+    "bool: weather the file is displayed or not"
 
     old_class = ""
     "str: a saving attribute of the widget class"
+
+    @observe("viz")
+    def _set_viz(self, change):
+        """
+        hide or show the component according to its viz param value
+
+        Args:
+            change: the dict of a trait callback
+        """
+
+        self.show() if change["new"] else self.hide()
+
+        return
 
     def toggle_viz(self):
         """
@@ -28,7 +41,9 @@ class SepalWidget(v.VuetifyWidget):
             self
         """
 
-        return self.hide() if self.viz else self.show()
+        self.viz = not self.viz
+
+        return self
 
     def hide(self):
         """
@@ -68,7 +83,7 @@ class SepalWidget(v.VuetifyWidget):
 
     def reset(self):
         """
-        Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input
+        Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input.
 
         Return:
             self
