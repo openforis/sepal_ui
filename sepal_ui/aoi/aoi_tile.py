@@ -19,12 +19,14 @@ class AoiTile(sw.Tile):
         ee (bool, optional): wether or not to use the python EartEngine API. default to True
         vector (str|pathlib.Path, optional): the path to the default vector object
         admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset (str, optional): the default asset. Can only work if ee==True
-
-    Attributes:
-        map (sw.SepalMap): a SepalMap object to display the selected aoi
-        aoi_view (AoiView): an AoiView object to handle the aoi method selection
+        asset (str, optional): the default asset. Can only work if :code:`ee==True`.
     """
+
+    map = None
+    "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
+
+    view = None
+    "widget: an AoiView object to handle the aoi method selection"
 
     def __init__(self, methods="ALL", gee=True, **kwargs):
 

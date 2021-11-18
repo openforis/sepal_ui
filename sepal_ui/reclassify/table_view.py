@@ -542,17 +542,28 @@ class TableView(v.Card, sw.SepalWidget):
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
         out_path (str|optional): the folder to save the created classifications. default to ~/downloads
-
-    Attributes:
-        title (v.CardTitle): the title of the card
-        class_path (str|optional): Folder path containing already existing classes
-        out_path (str|optional): the folder to save the created classifications
-        w_class_file (sw.FileInput): the file input of the existing classification system
-        w_class_table (ClassTable): the classtable (CRUD) to manage the editing of the classification
-        btn (sw.Btn): the btn to start loading file data into the table
-        alert (sw.Alert): the alert to display loading information (error and success)
-
     """
+
+    title = None
+    "v.CardTitle: the title of the card"
+
+    class_path = None
+    "str: Folder path containing already existing classes"
+
+    out_path = None
+    "str: the folder to save the created classifications"
+
+    w_class_file = None
+    "sw.FileInput: the file input of the existing classification system"
+
+    w_class_table = None
+    "ClassTable: the classtable (CRUD) to manage the editing of the classification"
+
+    btn = None
+    "sw.Btn: the btn to start loading file data into the table"
+
+    alert = None
+    "sw.Alert: the alert to display loading information (error and success)"
 
     def __init__(
         self, class_path=Path.home(), out_path=Path.home() / "downloads", **kwargs

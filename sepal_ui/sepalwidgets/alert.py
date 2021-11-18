@@ -19,13 +19,10 @@ class Divider(v.Divider, SepalWidget):
     Args:
         class\_ (str, optional): the initial color of the divider
         kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
-
-    Attributes:
-        type_ (str): the current color of the divider
     """
 
-    # Added type_ trait to specify default divider color
     type_ = Unicode("").tag(sync=True)
+    "str: Added type_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
         kwargs["class_"] = class_
@@ -315,15 +312,16 @@ class StateBar(v.SystemBar):
 
     Args:
        kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
-
-    Attributes:
-        msg (Unicode): the msg to be displayed
-        loading (Bool): State of bar, it will display a loading spin wheel if not loading.
-
     """
 
     msg = Unicode("").tag(sync=True)
+    "str: the displayed message"
+
     loading = Bool(False).tag(sync=True)
+    "bool: either or not the circular progress is spinning"
+
+    progress = None
+    "widget: The ProgressCircular widget that will be displayed in the statebar"
 
     def __init__(self, **kwargs):
 

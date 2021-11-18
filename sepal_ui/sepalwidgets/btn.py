@@ -15,10 +15,10 @@ class Btn(v.Btn, SepalWidget):
         text (str, optional): the text to display in the btn
         icon (str, optional): the full name of any mdi-icon
         kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
-
-    Attributes:
-        v_icon (v.icon): the icon in the btn
     """
+
+    v_icon = None
+    "v.Icon: the icon in the btn"
 
     def __init__(self, text="Click", icon="", **kwargs):
 

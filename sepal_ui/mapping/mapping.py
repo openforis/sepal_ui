@@ -51,18 +51,23 @@ class SepalMap(geemap.Map):
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
         kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
-
-
-    Attributes:
-        gee (bool): current ee binding status
-        loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
-        output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
-        output_control_r (ipyleaflet.WidgetControl): the custom control on the map
-        dc (ipyleaflet.DrawingControl): the drawing control of the map
-
     """
 
+    ############################################################################
+    ###                              Map parameters                          ###
+    ############################################################################
+
+    ee = True
+    "bool: either the map will use geempa binding or not"
+
     vinspector = Bool(False).tag(sync=True)
+    "bool: either or not the datainspector is available"
+
+    loaded_rasters = {}
+    "dict: the list of loaded rasters"
+
+    dc = None
+    "ipyleaflet.DrawingControl: the drawing control of the map"
 
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
@@ -81,9 +86,6 @@ class SepalMap(geemap.Map):
         self.ee = gee
         if gee:
             su.init_ee()
-
-        # init the rasters
-        self.loaded_rasters = {}
 
         # add the basemaps
         self.clear_layers()
@@ -482,6 +484,7 @@ class SepalMap(geemap.Map):
         **kwargs,
     ):
         """Add a colorbar to the map.
+
         Args:
             colors (list, optional): The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
             cmap (str): a matplotlib colormap default to viridis

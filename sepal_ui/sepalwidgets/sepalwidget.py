@@ -12,18 +12,13 @@ TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent"
 class SepalWidget(v.VuetifyWidget):
     """
     Custom vuetifyWidget to add specific methods
-
-    Attributes:
-        viz (bool): weather the file is displayed or not
-        old_class (str): a saving attribute of the widget class
     """
 
-    def __init__(self, **kwargs):
+    viz = True
+    "bool:  weather the file is displayed or not"
 
-        super().__init__(**kwargs)
-
-        self.viz = True
-        self.old_class = ""
+    old_class = ""
+    "str: a saving attribute of the widget class"
 
     def toggle_viz(self):
         """
@@ -159,13 +154,13 @@ class CopyToClip(v.VuetifyTemplate):
 
     Args:
         kwargs: any argument that can be used with a v.TextField
-
-    Attributes:
-        tf (v.TextField): the textfield widget that holds the v_model to copy
-        v_model (Any trait): a v_model trait that embed the string to copy
     """
 
+    tf = None
+    "v.TextField: the textfield widget that holds the v_model to copy"
+
     v_model = Any(None).tag(sync=True)
+    "Any trait: a v_model trait that embed the string to copy"
 
     def __init__(self, **kwargs):
 

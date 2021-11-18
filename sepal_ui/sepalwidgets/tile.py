@@ -25,6 +25,15 @@ class Tile(v.Layout, SepalWidget):
         kwargs (optional): any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
     """
 
+    btn = None
+    "v.btn: the process btn"
+
+    alert = None
+    "sw.Alert: the alert to display process informations to the end user"
+
+    title = None
+    "v.Html: the title of the Tile"
+
     def __init__(self, id_, title, inputs=[""], btn=None, alert=None, **kwargs):
 
         self.btn = btn

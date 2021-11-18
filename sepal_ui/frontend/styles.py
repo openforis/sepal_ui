@@ -21,24 +21,22 @@ sepal_darker = "#1a1a1a"
 # set the background
 bg_color = "#121212" if v.theme.dark else "#fff"
 
-# Fixed styles to avoid leaflet maps overlap sepal widgets
+
 class Styles(v.VuetifyTemplate):
+    """
+    Fixed styles to avoid leaflet maps overlap sepal widgets
+    """
 
     template = Unicode(
         """
-    <style>
-        .leaflet-pane {
-            z-index : 2 !important;
-        }
-        .leaflet-top, .leaflet-bottom {
-            z-index : 2 !important;
-        }
-        main.v-content {
-            padding-top: 0px !important;
-        }
-    </style>
+        <style>
+            .leaflet-pane {z-index : 2 !important;}
+            .leaflet-top, .leaflet-bottom {z-index : 2 !important;}
+            main.v-content {padding-top: 0px !important;}
+        </style>
     """
     ).tag(sync=True)
+    "Unicode: the trait embeding the maps style"
 
 
 styles = Styles()

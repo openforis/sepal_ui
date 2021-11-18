@@ -36,10 +36,10 @@ class DatePicker(v.Layout, SepalWidget):
         label (str, optional): the label of the datepicker field
         kwargs (optional): any parameter from a v.Layout abject. If set, 'children' will be overwritten.
 
-    Attributes:
-        menu (v.Menu): the menu widget to display the datepicker
-
     """
+
+    menu = None
+    "v.Menu: the menu widget to display the datepicker"
 
     def __init__(self, label="Date", **kwargs):
 
@@ -99,20 +99,37 @@ class FileInput(v.Flex, SepalWidget):
         v_model (str, optional): the default value
         clearable (bool, optional): wether or not to make the widget clearable. default to False
         kwargs (optional): any parameter from a v.Flex abject. If set, 'children' will be overwritten.
-
-    Attributes:
-        extentions ([str]): the extention list
-        folder (str | pathlib.Path): the current folder
-        selected_file (v.TextField): the textfield where the file pathname is stored
-        loading (v.ProgressLinear): loading top bar of the menu component
-        file_list (v.List): the list of files and folder that are available in the current folder
-        file_menu (v.Menu): the menu that hide and show the file_list
-        reload (v.Btn): reload btn to reload the file list on the current folder
-        clear (v.Btn): clear btn to remove everything and set back to the ini folder
     """
 
-    file = Any("")
+    extentions = []
+    "list: the extention list"
+
+    folder = Path.home()
+    "pathlib.Path: the current folder"
+
+    file = Any("").tag(sync=True)
+    "str: the current file"
+
+    selected_file = None
+    "v.TextField: the textfield where the file pathname is stored"
+
+    loading = None
+    "v.ProgressLinear: loading top bar of the menu component"
+
+    file_list = None
+    "v.List: the list of files and folder that are available in the current folder"
+
+    file_menu = None
+    "v.Menu: the menu that hide and show the file_list"
+
+    reload = None
+    "v.Btn: reload btn to reload the file list on the current folder"
+
+    clear = None
+    "v.Btn: clear btn to remove everything and set back to the ini folder"
+
     v_model = Unicode(None, allow_none=True).tag(sync=True)
+    "str: the v_model of the input"
 
     def __init__(
         self,
@@ -349,14 +366,19 @@ class LoadTableField(v.Col, SepalWidget):
     Args:
         label (str, optional): the label of the widget
         kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
-
-    Attributes:
-        fileInput (sw.FileInput): the file input to select the .csv or .txt file
-        v_model (Traitlet): the json saved v_model shaped as {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx} The values can be accessed separately with the appropriate getter methods
-        IdSelect (v.Select): input to select the id column
-        LngSelect (v.Select): input to select the lng column
-        LatSelect (v.Select): input to select the lat column
     """
+
+    fileInput = None
+    "sw.FileInput: the file input to select the .csv or .txt file"
+
+    IdSelect = None
+    "v.Select: input to select the id column"
+
+    LngSelect = None
+    "v.Select: input to select the lng column"
+
+    LatSelect = None
+    "v.Select: input to select the lat column"
 
     default_v_model = {
         "pathname": None,
@@ -364,6 +386,7 @@ class LoadTableField(v.Col, SepalWidget):
         "lat_column": None,
         "lng_column": None,
     }
+    "dict: The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
     def __init__(self, label="Table file", **kwargs):
 
@@ -474,7 +497,7 @@ class LoadTableField(v.Col, SepalWidget):
 
 
 class AssetSelect(v.Combobox, SepalWidget):
-    f"""
+    """
     Custom widget input to select an asset inside the asset folder of the user
 
     Args:
@@ -483,14 +506,6 @@ class AssetSelect(v.Combobox, SepalWidget):
         default_asset (str, list): the id of a default asset or a list of defaults
         types ([str]): the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
         kwargs (optional): any parameter from a v.ComboBox.
-
-    Attributes:
-        TYPES (dict, const): Valid ypes of asset.
-        folder (str): the folder of the user assets
-        valid (Bool): whether the selected asset is valid (user has access) or not
-        asset_info (dict): The selected asset informations
-        default_asset (str, List): the id of a default asset or a list of default assets
-        types (List): the list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items.
     """
 
     TYPES = {
@@ -501,9 +516,22 @@ class AssetSelect(v.Combobox, SepalWidget):
         "FOLDER": ms.widgets.asset_select.types[4],
         # UNKNOWN type is ignored
     }
+    "dict: Valid ypes of asset"
+
+    folder = None
+    "str: the folder of the user assets, mainly for debug"
+
+    valid = True
+    "Bool: whether the selected asset is valid (user has access) or not"
+
+    asset_info = {}
+    "dict: The selected asset informations"
 
     default_asset = Any().tag(sync=True)
+    "str: the id of a default asset or a list of default assets"
+
     types = List().tag(sync=True)
+    "List: the list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items."
 
     @su.need_ee
     def __init__(
@@ -690,16 +718,16 @@ class NumberField(v.TextField, SepalWidget):
         min_ (int, optional): Minimum selectable number. Defaults to 0.
         increm (int, optional): incremental value added at each step. default to 1
         kwargs (dict, optional): Any parameter from a v.TextField. If set, 'type' will be overwritten.
-
-    Attribute:
-        max_ (int): Maximum selectable number.
-        min_ (int): Minimum selectable number.
-        increm (int): incremental value added at each step.
     """
 
     max_ = Int(10).tag(sync=True)
+    "int: Maximum selectable number."
+
     min_ = Int(0).tag(sync=True)
+    "int: Minimum selectable number."
+
     increm = Int(1).tag(sync=True)
+    "int: incremental value added at each step."
 
     def __init__(self, max_=10, min_=0, increm=1, **kwargs):
 
@@ -746,15 +774,25 @@ class VectorField(v.Col, SepalWidget):
         gee (bool, optional): whether to use GEE assets or local vectors.
         folder (str, optional): When gee=True, extra args will be used for AssetSelect
         kwargs (dict, optional): any parameter from a v.Col. if set, 'children' will be overwritten.
-
-    Attributes:
-        original_gdf (geopandas.gdf): The originally selected dataframe
-        gdf (geopandas.gdf): The selected dataframe.
-        v_model (Traitlet): The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx} The values can be accessed separately with the appropriate getter methods
-        w_file (sw.FileInput): The file selector widget
-        w_column (v.Select): The Select widget to select the column
-        w_value (v.Select): The Select widget to select the value in the selected column
     """
+
+    original_gdf = None
+    "geopandas.GeoDataframe: The originally selected dataframe"
+
+    df = None
+    "pandas.Dataframe: the orginal dataframe without the geometry (for column naming)"
+
+    gdf = None
+    "geopandas.GeoDataframe: The selected dataframe"
+
+    w_file = None
+    "sw.FileInput: The file selector widget"
+
+    w_column = None
+    "v.Select: The Select widget to select the column"
+
+    w_value = None
+    "v.Select: The Select widget to select the value in the selected column"
 
     v_model = Dict(
         {
@@ -763,17 +801,18 @@ class VectorField(v.Col, SepalWidget):
             "value": None,
         }
     )
+    "Traitlet: The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx}"
+
+    column_base_items = [
+        {"text": "Use all features", "value": "ALL"},
+        {"divider": True},
+    ]
+    "list: the column compulsory selector (ALL)"
+
+    feature_collection = None
+    "ee.FeatureCollection: the selected featureCollection"
 
     def __init__(self, label="vector_file", gee=False, **kwargs):
-
-        # save the df for column naming (not using a gdf as geometry are useless)
-        self.df = None
-        self.feature_collection = None
-
-        self.column_base_items = [
-            {"text": "Use all features", "value": "ALL"},
-            {"divider": True},
-        ]
 
         # set the 3 wigets
         if not gee:
@@ -821,7 +860,7 @@ class VectorField(v.Col, SepalWidget):
         """update the file name, the v_model and reset the other widgets"""
 
         # reset the widgets
-        self.w_column.items = self.w_value.items = []
+        self.w_column.items, self.w_value.items = [], []
         self.w_column.v_model = self.w_value.v_model = None
         self.df = None
         self.feature_collection = None
