@@ -4,7 +4,7 @@ SepalWidget
 Overview
 --------
 
-:code:`SepalWidget` is an abstract object that embed special classes, it can be used with any ipyvuetify widget component:
+:code:`SepalWidget` is an abstract object that embed special methods, it can be used with any ipyvuetify widget component:
 
 .. jupyter-execute::
     :raises:
@@ -53,6 +53,14 @@ Hide the component by changing its class.
             
     sepal_select = SepalSelect()
     sepal_select.hide()
+    
+.. note::
+
+    the component can also be hidden by setting:
+    
+    .. code-block:: python
+        
+        sepal_select.viz = False
 
 show
 ^^^^
@@ -77,6 +85,14 @@ Show the component by changing its class.
             
     sepal_select = SepalSelect()
     sepal_select.hide().show()
+    
+.. note::
+
+    the component can also be shown by setting:
+    
+    .. code-block:: python
+        
+        sepal_select.viz = True
 
 reset
 ^^^^^
