@@ -50,7 +50,9 @@
 		"geojson_to_ee": "Convert your .csv file into a ee_object"
 	},
 	"mapping": {
-		"no_image": "The image file does not exist."
+		"no_image": "The image file does not exist.",
+        "loading_layers": "loading {} layer(s) out of {}",
+        "loading_complete": "{} layers loaded"
 	},
 	"rec": {
 		"table": {

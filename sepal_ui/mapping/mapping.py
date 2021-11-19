@@ -28,14 +28,53 @@ from ipyleaflet import (
     WidgetControl,
     ZoomControl,
 )
-from traitlets import Bool, link, observe
+from traitlets import Bool, link, observe, Int
 import ipyvuetify as v
 import ipyleaflet
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui import sepalwidgets as sw
 
 __all__ = ["SepalMap"]
+
+
+class StateBar(sw.StateBar):
+    """
+    A specific statebar dedicated to the the counting of loading tiles in the map
+    """
+
+    nb_layer = Int(0).tag(sync=True)
+    "Int: the number of layers in the map"
+
+    nb_loading_layer = Int(0).tag(sync=True)
+    "Int: the number of loading layer in the map"
+
+    def loading_change(self, change):
+        """update the nb_layer_loading trait according to layer loading state"""
+
+        if change["new"]:
+            self.nb_loading_layer += 1
+        else:
+            self.nb_loading_layer -= 1
+
+        return
+
+    @observe("nb_loading_layer", "nb_layer")
+    def _update_state(self, change):
+
+        # check if anything is loading
+        self.loading = bool(self.nb_loading_layer)
+
+        # update the message
+        if self.loading:
+            msg = ms.mapping.loading_layers.format(self.nb_loading_layer, self.nb_layer)
+        else:
+            msg = ms.mapping.loading_complete.format(self.nb_layer)
+
+        self.msg = msg
+
+        return
 
 
 class SepalMap(geemap.Map):
@@ -69,6 +108,9 @@ class SepalMap(geemap.Map):
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
+    state = StateBar(loading=False)
+    "sw.StateBar: the statebar to inform the user about tile loading"
+
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
         self.world_copy_jump = True
@@ -87,6 +129,10 @@ class SepalMap(geemap.Map):
         if gee:
             su.init_ee()
 
+        # clear the statebar
+        self.state.nb_loading_layer = 0
+        self.state.nb_layer = 0
+
         # add the basemaps
         self.clear_layers()
         if len(basemaps):
@@ -100,6 +146,7 @@ class SepalMap(geemap.Map):
         self.add_control(LayersControl(position="topright"))
         self.add_control(AttributionControl(position="bottomleft"))
         self.add_control(ScaleControl(position="bottomleft", imperial=False))
+        self.add_control(WidgetControl(widget=self.state, position="topleft"))
 
         # change the prefix
         for control in self.controls:
@@ -580,3 +627,26 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
+
+    def add_layer(self, l):
+
+        # call the original method
+        super().add_layer(l)
+
+        # get the current layer count
+        self.state.nb_layer = len(self.layers)
+
+        # link it to the layer state
+        l.observe(self.state.loading_change, "loading")
+
+        return
+
+    def remove_layer(self, l):
+
+        # call the parent method
+        super().remove_layer(l)
+
+        # get the current layer count
+        self.state.nb_layer = len(self.layers)
+
+        return
