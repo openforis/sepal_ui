@@ -8,3 +8,12 @@ sepal\_ui.sepalwidgets.DatePicker
     .. autosummary::
     
         ~DatePicker.menu
+        
+    .. rubric:: Methods
+    
+    .. autosummary::
+        :nosignatures:
+        
+        ~Datepicker.close_menu
+        
+.. automethod:: sepal_ui.sepalwidgets.DatePicker.close_menu

@@ -12,6 +12,7 @@ from natsort import humansorted
 
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import *
+from sepal_ui.frontend.js import ResizeTrigger
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
@@ -43,6 +44,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     def __init__(self, label="Date", **kwargs):
 
+        # create the widgets
         date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
 
         date_text = v.TextField(
@@ -59,7 +61,7 @@ class DatePicker(v.Layout, SepalWidget):
             min_width="290px",
             transition="scale-transition",
             offset_y=True,
-            value=False,
+            v_model=False,
             close_on_content_click=False,
             children=[date_picker],
             v_slots=[
@@ -84,8 +86,14 @@ class DatePicker(v.Layout, SepalWidget):
         jslink((date_picker, "v_model"), (date_text, "v_model"))
         jslink((date_picker, "v_model"), (self, "v_model"))
 
-        # close the datepicker on click
-        # date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
+    @observe("v_model")
+    def close_menu(self, change):
+        """A method to close the menu of the datepicker programatically"""
+
+        # set the visibility
+        self.menu.v_model = False
+
+        return
 
 
 class FileInput(v.Flex, SepalWidget):
