@@ -4,7 +4,8 @@ from pathlib import Path
 
 import ipyvuetify as v
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Markdown
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.scripts import utils as su
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
