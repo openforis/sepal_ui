@@ -2,7 +2,7 @@ import ipyvuetify as v
 from markdown import markdown
 from traitlets import Unicode, Any, Bool, observe
 from ipywidgets import link
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import versionadded, deprecated
 
 __all__ = ["TYPES", "SepalWidget", "Markdown", "Tooltip", "CopyToClip"]
 
@@ -39,6 +39,7 @@ class SepalWidget(v.VuetifyWidget):
 
         return
 
+    @deprecated(version="2.6.0", reason="Equivalent to :code:`self.viz = not self.viz`")
     def toggle_viz(self):
         """
         toogle the visibility of the widget.
