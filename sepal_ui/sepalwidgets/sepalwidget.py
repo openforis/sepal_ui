@@ -17,10 +17,10 @@ class SepalWidget(v.VuetifyWidget):
     viz = Bool(True).tag(sync=True)
     "Bool: whether the widget is displayed or not"
 
-    old_class = ""
-    "str: a saving attribute of the widget class"
+    old_class = Unicode("").tag(sync=True)
+    "Unicode: a saving attribute of the widget class"
 
-    def __init__(self, *kwargs):
+    def __init__(self, **kwargs):
 
         self.viz = kwargs.pop("viz", True)
 
@@ -41,7 +41,7 @@ class SepalWidget(v.VuetifyWidget):
 
     def toggle_viz(self):
         """
-        toogle the visibility of the widget
+        toogle the visibility of the widget.
 
         Return:
             self
@@ -53,16 +53,15 @@ class SepalWidget(v.VuetifyWidget):
 
     def hide(self):
         """
-        Hide the widget by adding the d-none html class to the widget.
+        Hide the widget by reducing the html class to :code:`d-none`.
         Save the previous class and set viz attribute to False.
 
         Return:
             self
         """
-
-        if not "d-none" in str(self.class_):
-            self.old_class = self.class_
-            self.class_ = "d-none"
+        self.class_list.remove("d-none")
+        self.old_class = self.class_
+        self.class_ = "d-none"
 
         self.viz = False
 
@@ -70,18 +69,14 @@ class SepalWidget(v.VuetifyWidget):
 
     def show(self):
         """
-        Hide the widget by removing the d-none html class to the widget
+        Show the widget by removing the d-none html class.
         Save the previous class and set viz attribute to True.
 
         Return:
             self
         """
-
-        if self.old_class:
-            self.class_ = self.old_class
-
-        if "d-none" in str(self.class_):
-            self.class_ = str(self.class_).replace("d-none", "")
+        self.class_ = self.old_class or self.class_
+        self.class_list.remove("d-none")
 
         self.viz = True
 
