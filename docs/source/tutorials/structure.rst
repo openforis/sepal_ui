@@ -105,8 +105,8 @@ these files are partial UI file. They will be used to create each step of our ap
 Final ui
 --------
 
-* no_ui.ipynb
-* ui.ipynb
+* :code:`no_ui.ipynb`
+* :code:`ui.ipynb
 
 Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
 More information in `this tutorial <#>`_ and `this tutorial <#>`_.
