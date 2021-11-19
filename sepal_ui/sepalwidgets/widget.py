@@ -4,7 +4,7 @@ from traitlets import Unicode, Any, Bool, observe
 from ipywidgets import link
 from deprecated.sphinx import versionadded, deprecated
 
-from sepal_ui.sepalwidgets import SepalWidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Markdown", "Tooltip", "CopyToClip"]
 

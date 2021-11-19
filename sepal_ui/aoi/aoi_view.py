@@ -21,21 +21,7 @@ select_methods = AoiModel.METHODS
 __all__ = ["AoiView", "select_methods"]
 
 
-class Select(v.Select, sw.SepalWidget):
-    """A classic Vuetify Select widget inheriting from sepalwidgets"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class TextField(v.TextField, sw.SepalWidget):
-    """A classic Vuetify TextField widget inheriting from sepalwidgets"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class MethodSelect(Select):
+class MethodSelect(sw.Select):
     f"""
     A method selector. It will list the available methods for this very AoiView.
     'ALL' will select all the available methods (default)
@@ -98,7 +84,7 @@ class MethodSelect(Select):
         super().__init__(label=ms.aoi_sel.method, items=items, v_model="", dense=True)
 
 
-class AdminField(v.Select, sw.SepalWidget):
+class AdminField(sw.Select):
     """
     An admin level selector. It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
@@ -201,7 +187,7 @@ class AdminField(v.Select, sw.SepalWidget):
         return self
 
 
-class AoiView(v.Card):
+class AoiView(sw.Card):
     """
     Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False)
 
@@ -294,7 +280,7 @@ class AoiView(v.Card):
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_:
-            self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
+            self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
         if self.ee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]

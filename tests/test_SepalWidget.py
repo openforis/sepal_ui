@@ -24,7 +24,7 @@ class TestSepalWidget:
 
     def test_show(self, widget):
 
-        widget.class_ = "d-none"
+        widget.viz = False
         widget.show()
         assert widget.viz == True
         assert not "d-none" in str(widget.class_)

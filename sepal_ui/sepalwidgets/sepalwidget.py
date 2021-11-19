@@ -46,6 +46,9 @@ class SepalWidget(v.VuetifyWidget):
             change: the dict of a trait callback
         """
 
+        # will be replaced byt direct calls to built-in hide
+        # once the previous custom implementation will be fully removed
+
         if self.viz:
 
             # change class value
@@ -74,6 +77,7 @@ class SepalWidget(v.VuetifyWidget):
 
         return self
 
+    @deprecated(version="2.6.0", reason="set :code`viz=False` in instance kwargs")
     def hide(self):
         """
         Hide the widget by reducing the html class to :code:`d-none`.
@@ -88,6 +92,7 @@ class SepalWidget(v.VuetifyWidget):
 
         return self
 
+    @deprecated(version="2.6.0", reason="set :code`viz=True` in instance kwargs")
     def show(self):
         """
         Show the widget by removing the d-none html class.

@@ -15,7 +15,7 @@ from sepal_ui.message import ms
 __all__ = ["TableView"]
 
 
-class ClassTable(v.DataTable, sw.SepalWidget):
+class ClassTable(sw.DataTable):
 
     """
     Custom data table to modify, display and save classification. From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
@@ -535,7 +535,7 @@ class SaveDialog(v.Dialog):
         return
 
 
-class TableView(v.Card, sw.SepalWidget):
+class TableView(sw.Card):
     """
     Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
 
