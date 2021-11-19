@@ -18,6 +18,7 @@ for c in _c_list:
         pass
 
     locals()[c] = _tmp
+del _tmp
 
 # import and/or overwrite with our customized widgets
 from sepal_ui.sepalwidgets.widget import *
