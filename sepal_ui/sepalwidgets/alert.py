@@ -6,6 +6,7 @@ import ipyvuetify as v
 from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, List, Bool
 
+from sepal_ui.frontend.styles import sepal_darker
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
 __all__ = ["Divider", "Alert", "StateBar"]
@@ -330,7 +331,7 @@ class StateBar(v.SystemBar, SepalWidget):
             value=100,
             small=True,
             size=15,
-            color="primary",
+            color=sepal_darker,
             class_="mr-2",
         )
 
