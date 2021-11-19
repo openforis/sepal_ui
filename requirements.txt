@@ -1,6 +1,7 @@
 git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python
 geemap==0.8.9
 haversine>=2.3.0
+ipyvue>=1.7.0
 ipyvuetify>=1.6.2
 markdown>=3.3.2
 xarray_leaflet==0.1.13
