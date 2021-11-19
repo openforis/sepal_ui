@@ -9,6 +9,7 @@ import geemap
 from ipyleaflet import basemaps, basemap_to_tiles
 
 from sepal_ui import mapping as sm
+from sepal_ui import sepalwidgets as sw
 
 
 class TestSepalMap:
@@ -22,6 +23,10 @@ class TestSepalMap:
         assert m.zoom == 2
         assert len(m.layers) == 1
         assert m.layers[0].name == "CartoDB.DarkMatter"
+        assert m.state.viz == False
+        assert isinstance(m.state, sw.StateBar)
+        assert m.state.nb_layer == 1  # the basemap
+        assert len(m.controls) == 6  # only thing I can check
 
         # check that the map start with a DC
         m = sm.SepalMap(dc=True)
@@ -37,6 +42,10 @@ class TestSepalMap:
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
         assert isinstance(m, sm.SepalMap)
+
+        # check that the map start with a statebar
+        m = sm.SepalMap(statebar=True)
+        assert m.state.viz == True
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -257,6 +266,6 @@ class TestSepalMap:
         m = sm.SepalMap()
         m.add_colorbar(colors=["#fc8d59", "#ffffbf", "#91bfdb"], vmin=0, vmax=5)
 
-        assert len(m.controls) == 6  # only thing I can check
+        assert len(m.controls) == 7  # only thing I can check
 
         return
