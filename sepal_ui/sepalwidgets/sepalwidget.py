@@ -22,9 +22,9 @@ class SepalWidget(v.VuetifyWidget):
 
     def __init__(self, **kwargs):
 
-        self.viz = kwargs.pop("viz", True)
-
         super().__init__(**kwargs)
+
+        self.viz = kwargs.pop("viz", True)
 
     @observe("viz")
     def _set_viz(self, change):
@@ -60,10 +60,18 @@ class SepalWidget(v.VuetifyWidget):
         Return:
             self
         """
+        # exit if already hidden
+        if not self.viz:
+            return
+
+        # change class value
         self.class_list.remove("d-none")
-        self.old_class = self.class_
+        # print(self.class_)
+        self.old_class = str(self.class_)
+        # print(self.old_class)
         self.class_ = "d-none"
 
+        # update viz state
         self.viz = False
 
         return self
@@ -76,9 +84,16 @@ class SepalWidget(v.VuetifyWidget):
         Return:
             self
         """
+
+        # exit if already visible
+        if self.viz:
+            return
+
+        # change class value
         self.class_ = self.old_class or self.class_
         self.class_list.remove("d-none")
 
+        # update viz state
         self.viz = True
 
         return self
