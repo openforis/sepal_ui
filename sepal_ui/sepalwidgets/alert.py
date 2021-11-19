@@ -306,7 +306,7 @@ class Alert(v.Alert, SepalWidget):
         return init
 
 
-class StateBar(v.SystemBar):
+class StateBar(v.SystemBar, SepalWidget):
 
     """Widget to display quick messages on simple inline status bar
 

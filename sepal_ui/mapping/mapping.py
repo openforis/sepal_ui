@@ -89,6 +89,7 @@ class SepalMap(geemap.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        statebar (bool): wether or not to display the Statebar in the map
         kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
     """
 
@@ -111,7 +112,15 @@ class SepalMap(geemap.Map):
     state = StateBar(loading=False)
     "sw.StateBar: the statebar to inform the user about tile loading"
 
-    def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
+    def __init__(
+        self,
+        basemaps=["CartoDB.DarkMatter"],
+        dc=False,
+        vinspector=False,
+        gee=True,
+        statebar=False,
+        **kwargs,
+    ):
 
         self.world_copy_jump = True
 
@@ -132,13 +141,11 @@ class SepalMap(geemap.Map):
         # clear the statebar
         self.state.nb_loading_layer = 0
         self.state.nb_layer = 0
+        self.state.viz = statebar
 
         # add the basemaps
         self.clear_layers()
-        if len(basemaps):
-            [self.add_basemap(basemap) for basemap in set(basemaps)]
-        else:
-            self.add_basemap("CartoDB.DarkMatter")
+        [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
         self.clear_controls()
