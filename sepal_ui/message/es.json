@@ -49,7 +49,9 @@
 		"geojson_to_ee": "Convierta su archivo .csv en un objeto de Google Earth Engine"
 	},
 	"mapping": {
-		"no_image": "El archivo de imagen no existe"
+		"no_image": "El archivo de imagen no existe",
+        "loading_layers": "cargando {} capa(s) de {}",
+        "loading_complete": "{} capa(s) cargada(s)"
 	},
 	"rec": {
 		"table": {

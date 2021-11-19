@@ -52,7 +52,7 @@
 	"mapping": {
 		"no_image": "The image file does not exist.",
         "loading_layers": "loading {} layer(s) out of {}",
-        "loading_complete": "{} layers loaded"
+        "loading_complete": "{} layer(s) loaded"
 	},
 	"rec": {
 		"table": {
