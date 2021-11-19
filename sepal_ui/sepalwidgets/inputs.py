@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode
+from traitlets import link, Int, Any, List, observe, Dict, Unicode, observe
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -169,6 +169,7 @@ class FileInput(v.Flex, SepalWidget):
             dense=True,
             color="grey darken-3",
             flat=True,
+            v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
@@ -177,6 +178,7 @@ class FileInput(v.Flex, SepalWidget):
         self.file_menu = v.Menu(
             min_width=300,
             children=[self.loading, self.file_list],
+            v_model=False,
             close_on_content_click=False,
             v_slots=[
                 {
@@ -361,6 +363,15 @@ class FileInput(v.Flex, SepalWidget):
 
         # force the update of the current folder
         self._change_folder()
+
+        return
+
+    @observe("v_model")
+    def close_menu(self, change):
+        """A method to close the menu of the Fileinput programatically"""
+
+        # set the visibility
+        self.file_menu.v_model = False
 
         return
 

@@ -23,8 +23,11 @@ sepal\_ui.sepalwidgets.FileInput
         :nosignatures:
         
         ~FileInput.reset
-        ~FileInput.select_file       
+        ~FileInput.select_file
+        ~FileInput.close_menu
         
 .. automethod:: sepal_ui.sepalwidgets.FileInput.reset
 
 .. automethod:: sepal_ui.sepalwidgets.FileInput.select_file
+
+.. automethod:: sepal_ui.sepalwidgets.FileInput.close_menu
