@@ -20,6 +20,12 @@ class SepalWidget(v.VuetifyWidget):
     old_class = ""
     "str: a saving attribute of the widget class"
 
+    def __init__(self, *kwargs):
+
+        self.viz = kwargs.pop("viz", True)
+
+        super().__init__(**kwargs)
+
     @observe("viz")
     def _set_viz(self, change):
         """
