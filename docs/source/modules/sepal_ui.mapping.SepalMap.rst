@@ -11,6 +11,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.vinspector
         ~SepalMap.loaded_rasters
         ~SepalMap.dc
+        ~SepalMap.state
         
     .. rubric:: Methods
     
@@ -26,6 +27,8 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.hide_dc
         ~SepalMap.add_colorbar
         ~SepalMap.get_basemap_list
+        ~SepalMap.add_layer
+        ~SepalMap.remove_layer
         
 .. automethod:: sepal_ui.mapping.SepalMap.set_drawing_controls
 
@@ -44,3 +47,7 @@ sepal\_ui.mapping.SepalMap
 .. automethod:: sepal_ui.mapping.SepalMap.add_colorbar
 
 .. automethod:: sepal_ui.mapping.SepalMap.get_basemap_list
+
+.. automethod:: sepal_ui.mapping.SepalMap.add_layer
+
+.. automethod:: sepal_ui.mapping.SepalMap.remove_layer

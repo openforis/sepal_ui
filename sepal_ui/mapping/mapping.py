@@ -636,6 +636,12 @@ class SepalMap(geemap.Map):
         return [k for k in geemap.ee_basemaps.keys()]
 
     def add_layer(self, l):
+        """
+        Overwrite the ipyleaflet :code:`add_layer` method. This method will update the Map statebar nb_layer trait and link the loading status of the layer to the Statebar loading status.
+
+        Args:
+            l (ipyleaflet.TileLayer): the layer to add to the map
+        """
 
         # call the original method
         super().add_layer(l)
@@ -649,6 +655,12 @@ class SepalMap(geemap.Map):
         return
 
     def remove_layer(self, l):
+        """
+        Overwrite the ipyleaflet :code:`remove_layer` method. This method will update the Map statebar nb_layer trait.
+
+        Args:
+            l (ipyleaflet.TileLayer): the layer to add to the map
+        """
 
         # call the parent method
         super().remove_layer(l)
