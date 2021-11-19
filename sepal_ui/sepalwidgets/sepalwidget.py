@@ -22,20 +22,42 @@ class SepalWidget(v.VuetifyWidget):
 
     def __init__(self, **kwargs):
 
+        # remove viz from kwargs
+        # class_list need to be setup before viz
+        # to let hide and shw function run
+        viz = kwargs.pop("viz", True)
+
+        # init the widget
         super().__init__(**kwargs)
 
-        self.viz = kwargs.pop("viz", True)
+        # setup the viz status
+        self.viz = viz
 
     @observe("viz")
     def _set_viz(self, change):
         """
-        hide or show the component according to its viz param value
+        hide or show the component according to its viz param value.
+
+        Hide the widget by reducing the html class to :code:`d-none`.
+        Show the widget by removing the :code:`d-none` html class.
+        Save the previous class
 
         Args:
             change: the dict of a trait callback
         """
 
-        self.show() if change["new"] else self.hide()
+        if self.viz:
+
+            # change class value
+            self.class_ = self.old_class or self.class_
+            self.class_list.remove("d-none")
+
+        else:
+
+            # change class value
+            self.class_list.remove("d-none")
+            self.old_class = str(self.class_)
+            self.class_ = "d-none"
 
         return
 
@@ -60,16 +82,6 @@ class SepalWidget(v.VuetifyWidget):
         Return:
             self
         """
-        # exit if already hidden
-        if not self.viz:
-            return
-
-        # change class value
-        self.class_list.remove("d-none")
-        # print(self.class_)
-        self.old_class = str(self.class_)
-        # print(self.old_class)
-        self.class_ = "d-none"
 
         # update viz state
         self.viz = False
@@ -84,14 +96,6 @@ class SepalWidget(v.VuetifyWidget):
         Return:
             self
         """
-
-        # exit if already visible
-        if self.viz:
-            return
-
-        # change class value
-        self.class_ = self.old_class or self.class_
-        self.class_list.remove("d-none")
 
         # update viz state
         self.viz = True
