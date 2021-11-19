@@ -15,7 +15,7 @@ class SepalWidget(v.VuetifyWidget):
     """
 
     viz = Bool(True).tag(sync=True)
-    "Bool: weather the file is displayed or not"
+    "Bool: whether the widget is displayed or not"
 
     old_class = ""
     "str: a saving attribute of the widget class"
