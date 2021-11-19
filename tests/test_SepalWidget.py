@@ -10,6 +10,18 @@ class TestSepalWidget:
 
         return
 
+    def test_set_viz(self, widget):
+
+        # hide the widget
+        widget.viz = False
+        assert "d-none" in str(widget.class_)
+
+        # show it
+        widget.viz = True
+        assert not "d-none" in str(widget.class_)
+
+        return
+
     def test_show(self, widget):
 
         widget.class_ = "d-none"
