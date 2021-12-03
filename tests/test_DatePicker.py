@@ -1,6 +1,9 @@
 import pytest
 
+from traitlets import Any
+
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.model import Model
 
 
 class TestDatePicker:
@@ -17,20 +20,18 @@ class TestDatePicker:
         return
 
     def test_bind(self, datepicker):
-        class Test_io:
-            def __init__(self):
-                self.out = None
+        class Test_io(Model):
+            out = Any(None).tag(sync=True)
 
         test_io = Test_io()
 
-        output = sw.Alert()
-        output.bind(datepicker, test_io, "out")
+        test_io.bind(datepicker, "out")
 
         date = "2020-06-12"
         datepicker.v_model = date
 
         assert test_io.out == date
-        assert output.viz == True
+        assert datepicker.menu.v_model == False
 
         return
 

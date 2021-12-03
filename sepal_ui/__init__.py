@@ -10,6 +10,7 @@ import ipyvuetify as v
 from types import SimpleNamespace
 
 theme = v.theme.themes.dark if v.theme.dark else v.theme.themes.light
+"traitlets: the theme used in sepal"
 
 color = SimpleNamespace(
     bg=styles.bg_color,
@@ -21,3 +22,4 @@ color = SimpleNamespace(
     warning=theme.warning,
     error=theme.error,
 )
+'SimpleNamespace: the colors of sepal. members are in the following list: "bg, primary, accent, secondary, success, info, warning, error". They will render according to the selected theme.'

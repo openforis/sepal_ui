@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode
+from traitlets import link, Int, Any, List, observe, Dict, Unicode, observe
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -12,6 +12,7 @@ from natsort import humansorted
 
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import *
+from sepal_ui.frontend.js import ResizeTrigger
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
@@ -43,6 +44,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     def __init__(self, label="Date", **kwargs):
 
+        # create the widgets
         date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
 
         date_text = v.TextField(
@@ -59,7 +61,7 @@ class DatePicker(v.Layout, SepalWidget):
             min_width="290px",
             transition="scale-transition",
             offset_y=True,
-            value=False,
+            v_model=False,
             close_on_content_click=False,
             children=[date_picker],
             v_slots=[
@@ -84,8 +86,14 @@ class DatePicker(v.Layout, SepalWidget):
         jslink((date_picker, "v_model"), (date_text, "v_model"))
         jslink((date_picker, "v_model"), (self, "v_model"))
 
-        # close the datepicker on click
-        # date_text.observe(lambda _: setattr(self.menu, 'value', False), 'v_model')
+    @observe("v_model")
+    def close_menu(self, change):
+        """A method to close the menu of the datepicker programatically"""
+
+        # set the visibility
+        self.menu.v_model = False
+
+        return
 
 
 class FileInput(v.Flex, SepalWidget):
@@ -161,6 +169,7 @@ class FileInput(v.Flex, SepalWidget):
             dense=True,
             color="grey darken-3",
             flat=True,
+            v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
@@ -169,6 +178,7 @@ class FileInput(v.Flex, SepalWidget):
         self.file_menu = v.Menu(
             min_width=300,
             children=[self.loading, self.file_list],
+            v_model=False,
             close_on_content_click=False,
             v_slots=[
                 {
@@ -356,6 +366,15 @@ class FileInput(v.Flex, SepalWidget):
 
         # force the update of the current folder
         self._change_folder()
+
+        return
+
+    @observe("v_model")
+    def close_menu(self, change):
+        """A method to close the menu of the Fileinput programatically"""
+
+        # set the visibility
+        self.file_menu.v_model = False
 
         return
 

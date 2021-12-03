@@ -163,7 +163,7 @@ class SaveMatrixDialog(v.Dialog):
         return self
 
 
-class ClassSelect(v.Select, sw.SepalWidget):
+class ClassSelect(sw.Select):
     """
     Custom widget to pick the value of a original class in the new classification system
 
@@ -190,7 +190,7 @@ class ClassSelect(v.Select, sw.SepalWidget):
         super().__init__(**kwargs)
 
 
-class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
+class ReclassifyTable(sw.SimpleTable):
     """
     Table to store the reclassifying information.
     2 columns are integrated, the new class value and the values in the original input
@@ -297,7 +297,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         return self
 
 
-class ReclassifyView(v.Card):
+class ReclassifyView(sw.Card):
     """
     Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE).
     The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
