@@ -64,7 +64,6 @@ class SepalWidget(v.VuetifyWidget):
 
         return
 
-    @deprecated(version="2.6.0", reason="Equivalent to :code:`self.viz = not self.viz`")
     def toggle_viz(self):
         """
         toogle the visibility of the widget.
@@ -77,7 +76,6 @@ class SepalWidget(v.VuetifyWidget):
 
         return self
 
-    @deprecated(version="2.6.0", reason="set :code`viz=False` in instance kwargs")
     def hide(self):
         """
         Hide the widget by reducing the html class to :code:`d-none`.
@@ -92,7 +90,6 @@ class SepalWidget(v.VuetifyWidget):
 
         return self
 
-    @deprecated(version="2.6.0", reason="set :code`viz=True` in instance kwargs")
     def show(self):
         """
         Show the widget by removing the d-none html class.
