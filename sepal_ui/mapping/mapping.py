@@ -592,8 +592,14 @@ class SepalMap(geemap.Map):
 
         # apply it to args[1]
         if args[1] == {} and viz_params != {}:
-            props = next(i for p, i in viz_params.items() if i["name"] == viz_name)
-            args[1] = props or {}
+            try:
+                args[1] = next(
+                    i for p, i in viz_params.items() if i["name"] == viz_name
+                )
+            except StopIteration:
+                raise ValueError(
+                    f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
+                )
 
         # call the function using the replacing the empty viz params with the new one.
         super().addLayer(*args, **kwargs)
