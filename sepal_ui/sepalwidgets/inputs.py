@@ -301,7 +301,10 @@ class FileInput(v.Flex, SepalWidget):
 
         for el in list_dir:
 
-            if el.suffix in ICON_TYPES.keys():
+            if el.is_dir():
+                icon = ICON_TYPES[""]["icon"]
+                color = ICON_TYPES[""]["color"]
+            elif el.suffix in ICON_TYPES.keys():
                 icon = ICON_TYPES[el.suffix]["icon"]
                 color = ICON_TYPES[el.suffix]["color"]
             else:
