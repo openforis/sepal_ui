@@ -592,6 +592,8 @@ class SepalMap(geemap.Map):
 
         # apply it to args[1]
         if args[1] == {} and viz_params != {}:
+
+            # find the viz params in the list
             try:
                 args[1] = next(
                     i for p, i in viz_params.items() if i["name"] == viz_name
@@ -600,6 +602,25 @@ class SepalMap(geemap.Map):
                 raise ValueError(
                     f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
                 )
+
+            # specific case of categorical images
+            # define an SLD style for each value
+            if args[1]["type"] == "categorical":
+
+                sld_intervals = (
+                    '<RasterSymbolizer><ColorMap type="intervals" extended="false">'
+                )
+                for i in range(len(args[1]["palette"])):
+                    c = args[1]["palette"][i]
+                    v = args[1]["values"][i]
+                    l = args[1]["labels"][i]
+                    sld_intervals += (
+                        f'<ColorMapEntry color="{c}" quantity="{v}" label="{l}"/>'
+                    )
+                sld_intervals += "</ColorMap></RasterSymbolizer>"
+
+                args[0] = args[0].select(args[1]["bands"][0]).sldStyle(sld_intervals)
+                args[1] = {}
 
         # call the function using the replacing the empty viz params with the new one.
         super().addLayer(*args, **kwargs)
@@ -666,5 +687,10 @@ class SepalMap(geemap.Map):
 
             # set the value
             props[number][name] = v
+
+        # categorical values need to be cast to int
+        for i in props.keys():
+            if props[i]["type"] == "categorical":
+                props[i]["values"] = [int(v) for v in props[i]["values"]]
 
         return props
