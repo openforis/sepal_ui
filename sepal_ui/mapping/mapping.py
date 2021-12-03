@@ -622,6 +622,14 @@ class SepalMap(geemap.Map):
                 args[0] = args[0].select(args[1]["bands"][0]).sldStyle(sld_intervals)
                 args[1] = {}
 
+            # specific case of hsv
+            elif args[1]["type"] == "hsv":
+
+                args[0] = args[0].select(args[1]["bands"]).rgbToHsv()
+                args[1]["bands"] = ["hue", "saturation", "value"]
+                args[1]["max"] = [1, 1, 1]
+                args[1]["min"] = [0, 0, 0]
+
         # call the function using the replacing the empty viz params with the new one.
         super().addLayer(*args, **kwargs)
 
