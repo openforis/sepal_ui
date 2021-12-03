@@ -9,7 +9,7 @@ class Html(v.Html, SepalWidget):
 
 # overwrite classes
 _c_list = [
-    c for c in dir(v.generated) if c.startswith("__") is False and c != "VuetifyWidget"
+    c for c in dir(v.generated) if not c.startswith("__") and c != "VuetifyWidget"
 ]
 
 for c in _c_list:
