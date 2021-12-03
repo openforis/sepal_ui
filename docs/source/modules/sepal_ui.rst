@@ -16,3 +16,10 @@ Content
     sepal_ui.sepalwidgets
     sepal_ui.translator
     sepal_ui.reclassify
+    
+.. rubric:: Attributes
+
+.. autosummary::
+    
+    sepal_ui.theme
+    sepal_ui.color
