@@ -73,6 +73,7 @@ ICON_TYPES = {
     ".txt": _table,
     ".tif": _image,
     ".tiff": _image,
+    ".vrt": _image,
     ".shp": _vector,
     ".geojson": _vector,
     "DEFAULT": _other,
