@@ -57,7 +57,7 @@ class TestGee:
         list_ = gee.get_assets(gee_dir)
 
         # check that they are all there
-        names = ["corsica_template", "folder", "france", "italy"]
+        names = ["corsica_template", "folder", "france", "imageViZExample", "italy"]
 
         for item, name in zip(list_, names):
             assert item["name"] == f"{gee_dir}/{name}"

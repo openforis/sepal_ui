@@ -101,3 +101,10 @@ def asset_id(asset_description):
     """return a test asset id"""
 
     return f"users/bornToBeAlive/sepal_ui_test/{asset_description}"
+
+
+@pytest.fixture(scope="session")
+def asset_image_viz():
+    """return a test asset id"""
+
+    return "users/bornToBeAlive/sepal_ui_test/imageViZExample"
