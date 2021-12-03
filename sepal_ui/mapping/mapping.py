@@ -8,6 +8,7 @@ if "PROJ_LIB" in list(os.environ.keys()):
 
 import collections
 from pathlib import Path
+from distutils.util import strtobool
 
 import ee
 import geemap
@@ -569,6 +570,36 @@ class SepalMap(geemap.Map):
 
         return
 
+    def addLayer(self, *args, viz_name=False, **kwargs):
+        """
+        Override the addLayer method from geemap to read the guess the vizaulization parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
+        Reffer to the original gemap.Map.addlayer method for more information on the arguments.
+
+        Args:
+            viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
+        """
+        # transform args into a mutable list
+        args = list(args)
+
+        # get the list of viz params
+        viz_params = self.get_viz_params(args[0])
+
+        # get the requested vizparameters name
+        # if non is set use the first one
+        if not viz_params == {}:
+            viz_name = viz_name or viz_params[next(iter(viz_params))]["name"]
+
+        # apply it to args[1]
+        if args[1] == {} and viz_params != {}:
+            props = next(i for p, i in viz_params.items() if i["name"] == viz_name)
+            args[1] = props or {}
+
+        # call the function using the replacing the empty viz params with the new one.
+        super().addLayer(*args, **kwargs)
+
+        return
+
     @staticmethod
     def get_basemap_list():
         """
@@ -580,3 +611,54 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
+
+    @staticmethod
+    def get_viz_params(image):
+        """
+        Return the vizual parmaeters that are set in the metadata of the image
+
+        Args:
+            image (ee.Image): the image to analyse
+
+        Return:
+            (dict): the dictionnary of the find properties
+        """
+
+        # the constant prefix for SEPAL visualization parameters
+        PREFIX = "visualization"
+
+        # init the property list
+        props = {}
+
+        # check image type
+        if not isinstance(image, ee.Image):
+            return props
+
+        # build a raw prop list
+        raw_prop_list = {
+            p: v
+            for p, v in image.getInfo()["properties"].items()
+            if p.startswith(PREFIX)
+        }
+
+        # decompose each property by its number
+        # and gather the properties in a sub dictionnary
+        for p, v in raw_prop_list.items():
+
+            # extract the number and create the sub-dict
+            _, number, name = p.split("_")
+            props[number] = props.pop(number, {})
+
+            # modify the values according to prop key
+            if isinstance(v, str):
+                if name in ["bands", "palette", "labels"]:
+                    v = v.split(",")
+                elif name in ["max", "min", "values"]:
+                    v = [float(i) for i in v.split(",")]
+                elif name in ["inverted"]:
+                    v = [bool(strtobool(i)) for i in v.split(",")]
+
+            # set the value
+            props[number][name] = v
+
+        return props
