@@ -23,18 +23,7 @@ setup_params = {
     "keywords": ["UI", "Python", "widget", "sepal"],
     "python_requires": ">=3.6.9",
     "install_requires": REQUIREMENTS,
-    "packages": [
-        "sepal_ui",
-        "sepal_ui.scripts",
-        "sepal_ui.frontend",
-        "sepal_ui.sepalwidgets",
-        "sepal_ui.aoi",
-        "sepal_ui.message",
-        "sepal_ui.mapping",
-        "sepal_ui.translator",
-        "sepal_ui.model",
-        "sepal_ui.reclassify",
-    ],
+    "packages": ["sepal_ui"],
     "package_data": {
         "sepal_ui": [
             "scripts/*.csv",
