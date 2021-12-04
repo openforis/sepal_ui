@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python setup.py develop
       - name: Test formatting
         uses: psf/black@stable
       - name: test with pytest
