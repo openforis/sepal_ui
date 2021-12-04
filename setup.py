@@ -42,6 +42,7 @@ setup_params = {
             "scripts/*.json",
             "message/*.json",
             "bin/module_factory",
+            "bin/module_deploy",
         ]
     },
     "classifiers": [
