@@ -1,31 +1,16 @@
-git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python
-geemap==0.8.9
-haversine>=2.3.0
-ipyvue>=1.7.0
-ipyvuetify>=1.6.2
-markdown>=3.3.2
-xarray_leaflet==0.1.13
-shapely>=1.7.1
-geopandas>=0.8.1
-pandas>=1.1.3
-coverage>=5.3
-six>=1.15.0
-googledrivedownloader
+haversine
+ipyvue>=1.7.0  # this is the version with the class manager
+ipyvuetify  # it will work anyway as the widgets are build on the fly
+geemap
+earthengine-api @ git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python # version compatible with SEPAL
+markdown
+xarray_leaflet
+shapely
+geopandas
+pandas
 deepdiff
-colorama>=0.4.3
-Deprecated>=1.2.11
-cryptography>=2.1.4
-pydata-sphinx-theme>=0.4.3
-sphinx-notfound-page>=0.6
-Sphinx>=3.5.1
-sphinxcontrib-spelling
+colorama
+Deprecated
 Unidecode
-pandoc
-ipykernel
-sphinx-copybutton
 natsort
 pipreqs
-black
-pre-commit
-pytest
-git+git://github.com/jupyter/jupyter-sphinx.git

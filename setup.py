@@ -1,11 +1,29 @@
-from distutils.core import setup
-from pathlib import Path
+from pkg_resources import parse_requirements
+from setuptools import setup
+from setuptools.command.develop import develop
 
 version = "2.4.0"
 
-setup(
-    name="sepal-ui",
-    packages=[
+DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
+LONG_DESCRIPTION = open("README.rst").read()
+REQUIREMENTS = [str(r) for r in parse_requirements(open("requirements.txt").read())]
+
+
+setup_params = {
+    "name": "sepal-ui",
+    "version": version,
+    "license": "MIT",
+    "description": DESCRIPTION,
+    "long_description": LONG_DESCRIPTION,
+    "long_description_content_type": "text/x-rst",
+    "author": "Pierrick Rambaud",
+    "author_email": "pierrick.rambaud49@gmail.com",
+    "url": "https://github.com/12rambau/sepal_ui",
+    "download_url": f"https://github.com/12rambau/sepal_ui/archive/v_{version}.tar.gz",
+    "keywords": ["UI", "Python", "widget", "sepal"],
+    "python_requires": ">=3.6.9",
+    "install_requires": REQUIREMENTS,
+    "packages": [
         "sepal_ui",
         "sepal_ui.scripts",
         "sepal_ui.frontend",
@@ -17,7 +35,7 @@ setup(
         "sepal_ui.model",
         "sepal_ui.reclassify",
     ],
-    package_data={
+    "package_data": {
         "sepal_ui": [
             "scripts/*.csv",
             "scripts/*.md",
@@ -26,37 +44,7 @@ setup(
             "bin/module_factory",
         ]
     },
-    python_requires=">=3.6.9",
-    version=version,
-    license="MIT",
-    description="Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform",
-    long_description=open("README.rst").read(),
-    long_description_content_type="text/x-rst",
-    author="Pierrick Rambaud",
-    author_email="pierrick.rambaud49@gmail.com",
-    url="https://github.com/12rambau/sepal_ui",
-    download_url=f"https://github.com/12rambau/sepal_ui/archive/v_{version}.tar.gz",
-    keywords=["UI", "Python", "widget", "sepal"],
-    install_requires=[
-        "haversine",
-        "ipyvue>=1.7.0",  # this is the version with the class manager
-        "ipyvuetify",  # it will work anyway as the widgets are build on the fly
-        "geemap",
-        "earthengine-api @ git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python",
-        "markdown",
-        "xarray_leaflet",
-        "shapely",
-        "geopandas",
-        "pandas",
-        "deepdiff",
-        "colorama",
-        "Deprecated",
-        "Unidecode",
-        "natsort",
-        "pipreqs",
-        "pre-commit",
-    ],
-    classifiers=[
+    "classifiers": [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
@@ -66,4 +54,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
     ],
-)
+}
+
+setup(**setup_params)
