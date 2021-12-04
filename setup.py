@@ -22,7 +22,39 @@ setup_params = {
     "download_url": f"https://github.com/12rambau/sepal_ui/archive/v_{version}.tar.gz",
     "keywords": ["UI", "Python", "widget", "sepal"],
     "python_requires": ">=3.6.9",
-    "install_requires": REQUIREMENTS,
+    "install_requires": [
+        "haversine",
+        "ipyvue>=1.7.0",  # this is the version with the class manager
+        "ipyvuetify",  # it will work anyway as the widgets are build on the fly
+        "geemap",
+        "earthengine-api @ git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python",  # version compatible with SEPAL
+        "markdown",
+        "xarray_leaflet",
+        "shapely",
+        "geopandas",
+        "pandas",
+        "deepdiff",
+        "colorama",
+        "Deprecated",
+        "Unidecode",
+        "natsort",
+        "pipreqs",
+    ],
+    "extras_require": {
+        "dev": [
+            "coverage",
+            "deepdiff",
+            "cryptography",
+            "pre-commit",
+            "pytest",
+            "git+git://github.com/jupyter/jupyter-sphinx.git" "pydata-sphinx-theme",
+            "sphinx-notfound-page",
+            "Sphinx",
+            "sphinxcontrib-spelling",
+            "sphinx-copybutton",
+            "pandoc",
+        ]
+    },
     "packages": ["sepal_ui"],
     "package_data": {
         "sepal_ui": [
