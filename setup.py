@@ -24,7 +24,7 @@ setup_params = {
         "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
-        "geemap",
+        "geemap==0.8.9",
         "earthengine-api @ git+git://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python",  # version compatible with SEPAL
         "markdown",
         "xarray_leaflet",
