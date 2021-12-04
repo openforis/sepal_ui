@@ -40,11 +40,14 @@ setup_params = {
     ],
     "extras_require": {
         "dev": [
-            "coverage",
-            "deepdiff",
-            "cryptography",
             "pre-commit",
+        ],
+        "test": [
+            "coverage",
+            "cryptography",
             "pytest",
+        ],
+        "doc": [
             "jupyter-sphinx @ git+git://github.com/jupyter/jupyter-sphinx.git",
             "pydata-sphinx-theme",
             "sphinx-notfound-page",
@@ -52,7 +55,7 @@ setup_params = {
             "sphinxcontrib-spelling",
             "sphinx-copybutton",
             "pandoc",
-        ]
+        ],
     },
     "packages": ["sepal_ui"],
     "package_data": {
