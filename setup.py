@@ -30,8 +30,7 @@ setup_params = {
             "scripts/*.md",
             "scripts/*.json",
             "message/*.json",
-            "bin/module_factory",
-            "bin/module_deploy",
+            "bin/*",
         ]
     },
     "classifiers": [
