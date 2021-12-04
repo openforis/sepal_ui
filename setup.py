@@ -1,4 +1,3 @@
-from pkg_resources import parse_requirements
 from setuptools import setup
 from setuptools.command.develop import develop
 
@@ -6,7 +5,6 @@ version = "2.4.0"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
-REQUIREMENTS = [str(r) for r in parse_requirements(open("requirements.txt").read())]
 
 
 setup_params = {
@@ -47,7 +45,8 @@ setup_params = {
             "cryptography",
             "pre-commit",
             "pytest",
-            "git+git://github.com/jupyter/jupyter-sphinx.git" "pydata-sphinx-theme",
+            "jupyter-sphinx @ git+git://github.com/jupyter/jupyter-sphinx.git",
+            "pydata-sphinx-theme",
             "sphinx-notfound-page",
             "Sphinx",
             "sphinxcontrib-spelling",
