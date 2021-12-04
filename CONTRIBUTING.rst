@@ -1,39 +1,25 @@
 Contribute
-----------
+==========
 
-run the following command to start developing on the develop branch 
+.. warning::
 
-.. code-block:: console
+    Remember that if you create modifications that alter the lib standard functioning It will break the applications that use it on the SEPAL app dashboard. 
 
-    $ git clone https://github.com/12rambau/sepal_ui.git
-    $ git checkout --track origin/develop
-    
-Activate the pre-commit
-=======================
-
-The project embed some git hooks that allows better CI and improve code quality. To activate them, please follow these few steps: 
-
-Before you can run hooks, you need to have the pre-commit package manager installed.
+After forking the projet, run the following command to start developing: 
 
 .. code-block:: console
 
-    $ pip install pre-commit
+    $ git clone https://github.com/<github id>/sepal_ui.git
+    $ cd sepal_ui 
+    $ pip install -e .[dev, test, doc]
     
-Then install the git hook scripts by running pre-commit install to set up the git hook scripts:
-
-.. code-block:: console
-
-    $ pre-commit install --install-hooks -t pre-commit -t commit-msg
-    
-Now :code:`pre-commit` will run automatically on :code:`git commit` !
-
 .. danger:: 
 
-    Now that the :code:`pre-commits` are installed, every commit that does not respect the conventional commits framework will be refused. 
+    :code:`pre-commits` are installed in edit mode. Every commit that does not respect the conventional commits framework will be refused. 
     you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `<https://commitizen-tools.github.io/commitizen>`_.
 
 Develop within the project
-==========================
+--------------------------
 
 Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
@@ -69,31 +55,9 @@ As we are holding a single documentation page, we need to provide the users with
     @deprecated(version='1.0', reason="This function will be removed soon")
     def function_three():
         '''This is the function three'''
-
-
-
-Install  your local modification instead of the Pypi lib 
-========================================================
-
-To validate you modification go to the root folder of the package and run:
-
-.. code-block:: console
-
-    $ python3 setup.py sdist
-
-
-then install the sepal_ui from your local folder:
-
-.. code-block:: console
-
-    $ pip install -e [your_sepal_ui_folder]
-
-.. warning::
-
-    Remember that if you create modifications that alter the lib standard functioning It will break the applications that use it on the SEPAL app dashboard. 
     
 How to commit
-=============
+-------------
 
 In this repository we use the Conventional Commits specification.
 The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with SemVer, by describing the features, fixes, and breaking changes made in commit messages.
@@ -101,7 +65,7 @@ The Conventional Commits specification is a lightweight convention on top of com
 You can learn more about Conventional Commits following this `link <https://www.conventionalcommits.org/en/v1.0.0/>`_
 
 What can I push and where
-=========================
+-------------------------
 
 Our branching system embed some rules to avoid crash of the production environment. If you want to contribute to this framework, here are some basic rules that we try our best to follow :
 
