@@ -26,6 +26,8 @@ jobs:
         run: pip install .[test]
       - name: Test formatting
         uses: psf/black@stable
+      - name: Setup flake8 annotations
+        uses: rbialon/flake8-annotations@v1
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
       - name: coverage
