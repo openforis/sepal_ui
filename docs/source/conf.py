@@ -16,10 +16,10 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from sepal_ui import __version__, __author__
-
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
+
+from sepal_ui import __version__, __author__
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
