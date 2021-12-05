@@ -37,9 +37,9 @@ class AoiModel(Model):
 
     """
 
-    ############################################################################
-    ###                      dataset const                                   ###
-    ############################################################################
+    # ###########################################################################
+    # ###                      dataset const                                  ###
+    # ###########################################################################
 
     FILE = [
         Path(__file__).parents[1] / "scripts" / "gadm_database.csv",
@@ -69,9 +69,9 @@ class AoiModel(Model):
     ASSET_SUFFIX = "aoi_"
     "str: the suffix to identify the asset in GEE"
 
-    ############################################################################
-    ###                             const methods                            ###
-    ############################################################################
+    # ###########################################################################
+    # ###                             const methods                           ###
+    # ###########################################################################
 
     CUSTOM = ms.aoi_sel.custom
     "str: the word displayed for custom method in the relevant lang"
@@ -90,9 +90,9 @@ class AoiModel(Model):
     }
     "dict(str): the word displayed for all selection methods in the relevant lang"
 
-    ############################################################################
-    ###                      widget related traitlets                        ###
-    ############################################################################
+    # ###########################################################################
+    # ###                      widget related traitlets                       ###
+    # ###########################################################################
 
     method = Any(None).tag(sync=True)
     "str: the currently selected method"
@@ -115,9 +115,9 @@ class AoiModel(Model):
     name = Any(None).tag(sync=True)
     "str: the name of the file to create (used only in drawn shaped)"
 
-    ############################################################################
-    ###                           model parameters                           ###
-    ############################################################################
+    # ###########################################################################
+    # ###                           model parameters                          ###
+    # ###########################################################################
 
     ee = True
     "bool: either or not the model is bound to gee"
@@ -186,11 +186,11 @@ class AoiModel(Model):
         )
 
         # set the default gdf if possible
-        if self.vector_json != None:
+        if self.vector_json is not None:
             self.set_object("SHAPE")
-        elif self.admin != None:
+        elif self.admin is not None:
             self.set_object("ADMIN0")  # any level will work
-        elif self.asset_name != None:
+        elif self.asset_name is not None:
             self.set_object("ASSET")
 
         return self
@@ -316,7 +316,7 @@ class AoiModel(Model):
         self.name = vector_file.stem
 
         # filter it if necessary
-        if vector_json["value"] != None:
+        if vector_json["value"] is not None:
             self.gdf = self.gdf[self.gdf[vector_json["column"]] == vector_json["value"]]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
 
@@ -467,7 +467,7 @@ class AoiModel(Model):
             ([str]): sorted list of column names
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -493,7 +493,7 @@ class AoiModel(Model):
 
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -512,7 +512,7 @@ class AoiModel(Model):
             (ee.Feature|GoeSeries): the Feature associated with the query
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -583,7 +583,7 @@ class AoiModel(Model):
             (GeoJSON): the geojson layer of the aoi gdf
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before converting it into GeoJSON")
 
         data = json.loads(self.gdf.to_json())

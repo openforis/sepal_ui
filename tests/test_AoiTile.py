@@ -1,7 +1,4 @@
-import ee
-
 from sepal_ui import aoi
-from sepal_ui.message import ms
 
 
 class TestAoiTile:
@@ -13,6 +10,6 @@ class TestAoiTile:
 
         # init without ee
         tile = aoi.AoiTile(gee=False)
-        assert tile.view.model.ee == False
+        assert tile.view.model.ee is False
 
         return

@@ -1,5 +1,3 @@
-import ipyvuetify as v
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts.utils import create_download_link
 
@@ -18,13 +16,13 @@ class TestDownloadBtn:
         assert start in btn.href
         assert "#" in btn.href
         assert btn.target == "_blank"
-        assert btn.disabled == True
+        assert btn.disabled is True
 
         # exhaustive
         link = "toto/ici"
         btn = sw.DownloadBtn(txt, link)
         assert link in btn.href
-        assert btn.disabled == False
+        assert btn.disabled is False
 
         # absolute link
         absolute_link = "http://www.fao.org/home/en/"
@@ -36,7 +34,6 @@ class TestDownloadBtn:
     def test_set_url(self):
 
         # parameters
-        start = "/api/files/download?path="
         link = "toto/ici"
 
         # default init
@@ -48,12 +45,12 @@ class TestDownloadBtn:
 
         assert res == btn
         assert link in btn.href
-        assert btn.disabled == False
+        assert btn.disabled is False
 
         # reset
         btn.set_url()
         assert "#" in btn.href
-        assert btn.disabled == True
+        assert btn.disabled is True
 
         return
 

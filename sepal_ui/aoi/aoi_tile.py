@@ -4,8 +4,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui import mapping as sm
 from sepal_ui.message import ms
 
-from sepal_ui.aoi.aoi_view import *
-from sepal_ui.aoi.aoi_model import *
+from sepal_ui.aoi.aoi_view import AoiView
 
 __all__ = ["AoiTile"]
 

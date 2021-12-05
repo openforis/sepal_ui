@@ -1,8 +1,6 @@
-from pathlib import Path
 from traitlets import Int
 from datetime import datetime as dt
 
-import ipyvuetify as v
 import pandas as pd
 import geopandas as gpd
 from shapely import geometry as sg
@@ -200,9 +198,9 @@ class AoiView(sw.Card):
         asset (str, optional): the default asset. Can only work if`:code:`ee==True`
     """
 
-    ############################################################################
-    ###                             widget parameters                        ###
-    ############################################################################
+    # ##########################################################################
+    # ###                             widget parameters                      ###
+    # ##########################################################################
 
     updated = Int(0).tag(sync=True)
     "int: traitlets triggered every time a AOI is selected"
@@ -216,9 +214,9 @@ class AoiView(sw.Card):
     model = None
     "sepal_ui.aoi.AoiModel: the model to create the AOI from the selected parameters"
 
-    ############################################################################
-    ###                            the embeded widgets                       ###
-    ############################################################################
+    # ##########################################################################
+    # ###                            the embeded widgets                     ###
+    # ##########################################################################
 
     map_ = None
     "sepal_ui.mapping.SepalMap: the map to draw the AOI"
@@ -340,7 +338,7 @@ class AoiView(sw.Card):
 
         # update the map
         if self.map_:
-            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == "aoi"]
+            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
             self.map_.zoom_bounds(self.model.total_bounds())
 
             if self.ee:
@@ -362,7 +360,7 @@ class AoiView(sw.Card):
 
         # clear the map
         if self.map_:
-            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == "aoi"]
+            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
             # self.map_.center = [0, 0]
             # self.map_.zoom = 3
 
@@ -411,7 +409,7 @@ class AoiView(sw.Card):
             self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
 
         # Init the json if it's not
-        if self.model.geo_json == None:
+        if self.model.geo_json is None:
             self.model.geo_json = {"type": "FeatureCollection", "features": []}
 
         # polygonize circles

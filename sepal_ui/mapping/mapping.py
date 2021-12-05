@@ -9,7 +9,6 @@ if "PROJ_LIB" in list(os.environ.keys()):
 import collections
 from pathlib import Path
 
-import ee
 import geemap
 from haversine import haversine
 import numpy as np
@@ -37,6 +36,11 @@ from sepal_ui.message import ms
 
 __all__ = ["SepalMap"]
 
+# call x_array leaflet at least one
+# flake8 will complain as it's a pluggin (i.e. never called)
+# We don't want to ignore testing F401
+xarray_leaflet
+
 
 class SepalMap(geemap.Map):
     """
@@ -53,9 +57,9 @@ class SepalMap(geemap.Map):
         kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
     """
 
-    ############################################################################
-    ###                              Map parameters                          ###
-    ############################################################################
+    # ############################################################################
+    # ###                              Map parameters                          ###
+    # ############################################################################
 
     ee = True
     "bool: either the map will use geempa binding or not"
@@ -422,7 +426,7 @@ class SepalMap(geemap.Map):
             "y_dim": y_dim,
             "fit_bounds": fit_bounds,
             "get_base_url": get_base_url,
-            #'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
+            # 'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
             "rgb_dim": "band" if multi_band else None,
             "colormap": None if multi_band else colormap,
         }
@@ -447,7 +451,7 @@ class SepalMap(geemap.Map):
         if self.dc:
             self.dc.clear()
 
-            if not self.dc in self.controls:
+            if self.dc not in self.controls:
                 self.add_control(self.dc)
 
         return self
@@ -527,7 +531,7 @@ class SepalMap(geemap.Map):
                 'cmap keyword or "palette" key in vis_params must be provided.'
             )
 
-        style = "dark_background" if v.theme.dark == True else "classic"
+        style = "dark_background" if v.theme.dark is True else "classic"
 
         with plt.style.context(style):
             fig, ax = plt.subplots(figsize=(width, height))

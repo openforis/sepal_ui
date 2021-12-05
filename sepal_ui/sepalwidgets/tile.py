@@ -1,5 +1,3 @@
-from markdown import markdown
-from traitlets import Unicode
 from pathlib import Path
 
 import ipyvuetify as v
@@ -128,7 +126,7 @@ class Tile(v.Layout, SepalWidget):
         self.title.children = [str(title)]
 
         # add the title if it's deactivated
-        if title and not self.title in self.children[0].children:
+        if title and self.title not in self.children[0].children:
             self.children[0].children = [self.title] + self.children[0].children.copy()
 
         # remove it if it's deactivated

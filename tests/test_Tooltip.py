@@ -1,5 +1,4 @@
 import pytest
-import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
 

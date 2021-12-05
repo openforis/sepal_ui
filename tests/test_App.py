@@ -55,15 +55,15 @@ class TestApp:
 
         for tile in tiles:
             if tile == main_tile:
-                assert tile.viz == True
+                assert tile.viz is True
             else:
-                assert tile.viz == False
+                assert tile.viz is False
 
         for di in drawer_items:
             if di._metadata["card_id"] == id_:
-                assert di.input_value == True
+                assert di.input_value is True
             else:
-                assert di.input_value == False
+                assert di.input_value is False
 
         return
 
@@ -100,9 +100,5 @@ class TestApp:
         drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]
         appBar = sw.AppBar()
         footer = sw.Footer()
-
-        # set tile parameters
-        title = "main_title"
-        id_ = "main_id"
 
         return sw.App(tiles, appBar, footer, sw.NavDrawer(drawer_items))

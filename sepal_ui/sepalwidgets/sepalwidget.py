@@ -1,8 +1,5 @@
 import ipyvuetify as v
-from markdown import markdown
-from traitlets import Unicode, Any, Bool, observe
-from ipywidgets import link
-from deprecated.sphinx import versionadded, deprecated
+from traitlets import Unicode, Bool, observe
 
 __all__ = ["TYPES", "SepalWidget"]
 

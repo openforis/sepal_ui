@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from sepal_ui import reclassify as rec
-from sepal_ui.message import ms
 
 
 class TestReclassifyTile:
@@ -13,6 +12,6 @@ class TestReclassifyTile:
 
         # init without ee
         tile = rec.ReclassifyTile(Path.home(), gee=False)
-        assert tile.model.gee == False
+        assert tile.model.gee is False
 
         return

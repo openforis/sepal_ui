@@ -41,12 +41,12 @@ class TestBtn:
 
         btn = btn.toggle_loading()
 
-        assert btn.loading == True
-        assert btn.disabled == True
+        assert btn.loading is True
+        assert btn.disabled is True
 
         btn.toggle_loading()
-        assert btn.loading == False
-        assert btn.disabled == False
+        assert btn.loading is False
+        assert btn.disabled is False
 
         return
 

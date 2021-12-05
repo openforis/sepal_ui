@@ -1,7 +1,5 @@
 import pytest
 
-import ee
-
 from sepal_ui import aoi
 from sepal_ui.mapping import SepalMap
 from sepal_ui.message import ms
@@ -16,7 +14,7 @@ class TestAoiView:
 
         # init without ee
         view = aoi.AoiView(gee=False)
-        assert view.model.ee == False
+        assert view.model.ee is False
 
         # init with ADMIN
         view = aoi.AoiView("ADMIN", folder=gee_dir)
@@ -78,10 +76,10 @@ class TestAoiView:
             for k, c in view.components.items():
 
                 if k == method:
-                    assert not "d-none" in c.class_
+                    assert "d-none" not in c.class_
                 elif hasattr(c, "parent"):
                     if view.components[k].parent == c:
-                        assert not "d-none" in c.class_
+                        assert "d-none" not in c.class_
                 else:
                     assert "d-none" in c.class_
 
@@ -143,8 +141,8 @@ class TestAoiView:
 
         # checks
         assert len(aoi_gee_view.map_.layers) == 1
-        assert aoi_gee_view.w_method.v_model == None
-        assert aoi_gee_view.model.name == None
+        assert aoi_gee_view.w_method.v_model is None
+        assert aoi_gee_view.model.name is None
 
         return
 
@@ -158,7 +156,6 @@ class TestAoiView:
         # number of sides in the polygons
         # check this number instead of a regular output
         # because different geopandas versions give different results (7th decimal)
-        nb_sides = 66
 
         # check the transformation
         dst_json = aoi.AoiView.polygonize(src_json)

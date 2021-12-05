@@ -1,8 +1,8 @@
 import ipyvuetify as v
 from markdown import markdown
-from traitlets import Unicode, Any, Bool, observe
+from traitlets import Unicode, Any
 from ipywidgets import link
-from deprecated.sphinx import versionadded, deprecated
+from deprecated.sphinx import versionadded
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
@@ -112,7 +112,7 @@ class CopyToClip(v.VuetifyTemplate):
         # template with js behaviour
         self.template = """
         <mytf/>
-        <script> 
+        <script>
             {methods: {
                 jupyter_clip(_txt) {
                     var tempInput = document.createElement("input");
@@ -121,7 +121,7 @@ class CopyToClip(v.VuetifyTemplate):
                     tempInput.focus();
                     tempInput.select();
                     document.execCommand("copy");
-                    document.body.removeChild(tempInput); 
+                    document.body.removeChild(tempInput);
                 }
             }}
         </script>"""

@@ -1,8 +1,6 @@
-from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
-import pandas as pd
 import pytest
 
 from sepal_ui import sepalwidgets as sw

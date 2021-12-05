@@ -1,12 +1,10 @@
 import ee
-from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
 import pytest
 
 from sepal_ui import aoi
-from sepal_ui import sepalwidgets as sw
 
 
 class TestAoiModel:
@@ -15,15 +13,15 @@ class TestAoiModel:
         # default init
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
         assert isinstance(aoi_model, aoi.AoiModel)
-        assert aoi_model.ee == True
+        assert aoi_model.ee is True
 
         # with default assetId
         aoi_model = aoi.AoiModel(alert, asset=asset_italy, folder=gee_dir)
 
         assert aoi_model.asset_name["pathname"] == asset_italy
         assert aoi_model.default_asset["pathname"] == asset_italy
-        assert all(aoi_model.gdf) != None
-        assert aoi_model.feature_collection != None
+        assert all(aoi_model.gdf) is not None
+        assert aoi_model.feature_collection is not None
         assert aoi_model.name == "italy"
 
         # chack that wrongly defined asset_name raise errors
@@ -130,19 +128,19 @@ class TestAoiModel:
         # clear them
         aoi_model.clear_attributes()
 
-        assert aoi_model.method == None
-        assert aoi_model.point_json == None
-        assert aoi_model.vector_json == None
-        assert aoi_model.geo_json == None
-        assert aoi_model.admin == None
-        assert aoi_model.asset_name == None
-        assert aoi_model.name == None
-        assert aoi_model.gdf == None
-        assert aoi_model.feature_collection == None
-        assert aoi_model.ipygeojson == None
-        assert aoi_model.default_asset == None
-        assert aoi_model.default_admin == None
-        assert aoi_model.default_vector == None
+        assert aoi_model.method is None
+        assert aoi_model.point_json is None
+        assert aoi_model.vector_json is None
+        assert aoi_model.geo_json is None
+        assert aoi_model.admin is None
+        assert aoi_model.asset_name is None
+        assert aoi_model.name is None
+        assert aoi_model.gdf is None
+        assert aoi_model.feature_collection is None
+        assert aoi_model.ipygeojson is None
+        assert aoi_model.default_asset is None
+        assert aoi_model.default_admin is None
+        assert aoi_model.default_vector is None
 
         # check that default are saved
         aoi_model = aoi.AoiModel(alert, admin=85, folder=gee_dir)  # GAUL for France
