@@ -27,7 +27,7 @@ jobs:
       - name: Test formatting
         uses: psf/black@stable
       - name: PEP8 rules
-      - uses: tonybajan/flake8-check-action@v1.0.0
+        uses: tonybajan/flake8-check-action@v1.0.0
         with:
             repotoken: ${{ secrets.GITHUB_TOKEN }}
       - name: test with pytest
