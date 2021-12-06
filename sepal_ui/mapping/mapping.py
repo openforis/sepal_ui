@@ -603,6 +603,20 @@ class SepalMap(geemap.Map):
                     f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
                 )
 
+            # invert the bands if needed
+            inverted = args[1].pop("inverted", None)
+            if inverted is not None:
+
+                # get the index of the bands taht need to be inverted
+                index_list = [i for i, v in enumerate(inverted) if v is True]
+
+                # multiply everything by -1
+                for i in index_list:
+                    min_ = args[1]["min"][i]
+                    max_ = args[1]["max"][i]
+                    args[1]["min"][i] = max_
+                    args[1]["max"][i] = min_
+
             # specific case of categorical images
             # Pad the palette when using non-consecutive values
             # instead of remapping or using sldStyle
@@ -656,8 +670,6 @@ class SepalMap(geemap.Map):
                 # set the arguments
                 args[0] = asset.select(args[1]["bands"]).hsvToRgb()
                 args[1]["bands"] = ["red", "green", "blue"]
-                args[1]["max"] = 1
-                args[1]["min"] = 0
 
         # call the function using the replacing the empty viz params with the new one.
         super().addLayer(*args, **kwargs)
