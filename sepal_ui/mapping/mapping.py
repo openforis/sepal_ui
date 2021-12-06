@@ -570,41 +570,49 @@ class SepalMap(geemap.Map):
 
         return
 
-    def addLayer(self, *args, viz_name=False, **kwargs):
+    def addLayer(
+        self,
+        ee_object,
+        vis_params={},
+        name=None,
+        shown=True,
+        opacity=1.0,
+        viz_name=False,
+    ):
         """
         Override the addLayer method from geemap to read the guess the vizaulization parameters the same way as in SEPAL recipes.
         If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
-        Reffer to the original gemap.Map.addlayer method for more information on the arguments.
 
         Args:
+            ee_object (ee.Object): the ee OBject to draw on the map
+            vis_params (dict, optional): the visualization parameters set as in GEE
+            name (str, optional): the name of the layer
+            shown (bool, optional): either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity (float, optional): the opcity of the layer from 0 to 1, default to 1.
             viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
         """
-        # transform args into a mutable list
-        args = list(args)
 
         # get the list of viz params
-        viz_params = self.get_viz_params(args[0])
+        viz = self.get_viz_params(ee_object)
 
         # get the requested vizparameters name
         # if non is set use the first one
-        if not viz_params == {}:
-            viz_name = viz_name or viz_params[next(iter(viz_params))]["name"]
+        if not viz == {}:
+            viz_name = viz_name or viz[next(iter(viz))]["name"]
 
-        # apply it to args[1]
-        if args[1] == {} and viz_params != {}:
+        # apply it to vis_params
+        if vis_params == {} and viz != {}:
 
             # find the viz params in the list
             try:
-                args[1] = next(
-                    i for p, i in viz_params.items() if i["name"] == viz_name
-                )
+                vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
             except StopIteration:
                 raise ValueError(
                     f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
                 )
 
             # invert the bands if needed
-            inverted = args[1].pop("inverted", None)
+            inverted = vis_params.pop("inverted", None)
             if inverted is not None:
 
                 # get the index of the bands taht need to be inverted
@@ -612,38 +620,36 @@ class SepalMap(geemap.Map):
 
                 # multiply everything by -1
                 for i in index_list:
-                    min_ = args[1]["min"][i]
-                    max_ = args[1]["max"][i]
-                    args[1]["min"][i] = max_
-                    args[1]["max"][i] = min_
+                    min_ = vis_params["min"][i]
+                    max_ = vis_params["max"][i]
+                    vis_params["min"][i] = max_
+                    vis_params["max"][i] = min_
 
             # specific case of categorical images
             # Pad the palette when using non-consecutive values
             # instead of remapping or using sldStyle
             # to preserve the class values in the image, for inspection
-            if args[1]["type"] == "categorical":
+            if vis_params["type"] == "categorical":
 
-                colors = args[1]["palette"]
-                values = args[1]["values"]
+                colors = vis_params["palette"]
+                values = vis_params["values"]
                 min_ = min(values)
                 max_ = max(values)
 
                 # set up a black palette of correct length
                 palette = ["#000000"] * (max_ - min_ + 1)
 
-                print(len(palette))
-
                 # replace the values within the palette
                 for i, v in enumerate(values):
                     palette[v - min_] = colors[i]
 
                 # adapt the vizparams
-                args[1]["palette"] = palette
-                args[1]["min"] = min_
-                args[1]["max"] = max_
+                vis_params["palette"] = palette
+                vis_params["min"] = min_
+                vis_params["max"] = max_
 
             # specific case of hsv
-            elif args[1]["type"] == "hsv":
+            elif vis_params["type"] == "hsv":
 
                 # set to_min to 0 and to_max to 1
                 # in the original expression:
@@ -654,12 +660,12 @@ class SepalMap(geemap.Map):
 
                 # get the maxs and mins
                 # removing them from the parameter
-                mins = args[1].pop("min")
-                maxs = args[1].pop("max")
+                mins = vis_params.pop("min")
+                maxs = vis_params.pop("max")
 
                 # create the rgb bands
-                asset = args[0]
-                for i, band in enumerate(args[1]["bands"]):
+                asset = ee_object
+                for i, band in enumerate(vis_params["bands"]):
 
                     # adapt the expression
                     exp = expression.format(
@@ -668,11 +674,11 @@ class SepalMap(geemap.Map):
                     asset = asset.addBands(asset.expression(exp), [band], True)
 
                 # set the arguments
-                args[0] = asset.select(args[1]["bands"]).hsvToRgb()
-                args[1]["bands"] = ["red", "green", "blue"]
+                ee_object = asset.select(vis_params["bands"]).hsvToRgb()
+                vis_params["bands"] = ["red", "green", "blue"]
 
         # call the function using the replacing the empty viz params with the new one.
-        super().addLayer(*args, **kwargs)
+        super().addLayer(ee_object, vis_params, name, shown, opacity)
 
         return
 
