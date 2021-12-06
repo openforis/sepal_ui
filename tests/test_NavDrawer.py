@@ -1,5 +1,3 @@
-import ipyvuetify as v
-
 from sepal_ui import sepalwidgets as sw
 
 
@@ -76,20 +74,20 @@ class TestNavDrawer:
 
         # create items
         items = [sw.DrawerItem(f"title {i}") for i in range(5)]
-        nav_drawer = sw.NavDrawer(items)
+        sw.NavDrawer(items)
 
         # activate the first one
         items[0].input_value = True
         for i in range(5):
             if i == 0:
-                assert items[i].input_value == True
+                assert items[i].input_value is True
             else:
-                assert items[i].input_value == False
+                assert items[i].input_value is False
 
         # activate the second one
         items[1].input_value = True
         for i in range(5):
             if i == 1:
-                assert items[i].input_value == True
+                assert items[i].input_value is True
             else:
-                assert items[i].input_value == False
+                assert items[i].input_value is False

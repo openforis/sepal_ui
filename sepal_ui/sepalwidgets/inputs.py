@@ -1,8 +1,7 @@
 from pathlib import Path
-import json
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode, observe
+from traitlets import link, Int, Any, List, observe, Dict, Unicode
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -11,8 +10,7 @@ from natsort import humansorted
 
 
 from sepal_ui.message import ms
-from sepal_ui.frontend.styles import *
-from sepal_ui.frontend.js import ResizeTrigger
+from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget

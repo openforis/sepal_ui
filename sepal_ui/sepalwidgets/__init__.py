@@ -2,6 +2,7 @@
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 import ipyvuetify as v
 
+
 # overwrite html
 class Html(v.Html, SepalWidget):
     pass

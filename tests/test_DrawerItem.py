@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
@@ -29,7 +27,7 @@ class TestDrawerItem:
         drawerItem = sw.DrawerItem(title, icon, id_, "#")
         assert drawerItem.href == "#"
         assert drawerItem.target == "_blank"
-        assert drawerItem._metadata == None
+        assert drawerItem._metadata is None
 
         return
 
@@ -57,8 +55,8 @@ class TestDrawerItem:
         # check the viz parameter of each tiles
         for tile in tiles:
             if tile.get_title() == title:
-                assert tile.viz == True
+                assert tile.viz is True
             else:
-                assert tile.viz == False
+                assert tile.viz is False
 
         return

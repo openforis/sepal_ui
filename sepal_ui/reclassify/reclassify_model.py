@@ -1,4 +1,4 @@
-from traitlets import Unicode, Any, Dict, List, Bool, Int
+from traitlets import Any, Dict, Bool, Int
 from pathlib import Path
 from natsort import natsorted
 
@@ -9,12 +9,11 @@ import rasterio as rio
 from rasterio.windows import from_bounds
 from matplotlib.colors import to_rgba
 
-from .parameters import *
+from .parameters import NO_VALUE
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
-from sepal_ui import aoi
 
 import ee
 

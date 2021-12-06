@@ -2,13 +2,11 @@ from functools import partial
 from datetime import datetime
 
 import ipyvuetify as v
-import traitlets
-from IPython.display import display
 from deprecated.sphinx import versionadded
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
-from sepal_ui.frontend.styles import *
+from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 
 __all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App"]
@@ -97,14 +95,15 @@ class DrawerItem(v.ListItem, SepalWidget):
         # set default parameters
         kwargs["link"] = True
         kwargs["children"] = children
+        kwargs["input_value"] = kwargs.pop("input_value", False)
         if href:
             kwargs["href"] = href  # cannot be set twice anyway
             kwargs["target"] = "_blank"
-            kwargs.pop("_metadata", None)
+            kwargs["_metadata"] = kwargs.pop("_metadata", None)
         elif card:
             kwargs["_metadata"] = {"card_id": card}
-            kwargs.pop("href", None)
-            kwargs.pop("target", None)
+            kwargs["href"] = kwargs.pop("href", None)
+            kwargs["target"] = kwargs.pop("target", None)
 
         # call the constructor
         super().__init__(**kwargs)
@@ -217,7 +216,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         """
         Deactivate all the other items when on of the is activated
         """
-        if change["new"] == False:
+        if change["new"] is False:
             return self
 
         # reset all others states
@@ -346,7 +345,7 @@ class App(v.App, SepalWidget):
 
         # activate the drawerItem
         if self.navDrawer:
-            items = (i for i in self.navDrawer.items if i._metadata != None)
+            items = (i for i in self.navDrawer.items if i._metadata is not None)
             for i in items:
                 if name == i._metadata["card_id"]:
                     i.input_value = True

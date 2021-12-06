@@ -1,12 +1,8 @@
-import geopandas as gpd
 import pytest
 from pathlib import Path
-from zipfile import ZipFile
-from urllib.request import urlretrieve
 import os
 
 import sepal_ui.sepalwidgets as sw
-from sepal_ui.aoi import AoiModel
 
 
 @pytest.fixture(scope="session")

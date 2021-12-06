@@ -1,12 +1,10 @@
 from pathlib import Path
-from traitlets import List, Dict, Int, link, Unicode
+from traitlets import Unicode
 
 import ipyvuetify as v
-import ee
 import pandas as pd
-import numpy as np
 
-from .parameters import *
+from .parameters import NO_VALUE, MATRIX_NAMES
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -616,7 +614,7 @@ class ReclassifyView(sw.Card):
 
         try:
             input_data.astype("int64")
-        except:
+        except Exception:
             raise Exception(
                 "This file may contain non supported charaters for reclassification."
             )

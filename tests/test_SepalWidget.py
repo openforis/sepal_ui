@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 class TestSepalWidget:
     def test_init(self, widget):
 
-        assert widget.viz == True
+        assert widget.viz is True
 
         return
 
@@ -18,7 +18,7 @@ class TestSepalWidget:
 
         # show it
         widget.viz = True
-        assert not "d-none" in str(widget.class_)
+        assert "d-none" not in str(widget.class_)
 
         return
 
@@ -26,8 +26,8 @@ class TestSepalWidget:
 
         widget.viz = False
         widget.show()
-        assert widget.viz == True
-        assert not "d-none" in str(widget.class_)
+        assert widget.viz is True
+        assert "d-none" not in str(widget.class_)
 
         return
 
@@ -35,7 +35,7 @@ class TestSepalWidget:
 
         widget.class_ = None
         widget.hide()
-        assert widget.viz == False
+        assert widget.viz is False
         assert "d-none" in str(widget.class_)
 
         return
@@ -43,16 +43,16 @@ class TestSepalWidget:
     def test_toggle_viz(self, widget):
 
         widget.class_ = None
-        assert widget.viz == True
-        assert not "d-none" in str(widget.class_)
+        assert widget.viz is True
+        assert "d-none" not in str(widget.class_)
 
         widget.toggle_viz()
-        assert widget.viz == False
+        assert widget.viz is False
         assert "d-none" in str(widget.class_)
 
         widget.toggle_viz()
-        assert widget.viz == True
-        assert not "d-none" in str(widget.class_)
+        assert widget.viz is True
+        assert "d-none" not in str(widget.class_)
 
         return
 
@@ -62,7 +62,7 @@ class TestSepalWidget:
 
         widget.reset()
 
-        assert widget.v_model == None
+        assert widget.v_model is None
 
         return
 

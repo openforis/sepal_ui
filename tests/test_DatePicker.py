@@ -31,7 +31,7 @@ class TestDatePicker:
         datepicker.v_model = date
 
         assert test_io.out == date
-        assert datepicker.menu.v_model == False
+        assert datepicker.menu.v_model is False
 
         return
 

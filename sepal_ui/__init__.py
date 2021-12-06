@@ -1,5 +1,3 @@
-from pathlib import Path
-
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
 __version__ = "2.4.0"

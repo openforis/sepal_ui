@@ -122,7 +122,7 @@ class Translator(SimpleNamespace):
             ddiff = DeepDiff(self.default_dict, self.target_dict)[
                 "dictionary_item_removed"
             ]
-        except:
+        except Exception:
             ddiff = ["All messages are translated"]
 
         return "\n".join(ddiff)

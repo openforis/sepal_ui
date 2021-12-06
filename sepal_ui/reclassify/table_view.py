@@ -1,8 +1,7 @@
 from pathlib import Path
 from colorsys import rgb_to_hls, rgb_to_hsv
-from traitlets import Int, Dict, link
+from traitlets import Int
 
-from ipywidgets import Output
 import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
@@ -122,9 +121,6 @@ class ClassTable(sw.DataTable):
             return self
 
         # if there is, retrieve the content of the file to populate the table
-
-        items = []
-        # read the file using pandas
         df = pd.read_csv(items_file, header=None)
 
         # TODO: We can check if the input file has header names, and if so, extract the
@@ -484,7 +480,7 @@ class SaveDialog(v.Dialog):
 
         self.alert.add_msg(msg)
 
-    def show():
+    def show(self):
         """
         display the dialog and write down the text in the alert
 
@@ -516,7 +512,7 @@ class SaveDialog(v.Dialog):
 
         # write each line values but not the id
         lines = [list(item.values())[1:] for item in self.table.items]
-        txt = [",".join(str(e) for e in l) + "\n" for l in lines]
+        txt = [",".join(str(e) for e in ln) + "\n" for ln in lines]
         out_file.with_suffix(".csv").write_text("".join(txt))
 
         # Every time a file is saved, we update the current widget state

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
@@ -28,20 +26,20 @@ class TestSepalWidgets:
             # test normal creation
             w = getattr(sw, c)(class_=option)
 
-            assert w.viz == True
+            assert w.viz is True
             assert w.class_ == option
 
             w.viz = False
 
             assert w.class_ == "d-none"
-            assert w.viz == False
+            assert w.viz is False
             assert w.old_class == option
 
             # test with extra sepalwidgets args
             w = getattr(sw, c)(class_=option, viz=False)
 
             assert w.class_ == "d-none"
-            assert w.viz == False
+            assert w.viz is False
             assert w.old_class == option
 
         return
@@ -55,7 +53,7 @@ class TestSepalWidgets:
         w = sw.Html(tag="H1", children=["toto"], class_=option, viz=False)
 
         assert w.class_ == "d-none"
-        assert w.viz == False
+        assert w.viz is False
         assert w.old_class == option
 
         return

@@ -30,7 +30,7 @@ def hide_component(widget):
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
 
-    elif not "d-none" in str(widget.class_):
+    elif "d-none" not in str(widget.class_):
         widget.class_ = str(widget.class_).strip() + " d-none"
 
     return widget
@@ -218,7 +218,7 @@ def need_ee(func):
         # try to connect to ee
         try:
             init_ee()
-        except Exception as e:
+        except Exception:
             raise Exception("This function needs an Earth Engine authentication")
 
         return func(*args, **kwargs)
@@ -350,13 +350,13 @@ def to_colors(in_color, out_type="hex"):
         # try to guess the color system
         try:
             return transform(in_color)
-        except:
+        except Exception:
             pass
 
         # try again by adding an extra # (GEE handle hex codes without #)
         try:
             return transform(f"#{in_color}")
-        except:
+        except Exception:
             pass
 
     return transform(out_color)

@@ -1,10 +1,9 @@
-from functools import partial
 from datetime import datetime
 
 from ipywidgets import jslink
 import ipyvuetify as v
 from deprecated.sphinx import deprecated
-from traitlets import Unicode, observe, directional_link, List, Bool
+from traitlets import Unicode, observe, directional_link, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
@@ -294,13 +293,11 @@ class Alert(v.Alert, SepalWidget):
 
         # check the collection type that are the only one supporting the len method
         try:
-            if len(input_) == 0:
-                init = False
-        except:
-            if input_ == None:
-                init = False
+            init = False if len(input_) == 0 else init
+        except Exception:
+            init = False if input_ is None else init
 
-        if not init:
+        if init is False:
             self.add_msg(msg, "error")
 
         return init

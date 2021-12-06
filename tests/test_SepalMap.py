@@ -1,7 +1,4 @@
-import zipfile
 from pathlib import Path
-import requests
-import sys
 
 import pytest
 import ee
