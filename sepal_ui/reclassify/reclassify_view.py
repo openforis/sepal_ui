@@ -1,12 +1,10 @@
 from pathlib import Path
-from traitlets import List, Dict, Int, link, Unicode
+from traitlets import Unicode
 
 import ipyvuetify as v
-import ee
 import pandas as pd
-import numpy as np
 
-from .parameters import *
+from .parameters import NO_VALUE, MATRIX_NAMES
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -163,7 +161,7 @@ class SaveMatrixDialog(v.Dialog):
         return self
 
 
-class ClassSelect(v.Select, sw.SepalWidget):
+class ClassSelect(sw.Select):
     """
     Custom widget to pick the value of a original class in the new classification system
 
@@ -190,7 +188,7 @@ class ClassSelect(v.Select, sw.SepalWidget):
         super().__init__(**kwargs)
 
 
-class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
+class ReclassifyTable(sw.SimpleTable):
     """
     Table to store the reclassifying information.
     2 columns are integrated, the new class value and the values in the original input
@@ -297,7 +295,7 @@ class ReclassifyTable(v.SimpleTable, sw.SepalWidget):
         return self
 
 
-class ReclassifyView(v.Card):
+class ReclassifyView(sw.Card):
     """
     Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE).
     The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
@@ -315,31 +313,46 @@ class ReclassifyView(v.Card):
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
         save (bool, optional): Whether to write/export the result or not.
         enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
-
-    Attributes:
-        model (ReclassifyModel): the reclassify model to manipulate the
-            classification dataset
-        gee (bool): either being linked to gee or not (use local file or GEE
-            asset for the rest of the app)
-        alert (sw.Alert): the alert to display informations about computation
-        title (v.Cardtitle): the title of the card
-        w_asset (sw.AssetSelect): the widget to select an asset input
-        w_raster (sw.FileInput): the widget to select a file input
-        w_image (Any): wraper of the input. linked to w_asset if gee=True,
-            else to w_raster
-        w_code (int|str): widget to select the band/property used as init
-            classification in the input file
-        get_table_btn (sw.Btn): the btn to load the data in the
-            reclassification table
-        w_dst_class_file (sw.FileInput): widget to select the new
-            classification system file (3 headless columns: 'code', 'desc', 'color')
-        reclassify_table (ReclassifyTable): the reclassification table
-            populated via the previous widgets
-        reclassify_btn (sw.Btn): the btn to launch the reclassifying process
-        MAX_CLASS  (int): the number of line in the table to trigger the display of an extra toolbar and alert
     """
 
     MAX_CLASS = 20
+    "int: the number of line in the table to trigger the display of an extra toolbar and alert"
+
+    model = None
+    "ReclassifyModel: the reclassify model to manipulate the classification dataset"
+
+    gee = None
+    "bool: either being linked to gee or not (use local file or GEE asset for the rest of the app)"
+
+    alert = None
+    "sw.Alert: the alert to display informations about computation"
+
+    title = None
+    "v.Cardtitle: the title of the card"
+
+    w_asset = None
+    "sw.AssetSelect: the widget to select an asset input"
+
+    w_raster = None
+    "sw.FileInput: the widget to select a file input"
+
+    w_image = None
+    "Widget: wraper of the input. linked to w_asset if gee=True, else to w_raster"
+
+    w_code = None
+    "int|str: widget to select the band/property used as init classification in the input file"
+
+    get_table_btn = None
+    "sw.Btn: the btn to load the data in the reclassification table"
+
+    w_dst_class_file = None
+    "sw.FileInput: widget to select the new classification system file (3 headless columns: 'code', 'desc', 'color')"
+
+    reclassify_table = None
+    "ReclassifyTable: the reclassification table populated via the previous widgets"
+
+    reclassify_btn = None
+    "sw.Btn: the btn to launch the reclassifying process"
 
     def __init__(
         self,
@@ -601,7 +614,7 @@ class ReclassifyView(v.Card):
 
         try:
             input_data.astype("int64")
-        except:
+        except Exception:
             raise Exception(
                 "This file may contain non supported charaters for reclassification."
             )

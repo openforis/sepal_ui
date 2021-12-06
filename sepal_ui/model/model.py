@@ -12,18 +12,7 @@ class Model(HasTraits):
     The Model structure is based on traitlets and embed function for export or import in json format.
     The model traintlets can be bind to any widget field.
 
-    Args:
-        traits ([str], optional): a list of traits names (not functional). default to none
-
     """
-
-    def __init__(self, traits=[]):
-
-        # didn't manage to make it work and it seems dodgy has it creates a simlink to new class at each call
-        # if len(traits):
-        #    [self.add_traits(Any(val).tag(sync=True), label) for label, val in traits.items()]
-
-        super().__init__()
 
     def __repr__(self):
         """Method to represent the Model objects as a string"""

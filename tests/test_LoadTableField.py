@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pandas as pd
 import pytest
 
@@ -34,7 +32,7 @@ class TestLoadTableField:
         # test if the csv have not enough columns
         load_table._on_file_input_change({"new": str(wrong_table)})
         assert load_table.v_model == load_table.default_v_model
-        assert load_table.fileInput.selected_file.error_messages != None
+        assert load_table.fileInput.selected_file.error_messages is not None
 
         return
 

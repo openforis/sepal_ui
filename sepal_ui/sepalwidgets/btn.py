@@ -1,7 +1,7 @@
 import ipyvuetify as v
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from ..scripts import utils
+from ..scripts import utils as su
 
 __all__ = ["Btn", "DownloadBtn"]
 
@@ -14,43 +14,47 @@ class Btn(v.Btn, SepalWidget):
     Args:
         text (str, optional): the text to display in the btn
         icon (str, optional): the full name of any mdi-icon
-
-    Attributes:
-        v_icon (v.icon): the icon in the btn
+        kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
     """
 
-    def __init__(self, text="Click", icon=None, **kwargs):
+    v_icon = None
+    "v.Icon: the icon in the btn"
 
-        self.color = "primary"
-        self.v_icon = None
-        self.children = [text]
+    def __init__(self, text="Click", icon="", **kwargs):
 
-        if icon:
-            self.set_icon(icon)
+        # create the default v_icon
+        self.v_icon = v.Icon(left=True, children=[""])
+        self.set_icon(icon)
 
+        # set the default parameters
+        kwargs["color"] = kwargs.pop("color", "primary")
+        kwargs["children"] = [self.v_icon, text]
+
+        # call the constructor
         super().__init__(**kwargs)
 
-    def set_icon(self, icon):
+    def set_icon(self, icon=""):
         """
-        set a new icon
+        set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
-            icon (str): the full name of a mdi-icon
+            icon (str, optional): the full name of a mdi-icon
 
         Return:
             self
         """
-        if self.v_icon:
-            self.v_icon.children = [icon]
+        self.v_icon.children = [icon]
+
+        if not icon:
+            su.hide_component(self.v_icon)
         else:
-            self.v_icon = v.Icon(left=True, children=[icon])
-            self.children = [self.v_icon] + self.children
+            su.show_component(self.v_icon)
 
         return self
 
     def toggle_loading(self):
         """
-        Jump between to states : disabled and loading - enabled and not loading
+        Jump between two states : disabled and loading - enabled and not loading
 
         Return:
             self
@@ -70,14 +74,22 @@ class DownloadBtn(v.Btn, SepalWidget):
     Args:
         text (str): the message inside the btn
         path (str, optional): the absolute to a downloadable content
+        args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
     """
 
     def __init__(self, text, path="#", **kwargs):
 
-        self.class_ = "ma-2"
-        self.xs5 = True
-        self.color = "success"
-        self.children = [v.Icon(left=True, children=["mdi-download"]), text]
+        # create a download icon
+        v_icon = v.Icon(left=True, children=["mdi-download"])
+
+        # set default parameters
+        kwargs["class_"] = kwargs.pop("class_", "ma-2")
+        kwargs["xs5"] = kwargs.pop("xs5", True)
+        kwargs["color"] = kwargs.pop("color", "success")
+        kwargs["children"] = [v_icon, text]
+        kwargs["target"] = "_blank"
+
+        # call the constructor
         super().__init__(**kwargs)
 
         # create the URL
@@ -95,10 +107,10 @@ class DownloadBtn(v.Btn, SepalWidget):
             self
         """
 
-        if utils.is_absolute(path):
+        if su.is_absolute(path):
             url = path
         else:
-            url = utils.create_download_link(path)
+            url = su.create_download_link(path)
 
         self.href = url
         self.disabled = path == "#"

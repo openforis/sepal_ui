@@ -40,7 +40,7 @@ Each key of this dictionary should start with :code:`visualisation_<number>_<key
     In the next parts only the keywords will be specified.
     To reproduce our example you can check the following asset: :code:`users/wiell/forum/visualization_example`
 
-.. figure:: ../../img/tutorials/create_asset/all_viz_example.png
+.. figure:: ../_image/tutorials/create_asset/all_viz_example.png
    :alt: all viz example
    :align: center
 
@@ -70,7 +70,7 @@ An example of Image property using the example asset:
 
 and the corresponding display: 
 
-.. figure:: ../../img/tutorials/create_asset/viz_rgb.png
+.. figure:: ../_image/tutorials/create_asset/viz_rgb.png
    :alt: rgb display
    :align: center
 
@@ -101,7 +101,7 @@ An example of Image property using the example asset:
 
 and the corresponding display: 
 
-.. figure:: ../../img/tutorials/create_asset/viz_hsv.png
+.. figure:: ../_image/tutorials/create_asset/viz_hsv.png
    :alt: rgb display
    :align: center
 
@@ -131,7 +131,7 @@ An example of Image property using the example asset:
 
 and the corresponding display: 
 
-.. figure:: ../../img/tutorials/create_asset/viz_ramp.png
+.. figure:: ../_image/tutorials/create_asset/viz_ramp.png
    :alt: rgb display
    :align: center
 
@@ -161,7 +161,7 @@ An example of Image property using the example asset:
 
 and the corresponding display: 
 
-.. figure:: ../../img/tutorials/create_asset/viz_class.png
+.. figure:: ../_image/tutorials/create_asset/viz_class.png
    :alt: rgb display
    :align: center
 

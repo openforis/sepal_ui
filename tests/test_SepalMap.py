@@ -1,7 +1,4 @@
-import zipfile
 from pathlib import Path
-import requests
-import sys
 
 import pytest
 import ee
@@ -258,5 +255,72 @@ class TestSepalMap:
         m.add_colorbar(colors=["#fc8d59", "#ffffbf", "#91bfdb"], vmin=0, vmax=5)
 
         assert len(m.controls) == 6  # only thing I can check
+
+        return
+
+    def test_addLayer(self, asset_image_viz):
+
+        # create map and image
+        image = ee.Image(asset_image_viz)
+        m = sm.SepalMap()
+
+        # display all the viz available in the image
+        for viz in sm.SepalMap.get_viz_params(image).values():
+            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+
+        assert len(m.layers) == 5
+
+        return
+
+    def test_get_viz_params(self, asset_image_viz):
+
+        image = ee.Image(asset_image_viz)
+
+        res = sm.SepalMap.get_viz_params(image)
+
+        expected = {
+            "1": {
+                "bands": ["ndwi_phase_1", "ndwi_amplitude_1", "ndwi_rmse"],
+                "max": [2.40625, 3296.0, 1792.0],
+                "name": "NDWI harmonics",
+                "min": [-2.1875, 352.0, 320.0],
+                "type": "hsv",
+                "inverted": [False, False, True],
+            },
+            "3": {
+                "labels": ["Foo", "Bar", "Baz"],
+                "bands": ["class"],
+                "type": "categorical",
+                "name": "Classification",
+                "values": [5, 200, 1000],
+                "palette": ["#042333", "#b15f82", "#e8fa5b"],
+            },
+            "2": {
+                "bands": ["ndwi"],
+                "name": "NDWI",
+                "min": -8450,
+                "max": 6610,
+                "type": "continuous",
+                "palette": [
+                    "#042333",
+                    "#2c3395",
+                    "#744992",
+                    "#b15f82",
+                    "#eb7958",
+                    "#fbb43d",
+                    "#e8fa5b",
+                ],
+            },
+            "0": {
+                "max": 2000,
+                "type": "rgb",
+                "min": 0,
+                "name": "RGB",
+                "gamma": 1.2,
+                "bands": ["red", "green", "blue"],
+            },
+        }
+
+        assert res == expected
 
         return

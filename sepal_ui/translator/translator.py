@@ -16,16 +16,19 @@ class Translator(SimpleNamespace):
         json_folder (str | pathlib.Path): the folder where the dictionaries are stored
         target_lan (str): the language code of the target lang (it should be the same as the target dictionary)
         default_lan (str): the language code of the source lang (it should be the same as the source dictionary)
-
-    Attributes:
-        default_dict (dict): the source language dictionary
-        target_dict (dict): the target language dictionary
-        FORBIDDEN_KEYS (const list): list of the forbidden keys. using one of them in a translation dict will throw an error
-        (keys): all the keys can be acceced as attributes. make sure to never use default_dict and target_dict
-
     """
 
     FORBIDDEN_KEYS = ["default_dict", "target_dict", "in", "class"]
+    "list(str): list of the forbidden keys, using one of them in a translation dict will throw an error"
+
+    target_dict = {}
+    "(dict): the target language dictionary"
+
+    default_dict = {}
+    "dict: the source language dictionary"
+
+    keys = None
+    "all the keys can be acceced as attributes"
 
     def __init__(self, json_folder, target_lan, default_lan="en"):
 
@@ -119,7 +122,7 @@ class Translator(SimpleNamespace):
             ddiff = DeepDiff(self.default_dict, self.target_dict)[
                 "dictionary_item_removed"
             ]
-        except:
+        except Exception:
             ddiff = ["All messages are translated"]
 
         return "\n".join(ddiff)

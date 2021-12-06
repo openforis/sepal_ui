@@ -9,7 +9,7 @@ class TestAlert:
 
         # default init
         alert = sw.Alert()
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.type == "info"
 
         # every legit types
@@ -31,7 +31,7 @@ class TestAlert:
         # single msg
         res = alert.add_msg(msg)
         assert res == alert
-        assert alert.viz == True
+        assert alert.viz is True
         assert alert.children[0].children[0] == msg
 
         # single msg with type
@@ -55,7 +55,7 @@ class TestAlert:
         # single msg
         res = alert.add_live_msg(msg)
         assert res == alert
-        assert alert.viz == True
+        assert alert.viz is True
         assert alert.children[1].children[0] == msg
 
         # single msg with type
@@ -132,11 +132,11 @@ class TestAlert:
         msg = "toto"
         widget.v_model = msg
 
-        assert alert.viz == True
+        assert alert.viz is True
         assert test_io.out == widget.v_model
         assert alert.children[0].children[0] == f"The selected variable is: {msg}"
         assert alert2.children[0].children[0] == f"new variable : {msg}"
-        assert len(alert3.children) == False
+        assert len(alert3.children) == 0
         assert (
             alert4.children[0].children[0]
             == f"The selected variable is: {'*'*len(msg)}"
@@ -150,8 +150,8 @@ class TestAlert:
 
         var_test = None
         res = alert.check_input(var_test)
-        assert res == False
-        assert alert.viz == True
+        assert res is False
+        assert alert.viz is True
         assert alert.children[0].children[0] == "The value has not been initialized"
 
         res = alert.check_input(var_test, "toto")
@@ -159,17 +159,17 @@ class TestAlert:
 
         var_test = 1
         res = alert.check_input(var_test)
-        assert res == True
+        assert res is True
 
         # test lists
         var_test = [range(2)]
         res = alert.check_input(var_test)
-        assert res == True
+        assert res is True
 
         # test empty list
         var_test = []
         res = alert.check_input(var_test)
-        assert res == False
+        assert res is False
 
         return
 
@@ -177,7 +177,7 @@ class TestAlert:
 
         alert = sw.Alert().add_msg("toto").reset()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert len(alert.children) == 1
         assert alert.children[0] == ""
 
@@ -188,13 +188,13 @@ class TestAlert:
         # check with a no msg alert
         alert = sw.Alert().remove_last_msg()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.children[0] == ""
 
         # check with a 1 msg alert
         alert = sw.Alert().add_msg("toto").remove_last_msg()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.children[0] == ""
 
         # check with a multiple msg alert
@@ -207,7 +207,7 @@ class TestAlert:
 
         alert.remove_last_msg()
 
-        assert alert.viz == True
+        assert alert.viz is True
         assert len(alert.children) == 4
         assert alert.children[nb_msg - 2].children[0] == f"{string}{nb_msg-2}"
 

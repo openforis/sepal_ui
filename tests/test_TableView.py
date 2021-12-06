@@ -1,7 +1,4 @@
-from pathlib import Path
-
 from sepal_ui import reclassify as rec
-from sepal_ui.message import ms
 
 
 class TestTableView:
@@ -25,7 +22,7 @@ class TestTableView:
 
         assert res == view
         assert view._metadata["mount_id"] == "nested_tile"
-        assert view.elevation == False
+        assert view.elevation == 0
         assert len(view.children[0].children) == 1
 
         return

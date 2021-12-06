@@ -67,9 +67,9 @@ By default we use a `MIT <https://opensource.org/licenses/MIT>`_ license as in a
 
 If your project require a specific license file you can edit this one to reflect what you need. I strongly suggest to edit this file directly in GitHub as the website provide a number of templates
 
-.. image:: ../../img/license-template.png
+.. image:: ../_image/tutorials/structure/license-template.png
 
-If you use a custom license, you'll nee to change the badge in the READM.md. 
+If you use a custom license, you'll nee to change the badge in the :code:`README.md`. 
 copy paste any badge from this `github repository <https://gist.github.com/lukas-h/2a5d00690736b4c3a7ba>`_ instead of the classic MIT one : 
 
 .. code-block::
@@ -105,8 +105,8 @@ these files are partial UI file. They will be used to create each step of our ap
 Final ui
 --------
 
-* no_ui.ipynb
-* ui.ipynb
+* :code:`no_ui.ipynb`
+* :code:`ui.ipynb
 
 Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
 More information in `this tutorial <#>`_ and `this tutorial <#>`_.

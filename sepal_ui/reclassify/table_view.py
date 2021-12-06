@@ -1,8 +1,7 @@
 from pathlib import Path
 from colorsys import rgb_to_hls, rgb_to_hsv
-from traitlets import Int, Dict, link
+from traitlets import Int
 
-from ipywidgets import Output
 import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
@@ -15,7 +14,7 @@ from sepal_ui.message import ms
 __all__ = ["TableView"]
 
 
-class ClassTable(v.DataTable, sw.SepalWidget):
+class ClassTable(sw.DataTable):
 
     """
     Custom data table to modify, display and save classification. From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
@@ -87,6 +86,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # set up default parameters of the datatable
         self.v_model = []
+        self.items = []
         self.item_key = "id"
         self.show_select = True
         self.single_select = True
@@ -121,9 +121,6 @@ class ClassTable(v.DataTable, sw.SepalWidget):
             return self
 
         # if there is, retrieve the content of the file to populate the table
-
-        items = []
-        # read the file using pandas
         df = pd.read_csv(items_file, header=None)
 
         # TODO: We can check if the input file has header names, and if so, extract the
@@ -137,7 +134,7 @@ class ClassTable(v.DataTable, sw.SepalWidget):
 
         # add a color column if necessary
         if len(df.columns) == 2:
-            df[2] = ["#000000" for _ in range(len(df))]
+            df[2] = ["#000000"] * len(df)
 
         # TODO: Warning, here we are asumming that the values are in the same order as the schema keys
         # set the lines
@@ -347,7 +344,7 @@ class EditDialog(v.Dialog):
                     )
                     current_items[i][w._metadata["name"]] = val
 
-        current_items.append(["" for _ in range(4)])
+        current_items.append([""] * 4)
 
         # update the table values
         self.table.items = current_items
@@ -483,7 +480,7 @@ class SaveDialog(v.Dialog):
 
         self.alert.add_msg(msg)
 
-    def show():
+    def show(self):
         """
         display the dialog and write down the text in the alert
 
@@ -515,7 +512,7 @@ class SaveDialog(v.Dialog):
 
         # write each line values but not the id
         lines = [list(item.values())[1:] for item in self.table.items]
-        txt = [",".join(str(e) for e in l) + "\n" for l in lines]
+        txt = [",".join(str(e) for e in ln) + "\n" for ln in lines]
         out_file.with_suffix(".csv").write_text("".join(txt))
 
         # Every time a file is saved, we update the current widget state
@@ -534,24 +531,35 @@ class SaveDialog(v.Dialog):
         return
 
 
-class TableView(v.Card, sw.SepalWidget):
+class TableView(sw.Card):
     """
     Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
 
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
         out_path (str|optional): the folder to save the created classifications. default to ~/downloads
-
-    Attributes:
-        title (v.CardTitle): the title of the card
-        class_path (str|optional): Folder path containing already existing classes
-        out_path (str|optional): the folder to save the created classifications
-        w_class_file (sw.FileInput): the file input of the existing classification system
-        w_class_table (ClassTable): the classtable (CRUD) to manage the editing of the classification
-        btn (sw.Btn): the btn to start loading file data into the table
-        alert (sw.Alert): the alert to display loading information (error and success)
-
     """
+
+    title = None
+    "v.CardTitle: the title of the card"
+
+    class_path = None
+    "str: Folder path containing already existing classes"
+
+    out_path = None
+    "str: the folder to save the created classifications"
+
+    w_class_file = None
+    "sw.FileInput: the file input of the existing classification system"
+
+    w_class_table = None
+    "ClassTable: the classtable (CRUD) to manage the editing of the classification"
+
+    btn = None
+    "sw.Btn: the btn to start loading file data into the table"
+
+    alert = None
+    "sw.Alert: the alert to display loading information (error and success)"
 
     def __init__(
         self, class_path=Path.home(), out_path=Path.home() / "downloads", **kwargs

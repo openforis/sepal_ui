@@ -1,7 +1,9 @@
-from pathlib import Path
 import pytest
 
+from traitlets import Any
+
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.model import Model
 
 
 class TestFileInput:
@@ -11,13 +13,13 @@ class TestFileInput:
         file_input = sw.FileInput()
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model == None
+        assert file_input.v_model is None
 
         # init with a string
         file_input = sw.FileInput(folder=str(root_dir))
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model == None
+        assert file_input.v_model is None
 
         # get all the names
         assert "sepal_ui" in self.get_names(file_input)
@@ -31,20 +33,18 @@ class TestFileInput:
         return
 
     def test_bind(self, file_input):
-        class Test_io:
-            def __init__(self):
-                self.out = None
+        class Test_io(Model):
+            out = Any(None).tag(sync=True)
 
         test_io = Test_io()
 
-        output = sw.Alert()
-        output.bind(file_input, test_io, "out")
+        test_io.bind(file_input, "out")
 
         path = "toto.ici.shp"
         file_input.v_model = path
 
         assert test_io.out == path
-        assert output.viz == True
+        assert file_input.file_menu.v_model is False
 
         return
 
@@ -52,7 +52,7 @@ class TestFileInput:
 
         file_input._on_file_select({"new": root_dir})
 
-        assert file_input.v_model == None
+        assert file_input.v_model is None
         assert "README.rst" in self.get_names(file_input)
 
         # select readme
@@ -95,7 +95,7 @@ class TestFileInput:
         file_input.reset()
 
         # assert that the folder has been reset
-        assert file_input.v_model == None
+        assert file_input.v_model is None
         assert file_input.folder != str(root_dir)
 
         return

@@ -1,12 +1,56 @@
-## v_2.4.0 (2021-10-19)
+## v_2.5.0 (2021-12-06)
 
 ### Refactor
 
+- use named arguments to improve readability
+- import sepal_ui after sys
+- use flake8 in pre-commit
+- reset github folder as hidden
+- remove deprecation notice
+- minor logical operator writing
+- deprecate toggle
+- use class management methods Fix #119
+- fix some of the parameters
+- remove __init__ in model
+- use kwargs pop Avoid the duplication of parameter using an elegant and python method called dict poping
+- add black basge Fix #326
+- black typo
+- remove legacy print
+- typo in package name
+- change lib name Change the lib name to meet the name used in PiPy Some change will need to be done in the documentation to reflect this change
+- use * instead of list comprehension
 - make v_model default and empty value as None instead of empty string
 - be consistent when concatenating
 
 ### Fix
 
+- manage inverted bands
+- display hsv images
+- display categorical values without sld
+- specific case of hsv display
+- specific case of categorical data
+- handle when the viz_name is not in the image
+- overwrite addLayer to read metadata display parameters
+- add the colors to the documentation Fix #312
+- display folder as folder even when there is a suffix Fix #350
+- display vrt file as images Fix #351
+- change internal structure of widgets Improve coverage by testing markdown
+- Sepalwidget set viz
+- close fileinput menu when v_model is set
+- close menu when date is selected Fix #17
+- viz can be set in params
+- make viz into a trait It now controls the vizibility
+- set back the missing members
+- hide the icon is set to empty
+- add increm parameter
+- change param
+- reload assetSelect on types change Fix #323
+- prevent setting asset of wrong type Fix #322
+- limit the items list to type The self.items += is not a usable operator for list trait I was force to use a tmp list to really update the filter the items
+- typo in Réunion name
+- open link in new tabs Fix #311
+- add a banner on top of app Fix #314
+- init the items of the ClassTable Fix #313
 - replace default v_model fon VectorField as trait
 - doc build failed
 - only display SepalWarning in Alerts
@@ -15,6 +59,8 @@
 
 ### Feat
 
+- overwrite all vuetify components
+- overwrite all vuetify components
 - filter by column and value in AOI. - closes: #296
 
 ## v_2.3.0 (2021-10-06)

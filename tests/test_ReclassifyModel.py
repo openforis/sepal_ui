@@ -8,7 +8,6 @@ import ee
 import geopandas as gpd
 
 from sepal_ui.reclassify import ReclassifyModel
-from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui import aoi
 
@@ -17,14 +16,14 @@ class TestReclassifyModel:
     def test_gee_init(self, model_gee):
 
         assert isinstance(model_gee, ReclassifyModel)
-        assert model_gee.gee == True
+        assert model_gee.gee is True
 
         return
 
     def test_local_init(self, model_local):
 
         assert isinstance(model_local, ReclassifyModel)
-        assert model_local.gee == False
+        assert model_local.gee is False
 
         return
 
@@ -66,10 +65,10 @@ class TestReclassifyModel:
             model_gee.get_type()
 
         # test vector
-        assert model_gee_vector.get_type() == False
+        assert model_gee_vector.get_type() is False
 
         # Test images
-        assert model_gee_image.get_type() == True
+        assert model_gee_image.get_type() is True
 
         return
 
@@ -81,10 +80,10 @@ class TestReclassifyModel:
             model_local.get_type()
 
         # Test with a local vector. Let's use the model
-        assert model_local_vector.get_type() == False
+        assert model_local_vector.get_type() is False
 
         # Test with a local image
-        assert model_local_image.get_type() == True
+        assert model_local_image.get_type() is True
 
         return
 
@@ -115,11 +114,11 @@ class TestReclassifyModel:
 
         # default to error if no asset is set in the aoi_model
         with pytest.raises(Exception):
-            assert model_gee.get_aoi() == None
+            assert model_gee.get_aoi() is None
 
         # Test when there is an aoi but there is not a feature collection selected
         model_gee.enforce_aoi = False
-        assert model_gee.get_aoi() == None
+        assert model_gee.get_aoi() is None
 
         # set the aoi to france
         model_gee.aoi_model._from_admin(85)  # france
@@ -329,8 +328,6 @@ class TestReclassifyModel:
 
         if model_gee_image.save:
 
-            name = Path(model_gee_image.dst_gee).stem
-
             assert model_gee_image.dst_gee == f"{model_gee_image.src_gee}_reclass"
 
             # delete the created file
@@ -465,7 +462,7 @@ class TestReclassifyModel:
         yield model_local
 
         # delete the shp files
-        [f.unlink() for f in tmp_dir.glob(f"nybb.*")]
+        [f.unlink() for f in tmp_dir.glob("nybb.*")]
 
         return
 

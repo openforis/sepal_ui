@@ -1,10 +1,9 @@
-from functools import partial
 from datetime import datetime
 
 from ipywidgets import jslink
 import ipyvuetify as v
 from deprecated.sphinx import deprecated
-from traitlets import Unicode, observe, directional_link, List, Bool
+from traitlets import Unicode, observe, directional_link, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
@@ -18,16 +17,14 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-
-    Attributes:
-        type_ (str): the current color of the divider
+        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
     """
 
-    # Added type_ trait to specify default divider color
     type_ = Unicode("").tag(sync=True)
+    "str: Added type_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
-        self.class_ = class_
+        kwargs["class_"] = class_
         super().__init__(**kwargs)
 
     @observe("type_")
@@ -64,14 +61,17 @@ class Alert(v.Alert, SepalWidget):
 
     Args:
         type\_ (str, optional): The color of the Alert
+        kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
     def __init__(self, type_=None, **kwargs):
 
-        self.text = True
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
-        self.class_ = "mt-5"
+        # set default parameters
+        kwargs["text"] = kwargs.pop("text", True)
+        kwargs["type"] = type_ if (type_ in TYPES) else TYPES[0]
+        kwargs["class_"] = kwargs.pop("class_", "mt-5")
 
+        # call the constructor
         super().__init__(**kwargs)
 
         self.hide()
@@ -293,13 +293,11 @@ class Alert(v.Alert, SepalWidget):
 
         # check the collection type that are the only one supporting the len method
         try:
-            if len(input_) == 0:
-                init = False
-        except:
-            if input_ == None:
-                init = False
+            init = False if len(input_) == 0 else init
+        except Exception:
+            init = False if input_ is None else init
 
-        if not init:
+        if init is False:
             self.add_msg(msg, "error")
 
         return init
@@ -309,14 +307,18 @@ class StateBar(v.SystemBar):
 
     """Widget to display quick messages on simple inline status bar
 
-    Attributes:
-        msg (Unicode): the msg to be displayed
-        loading (Bool): State of bar, it will display a loading spin wheel if not loading.
-
+    Args:
+       kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
     """
 
     msg = Unicode("").tag(sync=True)
+    "str: the displayed message"
+
     loading = Bool(False).tag(sync=True)
+    "bool: either or not the circular progress is spinning"
+
+    progress = None
+    "widget: The ProgressCircular widget that will be displayed in the statebar"
 
     def __init__(self, **kwargs):
 
@@ -329,8 +331,10 @@ class StateBar(v.SystemBar):
             class_="mr-2",
         )
 
-        self.children = [self.progress, self.msg]
+        # set default parameter
+        kwargs["children"] = [self.progress, self.msg]
 
+        # call the constructor
         super().__init__(**kwargs)
 
         jslink((self, "loading"), (self.progress, "indeterminate"))

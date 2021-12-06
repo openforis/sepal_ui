@@ -32,47 +32,53 @@ class AoiModel(Model):
         asset (str, optional): the default asset. Can only work if ee==True
         folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
 
-    Attributes:
-        method (traitlet, str): the method to use in the aoi selection. Need to be one of the AoiView.
-
-        default_vector (str|pathlib.Path): the default vector file
-        default asset (str): the default asset path
-        default_admin (int): the default admin code in GADM if ee==False else GAUL 2015
-
-        point_json (traitlet, dict): information that will be use to transform the csv into a gdf (pathname, lat, long, id)
-        vector_json (trailtet, dict): information that will be use to transform the vector file into a gdf
-        geo_json (traitlet, GeoJson): the drawn geojson featureCollection
-        admin (traitlet, int): the administrative code. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset_name (traitlet, str): the asset name (only for GEE model)
-        name (traitlet, str): the name of the asset (manually set only in drawn shaped, automatic for all the others)
-
-        feature_collection (ee.FeatureCollection): the featurecollection of the aoi (only in ee model)
-        gdf (geopandas.GeoDataFrame): the geopandas representation of the aoi
-        ipygeojson (GeoJson layer): the ipyleaflet representation of the selected aoi
-
-    ..deprecated:: 2.3.2 : 'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
+    .. deprecated:: 2.3.2
+        'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
 
     """
 
-    # const params
+    # ###########################################################################
+    # ###                      dataset const                                  ###
+    # ###########################################################################
+
     FILE = [
         Path(__file__).parents[1] / "scripts" / "gadm_database.csv",
         Path(__file__).parents[1] / "scripts" / "gaul_database.csv",
     ]
-    CODE = ["GID_{}", "ADM{}_CODE"]
-    NAME = ["NAME_{}", "ADM{}_NAME"]
-    ISO = ["GID_0", "ISO 3166-1 alpha-3"]
-    GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"  # the base url to download gadm maps
-    GADM_ZIP_DIR = Path(
-        "~", "tmp", "GADM_zip"
-    ).expanduser()  # the zip dir where we download the zips
-    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
-    GAUL_ASSET = "FAO/GAUL/2015/level{}"
-    ASSET_SUFFIX = "aoi_"  # the suffix to identify the asset in GEE
+    "list(str): path to the GADM(0) and GAUL(1) database"
 
-    # const methods
+    CODE = ["GID_{}", "ADM{}_CODE"]
+    "list(str): GADM(0) and GAUL(1) administrative codes key format"
+
+    NAME = ["NAME_{}", "ADM{}_NAME"]
+    "list(str): GADM(0) and GAUL(1) naming key format"
+
+    ISO = ["GID_0", "ISO 3166-1 alpha-3"]
+    "list(str): GADM(0) and GAUl(1) iso codes key"
+
+    GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
+    "str: the base url to download gadm maps"
+
+    GADM_ZIP_DIR = Path.home() / "tmp" / "GADM_zip"
+    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
+    "pathlib.Path: the zip dir where we download the zips"
+
+    GAUL_ASSET = "FAO/GAUL/2015/level{}"
+    "str: the GAUL asset name"
+
+    ASSET_SUFFIX = "aoi_"
+    "str: the suffix to identify the asset in GEE"
+
+    # ###########################################################################
+    # ###                             const methods                           ###
+    # ###########################################################################
+
     CUSTOM = ms.aoi_sel.custom
+    "str: the word displayed for custom method in the relevant lang"
+
     ADMIN = ms.aoi_sel.administrative
+    "str: the word displayed for admin method in the relevant lang"
+
     METHODS = {
         "ADMIN0": {"name": ms.aoi_sel.adm[0], "type": ADMIN},
         "ADMIN1": {"name": ms.aoi_sel.adm[1], "type": ADMIN},
@@ -82,20 +88,57 @@ class AoiModel(Model):
         "POINTS": {"name": ms.aoi_sel.points, "type": CUSTOM},
         "ASSET": {"name": ms.aoi_sel.asset, "type": CUSTOM},
     }
+    "dict(str): the word displayed for all selection methods in the relevant lang"
 
-    # widget related traitlets
+    # ###########################################################################
+    # ###                      widget related traitlets                       ###
+    # ###########################################################################
+
     method = Any(None).tag(sync=True)
+    "str: the currently selected method"
 
-    point_json = Any(None).tag(
-        sync=True
-    )  # information that will be use to transform the csv into a gdf
-    vector_json = Any(None).tag(
-        sync=True
-    )  # information that will be use to transform the vector file into a gdf
-    geo_json = Any(None).tag(sync=True)  # the drawn geojson featureCollection
+    point_json = Any(None).tag(sync=True)
+    "dict: information that will be use to transform the csv into a gdf"
+
+    vector_json = Any(None).tag(sync=True)
+    "dict: information that will be use to transform the vector file into a gdf"
+
+    geo_json = Any(None).tag(sync=True)
+    "dict: the drawn geojson shape"
+
     admin = Any(None).tag(sync=True)
-    asset_name = Any(None).tag(sync=True)  # the asset name (only for GEE model)
-    name = Any(None).tag(sync=True)  # the name of the file (use only in drawn shaped)
+    "int: the admin number selected"
+
+    asset_name = Any(None).tag(sync=True)
+    "str: the asset name (only for GEE model)"
+
+    name = Any(None).tag(sync=True)
+    "str: the name of the file to create (used only in drawn shaped)"
+
+    # ###########################################################################
+    # ###                           model parameters                          ###
+    # ###########################################################################
+
+    ee = True
+    "bool: either or not the model is bound to gee"
+
+    folder = None
+    "str: the folder name used in GEE related component, mainly used for debugging"
+
+    gdf = None
+    "geopandas.GeoDataFrame: the geodataframe corresponding to the selected AOI"
+
+    feature_collection = None
+    "str: the name of the asset used to described the AOI"
+
+    ipygeojson = None
+    "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
+
+    alert = None
+    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
+
+    dst_asset_id = None
+    "str: the exported asset id"
 
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
@@ -109,11 +152,6 @@ class AoiModel(Model):
             su.init_ee()
             self.folder = folder or ee.data.getAssetRoots()[0]["id"]
 
-        # outputs of the selection
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-
         # the Alert used to display information
         self.alert = alert
 
@@ -125,8 +163,7 @@ class AoiModel(Model):
         Set the default value of the object and create a gdf/feature_collection out of it
 
         Params:
-            vector (str|pathlib.path, optional): the default vector file that
-                will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
+            vector (str|pathlib.path, optional): the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
             admin (str, optional): the default administrative area in GADM or GAUL norm
             asset (str, optional): the default asset name, need to point to a readable FeatureCollection
 
@@ -149,11 +186,11 @@ class AoiModel(Model):
         )
 
         # set the default gdf if possible
-        if self.vector_json != None:
+        if self.vector_json is not None:
             self.set_object("SHAPE")
-        elif self.admin != None:
+        elif self.admin is not None:
             self.set_object("ADMIN0")  # any level will work
-        elif self.asset_name != None:
+        elif self.asset_name is not None:
             self.set_object("ASSET")
 
         return self
@@ -279,7 +316,7 @@ class AoiModel(Model):
         self.name = vector_file.stem
 
         # filter it if necessary
-        if vector_json["value"] != None:
+        if vector_json["value"] is not None:
             self.gdf = self.gdf[self.gdf[vector_json["column"]] == vector_json["value"]]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
 
@@ -430,7 +467,7 @@ class AoiModel(Model):
             ([str]): sorted list of column names
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -445,7 +482,7 @@ class AoiModel(Model):
         return sorted(list_)
 
     def get_fields(self, column):
-        """ "
+        """
         Retrieve the fields from a column
 
         Args:
@@ -456,7 +493,7 @@ class AoiModel(Model):
 
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -475,7 +512,7 @@ class AoiModel(Model):
             (ee.Feature|GoeSeries): the Feature associated with the query
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before interacting with it")
 
         if self.ee:
@@ -546,7 +583,7 @@ class AoiModel(Model):
             (GeoJSON): the geojson layer of the aoi gdf
         """
 
-        if type(self.gdf) == type(None):
+        if self.gdf is None:
             raise Exception("You must set the gdf before converting it into GeoJSON")
 
         data = json.loads(self.gdf.to_json())

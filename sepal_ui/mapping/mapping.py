@@ -8,8 +8,8 @@ if "PROJ_LIB" in list(os.environ.keys()):
 
 import collections
 from pathlib import Path
+from distutils.util import strtobool
 
-import ee
 import geemap
 from haversine import haversine
 import numpy as np
@@ -31,11 +31,17 @@ from ipyleaflet import (
 from traitlets import Bool, link, observe
 import ipyvuetify as v
 import ipyleaflet
+import ee
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
 __all__ = ["SepalMap"]
+
+# call x_array leaflet at least one
+# flake8 will complain as it's a pluggin (i.e. never called)
+# We don't want to ignore testing F401
+xarray_leaflet
 
 
 class SepalMap(geemap.Map):
@@ -50,39 +56,42 @@ class SepalMap(geemap.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-
-
-    Attributes:
-        gee (bool): current ee binding status
-        loaded_rasters ({geemap.Layer}): the raster that are already loaded in the map
-        output_r (ipywidgets.Output): the rectangle to display the result of the raster interaction
-        output_control_r (ipyleaflet.WidgetControl): the custom control on the map
-        dc (ipyleaflet.DrawingControl): the drawing control of the map
-
+        kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
     """
 
+    # ############################################################################
+    # ###                              Map parameters                          ###
+    # ############################################################################
+
+    ee = True
+    "bool: either the map will use geempa binding or not"
+
     vinspector = Bool(False).tag(sync=True)
+    "bool: either or not the datainspector is available"
+
+    loaded_rasters = {}
+    "dict: the list of loaded rasters"
+
+    dc = None
+    "ipyleaflet.DrawingControl: the drawing control of the map"
 
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
         self.world_copy_jump = True
 
+        # set the default parameters
+        kwargs["ee_initialize"] = False  # we do it ourselves
+        kwargs["add_google_map"] = kwargs.pop("add_google_map", False)
+        kwargs["center"] = kwargs.pop("center", [0, 0])
+        kwargs["zoom"] = kwargs.pop("zoom", 2)
+
         # Init the map
-        super().__init__(
-            ee_initialize=False,  # we take care of the initialization on our side
-            add_google_map=False,
-            center=[0, 0],
-            zoom=2,
-            **kwargs,
-        )
+        super().__init__(**kwargs)
 
         # init ee
         self.ee = gee
         if gee:
             su.init_ee()
-
-        # init the rasters
-        self.loaded_rasters = {}
 
         # add the basemaps
         self.clear_layers()
@@ -280,7 +289,7 @@ class SepalMap(geemap.Map):
         Get the proper zoom to the given ee geometry.
 
         Args:
-            ee_geometry (ee.Geometry): the geometry to zzom on
+            ee_geometry (ee.Geometry): the geometry to zoom on
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
@@ -419,7 +428,7 @@ class SepalMap(geemap.Map):
             "y_dim": y_dim,
             "fit_bounds": fit_bounds,
             "get_base_url": get_base_url,
-            #'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
+            # 'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
             "rgb_dim": "band" if multi_band else None,
             "colormap": None if multi_band else colormap,
         }
@@ -444,7 +453,7 @@ class SepalMap(geemap.Map):
         if self.dc:
             self.dc.clear()
 
-            if not self.dc in self.controls:
+            if self.dc not in self.controls:
                 self.add_control(self.dc)
 
         return self
@@ -481,6 +490,7 @@ class SepalMap(geemap.Map):
         **kwargs,
     ):
         """Add a colorbar to the map.
+
         Args:
             colors (list, optional): The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
             cmap (str): a matplotlib colormap default to viridis
@@ -523,7 +533,7 @@ class SepalMap(geemap.Map):
                 'cmap keyword or "palette" key in vis_params must be provided.'
             )
 
-        style = "dark_background" if v.theme.dark == True else "classic"
+        style = "dark_background" if v.theme.dark is True else "classic"
 
         with plt.style.context(style):
             fig, ax = plt.subplots(figsize=(width, height))
@@ -565,6 +575,118 @@ class SepalMap(geemap.Map):
 
         return
 
+    def addLayer(
+        self,
+        ee_object,
+        vis_params={},
+        name=None,
+        shown=True,
+        opacity=1.0,
+        viz_name=False,
+    ):
+        """
+        Override the addLayer method from geemap to read the guess the vizaulization parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
+
+        Args:
+            ee_object (ee.Object): the ee OBject to draw on the map
+            vis_params (dict, optional): the visualization parameters set as in GEE
+            name (str, optional): the name of the layer
+            shown (bool, optional): either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity (float, optional): the opcity of the layer from 0 to 1, default to 1.
+            viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
+        """
+
+        # get the list of viz params
+        viz = self.get_viz_params(ee_object)
+
+        # get the requested vizparameters name
+        # if non is set use the first one
+        if not viz == {}:
+            viz_name = viz_name or viz[next(iter(viz))]["name"]
+
+        # apply it to vis_params
+        if vis_params == {} and viz != {}:
+
+            # find the viz params in the list
+            try:
+                vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
+            except StopIteration:
+                raise ValueError(
+                    f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
+                )
+
+            # invert the bands if needed
+            inverted = vis_params.pop("inverted", None)
+            if inverted is not None:
+
+                # get the index of the bands taht need to be inverted
+                index_list = [i for i, v in enumerate(inverted) if v is True]
+
+                # multiply everything by -1
+                for i in index_list:
+                    min_ = vis_params["min"][i]
+                    max_ = vis_params["max"][i]
+                    vis_params["min"][i] = max_
+                    vis_params["max"][i] = min_
+
+            # specific case of categorical images
+            # Pad the palette when using non-consecutive values
+            # instead of remapping or using sldStyle
+            # to preserve the class values in the image, for inspection
+            if vis_params["type"] == "categorical":
+
+                colors = vis_params["palette"]
+                values = vis_params["values"]
+                min_ = min(values)
+                max_ = max(values)
+
+                # set up a black palette of correct length
+                palette = ["#000000"] * (max_ - min_ + 1)
+
+                # replace the values within the palette
+                for i, val in enumerate(values):
+                    palette[val - min_] = colors[i]
+
+                # adapt the vizparams
+                vis_params["palette"] = palette
+                vis_params["min"] = min_
+                vis_params["max"] = max_
+
+            # specific case of hsv
+            elif vis_params["type"] == "hsv":
+
+                # set to_min to 0 and to_max to 1
+                # in the original expression:
+                # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
+                expression = (
+                    "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
+                )
+
+                # get the maxs and mins
+                # removing them from the parameter
+                mins = vis_params.pop("min")
+                maxs = vis_params.pop("max")
+
+                # create the rgb bands
+                asset = ee_object
+                for i, band in enumerate(vis_params["bands"]):
+
+                    # adapt the expression
+                    exp = expression.format(
+                        from_min=mins[i], from_max=maxs[i], band=band
+                    )
+                    asset = asset.addBands(asset.expression(exp), [band], True)
+
+                # set the arguments
+                ee_object = asset.select(vis_params["bands"]).hsvToRgb()
+                vis_params["bands"] = ["red", "green", "blue"]
+
+        # call the function using the replacing the empty viz params with the new one.
+        super().addLayer(ee_object, vis_params, name, shown, opacity)
+
+        return
+
     @staticmethod
     def get_basemap_list():
         """
@@ -576,3 +698,59 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
+
+    @staticmethod
+    def get_viz_params(image):
+        """
+        Return the vizual parmaeters that are set in the metadata of the image
+
+        Args:
+            image (ee.Image): the image to analyse
+
+        Return:
+            (dict): the dictionnary of the find properties
+        """
+
+        # the constant prefix for SEPAL visualization parameters
+        PREFIX = "visualization"
+
+        # init the property list
+        props = {}
+
+        # check image type
+        if not isinstance(image, ee.Image):
+            return props
+
+        # build a raw prop list
+        raw_prop_list = {
+            p: val
+            for p, val in image.getInfo()["properties"].items()
+            if p.startswith(PREFIX)
+        }
+
+        # decompose each property by its number
+        # and gather the properties in a sub dictionnary
+        for p, val in raw_prop_list.items():
+
+            # extract the number and create the sub-dict
+            _, number, name = p.split("_")
+            props[number] = props.pop(number, {})
+
+            # modify the values according to prop key
+            if isinstance(val, str):
+                if name in ["bands", "palette", "labels"]:
+                    val = val.split(",")
+                elif name in ["max", "min", "values"]:
+                    val = [float(i) for i in val.split(",")]
+                elif name in ["inverted"]:
+                    val = [bool(strtobool(i)) for i in val.split(",")]
+
+            # set the value
+            props[number][name] = val
+
+        # categorical values need to be cast to int
+        for i in props.keys():
+            if props[i]["type"] == "categorical":
+                props[i]["values"] = [int(val) for val in props[i]["values"]]
+
+        return props

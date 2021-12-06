@@ -1,10 +1,9 @@
-from markdown import markdown
-from traitlets import Unicode
 from pathlib import Path
 
 import ipyvuetify as v
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Markdown
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.scripts import utils as su
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
@@ -22,7 +21,17 @@ class Tile(v.Layout, SepalWidget):
         inputs ([list]): the list of widget to display inside the tile
         btn (v.Btn): the process btn
         alert (sw.Alert): the alert to display process informations to the end user
+        kwargs (optional): any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
     """
+
+    btn = None
+    "v.btn: the process btn"
+
+    alert = None
+    "sw.Alert: the alert to display process informations to the end user"
+
+    title = None
+    "v.Html: the title of the Tile"
 
     def __init__(self, id_, title, inputs=[""], btn=None, alert=None, **kwargs):
 
@@ -42,15 +51,15 @@ class Tile(v.Layout, SepalWidget):
             class_="pa-5", raised=True, xs12=True, children=[self.title] + content
         )
 
-        super().__init__(
-            _metadata={"mount_id": id_},
-            row=True,
-            align_center=True,
-            class_="ma-5 d-inline",
-            xs12=True,
-            children=[card],
-            **kwargs
-        )
+        # set some default parameters
+        kwargs["_metadata"] = {"mount_id": id_}
+        kwargs["row"] = kwargs.pop("row", True)
+        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs["class_"] = kwargs.pop("class_", "ma-5 d-inline")
+        kwargs["children"] = [card]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
     def nest(self):
         """
@@ -117,7 +126,7 @@ class Tile(v.Layout, SepalWidget):
         self.title.children = [str(title)]
 
         # add the title if it's deactivated
-        if title and not self.title in self.children[0].children:
+        if title and self.title not in self.children[0].children:
             self.children[0].children = [self.title] + self.children[0].children.copy()
 
         # remove it if it's deactivated
@@ -189,7 +198,7 @@ class TileAbout(Tile):
 
         content = Markdown(about)
 
-        super().__init__("about_tile", "About", inputs=[content], **kwargs)
+        super().__init__("about_tile", "About", inputs=[content])
 
 
 class TileDisclaimer(Tile):
@@ -198,7 +207,7 @@ class TileDisclaimer(Tile):
     This tile will have the "about_widget" id and "Disclaimer" title.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self):
 
         pathname = Path(__file__).parents[1] / "scripts" / "disclaimer.md"
 
@@ -208,4 +217,4 @@ class TileDisclaimer(Tile):
 
         content = Markdown(disclaimer)
 
-        super().__init__("about_tile", "Disclaimer", inputs=[content], **kwargs)
+        super().__init__("about_tile", "Disclaimer", inputs=[content])

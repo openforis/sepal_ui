@@ -9,8 +9,8 @@
             :height: 315
             :width: 560
             :align: left
-            
-    :adapted from: https://gist.github.com/dbrgn/2922648 
+
+    :adapted from: https://gist.github.com/dbrgn/2922648
 """
 from __future__ import absolute_import
 from docutils import nodes
@@ -49,13 +49,13 @@ class IframeVideo(Directive):
 class Youtube(IframeVideo):
     html = """
     <div class="d-flex justify-content-%(align)s">
-        <iframe 
+        <iframe
             src="http://www.youtube.com/embed/%(video_id)s"
-            width="%(width)u" 
-            height="%(height)u" 
+            width="%(width)u"
+            height="%(height)u"
             frameborder="0"
-            webkitAllowFullScreen 
-            mozallowfullscreen 
+            webkitAllowFullScreen
+            mozallowfullscreen
             allowfullscreen
         >
         </iframe>
@@ -66,13 +66,13 @@ class Youtube(IframeVideo):
 class Vimeo(IframeVideo):
     html = """
     <div class="d-flex justify-content-%(align)s">
-        <iframe 
+        <iframe
             src="http://player.vimeo.com/video/%(video_id)s"
-            width="%(width)u" 
-            height="%(height)u" 
+            width="%(width)u"
+            height="%(height)u"
             frameborder="0"
-            webkitAllowFullScreen 
-            mozallowfullscreen 
+            webkitAllowFullScreen
+            mozallowfullscreen
             allowFullScreen
             class="align-%(align)s"
         >

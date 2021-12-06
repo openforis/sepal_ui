@@ -1,4 +1,5 @@
 import ipyvuetify as v
+import pytest
 
 from sepal_ui import sepalwidgets as sw
 
@@ -54,14 +55,50 @@ class TestApp:
 
         for tile in tiles:
             if tile == main_tile:
-                assert tile.viz == True
+                assert tile.viz is True
             else:
-                assert tile.viz == False
+                assert tile.viz is False
 
         for di in drawer_items:
             if di._metadata["card_id"] == id_:
-                assert di.input_value == True
+                assert di.input_value is True
             else:
-                assert di.input_value == False
+                assert di.input_value is False
 
         return
+
+    def test_add_banner(self, app):
+
+        # without type
+        msg = "toto"
+        res = app.add_banner(msg)
+        alert = app.content.children[0]
+
+        assert res == app
+        assert isinstance(alert, v.Alert)
+        assert alert.type == "info"
+        assert alert.children[0] == msg
+
+        # with type
+        type_ = "error"
+        res = app.add_banner(msg, type=type_)
+        alert = app.content.children[0]
+
+        assert res == app
+        assert isinstance(alert, v.Alert)
+        assert alert.type == type_
+        assert alert.children[0] == msg
+
+        return
+
+    @pytest.fixture
+    def app(self):
+        """create a default App"""
+
+        # create default widgets
+        tiles = [sw.Tile(f"id_{i}", f"title_{i}") for i in range(5)]
+        drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]
+        appBar = sw.AppBar()
+        footer = sw.Footer()
+
+        return sw.App(tiles, appBar, footer, sw.NavDrawer(drawer_items))

@@ -1,8 +1,6 @@
-from pathlib import Path
 from traitlets import Int
 from datetime import datetime as dt
 
-import ipyvuetify as v
 import pandas as pd
 import geopandas as gpd
 from shapely import geometry as sg
@@ -18,33 +16,19 @@ ADMIN = AoiModel.ADMIN
 ALL = "All"
 select_methods = AoiModel.METHODS
 
-__all__ = ["AoiView"]
+__all__ = ["AoiView", "select_methods"]
 
 
-class Select(v.Select, sw.SepalWidget):
-    """A classic Vuetify Select widget inheriting from sepalwidgets"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class TextField(v.TextField, sw.SepalWidget):
-    """A classic Vuetify TextField widget inheriting from sepalwidgets"""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class MethodSelect(Select):
+class MethodSelect(sw.Select):
     f"""
-    A method selector. It will list the availabel methods for this very AoiView.
+    A method selector. It will list the available methods for this very AoiView.
     'ALL' will select all the available methods (default)
     'ADMIN' only the admin one, 'CUSTOM' only the custom one.
     'XXX' will add the selected method to the list when '-XXX' will discard it.
     You cannot mix adding and removing behaviours.
 
     Params:
-        methods (str|[str]): a list of methods from the available list ({' '.join(select_methods.keys())})
+        methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
     """
 
     def __init__(self, methods="ALL", gee=True):
@@ -98,7 +82,7 @@ class MethodSelect(Select):
         super().__init__(label=ms.aoi_sel.method, items=items, v_model="", dense=True)
 
 
-class AdminField(v.Select, sw.SepalWidget):
+class AdminField(sw.Select):
     """
     An admin level selector. It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
@@ -119,8 +103,6 @@ class AdminField(v.Select, sw.SepalWidget):
     NAME = AoiModel.NAME
 
     def __init__(self, level, parent=None, gee=True, **kwargs):
-
-        self.toto = "toto"
 
         # save ee state
         self.ee = gee
@@ -203,31 +185,74 @@ class AdminField(v.Select, sw.SepalWidget):
         return self
 
 
-class AoiView(v.Card):
+class AoiView(sw.Card):
     """
     Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False)
 
     Args:
-        methods (str, optional): the methods to use in the widget, default to 'ALL',
+        methods (list, optional): the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
         map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
-        admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset (str, optional): the default asset. Can only work if ee==True
-
-    Attributes:
-        gee (bool): the earthengine binding status
-        model (AoiModel): the aoiModel to save the aoi selected as gdf or ee.FeatureCollection
-        map (SepalMap): the map if filled in the arguments
-        w_method (MethodSelect): the the method selection widget
-        w_admin_0, w_admin_1, w_admin2, w_vector, w_points, w_draw, w_asset (widgets): the selection widgets
-        components (dict): the widgets stored in a dict using the method names as keys
-        alert (sw.Alert): an alert component to display outputs
-        btn (sw.Btn): a btn component
-
+        admin (int, optional): the administrative code of the default selection. Need to be GADM if`:code:`ee==False` and GAUL 2015 if :code:`ee==True`.
+        asset (str, optional): the default asset. Can only work if`:code:`ee==True`
     """
 
+    # ##########################################################################
+    # ###                             widget parameters                      ###
+    # ##########################################################################
+
     updated = Int(0).tag(sync=True)
+    "int: traitlets triggered every time a AOI is selected"
+
+    ee = True
+    "bool: either or not he aoi_view is connected to gee"
+
+    folder = None
+    "str: the folder name used in GEE related component, mainly used for debugging"
+
+    model = None
+    "sepal_ui.aoi.AoiModel: the model to create the AOI from the selected parameters"
+
+    # ##########################################################################
+    # ###                            the embeded widgets                     ###
+    # ##########################################################################
+
+    map_ = None
+    "sepal_ui.mapping.SepalMap: the map to draw the AOI"
+
+    w_method = None
+    "widget: the widget to select the method"
+
+    components = None
+    "dict: the followingwidgets used to define AOI"
+
+    w_admin_0 = None
+    "widget: the widget used to select admin level 0"
+
+    w_admin_1 = None
+    "widget: the widget used to select admin level 1"
+
+    w_admin_2 = None
+    "widget: the widget used to select admin level 2"
+
+    w_vector = None
+    "widget: the widget used to select vector shapes"
+
+    w_points = None
+    "widget: the widget used to select points files"
+
+    w_draw = None
+    "widget: the widget used to select the name of a drawn shape (only if :code:`map_!=None`)"
+
+    w_asset = None
+    "widget: the widget used to select asset name of a featureCollection (only if`:code:`gee=True`)"
+
+    btn = None
+    "sw.Btn: a default btn"
+
+    alert = None
+    "sw.Alert: a alert to display message to the end user"
 
     def __init__(self, methods="ALL", map_=None, gee=True, folder=None, **kwargs):
 
@@ -253,7 +278,7 @@ class AoiView(v.Card):
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_:
-            self.w_draw = TextField(label=ms.aoi_sel.aoi_name).hide()
+            self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
         if self.ee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
@@ -313,7 +338,7 @@ class AoiView(v.Card):
 
         # update the map
         if self.map_:
-            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == "aoi"]
+            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
             self.map_.zoom_bounds(self.model.total_bounds())
 
             if self.ee:
@@ -335,7 +360,7 @@ class AoiView(v.Card):
 
         # clear the map
         if self.map_:
-            [self.map_.remove_layer(l) for l in self.map_.layers if l.name == "aoi"]
+            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
             # self.map_.center = [0, 0]
             # self.map_.zoom = 3
 
@@ -384,7 +409,7 @@ class AoiView(v.Card):
             self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
 
         # Init the json if it's not
-        if self.model.geo_json == None:
+        if self.model.geo_json is None:
             self.model.geo_json = {"type": "FeatureCollection", "features": []}
 
         # polygonize circles

@@ -4,7 +4,6 @@ import time
 import pytest
 import ee
 
-from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui.message import ms
@@ -47,7 +46,7 @@ class TestGee:
         # check if it exist
         res = gee.is_task(asset_description)
 
-        assert res != None
+        assert res is not None
 
         return
 
@@ -57,7 +56,7 @@ class TestGee:
         list_ = gee.get_assets(gee_dir)
 
         # check that they are all there
-        names = ["corsica_template", "folder", "france", "italy"]
+        names = ["corsica_template", "folder", "france", "imageViZExample", "italy"]
 
         for item, name in zip(list_, names):
             assert item["name"] == f"{gee_dir}/{name}"
@@ -66,28 +65,25 @@ class TestGee:
 
     def test_isAsset(self, gee_dir, asset_france):
 
-        folder = "projects/earthengine-legacy/assets/users/bornToBeAlive/sepal_ui_test"
-
         # real asset
         res = gee.is_asset(asset_france, gee_dir)
-        assert res == True
+        assert res is True
 
         # fake asset
         res = gee.is_asset(f"{gee_dir}/toto", gee_dir)
-        assert res == False
+        assert res is False
 
         return
 
     def test_is_running(self, fake_task, asset_description):
 
-        i = 0
         for _ in range(30):
             time.sleep(1)
             res = gee.is_running(asset_description)
-            if res != None:
+            if res is not None:
                 break
 
-        assert res != None
+        assert res is not None
 
         return
 

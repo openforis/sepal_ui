@@ -20,16 +20,20 @@ def set_default_readme(folder, module_name, description, url):
     license = f"{url}/blob/master/LICENSE"
 
     file = folder / "README.md"
+    # write_text cannot handle append
     with file.open("w") as readme:
-
-        readme.write(f"# {module_name}  \n")
-        readme.write(
-            f"[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})  \n"
+        readme.writelines(
+            [
+                f"# {module_name}\n",
+                "\n",
+                f"[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]({license})\n",
+                "[![Black badge](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)\n",
+                "\n",
+                "# About\n",
+                "\n",
+                f"{description}\n",
+            ]
         )
-        readme.write("  \n")
-        readme.write("## About  \n")
-        readme.write("  \n")
-        readme.write(f"{description}  \n")
 
     return
 
@@ -283,14 +287,14 @@ if __name__ == "__main__":
     # exit message
     print(Fore.YELLOW)
     print(
-        "WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
+        f"{Style.BRIGHT}WARNING{Style.NORMAL}: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
     )
     print(
         "If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues"
     )
     print(Fore.GREEN)
     print(
-        f"CONGRATULATION: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
+        f"{Style.BRIGHT}CONGRATULATION{Style.NORMAL}: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
     )
     print(
         f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment."

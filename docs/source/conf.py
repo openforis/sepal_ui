@@ -14,14 +14,15 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
+from urllib.request import urlretrieve
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 
+from sepal_ui import __version__, __author__
+
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
-
-from sepal_ui import __version__, __author__
 
 
 # -- Project information -----------------------------------------------------
@@ -44,11 +45,11 @@ extensions = [
     "jupyter_sphinx",
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
     "notfound.extension",
     "sphinxcontrib.spelling",
     "_extentions.video",
     "_extentions.line_break",
-    "_extentions.deprecated",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -60,19 +61,17 @@ templates_path = ["_templates"]
 exclude_patterns = ["**.ipynb_checkpoints"]
 
 # -- Load the images from the master sepal-doc -------------------------------
-from urllib.request import urlretrieve
-
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png",
-    "../img/dwn/sepal.png",
+    "_image/dwn/sepal.png",
 )
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico",
-    "../img/dwn/favicon.ico",
+    "_image/dwn/favicon.ico",
 )
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/404-compass.png",
-    "../img/dwn/404-compass.png",
+    "_image/dwn/404-compass.png",
 )
 
 
@@ -82,10 +81,11 @@ urlretrieve(
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "../img/dwn/sepal.png"
-html_favicon = "../img/dwn/favicon.ico"
+html_logo = "_image/dwn/sepal.png"
+html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "show_prev_next": False,
     "icon_links": [
         {
             "name": "GitHub",
@@ -107,7 +107,6 @@ html_context = {
     "doc_path": "docs/source",
 }
 
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -126,3 +125,6 @@ spelling_word_list_filename = [
 ]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
+
+# -- Options for autosummary output -------------------------------------------------
+autosummary_generate = False

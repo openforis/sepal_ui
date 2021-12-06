@@ -1,23 +1,29 @@
 from IPython.display import display
 import ipyvuetify as v
+from traitlets import Unicode
 
 
 class ResizeTrigger(v.VuetifyTemplate):
-    def __init__(self):
+    """
+    A trigger to resize maps when a change of display is done.
+    Every time resize is called, the javascript resize event is trigger of the application
+    """
 
-        self.template = """
-            <script>
-                {methods: {
-                    jupyter_resize(){
-                        window.dispatchEvent(new Event('resize'));
-                    }
-                }}
-            </script>
+    template = Unicode(
         """
-
-        super().__init__()
+        <script>
+            {methods: {
+                jupyter_resize(){
+                    window.dispatchEvent(new Event('resize'));
+                }
+            }}
+        </script>
+    """
+    ).tag(sync=True)
+    "Unicode: the javascript script to manually trigger the resize event"
 
     def resize(self):
+        """trigger the template method i.e. the resize event"""
 
         self.send({"method": "resize"})
 

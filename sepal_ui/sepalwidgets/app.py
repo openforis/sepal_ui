@@ -2,12 +2,11 @@ from functools import partial
 from datetime import datetime
 
 import ipyvuetify as v
-import traitlets
-from IPython.display import display
+from deprecated.sphinx import versionadded
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
-from sepal_ui.frontend.styles import *
+from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 
 __all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App"]
@@ -19,11 +18,14 @@ class AppBar(v.AppBar, SepalWidget):
 
     Args:
         title (str, optional): the title of the app
-
-    Attributes:
-        toggle_button (v.Btn): the btn to display or hide the drawer to the user
-        title (v.ToolBarTitle): the widget containing the app title
+        kwargs(dict, optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
     """
+
+    toogle_button = None
+    "v.Btn: The btn to display or hide the drawer to the user"
+
+    title = None
+    "v.ToolBarTitle: the widget containing the app title"
 
     def __init__(self, title="SEPAL module", **kwargs):
 
@@ -34,14 +36,14 @@ class AppBar(v.AppBar, SepalWidget):
 
         self.title = v.ToolbarTitle(children=[title])
 
-        super().__init__(
-            color=sepal_main,
-            class_="white--text",
-            dense=True,
-            app=True,
-            children=[self.toggle_button, self.title],
-            **kwargs
-        )
+        # set the default parameters
+        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["class_"] = kwargs.pop("class_", "white--text")
+        kwargs["dense"] = kwargs.pop("dense", True)
+        kwargs["app"] = True
+        kwargs["children"] = [self.toggle_button, self.title]
+
+        super().__init__(**kwargs)
 
     def set_title(self, title):
         """
@@ -70,12 +72,11 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon(str, optional): the full name of a mdi-icon
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
-
-    Attributes:
-        href (str): the absolute link to follow on click
-        _metadata (dict): single key dict to point to a mount_id. This ount_id will be used as parameter to know which tiles are to be shown on click event
-        rt (ResizeTrigger): the trigger to resize maps and other javascript object when jumping from a tile to another
+        kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
     """
+
+    rt = None
+    "sw.ResizeTrigger: the trigger to resize maps and other javascript object when jumping from a tile to another"
 
     def __init__(self, title, icon=None, card=None, href=None, **kwargs):
 
@@ -91,13 +92,21 @@ class DrawerItem(v.ListItem, SepalWidget):
             ),
         ]
 
-        super().__init__(link=True, children=children, **kwargs)
-
+        # set default parameters
+        kwargs["link"] = True
+        kwargs["children"] = children
+        kwargs["input_value"] = kwargs.pop("input_value", False)
         if href:
-            self.href = href
-            self.target = "_blank"
+            kwargs["href"] = href  # cannot be set twice anyway
+            kwargs["target"] = "_blank"
+            kwargs["_metadata"] = kwargs.pop("_metadata", None)
         elif card:
-            self._metadata = {"card_id": card}
+            kwargs["_metadata"] = {"card_id": card}
+            kwargs["href"] = kwargs.pop("href", None)
+            kwargs["target"] = kwargs.pop("target", None)
+
+        # call the constructor
+        super().__init__(**kwargs)
 
     def display_tile(self, tiles):
         """
@@ -142,7 +151,11 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         code (str, optional): the absolute link to the source code
         wiki (str, optional): the absolute link the the wiki page
         issue (str, optional): the absolute link to the issue tracker
+        kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
     """
+
+    items = []
+    "list: the list of all the drawerItem to display in the drawer"
 
     def __init__(self, items=[], code=None, wiki=None, issue=None, **kwargs):
 
@@ -159,17 +172,20 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             item_bug = DrawerItem("Bug report", icon="mdi-bug", href=issue)
             code_link.append(item_bug)
 
-        super().__init__(
-            v_model=True,
-            app=True,
-            color=sepal_darker,
-            children=[
-                v.List(dense=True, children=self.items),
-                v.Divider(),
-                v.List(dense=True, children=code_link),
-            ],
-            **kwargs
-        )
+        children = [
+            v.List(dense=True, children=self.items),
+            v.Divider(),
+            v.List(dense=True, children=code_link),
+        ]
+
+        # set default parameters
+        kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs["app"] = True
+        kwargs["color"] = kwargs.pop("color", sepal_darker)
+        kwargs["children"] = children
+
+        # call the constructor
+        super().__init__(**kwargs)
 
         # bind the javascripts behavior
         for i in self.items:
@@ -200,7 +216,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         """
         Deactivate all the other items when on of the is activated
         """
-        if change["new"] == False:
+        if change["new"] is False:
             return self
 
         # reset all others states
@@ -218,15 +234,21 @@ class Footer(v.Footer, SepalWidget):
 
     Args:
         text (str, optional): the text to display in the future
+        kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
     """
 
     def __init__(self, text="", **kwargs):
 
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
-        super().__init__(
-            color=sepal_main, class_="white--text", app=True, children=[text], **kwargs
-        )
+        # set default parameters
+        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["class_"] = kwargs.pop("class_", "white--text")
+        kwargs["app"] = True
+        kwargs["children"] = [text]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
 
 class App(v.App, SepalWidget):
@@ -241,15 +263,23 @@ class App(v.App, SepalWidget):
         appBar (sw.AppBar, optional): the appBar of the application
         footer (sw.Footer, optional): the footer of the application
         navDrawer (sw.NavDrawer): the navdrawer of the application
-
-    Attributes:
-        tiles ([sw.Tile]): the tiles of the app
-        appBar (sw.AppBar, optional): the appBar of the application
-        footer (sw.Footer, optional): the footer of the application
-        navDrawer (sw.NavDrawer): the navdrawer of the application
-        content (v.Content): the tiles organized in a fluid container
-
+        kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
     """
+
+    tiles = []
+    "list: the tiles of the app"
+
+    appBar = None
+    "sw.AppBar: the AppBar of the application"
+
+    footer = None
+    "sw.Footer: the footer of the application"
+
+    navDrawer = None
+    "sw.NavDrawer: the navdrawer of the application"
+
+    content = None
+    "v.Content: the tiles organized in a fluid container"
 
     def __init__(self, tiles=[""], appBar=None, footer=None, navDrawer=None, **kwargs):
 
@@ -289,7 +319,12 @@ class App(v.App, SepalWidget):
         # create a negative overlay to force the background color
         bg = v.Overlay(color=color.bg, opacity=1, style_="transition:unset", z_index=-1)
 
-        super().__init__(v_model=None, children=[bg, *app_children], **kwargs)
+        # set default parameters
+        kwargs["v_model"] = kwargs.pop("v_model", None)
+        kwargs["children"] = [bg, *app_children]
+
+        # call the constructor
+        super().__init__(**kwargs)
 
     def show_tile(self, name):
         """
@@ -310,9 +345,38 @@ class App(v.App, SepalWidget):
 
         # activate the drawerItem
         if self.navDrawer:
-            items = (i for i in self.navDrawer.items if i._metadata != None)
+            items = (i for i in self.navDrawer.items if i._metadata is not None)
             for i in items:
                 if name == i._metadata["card_id"]:
                     i.input_value = True
+
+        return self
+
+    @versionadded(version="2.4.1", reason="New end user interaction method")
+    def add_banner(self, msg, **kwargs):
+        """
+        Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
+
+        Args:
+            msg (str): the message to write in the Alert
+            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+
+        Return:
+            self
+        """
+
+        kwargs["type"] = kwargs.pop("type", "info")
+        kwargs["border"] = kwargs.pop("border", "left")
+        kwargs["class_"] = kwargs.pop("class_", "mt-5")
+        kwargs["transition"] = kwargs.pop("transition", "slide-x-transition")
+        kwargs["prominent"] = kwargs.pop("prominent", True)
+        kwargs["dismissible"] = kwargs.pop("dismissible", True)
+        kwargs["children"] = [msg]  # cannot be overwritten
+
+        # create the alert
+        alert = v.Alert(**kwargs)
+
+        # add the alert to the app
+        self.content.children = [alert] + self.content.children.copy()
 
         return self

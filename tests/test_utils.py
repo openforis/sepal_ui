@@ -3,8 +3,6 @@ from unittest.mock import patch
 import warnings
 
 import random
-import os
-from pathlib import Path
 
 import ipyvuetify as v
 
@@ -24,7 +22,7 @@ class TestUtils:
         # hide a sepalwidget
         widget = sw.Btn()
         su.hide_component(widget)
-        assert widget.viz == False
+        assert widget.viz is False
 
         return
 
@@ -34,13 +32,13 @@ class TestUtils:
         widget = v.Btn()
         su.hide_component(widget)
         su.show_component(widget)
-        assert not "d-none" in widget.class_
+        assert "d-none" not in widget.class_
 
         # show a sepalwidget
         widget = sw.Btn()
         su.hide_component(widget)
         su.show_component(widget)
-        assert widget.viz == True
+        assert widget.viz is True
 
         return
 
@@ -61,11 +59,11 @@ class TestUtils:
 
         # test an absolute URL (wikipedia home page)
         link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
-        su.is_absolute(link) == True
+        su.is_absolute(link) is True
 
         # test a relative URL ('toto/tutu.html')
         link = "toto/tutu.html"
-        assert su.is_absolute(link) == False
+        assert su.is_absolute(link) is False
 
         return
 
@@ -112,7 +110,7 @@ class TestUtils:
     def test_init_ee(self):
 
         # check that no error is raised
-        res = su.init_ee()
+        su.init_ee()
 
         return
 
@@ -171,20 +169,20 @@ class TestUtils:
 
         # should only display error in the alert
         obj.func1(obj.btn, None, None)
-        assert obj.btn.disabled == False
+        assert obj.btn.disabled is False
         assert obj.alert.type == "error"
 
         # should raise an error
         obj.alert.reset()
         with pytest.raises(Exception):
             obj.fun2(obj.btn, None, None)
-        assert obj.btn.disabled == False
+        assert obj.btn.disabled is False
         assert obj.alert.type == "error"
 
         # should only display the sepal warning
         obj.alert.reset()
         obj.func3(obj.btn, None, None)
-        assert obj.btn.disabled == False
+        assert obj.btn.disabled is False
         assert obj.alert.type == "warning"
         assert "sepal" in obj.alert.children[1].children[0]
         assert "toto" not in obj.alert.children[1].children[0]
@@ -193,7 +191,7 @@ class TestUtils:
         obj.alert.reset()
         with warnings.catch_warnings(record=True) as w_list:
             obj.func4(obj.btn, None, None)
-        assert obj.btn.disabled == False
+        assert obj.btn.disabled is False
         assert obj.alert.type == "warning"
         assert "sepal" in obj.alert.children[1].children[0]
         assert "toto" not in obj.alert.children[1].children[0]
@@ -268,11 +266,11 @@ class TestUtils:
 
         # assert
         obj.func1()
-        assert obj.valid == True
+        assert obj.valid is True
 
         obj.func2()
-        assert obj.select.disabled == False
-        assert obj.select2.disabled == False
+        assert obj.select.disabled is False
+        assert obj.select2.disabled is False
 
         with pytest.raises(Exception):
             obj.func3()

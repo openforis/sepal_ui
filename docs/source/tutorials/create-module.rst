@@ -1,7 +1,8 @@
 Create my first module
 ======================
 
-In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository
+In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository.    
+The steps presented bellow will demonstrate the safest and most complete way of creating a new module from scratch.
 
 Create the GitHub repository 
 ----------------------------
@@ -21,7 +22,7 @@ All the following checkbox need to stay unchecked:
 
 Here I will use :code:`my_first_module`:
 
-.. image:: ../../img/create-repository.png
+.. image:: ../_image/tutorials/create-module/create-repository.png
 
 You can click on :code:`create repository`
 Keep the GitHub web page open.
@@ -147,7 +148,7 @@ You need to copy paste the link to the GitHub repository that is still open in y
 
 If you're not sure it's here :
 
-.. image:: ../../img/copy-repo-name.png
+.. image:: ../_image/tutorials/create-module/copy-repo-name.png
 
 Description
 ^^^^^^^^^^^
@@ -169,7 +170,7 @@ Let's play
 In the app dashboard open Jupyter Notebook. From here open :code:`my_first_repository/ui.ipnb` notebook
 On the top bar of your window click on the :code:`voila` button.
 
-.. image:: ../../img/voila-btn.png
+.. image:: ../_image/tutorials/create-module/voila-btn.png
 
 It will start a popup window. 
 
@@ -185,7 +186,7 @@ It will start a popup window.
 
 The popup will display a fully functional app. A default process have been set-up to show you how the Python module can behave, take your time to play with it.
 
-.. image:: ../../img/module-landing.png
+.. image:: ../_image/tutorials/create-module/module-landing.png
 
 .. warning::
 
@@ -208,10 +209,23 @@ The popup will display a fully functional app. A default process have been set-u
         
         from pathlib import Path
         
-        module_dir = Path('~','module_results').expanduser()
+        module_dir = Path.home()/"module_results"
         module_dir.mkdir(exist_ok=True)
         
     Please use it as a starting point for any results you want to export in SEPAL.
+    
+GitHub Template
+---------------
+
+.. warning::
+
+    For advanced users only
+    
+The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsability. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
+    
+.. danger:: 
+
+    Do not copy every branch while using the template generator
 
 
 
