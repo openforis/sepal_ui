@@ -63,15 +63,15 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 # -- Load the images from the master sepal-doc -------------------------------
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png",
-    "../img/dwn/sepal.png",
+    "_image/dwn/sepal.png",
 )
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico",
-    "../img/dwn/favicon.ico",
+    "_image/dwn/favicon.ico",
 )
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/404-compass.png",
-    "../img/dwn/404-compass.png",
+    "_image/dwn/404-compass.png",
 )
 
 
@@ -81,8 +81,8 @@ urlretrieve(
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "../img/dwn/sepal.png"
-html_favicon = "../img/dwn/favicon.ico"
+html_logo = "_image/dwn/sepal.png"
+html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
     "show_prev_next": False,

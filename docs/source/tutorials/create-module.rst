@@ -22,7 +22,7 @@ All the following checkbox need to stay unchecked:
 
 Here I will use :code:`my_first_module`:
 
-.. image:: ../../img/tutorials/create-module/create-repository.png
+.. image:: ../_image/tutorials/create-module/create-repository.png
 
 You can click on :code:`create repository`
 Keep the GitHub web page open.
@@ -148,7 +148,7 @@ You need to copy paste the link to the GitHub repository that is still open in y
 
 If you're not sure it's here :
 
-.. image:: ../../img/tutorials/create-module/copy-repo-name.png
+.. image:: ../_image/tutorials/create-module/copy-repo-name.png
 
 Description
 ^^^^^^^^^^^
@@ -170,7 +170,7 @@ Let's play
 In the app dashboard open Jupyter Notebook. From here open :code:`my_first_repository/ui.ipnb` notebook
 On the top bar of your window click on the :code:`voila` button.
 
-.. image:: ../../img/tutorials/create-module/voila-btn.png
+.. image:: ../_image/tutorials/create-module/voila-btn.png
 
 It will start a popup window. 
 
@@ -186,7 +186,7 @@ It will start a popup window.
 
 The popup will display a fully functional app. A default process have been set-up to show you how the Python module can behave, take your time to play with it.
 
-.. image:: ../../img/tutorials/create-module/module-landing.png
+.. image:: ../_image/tutorials/create-module/module-landing.png
 
 .. warning::
 

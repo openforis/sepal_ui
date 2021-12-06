@@ -67,7 +67,7 @@ By default we use a `MIT <https://opensource.org/licenses/MIT>`_ license as in a
 
 If your project require a specific license file you can edit this one to reflect what you need. I strongly suggest to edit this file directly in GitHub as the website provide a number of templates
 
-.. image:: ../../img/tutorials/structure/license-template.png
+.. image:: ../_image/tutorials/structure/license-template.png
 
 If you use a custom license, you'll nee to change the badge in the :code:`README.md`. 
 copy paste any badge from this `github repository <https://gist.github.com/lukas-h/2a5d00690736b4c3a7ba>`_ instead of the classic MIT one : 

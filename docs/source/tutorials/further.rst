@@ -22,7 +22,7 @@ to do so use a banner to display information to the end user. In the :code:`ui.i
     
 which will be displayed in your app as in the next figure: 
 
-.. figure:: ../../img/tutorials/further/info_banner.png
+.. figure:: ../_image/tutorials/further/info_banner.png
    :alt: banner example
    :align: center 
    
@@ -42,7 +42,7 @@ You can overwrite any arguments from the :code:`v.Alert` component, e.g if as pe
     
 which will be displayed in your app as in the next figure: 
 
-.. figure:: ../../img/tutorials/further/error_banner.png
+.. figure:: ../_image/tutorials/further/error_banner.png
    :alt: banner example
    :align: center  
    

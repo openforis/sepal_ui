@@ -151,6 +151,6 @@ It's time to use the decorators in the class methods. For this example, we will 
 And finally, when putting all together, you will end with a simple coded interface that has useful behaviors to the end user.
 
 
-.. figure:: ../../img/tutorials/decorator/decorators-example.gif
+.. figure:: ../_image/tutorials/decorator/decorators-example.gif
    :alt: decorator example
    :align: center
