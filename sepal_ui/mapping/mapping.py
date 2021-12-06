@@ -31,6 +31,7 @@ from ipyleaflet import (
 from traitlets import Bool, link, observe
 import ipyvuetify as v
 import ipyleaflet
+import ee
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -644,8 +645,8 @@ class SepalMap(geemap.Map):
                 palette = ["#000000"] * (max_ - min_ + 1)
 
                 # replace the values within the palette
-                for i, v in enumerate(values):
-                    palette[v - min_] = colors[i]
+                for i, val in enumerate(values):
+                    palette[val - min_] = colors[i]
 
                 # adapt the vizparams
                 vis_params["palette"] = palette
@@ -722,34 +723,34 @@ class SepalMap(geemap.Map):
 
         # build a raw prop list
         raw_prop_list = {
-            p: v
-            for p, v in image.getInfo()["properties"].items()
+            p: val
+            for p, val in image.getInfo()["properties"].items()
             if p.startswith(PREFIX)
         }
 
         # decompose each property by its number
         # and gather the properties in a sub dictionnary
-        for p, v in raw_prop_list.items():
+        for p, val in raw_prop_list.items():
 
             # extract the number and create the sub-dict
             _, number, name = p.split("_")
             props[number] = props.pop(number, {})
 
             # modify the values according to prop key
-            if isinstance(v, str):
+            if isinstance(val, str):
                 if name in ["bands", "palette", "labels"]:
-                    v = v.split(",")
+                    val = val.split(",")
                 elif name in ["max", "min", "values"]:
-                    v = [float(i) for i in v.split(",")]
+                    val = [float(i) for i in val.split(",")]
                 elif name in ["inverted"]:
-                    v = [bool(strtobool(i)) for i in v.split(",")]
+                    val = [bool(strtobool(i)) for i in val.split(",")]
 
             # set the value
-            props[number][name] = v
+            props[number][name] = val
 
         # categorical values need to be cast to int
         for i in props.keys():
             if props[i]["type"] == "categorical":
-                props[i]["values"] = [int(v) for v in props[i]["values"]]
+                props[i]["values"] = [int(val) for val in props[i]["values"]]
 
         return props
