@@ -604,23 +604,29 @@ class SepalMap(geemap.Map):
                 )
 
             # specific case of categorical images
-            # define an SLD style for each value
+            # Pad the palette when using non-consecutive values
+            # instead of remapping or using sldStyle
+            # to preserve the class values in the image, for inspection
             if args[1]["type"] == "categorical":
 
-                sld_intervals = (
-                    '<RasterSymbolizer><ColorMap type="intervals" extended="false">'
-                )
-                for i in range(len(args[1]["palette"])):
-                    c = args[1]["palette"][i]
-                    v = args[1]["values"][i]
-                    l = args[1]["labels"][i]
-                    sld_intervals += (
-                        f'<ColorMapEntry color="{c}" quantity="{v}" label="{l}"/>'
-                    )
-                sld_intervals += "</ColorMap></RasterSymbolizer>"
+                colors = args[1]["palette"]
+                values = args[1]["values"]
+                min_ = min(values)
+                max_ = max(values)
 
-                args[0] = args[0].select(args[1]["bands"][0]).sldStyle(sld_intervals)
-                args[1] = {}
+                # set up a black palette of correct length
+                palette = ["#000000"] * (max_ - min_ + 1)
+
+                print(len(palette))
+
+                # replace the values within the palette
+                for i, v in enumerate(values):
+                    palette[v - min_] = colors[i]
+
+                # adapt the vizparams
+                args[1]["palette"] = palette
+                args[1]["min"] = min_
+                args[1]["max"] = max_
 
             # specific case of hsv
             elif args[1]["type"] == "hsv":
