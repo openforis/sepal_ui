@@ -631,10 +631,33 @@ class SepalMap(geemap.Map):
             # specific case of hsv
             elif args[1]["type"] == "hsv":
 
-                args[0] = args[0].select(args[1]["bands"]).rgbToHsv()
-                args[1]["bands"] = ["hue", "saturation", "value"]
-                args[1]["max"] = [1, 1, 1]
-                args[1]["min"] = [0, 0, 0]
+                # set to_min to 0 and to_max to 1
+                # in the original expression:
+                # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
+                expression = (
+                    "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
+                )
+
+                # get the maxs and mins
+                # removing them from the parameter
+                mins = args[1].pop("min")
+                maxs = args[1].pop("max")
+
+                # create the rgb bands
+                asset = args[0]
+                for i, band in enumerate(args[1]["bands"]):
+
+                    # adapt the expression
+                    exp = expression.format(
+                        from_min=mins[i], from_max=maxs[i], band=band
+                    )
+                    asset = asset.addBands(asset.expression(exp), [band], True)
+
+                # set the arguments
+                args[0] = asset.select(args[1]["bands"]).hsvToRgb()
+                args[1]["bands"] = ["red", "green", "blue"]
+                args[1]["max"] = 1
+                args[1]["min"] = 0
 
         # call the function using the replacing the empty viz params with the new one.
         super().addLayer(*args, **kwargs)
