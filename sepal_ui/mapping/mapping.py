@@ -8,6 +8,7 @@ if "PROJ_LIB" in list(os.environ.keys()):
 
 import collections
 from pathlib import Path
+from distutils.util import strtobool
 
 import geemap
 from haversine import haversine
@@ -573,6 +574,118 @@ class SepalMap(geemap.Map):
 
         return
 
+    def addLayer(
+        self,
+        ee_object,
+        vis_params={},
+        name=None,
+        shown=True,
+        opacity=1.0,
+        viz_name=False,
+    ):
+        """
+        Override the addLayer method from geemap to read the guess the vizaulization parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
+
+        Args:
+            ee_object (ee.Object): the ee OBject to draw on the map
+            vis_params (dict, optional): the visualization parameters set as in GEE
+            name (str, optional): the name of the layer
+            shown (bool, optional): either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity (float, optional): the opcity of the layer from 0 to 1, default to 1.
+            viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
+        """
+
+        # get the list of viz params
+        viz = self.get_viz_params(ee_object)
+
+        # get the requested vizparameters name
+        # if non is set use the first one
+        if not viz == {}:
+            viz_name = viz_name or viz[next(iter(viz))]["name"]
+
+        # apply it to vis_params
+        if vis_params == {} and viz != {}:
+
+            # find the viz params in the list
+            try:
+                vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
+            except StopIteration:
+                raise ValueError(
+                    f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
+                )
+
+            # invert the bands if needed
+            inverted = vis_params.pop("inverted", None)
+            if inverted is not None:
+
+                # get the index of the bands taht need to be inverted
+                index_list = [i for i, v in enumerate(inverted) if v is True]
+
+                # multiply everything by -1
+                for i in index_list:
+                    min_ = vis_params["min"][i]
+                    max_ = vis_params["max"][i]
+                    vis_params["min"][i] = max_
+                    vis_params["max"][i] = min_
+
+            # specific case of categorical images
+            # Pad the palette when using non-consecutive values
+            # instead of remapping or using sldStyle
+            # to preserve the class values in the image, for inspection
+            if vis_params["type"] == "categorical":
+
+                colors = vis_params["palette"]
+                values = vis_params["values"]
+                min_ = min(values)
+                max_ = max(values)
+
+                # set up a black palette of correct length
+                palette = ["#000000"] * (max_ - min_ + 1)
+
+                # replace the values within the palette
+                for i, v in enumerate(values):
+                    palette[v - min_] = colors[i]
+
+                # adapt the vizparams
+                vis_params["palette"] = palette
+                vis_params["min"] = min_
+                vis_params["max"] = max_
+
+            # specific case of hsv
+            elif vis_params["type"] == "hsv":
+
+                # set to_min to 0 and to_max to 1
+                # in the original expression:
+                # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
+                expression = (
+                    "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
+                )
+
+                # get the maxs and mins
+                # removing them from the parameter
+                mins = vis_params.pop("min")
+                maxs = vis_params.pop("max")
+
+                # create the rgb bands
+                asset = ee_object
+                for i, band in enumerate(vis_params["bands"]):
+
+                    # adapt the expression
+                    exp = expression.format(
+                        from_min=mins[i], from_max=maxs[i], band=band
+                    )
+                    asset = asset.addBands(asset.expression(exp), [band], True)
+
+                # set the arguments
+                ee_object = asset.select(vis_params["bands"]).hsvToRgb()
+                vis_params["bands"] = ["red", "green", "blue"]
+
+        # call the function using the replacing the empty viz params with the new one.
+        super().addLayer(ee_object, vis_params, name, shown, opacity)
+
+        return
+
     @staticmethod
     def get_basemap_list():
         """
@@ -584,3 +697,59 @@ class SepalMap(geemap.Map):
         """
 
         return [k for k in geemap.ee_basemaps.keys()]
+
+    @staticmethod
+    def get_viz_params(image):
+        """
+        Return the vizual parmaeters that are set in the metadata of the image
+
+        Args:
+            image (ee.Image): the image to analyse
+
+        Return:
+            (dict): the dictionnary of the find properties
+        """
+
+        # the constant prefix for SEPAL visualization parameters
+        PREFIX = "visualization"
+
+        # init the property list
+        props = {}
+
+        # check image type
+        if not isinstance(image, ee.Image):
+            return props
+
+        # build a raw prop list
+        raw_prop_list = {
+            p: v
+            for p, v in image.getInfo()["properties"].items()
+            if p.startswith(PREFIX)
+        }
+
+        # decompose each property by its number
+        # and gather the properties in a sub dictionnary
+        for p, v in raw_prop_list.items():
+
+            # extract the number and create the sub-dict
+            _, number, name = p.split("_")
+            props[number] = props.pop(number, {})
+
+            # modify the values according to prop key
+            if isinstance(v, str):
+                if name in ["bands", "palette", "labels"]:
+                    v = v.split(",")
+                elif name in ["max", "min", "values"]:
+                    v = [float(i) for i in v.split(",")]
+                elif name in ["inverted"]:
+                    v = [bool(strtobool(i)) for i in v.split(",")]
+
+            # set the value
+            props[number][name] = v
+
+        # categorical values need to be cast to int
+        for i in props.keys():
+            if props[i]["type"] == "categorical":
+                props[i]["values"] = [int(v) for v in props[i]["values"]]
+
+        return props

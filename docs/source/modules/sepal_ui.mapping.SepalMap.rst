@@ -25,7 +25,9 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.show_dc
         ~SepalMap.hide_dc
         ~SepalMap.add_colorbar
+        ~SepalMap.addLayer
         ~SepalMap.get_basemap_list
+        ~SepalMap.get_viz_params
         
 .. automethod:: sepal_ui.mapping.SepalMap.set_drawing_controls
 
@@ -43,4 +45,8 @@ sepal\_ui.mapping.SepalMap
 
 .. automethod:: sepal_ui.mapping.SepalMap.add_colorbar
 
+.. automethod:: sepal_ui.mapping.SepalMap.addLayer
+
 .. automethod:: sepal_ui.mapping.SepalMap.get_basemap_list
+
+.. automethod:: sepal_ui.mapping.SepalMap.get_viz_params
