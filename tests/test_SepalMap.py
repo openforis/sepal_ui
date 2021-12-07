@@ -270,6 +270,15 @@ class TestSepalMap:
 
         assert len(m.layers) == 5
 
+        # display an image without properties
+        m = sm.SepalMap()
+
+        dataset = ee.Image("CSP/ERGo/1_0/Global/ALOS_mTPI")
+        dataset = ee.Image().addBands(dataset)  # with all bands and 0 properties
+        m.addLayer(dataset)
+
+        assert len(m.layers) == 2
+
         return
 
     def test_get_viz_params(self, asset_image_viz):

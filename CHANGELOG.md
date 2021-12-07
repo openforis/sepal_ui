@@ -1,7 +1,8 @@
-## v_2.5.1 (2021-12-07)
+## v_2.5.2 (2021-12-07)
 
 ### Fix
 
+- prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
 
 ## v_2.5.0 (2021-12-06)
