@@ -721,6 +721,10 @@ class SepalMap(geemap.Map):
         if not isinstance(image, ee.Image):
             return props
 
+        # check that image have properties
+        if "properties" not in image.getInfo():
+            return props
+
         # build a raw prop list
         raw_prop_list = {
             p: val
