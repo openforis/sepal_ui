@@ -1,3 +1,9 @@
+## v_2.5.1 (2021-12-07)
+
+### Fix
+
+- git based libs are not compatible with pipy
+
 ## v_2.5.0 (2021-12-06)
 
 ### Refactor
