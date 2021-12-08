@@ -45,6 +45,7 @@ setup_params = {
         "Unidecode",
         "natsort",
         "pipreqs",
+        "cryptography",
     ],
     "extras_require": {
         "dev": [
@@ -52,7 +53,6 @@ setup_params = {
         ],
         "test": [
             "coverage",
-            "cryptography",
             "pytest",
         ],
         "doc": [
