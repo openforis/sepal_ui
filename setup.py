@@ -65,7 +65,18 @@ setup_params = {
             "pandoc",
         ],
     },
-    "packages": ["sepal_ui"],
+    "packages": [
+        "sepal_ui",
+        "sepal_ui.scripts",
+        "sepal_ui.frontend",
+        "sepal_ui.sepalwidgets",
+        "sepal_ui.aoi",
+        "sepal_ui.message",
+        "sepal_ui.mapping",
+        "sepal_ui.translator",
+        "sepal_ui.model",
+        "sepal_ui.reclassify",
+    ],
     "package_data": {
         "sepal_ui": [
             "scripts/*.csv",
