@@ -1,7 +1,9 @@
-## v_2.5.2 (2021-12-07)
+## v_2.5.3 (2021-12-08)
 
 ### Fix
 
+- cryptography since flake8 linting cryptography is not a lazy dependency anymore
+- install missing packages
 - prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
 
