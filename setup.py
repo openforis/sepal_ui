@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from subprocess import check_call
 
-version = "2.5.2"
+version = "2.5.3"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -45,6 +45,7 @@ setup_params = {
         "Unidecode",
         "natsort",
         "pipreqs",
+        "cryptography",
     ],
     "extras_require": {
         "dev": [
@@ -52,7 +53,6 @@ setup_params = {
         ],
         "test": [
             "coverage",
-            "cryptography",
             "pytest",
         ],
         "doc": [
@@ -65,7 +65,18 @@ setup_params = {
             "pandoc",
         ],
     },
-    "packages": ["sepal_ui"],
+    "packages": [
+        "sepal_ui",
+        "sepal_ui.scripts",
+        "sepal_ui.frontend",
+        "sepal_ui.sepalwidgets",
+        "sepal_ui.aoi",
+        "sepal_ui.message",
+        "sepal_ui.mapping",
+        "sepal_ui.translator",
+        "sepal_ui.model",
+        "sepal_ui.reclassify",
+    ],
     "package_data": {
         "sepal_ui": [
             "scripts/*.csv",
