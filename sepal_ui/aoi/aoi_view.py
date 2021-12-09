@@ -194,8 +194,8 @@ class AoiView(sw.Card):
         map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
-        admin (int, optional): the administrative code of the default selection. Need to be GADM if`:code:`ee==False` and GAUL 2015 if :code:`ee==True`.
-        asset (str, optional): the default asset. Can only work if`:code:`ee==True`
+        admin (int, optional): the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
+        asset (str, optional): the default asset. Can only work if :code:`ee==True`
     """
 
     # ##########################################################################
