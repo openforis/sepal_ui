@@ -54,7 +54,7 @@ class AoiModel(Model):
     "list(str): GADM(0) and GAUL(1) naming key format"
 
     ISO = ["GID_0", "ISO 3166-1 alpha-3"]
-    "list(str): GADM(0) and GAUl(1) iso codes key"
+    "list(str): GADM(0) and GAUL(1) iso codes key"
 
     GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
     "str: the base url to download gadm maps"
