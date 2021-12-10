@@ -67,11 +67,11 @@ urlretrieve(
     "_image/dwn/sepal.png",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/images/favicon.ico",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/favicon.ico",
     "_image/dwn/favicon.ico",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/images/404-compass.png",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/404-compass.png",
     "_image/dwn/404-compass.png",
 )
 
