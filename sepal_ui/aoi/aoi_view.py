@@ -243,10 +243,10 @@ class AoiView(sw.Card):
     "widget: the widget used to select points files"
 
     w_draw = None
-    "widget: the widget used to select the name of a drawn shape (only if :code:`map_!=None`)"
+    "widget: the widget used to select the name of a drawn shape (only if :code:`map_ != None`)"
 
     w_asset = None
-    "widget: the widget used to select asset name of a featureCollection (only if`:code:`gee=True`)"
+    "widget: the widget used to select asset name of a featureCollection (only if :code:`gee == True`)"
 
     btn = None
     "sw.Btn: a default btn"
