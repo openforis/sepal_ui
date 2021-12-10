@@ -46,6 +46,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
     "notfound.extension",
     "sphinxcontrib.spelling",
     "_extentions.video",

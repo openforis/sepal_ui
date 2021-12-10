@@ -5,4 +5,4 @@
 ignore = E501, W605, W503
 
 # init file are here to hide the internal structure to the user of the lib
-exclude = */__init__.py
+exclude = */__init__.py, docs/source/conf.py
