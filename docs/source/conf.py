@@ -63,15 +63,15 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 
 # -- Load the images from the master sepal-doc -------------------------------
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
     "_image/dwn/sepal.png",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/images/favicon.ico",
     "_image/dwn/favicon.ico",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/404-compass.png",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/images/404-compass.png",
     "_image/dwn/404-compass.png",
 )
 
