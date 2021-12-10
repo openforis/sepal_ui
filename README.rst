@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal_header.png
+.. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal_header.png
 
 Sepal_ui
 --------
