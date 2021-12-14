@@ -1,0 +1,3 @@
+[[paths]]
+    reference = "sepal_ui/sepal_ui/message/en.json"
+    l10n = "sepal_ui/sepal_ui/message/{local}.json"
