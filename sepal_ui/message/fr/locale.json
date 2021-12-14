@@ -1,0 +1,145 @@
+{
+	"test_key": "Clef de test",
+	"status": "Status: {}",
+	"widgets": {
+		"asset_select": {
+			"types": ["Raster", "Table", "Collection d'images", "Algorithme", "Dossier"],
+			"label": "Sélectionnez un Asset",
+			"custom": "Personnaliser",
+			"no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
+            "wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
+			"hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser.",
+            "placeholder": "users/custom_user/custom_asset"
+		},
+		"load_table": {
+			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
+		}
+	},
+	"aoi_sel": {
+		"title": "Selectionner la zone d'interêt (AOI)",
+		"administrative": "Définition administrative",
+		"custom": "Géometries personnalisées",
+		"method": "Methode de selection d'AOI",
+		"adm": [
+			"pays/Province",
+			"Niveau administratif 1",
+			"Niveau administratif 2"
+		],
+		"vector": "Fichier de vecteur",
+		"draw": "Dessiner une forme",
+		"points": "Fichier de point",
+		"aoi_name": "Selectionner un nom d'AOI",
+		"asset": "Nom de l'Asset",
+		"btn": "Selectionner ses inputs",
+		"no_inputs": "Fournir des entrées entièrement qualifiées avant de valider votre AOI",
+		"complete": "L'AOI a été selectionnée",
+		"shape_drawn": "Une forme a été dessinée",
+		"file_pattern": "aoi_{}",
+		"no_selection": "Aucune methode de selection n'a été choisie",
+		"no_country": "Aucun pays selectionné",
+		"asset_already_exist": "L'asset existe déjà, vous pouvez continuer de l'utiliser. Il est disponible ici : {}",
+		"asset_created": "L'asset a été créée sous le nom : {}",
+		"name_used": "L'asset est déjà utilisé. Vous pouvez changer le nom de fichier ou supprimer celui déjà présent de votre compte GEE",
+		"no_asset": "Aucun asset n'a été renseigné",
+		"check_if_asset": "Verifier attentivement que vous avez utiliser une asset ID valide",
+		"not_available": "Cette fonction n'est pas encore disponible",
+		"no_shape": "Aucune figure n'a été dessiné sur la carte",
+		"shp_error": "Une erreur est survenue avec le fichier .shp utilisé",
+		"aoi_message": "Cliquer sur le boutton pour valider votre AOI",
+		"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'identifiant",
+		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine"
+	},
+	"mapping": {
+		"no_image": "Le fichier image n'existe pas."
+	},
+	"rec": {
+		"table": {
+			"title": "Editeur de classification",
+			"classif": {
+				"title": "Selectionnez une classification existante",
+				"file_select": "fichier de classes",
+				"btn": "Récuperer table"
+			},
+			"table": "Table de classification",
+			"schema": {
+				"id": "id",
+				"code": "code",
+				"description": "description",
+				"color": "couleur"
+			},
+			"btn": {
+				"edit": "editer",
+				"save": "sauver",
+				"add": "ajouter",
+				"delete": "supprimer"
+			},
+			"edit_dialog": {
+				"titles": ["Nouvel élément", "modifier un élément"],
+				"btn": {
+					"save": {
+						"name": "sauver",
+						"tooltip": "creer une nouvelle classe"
+					},
+					"modify": {
+						"name": "modifier",
+						"tooltip": "modifier une classe existante"
+					},
+					"cancel": {
+						"name": "annuler",
+						"tooltip": "annuler l'operation"
+					}
+				}
+			},
+			"save_dialog": {
+				"filename": "Inserer un nom de fichier de sortie",
+				"placeholder": "nouvelle_table",
+				"btn": {
+					"save": {
+						"name": "sauver",
+						"tooltip": "sauver la table"
+					},
+					"cancel": {
+						"name": "annuler",
+						"tooltip": "annuler l'opération"
+					}
+				},
+				"title": "sauver la table de classification",
+				"info": "la table sera sauvegardé dans {}"
+			}
+		},
+		"rec": {
+			"title": "Reclassificateur d'image",
+			"headers": ["Classe initiale", "Classe de destination"],
+			"input": {
+				"optional": "Optionnel",
+				"title": "Selectionner les entrées de classification",
+				"asset": "Asset",
+				"file": "fichier",
+				"band": {
+					"label": "selectionner bande/propriétée",
+					"hint": "la bande/propriété à utiliser pour les classes de référence"
+				},
+				"classif": {
+					"title": "Selectionner la classification de destination",
+					"label": "fichier de classif"
+				},
+				"btn": "Récupérer la table"
+			},
+			"table": "Table de reclassification",
+			"btn": "Reclassifer",
+			"export": [
+				[
+					"Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
+					"L'Image a été créé et ajouté à votre dossier SEPAL: {}"
+				],
+				[
+					"La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
+					"La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
+				]
+			]
+		},
+		"tile": {
+			"title": "Reclassification"
+		}
+	}
+}

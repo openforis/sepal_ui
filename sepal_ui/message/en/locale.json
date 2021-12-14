@@ -1,0 +1,145 @@
+{
+	"test_key": "Test key",
+	"status": "Status: {}",
+	"widgets": {
+		"asset_select": {
+			"types": ["Raster", "Table", "Image collection", "Algorithm", "Folder"],
+			"label": "Select an asset",
+			"custom": "Custom",
+			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
+            "wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
+			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it",
+            "placeholder": "users/custom_user/custom_asset"
+		},
+		"load_table": {
+			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."
+		}
+	},
+	"aoi_sel": {
+		"title": "Select Area Of Interest (AOI)",
+		"administrative": "Administrative definitions",
+		"custom": "Custom geometries",
+		"method": "AOI selection method",
+		"adm": [
+			"Country/Province",
+			"Admin level 1",
+			"Admin level 2"
+		],
+		"vector": "Vector file",
+		"draw": "Drawn shapes",
+		"points": "Point file",
+		"aoi_name": "Select an AOI name",
+		"asset": "GEE Asset name",
+		"btn": "Select AOI",
+		"no_inputs": "Provided fully qualified inputs before validating your AOI",
+		"complete": "The AOI has been selected",
+		"shape_drawn": "A shape has been drawn",
+		"file_pattern": "aoi_{}",
+		"no_selection": "No selection method has been picked up",
+		"no_country": "No Country has been selected",
+		"asset_already_exist": "The asset was already existing you can continue to use it. It's also available at :{}",
+		"asset_created": "The asset has been created under the name : {}",
+		"name_used": "The name was already in used, change it or delete the previous asset in your GEE acount",
+		"no_asset": "No Asset has been provided",
+		"check_if_asset": "Check carefully that your string is an assetId",
+		"not_available": "This function is not yet available",
+		"no_shape": "No shape has been drawn on the map",
+		"shp_error": "An error occured with provided .shp file",
+		"aoi_message": "click on \"selet these inputs\" to validate your AOI",
+		"duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
+		"geojson_to_ee": "Convert your .csv file into a ee_object"
+	},
+	"mapping": {
+		"no_image": "The image file does not exist."
+	},
+	"rec": {
+		"table": {
+			"title": "Classification editor",
+			"classif": {
+				"title": "select existing table",
+				"file_select": "Class file",
+				"btn": "Get table"
+			},
+			"table": "Classification table",
+			"schema": {
+				"id": "id",
+				"code": "code",
+				"description": "description",
+				"color": "color"
+			},
+			"btn": {
+				"edit": "edit",
+				"save": "save",
+				"add": "add",
+				"delete": "delete"
+			},
+			"edit_dialog": {
+				"titles": ["New element", "Modify element"],
+				"btn": {
+					"save": {
+						"name": "save",
+						"tooltip": "create new class"
+					},
+					"modify": {
+						"name": "modify",
+						"tooltip": "modify existing class"
+					},
+					"cancel": {
+						"name": "cancel",
+						"tooltip": "cancel operation"
+					}
+				}
+			},
+			"save_dialog": {
+				"filename": "Insert output file name",
+				"placeholder": "new_table",
+				"btn": {
+					"save": {
+						"name": "save",
+						"tooltip": "save table"
+					},
+					"cancel": {
+						"name": "cancel",
+						"tooltip": "cancel operation"
+					}
+				},
+				"title": "save classifcation table",
+				"info": "The table will be stored in {}"
+			}
+		},
+		"rec": {
+			"title": "Reclassify image",
+			"headers": ["Original class", "Destination class"],
+			"input": {
+				"optional": "Optional",
+				"title": "Select input classification",
+				"asset": "input asset",
+				"file": "input file",
+				"band": {
+					"label": "select band/property",
+					"hint": "The band/property to use as class reference"
+				},
+				"classif": {
+					"title": "Select destination classification system",
+					"label": "class file"
+				},
+				"btn": "get table"
+			},
+			"table": "Reclassify table",
+			"btn": "Reclassify",
+			"export": [
+				[
+					"The Vector has been created and added to your SEPAL Folder: {}",
+					"The Image has been created and added to your SEPAL folder: {}"
+				],
+				[
+					"The FeatureCollection has been exported to GEE as {}. Use the code editor interface to follow the exportation process",
+					"The Image has been exported to GEE as {}. Use the code editor interface to follow the exportation process"
+				]
+			]
+		},
+		"tile": {
+			"title": "Reclassification"
+		}
+	}
+}
