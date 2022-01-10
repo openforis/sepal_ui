@@ -20,6 +20,7 @@ Table of content
     tutorials/index
     widgets/index
     modules/sepal_ui
+    changelog
 
 
 
