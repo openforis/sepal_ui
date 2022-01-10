@@ -63,6 +63,7 @@ setup_params = {
             "sphinxcontrib-spelling",
             "sphinx-copybutton",
             "pandoc",
+            "m2r2",
         ],
     },
     "packages": [

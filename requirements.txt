@@ -27,3 +27,4 @@ black
 pre-commit
 pytest
 git+git://github.com/jupyter/jupyter-sphinx.git
+m2r2
