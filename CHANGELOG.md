@@ -1,11 +1,19 @@
-## v_2.5.3 (2021-12-08)
+## v_2.5.4 (2022-01-11)
 
 ### Fix
 
+- scroll back to the top when change folde Fix #232
+- only install pre-commit hooks once Fix #373
+- use https instead of git
+- reset model output when selecting a new AOI Fix #366
 - cryptography since flake8 linting cryptography is not a lazy dependency anymore
 - install missing packages
 - prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
+
+### Refactor
+
+- cleaning
 
 ## v_2.5.0 (2021-12-06)
 
@@ -173,3 +181,81 @@
 - introducing switch decorator
 
 ## v_2.0.3 (2021-06-09)
+
+## v_2.0.2 (2021-06-08)
+
+## v_2.0.1 (2021-06-02)
+
+## v_2.0.0 (2021-05-26)
+
+## v_1.1.5 (2021-04-02)
+
+## v_1.1.4 (2021-03-26)
+
+## v_1.1.3 (2021-03-26)
+
+## v_1.1.2 (2021-03-24)
+
+## v_1.1.1 (2021-03-17)
+
+## v_1.1.0 (2021-02-26)
+
+## v_1.0.2 (2021-01-15)
+
+## v_1.0.1 (2020-12-24)
+
+## v_1.0.0 (2020-12-04)
+
+## v_0.7.9 (2020-11-19)
+
+## v_0.7.8 (2020-11-16)
+
+## v_0.7.7 (2020-11-05)
+
+## v_0.7.6 (2020-11-02)
+
+## v_0.7.5 (2020-11-02)
+
+## v_0.7.4 (2020-11-02)
+
+## v_0.7.3-beta (2020-10-09)
+
+## v_0.7.2-beta (2020-10-09)
+
+## v_0.7.1-beta (2020-09-18)
+
+## v_0.7-beta (2020-09-17)
+
+## v_0.6-beta (2020-09-14)
+
+## v_0.5-beta (2020-08-11)
+
+## v_0.4-beta (2020-08-06)
+
+## v_0.3-beta (2020-07-31)
+
+## v_0.2-beta (2020-07-27)
+
+## v_0.1.11-alpha (2020-07-27)
+
+## v_0.1.10-alpha (2020-07-27)
+
+## v_0.1.9-alpha (2020-07-27)
+
+## v0.1.8-alpha (2020-07-27)
+
+## v_0.1.7-alpha (2020-07-27)
+
+## v_0.1.6-alpha (2020-07-27)
+
+## v_0.1.5-alpha (2020-07-27)
+
+## v_0.1.4-alpha (2020-07-27)
+
+## v_0.1.3-alpha (2020-07-27)
+
+## v_0.1.2-alpha (2020-07-27)
+
+## v_0.1-alpha (2020-07-27)
+
+## v_0.0-alpha (2020-07-27)
