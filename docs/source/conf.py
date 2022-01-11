@@ -42,10 +42,12 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "m2r2",
     "jupyter_sphinx",
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
     "notfound.extension",
     "sphinxcontrib.spelling",
     "_extentions.video",
@@ -60,17 +62,20 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["**.ipynb_checkpoints"]
 
+# to be able to read RST files
+source_suffix = [".rst", ".md"]
+
 # -- Load the images from the master sepal-doc -------------------------------
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal.png",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
     "_image/dwn/sepal.png",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/favicon.ico",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/favicon.ico",
     "_image/dwn/favicon.ico",
 )
 urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/404-compass.png",
+    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/404-compass.png",
     "_image/dwn/404-compass.png",
 )
 

@@ -54,7 +54,7 @@ class AoiModel(Model):
     "list(str): GADM(0) and GAUL(1) naming key format"
 
     ISO = ["GID_0", "ISO 3166-1 alpha-3"]
-    "list(str): GADM(0) and GAUl(1) iso codes key"
+    "list(str): GADM(0) and GAUL(1) iso codes key"
 
     GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
     "str: the base url to download gadm maps"
@@ -125,6 +125,28 @@ class AoiModel(Model):
     folder = None
     "str: the folder name used in GEE related component, mainly used for debugging"
 
+    alert = None
+    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
+
+    default_vector = None
+    "(str|pathlib.path: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
+
+    default_asset = None
+    "str: the default administrative area in GADM or GAUL norm"
+
+    default_admin = None
+    "str: the default asset name, need to point to a readable FeatureCollection"
+
+    # ###########################################################################
+    # ###                           model outputs                             ###
+    # ###########################################################################
+
+    dst_asset_id = None
+    "str: the exported asset id"
+
+    selected_feature = None
+    "ee.Feature|GoeSeries: the Feature associated with a query"
+
     gdf = None
     "geopandas.GeoDataFrame: the geodataframe corresponding to the selected AOI"
 
@@ -133,12 +155,6 @@ class AoiModel(Model):
 
     ipygeojson = None
     "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
-
-    alert = None
-    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
-
-    dst_asset_id = None
-    "str: the exported asset id"
 
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
@@ -205,6 +221,9 @@ class AoiModel(Model):
         Return:
             self
         """
+
+        # clear the model output if existing
+        self.clear_output()
 
         # overwrite self.method
         self.method = method or self.method
@@ -431,6 +450,23 @@ class AoiModel(Model):
 
         return self
 
+    def clear_output(self):
+        """
+        Clear the output of the aoi selector without changing the traits and/or the parameters.
+
+        Return:
+            self
+        """
+
+        # reset the outputs
+        self.gdf = None
+        self.feature_collection = None
+        self.ipygeojson = None
+        self.selected_feature = None
+        self.dst_asset_id = None
+
+        return self
+
     def clear_attributes(self):
         """
         Return all attributes to their default state.
@@ -449,10 +485,7 @@ class AoiModel(Model):
         [setattr(self, attr, None) for attr in self.trait_names()]
 
         # reset the outputs
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-        self.selected_feature = None
+        self.clear_output()
 
         # reset the default
         self.set_default(vector, admin, asset)

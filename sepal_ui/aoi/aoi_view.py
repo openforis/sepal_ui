@@ -194,8 +194,8 @@ class AoiView(sw.Card):
         map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
-        admin (int, optional): the administrative code of the default selection. Need to be GADM if`:code:`ee==False` and GAUL 2015 if :code:`ee==True`.
-        asset (str, optional): the default asset. Can only work if`:code:`ee==True`
+        admin (int, optional): the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
+        asset (str, optional): the default asset. Can only work if :code:`ee==True`
     """
 
     # ##########################################################################
@@ -243,10 +243,10 @@ class AoiView(sw.Card):
     "widget: the widget used to select points files"
 
     w_draw = None
-    "widget: the widget used to select the name of a drawn shape (only if :code:`map_!=None`)"
+    "widget: the widget used to select the name of a drawn shape (only if :code:`map_ != None`)"
 
     w_asset = None
-    "widget: the widget used to select asset name of a featureCollection (only if`:code:`gee=True`)"
+    "widget: the widget used to select asset name of a featureCollection (only if :code:`gee == True`)"
 
     btn = None
     "sw.Btn: a default btn"
@@ -301,10 +301,13 @@ class AoiView(sw.Card):
         self.alert = self.model.alert
 
         # bind the widgets to the model
-        self.model.bind(self.w_admin_0, "admin").bind(self.w_admin_1, "admin").bind(
-            self.w_admin_2, "admin"
-        ).bind(self.w_vector, "vector_json").bind(self.w_points, "point_json").bind(
-            self.w_method, "method"
+        (
+            self.model.bind(self.w_admin_0, "admin")
+            .bind(self.w_admin_1, "admin")
+            .bind(self.w_admin_2, "admin")
+            .bind(self.w_vector, "vector_json")
+            .bind(self.w_points, "point_json")
+            .bind(self.w_method, "method")
         )
         if self.map_:
             self.model.bind(self.w_draw, "name")
@@ -322,9 +325,7 @@ class AoiView(sw.Card):
         super().__init__(**kwargs)
 
         # js events
-        self.w_method.observe(
-            self._activate, "v_model"
-        )  # activate the appropriate widgets
+        self.w_method.observe(self._activate, "v_model")  # activate widgets
         self.btn.on_event("click", self._update_aoi)  # load the informations
         if self.map_:
             self.map_.dc.on_draw(self._handle_draw)  # handle map drawing

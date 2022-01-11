@@ -32,6 +32,11 @@ sepal\_ui.aoi.AoiModel
        ~AoiModel.ipygeojson
        ~AoiModel.alert
        ~AoiModel.dst_asset_id
+       ~AoiModel.selected_feature
+       ~AoiModel.default_vector
+       ~AoiModel.default_asset
+       ~AoiModel.default_admin
+       
        
     .. rubric:: Methods
 
@@ -47,6 +52,7 @@ sepal\_ui.aoi.AoiModel
         ~AoiModel.total_bounds
         ~AoiModel.export_to_asset
         ~AoiModel.get_ipygeojson
+        ~AoiModel.clear_output
 
 .. automethod:: sepal_ui.aoi.AoiModel.set_default
 
@@ -65,6 +71,8 @@ sepal\_ui.aoi.AoiModel
 .. automethod:: sepal_ui.aoi.AoiModel.export_to_asset
 
 .. automethod:: sepal_ui.aoi.AoiModel.get_ipygeojson
+
+.. automethod:: sepal_ui.aoi.AoiModel.clear_output
    
       
    
