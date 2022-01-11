@@ -140,6 +140,9 @@ class AoiModel(Model):
     dst_asset_id = None
     "str: the exported asset id"
 
+    selected_feature = None
+    "ee.Feature|GoeSeries: the Feature associated with a query"
+
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
     ):
@@ -205,6 +208,13 @@ class AoiModel(Model):
         Return:
             self
         """
+
+        # clear the model output if existing
+        self.gdf = None
+        self.feature_collection = None
+        self.ipygeojson = None
+        self.selected_feature = None
+        self.dst_asset_id = None
 
         # overwrite self.method
         self.method = method or self.method
@@ -453,6 +463,7 @@ class AoiModel(Model):
         self.feature_collection = None
         self.ipygeojson = None
         self.selected_feature = None
+        self.dst_asset_id = None
 
         # reset the default
         self.set_default(vector, admin, asset)

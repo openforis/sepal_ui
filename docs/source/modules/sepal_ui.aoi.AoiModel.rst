@@ -32,6 +32,7 @@ sepal\_ui.aoi.AoiModel
        ~AoiModel.ipygeojson
        ~AoiModel.alert
        ~AoiModel.dst_asset_id
+       ~AoiModel.selected_feature
        
     .. rubric:: Methods
 
