@@ -33,6 +33,10 @@ sepal\_ui.aoi.AoiModel
        ~AoiModel.alert
        ~AoiModel.dst_asset_id
        ~AoiModel.selected_feature
+       ~AoiModel.default_vector
+       ~AoiModel.default_asset
+       ~AoiModel.default_admin
+       
        
     .. rubric:: Methods
 

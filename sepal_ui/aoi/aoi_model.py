@@ -125,6 +125,28 @@ class AoiModel(Model):
     folder = None
     "str: the folder name used in GEE related component, mainly used for debugging"
 
+    alert = None
+    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
+
+    default_vector = None
+    "(str|pathlib.path: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
+
+    default_asset = None
+    "str: the default administrative area in GADM or GAUL norm"
+
+    default_admin = None
+    "str: the default asset name, need to point to a readable FeatureCollection"
+
+    # ###########################################################################
+    # ###                           model outputs                             ###
+    # ###########################################################################
+
+    dst_asset_id = None
+    "str: the exported asset id"
+
+    selected_feature = None
+    "ee.Feature|GoeSeries: the Feature associated with a query"
+
     gdf = None
     "geopandas.GeoDataFrame: the geodataframe corresponding to the selected AOI"
 
@@ -133,15 +155,6 @@ class AoiModel(Model):
 
     ipygeojson = None
     "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
-
-    alert = None
-    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
-
-    dst_asset_id = None
-    "str: the exported asset id"
-
-    selected_feature = None
-    "ee.Feature|GoeSeries: the Feature associated with a query"
 
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
