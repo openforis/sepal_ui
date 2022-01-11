@@ -301,10 +301,13 @@ class AoiView(sw.Card):
         self.alert = self.model.alert
 
         # bind the widgets to the model
-        self.model.bind(self.w_admin_0, "admin").bind(self.w_admin_1, "admin").bind(
-            self.w_admin_2, "admin"
-        ).bind(self.w_vector, "vector_json").bind(self.w_points, "point_json").bind(
-            self.w_method, "method"
+        (
+            self.model.bind(self.w_admin_0, "admin")
+            .bind(self.w_admin_1, "admin")
+            .bind(self.w_admin_2, "admin")
+            .bind(self.w_vector, "vector_json")
+            .bind(self.w_points, "point_json")
+            .bind(self.w_method, "method")
         )
         if self.map_:
             self.model.bind(self.w_draw, "name")
@@ -322,9 +325,7 @@ class AoiView(sw.Card):
         super().__init__(**kwargs)
 
         # js events
-        self.w_method.observe(
-            self._activate, "v_model"
-        )  # activate the appropriate widgets
+        self.w_method.observe(self._activate, "v_model")  # activate widgets
         self.btn.on_event("click", self._update_aoi)  # load the informations
         if self.map_:
             self.map_.dc.on_draw(self._handle_draw)  # handle map drawing

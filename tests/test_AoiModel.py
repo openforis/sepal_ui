@@ -107,55 +107,30 @@ class TestAoiModel:
 
         return
 
-    def test_clear_attributes(self, alert, gee_dir):
+    def test_clear_attributes(
+        self, alert, gee_dir, aoi_model_outputs, aoi_model_traits
+    ):
 
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
 
         dum = "dum"
 
         # insert dum parameter everywhere
-        aoi_model.method = dum
-        aoi_model.point_json = dum
-        aoi_model.vector_json = dum
-        aoi_model.geo_json = dum
-        aoi_model.admin = dum
-        aoi_model.asset_name = dum
-        aoi_model.name = dum
-        aoi_model.gdf = dum
-        aoi_model.feature_collection = dum
-        aoi_model.ipygeojson = dum
+        [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
+        [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
 
         # clear them
         aoi_model.clear_attributes()
 
-        assert aoi_model.method is None
-        assert aoi_model.point_json is None
-        assert aoi_model.vector_json is None
-        assert aoi_model.geo_json is None
-        assert aoi_model.admin is None
-        assert aoi_model.asset_name is None
-        assert aoi_model.name is None
-        assert aoi_model.gdf is None
-        assert aoi_model.feature_collection is None
-        assert aoi_model.ipygeojson is None
-        assert aoi_model.default_asset is None
-        assert aoi_model.default_admin is None
-        assert aoi_model.default_vector is None
+        assert all([getattr(aoi_model, trait) is None for trait in aoi_model_traits])
+        assert all([getattr(aoi_model, out) is None for out in aoi_model_outputs])
 
         # check that default are saved
         aoi_model = aoi.AoiModel(alert, admin=85, folder=gee_dir)  # GAUL for France
 
         # insert dummy args
-        aoi_model.method = dum
-        aoi_model.point_json = dum
-        aoi_model.vector_json = dum
-        aoi_model.geo_json = dum
-        aoi_model.admin = dum
-        aoi_model.asset_name = dum
-        aoi_model.name = dum
-        aoi_model.gdf = dum
-        aoi_model.feature_collection = dum
-        aoi_model.ipygeojson = dum
+        [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
+        [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
 
         # clear
         aoi_model.clear_attributes()
@@ -178,6 +153,21 @@ class TestAoiModel:
         bounds = aoi_model_france.total_bounds()
 
         assert bounds == expected_bounds
+
+        return
+
+    def test_clear_output(self, aoi_model_france, aoi_model_outputs):
+
+        # test that the data are not all empty
+        assert any(
+            [getattr(aoi_model_france, out) is not None for out in aoi_model_outputs]
+        )
+
+        # clear the aoi outputs
+        aoi_model_france.clear_output()
+        assert all(
+            [getattr(aoi_model_france, out) is None for out in aoi_model_outputs]
+        )
 
         return
 
@@ -210,3 +200,29 @@ class TestAoiModel:
         """create a dummy alert and a test aoi model based on GEE that use the france asset available on the test account"""
 
         return aoi.AoiModel(alert, asset=asset_france, folder=gee_dir)
+
+    @pytest.fixture
+    def aoi_model_traits(self):
+        """return the list of an aoi model traits"""
+
+        return [
+            "method",
+            "point_json",
+            "vector_json",
+            "geo_json",
+            "admin",
+            "asset_name",
+            "name",
+        ]
+
+    @pytest.fixture
+    def aoi_model_outputs(self):
+        """return the list of an aoi model outputs"""
+
+        return [
+            "gdf",
+            "feature_collection",
+            "ipygeojson",
+            "selected_feature",
+            "dst_asset_id",
+        ]
