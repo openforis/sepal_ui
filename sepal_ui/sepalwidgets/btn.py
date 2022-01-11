@@ -1,7 +1,8 @@
+from pathlib import Path
 import ipyvuetify as v
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from ..scripts import utils as su
+from sepal_ui.scripts import utils as su
 
 __all__ = ["Btn", "DownloadBtn"]
 
@@ -73,7 +74,7 @@ class DownloadBtn(v.Btn, SepalWidget):
 
     Args:
         text (str): the message inside the btn
-        path (str, optional): the absolute to a downloadable content
+        path (str|pathlib.Path, optional): the absoluteor relative path to a downloadable content
         args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
     """
 
@@ -88,6 +89,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         kwargs["color"] = kwargs.pop("color", "success")
         kwargs["children"] = [v_icon, text]
         kwargs["target"] = "_blank"
+        kwargs["attributes"] = {"download": True}
 
         # call the constructor
         super().__init__(**kwargs)
@@ -101,18 +103,20 @@ class DownloadBtn(v.Btn, SepalWidget):
         If nothing is provided the btn is disabled
 
         Args:
-            path (str): the absolute path to a downloadable content
+            path (str|pathlib.Path): the absolute path to a downloadable content
 
         Return:
             self
         """
 
-        if su.is_absolute(path):
-            url = path
-        else:
-            url = su.create_download_link(path)
-
+        # set the url
+        url = su.create_download_link(path)
         self.href = url
-        self.disabled = path == "#"
+
+        # set the download attribute
+        self.attributes = {"download": Path(path).name}
+
+        # unable or disable the btn
+        self.disabled = str(path) == "#"
 
         return self
