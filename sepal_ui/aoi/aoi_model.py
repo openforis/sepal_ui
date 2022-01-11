@@ -210,11 +210,7 @@ class AoiModel(Model):
         """
 
         # clear the model output if existing
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-        self.selected_feature = None
-        self.dst_asset_id = None
+        self.clear_output()
 
         # overwrite self.method
         self.method = method or self.method
@@ -441,6 +437,23 @@ class AoiModel(Model):
 
         return self
 
+    def clear_output(self):
+        """
+        Clear the output of the aoi selector without changing the traits and/or the parameters.
+
+        Return:
+            self
+        """
+
+        # reset the outputs
+        self.gdf = None
+        self.feature_collection = None
+        self.ipygeojson = None
+        self.selected_feature = None
+        self.dst_asset_id = None
+
+        return self
+
     def clear_attributes(self):
         """
         Return all attributes to their default state.
@@ -459,11 +472,7 @@ class AoiModel(Model):
         [setattr(self, attr, None) for attr in self.trait_names()]
 
         # reset the outputs
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-        self.selected_feature = None
-        self.dst_asset_id = None
+        self.clear_output()
 
         # reset the default
         self.set_default(vector, admin, asset)
