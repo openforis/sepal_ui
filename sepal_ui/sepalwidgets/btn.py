@@ -89,7 +89,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         kwargs["color"] = kwargs.pop("color", "success")
         kwargs["children"] = [v_icon, text]
         kwargs["target"] = "_blank"
-        kwargs["attributes"] = {"download": True}
+        kwargs["attributes"] = {"download": None}
 
         # call the constructor
         super().__init__(**kwargs)
@@ -113,10 +113,11 @@ class DownloadBtn(v.Btn, SepalWidget):
         url = su.create_download_link(path)
         self.href = url
 
-        # set the download attribute
-        self.attributes = {"download": Path(path).name}
-
         # unable or disable the btn
         self.disabled = str(path) == "#"
+
+        # set the download attribute
+        name = None if str(path) == "#" else Path(path).name
+        self.attributes = {"download": name}
 
         return self
