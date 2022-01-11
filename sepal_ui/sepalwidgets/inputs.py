@@ -283,17 +283,24 @@ class FileInput(v.Flex, SepalWidget):
 
         return self
 
+    @su.switch("indeterminate", on_widgets=["loading"])
     def _change_folder(self):
         """Change the target folder"""
+
+        # get the items
+        items = self._get_items()
+
         # reset files
-        self.file_list.children[0].children = self._get_items()
+        # this is reseting the scroll to top without using js scripts
+        self.file_list.children[0].children = []
+
+        # set the new files
+        self.file_list.children[0].children = items
 
         return
 
     def _get_items(self):
         """Return the list of items inside the folder"""
-
-        self.loading.indeterminate = True
 
         folder = self.folder
 
@@ -355,8 +362,6 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list.extend(file_list)
         folder_list.insert(0, parent_item)
-
-        self.loading.indeterminate = False
 
         return folder_list
 
