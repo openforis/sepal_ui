@@ -47,7 +47,7 @@ class TestUtils:
         # check the URL for a 'toto/tutu.png' path
         path = "toto/tutu.png"
 
-        expected_link = "/api/files/download?path="
+        expected_link = "https://sepal.io/api/sandbox/jupyter/files/"
 
         res = su.create_download_link(path)
 
@@ -296,3 +296,5 @@ class TestUtils:
         assert su.next_string(input_string) == output_string
         assert su.next_string(input_string)[-1].isdigit()
         assert su.next_string("name_1") == "name_2"
+
+        return
