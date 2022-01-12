@@ -13,6 +13,7 @@ from itertools import product
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
+from deprecated.sphinx import deprecated
 
 import sepal_ui
 
@@ -64,21 +65,29 @@ def create_download_link(pathname):
         (str): the download link
     """
 
-    if type(pathname) == str:
-        pathname = Path(pathname)
+    # return the link if it's an absolute url
+    if isinstance(pathname, str) and bool(urlparse(str(pathname)).netloc):
+        return pathname
 
-    result_path = Path(pathname).expanduser()
-    home_path = Path("~").expanduser()
+    # create a downloadable link from the jupyter node
+    pathname = Path(pathname)
+    try:
+        download_path = pathname.relative_to(Path.home())
+    except ValueError:
+        download_path = pathname
 
-    # will be available with python 3.9
-    # download_path = result_path.relative_to(home_path) if result_path.is_relative_to(home_path) else result_path
-    download_path = os.path.relpath(result_path, home_path)
-
-    link = f"/api/files/download?path=/{download_path}"
+    # I want to use the ipyurl lib to guess the url of the Jupyter server on the fly
+    # but I don't really understand how it works
+    # so here is an ugly fix only compatible with SEPAL
+    link = f"https://sepal.io/api/sandbox/jupyter/files/{download_path}"
 
     return link
 
 
+@deprecated(
+    version="2.5.4",
+    reason="This function makes no sense outside of create_download_link. It will be removed in the next minor version",
+)
 def is_absolute(url):
     """
     Check if the given URL is an absolute or relative path
