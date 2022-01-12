@@ -1,7 +1,8 @@
-## v_2.5.4 (2022-01-11)
+## v_2.5.5 (2022-01-12)
 
 ### Fix
 
+- avoid meta sepal when clicking on download btn
 - scroll back to the top when change folde Fix #232
 - only install pre-commit hooks once Fix #373
 - use https instead of git
