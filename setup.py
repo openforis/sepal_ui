@@ -19,6 +19,7 @@ setup_params = {
     "name": "sepal-ui",
     "version": version,
     "license": "MIT",
+    "license_file": "LICENSE.txt",
     "description": DESCRIPTION,
     "long_description": LONG_DESCRIPTION,
     "long_description_content_type": "text/x-rst",
