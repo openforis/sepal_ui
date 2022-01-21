@@ -135,5 +135,5 @@ class CopyToClip(v.VuetifyTemplate):
     def _clip(self, widget, event, data):
         self.send({"method": "clip", "args": [self.tf.v_model]})
         self.tf.append_icon = "fas fa-clipboard-check"
-        
+
         return

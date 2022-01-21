@@ -492,11 +492,13 @@ class ReclassifyView(sw.Card):
             ms.rec.rec.input.btn, "far fa-table", color="success", small=True
         )
         self.import_table = sw.Btn(
-            "import", "fas fa-download", color="secondary", small=True, class_="ml-2 mr-2"
+            "import",
+            "fas fa-download",
+            color="secondary",
+            small=True,
+            class_="ml-2 mr-2",
         )
-        self.save_table = sw.Btn(
-            "save", "fas fa-save", color="secondary", small=True
-        )
+        self.save_table = sw.Btn("save", "fas fa-save", color="secondary", small=True)
         self.reclassify_btn = sw.Btn(
             ms.rec.rec.btn, "fas fa-chess-board", small=True, disabled=True
         )
