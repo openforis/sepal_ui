@@ -127,7 +127,7 @@ html_css_files = ["css/custom.css", "css/icon.css"]
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
-spelling_word_list_filename = [DOC_DIR/"_spelling"/"en_US.txt")]
+spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 
