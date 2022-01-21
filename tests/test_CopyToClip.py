@@ -10,7 +10,7 @@ class TestClip:
         clip = sw.CopyToClip()
         assert clip.tf.outlined is True
         assert isinstance(clip.tf.label, str)
-        assert clip.tf.append_icon == "mdi-clipboard-outline"
+        assert clip.tf.append_icon == "fas fa-clipboard"
         assert clip.tf.v_model is None
 
         # clip with extra options
@@ -27,7 +27,7 @@ class TestClip:
         # I don't know how to check the clipboard
 
         # check the icon change
-        assert clip.tf.append_icon == "mdi-check"
+        assert clip.tf.append_icon == "fas fa-clipboard-check"
 
         return
 
