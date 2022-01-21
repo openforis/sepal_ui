@@ -32,6 +32,7 @@ class Styles(v.VuetifyTemplate):
         <style>
             .leaflet-pane {z-index : 2 !important;}
             .leaflet-top, .leaflet-bottom {z-index : 2 !important;}
+            .leaflet-widgetcontrol {box-shadow: none}
             main.v-content {padding-top: 0px !important;}
         </style>
     """
