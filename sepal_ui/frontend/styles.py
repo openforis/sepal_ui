@@ -35,6 +35,7 @@ class Styles(v.VuetifyTemplate):
             .leaflet-widgetcontrol {box-shadow: none}
             main.v-content {padding-top: 0px !important;}
         </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     """
     ).tag(sync=True)
     "Unicode: the trait embeding the maps style"
@@ -61,12 +62,12 @@ AOI_STYLE = {
 }
 
 
-_folder = {"color": "amber", "icon": "mdi-folder-outline"}
-_table = {"color": "green accent-4", "icon": "mdi-border-all"}
-_vector = {"color": "deep-purple", "icon": "mdi-vector-polyline"}
-_other = {"color": "light-blue", "icon": "mdi-file-outline"}
-_parent = {"color": "white", "icon": "mdi-folder-upload-outline"}
-_image = {"color": "deep-purple", "icon": "mdi-image-outline"}
+_folder = {"color": "amber", "icon": "far fa-folder"}
+_table = {"color": "green accent-4", "icon": "far fa-table"}
+_vector = {"color": "deep-purple", "icon": "far fa-vector-square"}
+_other = {"color": "light-blue", "icon": "far fa-file"}
+_parent = {"color": "white", "icon": "far fa-folder-open"}
+_image = {"color": "deep-purple", "icon": "far fa-image"}
 
 ICON_TYPES = {
     "": _folder,

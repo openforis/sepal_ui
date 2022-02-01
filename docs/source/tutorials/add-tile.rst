@@ -135,7 +135,7 @@ in the :code:`app_items` list, add a :code:`DrawerItem` corresponding to your ti
         # [...]
         sw.DrawerItem(
             title = ms.app.drawer_item.aoi, 
-            icon 'mdi-cog',  # optional
+            icon 'fas fa-cogs',  # optional
             card="my_tile"
         )
     ]
