@@ -32,6 +32,9 @@ jobs:
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
       - name: coverage
-        run: coverage report -m
+        run: coverage xml
       - name: codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v2
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            verbose: true
