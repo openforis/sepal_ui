@@ -620,7 +620,13 @@ class AoiModel(Model):
         if self.gdf is None:
             raise Exception("You must set the gdf before converting it into GeoJSON")
 
+        # read the data from geojson and add the name as a property of the shape
+        # useful when handler are added from ipyleaflet
         data = json.loads(self.gdf.to_json())
+        for f in data["features"]:
+            f["properties"]["name"] = self.name
+
+        # create a GeoJSON object
         self.ipygeojson = GeoJSON(
             data=data, style=AOI_STYLE, name="aoi", attribution="SEPA(c)"
         )
