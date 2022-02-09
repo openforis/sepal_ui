@@ -3,13 +3,19 @@
 	"status": "Status: {}",
 	"widgets": {
 		"asset_select": {
-			"types": ["Raster", "Table", "Collection d'images", "Algorithme", "Dossier"],
+			"types": {
+				"0": "Raster",
+				"1": "Table",
+				"2": "Collection d'images",
+				"3": "Algorithme",
+				"4": "Dossier"
+			},
 			"label": "Sélectionnez un Asset",
 			"custom": "Personnaliser",
 			"no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
-            "wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
+			"wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
 			"hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser.",
-            "placeholder": "users/custom_user/custom_asset"
+			"placeholder": "users/custom_user/custom_asset"
 		},
 		"load_table": {
 			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
@@ -20,11 +26,11 @@
 		"administrative": "Définition administrative",
 		"custom": "Géometries personnalisées",
 		"method": "Methode de selection d'AOI",
-		"adm": [
-			"pays/Province",
-			"Niveau administratif 1",
-			"Niveau administratif 2"
-		],
+		"adm": {
+			"0": "pays/Province",
+			"1": "Niveau administratif 1",
+			"2": "Niveau administratif 2"
+		},
 		"vector": "Fichier de vecteur",
 		"draw": "Dessiner une forme",
 		"points": "Fichier de point",
@@ -74,7 +80,10 @@
 				"delete": "supprimer"
 			},
 			"edit_dialog": {
-				"titles": ["Nouvel élément", "modifier un élément"],
+				"titles": {
+					"0": "Nouvel élément",
+					"1": "modifier un élément"
+				},
 				"btn": {
 					"save": {
 						"name": "sauver",
@@ -109,7 +118,10 @@
 		},
 		"rec": {
 			"title": "Reclassificateur d'image",
-			"headers": ["Classe initiale", "Classe de destination"],
+			"headers": {
+				"0": "Classe initiale",
+				"1": "Classe de destination"
+			},
 			"input": {
 				"optional": "Optionnel",
 				"title": "Selectionner les entrées de classification",
@@ -127,16 +139,16 @@
 			},
 			"table": "Table de reclassification",
 			"btn": "Reclassifer",
-			"export": [
-				[
-					"Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
-					"L'Image a été créé et ajouté à votre dossier SEPAL: {}"
-				],
-				[
-					"La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
-					"La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
-				]
-			]
+			"export": {
+				"0": {
+					"0": "Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
+					"1": "L'Image a été créé et ajouté à votre dossier SEPAL: {}"
+				},
+				"1": {
+					"0": "La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
+					"1": "La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
+				}
+			}
 		},
 		"tile": {
 			"title": "Reclassification"
