@@ -1,7 +1,7 @@
 from sepal_ui import sepalwidgets as sw
 
 
-class TestStateBar:
+class TestTooltip:
     def test_init(self):
 
         # Arrange
