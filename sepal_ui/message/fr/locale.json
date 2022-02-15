@@ -28,6 +28,7 @@
     "method": "Methode de selection d'AOI",
     "adm": {
       "0": "Pays/Province"
-    }
+    },
+    "btn": "Selectionner cet AOI"
   }
 }
