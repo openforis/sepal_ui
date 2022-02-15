@@ -122,27 +122,27 @@ If you're application is part of the OpenForis initiative and hosted on SEPAL, y
     
     .. code-block:: python 
 
-    # component/message/en/locale.json
+        # component/message/en/locale.json
 
-    {
-        "paragraph": [
-            "I'm a multline",
-            "paragraph."
-        ]
-    }
+        {
+            "paragraph": [
+                "I'm a multline",
+                "paragraph."
+            ]
+        }
     
     Then you need to replace the list by a numbered dict using string integer as keys:
     
     .. code-block:: python 
 
-    # component/message/en/locale.json
+        # component/message/en/locale.json
 
-    {
-        "paragraph": {
-            "0": "I'm a multline",
-            "1": "paragraph."
+        {
+            "paragraph": {
+                "0": "I'm a multline",
+                "1": "paragraph."
+            }
         }
-    }
     
     This is compatible with pontoon and can be called in you're file as follow: 
     
