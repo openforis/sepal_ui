@@ -26,7 +26,7 @@ class TestTranslator:
         translator = Translator(self._get_message_json_folder(), target_lan)
         assert translator.test_key == "Test key"
 
-        # assert that using a non existing lang lead to an error
+        # assert that using a non existing lang lead to a warning
         target_lan = "it"
         f = io.StringIO()
         with redirect_stdout(f):
