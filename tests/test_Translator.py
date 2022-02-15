@@ -48,10 +48,34 @@ class TestTranslator:
 
         return
 
+    def test_sanitize(self):
+
+        # a test dict with many embeded numbered list
+        # but also an already existing list
+        test = {
+            "foo1": {"0": "foo2", "1": "foo3"},
+            "foo4": {
+                "foo5": {"0": "foo6", "1": "foo7"},
+                "foo8": "foo9",
+            },
+            "foo10": ["foo11", "foo12"],
+        }
+
+        # the sanitize version of this
+        result = {
+            "foo1": ["foo2", "foo3"],
+            "foo4": {"foo5": ["foo6", "foo7"], "foo8": "foo9"},
+            "foo10": ["foo11", "foo12"],
+        }
+
+        assert Translator.sanitize(test) == result
+
+        return
+
     @pytest.fixture(scope="class")
     def translation_folder(self):
         """
-        Generate a fully qualified trnaslation folder with limited keys in en, fr and spanish.
+        Generate a fully qualified translation folder with limited keys in en, fr and spanish.
         Cannot use the temfile lib as we need the directory to appear in the tree
         """
 
@@ -63,7 +87,7 @@ class TestTranslator:
         }
 
         # generate the tmp_dir in the test directory
-        tmp_dir = Path(__file__).parent() / "data" / "messages"
+        tmp_dir = Path(__file__).parent / "data" / "messages"
         tmp_dir.mkdir(exist_ok=True, parents=True)
 
         # create the translation files
