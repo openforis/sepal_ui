@@ -1,4 +1,0 @@
-basepath = "."
-[[paths]]
-    reference = "sepal_ui/message/en/locale.json"
-    l10n = "sepal_ui/message/{locale}/locale.json"
