@@ -40,16 +40,16 @@ class Translator(SimpleNamespace):
         if type(json_folder) == str:
             json_folder = Path(json_folder)
 
-        # reading both the default dict
-        source_path = json_folder / {default_lan} / f"{file_pattern}.json"
-        self.default_dict = json.loads(source_path.read_text())
+        # reading the default dict
+        source_path = json_folder / default_lan / f"{file_pattern}.json"
+        self.default_dict = self.sanitize(json.loads(source_path.read_text()))
 
-        # create a composite dict replaceing all the default keys with the one availabel in the target lan
-        target_path = json_folder / {target_lan} / f"{file_pattern}.json"
+        # create a dictionary in the target language
+        target_path = json_folder / target_lan / f"{file_pattern}.json"
         self.target_dict = self.default_dict.copy()
 
         if target_path.is_file():
-            self.target_dict = json.loads(target_path.read_text())
+            self.target_dict = self.sanitize(json.loads(target_path.read_text()))
         else:
             print(f'No json file is provided for "{target_lan}", fallback to "en"')
 
@@ -88,6 +88,41 @@ class Translator(SimpleNamespace):
                     )
 
         return
+
+    @classmethod
+    def sanitize(cls, d):
+        """
+        Identify numbered dictionnaries embeded in the dict and transform them into lists
+
+        This function is an helper to prevent deprecation after the introduction of pontoon for translation.
+        The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing so this function will transform back this "numbered" dictionnary (with integer keys) into lists.
+
+        Args:
+            d (dict): the dictionnary to sanitize
+
+        Return:
+            (dict): the sanitized dictionnary
+        """
+
+        ms = d.copy()
+
+        # create generator based on input type
+        if isinstance(ms, dict):
+            gen = ms.items()
+        elif isinstance(ms, list):
+            gen = enumerate(ms)
+
+        # loop into the keys of the dict modify them
+        for k, v in gen:
+            if isinstance(v, dict):
+                tmp = v
+                if all([k.isnumeric() for k in tmp]):
+                    tmp = list(tmp.values())
+                ms[k] = cls.sanitize(tmp)
+            else:
+                ms[k] = v
+
+        return ms
 
     def _update(self, d, u):
         """
