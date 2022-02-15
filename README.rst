@@ -47,6 +47,16 @@ Sepal_ui
    
 --------------------------------------------------------------------------------
 
+Currently translated in the following languages: 
+
++---------+----------+---------+
+| English | Français | Español |
++---------+----------+---------+
+
+You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
+
+--------------------------------------------------------------------------------
+
 :code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
