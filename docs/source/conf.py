@@ -24,6 +24,8 @@ from sepal_ui import __version__, __author__
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
 
+DOC_DIR = Path(__file__).parent
+
 
 # -- Project information -----------------------------------------------------
 
@@ -42,6 +44,7 @@ release = __version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "m2r2",
     "jupyter_sphinx",
     "sphinx_copybutton",
     "sphinx.ext.napoleon",
@@ -60,6 +63,9 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["**.ipynb_checkpoints"]
+
+# to be able to read RST files
+source_suffix = [".rst", ".md"]
 
 # -- Load the images from the master sepal-doc -------------------------------
 urlretrieve(
@@ -121,9 +127,7 @@ html_css_files = ["css/custom.css", "css/icon.css"]
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
-spelling_word_list_filename = [
-    str(Path(__file__).parent.joinpath("_spelling", "en_US.txt"))
-]
+spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 

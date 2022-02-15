@@ -6,6 +6,7 @@ sepal\_ui.scripts.utils
     .. rubric:: Functions
 
     .. autosummary::
+        :nosignatures:
    
         catch_errors
         create_download_link
@@ -22,33 +23,33 @@ sepal\_ui.scripts.utils
         switch
         to_colors
       
-.. automethod:: sepal_ui.scripts.utils.catch_errors
+.. autofunction:: sepal_ui.scripts.utils.catch_errors
 
-.. automethod:: sepal_ui.scripts.utils.create_download_link
+.. autofunction:: sepal_ui.scripts.utils.create_download_link
 
-.. automethod:: sepal_ui.scripts.utils.get_file_size
+.. autofunction:: sepal_ui.scripts.utils.get_file_size
 
-.. automethod:: sepal_ui.scripts.utils.hide_component
+.. autofunction:: sepal_ui.scripts.utils.hide_component
 
-.. automethod:: sepal_ui.scripts.utils.init_ee
+.. autofunction:: sepal_ui.scripts.utils.init_ee
 
-.. automethod:: sepal_ui.scripts.utils.is_absolute
+.. autofunction:: sepal_ui.scripts.utils.is_absolute
 
-.. automethod:: sepal_ui.scripts.utils.loading_button
+.. autofunction:: sepal_ui.scripts.utils.loading_button
 
-.. automethod:: sepal_ui.scripts.utils.need_ee
+.. autofunction:: sepal_ui.scripts.utils.need_ee
 
-.. automethod:: sepal_ui.scripts.utils.next_string
+.. autofunction:: sepal_ui.scripts.utils.next_string
 
-.. automethod:: sepal_ui.scripts.utils.normalize_str
+.. autofunction:: sepal_ui.scripts.utils.normalize_str
 
-.. automethod:: sepal_ui.scripts.utils.random_string
+.. autofunction:: sepal_ui.scripts.utils.random_string
 
-.. automethod:: sepal_ui.scripts.utils.show_component
+.. autofunction:: sepal_ui.scripts.utils.show_component
 
-.. automethod:: sepal_ui.scripts.utils.switch
+.. autofunction:: sepal_ui.scripts.utils.switch
 
-.. automethod:: sepal_ui.scripts.utils.to_colors
+.. autofunction:: sepal_ui.scripts.utils.to_colors
       
 
    

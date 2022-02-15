@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from subprocess import check_call
 
-version = "2.5.3"
+version = "2.5.5"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -11,7 +11,7 @@ LONG_DESCRIPTION = open("README.rst").read()
 class DevelopCmd(develop):
     def run(self):
         """overwrite run command to install pre-commit hooks in dev mode"""
-        check_call(["pre-commit", "install"])
+        check_call(["pre-commit", "install", "-t", "pre-commit", "-t", "commit-msg"])
         super().run()
 
 
@@ -19,6 +19,7 @@ setup_params = {
     "name": "sepal-ui",
     "version": version,
     "license": "MIT",
+    "license_file": "LICENSE.txt",
     "description": DESCRIPTION,
     "long_description": LONG_DESCRIPTION,
     "long_description_content_type": "text/x-rst",
@@ -63,6 +64,7 @@ setup_params = {
             "sphinxcontrib-spelling",
             "sphinx-copybutton",
             "pandoc",
+            "m2r2",
         ],
     },
     "packages": [

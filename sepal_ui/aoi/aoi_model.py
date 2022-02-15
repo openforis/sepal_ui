@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from traitlets import Any
 from urllib.request import urlretrieve
+import tempfile
 
 import pandas as pd
 import geopandas as gpd
@@ -125,6 +126,28 @@ class AoiModel(Model):
     folder = None
     "str: the folder name used in GEE related component, mainly used for debugging"
 
+    alert = None
+    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
+
+    default_vector = None
+    "(str|pathlib.path: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
+
+    default_asset = None
+    "str: the default administrative area in GADM or GAUL norm"
+
+    default_admin = None
+    "str: the default asset name, need to point to a readable FeatureCollection"
+
+    # ###########################################################################
+    # ###                           model outputs                             ###
+    # ###########################################################################
+
+    dst_asset_id = None
+    "str: the exported asset id"
+
+    selected_feature = None
+    "ee.Feature|GoeSeries: the Feature associated with a query"
+
     gdf = None
     "geopandas.GeoDataFrame: the geodataframe corresponding to the selected AOI"
 
@@ -133,12 +156,6 @@ class AoiModel(Model):
 
     ipygeojson = None
     "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
-
-    alert = None
-    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
-
-    dst_asset_id = None
-    "str: the exported asset id"
 
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
@@ -205,6 +222,9 @@ class AoiModel(Model):
         Return:
             self
         """
+
+        # clear the model output if existing
+        self.clear_output()
 
         # overwrite self.method
         self.method = method or self.method
@@ -402,19 +422,19 @@ class AoiModel(Model):
             # save the country iso_code
             iso_3 = admin[:3]
 
-            # download the geopackage in tmp
-            zip_file = self.GADM_ZIP_DIR / f"{iso_3}.zip"
+            # download the geopackage in a tmp directory
+            with tempfile.TemporaryDirectory() as tmp_dir:
 
-            if not zip_file.is_file():
+                zip_file = Path(tmp_dir) / f"{iso_3}.zip"
 
                 # get the zip from GADM server only the ISO_3 code need to be used
                 urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
 
-            # read the geopackage
-            layer_name = f"gadm36_{iso_3}_{level}"
-            level_gdf = gpd.read_file(
-                f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
-            )
+                # read the geopackage
+                layer_name = f"gadm36_{iso_3}_{level}"
+                level_gdf = gpd.read_file(
+                    f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
+                )
 
             # get the exact admin from this layer
             self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
@@ -428,6 +448,23 @@ class AoiModel(Model):
             for i in range(int(level) + 1)
         ]
         self.name = "_".join(names)
+
+        return self
+
+    def clear_output(self):
+        """
+        Clear the output of the aoi selector without changing the traits and/or the parameters.
+
+        Return:
+            self
+        """
+
+        # reset the outputs
+        self.gdf = None
+        self.feature_collection = None
+        self.ipygeojson = None
+        self.selected_feature = None
+        self.dst_asset_id = None
 
         return self
 
@@ -449,10 +486,7 @@ class AoiModel(Model):
         [setattr(self, attr, None) for attr in self.trait_names()]
 
         # reset the outputs
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-        self.selected_feature = None
+        self.clear_output()
 
         # reset the default
         self.set_default(vector, admin, asset)
@@ -586,7 +620,13 @@ class AoiModel(Model):
         if self.gdf is None:
             raise Exception("You must set the gdf before converting it into GeoJSON")
 
+        # read the data from geojson and add the name as a property of the shape
+        # useful when handler are added from ipyleaflet
         data = json.loads(self.gdf.to_json())
+        for f in data["features"]:
+            f["properties"]["name"] = self.name
+
+        # create a GeoJSON object
         self.ipygeojson = GeoJSON(
             data=data, style=AOI_STYLE, name="aoi", attribution="SEPA(c)"
         )

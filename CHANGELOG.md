@@ -1,11 +1,20 @@
-## v_2.5.3 (2021-12-08)
+## v_2.5.5 (2022-01-12)
 
 ### Fix
 
+- avoid meta sepal when clicking on download btn
+- scroll back to the top when change folde Fix #232
+- only install pre-commit hooks once Fix #373
+- use https instead of git
+- reset model output when selecting a new AOI Fix #366
 - cryptography since flake8 linting cryptography is not a lazy dependency anymore
 - install missing packages
 - prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
+
+### Refactor
+
+- cleaning
 
 ## v_2.5.0 (2021-12-06)
 

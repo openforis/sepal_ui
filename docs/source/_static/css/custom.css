@@ -1,17 +1,30 @@
- :root {
+:root {
      
-    /*****************************************************************************
-    * Color
-    * 
-    * Colors are defined in rgb string way, "red, green, blue"
-    **/
-    --pts-color-sepal: 24, 102, 145;
+  /*****************************************************************************
+  * Color
+  * 
+  * Colors are defined in rgb string way, "red, green, blue"
+  **/
+  --pts-color-sepal: 24, 102, 145;
 
-    --pst-color-h1: var(--pts-color-sepal);
-    --pst-color-h2: var(--pts-color-sepal);
-    --pst-color-active-navigation: var(--pts-color-sepal);
- }
+  --pst-color-h1: var(--pts-color-sepal);
+  --pst-color-h2: var(--pts-color-sepal);
+  --pst-color-active-navigation: var(--pts-color-sepal);
+}
 
 div.jupyter_container.docutils {
-    padding: .4em;
+  padding: .4em;
+}
+
+/*********************************************************************************
+ *  make the footer inlined
+ *
+ **/
+.footer-item {
+  display: inline-block;
+}
+.footer-item:not(:last-child) {
+  border-right: 1px solid rgba(var(--pst-color-text-base), 1);
+  margin-right: .5em;
+  padding-right: .5em;
 }

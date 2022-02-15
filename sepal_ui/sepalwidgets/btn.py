@@ -1,7 +1,8 @@
+from pathlib import Path
 import ipyvuetify as v
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from ..scripts import utils as su
+from sepal_ui.scripts import utils as su
 
 __all__ = ["Btn", "DownloadBtn"]
 
@@ -13,7 +14,7 @@ class Btn(v.Btn, SepalWidget):
 
     Args:
         text (str, optional): the text to display in the btn
-        icon (str, optional): the full name of any mdi-icon
+        icon (str, optional): the full name of any mdi/fa icon
         kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
     """
 
@@ -38,7 +39,7 @@ class Btn(v.Btn, SepalWidget):
         set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
-            icon (str, optional): the full name of a mdi-icon
+            icon (str, optional): the full name of a mdi/fa icon
 
         Return:
             self
@@ -73,14 +74,14 @@ class DownloadBtn(v.Btn, SepalWidget):
 
     Args:
         text (str): the message inside the btn
-        path (str, optional): the absolute to a downloadable content
+        path (str|pathlib.Path, optional): the absoluteor relative path to a downloadable content
         args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
     """
 
     def __init__(self, text, path="#", **kwargs):
 
         # create a download icon
-        v_icon = v.Icon(left=True, children=["mdi-download"])
+        v_icon = v.Icon(left=True, children=["fas fa-download"])
 
         # set default parameters
         kwargs["class_"] = kwargs.pop("class_", "ma-2")
@@ -88,6 +89,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         kwargs["color"] = kwargs.pop("color", "success")
         kwargs["children"] = [v_icon, text]
         kwargs["target"] = "_blank"
+        kwargs["attributes"] = {"download": None}
 
         # call the constructor
         super().__init__(**kwargs)
@@ -101,18 +103,21 @@ class DownloadBtn(v.Btn, SepalWidget):
         If nothing is provided the btn is disabled
 
         Args:
-            path (str): the absolute path to a downloadable content
+            path (str|pathlib.Path): the absolute path to a downloadable content
 
         Return:
             self
         """
 
-        if su.is_absolute(path):
-            url = path
-        else:
-            url = su.create_download_link(path)
-
+        # set the url
+        url = su.create_download_link(path)
         self.href = url
-        self.disabled = path == "#"
+
+        # unable or disable the btn
+        self.disabled = str(path) == "#"
+
+        # set the download attribute
+        name = None if str(path) == "#" else Path(path).name
+        self.attributes = {"download": name}
 
         return self
