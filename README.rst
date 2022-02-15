@@ -70,6 +70,6 @@ Contribute
 ----------
 
 If you want to contribute you can fork the project in you own repository and then use it. 
-If you consider working with us, please follow the `contributing guidelines <https://github.com/12rambau/sepal_ui/blob/master/CONTRIBUTING.rst>`_. 
-Meet our `contributor <https://github.com/12rambau/sepal_ui/blob/master/AUTHORS.rst>`_. 
+If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`_. 
+Meet our `contributor <AUTHORS.rst>`_. 
 
