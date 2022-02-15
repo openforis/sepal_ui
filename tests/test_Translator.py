@@ -12,27 +12,21 @@ class TestTranslator:
     def test_init(self, translation_folder):
 
         # assert that the test key exist in fr
-        target_lan = "fr"
-        translator = Translator(translation_folder, target_lan)
-
+        translator = Translator(translation_folder, "fr")
         assert translator.test_key == "Clef de test"
 
         # assert that the the code work if the path is a str
-        target_lan = "fr"
-        translator = Translator(translation_folder, target_lan)
+        translator = Translator(str(translation_folder), "fr")
         assert translator.test_key == "Clef de test"
 
         # assert that the test does not exist in es and we fallback to en
-        target_lan = "es"
-
-        translator = Translator(translation_folder, target_lan)
+        translator = Translator(translation_folder, "es")
         assert translator.test_key == "Test key"
 
         # assert that using a non existing lang lead to a warning
-        target_lan = "it"
         f = io.StringIO()
         with redirect_stdout(f):
-            translator = Translator(translation_folder, target_lan)
+            translator = Translator(translation_folder, "it")
         assert f.getvalue() == 'No json file is provided for "it", fallback to "en"\n'
 
         return
@@ -69,6 +63,18 @@ class TestTranslator:
         }
 
         assert Translator.sanitize(test) == result
+
+        return
+
+    def test_missing_keys(self, translation_folder):
+
+        # check that all keys are in the fr dict
+        translator = Translator(translation_folder, "fr")
+        assert translator.missing_keys() == "All messages are translated"
+
+        # check that 1 key is missing
+        translator = Translator(translation_folder, "es")
+        assert translator.missing_keys() == "root['test_key']"
 
         return
 
