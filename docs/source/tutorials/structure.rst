@@ -16,9 +16,12 @@ If you just created you module you should have the following tree :
    |     |     |
    |     |     ├── message
    |     |     |     ├── __init__.py
-   |     |     |     ├── en.json
-   |     |     |     ├── fr.json
-   |     |     |     ├── es.json
+   |     |     |     ├── en
+   |     |     |     |    └── locale.json
+   |     |     |     ├── es
+   |     |     |     |    └── locale.json
+   |     |     |     ├── fr
+   |     |     |     |    └── locale.json
    |     |     |     └── test_translation.ipynb
    |     |     |
    |     |     ├── parameter
@@ -124,7 +127,7 @@ In this package every :code:`Model` object that will be used in the project are 
 message
 ^^^^^^^
 
-In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in this tutorial
+In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in this tutorial.
 
 parameter 
 ^^^^^^^^^

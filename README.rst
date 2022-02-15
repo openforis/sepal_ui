@@ -47,11 +47,11 @@ Sepal_ui
    
 --------------------------------------------------------------------------------
 
-Currently translated in the following languages: 
+Currently translated in the following languages:
 
-+---------+----------+---------+
-| English | Français | Español |
-+---------+----------+---------+
+.. csv-table::
+
+    English, Français, Español
 
 You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
 
