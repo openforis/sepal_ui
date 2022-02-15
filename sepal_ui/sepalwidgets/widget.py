@@ -64,17 +64,6 @@ class Tooltip(v.Tooltip):
 
         super().__init__(*args, **kwargs)
 
-    def __setattr__(self, name, value):
-        """prevent set attributes after instantiate tooltip class"""
-
-        if hasattr(self, "_model_id"):
-            if self._model_id:
-                if name != "_cross_validation_lock":
-                    raise RuntimeError(
-                        f"You can't modify the attributes of the {self.__class__} after instantiated"
-                    )
-        super().__setattr__(name, value)
-
 
 @versionadded(version="2.2.0", reason="New clipping widget")
 class CopyToClip(v.VuetifyTemplate):
