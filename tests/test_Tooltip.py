@@ -1,17 +1,21 @@
-import pytest
-
 from sepal_ui import sepalwidgets as sw
 
 
 class TestStateBar:
     def test_init(self):
 
-        # minimal tooltip on a btn
+        # Arrange
         btn = sw.Btn("click")
-        tooltip = sw.Tooltip(widget=btn, tooltip="Click over the button")
+        tooltip = sw.Tooltip(widget=btn, tooltip="tooltip")
 
-        # assert that a slot cannot be modified
-        with pytest.raises(Exception):
-            tooltip.bottom = False
+        # Check tooltip is having the tooltip message
+
+        assert tooltip.children == ["tooltip"]
+
+        # Let's be sure that we can change the tooltip initial message
+
+        tooltip.children = ["This is a new message"]
+
+        assert tooltip.children == ["This is a new message"]
 
         return
