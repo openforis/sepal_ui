@@ -1,7 +1,7 @@
 Translate my application 
 ========================
 
-Sepal tries to be as inclusive as possible. To do so the platform is translated in theses languages:
+Sepal tries to be as inclusive as possible. To do so the platform is translated in these languages:
 
 .. csv-table::
 
@@ -16,7 +16,7 @@ Update the main dictionary
 I assume that since you started using the lib you hard-coded in your files every single message displayed to the end user. 
 The first thing you'll need to do is to update the main dictionary as it will be your reference for the rest of the app. 
 
-if you removed every message relative to the default functions, your dictionary should look like the following : 
+If you removed every message relative to the default functions, your dictionary should look like the following : 
 
 .. code-block:: python 
 
@@ -37,7 +37,7 @@ if you removed every message relative to the default functions, your dictionary 
 Add new message 
 ^^^^^^^^^^^^^^^
 
-here you gather and add every message you display in your app. 
+Here you gather and add every message you display in your app. 
 For example if I want to display an error when :code:`no_aoi` is set i can add the following input in the dictionary: 
 
 .. code-block:: python 
@@ -64,7 +64,7 @@ and to call in any of your component you just need to import the ms Translator a
 
     print(ms.error.no_aoi)
 
-add message with parameter 
+Add message with parameter 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to keep the possibility to use parameter in your message you can use the :code:`.format()` method of Python string.  
@@ -108,7 +108,7 @@ Update the translated dictionaries
 Automatic
 ^^^^^^^^^
 
-If you're application is part of the OpenForis initiative and hosted on SEPAL, you can request to add your project to the **Pontoon** application list. Pontoon is an open-source translation solution that will deal with the trouble of creating the files and keep the keys updated. To learn more, please see their `documentation <https://mozilla-l10n.github.io/localizer-documentation/tools/pontoon/>`__. From the developer's side you'll need to add the folder corresponding to the language you want to support and open a request for a new project in our `issue tracker <https://github.com/12rambau/sepal_ui/issues/new/choose>`__.
+If your application is part of the OpenForis initiative and hosted on SEPAL, you can request to add your project to the **Pontoon** application list. Pontoon is an open-source translation solution that will deal with the trouble of creating the files and keep the keys updated. To learn more, please see their `documentation <https://mozilla-l10n.github.io/localizer-documentation/tools/pontoon/>`__. From the developer's side you'll need to add the folder corresponding to the language you want to support and open a request for a new project in our `issue tracker <https://github.com/12rambau/sepal_ui/issues/new/choose>`__.
 
 .. note:: 
 
@@ -118,42 +118,42 @@ If you're application is part of the OpenForis initiative and hosted on SEPAL, y
     
 .. important::
 
-    Pontoon application doesn't support nested list in the :code:`.json` file and only provide support for named keys. If you really need to have a nested list in you're :code:`.json` file, then you need to change your message key. Let's take the following file: 
+    Pontoon application doesn't support nested list in the :code:`.json` file and only provides support for named keys. If you really need to have a nested list in your :code:`.json` file, then you need to change your message key. Let's take the following file: 
     
-    .. code-block:: python 
+.. code-block:: python 
 
-        # component/message/en/locale.json
+    # component/message/en/locale.json
 
-        {
-            "paragraph": [
-                "I'm a multline",
-                "paragraph."
-            ]
+    {
+        "paragraph": [
+            "I'm a multline",
+            "paragraph."
+        ]
+    }
+
+Then you need to replace the list by a numbered dict using string integer as keys:
+
+.. code-block:: python 
+
+    # component/message/en/locale.json
+
+    {
+        "paragraph": {
+            "0": "I'm a multline",
+            "1": "paragraph."
         }
-    
-    Then you need to replace the list by a numbered dict using string integer as keys:
-    
-    .. code-block:: python 
+    }
 
-        # component/message/en/locale.json
+This is compatible with pontoon and can be called in your file as follows:
 
-        {
-            "paragraph": {
-                "0": "I'm a multline",
-                "1": "paragraph."
-            }
-        }
-    
-    This is compatible with pontoon and can be called in you're file as follow: 
-    
-    .. code-block:: python
-    
-        # component/scripts/my_script.py
-        
-        from component.message import cm
-        
-        print(cm.paragraph[0])
-        print(cm.paragraph[1])
+.. code-block:: python
+
+    # component/scripts/my_script.py
+
+    from component.message import cm
+
+    print(cm.paragraph[0])
+    print(cm.paragraph[1])
     
 
 Manual update
@@ -162,8 +162,8 @@ Manual update
 If this is the first time you translate your app, the easiest way is to simply copy/paste all the English dictionary (:code:`en/locale.json`) into the target one (:code:`fr/locale.json` or :code:`es/locale.json`) and replace all the message with their accurate translation. 
 
 
-If it's not the first translation you make you don't want to erase all you're already translated message. You only want to update the dictionary with the new key. 
-To pinpoint the missing keys you can use your memory or one of the Translator method. 
+If it's not the first translation you make, you don't want to erase all you're already translated message. You only want to update the dictionary with the new key. 
+To pinpoint the missing keys you can use your memory or one of the :code:`Translator` methods. 
 Open the :code:`component/message/test_translation.ipynb` notebook. change the :code:`locale` variable into your target language. Then run all cells. The last one will display all the missing keys in the dictionary hierarchy.
 
 .. code-block:: python 
