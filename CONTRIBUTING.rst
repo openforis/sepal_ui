@@ -17,6 +17,18 @@ After forking the projet, run the following command to start developing:
 
     :code:`pre-commits` are installed in edit mode. Every commit that does not respect the conventional commits framework will be refused. 
     you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `<https://commitizen-tools.github.io/commitizen>`_.
+    
+Participate to translation
+--------------------------
+
+The tool is currently tranlated in the following languages: 
+
++---------+----------+---------+
+| English | Français | Español |
++---------+----------+---------+
+
+You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__. Contributors can suggest new languages and new translation. The admin will review this modification as fast as possible. If nobody in the core team master the suggested language, we'll be force to trust you !
+
 
 Develop within the project
 --------------------------
