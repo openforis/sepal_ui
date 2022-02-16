@@ -89,12 +89,12 @@ README.md
 ^^^^^^^^^
 
 This file will e displayed in your GitHub front page. It's useful to provide insight to people about what your module is doing.
-it uses the markdown format. you can use the `offical cheatsheet <https://github.com/adam-p/markdown-here/wiki/Markdown-Here-Cheatsheet>`_ to help you refactor your README
+it uses the markdown format. you can use the `offical cheatsheet <https://github.com/adam-p/markdown-here/wiki/Markdown-Here-Cheatsheet>`_ to help you refactor your README.
 
 utils
 -----
 
-You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the ABOUT.md file. 
+You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the :code:`ABOUT.md` file. 
 
 Partial ui
 ----------
@@ -103,7 +103,7 @@ Partial ui
 * :code:`aoi_ui.ipynb`
 * :code:`default_process.ipynb`
 
-these files are partial UI file. They will be used to create each step of our app. more information in this tutorial
+these files are partial UI file. They will be used to create each step of our app. more information in _`<./sepalize.html>`.
 
 Final ui
 --------
@@ -112,7 +112,7 @@ Final ui
 * :code:`ui.ipynb
 
 Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
-More information in `this tutorial <#>`_ and `this tutorial <#>`_.
+More information in _`<./sepalize.html>` and _`<./create_assert.html>`.
 
 component
 ---------
@@ -122,17 +122,17 @@ In this folder live all your app logic. Everything is well split for the sake of
 model
 ^^^^^
 
-In this package every :code:`Model` object that will be used in the project are gathered. 
+In this package every :code:`Model` object that will be used in the project are gathered learn more in _`<./io-design.html>`. 
 
 message
 ^^^^^^^
 
-In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in this tutorial.
+In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in _`<./translate-app.html`.
 
 parameter 
 ^^^^^^^^^
 
-For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in this tutorial
+For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in _`<./sepalize.html>`.
 
 scripts
 ^^^^^^^
@@ -142,17 +142,17 @@ This is where your app logic lives. More information in this tutorial.
 tile
 ^^^^
 
-This is where all the tiles that will be displayed in the app are created. More information in this tutorial 
+This is where all the tiles that will be displayed in the app are created. More information in _`<./sepalize.html>` and _`<./create_assert.html>`. 
 
 .. note::
 
    In the :code:`sepal_ui` framework, app are designed using the tile-based UX. 
-   A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation
+   A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation.
 
 widget
 ^^^^^^
 
-At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this tutorial.
+At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this _`<./custom-widget.html>`.
 
 .. spelling::
 
