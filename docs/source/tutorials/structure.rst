@@ -16,9 +16,12 @@ If you just created you module you should have the following tree :
    |     |     |
    |     |     ├── message
    |     |     |     ├── __init__.py
-   |     |     |     ├── en.json
-   |     |     |     ├── fr.json
-   |     |     |     ├── es.json
+   |     |     |     ├── en
+   |     |     |     |    └── locale.json
+   |     |     |     ├── es
+   |     |     |     |    └── locale.json
+   |     |     |     ├── fr
+   |     |     |     |    └── locale.json
    |     |     |     └── test_translation.ipynb
    |     |     |
    |     |     ├── parameter
@@ -57,7 +60,7 @@ If you just created you module you should have the following tree :
 Project parameter files
 -----------------------
 
-license
+License
 ^^^^^^^
 
 By default we use a `MIT <https://opensource.org/licenses/MIT>`_ license as in all Sepal development. You'll need to customize this file to replace:
@@ -86,12 +89,12 @@ README.md
 ^^^^^^^^^
 
 This file will e displayed in your GitHub front page. It's useful to provide insight to people about what your module is doing.
-it uses the markdown format. you can use the `offical cheatsheet <https://github.com/adam-p/markdown-here/wiki/Markdown-Here-Cheatsheet>`_ to help you refactor your README
+it uses the markdown format. you can use the `offical cheatsheet <https://github.com/adam-p/markdown-here/wiki/Markdown-Here-Cheatsheet>`_ to help you refactor your README.
 
-utils
+Utils
 -----
 
-You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the ABOUT.md file. 
+You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the :code:`ABOUT.md` file. 
 
 Partial ui
 ----------
@@ -100,56 +103,56 @@ Partial ui
 * :code:`aoi_ui.ipynb`
 * :code:`default_process.ipynb`
 
-these files are partial UI file. They will be used to create each step of our app. more information in this tutorial
+these files are partial UI file. They will be used to create each step of our app. more information in :doc:`./sepalize`.
 
 Final ui
 --------
 
 * :code:`no_ui.ipynb`
-* :code:`ui.ipynb
+* :code:`ui.ipynb`
 
 Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
-More information in `this tutorial <#>`_ and `this tutorial <#>`_.
+More information in :doc:`./sepalize` and :doc:`./create_asset`.
 
-component
+Component
 ---------
 
 In this folder live all your app logic. Everything is well split for the sake of maintenance. Python developer have already recognize the :code:`__init__.py` file in each of it's folder which means that every component is a package and can be used as such in any Python file.
 
-model
+Model
 ^^^^^
 
-In this package every :code:`Model` object that will be used in the project are gathered. 
+In this package every :code:`Model` object that will be used in the project are gathered learn more in :doc:`./io-design`. 
 
-message
+Message
 ^^^^^^^
 
-In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in this tutorial
+In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in :doc:`./translate-app.html`.
 
-parameter 
+Parameter 
 ^^^^^^^^^
 
-For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in this tutorial
+For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in :doc:`./sepalize`.
 
-scripts
+Scripts
 ^^^^^^^
 
 This is where your app logic lives. More information in this tutorial.
 
-tile
+Tile
 ^^^^
 
-This is where all the tiles that will be displayed in the app are created. More information in this tutorial 
+This is where all the tiles that will be displayed in the app are created. More information in :doc:`./sepalize` and :doc:`./create_asset`. 
 
 .. note::
 
    In the :code:`sepal_ui` framework, app are designed using the tile-based UX. 
-   A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation
+   A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation.
 
-widget
+Widget
 ^^^^^^
 
-At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this tutorial.
+At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this :doc:`./custom-widget`.
 
 .. spelling::
 

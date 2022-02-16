@@ -23,9 +23,9 @@ Participate to translation
 
 The tool is currently tranlated in the following languages: 
 
-+---------+----------+---------+
-| English | Français | Español |
-+---------+----------+---------+
+.. csv-table::
+
+    English, Français, Español
 
 You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__. Contributors can suggest new languages and new translation. The admin will review this modification as fast as possible. If nobody in the core team master the suggested language, we'll be force to trust you !
 
