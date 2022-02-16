@@ -6,6 +6,7 @@ ee_private_key.json
 __pycache__/
 *.py[cod]
 *$py.class
+*[Uu]ntitled*
 
 # C extensions
 *.so

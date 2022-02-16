@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from traitlets import Any
 from urllib.request import urlretrieve
+import tempfile
 
 import pandas as pd
 import geopandas as gpd
@@ -421,19 +422,19 @@ class AoiModel(Model):
             # save the country iso_code
             iso_3 = admin[:3]
 
-            # download the geopackage in tmp
-            zip_file = self.GADM_ZIP_DIR / f"{iso_3}.zip"
+            # download the geopackage in a tmp directory
+            with tempfile.TemporaryDirectory() as tmp_dir:
 
-            if not zip_file.is_file():
+                zip_file = Path(tmp_dir) / f"{iso_3}.zip"
 
                 # get the zip from GADM server only the ISO_3 code need to be used
                 urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
 
-            # read the geopackage
-            layer_name = f"gadm36_{iso_3}_{level}"
-            level_gdf = gpd.read_file(
-                f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
-            )
+                # read the geopackage
+                layer_name = f"gadm36_{iso_3}_{level}"
+                level_gdf = gpd.read_file(
+                    f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
+                )
 
             # get the exact admin from this layer
             self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
@@ -619,7 +620,13 @@ class AoiModel(Model):
         if self.gdf is None:
             raise Exception("You must set the gdf before converting it into GeoJSON")
 
+        # read the data from geojson and add the name as a property of the shape
+        # useful when handler are added from ipyleaflet
         data = json.loads(self.gdf.to_json())
+        for f in data["features"]:
+            f["properties"]["name"] = self.name
+
+        # create a GeoJSON object
         self.ipygeojson = GeoJSON(
             data=data, style=AOI_STYLE, name="aoi", attribution="SEPA(c)"
         )

@@ -14,7 +14,7 @@ class Btn(v.Btn, SepalWidget):
 
     Args:
         text (str, optional): the text to display in the btn
-        icon (str, optional): the full name of any mdi-icon
+        icon (str, optional): the full name of any mdi/fa icon
         kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
     """
 
@@ -39,7 +39,7 @@ class Btn(v.Btn, SepalWidget):
         set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
-            icon (str, optional): the full name of a mdi-icon
+            icon (str, optional): the full name of a mdi/fa icon
 
         Return:
             self
@@ -81,7 +81,7 @@ class DownloadBtn(v.Btn, SepalWidget):
     def __init__(self, text, path="#", **kwargs):
 
         # create a download icon
-        v_icon = v.Icon(left=True, children=["mdi-download"])
+        v_icon = v.Icon(left=True, children=["fas fa-download"])
 
         # set default parameters
         kwargs["class_"] = kwargs.pop("class_", "ma-2")

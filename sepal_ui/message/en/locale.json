@@ -3,13 +3,19 @@
 	"status": "Status: {}",
 	"widgets": {
 		"asset_select": {
-			"types": ["Raster", "Table", "Image collection", "Algorithm", "Folder"],
+			"types": {
+				"0": "Raster",
+				"1": "Table",
+				"2": "Image collection",
+				"3": "Algorithm",
+				"4": "Folder"
+			},
 			"label": "Select an asset",
 			"custom": "Custom",
 			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
-            "wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
+			"wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
 			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it",
-            "placeholder": "users/custom_user/custom_asset"
+			"placeholder": "users/custom_user/custom_asset"
 		},
 		"load_table": {
 			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."
@@ -20,11 +26,11 @@
 		"administrative": "Administrative definitions",
 		"custom": "Custom geometries",
 		"method": "AOI selection method",
-		"adm": [
-			"Country/Province",
-			"Admin level 1",
-			"Admin level 2"
-		],
+		"adm": {
+			"0": "Country/Province",
+			"1": "Admin level 1",
+			"2": "Admin level 2"
+		},
 		"vector": "Vector file",
 		"draw": "Drawn shapes",
 		"points": "Point file",
@@ -74,7 +80,10 @@
 				"delete": "delete"
 			},
 			"edit_dialog": {
-				"titles": ["New element", "Modify element"],
+				"titles": {
+					"0": "New element",
+					"1": "Modify element"
+				},
 				"btn": {
 					"save": {
 						"name": "save",
@@ -109,7 +118,10 @@
 		},
 		"rec": {
 			"title": "Reclassify image",
-			"headers": ["Original class", "Destination class"],
+			"headers": {
+				"0": "Original class",
+				"1": "Destination class"
+			},
 			"input": {
 				"optional": "Optional",
 				"title": "Select input classification",
@@ -127,16 +139,16 @@
 			},
 			"table": "Reclassify table",
 			"btn": "Reclassify",
-			"export": [
-				[
-					"The Vector has been created and added to your SEPAL Folder: {}",
-					"The Image has been created and added to your SEPAL folder: {}"
-				],
-				[
-					"The FeatureCollection has been exported to GEE as {}. Use the code editor interface to follow the exportation process",
-					"The Image has been exported to GEE as {}. Use the code editor interface to follow the exportation process"
-				]
-			]
+			"export": {
+				"0": {
+					"0": "The Vector has been created and added to your SEPAL Folder: {}",
+					"1": "The Image has been created and added to your SEPAL folder: {}"
+				},
+				"1": {
+					"0": "The FeatureCollection has been exported to GEE as {}. Use the code editor interface to follow the exportation process",
+					"1": "The Image has been exported to GEE as {}. Use the code editor interface to follow the exportation process"
+				}
+			}
 		},
 		"tile": {
 			"title": "Reclassification"

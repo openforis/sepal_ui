@@ -31,7 +31,7 @@ class AppBar(v.AppBar, SepalWidget):
 
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["mdi-dots-vertical"])],
+            children=[v.Icon(class_="white--text", children=["fas fa-ellipsis-v"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -69,7 +69,7 @@ class DrawerItem(v.ListItem, SepalWidget):
 
     Args:
         title (str): the title of the drawer item
-        icon(str, optional): the full name of a mdi-icon
+        icon(str, optional): the full name of a mdi/fa icon
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
@@ -83,7 +83,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         # set the resizetrigger
         self.rt = js.rt
 
-        icon = icon if icon else "mdi-folder-outline"
+        icon = icon if icon else "far fa-folder"
 
         children = [
             v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
@@ -163,13 +163,13 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
         code_link = []
         if code:
-            item_code = DrawerItem("Source code", icon="mdi-file-code", href=code)
+            item_code = DrawerItem("Source code", icon="far fa-file-code", href=code)
             code_link.append(item_code)
         if wiki:
-            item_wiki = DrawerItem("Wiki", icon="mdi-book-open-page-variant", href=wiki)
+            item_wiki = DrawerItem("Wiki", icon="fas fa-book-open", href=wiki)
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem("Bug report", icon="mdi-bug", href=issue)
+            item_bug = DrawerItem("Bug report", icon="fas fa-bug", href=issue)
             code_link.append(item_bug)
 
         children = [

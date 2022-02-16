@@ -24,6 +24,8 @@ from sepal_ui import __version__, __author__
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
 
+DOC_DIR = Path(__file__).parent
+
 
 # -- Project information -----------------------------------------------------
 
@@ -125,9 +127,7 @@ html_css_files = ["css/custom.css", "css/icon.css"]
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
-spelling_word_list_filename = [
-    str(Path(__file__).parent.joinpath("_spelling", "en_US.txt"))
-]
+spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 

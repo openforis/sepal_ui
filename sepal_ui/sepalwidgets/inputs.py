@@ -183,18 +183,18 @@ class FileInput(v.Flex, SepalWidget):
                     "name": "activator",
                     "variable": "x",
                     "children": Btn(
-                        icon="mdi-file-search", v_model=False, v_on="x.on", text=label
+                        icon="fas fa-search", v_model=False, v_on="x.on", text=label
                     ),
                 }
             ],
         )
 
         self.reload = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["mdi-cached"])]
+            icon=True, color="primary", children=[v.Icon(children=["fas fa-sync-alt"])]
         )
 
         self.clear = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["mdi-close"])]
+            icon=True, color="primary", children=[v.Icon(children=["fas fa-times"])]
         )
         if not clearable:
             su.hide_component(self.clear)
@@ -583,7 +583,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         kwargs["v_model"] = kwargs.pop("v_model", None)
         kwargs["clearable"] = kwargs.pop("clearable", True)
         kwargs["dense"] = kwargs.pop("dense", True)
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-cached")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fas fa-sync-alt")
         kwargs["class_"] = kwargs.pop("class_", "my-5")
         kwargs["placeholder"] = kwargs.pop(
             "placeholder", ms.widgets.asset_select.placeholder
@@ -715,7 +715,7 @@ class PasswordField(v.TextField, SepalWidget):
         kwargs["class_"] = kwargs.pop("class_", "mr-2")
         kwargs["v_model"] = kwargs.pop("v_model", "")
         kwargs["type"] = "password"
-        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-ey-off")
+        kwargs["append_icon"] = kwargs.pop("append_icon", "far fa-eye-slash")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -728,10 +728,10 @@ class PasswordField(v.TextField, SepalWidget):
 
         if self.type == "text":
             self.type = "password"
-            self.append_icon = "mdi-eye-off"
+            self.append_icon = "far fa-eye-slash"
         else:
             self.type = "text"
-            self.append_icon = "mdi-eye"
+            self.append_icon = "far fa-eye"
 
 
 class NumberField(v.TextField, SepalWidget):
@@ -763,8 +763,8 @@ class NumberField(v.TextField, SepalWidget):
 
         # set default params
         kwargs["type"] = "number"
-        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "mdi-plus")
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-minus")
+        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "fas fa-plus")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fas fa-minus")
         kwargs["v_model"] = kwargs.pop("v_model", 0)
         kwargs["readonly"] = kwargs.pop("readonly", True)
 

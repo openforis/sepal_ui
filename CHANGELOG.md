@@ -1,7 +1,25 @@
-## v_2.5.5 (2022-01-12)
+## v_2.6.0 (2022-02-16)
+
+### Refactor
+
+- ignore untitled files
+- typo in class name
+- remove __setattr__ magic method.
+- reshape messages to fit the translator requirements
+- replace every occurence of mdi icons
+- use `/` in Path
+- cleaning
 
 ### Fix
 
+- remove fr file from merge
+- avoid deprecation by reshaping dictionnary
+- remove {locale}.json files
+- remove list from json files potoon is not compatible with lists but only key dictionaries
+- add basepath
+- don't use the named 'tmp' directory Fix #391
+- set the name in the properties of the GEJSON output Fix #390
+- typo
 - avoid meta sepal when clicking on download btn
 - scroll back to the top when change folde Fix #232
 - only install pre-commit hooks once Fix #373
@@ -12,9 +30,9 @@
 - prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
 
-### Refactor
+### Feat
 
-- cleaning
+- change translator behaviour to meet l10n requirements
 
 ## v_2.5.0 (2021-12-06)
 

@@ -69,7 +69,7 @@ Here we will create the object with its expected attributes
         def __init__(self, label="Password", **kwargs):
 
             # create the eye icon
-            self.eye = v.Icon(class_ = 'ml-1', children=['mdi-eye'])
+            self.eye = v.Icon(class_ = 'ml-1', children=['fas fa-eye'])
 
             # create the texfied 
             self.text_field = v.TextField(
@@ -99,7 +99,7 @@ toggle the visibility
 
 Now we want to add a behavior to our object. When we click on the eye, the :code:`PasswordField` should toggle its visibility: 
 
-* The eye should switch from :code:`mdi-eye` and :code:`mdi-eye-off`
+* The eye should switch from :code:`fas fa-eye` and :code:`fas fa-eye-slash`
 * The text_field should switch from type :code:`password` to :code:`text`
 
 To do so we will first add 2 class static variable (caps lock) to list the 2 types and icon and set them on the two attributes of my class. a new attribute needs to be created to remind the current state of the password. 
@@ -114,7 +114,7 @@ I'll call it :code:`password_viz` as the :code:`viz` parameter is already an att
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
-        EYE_ICONS = ['mdi-eye', 'mdi-eye-off'] # new icon list
+        EYE_ICONS = ['fas fa-eye', 'fas fa-eye-slash'] # new icon list
         TYPES = ['password', 'text'] # new type list
    
         def __init__(self, label="Password", **kwargs):
@@ -200,7 +200,7 @@ finally we obtain the following reusable widget :
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
-        EYE_ICONS = ['mdi-eye', 'mdi-eye-off'] # new icon list
+        EYE_ICONS = ['fas fa-eye', 'fas fa-eye-slash'] # new icon list
         TYPES = ['password', 'text'] # new type list
    
         def __init__(self, label="Password", **kwargs):
