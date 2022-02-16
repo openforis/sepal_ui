@@ -142,7 +142,7 @@ This is where your app logic lives. More information in this tutorial.
 tile
 ^^^^
 
-This is where all the tiles that will be displayed in the app are created. More information in :doc:`./sepalize` and :doc:`./create_assert`. 
+This is where all the tiles that will be displayed in the app are created. More information in :doc:`./sepalize` and :doc:`./create_asset`. 
 
 .. note::
 
