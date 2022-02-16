@@ -1,32 +1,43 @@
-
 .. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal_header.png
 
-SEPAL-UI
-========
+Sepal_ui
+--------
 
-SEPAL-UI is a lib designed to create an elegant dashboard in the Sepal environment. It is designed on top of the amazing ipyvuetify widget library and will help the developer to easily create interfaces for their workflows. By using this library, you’ll ensure a robust and unified interface for your scripts and an easy and complete integration into the SEPAL apps dashboard.
+--------------------------------------------------------------------------------
 
-We are happy to receive feedback and we welcome any kind of contribution. 
+Currently translated in the following languages: 
 
-.. note:: The following sections will cover the :code:`sepal_ui` framework, if you are looking for the SEPAL platform documentation, please go to this `link <https://docs.sepal.io/en/latest/index.html>`_.
+.. csv-table::
 
-Table of content 
-================
+    English, Français, Español
+
+You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
+
+--------------------------------------------------------------------------------
+
+:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
+By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
+
+A demo app can be launched on Heroku following this link: `<https://sepal-ui.herokuapp.com>`__.
+
+We are happy to receive feedback and we welcome any kind of contribution.
+
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_demo.gif
+
+Contribute
+----------
+
+If you want to contribute you can fork the project in you own repository and then use it. 
+If you consider working with us, please follow the :doc:`contributing guidelines <./start/contribute>`.
+
+Meet our :doc:`contributor <./start/authors>`. 
 
 .. toctree::
     :maxdepth: 1
+    :hidden:
 
-    start/getting_started
+    start/index
     tutorials/index
     widgets/index
     modules/sepal_ui
     changelog
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
