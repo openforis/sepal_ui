@@ -62,7 +62,7 @@ By using this libraries, you'll ensure a robust and unified interface for your s
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and a demo app can be launched on Heroku following this link: `<https://sepal-ui.herokuapp.com>`__.
 
-We are happy to receive feedback and we welcome any kind of contribution
+We are happy to receive feedback and we welcome any kind of contribution.
 
 .. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_demo.gif
 
@@ -70,6 +70,7 @@ Contribute
 ----------
 
 If you want to contribute you can fork the project in you own repository and then use it. 
-If you consider working with us, please follow the `contributing guidelines <https://github.com/12rambau/sepal_ui/blob/master/CONTRIBUTING.rst>`_. 
-Meet our `contributor <https://github.com/12rambau/sepal_ui/blob/master/AUTHORS.rst>`_. 
+If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`__. 
+
+Meet our `contributor <AUTHORS.rst>`__. 
 
