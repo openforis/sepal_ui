@@ -11,4 +11,4 @@ Getting started
     inspiration
     contribute
 
-.. include:: ../../../README.rst
+.. include:: ./installation.rst

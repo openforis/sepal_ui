@@ -1,5 +1,5 @@
-Contribute
-==========
+Contributing guidelines
+=======================
 
 .. warning::
 
