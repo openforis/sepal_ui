@@ -112,7 +112,7 @@ Final ui
 * :code:`ui.ipynb
 
 Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
-More information in _`<./sepalize.html>` and _`<./create_assert.html>`.
+More information in `<./sepalize.html>`__ and `<./create_assert.html>`__.
 
 component
 ---------
@@ -122,17 +122,17 @@ In this folder live all your app logic. Everything is well split for the sake of
 model
 ^^^^^
 
-In this package every :code:`Model` object that will be used in the project are gathered learn more in _`<./io-design.html>`. 
+In this package every :code:`Model` object that will be used in the project are gathered learn more in `<./io-design.html>`__. 
 
 message
 ^^^^^^^
 
-In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in _`<./translate-app.html`.
+In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in `<./translate-app.html>`__.
 
 parameter 
 ^^^^^^^^^
 
-For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in _`<./sepalize.html>`.
+For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in `<./sepalize.html>`__.
 
 scripts
 ^^^^^^^
@@ -142,7 +142,7 @@ This is where your app logic lives. More information in this tutorial.
 tile
 ^^^^
 
-This is where all the tiles that will be displayed in the app are created. More information in _`<./sepalize.html>` and _`<./create_assert.html>`. 
+This is where all the tiles that will be displayed in the app are created. More information in `<./sepalize.html>`__ and `<./create_assert.html>`__. 
 
 .. note::
 
@@ -152,7 +152,7 @@ This is where all the tiles that will be displayed in the app are created. More 
 widget
 ^^^^^^
 
-At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this _`<./custom-widget.html>`.
+At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this `<./custom-widget.html>`__.
 
 .. spelling::
 
