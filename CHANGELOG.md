@@ -1,17 +1,8 @@
-## v_2.6.0 (2022-02-16)
-
-### Refactor
-
-- ignore untitled files
-- typo in class name
-- remove __setattr__ magic method.
-- reshape messages to fit the translator requirements
-- replace every occurence of mdi icons
-- use `/` in Path
-- cleaning
+## v_2.6.1 (2022-02-17)
 
 ### Fix
 
+- add the message file in the distrib
 - remove fr file from merge
 - avoid deprecation by reshaping dictionnary
 - remove {locale}.json files
@@ -29,6 +20,16 @@
 - install missing packages
 - prevent bug when image have no properties Fix #361
 - git based libs are not compatible with pipy
+
+### Refactor
+
+- ignore untitled files
+- typo in class name
+- remove __setattr__ magic method.
+- reshape messages to fit the translator requirements
+- replace every occurence of mdi icons
+- use `/` in Path
+- cleaning
 
 ### Feat
 
