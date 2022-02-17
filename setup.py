@@ -84,7 +84,7 @@ setup_params = {
             "scripts/*.csv",
             "scripts/*.md",
             "scripts/*.json",
-            "message/*.json",
+            "message/**/*.json",
             "bin/*",
         ]
     },
