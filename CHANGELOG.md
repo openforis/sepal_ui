@@ -1,8 +1,10 @@
-## v_2.6.1 (2022-02-17)
+## v_2.6.2 (2022-02-18)
 
 ### Fix
 
+- prevent crash when badly design viz params are used Fix #405
 - add the message file in the distrib
+- make readme compatible with pypi release  has syntax errors in markup and would not be rendered on PyPI.     line 6: Error: Document or section may not begin with a transition.
 - remove fr file from merge
 - avoid deprecation by reshaping dictionnary
 - remove {locale}.json files
@@ -56,8 +58,6 @@
 - typo in package name
 - change lib name Change the lib name to meet the name used in PiPy Some change will need to be done in the documentation to reflect this change
 - use * instead of list comprehension
-- make v_model default and empty value as None instead of empty string
-- be consistent when concatenating
 
 ### Fix
 
@@ -88,6 +88,21 @@
 - open link in new tabs Fix #311
 - add a banner on top of app Fix #314
 - init the items of the ClassTable Fix #313
+
+### Feat
+
+- overwrite all vuetify components
+- overwrite all vuetify components
+
+## v_2.4.0 (2021-10-19)
+
+### Refactor
+
+- make v_model default and empty value as None instead of empty string
+- be consistent when concatenating
+
+### Fix
+
 - replace default v_model fon VectorField as trait
 - doc build failed
 - only display SepalWarning in Alerts
@@ -96,8 +111,6 @@
 
 ### Feat
 
-- overwrite all vuetify components
-- overwrite all vuetify components
 - filter by column and value in AOI. - closes: #296
 
 ## v_2.3.0 (2021-10-06)
@@ -142,7 +155,35 @@
 - local variable referenced before assignment
 - **docs**: fix typo
 - include the save parameter to the view when someones initialize the view without the model
+
+### Refactor
+
+- remove un-used method
+- renamed Clip -> CopyToClip
+- only set targets at the begining
+- create a state bar to control if a table is already created
+- use switch decorator
+- make all view children elements part of the View class
+
+### Feat
+
+- declare all variable
+- add copy-to-clipboard widget
+- create common used fixtures
+- test reclassify model
+- add a target parameter in the switch method
+- create validation for the reclassify model method
+
+## v_2.1.1 (2021-09-15)
+
+### Fix
+
 - typo in setup
+
+## v_2.1.0 (2021-09-15)
+
+### Fix
+
 - folder init in reclassifyTile
 - typo in json dict
 - display the btn at the bottom of the table
@@ -158,12 +199,6 @@
 
 ### Refactor
 
-- remove un-used method
-- renamed Clip -> CopyToClip
-- only set targets at the begining
-- create a state bar to control if a table is already created
-- use switch decorator
-- make all view children elements part of the View class
 - **lang**: add keys
 - remove test notebook
 - ensure a value is set to the func
@@ -186,12 +221,6 @@
 
 ### Feat
 
-- declare all variable
-- add copy-to-clipboard widget
-- create common used fixtures
-- test reclassify model
-- add a target parameter in the switch method
-- create validation for the reclassify model method
 - change state when something is loaded
 - test asset validity
 - add commitizen check
@@ -199,6 +228,12 @@
 - separate the reclassified image and its visualization
 - define default_asset trait in SelectAsset. it will accept whether strings for unique default assets or lists for multiple. The trait can be observed to update the list anytime
 - introducing switch decorator
+
+## v_2.0.6 (2021-06-22)
+
+## v_2.0.5 (2021-06-17)
+
+## v_2.0.4 (2021-06-15)
 
 ## v_2.0.3 (2021-06-09)
 

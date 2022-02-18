@@ -9,6 +9,7 @@ if "PROJ_LIB" in list(os.environ.keys()):
 import collections
 from pathlib import Path
 from distutils.util import strtobool
+import warnings
 
 import geemap
 from haversine import haversine
@@ -34,6 +35,7 @@ import ipyleaflet
 import ee
 
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
 
 __all__ = ["SepalMap"]
@@ -752,9 +754,22 @@ class SepalMap(geemap.Map):
             # set the value
             props[number][name] = val
 
-        # categorical values need to be cast to int
         for i in props.keys():
-            if props[i]["type"] == "categorical":
-                props[i]["values"] = [int(val) for val in props[i]["values"]]
+            if "type" in props[i]:
+                # categorical values need to be cast to int
+                if props[i]["type"] == "categorical":
+                    props[i]["values"] = [int(val) for val in props[i]["values"]]
+            else:
+                # if no "type" is provided guess it from the different parameters gathered
+                if len(props[i]["bands"]) == 1:
+                    props[i]["type"] = "continuous"
+                elif len(props[i]["bands"]) == 3:
+                    props[i]["type"] = "rgb"
+                else:
+                    warnings.warn(
+                        "the embed viz properties are incomplete or badly set, please review our documentation",
+                        SepalWarning,
+                    )
+                    props = {}
 
         return props
