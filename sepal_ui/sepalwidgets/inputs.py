@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode
+from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
 from ipywidgets import jslink
 import pandas as pd
 import ee
@@ -39,6 +39,9 @@ class DatePicker(v.Layout, SepalWidget):
 
     menu = None
     "v.Menu: the menu widget to display the datepicker"
+
+    disabled = Bool(False).tag(sync=True)
+    "traitlets.Bool: the disabled status of the Datepicker object"
 
     def __init__(self, label="Date", **kwargs):
 
@@ -90,6 +93,14 @@ class DatePicker(v.Layout, SepalWidget):
 
         # set the visibility
         self.menu.v_model = False
+
+        return
+
+    @observe("disabled")
+    def disable(self, change):
+        """A method to disabled the appropriate components in the datipkcer object"""
+
+        self.menu.v_slots[0]["children"].disabled = self.disabled
 
         return
 

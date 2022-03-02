@@ -35,6 +35,14 @@ class TestDatePicker:
 
         return
 
+    def test_disable(self, datepicker):
+
+        for boolean in [True, False]:
+            datepicker.disabled = boolean
+            assert datepicker.menu.v_slots[0]["children"].disabled == boolean
+
+        return
+
     @pytest.fixture
     def datepicker(self):
         """create a default datepicker"""
