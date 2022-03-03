@@ -27,7 +27,10 @@ class TestTranslator:
         f = io.StringIO()
         with redirect_stdout(f):
             translator = Translator(translation_folder, "it")
-        assert f.getvalue() == 'No json file is provided for "it", fallback to "en"\n'
+        assert (
+            f.getvalue()
+            == 'The requested language was not available, the translator will fallback to "en"\n'
+        )
 
         return
 
@@ -78,10 +81,28 @@ class TestTranslator:
 
         return
 
+    def test_find_target(self, translation_folder):
+
+        # test grid
+        test_grid = {
+            "en": (True, "en"),
+            "en-US": (False, "en"),
+            "fr-FR": (True, "fr-FR"),
+            "fr-CA": (False, "fr"),
+            "fr": (True, "fr"),
+            "da": (False, None),
+        }
+
+        # loop in the test grid to check multiple language combinations
+        for k, v in test_grid.items():
+            assert Translator.find_target(translation_folder, k) == v
+
+        return
+
     @pytest.fixture(scope="class")
     def translation_folder(self):
         """
-        Generate a fully qualified translation folder with limited keys in en, fr and spanish.
+        Generate a fully qualified translation folder with limited keys in en, fr and es.
         Cannot use the temfile lib as we need the directory to appear in the tree
         """
 
@@ -89,6 +110,7 @@ class TestTranslator:
         keys = {
             "en": {"a_key": "A key", "test_key": "Test key"},
             "fr": {"a_key": "Une clef", "test_key": "Clef de test"},
+            "fr-FR": {"a_key": "Une clef", "test_key": "Clef de test"},
             "es": {"a_key": "Una llave"},
         }
 

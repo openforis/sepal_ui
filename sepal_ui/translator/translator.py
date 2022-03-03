@@ -14,8 +14,8 @@ class Translator(SimpleNamespace):
 
     Args:
         json_folder (str | pathlib.Path): The folder where the dictionaries are stored
-        target_lan (str): The language code of the target lang (it should be the same as the target dictionary)
-        default_lan (str, optional): The language code of the source lang. default to "en"(it should be the same as the source dictionary)
+        target_lan (str): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary)
+        default_lan (str, optional): The language code (IETF BCP 47) of the source lang. default to "en"(it should be the same as the source dictionary)
         file_pattern (str, optional): The file basename of the dictionary without extention. default to "locale".
     """
 
@@ -35,23 +35,25 @@ class Translator(SimpleNamespace):
         self, json_folder, target_lan, default_lan="en", file_pattern="locale"
     ):
 
+        # init the simple namespace
         super().__init__()
 
-        if type(json_folder) == str:
-            json_folder = Path(json_folder)
+        # force cast to path
+        json_folder = Path(json_folder)
 
         # reading the default dict
         source_path = json_folder / default_lan / f"{file_pattern}.json"
         self.default_dict = self.sanitize(json.loads(source_path.read_text()))
 
         # create a dictionary in the target language
+        requested, target_lan = self.find_target(json_folder, target_lan)
+        target_lan = target_lan or default_lan
+        if requested is False:
+            print(
+                f'The requested language was not available, the translator will fallback to "{target_lan}"'
+            )
         target_path = json_folder / target_lan / f"{file_pattern}.json"
-        self.target_dict = self.default_dict.copy()
-
-        if target_path.is_file():
-            self.target_dict = self.sanitize(json.loads(target_path.read_text()))
-        else:
-            print(f'No json file is provided for "{target_lan}", fallback to "en"')
+        self.target_dict = self.sanitize(json.loads(target_path.read_text()))
 
         # create the composite dictionary
         ms_dict = self._update(self.default_dict, self.target_dict)
@@ -67,6 +69,40 @@ class Translator(SimpleNamespace):
 
         for k, v in ms.__dict__.items():
             setattr(self, k, getattr(ms, k))
+
+    @staticmethod
+    def find_target(folder, target):
+        """
+        find the target language in the available language folder
+
+        given a folder and a target lang, this function returns the closest language available in the folder
+        If nothing is found falling back to any working subvariety and return None if it doesn't exist
+
+        Args:
+            folder (pathlib.Path): the folder where the languages dictionnaries are stored
+            target (str): the target lang in IETF BCP 47
+
+        Return:
+            (bool, str): a bool to tell if the exact requested lan were available and the closest lang in IETF BCP 47
+        """
+
+        lang = None
+
+        # first scenario the target is available
+        if (folder / target).is_dir():
+            lang = target
+        # second senario the "main lang" is set
+        elif (folder / target[:2]).is_dir():
+            lang = target[:2]
+        # third scenario we search for any closely related language
+        else:
+            try:
+                f = next(f for f in folder.glob(f"{target[:2]}-*") if f.is_dir())
+                lang = f.stem
+            except StopIteration:
+                pass
+
+        return (lang == target, lang)
 
     @classmethod
     def search_key(cls, d, key):
