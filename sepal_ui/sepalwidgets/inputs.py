@@ -24,7 +24,6 @@ __all__ = [
     "PasswordField",
     "NumberField",
     "VectorField",
-    "localeSelect",
 ]
 
 
@@ -957,89 +956,3 @@ class VectorField(v.Col, SepalWidget):
         self.v_model["value"] = change["new"]
 
         return self
-
-
-class localeSelect(v.Menu, SepalWidget):
-    """
-    An language selector for sepal-ui based application.
-    it displays the currently requested language (not the one used by the translator).
-    When value is changed, the sepal-ui config file is updated
-    """
-
-    COUNTRIES = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
-    "pandas.DataFrame: the country list as a df. columns [code, name, flag]"
-
-    FLAG = "https://flagcdn.com/{}.svg"
-    "str: the url of the svg flag images"
-
-    ATTR = {"src": "https://flagcdn.com/gb.svg", "width": "30", "alt": "en-UK"}
-    "dict: the default flag parameter, default to english"
-
-    def __init__(self):
-
-        self.btn = v.Btn(
-            v_model=False,
-            v_on="x.on",
-            children=[v.Html(tag="img", attributes=self.ATTR, class_="mr-1"), "en-UK"],
-        )
-
-        self.language_list = v.List(
-            dense=True,
-            flat=True,
-            color="grey darken-3",
-            v_model=True,
-            max_height="300px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
-            children=[v.ListItemGroup(children=self._get_country_items(), v_model="")],
-        )
-
-        super().__init__(
-            children=[self.language_list],
-            v_model=False,
-            close_on_content_click=True,
-            v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
-        )
-
-        # add js behaviour
-        self.language_list.children[0].observe(self._on_locale_select, "v_model")
-
-    def _get_country_items(self):
-        """get the list of countries in as a list of listItem"""
-
-        country_list = []
-        for r in self.COUNTRIES.itertuples(index=False):
-
-            attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
-
-            children = [
-                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
-                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
-                v.ListItemActionText(children=[r.code]),
-            ]
-
-            country_list.append(v.ListItem(value=r.code, children=children))
-
-        return country_list
-
-    def _on_locale_select(self, change):
-        """
-        adapt the application to the newly selected language
-
-        Display the new flag and country code on the widget btn
-        change the value in the config file
-        """
-
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
-
-        # change the btn attributes
-        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
-        self.btn.children = [
-            v.Html(tag="img", attributes=attr, class_="mr-1"),
-            loc.code,
-        ]
-
-        # change the paramater file
-        su.set_config_locale(loc.code)
-
-        return
