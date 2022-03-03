@@ -980,7 +980,7 @@ class localeSelect(v.Menu, SepalWidget):
             flat=True,
             color="grey darken-3",
             v_model=True,
-            max_height="300px",
+            # max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
             children=[v.ListItemGroup(children=self._get_country_items(), v_model="")],
         )
@@ -999,7 +999,7 @@ class localeSelect(v.Menu, SepalWidget):
         for r in self.COUNTRIES.itertuples(index=False):
 
             attr = {
-                "src": f"https://flagcdn.com/{r.code}.svg",
+                "src": f"https://flagcdn.com/{r.flag}.svg",
                 "width": "30",
                 "alt": r.name,
             }

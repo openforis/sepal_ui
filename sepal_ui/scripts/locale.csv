@@ -1,315 +1,298 @@
 code,name,flag
-ach,Acholi,ach
-aa,Afar,aa
+ach,Acholi,ug
+aa,Afar,et
 af,Afrikaans,af
-ak,Akan,ak
-tw,"Akan, Twi",tw
-sq,Albanian,sq
+ak,Akan,gh
+tw,"Akan, Twi",gh
+sq,Albanian,al
 am,Amharic,am
 ar,Arabic,ar
-ar-BH,"Arabic, Bahrain",ar-BH
-ar-EG,"Arabic, Egypt",ar-EG
-ar-SA,"Arabic, Saudi Arabia",ar-SA
-ar-YE,"Arabic, Yemen",ar-YE
-an,Aragonese,an
-hy-AM,Armenian,hy-AM
-frp,Arpitan,frp
+ar-BH,"Arabic, Bahrain",bh
+ar-EG,"Arabic, Egypt",eg
+ar-SA,"Arabic, Saudi Arabia",sa
+ar-YE,"Arabic, Yemen",ye
+an,Aragonese,es
+hy-AM,Armenian,am
 as,Assamese,as
-ast,Asturian,ast
-tay,Atayal,tay
-av,Avaric,av
+tay,Atayal,tw
+av,Avaric,ru
 ae,Avestan,ae
-ay,Aymara,ay
+ay,Aymara,bo
 az,Azerbaijani,az
-ban,Balinese,ban
-bal,Balochi,bal
+ban,Balinese,id
+bal,Balochi,pk
 bm,Bambara,bm
 ba,Bashkir,ba
-eu,Basque,eu
+eu,Basque,es
 be,Belarusian,be
 bn,Bengali,bn
-bn-IN,"Bengali, India",bn-IN
-ber,Berber,ber
-bh,Bihari,bh
-bfo,Birifor,bfo
+bn-IN,"Bengali, India",bd
+ber,Berber,ma
+bh,Bihari,in
+bfo,Birifor,bf
 bi,Bislama,bi
 bs,Bosnian,bs
-br-FR,Breton,br-FR
+br-FR,Breton,fr
 bg,Bulgarian,bg
-my,Burmese,my
-ca,Catalan,ca
-ceb,Cebuano,ceb
-ch,Chamorro,ch
-ce,Chechen,ce
-chr,Cherokee,chr
-ny,Chewa,ny
-zh-CN,Chinese Simplified,zh-CN
-zh-TW,Chinese Traditional,zh-TW
-zh-HK,"Chinese Traditional, Hong Kong",zh-HK
-zh-MO,"Chinese Traditional, Macau",zh-MO
-zh-SG,"Chinese Traditional, Singapore",zh-SG
-cv,Chuvash,cv
-kw,Cornish,kw
-co,Corsican,co
-cr,Cree,cr
+my,Burmese,mm
+ca,Catalan,es
+ceb,Cebuano,ph
+ch,Chamorro,mp
+ce,Chechen,ru
+chr,Cherokee,us
+ny,Chewa,mw
+zh-CN,Chinese Simplified,cn
+zh-TW,Chinese Traditional,tw
+zh-HK,"Chinese Traditional, Hong Kong",hk
+zh-MO,"Chinese Traditional, Macau",mo
+zh-SG,"Chinese Traditional, Singapore",sg
+cv,Chuvash,ru
+kw,Cornish,gb
+co,Corsican,fr
+cr,Cree,ca
 hr,Croatian,hr
-cs,Czech,cs
-da,Danish,da
-fa-AF,Dari,fa-AF
-dv,Dhivehi,dv
+cs,Czech,cz
+da,Danish,dk
+fa-AF,Dari,af
+dv,Dhivehi,mv
 nl,Dutch,nl
-nl-BE,"Dutch, Belgium",nl-BE
-nl-SR,"Dutch, Suriname",nl-SR
-dz,Dzongkha,dz
-en,English,en
-en-UD,English (upside down),en-UD
-en-AR,"English, Arabia",en-AR
-en-AU,"English, Australia",en-AU
-en-BZ,"English, Belize",en-BZ
-en-CA,"English, Canada",en-CA
-en-CB,"English, Caribbean",en-CB
-en-CN,"English, China",en-CN
-en-DK,"English, Denmark",en-DK
-en-HK,"English, Hong Kong",en-HK
-en-IN,"English, India",en-IN
-en-ID,"English, Indonesia",en-ID
-en-IE,"English, Ireland",en-IE
-en-JM,"English, Jamaica",en-JM
-en-JA,"English, Japan",en-JA
-en-MY,"English, Malaysia",en-MY
-en-NZ,"English, New Zealand",en-NZ
-en-NO,"English, Norway",en-NO
-en-PH,"English, Philippines",en-PH
-en-PR,"English, Puerto Rico",en-PR
-en-SG,"English, Singapore",en-SG
-en-ZA,"English, South Africa",en-ZA
-en-SE,"English, Sweden",en-SE
-en-GB,"English, United Kingdom",en-GB
-en-US,"English, United States",en-US
-en-ZW,"English, Zimbabwe",en-ZW
-eo,Esperanto,eo
-et,Estonian,et
-ee,Ewe,ee
+nl-BE,"Dutch, Belgium",be
+nl-SR,"Dutch, Suriname",sr
+dz,Dzongkha,bt
+en,English,gb
+en-AR,"English, Arabia",sa
+en-AU,"English, Australia",au
+en-BZ,"English, Belize",bz
+en-CA,"English, Canada",ca
+en-CB,"English, Caribbean",jm
+en-CN,"English, China",cn
+en-DK,"English, Denmark",dk
+en-HK,"English, Hong Kong",hk
+en-IN,"English, India",in
+en-ID,"English, Indonesia",id
+en-IE,"English, Ireland",ie
+en-JM,"English, Jamaica",jm
+en-JA,"English, Japan",jp
+en-MY,"English, Malaysia",my
+en-NZ,"English, New Zealand",nz
+en-NO,"English, Norway",no
+en-PH,"English, Philippines",ph
+en-PR,"English, Puerto Rico",pr
+en-SG,"English, Singapore",sg
+en-ZA,"English, South Africa",za
+en-SE,"English, Sweden",se
+en-GB,"English, United Kingdom",gb
+en-US,"English, United States",us
+en-ZW,"English, Zimbabwe",zw
+eo,Esperanto,eu
+et,Estonian,ee
+ee,Ewe,gh
 fo,Faroese,fo
 fj,Fijian,fj
-fil,Filipino,fil
+fil,Filipino,ph
 fi,Finnish,fi
-vls-BE,Flemish,vls-BE
-fra-DE,Franconian,fra-DE
+vls-BE,Flemish,be
+fra-DE,Franconian,de
 fr,French,fr
-fr-BE,"French, Belgium",fr-BE
-fr-CA,"French, Canada",fr-CA
-fr-LU,"French, Luxembourg",fr-LU
-fr-QC,"French, Quebec",fr-QC
-fr-CH,"French, Switzerland",fr-CH
-fy-NL,Frisian,fy-NL
-fur-IT,Friulian,fur-IT
-ff,Fula,ff
-gaa,Ga,gaa
-gl,Galician,gl
-ka,Georgian,ka
+fr-BE,"French, Belgium",be
+fr-CA,"French, Canada",ca
+fr-LU,"French, Luxembourg",lu
+fr-QC,"French, Quebec",ca
+fr-CH,"French, Switzerland",ch
+fy-NL,Frisian,nl
+fur-IT,Friulian,it
+ff,Fula,ng
+gaa,Ga,gh
+gl,Galician,es
+ka,Georgian,ge
 de,German,de
-de-AT,"German, Austria",de-AT
-de-BE,"German, Belgium",de-BE
-de-LI,"German, Liechtenstein",de-LI
-de-LU,"German, Luxembourg",de-LU
-de-CH,"German, Switzerland",de-CH
-got,Gothic,got
-el,Greek,el
-el-CY,"Greek, Cyprus",el-CY
-kl,Greenlandic,kl
-gn,Guarani,gn
-gu-IN,Gujarati,gu-IN
+de-AT,"German, Austria",at
+de-BE,"German, Belgium",be
+de-LI,"German, Liechtenstein",li
+de-LU,"German, Luxembourg",lu
+de-CH,"German, Switzerland",ch
+el,Greek,gr
+el-CY,"Greek, Cyprus",cy
+kl,Greenlandic,gl
+gn,Guarani,bo
+gu-IN,Gujarati,in
 ht,Haitian Creole,ht
-ha,Hausa,ha
-haw,Hawaiian,haw
-he,Hebrew,he
-hz,Herero,hz
-hil,Hiligaynon,hil
-hi,Hindi,hi
-ho,Hiri Motu,ho
-hmn,Hmong,hmn
+ha,Hausa,ng
+haw,Hawaiian,us
+he,Hebrew,il
+hz,Herero,na
+hil,Hiligaynon,ph
+hi,Hindi,in
+ho,Hiri Motu,pg
+hmn,Hmong,vn
 hu,Hungarian,hu
 is,Icelandic,is
-ido,Ido,ido
-ig,Igbo,ig
-ilo,Ilokano,ilo
+ido,Ido,eu
+ig,Igbo,ng
+ilo,Ilokano,ph
 id,Indonesian,id
-iu,Inuktitut,iu
-ga-IE,Irish,ga-IE
+iu,Inuktitut,ca
+ga-IE,Irish,ie
 it,Italian,it
-it-CH,"Italian, Switzerland",it-CH
-ja,Japanese,ja
-jv,Javanese,jv
-quc,K'iche',quc
-kab,Kabyle,kab
-kn,Kannada,kn
-pam,Kapampangan,pam
-ks,Kashmiri,ks
-ks-PK,"Kashmiri, Pakistan",ks-PK
-csb,Kashubian,csb
-kk,Kazakh,kk
-km,Khmer,km
+it-CH,"Italian, Switzerland",ch
+ja,Japanese,jp
+jv,Javanese,id
+quc,K'iche',gt
+kab,Kabyle,dz
+kn,Kannada,in
+pam,Kapampangan,ph
+ks,Kashmiri,pk
+ks-PK,"Kashmiri, Pakistan",pk
+csb,Kashubian,pl
+kk,Kazakh,kz
+km,Khmer,kh
 rw,Kinyarwanda,rw
-tlh-AA,Klingon,tlh-AA
-kv,Komi,kv
-kg,Kongo,kg
-kok,Konkani,kok
-ko,Korean,ko
-ku,Kurdish,ku
-kmr,Kurmanji (Kurdish),kmr
-kj,Kwanyama,kj
-ky,Kyrgyz,ky
-lol,LOLCAT,lol
-lo,Lao,lo
-la-LA,Latin,la-LA
+kv,Komi,ru
+kg,Kongo,cg
+kok,Konkani,in
+ko,Korean,kr
+ku,Kurdish,tr
+kmr,Kurmanji (Kurdish),tr
+kj,Kwanyama,ao
+ky,Kyrgyz,kg
+lo,Lao,la
+la-LA,Latin,va
 lv,Latvian,lv
-lij,Ligurian,lij
-li,Limburgish,li
-ln,Lingala,ln
+ln,Lingala,cd
 lt,Lithuanian,lt
-jbo,Lojban,jbo
-nds,Low German,nds
-dsb-DE,Lower Sorbian,dsb-DE
-lg,Luganda,lg
-luy,Luhya,luy
-lb,Luxembourgish,lb
+jbo,Lojban,eu
+lg,Luganda,ug
+luy,Luhya,ke
+lb,Luxembourgish,lu
 mk,Macedonian,mk
-mai,Maithili,mai
+mai,Maithili,in
 mg,Malagasy,mg
 ms,Malay,ms
-ms-BN,"Malay, Brunei",ms-BN
-ml-IN,Malayalam,ml-IN
+ms-BN,"Malay, Brunei",bn
+ml-IN,Malayalam,in
 mt,Maltese,mt
-gv,Manx,gv
-mi,Maori,mi
-arn,Mapudungun,arn
-mr,Marathi,mr
+gv,Manx,im
+mi,Maori,nz
+arn,Mapudungun,ar
+mr,Marathi,in
 mh,Marshallese,mh
-moh,Mohawk,moh
+moh,Mohawk,ca
 mn,Mongolian,mn
-sr-Cyrl-ME,Montenegrin (Cyrillic),sr-Cyrl-ME
+sr-Cyrl-ME,Montenegrin (Cyrillic),me
 me,Montenegrin (Latin),me
-mos,Mossi,mos
-na,Nauru,na
+mos,Mossi,bf
+na,Nauru,nr
 ng,Ndonga,ng
-ne-NP,Nepali,ne-NP
-ne-IN,"Nepali, India",ne-IN
-pcm,Nigerian Pidgin,pcm
-se,Northern Sami,se
-nso,Northern Sotho,nso
+ne-NP,Nepali,np
+ne-IN,"Nepali, India",np
+pcm,Nigerian Pidgin,ng
+se,Northern Sami,no
+nso,Northern Sotho,za
 no,Norwegian,no
-nb,Norwegian Bokmal,nb
-nn-NO,Norwegian Nynorsk,nn-NO
-oc,Occitan,oc
-or,Odia,or
-oj,Ojibwe,oj
-om,Oromo,om
-os,Ossetian,os
-pi,Pali,pi
-pap,Papiamento,pap
-ps,Pashto,ps
-fa,Persian,fa
-en-PT,Pirate English,en-PT
+nb,Norwegian Bokmal,no
+nn-NO,Norwegian Nynorsk,no
+oc,Occitan,fr
+or,Odia,in
+oj,Ojibwe,ca
+om,Oromo,et
+os,Ossetian,ge
+pi,Pali,in
+pap,Papiamento,aw
+ps,Pashto,af
+fa,Persian,ir
 pl,Polish,pl
-pt-PT,Portuguese,pt-PT
-pt-BR,"Portuguese, Brazilian",pt-BR
-pa-IN,Punjabi,pa-IN
-pa-PK,"Punjabi, Pakistan",pa-PK
-qu,Quechua,qu
-qya-AA,Quenya,qya-AA
+pt-PT,Portuguese,pt
+pt-BR,"Portuguese, Brazilian",br
+pa-IN,Punjabi,in
+pa-PK,"Punjabi, Pakistan",pk
+qu,Quechua,pe
 ro,Romanian,ro
-rm-CH,Romansh,rm-CH
-rn,Rundi,rn
+rm-CH,Romansh,ch
+rn,Rundi,bi
 ru,Russian,ru
-ru-BY,"Russian, Belarus",ru-BY
-ru-MD,"Russian, Moldova",ru-MD
-ru-UA,"Russian, Ukraine",ru-UA
-ry-UA,Rusyn,ry-UA
-sah,Sakha,sah
-sg,Sango,sg
-sa,Sanskrit,sa
-sat,Santali,sat
-sc,Sardinian,sc
-sco,Scots,sco
-gd,Scottish Gaelic,gd
-sr,Serbian (Cyrillic),sr
-sr-CS,Serbian (Latin),sr-CS
-sh,Serbo-Croatian,sh
-crs,Seychellois Creole,crs
-sn,Shona,sn
-ii,Sichuan Yi,ii
-sd,Sindhi,sd
-si-LK,Sinhala,si-LK
+ru-BY,"Russian, Belarus",by
+ru-MD,"Russian, Moldova",md
+ru-UA,"Russian, Ukraine",ua
+sah,Sakha,ru
+sg,Sango,cf
+sa,Sanskrit,in
+sat,Santali,in
+sc,Sardinian,it
+sco,Scots,gb
+gd,Scottish Gaelic,gb
+sr,Serbian (Cyrillic),rs
+sr-CS,Serbian (Latin),rs
+sh,Serbo-Croatian,rs
+crs,Seychellois Creole,sc
+sn,Shona,zw
+ii,Sichuan Yi,cn
+sd,Sindhi,pk
+si-LK,Sinhala,lk
 sk,Slovak,sk
 sl,Slovenian,sl
 so,Somali,so
-son,Songhay,son
-ckb,Sorani (Kurdish),ckb
-nr,Southern Ndebele,nr
-sma,Southern Sami,sma
-st,Southern Sotho,st
-es-ES,Spanish,es-ES
-es-EM,Spanish (Modern),es-EM
-es-AR,"Spanish, Argentina",es-AR
-es-BO,"Spanish, Bolivia",es-BO
-es-CL,"Spanish, Chile",es-CL
-es-CO,"Spanish, Colombia",es-CO
-es-CR,"Spanish, Costa Rica",es-CR
-es-DO,"Spanish, Dominican Republic",es-DO
-es-EC,"Spanish, Ecuador",es-EC
-es-SV,"Spanish, El Salvador",es-SV
-es-GT,"Spanish, Guatemala",es-GT
-es-HN,"Spanish, Honduras",es-HN
-es-419,"Spanish, Latin America",es-419
-es-MX,"Spanish, Mexico",es-MX
-es-NI,"Spanish, Nicaragua",es-NI
-es-PA,"Spanish, Panama",es-PA
-es-PY,"Spanish, Paraguay",es-PY
-es-PE,"Spanish, Peru",es-PE
-es-PR,"Spanish, Puerto Rico",es-PR
-es-US,"Spanish, United States",es-US
-es-UY,"Spanish, Uruguay",es-UY
-es-VE,"Spanish, Venezuela",es-VE
-su,Sundanese,su
-sw,Swahili,sw
-sw-KE,"Swahili, Kenya",sw-KE
-sw-TZ,"Swahili, Tanzania",sw-TZ
-ss,Swati,ss
-sv-SE,Swedish,sv-SE
-sv-FI,"Swedish, Finland",sv-FI
-syc,Syriac,syc
-tl,Tagalog,tl
-ty,Tahitian,ty
-tg,Tajik,tg
-tzl,Talossan,tzl
-ta,Tamil,ta
-tt-RU,Tatar,tt-RU
-te,Telugu,te
-kdh,Tem (Kotokoli),kdh
+son,Songhay,ml
+ckb,Sorani (Kurdish),iq
+nr,Southern Ndebele,za
+sma,Southern Sami,no
+st,Southern Sotho,ls
+es-ES,Spanish,es
+es-AR,"Spanish, Argentina",ar
+es-BO,"Spanish, Bolivia",bo
+es-CL,"Spanish, Chile",cl
+es-CO,"Spanish, Colombia",co
+es-CR,"Spanish, Costa Rica",cr
+es-DO,"Spanish, Dominican Republic",do
+es-EC,"Spanish, Ecuador",ec
+es-SV,"Spanish, El Salvador",sv
+es-GT,"Spanish, Guatemala",gt
+es-HN,"Spanish, Honduras",hn
+es-MX,"Spanish, Mexico",mx
+es-NI,"Spanish, Nicaragua",ni
+es-PA,"Spanish, Panama",pa
+es-PY,"Spanish, Paraguay",py
+es-PE,"Spanish, Peru",pe
+es-PR,"Spanish, Puerto Rico",pr
+es-US,"Spanish, United States",us
+es-UY,"Spanish, Uruguay",uy
+es-VE,"Spanish, Venezuela",ve
+su,Sundanese,sd
+sw,Swahili,tz
+sw-KE,"Swahili, Kenya",ke
+sw-TZ,"Swahili, Tanzania",tz
+ss,Swati,za
+sv-SE,Swedish,se
+sv-FI,"Swedish, Finland",fi
+tl,Tagalog,ph
+ty,Tahitian,pf
+tg,Tajik,tj
+tzl,Talossan,us
+ta,Tamil,lk
+tt-RU,Tatar,ru
+te,Telugu,in
+kdh,Tem (Kotokoli),tg
 th,Thai,th
-bo-BT,Tibetan,bo-BT
-ti,Tigrinya,ti
-ts,Tsonga,ts
-tn,Tswana,tn
+bo-BT,Tibetan,cn
+ti,Tigrinya,er
+ts,Tsonga,mz
+tn,Tswana,bw
 tr,Turkish,tr
-tr-CY,"Turkish, Cyprus",tr-CY
-tk,Turkmen,tk
-uk,Ukrainian,uk
-hsb-DE,Upper Sorbian,hsb-DE
-ur-IN,Urdu (India),ur-IN
-ur-PK,Urdu (Pakistan),ur-PK
-ug,Uyghur,ug
+tr-CY,"Turkish, Cyprus",cy
+tk,Turkmen,tm
+uk,Ukrainian,ua
+hsb-DE,Upper Sorbian,de
+ur-IN,Urdu (India),in
+ur-PK,Urdu (Pakistan),pk
+ug,Uyghur,cn
 uz,Uzbek,uz
-val-ES,Valencian,val-ES
-ve,Venda,ve
-vec,Venetian,vec
-vi,Vietnamese,vi
-wa,Walloon,wa
-cy,Welsh,cy
-wo,Wolof,wo
-xh,Xhosa,xh
-yi,Yiddish,yi
-yo,Yoruba,yo
-zea,Zeelandic,zea
-zu,Zulu,zu
+val-ES,Valencian,es
+ve,Venda,za
+vec,Venetian,it
+vi,Vietnamese,vn
+wa,Walloon,be
+cy,Welsh,gb
+wo,Wolof,sn
+xh,Xhosa,za
+yi,Yiddish,se
+yo,Yoruba,ng
+zu,Zulu,za
