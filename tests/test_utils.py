@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 import warnings
+from configparser import ConfigParser
 
 import random
 
@@ -9,6 +10,7 @@ import ipyvuetify as v
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
+from sepal_ui import config_file
 
 
 class TestUtils:
@@ -296,5 +298,31 @@ class TestUtils:
         assert su.next_string(input_string) == output_string
         assert su.next_string(input_string)[-1].isdigit()
         assert su.next_string("name_1") == "name_2"
+
+        return
+
+    def test_set_config_locale(self):
+
+        # remove any config file that could exist
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a config_file with a set language
+        locale = "fr-FR"
+        su.set_config_locale(locale)
+
+        config = ConfigParser()
+        config.read(config_file)
+        assert "sepal-ui" in config.sections()
+        assert config["sepal-ui"]["locale"] == locale
+
+        # change an existing locale
+        locale = "es-CO"
+        su.set_config_locale(locale)
+        config.read(config_file)
+        assert config["sepal-ui"]["locale"] == locale
+
+        # destroy the file again
+        config_file.unlink()
 
         return
