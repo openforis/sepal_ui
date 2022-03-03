@@ -24,6 +24,7 @@ __all__ = [
     "PasswordField",
     "NumberField",
     "VectorField",
+    "localeSelect",
 ]
 
 
@@ -956,3 +957,59 @@ class VectorField(v.Col, SepalWidget):
         self.v_model["value"] = change["new"]
 
         return self
+
+
+class localeSelect(v.Menu, SepalWidget):
+    """
+    An language selector for sepal-ui based application.
+    it displays the currently requested language (not the one used by the translator).
+    When value is changed, the sepal-ui config file is updated
+    """
+
+    COUNTRIES = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
+    "pandas.DataFrame: the country list as a df. columns [code, name, flag]"
+
+    def __init__(self):
+
+        self.btn = Btn(
+            icon="fas fa-caret-down", v_model=False, v_on="x.on", text="language"
+        )
+
+        self.language_list = v.List(
+            dense=True,
+            flat=True,
+            color="grey darken-3",
+            v_model=True,
+            max_height="300px",
+            style_="overflow: auto; border-radius: 0 0 0 0;",
+            children=[v.ListItemGroup(children=self._get_country_items(), v_model="")],
+        )
+
+        super().__init__(
+            children=[self.language_list],
+            v_model=False,
+            close_on_content_click=True,
+            v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
+        )
+
+    def _get_country_items(self):
+        """get the list of countries in as a list of listItem"""
+
+        country_list = []
+        for r in self.COUNTRIES.itertuples(index=False):
+
+            attr = {
+                "src": f"https://flagcdn.com/{r.code}.svg",
+                "width": "30",
+                "alt": r.name,
+            }
+
+            children = [
+                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
+                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
+                v.ListItemActionText(children=[r.code]),
+            ]
+
+            country_list.append(v.ListItem(value=r.code, children=children))
+
+        return country_list
