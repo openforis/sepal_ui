@@ -4,12 +4,14 @@ import io
 from contextlib import redirect_stdout
 import shutil
 import json
+from configparser import ConfigParser
 
+from sepal_ui import config_file
 from sepal_ui.translator import Translator
 
 
 class TestTranslator:
-    def test_init(self, translation_folder):
+    def test_init(self, translation_folder, tmp_config_file):
 
         # assert that the test key exist in fr
         translator = Translator(translation_folder, "fr")
@@ -31,6 +33,10 @@ class TestTranslator:
             f.getvalue()
             == 'The requested language was not available, the translator will fallback to "en"\n'
         )
+
+        # assert that if nothing is set it will use the confi_file (fr-FR)
+        translator = Translator(translation_folder)
+        assert translator.test_key == "Clef de test"
 
         return
 
@@ -128,5 +134,29 @@ class TestTranslator:
 
         # flush everything
         shutil.rmtree(tmp_dir)
+
+        return
+
+    @pytest.fixture(scope="function")
+    def tmp_config_file(self):
+        """
+        Erase any existing config file and replace it with one specifically
+        design for thesting the translation
+        """
+
+        # erase anything that exists
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a new file
+        config = ConfigParser()
+        config.add_section("sepal-ui")
+        config.set("sepal-ui", "locale", "fr-FR")
+        config.write(config_file.open("w"))
+
+        yield 1
+
+        # flush it
+        config_file.unlink()
 
         return

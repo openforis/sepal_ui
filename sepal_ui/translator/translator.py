@@ -3,6 +3,9 @@ from types import SimpleNamespace
 from pathlib import Path
 from collections import abc
 from deepdiff import DeepDiff
+from configparser import ConfigParser
+
+from sepal_ui import config_file
 
 
 class Translator(SimpleNamespace):
@@ -14,8 +17,8 @@ class Translator(SimpleNamespace):
 
     Args:
         json_folder (str | pathlib.Path): The folder where the dictionaries are stored
-        target_lan (str): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary)
-        default_lan (str, optional): The language code (IETF BCP 47) of the source lang. default to "en"(it should be the same as the source dictionary)
+        target_lan (str, optional): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
+        default_lan (str, optional): The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
         file_pattern (str, optional): The file basename of the dictionary without extention. default to "locale".
     """
 
@@ -32,7 +35,7 @@ class Translator(SimpleNamespace):
     "all the keys can be acceced as attributes"
 
     def __init__(
-        self, json_folder, target_lan, default_lan="en", file_pattern="locale"
+        self, json_folder, target_lan=None, default_lan="en", file_pattern="locale"
     ):
 
         # init the simple namespace
@@ -71,7 +74,7 @@ class Translator(SimpleNamespace):
             setattr(self, k, getattr(ms, k))
 
     @staticmethod
-    def find_target(folder, target):
+    def find_target(folder, target=None):
         """
         find the target language in the available language folder
 
@@ -80,13 +83,24 @@ class Translator(SimpleNamespace):
 
         Args:
             folder (pathlib.Path): the folder where the languages dictionnaries are stored
-            target (str): the target lang in IETF BCP 47
+            target (str, optional): the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
 
         Return:
             (bool, str): a bool to tell if the exact requested lan were available and the closest lang in IETF BCP 47
         """
 
+        # init lang
         lang = None
+
+        # if target is not set try to find one in the config file
+        # exit with none if the config file is not yet existing
+        if target is None:
+            if config_file.is_file():
+                config = ConfigParser()
+                config.read(config_file)
+                target = config["sepal-ui"]["locale"]
+            else:
+                return (lang == target, lang)
 
         # first scenario the target is available
         if (folder / target).is_dir():
