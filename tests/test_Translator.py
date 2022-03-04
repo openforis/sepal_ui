@@ -91,12 +91,12 @@ class TestTranslator:
 
         # test grid
         test_grid = {
-            "en": (True, "en"),
-            "en-US": (False, "en"),
-            "fr-FR": (True, "fr-FR"),
-            "fr-CA": (False, "fr"),
-            "fr": (True, "fr"),
-            "da": (False, None),
+            "en": ("en", "en"),
+            "en-US": ("en-US", "en"),
+            "fr-FR": ("fr-FR", "fr-FR"),
+            "fr-CA": ("fr-CA", "fr"),
+            "fr": ("fr", "fr"),
+            "da": ("da", None),
         }
 
         # loop in the test grid to check multiple language combinations
