@@ -11,6 +11,7 @@ sepal\_ui.translator.Translator
         ~Translator.target_dict
         ~Translator.default
         ~Translator.target
+        ~Translator.targeted
         ~Translator.match
         ~Translator.keys
    

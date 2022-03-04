@@ -5,12 +5,14 @@ from pathlib import Path
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 import pandas as pd
+from ipywidgets import jsdlink
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
 from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
 __all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App", "LocaleSelect"]
 
@@ -272,7 +274,7 @@ class App(v.App, SepalWidget):
         appBar (sw.AppBar, optional): the appBar of the application
         footer (sw.Footer, optional): the footer of the application
         navDrawer (sw.NavDrawer, optional): the navdrawer of the application
-        translator (sw.Translator, optional): the translator of the app to display the used language. Only used if no appBar is set
+        translator (sw.Translator, optional): the translator of the app to display language informations
         kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
     """
 
@@ -344,6 +346,15 @@ class App(v.App, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
+        # display a warning if the set language cannot be reached
+        if translator is not None:
+            if translator.match is False:
+                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+                self.add_banner(msg, type="error")
+
+        # add js event
+        self.appBar.locale.observe(self._locale_info, "value")
+
     def show_tile(self, name):
         """
         Select the tile to display when the app is launched
@@ -399,12 +410,22 @@ class App(v.App, SepalWidget):
 
         return self
 
+    def _locale_info(self, change):
+        """display information about the locale change"""
+
+        if change["new"] != "":
+            msg = ms.locale.change.format(change["new"])
+            self.add_banner(msg, type="success")
+
+        return
+
 
 class LocaleSelect(v.Menu, SepalWidget):
     """
     An language selector for sepal-ui based application.
     it displays the currently requested language (not the one used by the translator).
     When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+    Warning as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
 
     Args:
         translator (sw.Translator, optional): the translator of the app, to match the used language
@@ -455,9 +476,11 @@ class LocaleSelect(v.Menu, SepalWidget):
             v_model=False,
             close_on_content_click=True,
             v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
+            value=loc.code,
         )
 
         # add js behaviour
+        jsdlink((self.language_list.children[0], "v_model"), (self, "value"))
         self.language_list.children[0].observe(self._on_locale_select, "v_model")
 
     def _get_country_items(self):
@@ -485,8 +508,6 @@ class LocaleSelect(v.Menu, SepalWidget):
         Display the new flag and country code on the widget btn
         change the value in the config file
         """
-
-        print(change["new"])
 
         # get the line in the locale dataframe
         loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()

@@ -42,6 +42,9 @@ class Translator(SimpleNamespace):
     default = None
     "str: the default locale of the translator"
 
+    targeted = None
+    "str: the initially requested language. Use to display debug information to the user agent"
+
     target = None
     "str: the target locale of the translator"
 
@@ -65,10 +68,13 @@ class Translator(SimpleNamespace):
         self.default_dict = self.sanitize(json.loads(source_path.read_text()))
 
         # create a dictionary in the target language
-        self.match, target = self.find_target(json_folder, target)
+        self.targeted, target = self.find_target(json_folder, target)
         self.target = target or default
         target_path = json_folder / self.target / f"{file_pattern}.json"
         self.target_dict = self.sanitize(json.loads(target_path.read_text()))
+
+        # evaluate the matching of requested and obtained values
+        self.match = self.targeted == self.target
 
         # create the composite dictionary
         ms_dict = self._update(self.default_dict, self.target_dict)
@@ -112,7 +118,7 @@ class Translator(SimpleNamespace):
                 config.read(config_file)
                 target = config["sepal-ui"]["locale"]
             else:
-                return (lang == target, lang)
+                return ("en", None)
 
         # first scenario the target is available
         if (folder / target).is_dir():
@@ -128,7 +134,7 @@ class Translator(SimpleNamespace):
             except StopIteration:
                 pass
 
-        return (lang == target, lang)
+        return (target, lang)
 
     @classmethod
     def search_key(cls, d, key):
