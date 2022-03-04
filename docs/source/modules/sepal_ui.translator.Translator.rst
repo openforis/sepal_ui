@@ -9,6 +9,9 @@ sepal\_ui.translator.Translator
 
         ~Translator.default_dict
         ~Translator.target_dict
+        ~Translator.default
+        ~Translator.target
+        ~Translator.match
         ~Translator.keys
    
     .. rubric:: Methods

@@ -21,6 +21,7 @@ class AppBar(v.AppBar, SepalWidget):
 
     Args:
         title (str, optional): the title of the app
+        translator (sw.Translator, optional): the app translator to pass to the locale selector object
         kwargs(dict, optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
     """
 
@@ -33,7 +34,7 @@ class AppBar(v.AppBar, SepalWidget):
     locale = None
     "sw.LocaleSelect: the locale selector of all apps"
 
-    def __init__(self, title="SEPAL module", **kwargs):
+    def __init__(self, title="SEPAL module", translator=None, **kwargs):
 
         self.toggle_button = v.Btn(
             icon=True,
@@ -42,7 +43,7 @@ class AppBar(v.AppBar, SepalWidget):
 
         self.title = v.ToolbarTitle(children=[title])
 
-        self.locale = LocaleSelect()
+        self.locale = LocaleSelect(translator=translator)
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", sepal_main)
@@ -270,7 +271,8 @@ class App(v.App, SepalWidget):
         tiles ([sw.Tile]): the tiles of the app
         appBar (sw.AppBar, optional): the appBar of the application
         footer (sw.Footer, optional): the footer of the application
-        navDrawer (sw.NavDrawer): the navdrawer of the application
+        navDrawer (sw.NavDrawer, optional): the navdrawer of the application
+        translator (sw.Translator, optional): the translator of the app to display the used language. Only used if no appBar is set
         kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
     """
 
@@ -289,7 +291,15 @@ class App(v.App, SepalWidget):
     content = None
     "v.Content: the tiles organized in a fluid container"
 
-    def __init__(self, tiles=[""], appBar=None, footer=None, navDrawer=None, **kwargs):
+    def __init__(
+        self,
+        tiles=[""],
+        appBar=None,
+        footer=None,
+        navDrawer=None,
+        translator=None,
+        **kwargs
+    ):
 
         self.tiles = None if tiles == [""] else tiles
 
@@ -297,7 +307,7 @@ class App(v.App, SepalWidget):
 
         # create a false appBar if necessary
         if not appBar:
-            appBar = AppBar()
+            appBar = AppBar(translator=translator)
         self.appBar = appBar
         app_children.append(self.appBar)
 
@@ -395,6 +405,10 @@ class LocaleSelect(v.Menu, SepalWidget):
     An language selector for sepal-ui based application.
     it displays the currently requested language (not the one used by the translator).
     When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+    Args:
+        translator (sw.Translator, optional): the translator of the app, to match the used language
+        kwargs (dict, optional): any arguments for a Btn object, children will be override
     """
 
     COUNTRIES = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
@@ -412,14 +426,19 @@ class LocaleSelect(v.Menu, SepalWidget):
     language_list = None
     "v.List: the list of countries with their flag,name in english, and ISO code"
 
-    def __init__(self):
+    def __init__(self, translator=None, **kwargs):
 
-        self.btn = v.Btn(
-            small=True,
-            v_model=False,
-            v_on="x.on",
-            children=[v.Html(tag="img", attributes=self.ATTR, class_="mr-1"), "en-UK"],
-        )
+        # extract the language information from the translator
+        # if not set default to english
+        code = "en-US" if translator is None else translator.target
+        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
+        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+
+        kwargs["small"] = kwargs.pop("small", True)
+        kwargs["v_model"] = False
+        kwargs["v_on"] = "x.on"
+        kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
+        self.btn = v.Btn(**kwargs)
 
         self.language_list = v.List(
             dense=True,

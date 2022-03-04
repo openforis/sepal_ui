@@ -17,12 +17,20 @@ class Translator(SimpleNamespace):
 
     Args:
         json_folder (str | pathlib.Path): The folder where the dictionaries are stored
-        target_lan (str, optional): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
-        default_lan (str, optional): The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
+        target (str, optional): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
+        default (str, optional): The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
         file_pattern (str, optional): The file basename of the dictionary without extention. default to "locale".
     """
 
-    FORBIDDEN_KEYS = ["default_dict", "target_dict", "in", "class"]
+    FORBIDDEN_KEYS = [
+        "default_dict",
+        "target_dict",
+        "in",
+        "class",
+        "default",
+        "target",
+        "match",
+    ]
     "list(str): list of the forbidden keys, using one of them in a translation dict will throw an error"
 
     target_dict = {}
@@ -31,12 +39,19 @@ class Translator(SimpleNamespace):
     default_dict = {}
     "dict: the source language dictionary"
 
+    default = None
+    "str: the default locale of the translator"
+
+    target = None
+    "str: the target locale of the translator"
+
+    match = None
+    "bool: if the target language match the one requested one by user, used to trigger information in appBar"
+
     keys = None
     "all the keys can be acceced as attributes"
 
-    def __init__(
-        self, json_folder, target_lan=None, default_lan="en", file_pattern="locale"
-    ):
+    def __init__(self, json_folder, target=None, default="en", file_pattern="locale"):
 
         # init the simple namespace
         super().__init__()
@@ -45,17 +60,14 @@ class Translator(SimpleNamespace):
         json_folder = Path(json_folder)
 
         # reading the default dict
-        source_path = json_folder / default_lan / f"{file_pattern}.json"
+        self.default = default
+        source_path = json_folder / default / f"{file_pattern}.json"
         self.default_dict = self.sanitize(json.loads(source_path.read_text()))
 
         # create a dictionary in the target language
-        requested, target_lan = self.find_target(json_folder, target_lan)
-        target_lan = target_lan or default_lan
-        if requested is False:
-            print(
-                f'The requested language was not available, the translator will fallback to "{target_lan}"'
-            )
-        target_path = json_folder / target_lan / f"{file_pattern}.json"
+        self.match, target = self.find_target(json_folder, target)
+        self.target = target or default
+        target_path = json_folder / self.target / f"{file_pattern}.json"
         self.target_dict = self.sanitize(json.loads(target_path.read_text()))
 
         # create the composite dictionary
