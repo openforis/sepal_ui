@@ -423,9 +423,14 @@ class App(v.App, SepalWidget):
 class LocaleSelect(v.Menu, SepalWidget):
     """
     An language selector for sepal-ui based application.
-    it displays the currently requested language (not the one used by the translator).
+
+    It displays the currently requested language (not the one used by the translator).
     When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
-    Warning as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
+
+    .. warning:: as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
+
+    .. versionadded:: 2.7.0
+
 
     Args:
         translator (sw.Translator, optional): the translator of the app, to match the used language

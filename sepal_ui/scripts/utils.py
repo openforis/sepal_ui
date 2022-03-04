@@ -14,7 +14,7 @@ from configparser import ConfigParser
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import deprecated
+from deprecated.sphinx import deprecated, versionadded
 
 import sepal_ui
 
@@ -495,6 +495,7 @@ def next_string(string):
     return string
 
 
+@versionadded(version="2.7.0")
 def set_config_locale(locale):
     """
     Set the provided local in the sepal-ui config file

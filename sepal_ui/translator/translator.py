@@ -5,6 +5,8 @@ from collections import abc
 from deepdiff import DeepDiff
 from configparser import ConfigParser
 
+from deprecated.sphinx import versionadded
+
 from sepal_ui import config_file
 
 
@@ -91,6 +93,7 @@ class Translator(SimpleNamespace):
         for k, v in ms.__dict__.items():
             setattr(self, k, getattr(ms, k))
 
+    @versionadded(version="2.7.0")
     @staticmethod
     def find_target(folder, target=None):
         """

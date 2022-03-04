@@ -1,7 +1,5 @@
 import pytest
 from pathlib import Path
-import io
-from contextlib import redirect_stdout
 import shutil
 import json
 from configparser import ConfigParser
@@ -25,14 +23,9 @@ class TestTranslator:
         translator = Translator(translation_folder, "es")
         assert translator.test_key == "Test key"
 
-        # assert that using a non existing lang lead to a warning
-        f = io.StringIO()
-        with redirect_stdout(f):
-            translator = Translator(translation_folder, "it")
-        assert (
-            f.getvalue()
-            == 'The requested language was not available, the translator will fallback to "en"\n'
-        )
+        # assert that using a non existing lang lead to fallback to english
+        translator = Translator(translation_folder, "it")
+        assert translator.test_key == "Test key"
 
         # assert that if nothing is set it will use the confi_file (fr-FR)
         translator = Translator(translation_folder)
