@@ -12,7 +12,7 @@ from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 
-__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App", "localeSelect"]
+__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App", "LocaleSelect"]
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -42,7 +42,7 @@ class AppBar(v.AppBar, SepalWidget):
 
         self.title = v.ToolbarTitle(children=[title])
 
-        self.locale = localeSelect()
+        self.locale = LocaleSelect()
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", sepal_main)
@@ -390,7 +390,7 @@ class App(v.App, SepalWidget):
         return self
 
 
-class localeSelect(v.Menu, SepalWidget):
+class LocaleSelect(v.Menu, SepalWidget):
     """
     An language selector for sepal-ui based application.
     it displays the currently requested language (not the one used by the translator).
@@ -466,6 +466,8 @@ class localeSelect(v.Menu, SepalWidget):
         Display the new flag and country code on the widget btn
         change the value in the config file
         """
+
+        print(change["new"])
 
         # get the line in the locale dataframe
         loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
