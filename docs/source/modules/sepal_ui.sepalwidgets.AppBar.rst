@@ -9,6 +9,7 @@ sepal\_ui.sepalwidgets.AppBar
     
         ~AppBar.toogle_button
         ~AppBar.title
+        ~AppBar.locale
     
     .. rubric:: Methods
     

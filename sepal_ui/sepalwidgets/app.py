@@ -30,6 +30,9 @@ class AppBar(v.AppBar, SepalWidget):
     title = None
     "v.ToolBarTitle: the widget containing the app title"
 
+    locale = None
+    "sw.LocaleSelect: the locale selector of all apps"
+
     def __init__(self, title="SEPAL module", **kwargs):
 
         self.toggle_button = v.Btn(
@@ -391,7 +394,7 @@ class localeSelect(v.Menu, SepalWidget):
     """
     An language selector for sepal-ui based application.
     it displays the currently requested language (not the one used by the translator).
-    When value is changed, the sepal-ui config file is updated
+    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
     """
 
     COUNTRIES = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
@@ -402,6 +405,12 @@ class localeSelect(v.Menu, SepalWidget):
 
     ATTR = {"src": "https://flagcdn.com/gb.svg", "width": "30", "alt": "en-UK"}
     "dict: the default flag parameter, default to english"
+
+    btn = None
+    "v.Btn: the btn to click when changing language"
+
+    language_list = None
+    "v.List: the list of countries with their flag,name in english, and ISO code"
 
     def __init__(self):
 
@@ -433,7 +442,7 @@ class localeSelect(v.Menu, SepalWidget):
         self.language_list.children[0].observe(self._on_locale_select, "v_model")
 
     def _get_country_items(self):
-        """get the list of countries in as a list of listItem"""
+        """get the list of countries as a list of listItem"""
 
         country_list = []
         for r in self.COUNTRIES.itertuples(index=False):
