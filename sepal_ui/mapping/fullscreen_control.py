@@ -11,6 +11,8 @@ class FullScreenControl(WidgetControl):
     This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embeding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
     simply click on it and the map will automatically expand
 
+    .. versionadded:: 2.7.0
+
     Args:
         kwargs (optional): any availabel arguments from a ipyleaflet WidgetControl
     """
