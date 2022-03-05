@@ -89,7 +89,7 @@ class FullScreenControl(WidgetControl):
 
     def toggle_fullscreen(self, widget):
         """
-        Toggle the fullscreen state of the map by sending the required javascript method
+        Toggle the fullscreen state of the map by sending the required javascript method, changing the w_btn icons and the zoomed state of the control.
         """
 
         # change the zoom state

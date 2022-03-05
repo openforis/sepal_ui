@@ -24,7 +24,12 @@ bg_color = "#121212" if v.theme.dark else "#fff"
 
 class Styles(v.VuetifyTemplate):
     """
-    Fixed styles to avoid leaflet maps overlap sepal widgets
+    Fixed styles to fix display issues in the lib:
+
+    - avoid leaflet maps overlap sepal widgets
+    - remove shadow of widget-control
+    - remove padding of the main content
+    - load fontawsome as a resource
     """
 
     template = Unicode(
