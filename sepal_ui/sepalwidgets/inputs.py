@@ -594,7 +594,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         kwargs["v_model"] = kwargs.pop("v_model", None)
         kwargs["clearable"] = kwargs.pop("clearable", True)
         kwargs["dense"] = kwargs.pop("dense", True)
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fas fa-sync-alt")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-sync")
         kwargs["class_"] = kwargs.pop("class_", "my-5")
         kwargs["placeholder"] = kwargs.pop(
             "placeholder", ms.widgets.asset_select.placeholder
