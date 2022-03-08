@@ -726,7 +726,7 @@ class PasswordField(v.TextField, SepalWidget):
         kwargs["class_"] = kwargs.pop("class_", "mr-2")
         kwargs["v_model"] = kwargs.pop("v_model", "")
         kwargs["type"] = "password"
-        kwargs["append_icon"] = kwargs.pop("append_icon", "far fa-eye-slash")
+        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-eye-off")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -739,10 +739,10 @@ class PasswordField(v.TextField, SepalWidget):
 
         if self.type == "text":
             self.type = "password"
-            self.append_icon = "far fa-eye-slash"
+            self.append_icon = "mdi-eye-off"
         else:
             self.type = "text"
-            self.append_icon = "far fa-eye"
+            self.append_icon = "mdi-eye"
 
 
 class NumberField(v.TextField, SepalWidget):

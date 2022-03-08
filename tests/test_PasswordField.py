@@ -16,12 +16,12 @@ class TestPasswordField:
         # change the viz once
         password._toggle_pwd(None, None, None)
         assert password.type == "text"
-        assert password.append_icon == "far fa-eye"
+        assert password.append_icon == "mdi-eye"
 
         # change it a second time
         password._toggle_pwd(None, None, None)
         assert password.type == "password"
-        assert password.append_icon == "far fa-eye-slash"
+        assert password.append_icon == "mdi-eye-off"
 
         return
 
