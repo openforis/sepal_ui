@@ -135,7 +135,7 @@ class DrawerItem(v.ListItem, SepalWidget):
 
             link((model, bind_var), (self, "alert"))
 
-            self.observe(self.add_notif, "alert")
+        self.observe(self.add_notif, "alert")
 
     def add_notif(self, change):
         """Add a notification alert to drawer"""
