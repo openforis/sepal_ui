@@ -1,3 +1,4 @@
+from traitlets import link, Bool
 from functools import partial
 from datetime import datetime
 
@@ -73,12 +74,26 @@ class DrawerItem(v.ListItem, SepalWidget):
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
+        model (optional): sepalwidget model where is defined the bin_var trait
+        bind_var (optional): required when model is selected. Trait to link with 'alert' self trait parameter
     """
 
     rt = None
     "sw.ResizeTrigger: the trigger to resize maps and other javascript object when jumping from a tile to another"
 
-    def __init__(self, title, icon=None, card=None, href=None, **kwargs):
+    alert = Bool(False).tag(sync=True)
+    "Bool: trait to control visibility of an alert in the drawer item"
+
+    def __init__(
+        self,
+        title,
+        icon=None,
+        card=None,
+        href=None,
+        model=None,
+        bind_var=None,
+        **kwargs
+    ):
 
         # set the resizetrigger
         self.rt = js.rt
@@ -107,6 +122,40 @@ class DrawerItem(v.ListItem, SepalWidget):
 
         # call the constructor
         super().__init__(**kwargs)
+
+        self.alert_badge = v.ListItemAction(
+            children=[v.Icon(children=["fas fa-circle"], x_small=True, color="red")]
+        )
+
+        if model:
+            if not bind_var:
+                raise Exception(
+                    "You have selected a model, you need a trait to bind with drawer."
+                )
+
+            link((model, bind_var), (self, "alert"))
+
+            self.observe(self.add_notif, "alert")
+
+    def add_notif(self, change):
+        """Add a notification alert to drawer"""
+
+        if change["new"]:
+            if self.alert_badge not in self.children:
+                new_children = self.children[:]
+                new_children.append(self.alert_badge)
+                self.children = new_children
+        else:
+            self.remove_notif()
+
+    def remove_notif(self):
+        """Remove notification alert"""
+
+        if self.alert_badge in self.children:
+            new_children = self.children[:]
+            new_children.remove(self.alert_badge)
+
+            self.children = new_children
 
     def display_tile(self, tiles):
         """
@@ -137,6 +186,9 @@ class DrawerItem(v.ListItem, SepalWidget):
 
         # change the current item status
         self.input_value = True
+
+        # Remove notification
+        self.remove_notif()
 
         return self
 
