@@ -84,6 +84,9 @@ class DrawerItem(v.ListItem, SepalWidget):
     alert = Bool(False).tag(sync=True)
     "Bool: trait to control visibility of an alert in the drawer item"
 
+    alert_badge = None
+    "v.ListItemAction: red circle to display in the drawer"
+
     def __init__(
         self,
         title,
@@ -123,6 +126,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
+        # cannot be set as a class member because it will be shared with all
+        # the other draweritems.
         self.alert_badge = v.ListItemAction(
             children=[v.Icon(children=["fas fa-circle"], x_small=True, color="red")]
         )
@@ -148,6 +153,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         else:
             self.remove_notif()
 
+        return
+
     def remove_notif(self):
         """Remove notification alert"""
 
@@ -156,6 +163,8 @@ class DrawerItem(v.ListItem, SepalWidget):
             new_children.remove(self.alert_badge)
 
             self.children = new_children
+
+        return
 
     def display_tile(self, tiles):
         """
