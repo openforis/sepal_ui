@@ -21,7 +21,6 @@ class Translator(SimpleNamespace):
         json_folder (str | pathlib.Path): The folder where the dictionaries are stored
         target (str, optional): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
         default (str, optional): The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
-        file_pattern (str, optional): The file basename of the dictionary without extention. default to "locale".
     """
 
     FORBIDDEN_KEYS = [
@@ -59,7 +58,7 @@ class Translator(SimpleNamespace):
     folder = None
     "pathlib.Path: the path to the l10n folder"
 
-    def __init__(self, json_folder, target=None, default="en", file_pattern="locale"):
+    def __init__(self, json_folder, target=None, default="en"):
 
         # init the simple namespace
         super().__init__()
@@ -69,14 +68,12 @@ class Translator(SimpleNamespace):
 
         # reading the default dict
         self.default = default
-        source_path = self.folder / default / f"{file_pattern}.json"
-        self.default_dict = self.sanitize(json.loads(source_path.read_text()))
+        self.default_dict = self.merge_dict(self.folder / default)
 
         # create a dictionary in the target language
         self.targeted, target = self.find_target(self.folder, target)
         self.target = target or default
-        target_path = self.folder / self.target / f"{file_pattern}.json"
-        self.target_dict = self.sanitize(json.loads(target_path.read_text()))
+        self.target_dict = self.merge_dict(self.folder / self.target)
 
         # evaluate the matching of requested and obtained values
         self.match = self.targeted == self.target
@@ -248,3 +245,25 @@ class Translator(SimpleNamespace):
         """
 
         return [f.name for f in self.folder.iterdir() if f.is_dir()]
+
+    @versionadded(version="2.7.0")
+    @classmethod
+    def merge_dict(cls, folder):
+        """
+        gather all the .json file in the provided l10n folder as 1 single json dict
+
+        the json dict will be sanitysed and the key will be used as if they were coming from 1 single file. be careful with duplication
+
+        Args:
+            folder (pathlib.path)
+
+        Return:
+            (dict): the json dict with all the keys
+
+        """
+
+        final_json = {}
+        for f in folder.glob("*.json"):
+            final_json = {**final_json, **cls.sanitize(json.loads(f.read_text()))}
+
+        return final_json
