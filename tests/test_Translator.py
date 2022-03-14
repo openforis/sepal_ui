@@ -98,6 +98,19 @@ class TestTranslator:
 
         return
 
+    def test_available_locales(self, translation_folder):
+
+        # expected grid
+        res = ["es", "fr", "fr-FR", "en"]
+
+        # create the translator
+        # -en- to -en-
+        translator = Translator(translation_folder)
+
+        assert translator.available_locales() == res
+
+        return
+
     @pytest.fixture(scope="class")
     def translation_folder(self):
         """
