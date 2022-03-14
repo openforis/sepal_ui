@@ -9,6 +9,7 @@ sepal\_ui.sepalwidgets.DatePicker
     
         ~DatePicker.menu
         ~DatePicker.disabled
+        ~DatePicker.date_text
         
     .. rubric:: Methods
     
@@ -17,7 +18,13 @@ sepal\_ui.sepalwidgets.DatePicker
         
         ~Datepicker.close_menu
         ~DatePicker.disable
+        ~DatePicker.is_valid_date
+        ~DatePicker.check_date
         
 .. automethod:: sepal_ui.sepalwidgets.DatePicker.close_menu
 
 .. automethod:: sepal_ui.sepalwidgets.DatePicker.disable
+
+.. automethod:: sepal_ui.sepalwidgets.DatePicker.check_date
+
+.. autofunction:: sepal_ui.sepalwidgets.DatePicker.disable
