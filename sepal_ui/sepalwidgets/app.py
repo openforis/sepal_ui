@@ -1,4 +1,4 @@
-from traitlets import link, Bool
+from traitlets import link, Bool, observe
 from functools import partial
 from datetime import datetime
 
@@ -140,8 +140,7 @@ class DrawerItem(v.ListItem, SepalWidget):
 
             link((model, bind_var), (self, "alert"))
 
-        self.observe(self.add_notif, "alert")
-
+    @observe("alert")
     def add_notif(self, change):
         """Add a notification alert to drawer"""
 
