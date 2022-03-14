@@ -107,7 +107,8 @@ class TestTranslator:
         # -en- to -en-
         translator = Translator(translation_folder)
 
-        assert translator.available_locales() == res
+        for locale in res:
+            assert locale in translator.available_locales()
 
         return
 
