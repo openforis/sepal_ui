@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+
+import pandas as pd
+from colorama import init, Fore, Style
+from pathlib import Path
+
+from sepal_ui.scripts import utils as su
+
+# init colors for all plateforms
+init()
+
+
+def check_locale(locale):
+    """
+    Check if the locale exist in the country list
+
+    Return:
+        (bool)
+    """
+
+    countries = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
+
+    return locale in countries.code.values
+
+
+if __name__ == "__main__":
+
+    # welcome the user
+    print(Fore.YELLOW)
+    print("##########################################")
+    print("#                                        #")
+    print("#      SEPAL MODULE LOCALISATION TOOL    #")
+    print("#                                        #")
+    print("##########################################")
+    print(Fore.RESET)
+    print(f"Welcome in the {Style.BRIGHT}module l10n{Style.NORMAL} interface.")
+
+    # select a language
+    is_locale = False
+    while is_locale is False:
+
+        locale = input(f"{Fore.CYAN}Provide a locale code: \n{Fore.RESET}")
+        is_locale = check_locale(locale)
+
+        # display an error if the language does not exist
+        if is_locale is False:
+            print(
+                f'{Fore.RED} The provided language code ("{locale}") is not a valid language code in IETF BCP 47.{Fore.RESET}'
+            )
+
+    # write the new color code in the config file
+    su.set_config_locale(locale)
+
+    # display information
+    print(
+        f'{Fore.GREEN} The provided language code ("{locale}") has been set as default language for all SEPAL applications.{Fore.RESET}'
+    )

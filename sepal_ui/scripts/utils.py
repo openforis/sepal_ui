@@ -9,14 +9,16 @@ import warnings
 from unidecode import unidecode
 from functools import wraps
 from itertools import product
+from configparser import ConfigParser
 
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import deprecated
+from deprecated.sphinx import deprecated, versionadded
 
 import sepal_ui
 
+from sepal_ui import config_file
 from .warning import SepalWarning
 
 
@@ -471,7 +473,15 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
 
 def next_string(string):
-    """Create a string followed by an underscore and a consecutive number"""
+    """
+    Create a string followed by an underscore and a consecutive number
+
+    Args:
+        string (str): the initial string
+
+    Returns;
+        (str): the incremented string
+    """
 
     # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
     split = string.split("_")
@@ -483,3 +493,31 @@ def next_string(string):
         string += "_1"
 
     return string
+
+
+@versionadded(version="2.7.0")
+def set_config_locale(locale):
+    """
+    Set the provided local in the sepal-ui config file
+
+    Args:
+        locale (str): a locale name in IETF BCP 47 (no verifications are performed)
+    """
+
+    config = ConfigParser()
+
+    # read the existing file if available
+    if config_file.is_file():
+        config.read(config_file)
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section("sepal-ui")
+
+    # set the value
+    config.set("sepal-ui", "locale", locale)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
