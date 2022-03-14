@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime
 
 import ipyvuetify as v
 from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
@@ -40,6 +41,9 @@ class DatePicker(v.Layout, SepalWidget):
     menu = None
     "v.Menu: the menu widget to display the datepicker"
 
+    date_text = None
+    "v.TextField: the text field of the datepicker widget"
+
     disabled = Bool(False).tag(sync=True)
     "traitlets.Bool: the disabled status of the Datepicker object"
 
@@ -48,7 +52,7 @@ class DatePicker(v.Layout, SepalWidget):
         # create the widgets
         date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
 
-        date_text = v.TextField(
+        self.date_text = v.TextField(
             v_model=None,
             label=label,
             hint="YYYY-MM-DD format",
@@ -69,7 +73,7 @@ class DatePicker(v.Layout, SepalWidget):
                 {
                     "name": "activator",
                     "variable": "menuData",
-                    "children": date_text,
+                    "children": self.date_text,
                 }
             ],
         )
@@ -84,8 +88,28 @@ class DatePicker(v.Layout, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        jslink((date_picker, "v_model"), (date_text, "v_model"))
-        jslink((date_picker, "v_model"), (self, "v_model"))
+        jslink((date_picker, "v_model"), (self.date_text, "v_model"))
+        jslink((self, "v_model"), (date_picker, "v_model"))
+
+    @observe("v_model")
+    def check_date(self, change):
+        """
+        A method to check if the value of the set v_model is a correctly formated date
+        Reset the widget and display an error if it's not the case
+        """
+
+        self.date_text.error_messages = None
+
+        # exit immediately if nothing is set
+        if change["new"] is None:
+            return
+
+        # change the error status
+        if not self.is_valid_date(change["new"]):
+            msg = self.date_text.hint
+            self.date_text.error_messages = msg
+
+        return
 
     @observe("v_model")
     def close_menu(self, change):
@@ -103,6 +127,27 @@ class DatePicker(v.Layout, SepalWidget):
         self.menu.v_slots[0]["children"].disabled = self.disabled
 
         return
+
+    @staticmethod
+    def is_valid_date(date):
+        """
+        Check if the date is provided using the date format required for the widget
+
+        Args:
+            date (str): the date to test in YYYY-MM-DD format
+
+        Return:
+            (bool): the date to test
+        """
+
+        try:
+            date = datetime.strptime(date, "%Y-%m-%d")
+            valid = True
+
+        except Exception:
+            valid = False
+
+        return valid
 
 
 class FileInput(v.Flex, SepalWidget):
