@@ -534,6 +534,7 @@ class LocaleSelect(v.Menu, SepalWidget):
             v.Html(tag="img", attributes=attr, class_="mr-1"),
             loc.code,
         ]
+        self.btn.color = "info"
 
         # change the paramater file
         su.set_config_locale(loc.code)

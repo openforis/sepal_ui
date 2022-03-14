@@ -11,7 +11,7 @@ class TestBtn:
 
         # minimal btn
         assert isinstance(locale_select, sw.LocaleSelect)
-        assert len(locale_select.language_list.children[0].children) == 297
+        assert len(locale_select.language_list.children[0].children) == 1
 
         return
 
