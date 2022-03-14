@@ -14,6 +14,7 @@ sepal\_ui.translator.Translator
         ~Translator.targeted
         ~Translator.match
         ~Translator.keys
+        ~Translator.folder
    
     .. rubric:: Methods
 
@@ -24,12 +25,15 @@ sepal\_ui.translator.Translator
         ~Translator.search_key
         ~Translator.sanitize
         ~Translator.find_target
+        ~Translator.available_locales
         
 .. automethod:: sepal_ui.translator.Translator.missing_keys
 
 .. automethod:: sepal_ui.translator.Translator.sanitize
 
 .. automethod:: sepal_ui.translator.Translator.search_key
+
+.. automethod:: sepal_ui.translator.Translator.available_locales
 
 .. autofunction:: sepal_ui.translator.Translator.find_target
    
