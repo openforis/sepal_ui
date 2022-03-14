@@ -454,9 +454,15 @@ class LocaleSelect(v.Menu, SepalWidget):
 
     def __init__(self, translator=None, **kwargs):
 
+        # extract the available language from the translator
+        # default to only en-US if no translator is set
+        available_locales = (
+            ["en"] if translator is None else translator.available_locales()
+        )
+
         # extract the language information from the translator
         # if not set default to english
-        code = "en-US" if translator is None else translator.target
+        code = "en" if translator is None else translator.target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 
@@ -473,7 +479,11 @@ class LocaleSelect(v.Menu, SepalWidget):
             v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
-            children=[v.ListItemGroup(children=self._get_country_items(), v_model="")],
+            children=[
+                v.ListItemGroup(
+                    children=self._get_country_items(available_locales), v_model=""
+                )
+            ],
         )
 
         super().__init__(
@@ -488,11 +498,12 @@ class LocaleSelect(v.Menu, SepalWidget):
         jsdlink((self.language_list.children[0], "v_model"), (self, "value"))
         self.language_list.children[0].observe(self._on_locale_select, "v_model")
 
-    def _get_country_items(self):
-        """get the list of countries as a list of listItem"""
+    def _get_country_items(self, locales):
+        """get the list of countries as a list of listItem. reduce the list to the available language of the module"""
 
         country_list = []
-        for r in self.COUNTRIES.itertuples(index=False):
+        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
+        for r in filtered_countries.itertuples(index=False):
 
             attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
 

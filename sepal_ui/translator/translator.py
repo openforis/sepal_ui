@@ -56,23 +56,26 @@ class Translator(SimpleNamespace):
     keys = None
     "all the keys can be acceced as attributes"
 
+    folder = None
+    "pathlib.Path: the path to the l10n folder"
+
     def __init__(self, json_folder, target=None, default="en", file_pattern="locale"):
 
         # init the simple namespace
         super().__init__()
 
         # force cast to path
-        json_folder = Path(json_folder)
+        self.folder = Path(json_folder)
 
         # reading the default dict
         self.default = default
-        source_path = json_folder / default / f"{file_pattern}.json"
+        source_path = self.folder / default / f"{file_pattern}.json"
         self.default_dict = self.sanitize(json.loads(source_path.read_text()))
 
         # create a dictionary in the target language
-        self.targeted, target = self.find_target(json_folder, target)
+        self.targeted, target = self.find_target(self.folder, target)
         self.target = target or default
-        target_path = json_folder / self.target / f"{file_pattern}.json"
+        target_path = self.folder / self.target / f"{file_pattern}.json"
         self.target_dict = self.sanitize(json.loads(target_path.read_text()))
 
         # evaluate the matching of requested and obtained values
@@ -235,3 +238,13 @@ class Translator(SimpleNamespace):
             ddiff = ["All messages are translated"]
 
         return "\n".join(ddiff)
+
+    def available_locales(self):
+        """
+        Return the available locales in the l10n folder
+
+        Return:
+            (list): the lilst of str codes
+        """
+
+        return [f.name for f in self.folder.iterdir() if f.is_dir()]
