@@ -58,11 +58,11 @@ COMPONENTS = {
 # default styling of the aoi layer
 AOI_STYLE = {
     "stroke": True,
-    "color": v.theme.themes.dark.success,
+    "color": "grey",
     "weight": 2,
     "opacity": 1,
     "fill": True,
-    "fillColor": v.theme.themes.dark.success,
+    "fillColor": "grey",
     "fillOpacity": 0.4,
 }
 

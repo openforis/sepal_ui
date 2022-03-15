@@ -9,7 +9,7 @@ import ee
 import geopandas as gpd
 from natsort import humansorted
 
-
+from sepal_ui import color
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
 from sepal_ui.scripts import utils as su
@@ -215,13 +215,13 @@ class FileInput(v.Flex, SepalWidget):
 
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color="grey darken-3",
+            background_color=color.bg,
             color=COMPONENTS["PROGRESS_BAR"]["color"],
         )
 
         self.file_list = v.List(
             dense=True,
-            color="grey darken-3",
+            color=color.bg,
             flat=True,
             v_model=True,
             max_height="300px",
