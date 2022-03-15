@@ -462,13 +462,14 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, **kwargs):
+    def add_banner(self, msg, id_=None, **kwargs):
         """
         Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
 
         Args:
             msg (str): the message to write in the Alert
             kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+            id_ (str, optional): unique banner identificator to avoid multiple aggregations.
 
         Return:
             self
@@ -481,12 +482,25 @@ class App(v.App, SepalWidget):
         kwargs["prominent"] = kwargs.pop("prominent", True)
         kwargs["dismissible"] = kwargs.pop("dismissible", True)
         kwargs["children"] = [msg]  # cannot be overwritten
+        kwargs["_metadata"] = {"id_": id_}
 
-        # create the alert
         alert = v.Alert(**kwargs)
 
-        # add the alert to the app
-        self.content.children = [alert] + self.content.children.copy()
+        # Verify if alert is already in the app.
+        for chld in self.content.children:
+            if isinstance(chld._metadata, dict):
+                if "id_" in chld._metadata:
+                    if chld._metadata["id_"] == kwargs["_metadata"]["id_"]:
+                        alert = chld
+                        alert.children = [msg]
+                        break
+
+        # add the alert to the app if not already there
+        if alert not in self.content.children:
+            self.content.children = [alert] + self.content.children.copy()
+
+        # Display the alert
+        alert.v_model = True
 
         return self
 
@@ -495,7 +509,7 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg)
+            self.add_banner(msg, id_="locale")
 
         return
 
@@ -504,7 +518,7 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.theme.change.format(change["new"])
-            self.add_banner(msg)
+            self.add_banner(msg, id_="theme")
 
         return
 
