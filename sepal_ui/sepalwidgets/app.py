@@ -482,20 +482,17 @@ class App(v.App, SepalWidget):
         kwargs["prominent"] = kwargs.pop("prominent", True)
         kwargs["dismissible"] = kwargs.pop("dismissible", True)
         kwargs["children"] = [msg]  # cannot be overwritten
-        kwargs["_metadata"] = {"id_": id_}
+        kwargs["attributes"] = {"id": id_}
         kwargs["v_model"] = kwargs.pop("v_model", False)
-
-        # prepare a test to find an existing banner
-        def test(m):
-            return m is not None and m.pop("id_", None) == id_
 
         # Verify if alert is already in the app.
         children = self.content.children.copy()
-        try:
-            children.remove(next(c for c in children if test(c._metadata)))
-        except StopIteration:
-            pass
 
+        # remove already existing alert
+        alert = next((c for c in children if c.attributes.get("id") == id_), False)
+        alert is False or children.remove(alert)
+
+        # create alert
         alert = v.Alert(**kwargs)
 
         # add the alert to the app if not already there
