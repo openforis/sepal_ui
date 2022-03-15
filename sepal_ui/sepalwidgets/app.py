@@ -485,14 +485,14 @@ class App(v.App, SepalWidget):
         kwargs["_metadata"] = {"id_": id_}
         kwargs["v_model"] = kwargs.pop("v_model", False)
 
+        # prepare a test to find an existing banner
+        def test(m):
+            m is not None and m.pop("id_", None) == id_
+
         # Verify if alert is already in the app.
         children = self.content.children.copy()
         try:
-            test = (
-                lambda c: c._metadata is not None
-                and c._metadata.pop("id_", None) == id_
-            )
-            children.remove(next(c for c in self.content.children if test(c)))
+            children.remove(next(c for c in children if test(c._metadata)))
         except StopIteration:
             pass
 
