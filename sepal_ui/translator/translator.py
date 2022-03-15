@@ -119,7 +119,7 @@ class Translator(SimpleNamespace):
             if config_file.is_file():
                 config = ConfigParser()
                 config.read(config_file)
-                target = config["sepal-ui"]["locale"]
+                target = config.get("sepal-ui", "locale", fallback="en")
             else:
                 return ("en", None)
 
