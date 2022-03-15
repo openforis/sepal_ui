@@ -521,3 +521,31 @@ def set_config_locale(locale):
     config.write(config_file.open("w"))
 
     return
+
+
+@versionadded(version="2.7.0")
+def set_config_theme(theme):
+    """
+    Set the provided theme in the sepal-ui config file
+
+    Args:
+        theme (str): a theme name (currently supporting "dark" and "light")
+    """
+
+    config = ConfigParser()
+
+    # read the existing file if available
+    if config_file.is_file():
+        config.read(config_file)
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section("sepal-ui")
+
+    # set the value
+    config.set("sepal-ui", "theme", theme)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
