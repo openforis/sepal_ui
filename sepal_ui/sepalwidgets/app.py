@@ -10,7 +10,6 @@ from ipywidgets import jsdlink
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
-from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
@@ -49,7 +48,7 @@ class AppBar(v.AppBar, SepalWidget):
         self.locale = LocaleSelect(translator=translator)
 
         # set the default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["dense"] = kwargs.pop("dense", True)
         kwargs["app"] = True
@@ -252,7 +251,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         # set default parameters
         kwargs["v_model"] = kwargs.pop("v_model", True)
         kwargs["app"] = True
-        kwargs["color"] = kwargs.pop("color", sepal_darker)
+        kwargs["color"] = kwargs.pop("color", color.darker)
         kwargs["children"] = children
 
         # call the constructor
@@ -313,7 +312,7 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["app"] = True
         kwargs["children"] = [text]
@@ -600,3 +599,112 @@ class LocaleSelect(v.Menu, SepalWidget):
         su.set_config_locale(loc.code)
 
         return
+
+
+# class ThemeSelect(v.Btn, SepalWidget):
+#    """
+#    An theme selector for sepal-ui based application.
+#
+#    It displays the currently requested theme (default to dark).
+#    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+#
+#    .. versionadded:: 2.7.0
+#
+#    Args:
+#        kwargs (dict, optional): any arguments for a Btn object, children will be override
+#    """
+#
+#    THEME_ICONS = {
+#        "dark": "fas fa-moon",
+#        "light": "fas fa-sun"
+#    }
+#    "dict: the dictionnry of icons to use for each theme (used as keys)"
+#
+#    def __init__(self, **kwargs):
+#
+#        # extract the available language from the translator
+#        # default to only en-US if no translator is set
+#        available_locales = (
+#            ["en"] if translator is None else translator.available_locales()
+#        )
+#
+#        # extract the language information from the translator
+#        # if not set default to english
+#        code = "en" if translator is None else translator.target
+#        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
+#        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+#
+#        kwargs["small"] = kwargs.pop("small", True)
+#        kwargs["v_model"] = False
+#        kwargs["v_on"] = "x.on"
+#        kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
+#        self.btn = v.Btn(**kwargs)
+#
+#        self.language_list = v.List(
+#            dense=True,
+#            flat=True,
+#            color="grey darken-3",
+#            v_model=True,
+#            max_height="300px",
+#            style_="overflow: auto; border-radius: 0 0 0 0;",
+#            children=[
+#                v.ListItemGroup(
+#                    children=self._get_country_items(available_locales), v_model=""
+#                )
+#            ],
+#        )
+#
+#        super().__init__(
+#            children=[self.language_list],
+#            v_model=False,
+#            close_on_content_click=True,
+#            v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
+#            value=loc.code,
+#        )
+#
+#        # add js behaviour
+#        jsdlink((self.language_list.children[0], "v_model"), (self, "value"))
+#        self.language_list.children[0].observe(self._on_locale_select, "v_model")
+#
+#    def _get_country_items(self, locales):
+#        """get the list of countries as a list of listItem. reduce the list to the available language of the module"""
+#
+#        country_list = []
+#        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
+#        for r in filtered_countries.itertuples(index=False):
+#
+#            attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
+#
+#            children = [
+#                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
+#                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
+#                v.ListItemActionText(children=[r.code]),
+#            ]
+#
+#            country_list.append(v.ListItem(value=r.code, children=children))
+#
+#        return country_list
+#
+#    def _on_locale_select(self, change):
+#        """
+#        adapt the application to the newly selected language
+#
+#        Display the new flag and country code on the widget btn
+#        change the value in the config file
+#        """
+#
+#        # get the line in the locale dataframe
+#        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
+#
+#        # change the btn attributes
+#        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+#        self.btn.children = [
+#            v.Html(tag="img", attributes=attr, class_="mr-1"),
+#            loc.code,
+#        ]
+#        self.btn.color = "info"
+#
+#        # change the paramater file
+#        su.set_config_locale(loc.code)
+#
+#        return

@@ -2,24 +2,24 @@ from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v
 
-# change vuetify theming
-v.theme.dark = True
-
 # set the colors for the dark theme
-v.theme.themes.dark.primary = "#B3842E"
+v.theme.themes.dark.primary = "#b3842e"
 v.theme.themes.dark.accent = "#a1458e"
 v.theme.themes.dark.secondary = "#324a88"
-v.theme.themes.dark.success = "#3F802A"
-v.theme.themes.dark.info = "#79B1C9"
+v.theme.themes.dark.success = "#3f802a"
+v.theme.themes.dark.info = "#79b1c9"
 v.theme.themes.dark.warning = "#b8721d"
-v.theme.themes.dark.error = "#A63228"
+v.theme.themes.dark.error = "#a63228"
 
-# fixed colors
-sepal_main = "#24221F"
-sepal_darker = "#1a1a1a"
+# fixed colors for drawer and appbar
+v.theme.themes.dark.main = "#24221f"
+v.theme.themes.light.main = "#2e7d32"
+v.theme.themes.dark.darker = "#1a1a1a"
+v.theme.themes.light.darker = "#005005"
 
 # set the background
-bg_color = "#121212" if v.theme.dark else "#fff"
+v.theme.themes.dark.bg_color = "#121212"
+v.theme.themes.light.bg_color = "#fff"
 
 
 class Styles(v.VuetifyTemplate):
