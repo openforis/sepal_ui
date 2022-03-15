@@ -487,7 +487,7 @@ class App(v.App, SepalWidget):
 
         # prepare a test to find an existing banner
         def test(m):
-            m is not None and m.pop("id_", None) == id_
+            return m is not None and m.pop("id_", None) == id_
 
         # Verify if alert is already in the app.
         children = self.content.children.copy()
