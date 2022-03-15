@@ -478,26 +478,28 @@ class App(v.App, SepalWidget):
         kwargs["type"] = kwargs.pop("type", "info")
         kwargs["border"] = kwargs.pop("border", "left")
         kwargs["class_"] = kwargs.pop("class_", "mt-5")
-        kwargs["transition"] = kwargs.pop("transition", "slide-x-transition")
+        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
         kwargs["prominent"] = kwargs.pop("prominent", True)
         kwargs["dismissible"] = kwargs.pop("dismissible", True)
         kwargs["children"] = [msg]  # cannot be overwritten
         kwargs["_metadata"] = {"id_": id_}
+        kwargs["v_model"] = kwargs.pop("v_model", False)
+
+        # Verify if alert is already in the app.
+        children = self.content.children.copy()
+        try:
+            test = (
+                lambda c: c._metadata is not None
+                and c._metadata.pop("id_", None) == id_
+            )
+            children.remove(next(c for c in self.content.children if test(c)))
+        except StopIteration:
+            pass
 
         alert = v.Alert(**kwargs)
 
-        # Verify if alert is already in the app.
-        for chld in self.content.children:
-            if isinstance(chld._metadata, dict):
-                if "id_" in chld._metadata:
-                    if chld._metadata["id_"] == kwargs["_metadata"]["id_"]:
-                        alert = chld
-                        alert.children = [msg]
-                        break
-
         # add the alert to the app if not already there
-        if alert not in self.content.children:
-            self.content.children = [alert] + self.content.children.copy()
+        self.content.children = [alert] + children
 
         # Display the alert
         alert.v_model = True
