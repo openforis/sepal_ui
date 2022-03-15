@@ -546,7 +546,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.language_list = v.List(
             dense=True,
             flat=True,
-            color=color.bg,  # "grey darken-3",
+            color=color.menu,
             v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",

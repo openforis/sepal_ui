@@ -21,6 +21,10 @@ v.theme.themes.light.darker = "#005005"
 v.theme.themes.dark.bg_color = "#121212"
 v.theme.themes.light.bg_color = "#fff"
 
+# set a specific color for menus
+v.theme.themes.dark.menu = "#424242"
+v.theme.themes.light.menu = "#fff"
+
 
 class Styles(v.VuetifyTemplate):
     """
@@ -49,12 +53,6 @@ class Styles(v.VuetifyTemplate):
 styles = Styles()
 display(styles)
 
-COMPONENTS = {
-    "PROGRESS_BAR": {
-        "color": "indigo",
-    }
-}
-
 # default styling of the aoi layer
 AOI_STYLE = {
     "stroke": True,
@@ -66,13 +64,22 @@ AOI_STYLE = {
     "fillOpacity": 0.4,
 }
 
+# the colors are set as follow.
+# 1 (True): dark theme
+# 0 (false): light theme
+# This will need to be changed if we want to support more than 2 theme
+COMPONENTS = {
+    "PROGRESS_BAR": {
+        "color": ["#2196f3", "#3f51b5"],
+    }
+}
 
-_folder = {"color": "amber", "icon": "far fa-folder"}
-_table = {"color": "green accent-4", "icon": "far fa-table"}
-_vector = {"color": "deep-purple", "icon": "far fa-vector-square"}
-_other = {"color": "light-blue", "icon": "far fa-file"}
-_parent = {"color": "white", "icon": "far fa-folder-open"}
-_image = {"color": "deep-purple", "icon": "far fa-image"}
+_folder = {"color": ["#ffca28", "#ffc107"], "icon": "far fa-folder"}
+_table = {"color": ["#4caf50", "#00c853"], "icon": "far fa-table"}
+_vector = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-vector-square"}
+_other = {"color": ["#00bcd4", "#03a9f4"], "icon": "far fa-file"}
+_parent = {"color": ["#424242", "#ffffff"], "icon": "far fa-folder-open"}
+_image = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-image"}
 
 ICON_TYPES = {
     "": _folder,

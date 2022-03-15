@@ -51,5 +51,6 @@ color = SimpleNamespace(
     info=theme.info,
     warning=theme.warning,
     error=theme.error,
+    menu=theme.menu,
 )
-'SimpleNamespace: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error". They will render according to the selected theme.'
+'SimpleNamespace: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'
