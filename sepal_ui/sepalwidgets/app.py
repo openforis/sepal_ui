@@ -2,12 +2,14 @@ from traitlets import link, Bool, observe
 from functools import partial
 from datetime import datetime
 from pathlib import Path
+from itertools import cycle
 
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 import pandas as pd
 from ipywidgets import jsdlink
 
+import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
 from sepal_ui.frontend import js
@@ -36,6 +38,9 @@ class AppBar(v.AppBar, SepalWidget):
     locale = None
     "sw.LocaleSelect: the locale selector of all apps"
 
+    theme = None
+    "sw.ThemeSelect: the theme selector of all apps"
+
     def __init__(self, title="SEPAL module", translator=None, **kwargs):
 
         self.toggle_button = v.Btn(
@@ -46,13 +51,20 @@ class AppBar(v.AppBar, SepalWidget):
         self.title = v.ToolbarTitle(children=[title])
 
         self.locale = LocaleSelect(translator=translator)
+        self.theme = ThemeSelect()
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["dense"] = kwargs.pop("dense", True)
         kwargs["app"] = True
-        kwargs["children"] = [self.toggle_button, self.title, v.Spacer(), self.locale]
+        kwargs["children"] = [
+            self.toggle_button,
+            self.title,
+            v.Spacer(),
+            self.locale,
+            self.theme,
+        ]
 
         super().__init__(**kwargs)
 
@@ -601,110 +613,56 @@ class LocaleSelect(v.Menu, SepalWidget):
         return
 
 
-# class ThemeSelect(v.Btn, SepalWidget):
-#    """
-#    An theme selector for sepal-ui based application.
-#
-#    It displays the currently requested theme (default to dark).
-#    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
-#
-#    .. versionadded:: 2.7.0
-#
-#    Args:
-#        kwargs (dict, optional): any arguments for a Btn object, children will be override
-#    """
-#
-#    THEME_ICONS = {
-#        "dark": "fas fa-moon",
-#        "light": "fas fa-sun"
-#    }
-#    "dict: the dictionnry of icons to use for each theme (used as keys)"
-#
-#    def __init__(self, **kwargs):
-#
-#        # extract the available language from the translator
-#        # default to only en-US if no translator is set
-#        available_locales = (
-#            ["en"] if translator is None else translator.available_locales()
-#        )
-#
-#        # extract the language information from the translator
-#        # if not set default to english
-#        code = "en" if translator is None else translator.target
-#        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
-#        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
-#
-#        kwargs["small"] = kwargs.pop("small", True)
-#        kwargs["v_model"] = False
-#        kwargs["v_on"] = "x.on"
-#        kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
-#        self.btn = v.Btn(**kwargs)
-#
-#        self.language_list = v.List(
-#            dense=True,
-#            flat=True,
-#            color="grey darken-3",
-#            v_model=True,
-#            max_height="300px",
-#            style_="overflow: auto; border-radius: 0 0 0 0;",
-#            children=[
-#                v.ListItemGroup(
-#                    children=self._get_country_items(available_locales), v_model=""
-#                )
-#            ],
-#        )
-#
-#        super().__init__(
-#            children=[self.language_list],
-#            v_model=False,
-#            close_on_content_click=True,
-#            v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
-#            value=loc.code,
-#        )
-#
-#        # add js behaviour
-#        jsdlink((self.language_list.children[0], "v_model"), (self, "value"))
-#        self.language_list.children[0].observe(self._on_locale_select, "v_model")
-#
-#    def _get_country_items(self, locales):
-#        """get the list of countries as a list of listItem. reduce the list to the available language of the module"""
-#
-#        country_list = []
-#        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-#        for r in filtered_countries.itertuples(index=False):
-#
-#            attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
-#
-#            children = [
-#                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
-#                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
-#                v.ListItemActionText(children=[r.code]),
-#            ]
-#
-#            country_list.append(v.ListItem(value=r.code, children=children))
-#
-#        return country_list
-#
-#    def _on_locale_select(self, change):
-#        """
-#        adapt the application to the newly selected language
-#
-#        Display the new flag and country code on the widget btn
-#        change the value in the config file
-#        """
-#
-#        # get the line in the locale dataframe
-#        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
-#
-#        # change the btn attributes
-#        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
-#        self.btn.children = [
-#            v.Html(tag="img", attributes=attr, class_="mr-1"),
-#            loc.code,
-#        ]
-#        self.btn.color = "info"
-#
-#        # change the paramater file
-#        su.set_config_locale(loc.code)
-#
-#        return
+class ThemeSelect(v.Btn, SepalWidget):
+    """
+    A theme selector for sepal-ui based application.
+
+    It displays the currently requested theme (default to dark).
+    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+    .. versionadded:: 2.7.0
+
+    Args:
+        kwargs (dict, optional): any arguments for a Btn object, children will be override
+    """
+
+    THEME_ICONS = {"dark": "fas fa-moon", "light": "fas fa-sun"}
+    "dict: the dictionnry of icons to use for each theme (used as keys)"
+
+    theme = "dark"
+    "str: the current theme of the widget (default to dark)"
+
+    def __init__(self, **kwargs):
+
+        # get the current theme name
+        self.theme = sepal_ui.get_theme(sepal_ui.config_file)
+
+        # set the btn parameters
+        kwargs["x_small"] = kwargs.pop("x_small", True)
+        kwargs["fab"] = kwargs.pop("fab", True)
+        kwargs["class_"] = kwargs.pop("class_", "ml-2")
+        kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
+
+        # create the btn
+        super().__init__(**kwargs)
+
+        # add some js events
+        self.on_event("click", self.toggle_theme)
+
+    def toggle_theme(self, widget, event, data):
+        """
+        toggle the btn icon from dark to light and adapt the configuration file at the same time
+        """
+        # use a cycle to go through the themes
+        theme_cycle = cycle(self.THEME_ICONS.keys())
+        next(t for t in theme_cycle if t == self.theme)
+        self.theme = next(t for t in theme_cycle)
+
+        # change icon
+        self.color = "info"
+        self.children[0].children[0] = self.THEME_ICONS[self.theme]
+
+        # change the paramater file
+        su.set_config_theme(self.theme)
+
+        return

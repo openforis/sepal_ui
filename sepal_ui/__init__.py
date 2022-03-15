@@ -28,6 +28,9 @@ def get_theme(config_file):
         config.read(config_file)
         theme = config.get("sepal-ui", "theme", fallback="dark")
 
+    # set vuetify theme
+    v.theme.dark = True if theme == "dark" else False
+
     return theme
 
 
