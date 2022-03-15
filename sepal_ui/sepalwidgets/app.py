@@ -695,7 +695,7 @@ class ThemeSelect(v.Btn, SepalWidget):
 
         # change icon
         self.color = "info"
-        self.children[0].children[0] = self.THEME_ICONS[self.theme]
+        self.children[0].children = [self.THEME_ICONS[self.theme]]
 
         # change the paramater file
         su.set_config_theme(self.theme)
