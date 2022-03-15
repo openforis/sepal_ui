@@ -100,7 +100,10 @@ class SepalMap(geemap.Map):
         if len(basemaps):
             [self.add_basemap(basemap) for basemap in set(basemaps)]
         else:
-            self.add_basemap("CartoDB.DarkMatter")
+            default_basemap = (
+                "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+            )
+            self.add_basemap(default_basemap)
 
         # add the base controls
         self.clear_controls()
