@@ -53,8 +53,8 @@ class TestSepalMap:
 
         m.set_drawing_controls(True)
         assert isinstance(m.dc, geemap.DrawControl)
-        assert m.dc.rectangle == {"shapeOptions": {"color": "#79B1C9"}}
-        assert m.dc.polygon == {"shapeOptions": {"color": "#79B1C9"}}
+        assert m.dc.rectangle == {"shapeOptions": {"color": "#79b1c9"}}
+        assert m.dc.polygon == {"shapeOptions": {"color": "#79b1c9"}}
         assert m.dc.marker == {}
         assert m.dc.polyline == {}
 

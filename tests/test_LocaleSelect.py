@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui import config_file
 
 
-class TestBtn:
+class TestLocalSelect:
     def test_init(self, locale_select):
 
         # minimal btn

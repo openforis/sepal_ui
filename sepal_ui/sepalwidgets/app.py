@@ -16,7 +16,15 @@ from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
-__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App", "LocaleSelect"]
+__all__ = [
+    "AppBar",
+    "DrawerItem",
+    "NavDrawer",
+    "Footer",
+    "App",
+    "LocaleSelect",
+    "ThemeSelect",
+]
 
 
 class AppBar(v.AppBar, SepalWidget):
