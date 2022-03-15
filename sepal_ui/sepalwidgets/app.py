@@ -425,6 +425,7 @@ class App(v.App, SepalWidget):
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
+        self.appBar.theme.observe(self._theme_info, "v_model")
 
     def show_tile(self, name):
         """
@@ -486,7 +487,16 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg, type="success")
+            self.add_banner(msg)
+
+        return
+
+    def _theme_info(self, change):
+        """display information about the theme change"""
+
+        if change["new"] != "":
+            msg = ms.theme.change.format(change["new"])
+            self.add_banner(msg)
 
         return
 
@@ -623,7 +633,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     .. versionadded:: 2.7.0
 
     Args:
-        kwargs (dict, optional): any arguments for a Btn object, children will be override
+        kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
     """
 
     THEME_ICONS = {"dark": "fas fa-moon", "light": "fas fa-sun"}
@@ -642,6 +652,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         kwargs["fab"] = kwargs.pop("fab", True)
         kwargs["class_"] = kwargs.pop("class_", "ml-2")
         kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
+        kwargs["v_model"] = self.theme
 
         # create the btn
         super().__init__(**kwargs)
@@ -664,5 +675,8 @@ class ThemeSelect(v.Btn, SepalWidget):
 
         # change the paramater file
         su.set_config_theme(self.theme)
+
+        # trigger other events by changing v_model
+        self.v_model = self.theme
 
         return
