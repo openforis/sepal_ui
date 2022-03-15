@@ -632,7 +632,7 @@ class AoiModel(Model):
 
         # create a GeoJSON object
         self.ipygeojson = GeoJSON(
-            data=data, style=style, name="aoi", attribution="SEPA(c)"
+            data=data, style=style, name="aoi", attribution="SEPAL(c)"
         )
 
         return self.ipygeojson
