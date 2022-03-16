@@ -2,20 +2,29 @@ from traitlets import link, Bool, observe
 from functools import partial
 from datetime import datetime
 from pathlib import Path
+from itertools import cycle
 
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 import pandas as pd
 from ipywidgets import jsdlink
 
+import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui import color
-from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
-__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App", "LocaleSelect"]
+__all__ = [
+    "AppBar",
+    "DrawerItem",
+    "NavDrawer",
+    "Footer",
+    "App",
+    "LocaleSelect",
+    "ThemeSelect",
+]
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -37,6 +46,9 @@ class AppBar(v.AppBar, SepalWidget):
     locale = None
     "sw.LocaleSelect: the locale selector of all apps"
 
+    theme = None
+    "sw.ThemeSelect: the theme selector of all apps"
+
     def __init__(self, title="SEPAL module", translator=None, **kwargs):
 
         self.toggle_button = v.Btn(
@@ -47,13 +59,20 @@ class AppBar(v.AppBar, SepalWidget):
         self.title = v.ToolbarTitle(children=[title])
 
         self.locale = LocaleSelect(translator=translator)
+        self.theme = ThemeSelect()
 
         # set the default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["dense"] = kwargs.pop("dense", True)
         kwargs["app"] = True
-        kwargs["children"] = [self.toggle_button, self.title, v.Spacer(), self.locale]
+        kwargs["children"] = [
+            self.toggle_button,
+            self.title,
+            v.Spacer(),
+            self.locale,
+            self.theme,
+        ]
 
         super().__init__(**kwargs)
 
@@ -252,7 +271,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         # set default parameters
         kwargs["v_model"] = kwargs.pop("v_model", True)
         kwargs["app"] = True
-        kwargs["color"] = kwargs.pop("color", sepal_darker)
+        kwargs["color"] = kwargs.pop("color", color.darker)
         kwargs["children"] = children
 
         # call the constructor
@@ -313,7 +332,7 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["app"] = True
         kwargs["children"] = [text]
@@ -414,6 +433,7 @@ class App(v.App, SepalWidget):
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
+        self.appBar.theme.observe(self._theme_info, "v_model")
 
     def show_tile(self, name):
         """
@@ -442,13 +462,14 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, **kwargs):
+    def add_banner(self, msg, id_=None, **kwargs):
         """
         Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
 
         Args:
             msg (str): the message to write in the Alert
             kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+            id_ (str, optional): unique banner identificator to avoid multiple aggregations.
 
         Return:
             self
@@ -457,16 +478,28 @@ class App(v.App, SepalWidget):
         kwargs["type"] = kwargs.pop("type", "info")
         kwargs["border"] = kwargs.pop("border", "left")
         kwargs["class_"] = kwargs.pop("class_", "mt-5")
-        kwargs["transition"] = kwargs.pop("transition", "slide-x-transition")
+        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
         kwargs["prominent"] = kwargs.pop("prominent", True)
         kwargs["dismissible"] = kwargs.pop("dismissible", True)
         kwargs["children"] = [msg]  # cannot be overwritten
+        kwargs["attributes"] = {"id": id_}
+        kwargs["v_model"] = kwargs.pop("v_model", False)
 
-        # create the alert
+        # Verify if alert is already in the app.
+        children = self.content.children.copy()
+
+        # remove already existing alert
+        alert = next((c for c in children if c.attributes.get("id") == id_), False)
+        alert is False or children.remove(alert)
+
+        # create alert
         alert = v.Alert(**kwargs)
 
-        # add the alert to the app
-        self.content.children = [alert] + self.content.children.copy()
+        # add the alert to the app if not already there
+        self.content.children = [alert] + children
+
+        # Display the alert
+        alert.v_model = True
 
         return self
 
@@ -475,7 +508,16 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg, type="success")
+            self.add_banner(msg, id_="locale")
+
+        return
+
+    def _theme_info(self, change):
+        """display information about the theme change"""
+
+        if change["new"] != "":
+            msg = ms.theme.change.format(change["new"])
+            self.add_banner(msg, id_="theme")
 
         return
 
@@ -535,7 +577,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.language_list = v.List(
             dense=True,
             flat=True,
-            color="grey darken-3",
+            color=color.menu,
             v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
@@ -598,5 +640,64 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # change the paramater file
         su.set_config_locale(loc.code)
+
+        return
+
+
+class ThemeSelect(v.Btn, SepalWidget):
+    """
+    A theme selector for sepal-ui based application.
+
+    It displays the currently requested theme (default to dark).
+    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+    .. versionadded:: 2.7.0
+
+    Args:
+        kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
+    """
+
+    THEME_ICONS = {"dark": "fas fa-moon", "light": "fas fa-sun"}
+    "dict: the dictionnry of icons to use for each theme (used as keys)"
+
+    theme = "dark"
+    "str: the current theme of the widget (default to dark)"
+
+    def __init__(self, **kwargs):
+
+        # get the current theme name
+        self.theme = sepal_ui.get_theme(sepal_ui.config_file)
+
+        # set the btn parameters
+        kwargs["x_small"] = kwargs.pop("x_small", True)
+        kwargs["fab"] = kwargs.pop("fab", True)
+        kwargs["class_"] = kwargs.pop("class_", "ml-2")
+        kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
+        kwargs["v_model"] = self.theme
+
+        # create the btn
+        super().__init__(**kwargs)
+
+        # add some js events
+        self.on_event("click", self.toggle_theme)
+
+    def toggle_theme(self, widget, event, data):
+        """
+        toggle the btn icon from dark to light and adapt the configuration file at the same time
+        """
+        # use a cycle to go through the themes
+        theme_cycle = cycle(self.THEME_ICONS.keys())
+        next(t for t in theme_cycle if t == self.theme)
+        self.theme = next(t for t in theme_cycle)
+
+        # change icon
+        self.color = "info"
+        self.children[0].children = [self.THEME_ICONS[self.theme]]
+
+        # change the paramater file
+        su.set_config_theme(self.theme)
+
+        # trigger other events by changing v_model
+        self.v_model = self.theme
 
         return

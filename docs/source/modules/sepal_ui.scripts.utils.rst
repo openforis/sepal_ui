@@ -23,6 +23,7 @@ sepal\_ui.scripts.utils
         switch
         to_colors
         set_config_locale
+        set_config_theme
       
 .. autofunction:: sepal_ui.scripts.utils.catch_errors
 
@@ -53,6 +54,8 @@ sepal\_ui.scripts.utils
 .. autofunction:: sepal_ui.scripts.utils.to_colors
 
 .. autofunction:: sepal_ui.scripts.utils.set_config_locale
+
+.. autofunction:: sepal_ui.scripts.utils.set_config_theme
 
 
       

@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+from colorama import init, Fore, Style
+
+from sepal_ui.scripts import utils as su
+
+# init colors for all plateforms
+init()
+
+
+def check_theme(theme):
+    """
+    Check if the theme is a legit name
+
+    Return:
+        (bool)
+    """
+
+    themes = ["dark", "light"]
+
+    return theme in themes
+
+
+if __name__ == "__main__":
+
+    # welcome the user
+    print(Fore.YELLOW)
+    print("##########################################")
+    print("#                                        #")
+    print("#      SEPAL MODULE THEMING TOOL         #")
+    print("#                                        #")
+    print("##########################################")
+    print(Fore.RESET)
+    print(f"Welcome in the {Style.BRIGHT}module theming{Style.NORMAL} interface.")
+
+    # select a language
+    is_theme = False
+    while is_theme is False:
+
+        theme = input(f"{Fore.CYAN}Provide a theme name: \n{Fore.RESET}")
+        is_theme = check_theme(theme)
+
+        # display an error if the language does not exist
+        if is_theme is False:
+            print(
+                f'{Fore.RED} The provided theme name ("{theme}") is not a supported theme. {Fore.RESET}'
+            )
+
+    # write the new color code in the config file
+    su.set_config_theme(theme)
+
+    # display information
+    print(
+        f'{Fore.GREEN} The provided theme ("{theme}") has been set as default theme for all SEPAL applications.{Fore.RESET}'
+    )

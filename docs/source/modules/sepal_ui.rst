@@ -24,3 +24,11 @@ Content
     sepal_ui.theme
     sepal_ui.color
     sepal_ui.config_file
+    
+.. rubric:: Attributes
+
+.. autosummary::
+    
+    sepal_ui.get_theme
+    
+.. autofunction:: sepal_ui.get_theme

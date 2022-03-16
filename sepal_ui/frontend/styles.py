@@ -2,24 +2,28 @@ from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v
 
-# change vuetify theming
-v.theme.dark = True
-
 # set the colors for the dark theme
-v.theme.themes.dark.primary = "#B3842E"
+v.theme.themes.dark.primary = "#b3842e"
 v.theme.themes.dark.accent = "#a1458e"
 v.theme.themes.dark.secondary = "#324a88"
-v.theme.themes.dark.success = "#3F802A"
-v.theme.themes.dark.info = "#79B1C9"
+v.theme.themes.dark.success = "#3f802a"
+v.theme.themes.dark.info = "#79b1c9"
 v.theme.themes.dark.warning = "#b8721d"
-v.theme.themes.dark.error = "#A63228"
+v.theme.themes.dark.error = "#a63228"
 
-# fixed colors
-sepal_main = "#24221F"
-sepal_darker = "#1a1a1a"
+# fixed colors for drawer and appbar
+v.theme.themes.dark.main = "#24221f"
+v.theme.themes.light.main = "#2e7d32"
+v.theme.themes.dark.darker = "#1a1a1a"
+v.theme.themes.light.darker = "#005005"
 
 # set the background
-bg_color = "#121212" if v.theme.dark else "#fff"
+v.theme.themes.dark.bg_color = "#121212"
+v.theme.themes.light.bg_color = "#fff"
+
+# set a specific color for menus
+v.theme.themes.dark.menu = "#424242"
+v.theme.themes.light.menu = "#fff"
 
 
 class Styles(v.VuetifyTemplate):
@@ -49,30 +53,33 @@ class Styles(v.VuetifyTemplate):
 styles = Styles()
 display(styles)
 
-COMPONENTS = {
-    "PROGRESS_BAR": {
-        "color": "indigo",
-    }
-}
-
 # default styling of the aoi layer
 AOI_STYLE = {
     "stroke": True,
-    "color": v.theme.themes.dark.success,
+    "color": "grey",
     "weight": 2,
     "opacity": 1,
     "fill": True,
-    "fillColor": v.theme.themes.dark.success,
+    "fillColor": "grey",
     "fillOpacity": 0.4,
 }
 
+# the colors are set as follow.
+# 1 (True): dark theme
+# 0 (false): light theme
+# This will need to be changed if we want to support more than 2 theme
+COMPONENTS = {
+    "PROGRESS_BAR": {
+        "color": ["#2196f3", "#3f51b5"],
+    }
+}
 
-_folder = {"color": "amber", "icon": "far fa-folder"}
-_table = {"color": "green accent-4", "icon": "far fa-table"}
-_vector = {"color": "deep-purple", "icon": "far fa-vector-square"}
-_other = {"color": "light-blue", "icon": "far fa-file"}
-_parent = {"color": "white", "icon": "far fa-folder-open"}
-_image = {"color": "deep-purple", "icon": "far fa-image"}
+_folder = {"color": ["#ffca28", "#ffc107"], "icon": "far fa-folder"}
+_table = {"color": ["#4caf50", "#00c853"], "icon": "far fa-table"}
+_vector = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-vector-square"}
+_other = {"color": ["#00bcd4", "#03a9f4"], "icon": "far fa-file"}
+_parent = {"color": ["#424242", "#ffffff"], "icon": "far fa-folder-open"}
+_image = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-image"}
 
 ICON_TYPES = {
     "": _folder,

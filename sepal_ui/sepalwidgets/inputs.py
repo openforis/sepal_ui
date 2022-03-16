@@ -9,7 +9,7 @@ import ee
 import geopandas as gpd
 from natsort import humansorted
 
-
+from sepal_ui import color
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
 from sepal_ui.scripts import utils as su
@@ -215,13 +215,13 @@ class FileInput(v.Flex, SepalWidget):
 
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color="grey darken-3",
-            color=COMPONENTS["PROGRESS_BAR"]["color"],
+            background_color=color.menu,
+            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
             dense=True,
-            color="grey darken-3",
+            color=color.menu,
             flat=True,
             v_model=True,
             max_height="300px",
@@ -374,13 +374,13 @@ class FileInput(v.Flex, SepalWidget):
 
             if el.is_dir():
                 icon = ICON_TYPES[""]["icon"]
-                color = ICON_TYPES[""]["color"]
+                color = ICON_TYPES[""]["color"][v.theme.dark]
             elif el.suffix in ICON_TYPES.keys():
                 icon = ICON_TYPES[el.suffix]["icon"]
-                color = ICON_TYPES[el.suffix]["color"]
+                color = ICON_TYPES[el.suffix]["color"][v.theme.dark]
             else:
                 icon = ICON_TYPES["DEFAULT"]["icon"]
-                color = ICON_TYPES["DEFAULT"]["color"]
+                color = ICON_TYPES["DEFAULT"]["color"][v.theme.dark]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -405,7 +405,7 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=ICON_TYPES["PARENT"]["color"],
+                            color=ICON_TYPES["PARENT"]["color"][v.theme.dark],
                             children=[ICON_TYPES["PARENT"]["icon"]],
                         )
                     ]

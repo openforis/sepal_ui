@@ -57,7 +57,7 @@ setup_params = {
             "pytest",
         ],
         "doc": [
-            "jupyter-sphinx @ git+git://github.com/jupyter/jupyter-sphinx.git",
+            "jupyter-sphinx @ git+https://github.com/jupyter/jupyter-sphinx.git",
             "pydata-sphinx-theme",
             "sphinx-notfound-page",
             "Sphinx",

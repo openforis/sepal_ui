@@ -326,3 +326,29 @@ class TestUtils:
         config_file.unlink()
 
         return
+
+    def test_set_config_theme(self):
+
+        # remove any config file that could exist
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a config_file with a set language
+        theme = "dark"
+        su.set_config_theme(theme)
+
+        config = ConfigParser()
+        config.read(config_file)
+        assert "sepal-ui" in config.sections()
+        assert config["sepal-ui"]["theme"] == theme
+
+        # change an existing locale
+        theme = "light"
+        su.set_config_theme(theme)
+        config.read(config_file)
+        assert config["sepal-ui"]["theme"] == theme
+
+        # destroy the file again
+        config_file.unlink()
+
+        return
