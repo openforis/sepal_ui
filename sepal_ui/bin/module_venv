@@ -109,5 +109,5 @@ if __name__ == "__main__":
 
     # display last message to the end user
     print(
-        f'{Fore.GREEN}THe test venv have been tested, it can be find in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
+        f'{Fore.GREEN}The test venv have been created, it can be find in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
     )
