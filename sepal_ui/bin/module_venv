@@ -1,0 +1,100 @@
+#!/usr/bin/python3
+from pathlib import Path
+from shutil import rmtree
+import subprocess
+import yaml
+import json
+
+from colorama import init, Fore
+
+# init colors for all plateforms
+init()
+
+if __name__ == "__main__":
+
+    # welcome the user
+    print(f"{Fore.YELLOW}venv creation interface{Fore.RESET}")
+
+    # create a venv folder
+    print('create the venv directory: "module-venv"')
+    venv_dir = Path.home() / "module-venv"
+    venv_dir.mkdir(exist_ok=True)
+
+    # create a venv folder associated with the current repository
+    print(f'create a venv directory for the current app: "{Path.cwd().stem}"')
+    current_dir_venv = venv_dir / Path.cwd().stem
+
+    # empty the folder from anything already in there
+    # equivalement to flushing the existing venv (it's just faster than pip)
+    if current_dir_venv.is_dir():
+        rmtree(current_dir_venv)
+
+    current_dir_venv.mkdir(exist_ok=True)
+
+    # init the venv
+    print("init the venv...")
+
+    cmd = ["python3", "-m", "venv", str(current_dir_venv)]
+    res = subprocess.run(cmd, cwd=Path.cwd())
+
+    pip = str(current_dir_venv / "bin" / "pip")
+
+    cmd = [pip, "install", "wheel"]
+    res = subprocess.run(cmd, cwd=Path.cwd())
+
+    cmd = [pip, "install", "Cython"]
+    res = subprocess.run(cmd, cwd=Path.cwd())
+
+    cmd = [pip, "install", "ipykernel"]
+    res = subprocess.run(cmd, cwd=Path.cwd())
+
+    # install all the requirements
+    cmd = [pip, "install", "-r", str(Path.cwd() / "requirements.txt")]
+
+    # search for the module.yaml file
+    # it embeds name and entry point
+    module_config = Path().cwd() / "module.yaml"
+
+    if module_config.is_file():
+        with module_config.open() as f:
+            data = yaml.safe_load(f)
+        entry_point = Path.cwd() / data["entry_point"]
+        name = data["name"]
+
+    else:
+        entry_point = Path.cwd() / "ui.ipynb"
+        name = Path.cwd().stem
+
+    # create the kernel from venv
+    name = f"test-{Path.cwd().stem}"
+    display_name = f"(test) {name}"
+    python3 = str(current_dir_venv / "bin" / "python3")
+    cmd = [
+        python3,
+        "-m",
+        "ipykernel",
+        "install",
+        "--user",
+        "--name",
+        name,
+        "--display-name",
+        display_name,
+    ]
+    res = subprocess.run(cmd, cwd=Path.cwd())
+
+    # change the kernel of the entrypoint to use this one instead
+    with entry_point.open() as f:
+        data = json.load(f)
+
+    data["metadata"]["kernelspec"]["display_name"] = display_name
+    data["metadata"]["kernelspec"]["name"] = name
+
+    entry_point.write_text(json.dumps(data, indent=1))
+
+    # display last message to the end user
+    print(
+        f'{Fore.GREEN}THe test venv have been tested, it can be find in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
+    )
+
+    # with entry_point.open("w") as f:
+    # json.dump(data, f)
