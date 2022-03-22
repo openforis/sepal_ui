@@ -94,7 +94,7 @@ As mentioned at the end of the command you should test your environment in SEPAL
     Installed kernelspec <kernel_name> in ~/module_venv/<module_name>
     The test venv have been created, it can be find in the kernel list as "<display_name>". It has automatically been added to the entry point of the application: ui.ipynb
     
-By running this script from a module directory, sepal-ui have created a venv folder where you'll be able to manage all the apps venv. In this folder a ven have been created under the name of the GitHub repository. This venv have been filled with basics libs `:code:`wheel`, :code:`Cython` and :code:`ipykernel` + all the libs set in the :code:`requirements.txt` file. This venv is accecible in Jypter under the name: "(test) <module_name>" and can be used to reproduce the behaviour of the module in the production environment. 
+By running this script from a module directory, sepal-ui have created a venv folder where you'll be able to manage all the apps venv. In this folder a ven have been created under the name of the GitHub repository. This venv have been filled with basics libs :code:`wheel`, :code:`Cython` and :code:`ipykernel` + all the libs set in the :code:`requirements.txt` file. This venv is accessible in Jypter under the name: "(test) <module_name>" and can be used to reproduce the behaviour of the module in the production environment. 
 
 .. tips::
 
