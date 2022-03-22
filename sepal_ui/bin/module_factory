@@ -251,12 +251,20 @@ if __name__ == "__main__":
     folder = Path.cwd() / normalized_name
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
     subprocess.run(
-        f"git clone --single-branch --branch {branch} {template_url} {folder}",
+        [
+            "git",
+            "clone",
+            "--single-branch",
+            "--branch",
+            branch,
+            template_url,
+            str(folder),
+        ],
         cwd=Path.cwd(),
     )
 
     # remove the .git folder
-    subprocess.run(f"rm -rf {folder/'.git'}", cwd=Path.cwd())
+    subprocess.run(["rm", "rf", str(folder / ".git")], cwd=Path.cwd())
 
     # replace the placeholders
     url = github_url.replace(".git", "").replace(
@@ -271,36 +279,36 @@ if __name__ == "__main__":
     set_contribute_file(folder, url, module_name)
 
     # init the new git repository
-    subprocess.run("git init", cwd=folder)
+    subprocess.run(["git", "init"], cwd=folder)
 
     # add the configuration of the git repository
-    subprocess.run("pre-commit install", cwd=folder)
+    subprocess.run(["pre-commit", "install"], cwd=folder)
 
     # The dev version of black is used in sepal_ui_template so we cannot autoupdate yet
     # command = ["pre-commit", "autoupdate"]
     # res = subprocess.run(command, cwd=folder)
 
     # add all the files in the git repo
-    subprocess.run("git add .", cwd=folder)
+    subprocess.run(["git", "add", "."], cwd=folder)
 
     # first commit
-    subprocess.run('git commit -m" "first commit"', cwd=folder)
+    subprocess.run(["git", "commit", "-m", "first commit"], cwd=folder)
 
     # create a branch
-    subprocess.run("git branch -M master", cwd=folder)
+    subprocess.run(["git", "branch", "-M", "master"], cwd=folder)
 
     # add the remote
-    subprocess.run(f"git remote add origin {github_url}", cwd=folder)
+    subprocess.run(["git", "remote", "add", "origin", str(github_url)], cwd=folder)
 
     # make the first push
-    subprocess.run("git push -u origin master", cwd=folder)
+    subprocess.run(["git", "push", "-u", "origin", "master"], cwd=folder)
 
     # create a release branch and push it to the server
-    subprocess.run("git checkout -b release", cwd=folder)
-    subprocess.run("git push --set-upstream origin release", cwd=folder)
+    subprocess.run(["git", "checkout", "-b", "release"], cwd=folder)
+    subprocess.run(["git", "push", "--set-upstream", "origin", "release"], cwd=folder)
 
     # checkout to master
-    res = subprocess.run("git checkout master", cwd=folder)
+    res = subprocess.run(["git", "checkout", "master"], cwd=folder)
 
     # exit message
     print(
