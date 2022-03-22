@@ -46,8 +46,7 @@ def write_reqs(file):
 
     # until I understand use a proxy tmp file
     tmp_file = Path.cwd() / "req_tmp.txt"
-    command = ["pipreqs", "--savepath", str(tmp_file), str(Path.cwd())]
-    subprocess.run(command, cwd=Path.cwd())
+    subprocess.run(f"pipreqs --savepath {tmp_file} {Path.cwd()}", cwd=Path.cwd())
 
     # add the libs in the final file
     with file.open("a") as dst:

@@ -50,22 +50,18 @@ if __name__ == "__main__":
     # init the venv
     print("init the venv...")
 
-    cmd = ["python3", "-m", "venv", str(current_dir_venv)]
-    res = subprocess.run(cmd, cwd=Path.cwd())
+    subprocess.run(f"python3 -m venv {current_dir_venv}", cwd=Path.cwd())
 
-    pip = str(current_dir_venv / "bin" / "pip")
+    # extract python and pip from thevenv
+    pip = current_dir_venv / "bin" / "pip"
+    python3 = current_dir_venv / "bin" / "python3"
 
-    cmd = [pip, "install", "wheel"]
-    res = subprocess.run(cmd, cwd=Path.cwd())
-
-    cmd = [pip, "install", "Cython"]
-    res = subprocess.run(cmd, cwd=Path.cwd())
-
-    cmd = [pip, "install", "ipykernel"]
-    res = subprocess.run(cmd, cwd=Path.cwd())
+    for lib in ["wheel", "Cython", "ipykernel"]:
+        subprocess.run(f"{pip} install {lib}", cwd=Path.cwd())
 
     # install all the requirements
-    cmd = [pip, "install", "-r", str(Path.cwd() / "requirements.txt")]
+    req = Path.cwd() / "requirements.txt"
+    subprocess.run(f"{pip} install -r {req}", cwd=Path.cwd())
 
     # search for the module.yaml file
     # it embeds name and entry point
@@ -84,19 +80,10 @@ if __name__ == "__main__":
     # create the kernel from venv
     name = f"test-{Path.cwd().stem}"
     display_name = f"(test) {name}"
-    python3 = str(current_dir_venv / "bin" / "python3")
-    cmd = [
-        python3,
-        "-m",
-        "ipykernel",
-        "install",
-        "--user",
-        "--name",
-        name,
-        "--display-name",
-        display_name,
-    ]
-    res = subprocess.run(cmd, cwd=Path.cwd())
+    res = subprocess.run(
+        f"{python3} -m ipykernel install --user --name {name} --display-name {display_name}",
+        cwd=Path.cwd(),
+    )
 
     # change the kernel of the entrypoint to use this one instead
     with entry_point.open() as f:
