@@ -1,7 +1,22 @@
 #!/usr/bin/python3
 
+"""
+script to update the requirements file with the currently used libs
+
+The script should be launched from a module directory.
+It will parse all the files and extract the differnet librairies used in the module. They will be added to the requirements.txt
+file using the versions used in the current local installation.
+Some troubleshouting are handled by the script:
+-  the earthengine-api will be forced to use the openforis fork to be compatible with SEPAL
+-  pyproj and pygdal version will be forced to the version set in SEPAl as well
+-  sepal-ui version will be bound to the one available when calling the script
+Once the file have been created, please check it manually and make sure that there are no visible issues. PLease report any incompatibility to the developer
+so taht they can be added to the troubleshoot function.
+"""
+
 from pathlib import Path
 import subprocess
+import argparse
 
 from colorama import init, Fore, Style
 import sepal_ui
@@ -11,18 +26,23 @@ init()
 
 
 def write_reqs(file):
-    """write the requirements in the req file"""
+    """
+    write the requirements in the requirements file
+
+    Args:
+        file (pathlib.Path): the requirements file
+    """
 
     with file.open("a") as f:
         f.write("\n")
         f.write("\n# custom libs")
         f.write("\n")
 
-    # ############################### not working for no reason
+    # ################## not working for no reason #############################
     # add the custom libs
     # command = ["pipreqs", '--print', str(Path.cwd()), '>>', str(req_file)]
     # res = subprocess.run(command, cwd=Path.cwd())
-    # ##########################################################
+    # ##########################################################################
 
     # until I understand use a proxy tmp file
     tmp_file = Path.cwd() / "req_tmp.txt"
@@ -40,7 +60,12 @@ def write_reqs(file):
 
 
 def clean_dulpicate(file):
-    """remove the requirements that are already part of the default installation"""
+    """
+    remove the requirements that are already part of the default installation
+
+    Args:
+        file (pathlib.Path): the requirements file
+    """
 
     # already available libs
     libs = ["wheel", "Cython", "pybind11", "GDAL", "pyproj", "sepal_ui"]
@@ -66,11 +91,13 @@ def clean_dulpicate(file):
 
 
 def clean_troubleshouting(file):
-    """remove any ee import from requirement file"""
+    """
+    the pipreqs is creating the file based on the import statements in .py files
+    some libs doesn't have the same name as the pip command we are replacing/deleting the known one
 
-    # the pipreqs is creating the file based on the import statements in .py files
-    # some libs doesn't have the same name as the pip command
-    # we are replacing/deleting the known one
+    Args:
+        file (pathlib.Path): the requirements file
+    """
 
     text = file.read_text().split("\n")
 
@@ -80,8 +107,9 @@ def clean_troubleshouting(file):
     final_text = text[:idx]
     for line in text[idx:]:
 
-        # ee is imported as ee but the real name of the lib is earthengine api
-        # simply discard it as it's already included in sepal_ui
+        # ee is imported as ee but the real name of the lib is earthengine-api
+        # gdal and osgeo are part of pygdal
+        # we use a specific version of earthengine in SEPAl, let's stick to it
         if "ee" in line:
             print(
                 f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui."
@@ -107,7 +135,12 @@ def clean_troubleshouting(file):
 
 
 def freeze_sepal_ui(file):
-    """set the sepal version to the currently used sepal version"""
+    """
+    set the sepal version to the currently used sepal-ui version
+
+    Args:
+        file (pathlib.Path): the requirements file
+    """
 
     text = file.read_text().split("\n")
 
@@ -128,7 +161,13 @@ def freeze_sepal_ui(file):
 
 
 def clean_custom(file):
-    """remove the previous custom installation and requirements"""
+    """
+    remove the previous custom installation and requirements
+    to start the process from a blank page
+
+    Args:
+        file (pathlib.Path): the requirements file
+    """
 
     text = file.read_text().split("\n")
 
@@ -149,22 +188,14 @@ def clean_custom(file):
 
 if __name__ == "__main__":
 
-    # welcome the user
-    print(Fore.YELLOW)
-    print("##########################################")
-    print("#                                        #")
-    print("#      SEPAL MODULE DEPLOYMENT TOOL      #")
-    print("#                                        #")
-    print("##########################################")
-    print(Fore.RESET)
-    print(f"Welcome in the {Style.BRIGHT}module deployment{Style.NORMAL} interface.")
-    print("This interface will help you prepare your module for deployment.")
-    print("Please read the documentation of the library before launching this script")
-    print()
-    print()
+    # parse agruments
+    p = argparse.ArgumentParser(usage=__doc__)
+    args = p.parse_args()
 
-    print("Export the env configuration of your module")
-    print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
+    # welcome the user
+    print(f"{Fore.YELLOW}sepal-ui module deployment tool{Fore.RESET}")
+
+    print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
     ui_file = Path.cwd() / "ui.ipynb"
@@ -189,8 +220,7 @@ if __name__ == "__main__":
     freeze_sepal_ui(req_file)
 
     # exit message
-    print(Fore.YELLOW)
+    print(f'{Fore.GREEN}The "requirements.txt" file have been updated.{Fore.RESET}')
     print(
-        "WARNING: The requirements.txt file have been updated. The tool does not cover every possible configuration so don't forget to check the final file before pushing to release"
+        f"{Fore.YELLOW}The tool does not cover every possible configuration so don't forget to check the final file before pushing to release.{Fore.RESET}"
     )
-    print(Fore.RESET)

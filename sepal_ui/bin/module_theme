@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 
-from colorama import init, Fore, Style
+"""
+Script to manually change the used theme
+
+This script will update the parameters shared between all sepal-ui based modules.
+The "theme" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
+"""
+
+import argparse
+
+from colorama import init, Fore
 
 from sepal_ui.scripts import utils as su
 
@@ -23,15 +32,12 @@ def check_theme(theme):
 
 if __name__ == "__main__":
 
+    # parse agruments
+    p = argparse.ArgumentParser(usage=__doc__)
+    args = p.parse_args()
+
     # welcome the user
-    print(Fore.YELLOW)
-    print("##########################################")
-    print("#                                        #")
-    print("#      SEPAL MODULE THEMING TOOL         #")
-    print("#                                        #")
-    print("##########################################")
-    print(Fore.RESET)
-    print(f"Welcome in the {Style.BRIGHT}module theming{Style.NORMAL} interface.")
+    print(f"{Fore.YELLOW}sepal-ui module theme selection{Fore.RESET}")
 
     # select a language
     is_theme = False
@@ -40,7 +46,7 @@ if __name__ == "__main__":
         theme = input(f"{Fore.CYAN}Provide a theme name: \n{Fore.RESET}")
         is_theme = check_theme(theme)
 
-        # display an error if the language does not exist
+        # display an error if the theme does not exist
         if is_theme is False:
             print(
                 f'{Fore.RED} The provided theme name ("{theme}") is not a supported theme. {Fore.RESET}'
