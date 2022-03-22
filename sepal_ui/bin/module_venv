@@ -31,6 +31,11 @@ if __name__ == "__main__":
     # welcome the user
     print(f"{Fore.YELLOW}venv creation interface{Fore.RESET}")
 
+    # check that the local folder is a module folder
+    ui_file = Path.cwd() / "ui.ipynb"
+    if not ui_file.is_file():
+        raise Exception(f"{Fore.RED}This is not a module folder.")
+
     # create a venv folder
     print('create the venv directory: "module-venv"')
     venv_dir = Path.home() / "module-venv"
