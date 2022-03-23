@@ -53,7 +53,7 @@ if __name__ == "__main__":
     current_dir_venv.mkdir(exist_ok=True)
 
     # init the venv
-    print("init the venv...")
+    print("Initializing the venv, this process will take some minutes.")
 
     subprocess.run(["python3", "-m", "venv", str(current_dir_venv)], cwd=Path.cwd())
 
@@ -111,5 +111,5 @@ if __name__ == "__main__":
 
     # display last message to the end user
     print(
-        f'{Fore.GREEN}The test venv have been created, it can be find in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
+        f'{Fore.GREEN}The test venv have been created, it can be found in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
     )
