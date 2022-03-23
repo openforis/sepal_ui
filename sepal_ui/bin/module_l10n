@@ -1,8 +1,16 @@
 #!/usr/bin/python3
 
+"""
+Script to manually change the used theme
+
+This script will update the parameters shared between all sepal-ui based modules.
+The "language" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
+"""
+
 import pandas as pd
-from colorama import init, Fore, Style
+from colorama import init, Fore
 from pathlib import Path
+import argparse
 
 from sepal_ui.scripts import utils as su
 
@@ -25,15 +33,12 @@ def check_locale(locale):
 
 if __name__ == "__main__":
 
+    # parse agruments
+    p = argparse.ArgumentParser(usage=__doc__)
+    args = p.parse_args()
+
     # welcome the user
-    print(Fore.YELLOW)
-    print("##########################################")
-    print("#                                        #")
-    print("#      SEPAL MODULE LOCALISATION TOOL    #")
-    print("#                                        #")
-    print("##########################################")
-    print(Fore.RESET)
-    print(f"Welcome in the {Style.BRIGHT}module l10n{Style.NORMAL} interface.")
+    print(f"{Fore.YELLOW}sepal-ui localisation script{Fore.RESET}")
 
     # select a language
     is_locale = False

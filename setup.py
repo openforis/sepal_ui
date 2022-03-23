@@ -88,6 +88,13 @@ setup_params = {
             "bin/*",
         ]
     },
+    "scripts": [
+        "sepal_ui/bin/module_deploy",
+        "sepal_ui/bin/module_factory",
+        "sepal_ui/bin/module_l10n",
+        "sepal_ui/bin/module_theme",
+        "sepal_ui/bin/module_venv",
+    ],
     "classifiers": [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
