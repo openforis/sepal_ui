@@ -85,10 +85,9 @@ def set_module_name(folder, module_name):
     print("Update the module name in the json translation dictionaries")
 
     # loop in the available languages
-    languages = ["en", "fr", "es"]
-    for lang in languages:
-
-        file = folder / "component" / "message" / lang / "locale.json"
+    message_dir = folder / "component" / "message"
+    json_files = [d / "locale.json" for d in message_dir.iterdir() if d.is_dir()]
+    for file in json_files:
 
         with file.open("r") as f:
             data = json.load(f)
@@ -137,11 +136,11 @@ def set_module_name_doc(folder, url, module_name):
         module_name (str): the module name
     """
 
-    # loop in the available languages
-    languages = ["fr", "en", "es"]
-    for lang in languages:
+    # get the documentation folder
+    doc_dir = folder / "doc"
 
-        file = folder / "doc" / f"{lang}.rst"
+    # loop in the available languages
+    for file in doc_dir.glob("*.rst"):
 
         with file.open() as f:
             text = f.read()
@@ -298,7 +297,7 @@ if __name__ == "__main__":
     subprocess.run(["git", "branch", "-M", "master"], cwd=folder)
 
     # add the remote
-    subprocess.run(["git", "remote", "add", "origin", str(github_url)], cwd=folder)
+    subprocess.run(["git", "remote", "set-url", "origin", str(github_url)], cwd=folder)
 
     # make the first push
     subprocess.run(["git", "push", "-u", "origin", "master"], cwd=folder)
