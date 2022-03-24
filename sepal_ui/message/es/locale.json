@@ -1,12 +1,12 @@
 {
 	"test_key": "clave de prueba",
-	"status": "Status: {}",
+	"status": "",
 	"widgets": {
 		"asset_select": {
 			"types": {
-				"0": "Raster",
+				"0": "",
 				"1": "Tabla/Vector",
-				"2": "Image collection",
+				"2": "",
 				"3": "Algoritmo",
 				"4": "Directorio"
 			},
@@ -15,7 +15,7 @@
 			"no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
 			"wrong_type": "El tipo del asset seleccionado: ({}), no coincide con ninguno de los tipos permitidos por el widget: ({}).",
 			"hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo.",
-			"placeholder": "users/custom_user/custom_asset"
+			"placeholder": ""
 		},
 		"load_table": {
 			"too_small": "El archivo indicado tiene menos de 3 columnas. Por favor, indique un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
@@ -40,7 +40,7 @@
 		"no_inputs": "Proporcione entradas completas antes de validar su AOI",
 		"complete": "La AOI ha sido seleccionada",
 		"shape_drawn": "Se ha dibujado una figura",
-		"file_pattern": "aoi_{}",
+		"file_pattern": "",
 		"no_selection": "No se ha recogido ningún método de selección",
 		"no_country": "No se ha seleccionado ningún país",
 		"asset_already_exist": "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
@@ -60,105 +60,105 @@
 	},
 	"rec": {
 		"table": {
-			"title": "Editor de clasificación",
+			"title": "",
 			"classif": {
-				"title": "seleccionar tabla existente",
-				"file_select": "Archivo de clases",
-				"btn": "Conseguir tabla"
+				"title": "",
+				"file_select": "",
+				"btn": ""
 			},
-			"table": "Tabla de clasificación",
+			"table": "",
 			"schema": {
-				"id": "id",
-				"code": "código",
-				"description": "descripción",
-				"color": "color"
+				"id": "",
+				"code": "",
+				"description": "",
+				"color": ""
 			},
 			"btn": {
-				"edit": "editar",
-				"save": "guardar",
-				"add": "añadir",
-				"delete": "eliminar"
+				"edit": "",
+				"save": "",
+				"add": "",
+				"delete": ""
 			},
 			"edit_dialog": {
 				"titles": {
-					"0": "Nuevo elemento",
-					"1": "Modificar elemento"
+					"0": "",
+					"1": ""
 				},
 				"btn": {
 					"save": {
-						"name": "guardar",
-						"tooltip": "crear una nueva clase"
+						"name": "",
+						"tooltip": ""
 					},
 					"modify": {
-						"name": "modificar",
-						"tooltip": "modificar la clase existente"
+						"name": "",
+						"tooltip": ""
 					},
 					"cancel": {
-						"name": "cancelar",
-						"tooltip": "cancelar la operación"
+						"name": "",
+						"tooltip": ""
 					}
 				}
 			},
 			"save_dialog": {
-				"filename": "Insertar el nombre del archivo de salida",
-				"placeholder": "nueva_tabla",
+				"filename": "",
+				"placeholder": "",
 				"btn": {
 					"save": {
-						"name": "guardar",
-						"tooltip": "guardar tabla"
+						"name": "",
+						"tooltip": ""
 					},
 					"cancel": {
-						"name": "cancelar",
-						"tooltip": "cancelar la operación"
+						"name": "",
+						"tooltip": ""
 					}
 				},
-				"title": "guardar tabla de clasificación",
-				"info": "La tabla se almacenará en {}"
+				"title": "",
+				"info": ""
 			}
 		},
 		"rec": {
-			"title": "Reclasificar imagen",
+			"title": "",
 			"headers": {
-				"0": "Clase originale",
-				"1": "Clase de destino"
+				"0": "",
+				"1": ""
 			},
 			"input": {
-				"optional": "Opcional",
-				"title": "Seleccionar clasificación de entrada",
-				"asset": "Asset de entrada",
-				"file": "archivo de entrada",
+				"optional": "",
+				"title": "",
+				"asset": "",
+				"file": "",
 				"band": {
-					"label": "seleccionar banda/propiedad",
-					"hint": "La banda/propiedad a utilizar como referencia de clase"
+					"label": "",
+					"hint": ""
 				},
 				"classif": {
-					"title": "Seleccionar sistema de clasificación de destinos",
-					"label": "archivo de clases"
+					"title": "",
+					"label": ""
 				},
-				"btn": "conseguir tabla"
+				"btn": ""
 			},
-			"table": "Tabla de recalificación",
-			"btn": "Reclasificar",
+			"table": "",
+			"btn": "",
 			"export": {
 				"0": {
-					"0": "El Vector ha sido creado y añadido a su archivo SEPAL: {}",
-					"1": "La Imagen ha sido creada y añadida a su archivo SEPAL: {}"
+					"0": "",
+					"1": ""
 				},
 				"1": {
-					"0": "La ee.FeatureCollection ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación.",
-					"1": "La ee.Image ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación"
+					"0": "",
+					"1": ""
 				}
 			}
 		},
 		"tile": {
-			"title": "Recalificación"
+			"title": ""
 		}
 	},
 	"locale": {
-		"change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
-		"fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
+		"change": "",
+		"fallback": ""
 	},
 	"theme": {
-		"change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
+		"change": ""
 	}
 }
