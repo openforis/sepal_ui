@@ -22,7 +22,6 @@ if __name__ == "__main__":
             for line in result.stdout.decode("utf-8").splitlines()
             if ".local" not in line
         ],
-        # columns=["name", "path"]
     ).iloc[1:]
 
     # Check if user has test envs
@@ -62,8 +61,6 @@ if __name__ == "__main__":
 
     activate_path = "bin/activate" if test else "venv/bin/activate"
     print(f"{Fore.GREEN}Activating: {kernel_path} {Fore.RESET}")
-
-    cmd = ["source", str(kernel_path / activate_path)]
 
     # Based on https://stackoverflow.com/questions/6943208/activate-a-virtualenv-with-a-python-script
     # It won't return anything to know if the the command was succesfully done
