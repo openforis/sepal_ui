@@ -29,7 +29,7 @@ if __name__ == "__main__":
     if test_venv_path.exists():
         test_envs = pd.DataFrame(
             list(
-                [f"test {el.stem}", str(el)]
+                [f"test {el.name}", str(el)]
                 for el in test_venv_path.glob("[!.]*")
                 if el.is_dir()
             )
