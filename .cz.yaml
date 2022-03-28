@@ -1,6 +1,7 @@
 commitizen:
   changelog_file: CHANGELOG.md
   tag_format: v_$major.$minor.$patch$prerelease
+  changelog_incremental: true
   update_changelog_on_bump: true
   version: 2.6.2
   version_files:

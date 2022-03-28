@@ -8,7 +8,7 @@ from sepal_ui.frontend import styles
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "2.6.2"
+__version__ = "2.7.0"
 
 
 def get_theme(config_file):
