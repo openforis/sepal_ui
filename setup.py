@@ -94,6 +94,7 @@ setup_params = {
         "sepal_ui/bin/module_l10n",
         "sepal_ui/bin/module_theme",
         "sepal_ui/bin/module_venv",
+        "sepal_ui/bin/activate_venv",
     ],
     "classifiers": [
         "Development Status :: 5 - Production/Stable",
