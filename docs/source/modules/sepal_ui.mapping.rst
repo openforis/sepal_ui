@@ -9,3 +9,4 @@ sepal\_ui.mapping
       :toctree:
       
       sepal_ui.mapping.SepalMap
+      sepal_ui.mapping.FullScreenControl

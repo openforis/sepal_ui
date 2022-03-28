@@ -1,14 +1,15 @@
 from pathlib import Path
+from datetime import datetime
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode
+from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
 from ipywidgets import jslink
 import pandas as pd
 import ee
 import geopandas as gpd
 from natsort import humansorted
 
-
+from sepal_ui import color
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
 from sepal_ui.scripts import utils as su
@@ -40,12 +41,18 @@ class DatePicker(v.Layout, SepalWidget):
     menu = None
     "v.Menu: the menu widget to display the datepicker"
 
+    date_text = None
+    "v.TextField: the text field of the datepicker widget"
+
+    disabled = Bool(False).tag(sync=True)
+    "traitlets.Bool: the disabled status of the Datepicker object"
+
     def __init__(self, label="Date", **kwargs):
 
         # create the widgets
         date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
 
-        date_text = v.TextField(
+        self.date_text = v.TextField(
             v_model=None,
             label=label,
             hint="YYYY-MM-DD format",
@@ -66,7 +73,7 @@ class DatePicker(v.Layout, SepalWidget):
                 {
                     "name": "activator",
                     "variable": "menuData",
-                    "children": date_text,
+                    "children": self.date_text,
                 }
             ],
         )
@@ -81,8 +88,28 @@ class DatePicker(v.Layout, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        jslink((date_picker, "v_model"), (date_text, "v_model"))
-        jslink((date_picker, "v_model"), (self, "v_model"))
+        jslink((date_picker, "v_model"), (self.date_text, "v_model"))
+        jslink((self, "v_model"), (date_picker, "v_model"))
+
+    @observe("v_model")
+    def check_date(self, change):
+        """
+        A method to check if the value of the set v_model is a correctly formated date
+        Reset the widget and display an error if it's not the case
+        """
+
+        self.date_text.error_messages = None
+
+        # exit immediately if nothing is set
+        if change["new"] is None:
+            return
+
+        # change the error status
+        if not self.is_valid_date(change["new"]):
+            msg = self.date_text.hint
+            self.date_text.error_messages = msg
+
+        return
 
     @observe("v_model")
     def close_menu(self, change):
@@ -92,6 +119,35 @@ class DatePicker(v.Layout, SepalWidget):
         self.menu.v_model = False
 
         return
+
+    @observe("disabled")
+    def disable(self, change):
+        """A method to disabled the appropriate components in the datipkcer object"""
+
+        self.menu.v_slots[0]["children"].disabled = self.disabled
+
+        return
+
+    @staticmethod
+    def is_valid_date(date):
+        """
+        Check if the date is provided using the date format required for the widget
+
+        Args:
+            date (str): the date to test in YYYY-MM-DD format
+
+        Return:
+            (bool): the date to test
+        """
+
+        try:
+            date = datetime.strptime(date, "%Y-%m-%d")
+            valid = True
+
+        except Exception:
+            valid = False
+
+        return valid
 
 
 class FileInput(v.Flex, SepalWidget):
@@ -159,13 +215,13 @@ class FileInput(v.Flex, SepalWidget):
 
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color="grey darken-3",
-            color=COMPONENTS["PROGRESS_BAR"]["color"],
+            background_color=color.menu,
+            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
             dense=True,
-            color="grey darken-3",
+            color=color.menu,
             flat=True,
             v_model=True,
             max_height="300px",
@@ -318,13 +374,13 @@ class FileInput(v.Flex, SepalWidget):
 
             if el.is_dir():
                 icon = ICON_TYPES[""]["icon"]
-                color = ICON_TYPES[""]["color"]
+                color = ICON_TYPES[""]["color"][v.theme.dark]
             elif el.suffix in ICON_TYPES.keys():
                 icon = ICON_TYPES[el.suffix]["icon"]
-                color = ICON_TYPES[el.suffix]["color"]
+                color = ICON_TYPES[el.suffix]["color"][v.theme.dark]
             else:
                 icon = ICON_TYPES["DEFAULT"]["icon"]
-                color = ICON_TYPES["DEFAULT"]["color"]
+                color = ICON_TYPES["DEFAULT"]["color"][v.theme.dark]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -349,7 +405,7 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=ICON_TYPES["PARENT"]["color"],
+                            color=ICON_TYPES["PARENT"]["color"][v.theme.dark],
                             children=[ICON_TYPES["PARENT"]["icon"]],
                         )
                     ]
@@ -583,7 +639,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         kwargs["v_model"] = kwargs.pop("v_model", None)
         kwargs["clearable"] = kwargs.pop("clearable", True)
         kwargs["dense"] = kwargs.pop("dense", True)
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fas fa-sync-alt")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-sync")
         kwargs["class_"] = kwargs.pop("class_", "my-5")
         kwargs["placeholder"] = kwargs.pop(
             "placeholder", ms.widgets.asset_select.placeholder
@@ -715,7 +771,7 @@ class PasswordField(v.TextField, SepalWidget):
         kwargs["class_"] = kwargs.pop("class_", "mr-2")
         kwargs["v_model"] = kwargs.pop("v_model", "")
         kwargs["type"] = "password"
-        kwargs["append_icon"] = kwargs.pop("append_icon", "far fa-eye-slash")
+        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-eye-off")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -728,10 +784,10 @@ class PasswordField(v.TextField, SepalWidget):
 
         if self.type == "text":
             self.type = "password"
-            self.append_icon = "far fa-eye-slash"
+            self.append_icon = "mdi-eye-off"
         else:
             self.type = "text"
-            self.append_icon = "far fa-eye"
+            self.append_icon = "mdi-eye"
 
 
 class NumberField(v.TextField, SepalWidget):
@@ -763,8 +819,8 @@ class NumberField(v.TextField, SepalWidget):
 
         # set default params
         kwargs["type"] = "number"
-        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "fas fa-plus")
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fas fa-minus")
+        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "mdi-plus")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-minus")
         kwargs["v_model"] = kwargs.pop("v_model", 0)
         kwargs["readonly"] = kwargs.pop("readonly", True)
 

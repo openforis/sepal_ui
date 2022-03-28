@@ -57,7 +57,7 @@ class SepalMap(geemap.Map):
         basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
-        ee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
         kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
     """
 
@@ -100,7 +100,10 @@ class SepalMap(geemap.Map):
         if len(basemaps):
             [self.add_basemap(basemap) for basemap in set(basemaps)]
         else:
-            self.add_basemap("CartoDB.DarkMatter")
+            default_basemap = (
+                "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+            )
+            self.add_basemap(default_basemap)
 
         # add the base controls
         self.clear_controls()

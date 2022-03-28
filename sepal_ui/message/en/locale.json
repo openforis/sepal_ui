@@ -153,5 +153,12 @@
 		"tile": {
 			"title": "Reclassification"
 		}
-	}
+	},
+    "locale": {
+        "change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
+        "fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
+    },
+    "theme": {
+        "change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
+    }
 }

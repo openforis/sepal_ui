@@ -1,19 +1,35 @@
 #!/usr/bin/python3
 
+"""
+This script will create the skeleton of a sepal-ui module
+
+The script will extract the skeleton of a module from the sepal_ui_template GitHub repository. This template will be adapted based on the answsers to the questionnaire.
+Placeholdre from the template will be replaced and the directory will be synced with a GitHub freshly created repository. Note that the repository need to be fully empty when the command is launched.
+"""
+
 import re
 from pathlib import Path
 import subprocess
 import json
 from distutils.util import strtobool
+import argparse
 
-from colorama import init, Fore, Style
+from colorama import init, Fore
 
 # init colors for all plateforms
 init()
 
 
 def set_default_readme(folder, module_name, description, url):
-    """write a default README.md file and overwrite the existing one"""
+    """
+    Write a default README.md file and overwrite the existing one.
+
+    Args:
+        folder (pathlib.Path): the module directory
+        module_name (str): the module name used as title everywhere
+        description (str): the description of the module
+        url (str): the url of the module repository in GitHub
+    """
 
     print("Write a default README.md file")
 
@@ -39,28 +55,39 @@ def set_default_readme(folder, module_name, description, url):
 
 
 def set_default_about(folder, description):
-    """write a default ABOUT.md file and overwrite the existing one"""
+    """
+    Write a default ABOUT.md file and overwrite the existing one
+
+    Args:
+        folder (pathlib.Path): the directory of the module
+        description (str): the description of the module functions
+    """
 
     print("Write a default ABOUT.md file")
 
     file = folder / "utils" / "ABOUT.md"
-    with file.open("w") as about:
 
+    with file.open("w") as about:
         about.write(f"{description}  \n")
 
     return
 
 
 def set_module_name(folder, module_name):
-    """use the module name in the different translation dictionaries"""
+    """
+    Use the module name in the different translation dictionaries
+
+    Args:
+        folder (pathlib.Path): the directory of the module
+        module_name (str): the module name
+    """
 
     print("Update the module name in the json translation dictionaries")
 
     # loop in the available languages
-    languages = ["en", "fr"]
-    for lang in languages:
-
-        file = folder / "component" / "message" / f"{lang}.json"
+    message_dir = folder / "component" / "message"
+    json_files = [d / "locale.json" for d in message_dir.iterdir() if d.is_dir()]
+    for file in json_files:
 
         with file.open("r") as f:
             data = json.load(f)
@@ -74,7 +101,14 @@ def set_module_name(folder, module_name):
 
 
 def set_contribute_file(folder, url, module_name):
-    """complete the contributing file with the appropriate informations"""
+    """
+    Complete the contributing file with the appropriate informations
+
+    Args:
+        folder (pathlib.Path): the directory of the module
+        url (str): the url of the GitHub repository
+        module_name (str): the module name
+    """
 
     print("Update the module name in the contribute file")
 
@@ -93,13 +127,20 @@ def set_contribute_file(folder, url, module_name):
 
 
 def set_module_name_doc(folder, url, module_name):
-    """set the module name in each documentation file and set the appropriate repository in the link"""
+    """
+    Set the module name in each documentation file and set the appropriate repository in the link
+
+    Args:
+        folder (pathlib.Path): the directory of the module
+        url (str): the url of the GitHub repository
+        module_name (str): the module name
+    """
+
+    # get the documentation folder
+    doc_dir = folder / "doc"
 
     # loop in the available languages
-    languages = ["fr", "en", "es"]
-    for lang in languages:
-
-        file = folder / "doc" / f"{lang}.rst"
+    for file in doc_dir.glob("*.rst"):
 
         with file.open() as f:
             text = f.read()
@@ -114,7 +155,13 @@ def set_module_name_doc(folder, url, module_name):
 
 
 def set_drawer_link(folder, url):
-    """replace the reference to the default repository to the one provided by the use"""
+    """
+    Replace the reference to the default repository to the one provided by the use
+
+    Args:
+        folder (pathlib.Path): the directory of the module
+        url (str): the url of the GitHub repository
+    """
 
     print("Update the drawers link with the new repository one")
 
@@ -139,25 +186,15 @@ def set_drawer_link(folder, url):
 
 if __name__ == "__main__":
 
+    # parse agruments
+    p = argparse.ArgumentParser(usage=__doc__)
+    args = p.parse_args()
+
     # welcome the user
-    print(Fore.YELLOW)
-    print("##################################")
-    print("#                                #")
-    print("#      SEPAL MODULE FACTORY      #")
-    print("#                                #")
-    print("##################################")
-    print(Fore.RESET)
-    print(f"Welcome in the {Style.BRIGHT}module factory{Style.NORMAL} interface.")
-    print(
-        "This interface will help you building a dashboard app based on the sepal_ui library"
-    )
-    print("Please read the documentation of the library before launching this script")
-    print()
-    print()
-    print()
+    print(f"{Fore.YELLOW}sepal-ui module factory{Fore.RESET}")
+
     print("Initializing module creation by setting up your module parameters")
     print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
-    print()
 
     # ask the name of the module
     module_name = input(f"{Fore.CYAN}Provide a module name: \n{Fore.RESET}")
@@ -206,28 +243,27 @@ if __name__ == "__main__":
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub("[^a-zA-Z\d\-\_]", "_", module_name)
 
-    print()
     print("Build the module init configuration")
     print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
-    print()
 
     # clone the repository in a folder that has the normalized module name
     folder = Path.cwd() / normalized_name
     template_url = "https://github.com/12rambau/sepal_ui_template.git"
-    command = [
-        "git",
-        "clone",
-        "--single-branch",
-        "--branch",
-        branch,
-        template_url,
-        str(folder),
-    ]
-    res = subprocess.run(command, cwd=Path.cwd())
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--single-branch",
+            "--branch",
+            branch,
+            template_url,
+            str(folder),
+        ],
+        cwd=Path.cwd(),
+    )
 
     # remove the .git folder
-    command = ["rm", "-rf", str(folder / ".git")]
-    res = subprocess.run(command, cwd=Path.cwd())
+    subprocess.run(["rm", "rf", str(folder / ".git")], cwd=Path.cwd())
 
     # replace the placeholders
     url = github_url.replace(".git", "").replace(
@@ -242,66 +278,47 @@ if __name__ == "__main__":
     set_contribute_file(folder, url, module_name)
 
     # init the new git repository
-    command = ["git", "init"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "init"], cwd=folder)
 
     # add the configuration of the git repository
-    command = ["pre-commit", "install"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["pre-commit", "install"], cwd=folder)
 
     # The dev version of black is used in sepal_ui_template so we cannot autoupdate yet
     # command = ["pre-commit", "autoupdate"]
     # res = subprocess.run(command, cwd=folder)
 
     # add all the files in the git repo
-    command = ["git", "add", "."]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "add", "."], cwd=folder)
 
     # first commit
-    command = ["git", "commit", "-m", "first commit"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "commit", "-m", "first commit"], cwd=folder)
 
     # create a branch
-    command = ["git", "branch", "-M", "master"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "branch", "-M", "master"], cwd=folder)
 
     # add the remote
-    command = ["git", "remote", "add", "origin", github_url]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "remote", "set-url", "origin", str(github_url)], cwd=folder)
 
     # make the first push
-    command = ["git", "push", "-u", "origin", "master"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "push", "-u", "origin", "master"], cwd=folder)
 
     # create a release branch and push it to the server
-    command = ["git", "checkout", "-b", "release"]
-    res = subprocess.run(command, cwd=folder)
-
-    command = ["git", "push", "--set-upstream", "origin", "release"]
-    res = subprocess.run(command, cwd=folder)
+    subprocess.run(["git", "checkout", "-b", "release"], cwd=folder)
+    subprocess.run(["git", "push", "--set-upstream", "origin", "release"], cwd=folder)
 
     # checkout to master
-    command = ["git", "checkout", "master"]
-    res = subprocess.run(command, cwd=folder)
+    res = subprocess.run(["git", "checkout", "master"], cwd=folder)
 
     # exit message
-    print(Fore.YELLOW)
     print(
-        f"{Style.BRIGHT}WARNING{Style.NORMAL}: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created"
+        f"{Fore.YELLOW}Have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created{Fore.RESET}"
     )
     print(
-        "If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues"
+        f"{Fore.YELLOW}If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues.{Fore.RESET}"
     )
-    print(Fore.GREEN)
+    print(f"{Fore.GREEN}You created a new module named: {module_name}{Fore.RESET}")
     print(
-        f"{Style.BRIGHT}CONGRATULATION{Style.NORMAL}: You created a new module named: {Style.BRIGHT}{module_name}{Style.NORMAL}"
-    )
-    print(
-        f"You can find its code in {Style.BRIGHT}{folder}{Style.NORMAL} inside your sepal environment."
-    )
-    print(
-        "To go further in the development of your application you can have a look at the sepalizing documentation."
+        f"{Fore.GREEN}You can find its code in {folder} inside your sepal environment.{Fore.RESET}"
     )
     print()
     print("Let's code !")
-    print(Fore.RESET)

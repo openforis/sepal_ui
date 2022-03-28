@@ -1,15 +1,15 @@
 import pytest
 from pathlib import Path
-import io
-from contextlib import redirect_stdout
 import shutil
 import json
+from configparser import ConfigParser
 
+from sepal_ui import config_file
 from sepal_ui.translator import Translator
 
 
 class TestTranslator:
-    def test_init(self, translation_folder):
+    def test_init(self, translation_folder, tmp_config_file):
 
         # assert that the test key exist in fr
         translator = Translator(translation_folder, "fr")
@@ -23,11 +23,13 @@ class TestTranslator:
         translator = Translator(translation_folder, "es")
         assert translator.test_key == "Test key"
 
-        # assert that using a non existing lang lead to a warning
-        f = io.StringIO()
-        with redirect_stdout(f):
-            translator = Translator(translation_folder, "it")
-        assert f.getvalue() == 'No json file is provided for "it", fallback to "en"\n'
+        # assert that using a non existing lang lead to fallback to english
+        translator = Translator(translation_folder, "it")
+        assert translator.test_key == "Test key"
+
+        # assert that if nothing is set it will use the confi_file (fr-FR)
+        translator = Translator(translation_folder)
+        assert translator.test_key == "Clef de test"
 
         return
 
@@ -78,10 +80,42 @@ class TestTranslator:
 
         return
 
+    def test_find_target(self, translation_folder):
+
+        # test grid
+        test_grid = {
+            "en": ("en", "en"),
+            "en-US": ("en-US", "en"),
+            "fr-FR": ("fr-FR", "fr-FR"),
+            "fr-CA": ("fr-CA", "fr"),
+            "fr": ("fr", "fr"),
+            "da": ("da", None),
+        }
+
+        # loop in the test grid to check multiple language combinations
+        for k, v in test_grid.items():
+            assert Translator.find_target(translation_folder, k) == v
+
+        return
+
+    def test_available_locales(self, translation_folder):
+
+        # expected grid
+        res = ["es", "fr", "fr-FR", "en"]
+
+        # create the translator
+        # -en- to -en-
+        translator = Translator(translation_folder)
+
+        for locale in res:
+            assert locale in translator.available_locales()
+
+        return
+
     @pytest.fixture(scope="class")
     def translation_folder(self):
         """
-        Generate a fully qualified translation folder with limited keys in en, fr and spanish.
+        Generate a fully qualified translation folder with limited keys in en, fr and es.
         Cannot use the temfile lib as we need the directory to appear in the tree
         """
 
@@ -89,6 +123,7 @@ class TestTranslator:
         keys = {
             "en": {"a_key": "A key", "test_key": "Test key"},
             "fr": {"a_key": "Une clef", "test_key": "Clef de test"},
+            "fr-FR": {"a_key": "Une clef", "test_key": "Clef de test"},
             "es": {"a_key": "Una llave"},
         }
 
@@ -106,5 +141,29 @@ class TestTranslator:
 
         # flush everything
         shutil.rmtree(tmp_dir)
+
+        return
+
+    @pytest.fixture(scope="function")
+    def tmp_config_file(self):
+        """
+        Erase any existing config file and replace it with one specifically
+        design for thesting the translation
+        """
+
+        # erase anything that exists
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a new file
+        config = ConfigParser()
+        config.add_section("sepal-ui")
+        config.set("sepal-ui", "locale", "fr-FR")
+        config.write(config_file.open("w"))
+
+        yield 1
+
+        # flush it
+        config_file.unlink()
 
         return
