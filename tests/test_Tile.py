@@ -150,9 +150,7 @@ class TestTile:
 
     def test_tile_about(self):
 
-        pathname = (
-            Path(__file__).parent / ".." / "sepal_ui" / "scripts" / "disclaimer.md"
-        )
+        pathname = Path(__file__).parents[1] / "CODE_OF_CONDUCT.md"
 
         tile = sw.TileAbout(pathname)
 
