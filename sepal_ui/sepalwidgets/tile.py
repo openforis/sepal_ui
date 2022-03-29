@@ -214,6 +214,13 @@ class TileDisclaimer(Tile):
         # read the content and transform it into a html
         with pathname.open() as f:
             disclaimer = f.read()
+            theme = "dark" if v.theme.dark is True else "light"
+            url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
+            disclaimer = (
+                disclaimer.replace("FAO_SOURCE", f"{url}/fao.png")
+                .replace("OPENFORIS_SOURCE", f"{url}/open-foris.png")
+                .replace("SEPAL_SOURCE", f"{url}/sepal.png")
+            )
 
         content = Markdown(disclaimer)
 

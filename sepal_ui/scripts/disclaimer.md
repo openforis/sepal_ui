@@ -5,7 +5,7 @@ Users are, however, kindly asked to report any errors or deficiencies in this pr
 <div style="inline-block">
     <a href="http://www.fao.org/home/en/">
         <img
-            src="https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/dark/fao.png"
+            src="FAO_SOURCE"
             alt="FAO_logo" 
             height="100" 
             class="ma-3"
@@ -13,7 +13,7 @@ Users are, however, kindly asked to report any errors or deficiencies in this pr
     </a>
     <a href="http://www.openforis.org">
         <img 
-            src="https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/dark/open-foris.png" 
+            src="OPENFORIS_SOURCE" 
             alt="Open-Foris_logo" 
             height="100" 
             class="ma-3"
@@ -21,7 +21,7 @@ Users are, however, kindly asked to report any errors or deficiencies in this pr
     </a>
     <a href="https://sepal.io">
         <img 
-            src="https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/dark/sepal.png" 
+            src="SEPAL_SOURCE" 
             alt="SEPAL_logo" 
             height="100" 
             class="ma-3"
