@@ -26,7 +26,7 @@ jobs:
       - name: Test formatting
         uses: psf/black@stable
         with:
-            version: "21.7b0"
+            version: "22.3.0"
       - name: PEP8 rules
         uses: tonybajan/flake8-check-action@v1.0.0
         with:

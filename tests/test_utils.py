@@ -102,7 +102,7 @@ class TestUtils:
         # mock every pow of 1024 to YB
         for i in range(9):
             with patch("pathlib.Path.stat") as stat:
-                stat.return_value.st_size = test_value * (1024 ** i)
+                stat.return_value.st_size = test_value * (1024**i)
 
                 txt = su.get_file_size("random")
                 assert txt == f"7.5 {size_name[i]}"
