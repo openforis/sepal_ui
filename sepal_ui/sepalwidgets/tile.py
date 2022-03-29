@@ -5,6 +5,7 @@ import ipyvuetify as v
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
 
@@ -203,24 +204,30 @@ class TileAbout(Tile):
 
 class TileDisclaimer(Tile):
     """
-    Create a about tile using a the generic disclaimer .md file.
+    Create a about tile.
     This tile will have the "about_widget" id and "Disclaimer" title.
     """
 
     def __init__(self):
 
-        pathname = Path(__file__).parents[1] / "scripts" / "disclaimer.md"
+        # create the tile content on the fly
+        disclaimer = "  \n".join(ms.disclaimer.p)
+        disclaimer += "  \n"
+        disclaimer += '<div style="inline-block">'
 
-        # read the content and transform it into a html
-        with pathname.open() as f:
-            disclaimer = f.read()
-            theme = "dark" if v.theme.dark is True else "light"
-            url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
-            disclaimer = (
-                disclaimer.replace("FAO_SOURCE", f"{url}/fao.png")
-                .replace("OPENFORIS_SOURCE", f"{url}/open-foris.png")
-                .replace("SEPAL_SOURCE", f"{url}/sepal.png")
-            )
+        # add the logo (href, src, alt)
+        logo_list = [
+            ("http://www.fao.org/home/en/", "fao.png", "fao_logo"),
+            ("http://www.openforis.org", "open-foris.png", "openforis_logo"),
+            ("https://sepal.io", "sepal.png", "sepal_logo"),
+        ]
+        theme = "dark" if v.theme.dark is True else "light"
+        url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
+        for href, src, alt in logo_list:
+            disclaimer += f'<a href="{href}"><img src="{url}/{src}" alt="{alt}" height="100" class="ma-3"/></a>'
+
+        # close the file
+        disclaimer += "</div>"
 
         content = Markdown(disclaimer)
 
