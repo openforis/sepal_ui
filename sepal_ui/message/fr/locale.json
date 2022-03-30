@@ -160,5 +160,12 @@
 	},
 	"theme": {
 		"change": "Le thème \"{0}\" sera utilisé comme thème par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour prendre en compte ce changement."
+	},
+	"disclaimer": {
+		"p": {
+			"0": "",
+			"1": "",
+			"2": ""
+		}
 	}
 }
