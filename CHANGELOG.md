@@ -1,27 +1,69 @@
-## v_2.6.2 (2022-02-18)
+## v_2.7.0 (2022-03-28)
+
+### Refactor
+
+- get folder name instead stem
+- change kernel by venv. reset df index
+- clean leftover
+- don't use shell=True
+- reduce line number
+- sanityse scripts
+- cleaning
+- use observe decorator
+- observe alert trait even though no model
+
+### Feat
+
+- cmd script to activate virtual envs
+- warn user this process will take some time
+- avoid adding multiple banners
+- control the theme using a btn
+- add theme in the config file
+- add interaction with drawer. closes #415
+- new LocaleSelect widget
+- function to update config language
+- allow the tranlator to read config file
+- new fullscreen widget
 
 ### Fix
 
+- use repository name instead of stem
+- guess the languages available
+- check that the folder is a module directory
+- add a script to test enviroment
+- remove alert if change of the same parameter
+- set return statement
+- trigger the icon change
+- display only one alert per type use a lambda function and next intead of multiple ifs. set the v_model to false to systematically see the transition
+- specify the archive format
+- solve build issue in RDT
+- typo in attribution map
+- the lib translator was still using the old implementation
+- display message to the end user when changing theme
+- change menus colors according to theme
+- control selected aoi color
+- adapt map basemap to theme
+- control the theming with the config file
+- control datepicker value using v_model
+- us all .json in l10n folders
+- create a script to switch language parameters from terminal
+- display only the locales available for the current app
+- display only the locales available for the current app
+- use mdi icons in Numberfields
+- password eyes not diplayed
+- use mdi icons for pre-designed prepend-icon Fix #414
+- display messages to the end user on locale change
+- make the localSelector responsive to translator values
+- add the Local widget in the navbar
+- change config file on click
+- debug non working flags
+- support for subvarieties of language Fix #408
+- add a disabled trait to datepicker Fix #409
 - prevent crash when badly design viz params are used Fix #405
 - add the message file in the distrib
 - make readme compatible with pypi release  has syntax errors in markup and would not be rendered on PyPI.     line 6: Error: Document or section may not begin with a transition.
-- remove fr file from merge
-- avoid deprecation by reshaping dictionnary
-- remove {locale}.json files
-- remove list from json files potoon is not compatible with lists but only key dictionaries
-- add basepath
-- don't use the named 'tmp' directory Fix #391
-- set the name in the properties of the GEJSON output Fix #390
-- typo
-- avoid meta sepal when clicking on download btn
-- scroll back to the top when change folde Fix #232
-- only install pre-commit hooks once Fix #373
-- use https instead of git
-- reset model output when selecting a new AOI Fix #366
-- cryptography since flake8 linting cryptography is not a lazy dependency anymore
-- install missing packages
-- prevent bug when image have no properties Fix #361
-- git based libs are not compatible with pipy
+
+## v_2.6.0 (2022-02-16)
 
 ### Refactor
 
@@ -31,11 +73,59 @@
 - reshape messages to fit the translator requirements
 - replace every occurence of mdi icons
 - use `/` in Path
-- cleaning
+
+### Fix
+
+- remove fr file from merge
+- avoid deprecation by reshaping dictionnary
+- remove {locale}.json files
+- remove list from json files potoon is not compatible with lists but only key dictionaries
+- add basepath
+- don't use the named 'tmp' directory Fix #391
+- set the name in the properties of the GEJSON output Fix #390
+- typo
 
 ### Feat
 
 - change translator behaviour to meet l10n requirements
+
+## v_2.5.5 (2022-01-12)
+
+### Fix
+
+- avoid meta sepal when clicking on download btn
+
+## v_2.5.4 (2022-01-11)
+
+### Fix
+
+- scroll back to the top when change folde Fix #232
+- only install pre-commit hooks once Fix #373
+- use https instead of git
+- reset model output when selecting a new AOI Fix #366
+
+### Refactor
+
+- cleaning
+
+## v_2.5.3 (2021-12-08)
+
+### Fix
+
+- cryptography since flake8 linting cryptography is not a lazy dependency anymore
+- install missing packages
+
+## v_2.5.2 (2021-12-07)
+
+### Fix
+
+- prevent bug when image have no properties Fix #361
+
+## v_2.5.1 (2021-12-07)
+
+### Fix
+
+- git based libs are not compatible with pipy
 
 ## v_2.5.0 (2021-12-06)
 

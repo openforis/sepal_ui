@@ -139,7 +139,7 @@ def get_file_size(filename):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
 
     i = int(math.floor(math.log(file_size, 1024)))
-    s = file_size / (1024 ** i)
+    s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
 

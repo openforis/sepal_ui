@@ -42,8 +42,8 @@ if __name__ == "__main__":
     venv_dir.mkdir(exist_ok=True)
 
     # create a venv folder associated with the current repository
-    print(f'create a venv directory for the current app: "{Path.cwd().stem}"')
-    current_dir_venv = venv_dir / Path.cwd().stem
+    print(f'create a venv directory for the current app: "{Path.cwd().name}"')
+    current_dir_venv = venv_dir / Path.cwd().name
 
     # empty the folder from anything already in there
     # equivalement to flushing the existing venv (it's just faster than pip)

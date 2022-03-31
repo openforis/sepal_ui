@@ -43,6 +43,10 @@ Sepal_ui
    :target: https://conventionalcommits.org
    :alt: conventional commit
    
+.. image:: https://badges.crowdin.net/sepal-ui/localized.svg
+   :target: https://crowdin.com/project/sepal-ui
+   :alt: Crowdin
+   
 --------------------------------------------------------------------------------
 
 Currently translated in the following languages:

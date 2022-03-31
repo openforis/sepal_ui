@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from subprocess import check_call
 
-version = "2.6.2"
+version = "2.7.0"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -94,6 +94,7 @@ setup_params = {
         "sepal_ui/bin/module_l10n",
         "sepal_ui/bin/module_theme",
         "sepal_ui/bin/module_venv",
+        "sepal_ui/bin/activate_venv",
     ],
     "classifiers": [
         "Development Status :: 5 - Production/Stable",
