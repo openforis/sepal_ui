@@ -78,6 +78,7 @@ setup_params = {
         "sepal_ui.translator",
         "sepal_ui.model",
         "sepal_ui.reclassify",
+        "sepal_ui.planet",
     ],
     "package_data": {
         "sepal_ui": [
