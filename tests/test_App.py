@@ -2,6 +2,7 @@ import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui import color
 
 
 class TestApp:
@@ -71,25 +72,51 @@ class TestApp:
 
         # without type
         msg = "toto"
-        res = app.add_banner(msg)
-        alert = app.content.children[0]
+        res = app.add_banner(msg, id_="test_info")
+
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_info"),
+            False,
+        )
 
         assert res == app
-        assert isinstance(alert, v.Alert)
-        assert alert.type == "info"
+        assert isinstance(alert, v.Snackbar)
+        assert alert.color == getattr(color, "info")
         assert alert.children[0] == msg
 
         # with type
         type_ = "error"
-        res = app.add_banner(msg, type=type_)
-        alert = app.content.children[0]
+        res = app.add_banner(msg, id_="test_error", type=type_)
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_error"),
+            False,
+        )
 
         assert res == app
-        assert isinstance(alert, v.Alert)
-        assert alert.type == type_
+        assert isinstance(alert, v.Snackbar)
+        assert alert.color == getattr(color, "error")
         assert alert.children[0] == msg
 
         return
+
+    def test_close_banner(self, app):
+        """Test closing banner event"""
+
+        msg = "test"
+        app.add_banner(msg, id_="test_close")
+
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_close"),
+            False,
+        )
+
+        # Check if banner is active
+        assert alert.v_model is True
+
+        # Close banner
+        alert.children[1].fire_event("click", None)
+
+        assert alert.v_model is False
 
     @pytest.fixture
     def app(self):
