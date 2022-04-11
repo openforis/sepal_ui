@@ -15,6 +15,7 @@ from sepal_ui import color
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui.sepalwidgets.sepalwidget import TYPES
 
 __all__ = [
     "AppBar",
@@ -125,7 +126,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         href=None,
         model=None,
         bind_var=None,
-        **kwargs
+        **kwargs,
     ):
 
         # set the resizetrigger
@@ -379,7 +380,7 @@ class App(v.App, SepalWidget):
         footer=None,
         navDrawer=None,
         translator=None,
-        **kwargs
+        **kwargs,
     ):
 
         self.tiles = None if tiles == [""] else tiles
@@ -462,28 +463,50 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, id_=None, **kwargs):
+    def add_banner(self, msg, type="info", id_=None, timeout=0, **kwargs):
         """
-        Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
+        Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
             msg (str): the message to write in the Alert
-            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+            type (str, optional): It is used to display an appropiate color: ["info", "secondary", "primary", "error", "warning", "success", "accent"]. Default "info".
             id_ (str, optional): unique banner identificator to avoid multiple aggregations.
+            timeout (int, optional): Time (in milliseconds) to wait until banner is automatically hidden. Default 0 (open indefinitely ).
+            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
 
         Return:
             self
         """
 
-        kwargs["type"] = kwargs.pop("type", "info")
-        kwargs["border"] = kwargs.pop("border", "left")
-        kwargs["class_"] = kwargs.pop("class_", "mt-5")
+        # Override to avoid breaks in working modules.
+        type_ = type
+
+        def close_alert(*args):
+            """Close button event to close snackbar alert"""
+            alert.v_model = not alert.v_model
+
+        if type_ not in TYPES:
+            raise ValueError(
+                f"type {type_} is not a valid type. Available types are: {TYPES}"
+            )
+
+        banner_color = getattr(color, type_)
+
+        btn_close = v.Btn(
+            small=True,
+            children=[
+                v.Icon(small=True, color=banner_color, children=["fas fa-times-circle"])
+            ],
+        )
+
+        kwargs["color"] = kwargs.pop("color", banner_color)
         kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
-        kwargs["prominent"] = kwargs.pop("prominent", True)
-        kwargs["dismissible"] = kwargs.pop("dismissible", True)
-        kwargs["children"] = [msg]  # cannot be overwritten
+        kwargs["children"] = [msg] + [btn_close]  # cannot be overwritten
         kwargs["attributes"] = {"id": id_}
-        kwargs["v_model"] = kwargs.pop("v_model", False)
+        kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs["top"] = True
+        kwargs["vertical"] = True
+        kwargs["timeout"] = timeout
 
         # Verify if alert is already in the app.
         children = self.content.children.copy()
@@ -493,13 +516,11 @@ class App(v.App, SepalWidget):
         alert is False or children.remove(alert)
 
         # create alert
-        alert = v.Alert(**kwargs)
+        alert = v.Snackbar(**kwargs)
+        btn_close.on_event("click", close_alert)
 
         # add the alert to the app if not already there
         self.content.children = [alert] + children
-
-        # Display the alert
-        alert.v_model = True
 
         return self
 
