@@ -143,9 +143,9 @@ ICON_TYPES = {
 }
 
 
-# Set default styles to layers
+# Default styles to GeoJSON layers added to a SepalMap.
 
-layer_style = {  # default styling of the layer
+layer_style = {
     "stroke": True,
     "color": color.primary,
     "weight": 2,
@@ -154,11 +154,11 @@ layer_style = {  # default styling of the layer
     "fillOpacity": 0,
 }
 
-layer_hover_style = {  # current alert styling
+layer_hover_style = {
     "stroke": True,
     "color": color.primary,
-    "weight": 5,  # same weight as hover to hide the general layer
+    "weight": 5,
     "opacity": 1,
-    "fill": True,  # to avoid unwanted click on the underlying alert
+    "fill": True,
     "fillOpacity": 0,
 }
