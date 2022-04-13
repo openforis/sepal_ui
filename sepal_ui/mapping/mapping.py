@@ -28,6 +28,7 @@ from ipyleaflet import (
     ScaleControl,
     WidgetControl,
     ZoomControl,
+    GeoJSON,
 )
 from rasterio.crs import CRS
 from traitlets import Bool, link, observe
@@ -35,6 +36,7 @@ import ipyvuetify as v
 import ipyleaflet
 import ee
 
+import sepal_ui.frontend.styles as styles
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
@@ -782,3 +784,22 @@ class SepalMap(geemap.Map):
                     props = {}
 
         return props
+
+    def add_layer(self, layer, hover=False):
+        """Add layer and use a default style for the GeoJSON inputs
+
+        hover (bool): whether to use the default hover style or not.
+
+        """
+
+        if isinstance(layer, GeoJSON):
+
+            if not layer.style:
+                layer.style = styles.layer_style
+
+            if hover and not layer.hover_style:
+                layer.hover_style = styles.layer_hover_style
+
+        super().add_layer(layer)
+
+        return self
