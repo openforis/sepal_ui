@@ -11,11 +11,12 @@ from ipywidgets import jsdlink
 
 import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
-from sepal_ui.sepalwidgets.sepalwidget import TYPES
+
 
 __all__ = [
     "AppBar",
@@ -463,64 +464,33 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, type="info", id_=None, timeout=0, **kwargs):
+    def add_banner(self, msg, type_="info", id_=None, timeout=False, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
-            msg (str): the message to write in the Alert
-            type (str, optional): It is used to display an appropiate color: ["info", "secondary", "primary", "error", "warning", "success", "accent"]. Default "info".
-            id_ (str, optional): unique banner identificator to avoid multiple aggregations.
-            timeout (int, optional): Time (in milliseconds) to wait until banner is automatically hidden. Default 0 (open indefinitely ).
-            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+            *args: all required sepalwidget.Benner arguments.
+            **kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
 
         Return:
             self
         """
 
-        # Override to avoid breaks in working modules.
-        type_ = type
-
-        def close_alert(*args):
-            """Close button event to close snackbar alert"""
-            alert.v_model = not alert.v_model
-
-        if type_ not in TYPES:
-            raise ValueError(
-                f"type {type_} is not a valid type. Available types are: {TYPES}"
-            )
-
-        banner_color = getattr(color, type_)
-
-        btn_close = v.Btn(
-            small=True,
-            children=[
-                v.Icon(small=True, color=banner_color, children=["fas fa-times-circle"])
-            ],
-        )
-
-        kwargs["color"] = kwargs.pop("color", banner_color)
-        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
-        kwargs["children"] = [msg] + [btn_close]  # cannot be overwritten
-        kwargs["attributes"] = {"id": id_}
-        kwargs["v_model"] = kwargs.pop("v_model", True)
-        kwargs["top"] = True
-        kwargs["vertical"] = True
-        kwargs["timeout"] = timeout
+        if "type" in kwargs:
+            type_ = kwargs["type"]
 
         # Verify if alert is already in the app.
         children = self.content.children.copy()
 
         # remove already existing alert
-        alert = next((c for c in children if c.attributes.get("id") == id_), False)
-        alert is False or children.remove(alert)
+        banner = next((c for c in children if c.attributes.get("id") == id_), False)
+        banner is False or children.remove(banner)
 
         # create alert
-        alert = v.Snackbar(**kwargs)
-        btn_close.on_event("click", close_alert)
+        banner = Banner(msg, type_, id_, timeout)
 
         # add the alert to the app if not already there
-        self.content.children = [alert] + children
+        self.content.children = [banner] + children
 
         return self
 
