@@ -17,7 +17,7 @@ class FullScreenControl(WidgetControl):
         kwargs (optional): any availabel arguments from a ipyleaflet WidgetControl
     """
 
-    ICONS = ["expand", "compress"]
+    ICONS = ["arrows-alt", "compress"]
     "list: The icons that will be used to toggle between expand and compressed mode"
 
     METHODS = ["embed", "fullscreen"]
