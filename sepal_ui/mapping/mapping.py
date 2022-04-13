@@ -785,10 +785,10 @@ class SepalMap(geemap.Map):
 
         return props
 
-    def add_layer(self, layer, default_hover=False):
+    def add_layer(self, layer, hover=False):
         """Add layer and use a default style for the GeoJSON inputs
 
-        default_hover (bool): whether to use the default hover style or not.
+        hover (bool): whether to use the default hover style or not.
 
         """
 
@@ -797,7 +797,7 @@ class SepalMap(geemap.Map):
             if not layer.style:
                 layer.style = styles.layer_style
 
-            if default_hover and not layer.hover_style:
+            if hover and not layer.hover_style:
                 layer.hover_style = styles.layer_hover_style
 
         super().add_layer(layer)

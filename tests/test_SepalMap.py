@@ -363,7 +363,7 @@ class TestSepalMap:
         geojson = GeoJSON(data=polygon)
 
         # Act
-        m.add_layer(geojson, default_hover=True)
+        m.add_layer(geojson, hover=True)
 
         # Assert
         new_layer = m.layers[-1]
