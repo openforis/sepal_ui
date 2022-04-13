@@ -3,9 +3,10 @@ from pathlib import Path
 import pytest
 import ee
 import geemap
-from ipyleaflet import basemaps, basemap_to_tiles
+from ipyleaflet import basemaps, basemap_to_tiles, GeoJSON
 
 from sepal_ui import mapping as sm
+import sepal_ui.frontend.styles as styles
 
 
 class TestSepalMap:
@@ -333,3 +334,55 @@ class TestSepalMap:
         assert res == expected
 
         return
+
+    def test_add_layer(self):
+
+        m = sm.SepalMap()
+
+        polygon = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-80.37597656249999, 25.720735134412106],
+                                [-66.181640625, 18.312810846425442],
+                                [-64.8193359375, 32.10118973232094],
+                                [-80.37597656249999, 25.720735134412106],
+                            ]
+                        ],
+                    },
+                }
+            ],
+        }
+
+        # Arrange without style and requesting default hover.
+        geojson = GeoJSON(data=polygon)
+
+        # Act
+        m.add_layer(geojson, default_hover=True)
+
+        # Assert
+        new_layer = m.layers[-1]
+
+        assert new_layer.style == styles.layer_style
+        assert new_layer.hover_style == styles.layer_hover_style
+
+        # Arrange with style
+        layer_style = {"color": "blue"}
+        layer_hover_style = {"color": "red"}
+        geojson = GeoJSON(
+            data=polygon, style=layer_style, hover_style=layer_hover_style
+        )
+
+        # Act
+        m.add_layer(geojson)
+
+        # Assert
+        new_layer = m.layers[-1]
+
+        assert new_layer.style == layer_style
+        assert new_layer.hover_style == layer_hover_style
