@@ -5,9 +5,10 @@ import ipyvuetify as v
 from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, Bool
 
+from sepal_ui import color
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
 
-__all__ = ["Divider", "Alert", "StateBar"]
+__all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
 
 class Divider(v.Divider, SepalWidget):
@@ -355,3 +356,64 @@ class StateBar(v.SystemBar):
         self.loading = loading
 
         return self
+
+
+class Banner(v.Snackbar):
+
+    """Custom Snackbar widget to display messages as a banner in module App.
+
+    Args:
+       msg (str): Message to display in application banner.
+       type (str, optional): Used to display an appropiate banner color, options are: ["info", "secondary", "primary", "error", "warning", "success", "accent"]. Default "info".
+       id_ (str, optional): unique banner identificator.
+       timeout (bool, optional): Whether to close automatically based on the lenght of message (True) or make it indefinitely open (False).
+    """
+
+    def __init__(self, msg, type_="info", id_=None, timeout=False, **kwargs):
+
+        if "type" in kwargs:
+            type_ = kwargs["type"]
+
+        if type_ not in TYPES:
+            raise ValueError(
+                f"type {type_} is not a valid type. Available types are: {TYPES}"
+            )
+
+        banner_color = getattr(color, type_)
+
+        btn_close = v.Btn(
+            small=True,
+            children=[
+                v.Icon(small=True, color=banner_color, children=["fas fa-times-circle"])
+            ],
+        )
+
+        kwargs["color"] = kwargs.pop("color", banner_color)
+        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
+        kwargs["children"] = [msg] + [btn_close]
+        kwargs["attributes"] = {"id": id_}
+        kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs["top"] = True
+        kwargs["vertical"] = True
+        kwargs["timeout"] = self.get_timeout(msg) if timeout else 0
+
+        super().__init__(**kwargs)
+
+        btn_close.on_event("click", self.close)
+
+    def close(self, *args):
+        """Close button event to close snackbar alert"""
+        self.v_model = False
+
+    def get_timeout(self, text):
+        """Calculate timeout in miliseconds to read the message"""
+
+        wpm = 180  # readable words per minute
+        word_length = 5  # standardized number of chars in calculable word
+        words = len(text) / word_length
+        words_time = ((words / wpm) * 60) * 1000
+
+        delay = 1500  # milliseconds before user starts reading the notification
+        bonus = 1000  # extra time
+
+        return delay + words_time + bonus
