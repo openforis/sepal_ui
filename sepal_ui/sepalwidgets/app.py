@@ -431,7 +431,7 @@ class App(v.App, SepalWidget):
         if translator is not None:
             if translator.match is False:
                 msg = ms.locale.fallback.format(translator.targeted, translator.target)
-                self.add_banner(msg, type="error")
+                self.add_banner(msg, type_="error")
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
