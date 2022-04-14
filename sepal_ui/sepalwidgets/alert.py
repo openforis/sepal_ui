@@ -367,10 +367,10 @@ class Banner(v.Snackbar):
        msg (str, optional): Message to display in application banner. default to nothing
        type (str, optional): Used to display an appropiate banner color, options are: ["info", "secondary", "primary", "error", "warning", "success", "accent"]. Default "info".
        id_ (str, optional): unique banner identificator.
-       timeout (bool, optional): Whether to close automatically based on the lenght of message (True) or make it indefinitely open (False).
+       persistent (bool, optional): Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
     """
 
-    def __init__(self, msg="", type_="info", id_=None, timeout=False, **kwargs):
+    def __init__(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
 
         if "type" in kwargs:
             type_ = kwargs["type"]
@@ -389,14 +389,17 @@ class Banner(v.Snackbar):
             ],
         )
 
+        # compute timeout based on the persistent and timeout parameter
+        computed_timeout = 0 if persistent is True else self.get_timeout(msg)
+
         kwargs["color"] = kwargs.pop("color", banner_color)
         kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
-        kwargs["children"] = [msg] + [btn_close]
         kwargs["attributes"] = {"id": id_}
         kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs["timeout"] = kwargs.pop("timeout", False) or computed_timeout
         kwargs["top"] = True
         kwargs["vertical"] = True
-        kwargs["timeout"] = self.get_timeout(msg) if timeout else 0
+        kwargs["children"] = [msg] + [btn_close]
 
         super().__init__(**kwargs)
 
@@ -405,6 +408,8 @@ class Banner(v.Snackbar):
     def close(self, *args):
         """Close button event to close snackbar alert"""
         self.v_model = False
+
+        return
 
     def get_timeout(self, text):
         """Calculate timeout in miliseconds to read the message"""

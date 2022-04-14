@@ -464,12 +464,12 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, type_="info", id_=None, timeout=False, **kwargs):
+    def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
-            *args: all required sepalwidget.Benner arguments.
+            *args: all required sepalwidget.Banner arguments.
             **kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
 
         Return:
@@ -487,7 +487,7 @@ class App(v.App, SepalWidget):
         banner is False or children.remove(banner)
 
         # create alert
-        banner = Banner(msg, type_, id_, timeout)
+        banner = Banner(msg, type_, id_, persistent)
 
         # add the alert to the app if not already there
         self.content.children = [banner] + children
