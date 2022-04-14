@@ -2,7 +2,6 @@ import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui import color
 
 
 class TestApp:
@@ -81,7 +80,7 @@ class TestApp:
 
         assert res == app
         assert isinstance(alert, v.Snackbar)
-        assert alert.color == getattr(color, "info")
+        assert alert.color == "info"
         assert alert.children[0] == msg
 
         # with type
@@ -94,7 +93,7 @@ class TestApp:
 
         assert res == app
         assert isinstance(alert, v.Snackbar)
-        assert alert.color == getattr(color, "error")
+        assert alert.color == "error"
         assert alert.children[0] == msg
 
         return

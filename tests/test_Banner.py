@@ -1,34 +1,37 @@
-from sepal_ui import color
 import sepal_ui.sepalwidgets as sw
 import pytest
 
 
 class TestBanner:
-    def test_fail_type(self):
-        """When using non-allowed types"""
-
-        with pytest.raises(ValueError):
-            sw.Banner(
-                msg="message",
-                type_="wrong_type",
-            )
-
     def test_init(self):
         """Test basic initialization"""
 
-        # Arrange
-        msg = "dummy message"
+        # check a default one
+        banner = sw.Banner()
+
+        assert banner.v_model is True
+        assert banner.children[0] == ""
+        assert banner.color == "info"
+        assert banner.attributes["id"] is None
+        assert banner.timeout == 0
+
+        # exaustive definition
+        msg = "toto"
         type_ = "warning"
         id_ = "test_banner"
+        banner = sw.Banner(msg=msg, type_=type_, id_=id_, persistent=False)
 
-        # Act
-        banner = sw.Banner(msg=msg, type_=type_, id_=id_, timeout=True)
-
-        # Assert
-        assert banner.v_model is True
         assert banner.children[0] == msg
-        assert banner.color == getattr(color, type_)
+        assert banner.color == type_
         assert banner.attributes["id"] == id_
+        assert banner.timeout > 0
+
+        # check the fallback to info
+        banner = sw.Banner(type_="toto")
+
+        assert banner.color == "info"
+
+        return
 
     def test_close(self, banner):
         """Test close button"""
@@ -37,7 +40,9 @@ class TestBanner:
 
         assert banner.v_model is False
 
-    def test_timeout(self, banner):
+        return
+
+    def test_get_timeout(self, banner):
         """Test timeout result based on known text"""
 
         timeout = banner.get_timeout(banner.children[0])
@@ -45,12 +50,7 @@ class TestBanner:
         assert timeout == 3366.666666666667
         assert banner.v_model is True
 
-    def test_no_timeout(self):
-        """Test timeout value when not set"""
-
-        banner = sw.Banner(msg="message", timeout=False)
-
-        assert banner.timeout == 0
+        return
 
     @pytest.fixture
     def banner(self):
@@ -60,4 +60,4 @@ class TestBanner:
         type_ = "warning"
         id_ = "test_banner"
 
-        return sw.Banner(msg=msg, type_=type_, id_=id_, timeout=True)
+        return sw.Banner(msg=msg, type_=type_, id_=id_, persistent=False)
