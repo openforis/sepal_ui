@@ -12,6 +12,8 @@ sepal\_ui.sepalwidgets.App
         ~App.footer
         ~App.navDrawer
         ~App.content
+        ~App.nb_banner
+        
     
     .. rubric:: Methods
     

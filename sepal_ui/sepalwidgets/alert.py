@@ -366,21 +366,23 @@ class Banner(v.Snackbar):
        type\_ (str, optional): Used to display an appropiate banner color. fallback to "info".
        id_ (str, optional): unique banner identificator.
        persistent (bool, optional): Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+       nb_banner (int, optional): number of already banner displayed in the app
        kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
     """
 
-    def __init__(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
+    def __init__(
+        self, msg="", type_="info", id_=None, persistent=True, nb_banner=0, **kwargs
+    ):
+
+        # the z-index value of the nav drawer when the screen is small
+        drawer_level = 6
 
         # compute the type and default to "info" if it's not existing
         type_ = type_ if (type_ in TYPES) else TYPES[0]
 
         # create the closing btn
-        btn_close = v.Btn(
-            small=True,
-            children=[
-                v.Icon(small=True, color=type_, children=["fas fa-times-circle"])
-            ],
-        )
+        txt = "close" if nb_banner == 0 else f"next ({nb_banner} more)"
+        btn_close = v.Btn(small=True, text=True, children=[txt])
 
         # compute timeout based on the persistent and timeout parameter
         computed_timeout = 0 if persistent is True else self.get_timeout(msg)
@@ -393,6 +395,8 @@ class Banner(v.Snackbar):
         kwargs["top"] = True
         kwargs["vertical"] = True
         kwargs["children"] = [msg] + [btn_close]
+        kwargs["class_"] = "mb-1"
+        kwargs["style_"] = f"z-index: {drawer_level + nb_banner + 1};"
 
         super().__init__(**kwargs)
 

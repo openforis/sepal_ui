@@ -374,6 +374,9 @@ class App(v.App, SepalWidget):
     content = None
     "v.Content: the tiles organized in a fluid container"
 
+    nb_banner = 0
+    "int: the number of banner in the qdisplay queue"
+
     def __init__(
         self,
         tiles=[""],
@@ -482,15 +485,19 @@ class App(v.App, SepalWidget):
         # Verify if alert is already in the app.
         children = self.content.children.copy()
 
-        # remove already existing alert
-        banner = next((c for c in children if c.attributes.get("id") == id_), False)
-        banner is False or children.remove(banner)
+        # remove already existing banner
+        w_bnr = next((c for c in children if c.attributes.get("id") == id_), -1)
+        if isinstance(w_bnr, Banner):
+            w_bnr.close()  # to trigger the nb update
+            children.remove(w_bnr)
 
         # create alert
-        banner = Banner(msg, type_, id_, persistent)
+        w_bnr = Banner(msg, type_, id_, persistent, self.nb_banner)
+        w_bnr.observe(self._remove_nb_banner, "v_model")
 
         # add the alert to the app if not already there
-        self.content.children = [banner] + children
+        self.content.children = [w_bnr] + children
+        self.nb_banner += 1
 
         return self
 
@@ -509,6 +516,16 @@ class App(v.App, SepalWidget):
         if change["new"] != "":
             msg = ms.theme.change.format(change["new"])
             self.add_banner(msg, id_="theme")
+
+        return
+
+    def _remove_nb_banner(self, change):
+        """
+        Increase or decrease the number of banner in the queue according to the set value
+        I'm force to create a function as lambda method cannot do assignments before python 3.9.
+        """
+        if change["new"] is False:
+            self.nb_banner = max(self.nb_banner - 1, 0)
 
         return
 
