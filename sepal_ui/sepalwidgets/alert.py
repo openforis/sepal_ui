@@ -360,16 +360,17 @@ class StateBar(v.SystemBar):
 
 class Banner(v.Snackbar):
 
-    """Custom Snackbar widget to display messages as a banner in module App.
+    """
+    Custom Snackbar widget to display messages as a banner in module App.
 
     Args:
-       msg (str): Message to display in application banner.
+       msg (str, optional): Message to display in application banner. default to nothing
        type (str, optional): Used to display an appropiate banner color, options are: ["info", "secondary", "primary", "error", "warning", "success", "accent"]. Default "info".
        id_ (str, optional): unique banner identificator.
        timeout (bool, optional): Whether to close automatically based on the lenght of message (True) or make it indefinitely open (False).
     """
 
-    def __init__(self, msg, type_="info", id_=None, timeout=False, **kwargs):
+    def __init__(self, msg="", type_="info", id_=None, timeout=False, **kwargs):
 
         if "type" in kwargs:
             type_ = kwargs["type"]
