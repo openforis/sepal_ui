@@ -18,6 +18,9 @@ for c in _c_list:
     class _tmp(getattr(v, c), SepalWidget):
         pass
 
+    _tmp.__name__ = c
+    _tmp.__qualname__ = c
+
     locals()[c] = _tmp
 del _tmp
 
