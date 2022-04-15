@@ -61,7 +61,7 @@ class Alert(v.Alert, SepalWidget):
         kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
-    def __init__(self, type_=None, **kwargs):
+    def __init__(self, type_="info", **kwargs):
 
         # set default parameters
         kwargs["text"] = kwargs.pop("text", True)
