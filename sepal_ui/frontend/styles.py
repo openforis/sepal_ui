@@ -142,6 +142,16 @@ ICON_TYPES = {
     "PARENT": _parent,
 }
 
+TYPES = (
+    "info",
+    "primary",
+    "secondary",
+    "accent",
+    "error",
+    "success",
+    "warning",
+    "anchor",
+)
 
 # Default styles to GeoJSON layers added to a SepalMap.
 

@@ -130,7 +130,7 @@ class TestAoiView:
 
         # select Italy
         item = next(i for i in aoi_gee_view.w_admin_0.items if i["text"] == "Italy")
-        aoi_gee_view.w_method.v_model == "ADMIN0"
+        aoi_gee_view.w_method.v_model = "ADMIN0"
         aoi_gee_view.w_admin_0.v_model = item["value"]
 
         # launch the update

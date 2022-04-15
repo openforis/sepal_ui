@@ -34,3 +34,4 @@ sepal\_ui.sepalwidgets
    sepal_ui.sepalwidgets.VectorField 
    sepal_ui.sepalwidgets.LocaleSelect
    sepal_ui.sepalwidgets.ThemeSelect
+   sepal_ui.sepalwidgets.Banner

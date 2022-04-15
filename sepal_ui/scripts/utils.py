@@ -19,6 +19,7 @@ from deprecated.sphinx import deprecated, versionadded
 import sepal_ui
 
 from sepal_ui import config_file
+from sepal_ui.frontend.styles import TYPES
 from .warning import SepalWarning
 
 
@@ -479,7 +480,7 @@ def next_string(string):
     Args:
         string (str): the initial string
 
-    Returns;
+    Returns:
         (str): the incremented string
     """
 
@@ -549,3 +550,27 @@ def set_config_theme(theme):
     config.write(config_file.open("w"))
 
     return
+
+
+@versionadded(version="2.7.1")
+def set_type(color):
+    """
+    Return a pre-defined material colors based on the requested type_ parameter. If the parameter is not a predifined color,
+    fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
+
+    Args:
+        color (str): the requested color
+
+    Returns:
+        (str): a pre-defined material color
+
+    """
+
+    if color not in TYPES:
+        warnings.warn(
+            f'the selected color "{color}" is not a pre-defined material color. It should be one from [{", ".join(TYPES)}]',
+            SepalWarning,
+        )
+        color = TYPES[0]
+
+    return color
