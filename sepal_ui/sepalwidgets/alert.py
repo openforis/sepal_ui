@@ -8,6 +8,7 @@ from traitlets import Unicode, observe, directional_link, Bool
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.scripts.utils import set_type
 from sepal_ui.frontend.styles import TYPES
+from sepal_ui.message import ms
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
@@ -373,7 +374,9 @@ class Banner(v.Snackbar, SepalWidget):
         type_ = set_type(type_)
 
         # create the closing btn
-        self.btn_close = v.Btn(small=True, text=True, children=["close"])
+        self.btn_close = v.Btn(
+            small=True, text=True, children=[ms.widgets.banner.close]
+        )
 
         # compute timeout based on the persistent and timeout parameter
         computed_timeout = 0 if persistent is True else self.get_timeout(msg)
@@ -426,8 +429,8 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             nb_banner (int): the number of banners in the queue
         """
-
-        txt = "close" if nb_banner == 0 else f"next ({nb_banner} more)"
+        msg = ms.widgets.banner
+        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
         self.btn_close.children = [txt]
 
         return
