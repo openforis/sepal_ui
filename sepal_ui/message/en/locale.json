@@ -19,7 +19,11 @@
 		},
 		"load_table": {
 			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."
-		}
+		},
+        "banner": {
+            "close": "close",
+            "next": "next ({} more)"
+        }
 	},
 	"aoi_sel": {
 		"title": "Select Area Of Interest (AOI)",
