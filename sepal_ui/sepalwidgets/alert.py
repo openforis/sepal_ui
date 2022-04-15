@@ -352,7 +352,7 @@ class StateBar(v.SystemBar):
         return self
 
 
-class Banner(v.Snackbar):
+class Banner(v.Snackbar, SepalWidget):
     """
     Custom Snackbar widget to display messages as a banner in module App.
 
@@ -361,23 +361,19 @@ class Banner(v.Snackbar):
        type\_ (str, optional): Used to display an appropiate banner color. fallback to "info".
        id_ (str, optional): unique banner identificator.
        persistent (bool, optional): Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
-       nb_banner (int, optional): number of already banner displayed in the app
        kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
     """
 
-    def __init__(
-        self, msg="", type_="info", id_=None, persistent=True, nb_banner=0, **kwargs
-    ):
+    btn_close = None
+    "v.Btn: the closing btn of the banner"
 
-        # the z-index value of the nav drawer when the screen is small
-        drawer_level = 6
+    def __init__(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
 
         # compute the type and default to "info" if it's not existing
         type_ = set_type(type_)
 
         # create the closing btn
-        txt = "close" if nb_banner == 0 else f"next ({nb_banner} more)"
-        btn_close = v.Btn(small=True, text=True, children=[txt])
+        self.btn_close = v.Btn(small=True, text=True, children=["close"])
 
         # compute timeout based on the persistent and timeout parameter
         computed_timeout = 0 if persistent is True else self.get_timeout(msg)
@@ -389,13 +385,12 @@ class Banner(v.Snackbar):
         kwargs["timeout"] = kwargs.pop("timeout", False) or computed_timeout
         kwargs["top"] = True
         kwargs["vertical"] = True
-        kwargs["children"] = [msg] + [btn_close]
+        kwargs["children"] = [msg] + [self.btn_close]
         kwargs["class_"] = "mb-1"
-        kwargs["style_"] = f"z-index: {drawer_level + nb_banner + 1};"
 
         super().__init__(**kwargs)
 
-        btn_close.on_event("click", self.close)
+        self.btn_close.on_event("click", self.close)
 
     def close(self, *args):
         """Close button event to close snackbar alert"""
@@ -404,7 +399,15 @@ class Banner(v.Snackbar):
         return
 
     def get_timeout(self, text):
-        """Calculate timeout in miliseconds to read the message"""
+        """
+        Calculate timeout in miliseconds to read the message
+
+        Args:
+            text (str): the text displayed in the banner to adapt the duration of the timeout
+
+        Returns
+            (int): the duration of the timeout in milliseconds
+        """
 
         wpm = 180  # readable words per minute
         word_length = 5  # standardized number of chars in calculable word
@@ -415,3 +418,16 @@ class Banner(v.Snackbar):
         bonus = 1000  # extra time
 
         return delay + words_time + bonus
+
+    def set_btn(self, nb_banner):
+        """
+        Change the btn display to inform the user on the number of banners in the queue
+
+        Args:
+            nb_banner (int): the number of banners in the queue
+        """
+
+        txt = "close" if nb_banner == 0 else f"next ({nb_banner} more)"
+        self.btn_close.children = [txt]
+
+        return

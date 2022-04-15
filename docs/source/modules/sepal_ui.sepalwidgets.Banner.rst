@@ -3,6 +3,10 @@ sepal\_ui.sepalwidgets.Banner
 
 .. autoclass:: sepal_ui.sepalwidgets.Banner
 
+    .. rubric:: Attributes
+    
+        ~Banner.btn_close
+
     .. rubric:: Methods
     
     .. autosummary::
