@@ -24,7 +24,7 @@ div.jupyter_container.docutils {
   display: inline-block;
 }
 .footer-item:not(:last-child) {
-  border-right: 1px solid rgba(var(--pst-color-text-base), 1);
+  border-right: 1px solid var(--pst-color-text-base);
   margin-right: .5em;
   padding-right: .5em;
 }
