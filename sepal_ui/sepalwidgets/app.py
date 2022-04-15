@@ -477,6 +477,9 @@ class App(v.App, SepalWidget):
             self
         """
 
+        # the Banner was previously an Alert. for compatibility we accept the type parameter
+        type_ = kwargs.pop("type", type_)
+
         # the banner will be piled up from the first to the latest.
         # only the first one is shown
         # dismissed banner are remove from the children
