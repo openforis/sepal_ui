@@ -19,6 +19,10 @@
 		},
 		"load_table": {
 			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
+		},
+		"banner": {
+			"close": "fermer",
+			"next": "suivant ({} de plus)"
 		}
 	},
 	"aoi_sel": {
