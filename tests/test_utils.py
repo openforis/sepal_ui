@@ -11,6 +11,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui import config_file
+from sepal_ui.frontend.styles import TYPES
 
 
 class TestUtils:
@@ -350,5 +351,18 @@ class TestUtils:
 
         # destroy the file again
         config_file.unlink()
+
+        return
+
+    def test_set_style(self):
+
+        # test every legit type
+        for t in TYPES:
+            assert t == su.set_type(t)
+
+        # test the fallback to info
+        with pytest.warns(SepalWarning):
+            res = su.set_type("toto")
+            assert res == "info"
 
         return

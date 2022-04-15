@@ -1,9 +1,7 @@
 import ipyvuetify as v
 from traitlets import Unicode, Bool, observe
 
-__all__ = ["TYPES", "SepalWidget"]
-
-TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
+__all__ = ["SepalWidget"]
 
 
 class SepalWidget(v.VuetifyWidget):

@@ -5,7 +5,9 @@ import ipyvuetify as v
 from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, Bool
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts.utils import set_type
+from sepal_ui.frontend.styles import TYPES
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
@@ -40,14 +42,8 @@ class Divider(v.Divider, SepalWidget):
             self
         """
 
-        type_ = change["new"]
-        classes = self.class_.split(" ")
-        existing = list(set(classes) & set(TYPES))
-        if existing:
-            classes[classes.index(existing[0])] = type_
-            self.class_ = " ".join(classes)
-        else:
-            self.class_ += f" {type_}"
+        self.class_list.remove(*TYPES)
+        self.class_list.add(change["new"])
 
         return self
 
@@ -68,7 +64,7 @@ class Alert(v.Alert, SepalWidget):
 
         # set default parameters
         kwargs["text"] = kwargs.pop("text", True)
-        kwargs["type"] = type_ if (type_ in TYPES) else TYPES[0]
+        kwargs["type"] = set_type(type_)
         kwargs["class_"] = kwargs.pop("class_", "mt-5")
 
         # call the constructor
@@ -135,7 +131,7 @@ class Alert(v.Alert, SepalWidget):
             self
         """
         self.show()
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
+        self.type = set_type(type_)
         self.children = [v.Html(tag="p", children=[msg])]
 
         return self
@@ -157,8 +153,7 @@ class Alert(v.Alert, SepalWidget):
         current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
 
         self.show()
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
-
+        self.type = set_type(type_)
         self.children = [
             v.Html(tag="p", children=["[{}]".format(current_time)]),
             v.Html(tag="p", children=[msg]),
@@ -378,7 +373,7 @@ class Banner(v.Snackbar):
         drawer_level = 6
 
         # compute the type and default to "info" if it's not existing
-        type_ = type_ if (type_ in TYPES) else TYPES[0]
+        type_ = set_type(type_)
 
         # create the closing btn
         txt = "close" if nb_banner == 0 else f"next ({nb_banner} more)"

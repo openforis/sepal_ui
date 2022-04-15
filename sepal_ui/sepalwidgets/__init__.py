@@ -1,5 +1,5 @@
 # overwrite all the ipyvuetify widgets
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 import ipyvuetify as v
 
 

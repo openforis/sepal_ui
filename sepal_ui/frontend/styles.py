@@ -93,3 +93,14 @@ ICON_TYPES = {
     "DEFAULT": _other,
     "PARENT": _parent,
 }
+
+TYPES = (
+    "info",
+    "primary",
+    "secondary",
+    "accent",
+    "error",
+    "success",
+    "warning",
+    "anchor",
+)
