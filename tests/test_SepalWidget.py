@@ -74,7 +74,7 @@ class TestSepalWidget:
         test_card.set_children("asdf", "last")
         assert test_card.children[-1] == "asdf"
 
-        # Test that new element is at the begining
+        # Test that new element is at the begining (default)
         test_card.set_children("asdf")
         assert test_card.children[0] == "asdf"
 
@@ -83,7 +83,7 @@ class TestSepalWidget:
         test_card.set_children(new_els)
         assert test_card.children[: len(new_els)] == new_els
 
-    def test_children_error(self):
+    def test_set_children_error(self):
         """Test when set_children methods throws an error"""
 
         with pytest.raises(ValueError):
@@ -105,6 +105,7 @@ class TestSepalWidget:
         # Arrange without any match
         test_card = sw.Card()
 
+        # The result will be an empty list
         assert not test_card.get_children(id_="asdf")
 
         # Arrange with a nested element
