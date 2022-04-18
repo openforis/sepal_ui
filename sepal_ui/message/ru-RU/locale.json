@@ -1,0 +1,175 @@
+{
+	"test_key": "",
+	"status": "",
+	"widgets": {
+		"asset_select": {
+			"types": {
+				"0": "",
+				"1": "",
+				"2": "",
+				"3": "",
+				"4": ""
+			},
+			"label": "",
+			"custom": "",
+			"no_access": "",
+			"wrong_type": "",
+			"hint": "",
+			"placeholder": ""
+		},
+		"load_table": {
+			"too_small": ""
+		},
+		"banner": {
+			"close": "",
+			"next": ""
+		}
+	},
+	"aoi_sel": {
+		"title": "",
+		"administrative": "",
+		"custom": "",
+		"method": "",
+		"adm": {
+			"0": "",
+			"1": "",
+			"2": ""
+		},
+		"vector": "",
+		"draw": "",
+		"points": "",
+		"aoi_name": "",
+		"asset": "",
+		"btn": "",
+		"no_inputs": "",
+		"complete": "",
+		"shape_drawn": "",
+		"file_pattern": "",
+		"no_selection": "",
+		"no_country": "",
+		"asset_already_exist": "",
+		"asset_created": "",
+		"name_used": "",
+		"no_asset": "",
+		"check_if_asset": "",
+		"not_available": "",
+		"no_shape": "",
+		"shp_error": "",
+		"aoi_message": "",
+		"duplicate_key": "",
+		"geojson_to_ee": ""
+	},
+	"mapping": {
+		"no_image": ""
+	},
+	"rec": {
+		"table": {
+			"title": "",
+			"classif": {
+				"title": "",
+				"file_select": "",
+				"btn": ""
+			},
+			"table": "",
+			"schema": {
+				"id": "",
+				"code": "",
+				"description": "",
+				"color": ""
+			},
+			"btn": {
+				"edit": "",
+				"save": "",
+				"add": "",
+				"delete": ""
+			},
+			"edit_dialog": {
+				"titles": {
+					"0": "",
+					"1": ""
+				},
+				"btn": {
+					"save": {
+						"name": "",
+						"tooltip": ""
+					},
+					"modify": {
+						"name": "",
+						"tooltip": ""
+					},
+					"cancel": {
+						"name": "",
+						"tooltip": ""
+					}
+				}
+			},
+			"save_dialog": {
+				"filename": "",
+				"placeholder": "",
+				"btn": {
+					"save": {
+						"name": "",
+						"tooltip": ""
+					},
+					"cancel": {
+						"name": "",
+						"tooltip": ""
+					}
+				},
+				"title": "",
+				"info": ""
+			}
+		},
+		"rec": {
+			"title": "",
+			"headers": {
+				"0": "",
+				"1": ""
+			},
+			"input": {
+				"optional": "",
+				"title": "",
+				"asset": "",
+				"file": "",
+				"band": {
+					"label": "",
+					"hint": ""
+				},
+				"classif": {
+					"title": "",
+					"label": ""
+				},
+				"btn": ""
+			},
+			"table": "",
+			"btn": "",
+			"export": {
+				"0": {
+					"0": "",
+					"1": ""
+				},
+				"1": {
+					"0": "",
+					"1": ""
+				}
+			}
+		},
+		"tile": {
+			"title": ""
+		}
+	},
+	"locale": {
+		"change": "",
+		"fallback": ""
+	},
+	"theme": {
+		"change": ""
+	},
+	"disclaimer": {
+		"p": {
+			"0": "",
+			"1": "",
+			"2": ""
+		}
+	}
+}
