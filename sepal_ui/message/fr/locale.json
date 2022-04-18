@@ -19,6 +19,10 @@
 		},
 		"load_table": {
 			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
+		},
+		"banner": {
+			"close": "fermer",
+			"next": "suivant ({} de plus)"
 		}
 	},
 	"aoi_sel": {
@@ -160,5 +164,12 @@
 	},
 	"theme": {
 		"change": "Le thème \"{0}\" sera utilisé comme thème par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour prendre en compte ce changement."
+	},
+	"disclaimer": {
+		"p": {
+			"0": "La FAO décline toute responsabilité pour les erreurs dans la base de données ou le logiciel, la documentation l'accompagnant pour la maintenance, la mise à niveau des logiciels ainsi que pour tout dommage qui pourrait en résulter.",
+			"1": "La FAO décline également toute responsabilité quant à la mise à jour des données et n'assume aucune responsabilité pour les erreurs et les omissions dans les données fournies.",
+			"2": "Les utilisateurs sont toutefois priés de signaler toute erreur ou carence de ce produit à la FAO."
+		}
 	}
 }

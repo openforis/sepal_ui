@@ -11,6 +11,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui import config_file
+from sepal_ui.frontend.styles import TYPES
 
 
 class TestUtils:
@@ -102,7 +103,7 @@ class TestUtils:
         # mock every pow of 1024 to YB
         for i in range(9):
             with patch("pathlib.Path.stat") as stat:
-                stat.return_value.st_size = test_value * (1024 ** i)
+                stat.return_value.st_size = test_value * (1024**i)
 
                 txt = su.get_file_size("random")
                 assert txt == f"7.5 {size_name[i]}"
@@ -350,5 +351,18 @@ class TestUtils:
 
         # destroy the file again
         config_file.unlink()
+
+        return
+
+    def test_set_style(self):
+
+        # test every legit type
+        for t in TYPES:
+            assert t == su.set_type(t)
+
+        # test the fallback to info
+        with pytest.warns(SepalWarning):
+            res = su.set_type("toto")
+            assert res == "info"
 
         return

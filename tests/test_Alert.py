@@ -2,6 +2,7 @@ import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.frontend.styles import TYPES
 
 
 class TestAlert:
@@ -13,7 +14,7 @@ class TestAlert:
         assert alert.type == "info"
 
         # every legit types
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert = sw.Alert(type_)
             assert alert.type == type_
 
@@ -35,7 +36,7 @@ class TestAlert:
         assert alert.children[0].children[0] == msg
 
         # single msg with type
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert.add_msg(msg, type_)
             assert alert.type == type_
             assert alert.children[0].children[0] == msg
@@ -59,7 +60,7 @@ class TestAlert:
         assert alert.children[1].children[0] == msg
 
         # single msg with type
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert.add_live_msg(msg, type_)
             assert alert.type == type_
             assert alert.children[1].children[0] == msg

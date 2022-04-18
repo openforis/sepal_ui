@@ -5,16 +5,18 @@ from pathlib import Path
 from itertools import cycle
 
 import ipyvuetify as v
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import versionadded, versionchanged
 import pandas as pd
 from ipywidgets import jsdlink
 
 import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
 from sepal_ui.frontend import js
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+
 
 __all__ = [
     "AppBar",
@@ -125,7 +127,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         href=None,
         model=None,
         bind_var=None,
-        **kwargs
+        **kwargs,
     ):
 
         # set the resizetrigger
@@ -379,7 +381,7 @@ class App(v.App, SepalWidget):
         footer=None,
         navDrawer=None,
         translator=None,
-        **kwargs
+        **kwargs,
     ):
 
         self.tiles = None if tiles == [""] else tiles
@@ -429,7 +431,7 @@ class App(v.App, SepalWidget):
         if translator is not None:
             if translator.match is False:
                 msg = ms.locale.fallback.format(translator.targeted, translator.target)
-                self.add_banner(msg, type="error")
+                self.add_banner(msg, type_="error")
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
@@ -462,44 +464,47 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, id_=None, **kwargs):
+    @versionchanged(version="2.7.1", reason="new id_ and persistent parameters")
+    def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
-        Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
+        Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
-            msg (str): the message to write in the Alert
-            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
-            id_ (str, optional): unique banner identificator to avoid multiple aggregations.
+            *args: all required sw.Banner arguments.
+            **kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
 
         Return:
             self
         """
 
-        kwargs["type"] = kwargs.pop("type", "info")
-        kwargs["border"] = kwargs.pop("border", "left")
-        kwargs["class_"] = kwargs.pop("class_", "mt-5")
-        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
-        kwargs["prominent"] = kwargs.pop("prominent", True)
-        kwargs["dismissible"] = kwargs.pop("dismissible", True)
-        kwargs["children"] = [msg]  # cannot be overwritten
-        kwargs["attributes"] = {"id": id_}
-        kwargs["v_model"] = kwargs.pop("v_model", False)
+        # the Banner was previously an Alert. for compatibility we accept the type parameter
+        type_ = kwargs.pop("type", type_)
 
-        # Verify if alert is already in the app.
-        children = self.content.children.copy()
+        # the banner will be piled up from the first to the latest.
+        # only the first one is shown
+        # dismissed banner are remove from the children
 
-        # remove already existing alert
-        alert = next((c for c in children if c.attributes.get("id") == id_), False)
-        alert is False or children.remove(alert)
+        # extract the banner from the app children
+        children, banner_list = [], []
+        for e in self.content.children.copy():
+            dst = banner_list if isinstance(e, Banner) else children
+            dst.append(e)
 
-        # create alert
-        alert = v.Alert(**kwargs)
+        # only set viz to true if it's the first one
+        viz = False if len(banner_list) > 0 else True
 
-        # add the alert to the app if not already there
-        self.content.children = [alert] + children
+        # create the baner and interactions
+        w_bnr = Banner(msg, type_, id_, persistent, viz=viz, **kwargs)
+        banner_list += [w_bnr]
 
-        # Display the alert
-        alert.v_model = True
+        # display the number of banner in queue
+        banner_list[0].set_btn(len(banner_list) - 1)
+
+        # place everything back in the app chldren list
+        self.content.children = banner_list + children
+
+        # add interaction at the end
+        w_bnr.observe(self._remove_banner, "v_model")
 
         return self
 
@@ -508,7 +513,7 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg, id_="locale")
+            self.add_banner(msg)
 
         return
 
@@ -517,7 +522,34 @@ class App(v.App, SepalWidget):
 
         if change["new"] != "":
             msg = ms.theme.change.format(change["new"])
-            self.add_banner(msg, id_="theme")
+            self.add_banner(msg)
+
+        return
+
+    def _remove_banner(self, change):
+        """
+        Adapt the banner display so that the first one is the oly one shown displaying the number of other banner in the queue
+        I'm force to create a function as lambda method cannot do assignments before python 3.9.
+        """
+        if change["new"] is False:
+
+            # extract the banner from the app children
+            children, banner_list = [], []
+            for e in self.content.children.copy():
+                dst = banner_list if isinstance(e, Banner) else children
+                dst.append(e)
+
+            # remove the banner from the list
+            banner_list.remove(change["owner"])
+
+            # change the visibility of the widgets
+            [setattr(b, "viz", i == 0) for i, b in enumerate(banner_list)]
+
+            # set the btn of the the first element if possible
+            len(banner_list) == 0 or banner_list[0].set_btn(len(banner_list) - 1)
+
+            # place everything back in the app chldren list
+            self.content.children = banner_list + children
 
         return
 
