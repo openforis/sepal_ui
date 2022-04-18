@@ -21,6 +21,6 @@ div.jupyter_container.docutils {
 * there is no need for extra contrast and dimned brightness
 *
 */
-body[data-theme=dark] img {
+html[data-theme=dark] img {
    filter: brightness(1) contrast(1);
 }
