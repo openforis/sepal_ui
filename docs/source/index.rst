@@ -11,7 +11,7 @@ Currently translated in the following languages:
 
     English, Français, Español
 
-You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
+You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
 
 --------------------------------------------------------------------------------
 
