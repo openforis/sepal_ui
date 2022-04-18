@@ -6,6 +6,10 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467835.svg
+   :target: https://doi.org/10.5281/zenodo.6467835
+   :alt: Citation
 
 .. image:: https://badge.fury.io/py/sepal-ui.svg
     :target: https://badge.fury.io/py/sepal-ui
