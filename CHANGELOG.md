@@ -1,3 +1,35 @@
+## v_2.8.0 (2022-04-18)
+
+### Fix
+
+- remove empty versions from the changelog
+- prevent Alert with no parameters to raise a warning
+- backward compatibility of the type parameter
+- use msg for banner btn
+- only display the oldest banner queue the other and hide them
+- raise a warning if type is badly defined
+- display the number of stackbar in the queue
+- create the disclaimer tile on the fly
+- change logo source in light theme
+- unproject images in add_raster
+- unproject images in add_raster Fix #434
+
+### Feat
+
+- new set and get children to sepalwidget. Aims to close #443
+- create Banner widget to display important message to end-user
+- override ipyleaflet Map  add_layer method to use default style
+
+### Refactor
+
+- rename _tmp class name with the actual new sepalwidget name
+- deal with type_ the same way we do it in Alert
+- use a persistent parameter instead of timeout
+- simplify add_banner method by calling Banner widget
+- return map when new layer added + make more clear param name
+- change alert by snackbar when creating a banner aims to close #438
+- move theme, color and theme function to styles
+
 ## v_2.7.0 (2022-03-28)
 
 ### Refactor
