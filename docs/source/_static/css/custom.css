@@ -14,3 +14,13 @@ div.jupyter_container.docutils {
   margin-right: .5em;
   padding-right: .5em;
 }
+
+/*******************************************************************************
+* overwrite image filter in dark theme 
+* most of our images are from SEPAL which is already using a dark theme 
+* there is no need for extra contrast and dimned brightness
+*
+*/
+body[data-theme=dark] img {
+   filter: brightness(1) contrast(1);
+}
