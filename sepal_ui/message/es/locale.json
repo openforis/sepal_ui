@@ -27,7 +27,7 @@
 	},
 	"aoi_sel": {
 		"title": "Seleccionar área de interés (AOI)",
-		"administrative": "Definiciones administrativas",
+		"administrative": "Límites administrativas",
 		"custom": "Geometrías personalizadas",
 		"method": "Método de selección de AOI",
 		"adm": {
