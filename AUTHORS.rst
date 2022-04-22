@@ -61,6 +61,16 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
             <br/>
             <br/>
          </td>
+         <td align="center">
+            <a href="https://github.com/abczefg">
+               <img src="https://avatars.githubusercontent.com/u/71498789?v=4" width="70px;" alt="12rambau"/><br />
+               <sub><b>Zhuo Cheng</b></sub>
+            </a>
+            <br/>
+            <a href="translation" title="Translation">🌍</a>
+            <br/>
+            <br/>
+         </td>
       </tr>
    </table>
    </br>
