@@ -22,7 +22,7 @@
 		},
 		"banner": {
 			"close": "cerrar",
-			"next": ""
+			"next": "siguiente ({} más)"
 		}
 	},
 	"aoi_sel": {
@@ -145,7 +145,7 @@
 			"btn": "Reclasificar",
 			"export": {
 				"0": {
-					"0": "",
+					"0": "El vector ha sido creado y añadido a su cuenta de SEPAL: {}",
 					"1": ""
 				},
 				"1": {
