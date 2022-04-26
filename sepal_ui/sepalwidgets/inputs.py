@@ -716,7 +716,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         return
 
     @su.switch("loading", "disabled")
-    def _get_items(self, change=None):
+    def _get_items(self, *args):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
