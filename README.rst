@@ -6,6 +6,10 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467835.svg
+   :target: https://doi.org/10.5281/zenodo.6467835
+   :alt: Citation
 
 .. image:: https://badge.fury.io/py/sepal-ui.svg
     :target: https://badge.fury.io/py/sepal-ui
@@ -53,9 +57,9 @@ Currently translated in the following languages:
 
 .. csv-table::
 
-    English, Français, Español
+    English, Français, Español, 中国人
 
-You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
+You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
 
 --------------------------------------------------------------------------------
 
@@ -66,7 +70,7 @@ The full documentation is available `here <https://sepal-ui.readthedocs.io/en/la
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_demo.gif
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_screenshot.png
 
 Contribute
 ----------

@@ -18,7 +18,7 @@ class TestSepalWidgets:
 
         for c in v_classes:
 
-            if c in ["Alert", "Tooltip"]:
+            if c in ["Alert", "Tooltip", "Banner"]:
                 # they are meant to be hidden by default
                 # they are specific sepalwidgets and tested elswhere
                 continue

@@ -1,6 +1,6 @@
 {
 	"test_key": "clave de prueba",
-	"status": "Status: {}",
+	"status": "Estado: {}",
 	"widgets": {
 		"asset_select": {
 			"types": {
@@ -15,34 +15,38 @@
 			"no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
 			"wrong_type": "El tipo del asset seleccionado: ({}), no coincide con ninguno de los tipos permitidos por el widget: ({}).",
 			"hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo.",
-			"placeholder": "users/custom_user/custom_asset"
+			"placeholder": "users/nombre_usuario/asset_personalizado"
 		},
 		"load_table": {
-			"too_small": "El archivo indicado tiene menos de 3 columnas. Por favor, indique un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
+			"too_small": "El archivo ingresado contiene menos de 3 columnas. Por favor, selecciona un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
+		},
+		"banner": {
+			"close": "cerrar",
+			"next": ""
 		}
 	},
 	"aoi_sel": {
 		"title": "Seleccionar área de interés (AOI)",
-		"administrative": "Definiciones administrativas",
+		"administrative": "Límites administrativos",
 		"custom": "Geometrías personalizadas",
 		"method": "Método de selección de AOI",
 		"adm": {
 			"0": "País/Provincia",
-			"1": "Nivel de administración 1",
-			"2": "Nivel de administración 2"
+			"1": "Nivel administrativo 1",
+			"2": "Nivel administrativo 2"
 		},
 		"vector": "Archivo vectorial",
-		"draw": "Figuras dibujadas",
+		"draw": "Dibujar figura(s) en el mapa",
 		"points": "Archivo de puntos",
-		"aoi_name": "Seleccionar un nombre de AOI",
+		"aoi_name": "Crea un nombre para tu AOI",
 		"asset": "Nombre del asset",
-		"btn": "Seleccione estas entradas",
-		"no_inputs": "Proporcione entradas completas antes de validar su AOI",
-		"complete": "La AOI ha sido seleccionada",
+		"btn": "Usar selección",
+		"no_inputs": "Por favor llena todas las entradas antes de validar tu AOI",
+		"complete": "El AOI ha sido seleccionada",
 		"shape_drawn": "Se ha dibujado una figura",
 		"file_pattern": "aoi_{}",
-		"no_selection": "No se ha recogido ningún método de selección",
-		"no_country": "No se ha seleccionado ningún país",
+		"no_selection": "No has elegido ningún método de selección",
+		"no_country": "No has seleccionado ningún país",
 		"asset_already_exist": "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
 		"asset_created": "El Asset ya ha sido creado bajo el nombre: {}",
 		"name_used": "El nombre ya está en uso, cámbielo o borre el archivo anterior en su cuenta de GEE",
@@ -141,12 +145,12 @@
 			"btn": "Reclasificar",
 			"export": {
 				"0": {
-					"0": "El Vector ha sido creado y añadido a su archivo SEPAL: {}",
-					"1": "La Imagen ha sido creada y añadida a su archivo SEPAL: {}"
+					"0": "",
+					"1": ""
 				},
 				"1": {
-					"0": "La ee.FeatureCollection ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación.",
-					"1": "La ee.Image ha sido exportada a GEE como {}. Utilice la interfaz del editor de código para seguir el proceso de exportación"
+					"0": "",
+					"1": ""
 				}
 			}
 		},
@@ -155,10 +159,17 @@
 		}
 	},
 	"locale": {
-		"change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
-		"fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
+		"change": "",
+		"fallback": ""
 	},
 	"theme": {
-		"change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
+		"change": "El tema \"{0}\" se utilizará como tema predeterminado en las aplicaciones SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios."
+	},
+	"disclaimer": {
+		"p": {
+			"0": "La FAO declina toda responsabilidad respecto de los errores o deficiencias en la base de datos o los programas, o en la documentación que la acompaña a éstos, el mantenimiento y el mejoramiento del programa, así como por cualquier daño que pueda derivarse de ellos.",
+			"1": "Asimismo, la FAO no se considerará responsable de la actualización de los datos y no asume ningún tipo de responsabilidad respecto de los errores u omisiones en los datos proporcionados.",
+			"2": "No obstante, se ruega a los usuarios que informen de los errores o deficiencias que hallen en este producto de la FAO."
+		}
 	}
 }

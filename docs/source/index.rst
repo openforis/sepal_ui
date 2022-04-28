@@ -9,9 +9,9 @@ Currently translated in the following languages:
 
 .. csv-table::
 
-    English, Français, Español
+    English, Français, Español, 中国人
 
-You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__.
+You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
 
 --------------------------------------------------------------------------------
 

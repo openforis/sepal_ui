@@ -14,7 +14,7 @@ class TestFullScreenControl:
         assert isinstance(control, sm.FullScreenControl)
         assert control in map_.controls
         assert control.zoomed is False
-        assert control.w_btn.icon == "expand"
+        assert control.w_btn.icon == "arrows-alt"
 
         return
 
@@ -35,6 +35,6 @@ class TestFullScreenControl:
         control.toggle_fullscreen(None)
 
         assert control.zoomed is False
-        assert control.w_btn.icon == "expand"
+        assert control.w_btn.icon == "arrows-alt"
 
         return

@@ -1,9 +1,8 @@
+from ipyvue import VueWidget
 import ipyvuetify as v
 from traitlets import Unicode, Bool, observe
 
-__all__ = ["TYPES", "SepalWidget"]
-
-TYPES = ("info", "secondary", "primary", "error", "warning", "success", "accent")
+__all__ = ["SepalWidget"]
 
 
 class SepalWidget(v.VuetifyWidget):
@@ -110,5 +109,62 @@ class SepalWidget(v.VuetifyWidget):
         """
 
         self.v_model = None
+
+        return self
+
+    def get_children(self, id_):
+        """Retrieve all children elements that matches with the given id_.
+
+        Args:
+            id_ (str, optional): attribute id to compare with.
+
+        Returns:
+            Will return a list with all mathing elements if there are more than one,
+            otherwise will return the mathing element.
+
+        """
+
+        elements = []
+
+        def search_children(parent):
+
+            if issubclass(parent.__class__, VueWidget):
+
+                if parent.attributes.get("id") == id_:
+                    elements.append(parent)
+
+                if len(parent.children):
+                    [search_children(chld) for chld in parent.children]
+
+        # Search in the self children elements
+        [search_children(chld) for chld in self.children]
+
+        return elements[0] if len(elements) == 1 else elements
+
+    def set_children(self, children, position="first"):
+        """Insert input children in self children within given position
+
+        Args:
+            children (str, DOMWidget, list(str, DOMWidget)):
+            position (str): whether to insert as first or last element. ["first", "last"]
+        """
+
+        if not isinstance(children, list):
+            children = [children]
+
+        new_childrens = self.children[:]
+
+        if position == "first":
+            new_childrens = children + new_childrens
+
+        elif position == "last":
+            new_childrens = new_childrens + children
+
+        else:
+            raise ValueError(
+                f"Position '{position}' is not a valid value. Use 'first' or 'last'"
+            )
+
+        self.children = new_childrens
 
         return self
