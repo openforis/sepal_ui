@@ -1,33 +1,47 @@
+from planet.api import APIException
+
+from sepal_ui.model import Model
+from traitlets import Bool
 from planet import api
 from planet.api import filters
 
 
-class PlanetModel:
+class PlanetModel(Model):
 
     SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
 
-    def __init__(self, api_key=None):
+    active = Bool(False).tag(sync=True)
+    "bool: whether if the client has an active subscription or not"
+
+    def __init__(self, credentials=None):
 
         """Planet helper class useful to handle recurrent sepal module operations
 
-
         Args:
-            api_key (str): plain text planet api key with valid subscription
+            credentials ([tuple, str], optional): tuple of username and password of planet explorer. Or string API key.
 
         Params:
             client (planet.api.ClientV1): planet api initialized client.
-            active (bool): whether if the client has an active subscription or not
+
         """
 
-        self.client = None
-        self.active = False
+        self.client = api.ClientV1()
+        self._init_client(credentials)
 
-        self._init_client(api_key)
+    def _init_client(self, credentials):
+        """Initialize planet client with api or credentials"""
 
-    def _init_client(self, api_key):
-        """return the client api object"""
+        credentials_ = credentials
 
-        self.client = api.ClientV1(api_key=api_key)
+        if isinstance(credentials_, tuple):
+            try:
+                credentials_ = api.ClientV1().login(*credentials_)["api_key"]
+
+            except APIException:
+                # This error will be triggered when email is passed in bad format
+                raise APIException("Please check your inputs.")
+
+        self.client.auth.value = credentials_
         self._is_active()
 
     def _is_active(self):
