@@ -20,21 +20,10 @@ import matplotlib.pyplot as plt
 from matplotlib import colors as mpc
 from matplotlib import colorbar
 import ipywidgets as widgets
-from ipyleaflet import (
-    AttributionControl,
-    DrawControl,
-    LayersControl,
-    LocalTileLayer,
-    ScaleControl,
-    WidgetControl,
-    ZoomControl,
-    GeoJSON,
-    Map,
-)
 from rasterio.crs import CRS
 from traitlets import Bool, link, observe
 import ipyvuetify as v
-import ipyleaflet
+import ipyleaflet as ipl
 import ee
 from box import Box
 
@@ -56,7 +45,7 @@ basemaps = Box(xyz_to_leaflet(), frozen_box=True)
 "(Box.box): the basemaps list as a box"
 
 
-class SepalMap(Map):
+class SepalMap(ipl.Map):
     """
     The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
     The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
@@ -114,10 +103,10 @@ class SepalMap(Map):
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
-        self.add_control(ZoomControl(position="topright"))
-        self.add_control(LayersControl(position="topright"))
-        self.add_control(AttributionControl(position="bottomleft", prefix="SEPAL"))
-        self.add_control(ScaleControl(position="bottomleft", imperial=False))
+        self.add_control(ipl.ZoomControl(position="topright"))
+        self.add_control(ipl.LayersControl(position="topright"))
+        self.add_control(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
+        self.add_control(ipl.ScaleControl(position="bottomleft", imperial=False))
 
         # specific drawing control
         self.set_drawing_controls(dc)
@@ -132,14 +121,14 @@ class SepalMap(Map):
 
         if vinspector:
             self.add_control(
-                WidgetControl(widget=self.w_vinspector, position="topright")
+                ipl.WidgetControl(widget=self.w_vinspector, position="topright")
             )
 
             link((self.w_vinspector, "value"), (self, "vinspector"))
 
         # Create output space for raster interaction
         self.output_r = widgets.Output(layout={"border": "1px solid black"})
-        self.output_control_r = WidgetControl(
+        self.output_control_r = ipl.WidgetControl(
             widget=self.output_r, position="bottomright"
         )
         self.add_control(self.output_control_r)
@@ -166,7 +155,7 @@ class SepalMap(Map):
             self.default_style = {"cursor": "wait"}
 
             local_rasters = [
-                lr.name for lr in self.layers if isinstance(lr, LocalTileLayer)
+                lr.name for lr in self.layers if isinstance(lr, ipl.LocalTileLayer)
             ]
 
             if local_rasters:
@@ -225,7 +214,7 @@ class SepalMap(Map):
 
         color = v.theme.themes.dark.info
 
-        dc = DrawControl(
+        dc = ipl.DrawControl(
             edit=False,
             marker={},
             circlemarker={},
@@ -272,20 +261,20 @@ class SepalMap(Map):
 
             if local:
                 local_rasters = [
-                    lr for lr in self.layers if isinstance(lr, LocalTileLayer)
+                    lr for lr in self.layers if isinstance(lr, ipl.LocalTileLayer)
                 ]
                 if local_rasters:
                     last_layer = local_rasters[-1]
                     self.remove_layer(last_layer)
 
                     # If last layer is local_layer, remove it from memory
-                    if isinstance(last_layer, LocalTileLayer):
+                    if isinstance(last_layer, ipl.LocalTileLayer):
                         self._remove_local_raster(last_layer)
             else:
                 self.remove_layer(last_layer)
 
                 # If last layer is local_layer, remove it from memory
-                if isinstance(last_layer, LocalTileLayer):
+                if isinstance(last_layer, ipl.LocalTileLayer):
                     self._remove_local_raster(last_layer)
 
         return self
@@ -578,7 +567,7 @@ class SepalMap(Map):
         not layer_name or cb.set_label(layer_name)
 
         output = widgets.Output()
-        colormap_ctrl = ipyleaflet.WidgetControl(
+        colormap_ctrl = ipl.WidgetControl(
             widget=output,
             position=position,
             transparent_bg=True,
@@ -750,7 +739,7 @@ class SepalMap(Map):
 
         # create the colored image
         map_id_dict = ee.Image(image).getMapId(vis_params)
-        tile_layer = ipyleaflet.TileLayer(
+        tile_layer = ipl.TileLayer(
             url=map_id_dict["tile_fetcher"].url_format,
             attribution="Google Earth Engine",
             name=name,
@@ -864,7 +853,7 @@ class SepalMap(Map):
         not existing_layer or self.remove_layer(existing_layer)
 
         # apply default coloring for geoJson
-        if isinstance(layer, GeoJSON):
+        if isinstance(layer, ipl.GeoJSON):
             layer.style = layer.style or styles.layer_style
             hover_style = styles.layer_hover_style if hover else layer.hover_style
             layer.hover_style = layer.hover_style or hover_style
