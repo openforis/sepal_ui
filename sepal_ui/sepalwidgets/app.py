@@ -255,13 +255,19 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
         code_link = []
         if code:
-            item_code = DrawerItem("Source code", icon="far fa-file-code", href=code)
+            item_code = DrawerItem(
+                ms.widgets.navdrawer.code, icon="far fa-file-code", href=code
+            )
             code_link.append(item_code)
         if wiki:
-            item_wiki = DrawerItem("Wiki", icon="fas fa-book-open", href=wiki)
+            item_wiki = DrawerItem(
+                ms.widgets.navdrawer.wiki, icon="fas fa-book-open", href=wiki
+            )
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem("Bug report", icon="fas fa-bug", href=issue)
+            item_bug = DrawerItem(
+                ms.widgets.navdrawer.bug, icon="fas fa-bug", href=issue
+            )
             code_link.append(item_bug)
 
         children = [
