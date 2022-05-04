@@ -7,7 +7,6 @@ import tempfile
 import pandas as pd
 import geopandas as gpd
 from ipyleaflet import GeoJSON
-import geemap
 import ee
 
 from sepal_ui import color
@@ -257,6 +256,7 @@ class AoiModel(Model):
             if asset_name["value"] is None:
                 raise Exception("Please select a value.")
 
+        # set the name
         self.name = Path(asset_name["pathname"]).stem.replace(self.ASSET_SUFFIX, "")
         ee_col = ee.FeatureCollection(asset_name["pathname"])
 
@@ -271,13 +271,8 @@ class AoiModel(Model):
         self.feature_collection = ee_col
 
         # create a gdf form te feature_collection
-        # cannot be used before geemap 0.8.17 (not released)
-        # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-        self.gdf = gpd.GeoDataFrame.from_features(
-            self.feature_collection.getInfo()["features"]
-        ).set_crs(epsg=4326)
-
-        # set the name
+        features = self.feature_collection.getInfo()["features"]
+        self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         return self
 
@@ -310,7 +305,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = ee.FeatureCollection(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -343,7 +338,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -369,7 +364,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -413,11 +408,8 @@ class AoiModel(Model):
             ).filter(ee.Filter.eq(f"ADM{level}_CODE", admin))
 
             # transform it into gdf
-            # cannot be used before geemap 0.8.17 (not released)
-            # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-            self.gdf = gpd.GeoDataFrame.from_features(
-                self.feature_collection.getInfo()["features"]
-            ).set_crs(epsg=4326)
+            features = self.feature_collection.getInfo()["features"]
+            self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         else:
             # save the country iso_code

@@ -574,3 +574,49 @@ def set_type(color):
         color = TYPES[0]
 
     return color
+
+
+@versionadded(version="2.8.0")
+def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
+    """
+    Transform a geojson object into a featureCollection
+    No sanity check is performed on the initial geo_json. It must respect the
+    `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
+
+    Args:
+        geo_json (dict): a geo_json dictionnary
+        geodesic (bool, optional): Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
+        encoding (str, optional): The encoding of characters. Defaults to "utf-8".
+
+    Returns:
+        (ee.FeatureCollection): the created featurecollection
+    """
+
+    # from a featureCollection
+    if geo_json["type"] == "FeatureCollection":
+        for feature in geo_json["features"]:
+            if feature["geometry"]["type"] != "Point":
+                feature["geometry"]["geodesic"] = geodesic
+        features = ee.FeatureCollection(geo_json)
+        return features
+
+    # from a single feature
+    elif geo_json["type"] == "Feature":
+        geom = None
+        # Checks whether it is a point
+        if geo_json["geometry"]["type"] == "Point":
+            coordinates = geo_json["geometry"]["coordinates"]
+            longitude = coordinates[0]
+            latitude = coordinates[1]
+            geom = ee.Geometry.Point(longitude, latitude)
+        # for every other geometry simply create a geometry
+        else:
+            geom = ee.Geometry(geo_json["geometry"], "", geodesic)
+
+        return geom
+
+    # some error handling because we are fancy
+    else:
+        raise Exception("Could not convert the geojson to ee.Geometry()")
+
+    return

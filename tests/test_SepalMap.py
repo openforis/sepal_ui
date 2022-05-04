@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 import ee
-import geemap
 from ipyleaflet import basemaps, basemap_to_tiles, GeoJSON
 
 from sepal_ui import mapping as sm
@@ -23,7 +22,7 @@ class TestSepalMap:
 
         # check that the map start with a DC
         m = sm.SepalMap(dc=True)
-        assert isinstance(m.dc, geemap.DrawControl)
+        assert isinstance(m.dc, sm.DrawControl)
 
         # check that the map start with several basemaps
         basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
@@ -42,6 +41,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skip(reason="the method is now deprecated")
     def test_set_drawing_controls(self):
 
         m = sm.SepalMap()
@@ -50,10 +50,10 @@ class TestSepalMap:
         res = m.set_drawing_controls(False)
 
         assert res == m
-        assert not any(isinstance(c, geemap.DrawControl) for c in m.controls)
+        assert not any(isinstance(c, sm.DrawControl) for c in m.controls)
 
         m.set_drawing_controls(True)
-        assert isinstance(m.dc, geemap.DrawControl)
+        assert isinstance(m.dc, sm.DrawControl)
         assert m.dc.rectangle == {"shapeOptions": {"color": "#79b1c9"}}
         assert m.dc.polygon == {"shapeOptions": {"color": "#79b1c9"}}
         assert m.dc.marker == {}
@@ -70,9 +70,9 @@ class TestSepalMap:
         out_dir = Path.home()
         dem = out_dir / "dem.tif"
 
-        if not dem.isfile():
-            dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
-            geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
+        # if not dem.isfile():
+        #    dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
+        #    geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
 
         # add a raster
         m.add_raster(dem, colormap="terrain", layer_name="DEM")
@@ -160,9 +160,9 @@ class TestSepalMap:
         out_dir = Path.home()
         name = "dem"
         dem = out_dir / "dem.tif"
-        if not dem.is_file():
-            dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
-            geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
+        # if not dem.is_file():
+        #    dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
+        #    geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
         m.add_raster(dem, layer_name=name)
 
         # check name
@@ -179,11 +179,11 @@ class TestSepalMap:
         name = "landsat"
         opacity = 0.5
         landsat = out_dir / "landsat.tif"
-        if not landsat.is_file():
-            landsat_url = "https://drive.google.com/file/d/1EV38RjNxdwEozjc9m0FcO3LFgAoAX1Uw/view?usp=sharing"
-            geemap.download_from_gdrive(
-                landsat_url, "landsat.tif", out_dir, unzip=False
-            )
+        # if not landsat.is_file():
+        #    landsat_url = "https://drive.google.com/file/d/1EV38RjNxdwEozjc9m0FcO3LFgAoAX1Uw/view?usp=sharing"
+        #    geemap.download_from_gdrive(
+        #        landsat_url, "landsat.tif", out_dir, unzip=False
+        #    )
         m.add_raster(landsat, layer_name=name, opacity=opacity)
 
         # check that it's displayed
