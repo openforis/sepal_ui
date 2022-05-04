@@ -1,5 +1,5 @@
 import collections
-import ipyleaflet
+from ipyleaflet import TileLayer
 import xyzservices.providers as xyz
 
 
@@ -89,8 +89,8 @@ def xyz_to_leaflet():
         name = xyz_tiles[key]["name"]
         url = xyz_tiles[key]["url"]
         attribution = xyz_tiles[key]["attribution"]
-        leaflet_dict[key] = ipyleaflet.TileLayer(
-            url=url, name=name, attribution=attribution, max_zoom=22
+        leaflet_dict[key] = TileLayer(
+            url=url, name=name, attribution=attribution, max_zoom=22, base=True
         )
 
     xyz_dict = get_xyz_dict()
@@ -98,12 +98,9 @@ def xyz_to_leaflet():
         name = xyz_dict[item].name
         url = xyz_dict[item].build_url()
         attribution = xyz_dict[item].attribution
-        if "max_zoom" in xyz_dict[item].keys():
-            max_zoom = xyz_dict[item]["max_zoom"]
-        else:
-            max_zoom = 22
-        leaflet_dict[name] = ipyleaflet.TileLayer(
-            url=url, name=name, max_zoom=max_zoom, attribution=attribution
+        max_zoom = xyz_dict[item].pop("max_zoom", 22)
+        leaflet_dict[name] = TileLayer(
+            url=url, name=name, max_zoom=max_zoom, attribution=attribution, base=True
         )
 
     return leaflet_dict
