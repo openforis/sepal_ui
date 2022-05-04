@@ -3,9 +3,9 @@
 	"status": "Status : {}",
 	"widgets": {
 		"navdrawer": {
-			"code": "",
-			"wiki": "",
-			"bug": ""
+			"code": "Code source",
+			"wiki": "Wiki",
+			"bug": "Signaler un Bug"
 		},
 		"asset_select": {
 			"types": {
