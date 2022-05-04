@@ -2,6 +2,11 @@
 	"test_key": "Clef de test",
 	"status": "Status : {}",
 	"widgets": {
+		"navdrawer": {
+			"code": "",
+			"wiki": "",
+			"bug": ""
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
