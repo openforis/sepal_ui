@@ -26,12 +26,14 @@ import ipyvuetify as v
 import ipyleaflet as ipl
 import ee
 from box import Box
+from deprecated.sphinx import deprecated
 
 import sepal_ui.frontend.styles as styles
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
 from sepal_ui.mapping.basemaps import xyz_to_leaflet
+from sepal_ui.mapping.draw_control import DrawControl
 
 __all__ = ["SepalMap"]
 
@@ -109,7 +111,8 @@ class SepalMap(ipl.Map):
         self.add_control(ipl.ScaleControl(position="bottomleft", imperial=False))
 
         # specific drawing control
-        self.set_drawing_controls(dc)
+        self.dc = DrawControl(self)
+        not dc or self.add_control(self.dc)
 
         # Add value inspector
         self.w_vinspector = widgets.Checkbox(
@@ -199,34 +202,6 @@ class SepalMap(ipl.Map):
             self.default_style = {"cursor": "crosshair"}
 
             return
-
-    def set_drawing_controls(self, add=False):
-        """
-        Create a drawing control for the map.
-        It will be possible to draw rectangles, circles and polygons.
-
-        Args:
-            add (bool): either to add the dc to the object attribute or not
-
-        return:
-            self
-        """
-
-        color = v.theme.themes.dark.info
-
-        dc = ipl.DrawControl(
-            edit=False,
-            marker={},
-            circlemarker={},
-            polyline={},
-            rectangle={"shapeOptions": {"color": color}},
-            circle={"shapeOptions": {"color": color}},
-            polygon={"shapeOptions": {"color": color}},
-        )
-
-        self.dc = dc if add else None
-
-        return self
 
     def _remove_local_raster(self, local_layer):
         """
@@ -462,30 +437,20 @@ class SepalMap(ipl.Map):
 
         return
 
+    @deprecated(version="2.8.0", reason="use dc methods instead")
     def show_dc(self):
         """
         show the drawing control on the map
-
-        Return:
-            self
         """
-
-        not self.dc or self.dc.clear()
-        self.dc in self.controls or self.add_control(self.dc)
-
+        self.dc.show()
         return self
 
+    @deprecated(version="2.8.0", reason="use dc methods instead")
     def hide_dc(self):
         """
         hide the drawing control of the map
-
-        Return:
-            self
         """
-
-        not self.dc or self.dc.clear()
-        self.dc not in self.controls or self.remove_control(self.dc)
-
+        self.dc.hide()
         return self
 
     def add_colorbar(

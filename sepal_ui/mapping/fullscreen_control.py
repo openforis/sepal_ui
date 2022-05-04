@@ -14,7 +14,7 @@ class FullScreenControl(WidgetControl):
     .. versionadded:: 2.7.0
 
     Args:
-        kwargs (optional): any availabel arguments from a ipyleaflet WidgetControl
+        kwargs (optional): any available arguments from a ipyleaflet WidgetControl
     """
 
     ICONS = ["arrows-alt", "compress"]
