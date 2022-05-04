@@ -839,6 +839,31 @@ class SepalMap(ipl.Map):
 
         return props
 
+    def remove_layer(self, key):
+        """
+        Remove a layer based on a key. The key can be, a Layer object, the name of a layer or the index in the layer list
+
+        Args:
+            key (Layer, int, str): the key to find the layer to delete
+        """
+
+        if isinstance(key, int) or isinstance(key, str):
+            layer = self.find_layer(key)
+        elif isinstance(key, ipl.Layer):
+            layer = key
+        else:
+            raise ValueError(
+                f"Key must be of type 'str', 'int' or 'Layer'. {type(key)} given."
+            )
+
+        # catch if the layer doesn't exist
+        if layer is None:
+            raise ipl.LayerException(f"layer not on map:{key}")
+
+        super().remove_layer(layer)
+
+        return
+
     def add_layer(self, layer, hover=False):
         """
         Add layer and use a default style for the GeoJSON inputs.
