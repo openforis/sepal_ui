@@ -33,7 +33,7 @@ setup_params = {
         "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
-        "geemap>=0.8.9",
+        "geemap==0.8.9",
         "earthengine-api",
         "markdown",
         "xarray_leaflet",
