@@ -49,24 +49,28 @@ class TestTranslator:
         # a test dict with many embeded numbered list
         # but also an already existing list
         test = {
-            "foo1": {"0": "foo2", "1": "foo3"},
-            "foo4": {
-                "foo5": {"0": "foo6", "1": "foo7"},
-                "foo8": "foo9",
-            },
-            "foo10": ["foo11", "foo12"],
+            "a": {"0": "b", "1": "c"},
+            "d": {"e": {"0": "f", "1": "g"}, "h": "i"},
+            "j": ["k", "l"],
         }
 
         # the sanitize version of this
         result = {
-            "foo1": ["foo2", "foo3"],
-            "foo4": {"foo5": ["foo6", "foo7"], "foo8": "foo9"},
-            "foo10": ["foo11", "foo12"],
+            "a": ["b", "c"],
+            "d": {"e": ["f", "g"], "h": "i"},
+            "j": ["k", "l"],
         }
 
         assert Translator.sanitize(test) == result
 
         return
+
+    def test_delete_empty(self):
+
+        test = {"a": "", "b": 1, "c": {"d": ""}, "e": {"f": "", "g": 2}}
+        result = {"b": 1, "c": {}, "e": {"g": 2}}
+
+        assert Translator.delete_empty(test) == result
 
     def test_missing_keys(self, translation_folder):
 
