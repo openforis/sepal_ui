@@ -2,6 +2,11 @@
 	"test_key": "测试键",
 	"status": "状态：{}",
 	"widgets": {
+		"navdrawer": {
+			"code": "",
+			"wiki": "",
+			"bug": ""
+		},
 		"asset_select": {
 			"types": {
 				"0": "栅格",
