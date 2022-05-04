@@ -22,10 +22,12 @@ from colorama import init, Fore
 # init colors for all plateforms
 init()
 
+# init parser
+p = argparse.ArgumentParser(description=__doc__, usage="module_venv")
+
 if __name__ == "__main__":
 
     # read arguments (there should be none)
-    p = argparse.ArgumentParser(usage=__doc__)
     args = p.parse_args()
 
     # welcome the user

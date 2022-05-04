@@ -52,6 +52,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "notfound.extension",
     "sphinxcontrib.spelling",
+    "sphinxcontrib.autoprogram",
     "_extentions.video",
     "_extentions.line_break",
 ]

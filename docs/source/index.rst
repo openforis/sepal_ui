@@ -40,4 +40,5 @@ Meet our :doc:`contributor <./start/authors>`.
     tutorials/index
     widgets/index
     modules/sepal_ui
+    cli/index
     changelog

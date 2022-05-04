@@ -24,6 +24,9 @@ import sepal_ui
 # init colors for all plateforms
 init()
 
+# init parser
+p = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
+
 
 def write_reqs(file):
     """
@@ -190,7 +193,6 @@ def clean_custom(file):
 if __name__ == "__main__":
 
     # parse agruments
-    p = argparse.ArgumentParser(usage=__doc__)
     args = p.parse_args()
 
     # welcome the user

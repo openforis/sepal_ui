@@ -1,13 +1,28 @@
 #!/usr/bin/python3
+
+"""
+Script to manually activate one of the venv available in the current Jupyter environment.
+
+Application are designed to run on specific venv, created to avoid lib deprecation. 
+this script allows the user to easily activate one of the venv have already installed in Jupyter and customize it
+"""
+
 import subprocess
 from pathlib import Path
 import pandas as pd
 from colorama import init, Fore
+import argparse
 
 # init colors for all plateforms
 init()
 
+# init parser 
+p = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
+
 if __name__ == "__main__":
+    
+    # parse agruments
+    args = p.parse_args()
 
     print(
         f"{Fore.CYAN} Welcome to the virtual env activation, loading your venvs... \n{Fore.RESET}"

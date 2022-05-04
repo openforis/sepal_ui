@@ -17,6 +17,9 @@ from sepal_ui.scripts import utils as su
 # init colors for all plateforms
 init()
 
+# init the parser
+p = argparse.ArgumentParser(description=__doc__, usage="module_l10n")
+
 
 def check_locale(locale):
     """
@@ -34,7 +37,6 @@ def check_locale(locale):
 if __name__ == "__main__":
 
     # parse agruments
-    p = argparse.ArgumentParser(usage=__doc__)
     args = p.parse_args()
 
     # welcome the user
