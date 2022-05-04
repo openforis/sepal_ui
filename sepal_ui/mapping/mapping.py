@@ -864,6 +864,22 @@ class SepalMap(ipl.Map):
 
         return
 
+    def remove_all(self, base=False):
+        """
+        Remove all the layers from the maps.
+        If base is set to True, the basemaps are removed as well
+
+        Args:
+            base (bool, optional): wether or not the basemaps should be removed, default to False
+        """
+        gen = (tl for tl in self.layers)
+        gen = gen if base else (tl for tl in self.layers if tl.base is False)
+
+        for layer in gen:
+            self.remove_layer(layer)
+
+        return
+
     def add_layer(self, layer, hover=False):
         """
         Add layer and use a default style for the GeoJSON inputs.
