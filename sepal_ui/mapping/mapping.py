@@ -95,6 +95,8 @@ class SepalMap(Map):
         kwargs["center"] = kwargs.pop("center", [0, 0])
         kwargs["zoom"] = kwargs.pop("zoom", 2)
         kwargs["basemap"] = {}
+        kwargs["zoom_control"] = False
+        kwargs["attribution_control"] = False
 
         # Init the map
         super().__init__(**kwargs)
@@ -112,7 +114,6 @@ class SepalMap(Map):
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
-        self.clear_controls()
         self.add_control(ZoomControl(position="topright"))
         self.add_control(LayersControl(position="topright"))
         self.add_control(AttributionControl(position="bottomleft", prefix="SEPAL"))
@@ -899,15 +900,23 @@ class SepalMap(Map):
 
         return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
 
-    def find_layer(self, name):
+    def find_layer(self, key):
         """
-        Search a layer by name
+        Search a layer by name or index
 
         Args:
-            name (str): the layer name
+            key (str, int): the layer name or the layer index
 
         Return:
-            (TileLayer): the first layer using the same name
+            (TileLayer): the first layer using the same name or index else None
         """
 
-        return next((tl for tl in self.layers if tl.name == name), None)
+        if isinstance(key, str):
+            layer = next((tl for tl in self.layers if tl.name == key), None)
+        elif isinstance(key, int):
+            size = len(self.layers)
+            layer = self.layers[key] if -size <= key < size else None
+        else:
+            raise ValueError(f"key must be a int or a str, {type(key)} given")
+
+        return layer
