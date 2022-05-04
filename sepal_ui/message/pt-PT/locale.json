@@ -2,6 +2,11 @@
 	"test_key": "",
 	"status": "",
 	"widgets": {
+		"navdrawer": {
+			"code": "",
+			"wiki": "",
+			"bug": ""
+		},
 		"asset_select": {
 			"types": {
 				"0": "",
