@@ -284,9 +284,6 @@ class SepalMap(ipl.Map):
             self
         """
 
-        # center the image
-        self.centerObject(ee_geometry)
-
         # extract bounds from ee_object
         ee_bounds = ee_geometry.bounds().coordinates()
         coords = ee_bounds.get(0).getInfo()
