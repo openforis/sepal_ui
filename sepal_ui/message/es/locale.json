@@ -2,6 +2,29 @@
 	"test_key": "clave de prueba",
 	"status": "Estado: {}",
 	"widgets": {
+		"fileinput": {
+			"label": "",
+			"placeholder": ""
+		},
+		"table": {
+			"label": "",
+			"column": {
+				"id": "",
+				"lat": "",
+				"lng": ""
+			}
+		},
+		"vector": {
+			"label": "",
+			"column": "",
+			"value": "",
+			"all": ""
+		},
+		"navdrawer": {
+			"code": "",
+			"wiki": "",
+			"bug": ""
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
