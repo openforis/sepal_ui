@@ -3,22 +3,22 @@
 	"status": "Status : {}",
 	"widgets": {
 		"fileinput": {
-			"label": "",
-			"placeholder": ""
+			"label": "chercher un fichier",
+			"placeholder": "Fichier sélectionné"
 		},
 		"table": {
-			"label": "",
+			"label": "Fichier de tableau",
 			"column": {
-				"id": "",
-				"lat": "",
-				"lng": ""
+				"id": "Id",
+				"lat": "latitude",
+				"lng": "longitude"
 			}
 		},
 		"vector": {
-			"label": "",
-			"column": "",
-			"value": "",
-			"all": ""
+			"label": "Fichier de vecteur",
+			"column": "colonne",
+			"value": "valeur",
+			"all": "Utiliser toutes les features"
 		},
 		"navdrawer": {
 			"code": "Code source",
