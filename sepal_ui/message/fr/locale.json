@@ -2,6 +2,24 @@
 	"test_key": "Clef de test",
 	"status": "Status : {}",
 	"widgets": {
+		"fileinput": {
+			"label": "",
+			"placeholder": ""
+		},
+		"table": {
+			"label": "",
+			"column": {
+				"id": "",
+				"lat": "",
+				"lng": ""
+			}
+		},
+		"vector": {
+			"label": "",
+			"column": "",
+			"value": "",
+			"all": ""
+		},
 		"navdrawer": {
 			"code": "Code source",
 			"wiki": "Wiki",
