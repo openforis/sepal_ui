@@ -2,6 +2,24 @@
 	"test_key": "Test key",
 	"status": "Status: {}",
 	"widgets": {
+        "fileinput": {
+            "label": "search file",
+            "placeholder": "Selected file"
+        },
+        "table": {
+            "label": "Table file",
+            "column": {
+                "id": "id",
+                "lat": "latitude",
+                "lng": "longitude"
+            }
+        },
+        "vector": {
+            "label": "Vector file",
+            "column": "column",
+            "value": "value",
+            "all": "Use all features"
+        },
         "navdrawer": {
             "code": "Source code",
             "wiki": "Wiki",
