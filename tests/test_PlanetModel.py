@@ -1,21 +1,29 @@
+import json
 import os
 import pytest
 import planet
+from planet.api import APIException
+from planet.api.client import InvalidIdentity
 from sepal_ui.planetapi import PlanetModel
 
 
 class TestPlanetModel:
     @pytest.fixture
-    def planet_key(
-        self,
-    ):
-        return os.environ["PLANET_API_KEY"]
+    def planet_key(self):
+        return os.getenv("PLANET_API_KEY")
 
-    def test_init(self, planet_key):
-        print(planet_key)
+    @pytest.fixture
+    def cred(self):
 
-        # Test with a valid api key
-        planet_model = PlanetModel(planet_key)
+        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+
+        return tuple(credentials.values())
+
+    @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
+    def test_init(self, credentials, request):
+
+        # Test with a valid api key and login credentials
+        planet_model = PlanetModel(request.getfixturevalue(credentials))
 
         assert isinstance(planet_model, PlanetModel)
         assert isinstance(planet_model.client, planet.api.ClientV1)
@@ -26,19 +34,36 @@ class TestPlanetModel:
 
         assert planet_model.active is False
 
-    def test_init_client(self, planet_key):
+    @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
+    def test_init_client(self, credentials, request):
 
         planet_model = PlanetModel("")
 
-        planet_model._init_client(planet_key)
+        planet_model._init_client(request.getfixturevalue(credentials))
         assert planet_model.active is True
 
         planet_model._init_client("wrongkey")
         assert planet_model.active is False
 
+    def test_init_client_from_event(self):
+
+        planet_model = PlanetModel("")
+
+        # Test with bad credentials format
+        with pytest.raises(APIException):
+            planet_model._init_client(("asdf", "1234"), event=True)
+
+        # Test with empty credentials
+        with pytest.raises(ValueError):
+            planet_model._init_client("", event=True)
+
+        # Test with valid credentials format, but non real
+        with pytest.raises(InvalidIdentity):
+            planet_model._init_client(("valid@email.format", "not_exists"), event=True)
+
     def test_is_active(self, planet_key):
 
-        # Test with proper planet key
+        # We only need to test with a key.
         planet_model = PlanetModel(planet_key)
 
         planet_model._is_active()
