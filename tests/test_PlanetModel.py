@@ -15,7 +15,8 @@ class TestPlanetModel:
     @pytest.fixture
     def cred(self):
 
-        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+        # credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+        credentials = json.loads('{"username": "s@gmail.com", "password": "s"}')
 
         return tuple(credentials.values())
 
