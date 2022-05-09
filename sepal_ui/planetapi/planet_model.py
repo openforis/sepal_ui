@@ -1,4 +1,5 @@
 from planet.api import APIException
+from planet.api.client import InvalidIdentity
 
 from sepal_ui.model import Model
 from traitlets import Bool
@@ -28,21 +29,36 @@ class PlanetModel(Model):
         self.client = api.ClientV1()
         self._init_client(credentials)
 
-    def _init_client(self, credentials):
-        """Initialize planet client with api or credentials"""
+    def _init_client(self, credentials, event=None):
+        """Initialize planet client with api key or credentials. It will handle errors
+        if the method is called from an event (view)
+
+        Args:
+            event (bool): whether to initialize from an event or not.
+        """
 
         credentials_ = credentials
+        if event and not any(tuple(credentials)):
+            raise ValueError("Please fill the required field(s).")
 
         if isinstance(credentials_, tuple):
             try:
                 credentials_ = api.ClientV1().login(*credentials_)["api_key"]
 
+            except InvalidIdentity:
+                raise InvalidIdentity("Invalid email or password")
+
             except APIException:
                 # This error will be triggered when email is passed in bad format
-                raise APIException("Please check your inputs.")
+                raise APIException("Please check the format of your inputs.")
 
         self.client.auth.value = credentials_
         self._is_active()
+
+        if event and not self.active:
+            raise Exception(
+                "Your credentials do not have any valid planet subscription."
+            )
 
     def _is_active(self):
         """check if the key has an associated active subscription"""
