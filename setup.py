@@ -47,6 +47,7 @@ setup_params = {
         "natsort",
         "pipreqs",
         "cryptography",
+        "planet",
     ],
     "extras_require": {
         "dev": [
