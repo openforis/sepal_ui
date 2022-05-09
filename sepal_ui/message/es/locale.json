@@ -3,27 +3,27 @@
 	"status": "Estado: {}",
 	"widgets": {
 		"fileinput": {
-			"label": "",
-			"placeholder": ""
+			"label": "buscar archivos",
+			"placeholder": "Archivo seleccionado"
 		},
 		"table": {
-			"label": "",
+			"label": "Tabla de archivos",
 			"column": {
-				"id": "",
-				"lat": "",
-				"lng": ""
+				"id": "id",
+				"lat": "latitud",
+				"lng": "longitud"
 			}
 		},
 		"vector": {
-			"label": "",
-			"column": "",
-			"value": "",
-			"all": ""
+			"label": "Archivo vectorial",
+			"column": "columna",
+			"value": "Valor",
+			"all": "Usar todos los features"
 		},
 		"navdrawer": {
-			"code": "",
-			"wiki": "",
-			"bug": ""
+			"code": "Código fuente",
+			"wiki": "Wiki",
+			"bug": "Reportar error"
 		},
 		"asset_select": {
 			"types": {
