@@ -32,8 +32,18 @@ class StateIcon(sw.Tooltip):
 
 class PlanetView(sw.Layout):
     def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
+        """Stand-alone interface to capture planet lab credentials, validate its  subscription and
+        connect to the client stored in the model.
 
-        self.class_ = "d-flex flex-wrap align-center"
+        Args:
+            bnt (sw.Btn, optional): Button to trigger the validation process in the associated model.
+            alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
+            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+
+        """
+
+        self.class_ = "d-block flex-wrap"
+
         super().__init__(*args, **kwargs)
 
         self.planet_model = planet_model if planet_model else PlanetModel()
@@ -60,24 +70,34 @@ class PlanetView(sw.Layout):
         w_validation = v.Flex(
             style_="flex-grow: 0 !important;",
             children=[self.btn, self.w_state],
-            class_="pr-1",
+            class_="pr-1 flex-nowrap",
         )
-
         self.children = [
-            v.Flex(children=[self.w_method], sm12=True, md3=True),
-            self.w_username,
-            self.w_password,
-            self.w_key,
+            self.w_method,
+            sw.Layout(
+                class_="align-center",
+                children=[
+                    self.w_username,
+                    self.w_password,
+                    self.w_key,
+                ],
+            ),
         ]
 
         if not btn:
-            self.set_children(w_validation, "last")
+            self.children[-1].set_children(w_validation, "last")
+
+        if not alert:
+            self.set_children(self.alert, "last")
 
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
 
     def _swap_inputs(self, change):
         """Swap between credentials and api key inputs"""
+
+        self.planet_model._init_client(None)
+        self.alert.reset()
 
         if change["new"] == "api_key":
             self.w_username.hide()
@@ -97,4 +117,4 @@ class PlanetView(sw.Layout):
         else:
             credentials = self.w_key.v_model
 
-        self.planet_model._init_client(credentials)
+        self.planet_model._init_client(credentials, event=True)
