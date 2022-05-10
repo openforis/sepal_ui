@@ -18,6 +18,7 @@ from urllib.request import urlretrieve
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
 from sepal_ui import __version__, __author__
 
