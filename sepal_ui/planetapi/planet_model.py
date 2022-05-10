@@ -26,7 +26,10 @@ class PlanetModel(Model):
 
         """
 
-        self.client = api.ClientV1()
+        # Instantiate a fake client to avoid
+        # https://github.com/12rambau/sepal_ui/pull/439#issuecomment-1121538658
+        # This will be changed when planet launches new release
+        self.client = api.ClientV1("fake_init")
         self._init_client(credentials)
 
     def _init_client(self, credentials, event=None):
