@@ -20,7 +20,7 @@ from colorama import init, Fore
 init()
 
 # init parser
-p = argparse.ArgumentParser(description=__doc__, usage="module_factory")
+parser = argparse.ArgumentParser(description=__doc__, usage="module_factory")
 
 
 def set_default_readme(folder, module_name, description, url):
@@ -187,10 +187,10 @@ def set_drawer_link(folder, url):
     return
 
 
-if __name__ == "__main__":
+def main():
 
     # parse agruments
-    args = p.parse_args()
+    parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}sepal-ui module factory{Fore.RESET}")
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     subprocess.run(["git", "push", "--set-upstream", "origin", "release"], cwd=folder)
 
     # checkout to master
-    res = subprocess.run(["git", "checkout", "master"], cwd=folder)
+    subprocess.run(["git", "checkout", "master"], cwd=folder)
 
     # exit message
     print(
@@ -324,3 +324,7 @@ if __name__ == "__main__":
     )
     print()
     print("Let's code !")
+
+
+if __name__ == "__main__":
+    main()

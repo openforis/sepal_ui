@@ -25,7 +25,7 @@ import sepal_ui
 init()
 
 # init parser
-p = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
+parser = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
 
 
 def write_reqs(file):
@@ -190,10 +190,10 @@ def clean_custom(file):
     return
 
 
-if __name__ == "__main__":
+def main():
 
     # parse agruments
-    args = p.parse_args()
+    parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}sepal-ui module deployment tool{Fore.RESET}")
@@ -227,3 +227,7 @@ if __name__ == "__main__":
     print(
         f"{Fore.YELLOW}The tool does not cover every possible configuration so don't forget to check the final file before pushing to release.{Fore.RESET}"
     )
+
+
+if __name__ == "__main__":
+    main()

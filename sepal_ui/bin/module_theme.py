@@ -17,7 +17,7 @@ from sepal_ui.scripts import utils as su
 init()
 
 # init parser
-p = argparse.ArgumentParser(description=__doc__, usage="module_theme")
+parser = argparse.ArgumentParser(description=__doc__, usage="module_theme")
 
 
 def check_theme(theme):
@@ -33,10 +33,10 @@ def check_theme(theme):
     return theme in themes
 
 
-if __name__ == "__main__":
+def main():
 
     # parse agruments
-    args = p.parse_args()
+    parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}sepal-ui module theme selection{Fore.RESET}")
@@ -61,3 +61,7 @@ if __name__ == "__main__":
     print(
         f'{Fore.GREEN} The provided theme ("{theme}") has been set as default theme for all SEPAL applications.{Fore.RESET}'
     )
+
+
+if __name__ == "__main__":
+    main()
