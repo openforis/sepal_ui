@@ -1,12 +1,13 @@
 import ipyvuetify as v
 from markdown import markdown
-from traitlets import Unicode, Any
+from traitlets import Unicode, Any, observe, dlink
 from ipywidgets import link
 from deprecated.sphinx import versionadded
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui import color
 
-__all__ = ["Markdown", "Tooltip", "CopyToClip"]
+__all__ = ["Markdown", "Tooltip", "CopyToClip", "StateIcon"]
 
 
 class Markdown(v.Layout, SepalWidget):
@@ -126,3 +127,55 @@ class CopyToClip(v.VuetifyTemplate):
         self.tf.append_icon = "fas fa-clipboard-check"
 
         return
+
+
+class StateIcon(Tooltip):
+    """Custom icon with multiple state colors.
+
+    Args:
+
+        model (sepal_ui.Model): Model to manage StateIcon behaviour from outside.
+        model_trait (str): Name of trait to be linked with state icon. Must exists in model.
+        states (dict): Dictionary where keys are the state name to be linked with self value
+            and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
+
+    """
+
+    value = Unicode().tag(sync=True)
+    "str: key name of the current state of component. Values must be same as states_dict keys."
+
+    def __init__(self, model, model_trait, states=None):
+
+        default_states = {
+            "valid": ("Valid", color.success),
+            "non_valid": ("Not valid", color.error),
+        }
+
+        self.states = default_states if not states else states
+
+        self.right = True
+
+        # Get the first value (states first key) to use as default one
+        init_value = self.states[next(iter(self.states))]
+
+        self.icon = v.Icon(children=["fas fa-circle"], color=init_value[1], small=True)
+
+        super().__init__(self.icon, init_value[0])
+
+        # Directional from there to link here.
+        dlink((model, model_trait), (self, "value"))
+
+    @observe("value")
+    def _swap(self, change):
+        """Swap between states"""
+
+        new_val = change["new"]
+
+        # Perform a little check with comprehensive error message
+        if change["new"] not in self.states:
+            raise ValueError(
+                f"Value '{new_val}' is not a valid value. Use {list(self.states.keys())}"
+            )
+
+        self.icon.color = self.states[new_val][1]
+        self.children = [self.states[new_val][0]]
