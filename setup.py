@@ -47,6 +47,7 @@ setup_params = {
         "natsort",
         "pipreqs",
         "cryptography",
+        "yaml",
     ],
     "extras_require": {
         "dev": [
