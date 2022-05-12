@@ -2,6 +2,29 @@
 	"test_key": "Test key",
 	"status": "Status: {}",
 	"widgets": {
+		"fileinput": {
+			"label": "search file",
+			"placeholder": "Selected file"
+		},
+		"table": {
+			"label": "Table file",
+			"column": {
+				"id": "id",
+				"lat": "latitude",
+				"lng": "longitude"
+			}
+		},
+		"vector": {
+			"label": "Vector file",
+			"column": "column",
+			"value": "value",
+			"all": "Use all features"
+		},
+		"navdrawer": {
+			"code": "Source code",
+			"wiki": "Wiki",
+			"bug": "Bug report"
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
@@ -20,10 +43,10 @@
 		"load_table": {
 			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."
 		},
-        "banner": {
-            "close": "close",
-            "next": "next ({} more)"
-        }
+		"banner": {
+			"close": "close",
+			"next": "next ({} more)"
+		}
 	},
 	"aoi_sel": {
 		"title": "Select Area Of Interest (AOI)",
@@ -158,18 +181,18 @@
 			"title": "Reclassification"
 		}
 	},
-    "locale": {
-        "change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
-        "fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
-    },
-    "theme": {
-        "change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
-    },
-    "disclaimer": {
-        "p": {
-            "0": "FAO declines all responsibility for errors or deficiencies in the database or software or in the documentation accompanying it for program maintenance and upgrading as well as for any damage that may arise from them.",
-            "1": "FAO also declines any responsibility for updating the data and assumes no responsibility for errors and omissions in the data provided.",
-            "2": "Users are, however, kindly asked to report any errors or deficiencies in this product to FAO."
-        }
-    }
+	"locale": {
+		"change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
+		"fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
+	},
+	"theme": {
+		"change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
+	},
+	"disclaimer": {
+		"p": {
+			"0": "FAO declines all responsibility for errors or deficiencies in the database or software or in the documentation accompanying it for program maintenance and upgrading as well as for any damage that may arise from them.",
+			"1": "FAO also declines any responsibility for updating the data and assumes no responsibility for errors and omissions in the data provided.",
+			"2": "Users are, however, kindly asked to report any errors or deficiencies in this product to FAO."
+		}
+	}
 }

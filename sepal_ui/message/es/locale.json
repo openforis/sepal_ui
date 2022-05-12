@@ -2,6 +2,29 @@
 	"test_key": "clave de prueba",
 	"status": "Estado: {}",
 	"widgets": {
+		"fileinput": {
+			"label": "buscar archivos",
+			"placeholder": "Archivo seleccionado"
+		},
+		"table": {
+			"label": "Tabla de archivos",
+			"column": {
+				"id": "id",
+				"lat": "latitud",
+				"lng": "longitud"
+			}
+		},
+		"vector": {
+			"label": "Archivo vectorial",
+			"column": "columna",
+			"value": "Valor",
+			"all": "Usar todos los features"
+		},
+		"navdrawer": {
+			"code": "Código fuente",
+			"wiki": "Wiki",
+			"bug": "Reportar error"
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
@@ -22,7 +45,7 @@
 		},
 		"banner": {
 			"close": "cerrar",
-			"next": ""
+			"next": "siguiente ({} más)"
 		}
 	},
 	"aoi_sel": {
@@ -145,12 +168,12 @@
 			"btn": "Reclasificar",
 			"export": {
 				"0": {
-					"0": "",
-					"1": ""
+					"0": "El vector ha sido creado y añadido a tu cuenta de SEPAL: {}",
+					"1": "La imagen ha sido creada y añadida a tu cuenta de SEPAL: {}"
 				},
 				"1": {
-					"0": "",
-					"1": ""
+					"0": "El FeatureCollection ha sido exportado a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación.",
+					"1": "La imagen ha sido exportada a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación."
 				}
 			}
 		},
@@ -159,8 +182,8 @@
 		}
 	},
 	"locale": {
-		"change": "",
-		"fallback": ""
+		"change": "La configuración regional \"{0}\" será usada como idioma predeterminado en las aplicaciones de SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios. Ten en cuenta que si \"{0}\" no está disponible en otra aplicación, SEPAL usará el idioma más cercano posible.",
+		"fallback": "La configuración regional \"{0}\" no está disponible para esta aplicación. En su lugar usaremos \"{1}\". Por favor, informa al mantenedor de la aplicación si deseas añadir \"{0}\" a los idiomas soportados."
 	},
 	"theme": {
 		"change": "El tema \"{0}\" se utilizará como tema predeterminado en las aplicaciones SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios."
