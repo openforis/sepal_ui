@@ -140,8 +140,8 @@ class StateIcon(Tooltip):
         kwargs: Any arguments from a v.Tooltip
     """
 
-    value = Unicode().tag(sync=True)
-    "str: key name of the current state of component. Values must be same as states_dict keys."
+    value = Any().tag(sync=True)
+    "bool, str, int: key name of the current state of component. Values must be same as states_dict keys."
 
     states = None
     'dict: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
