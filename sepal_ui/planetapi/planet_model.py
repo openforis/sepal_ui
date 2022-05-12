@@ -51,9 +51,13 @@ class PlanetModel(Model):
             except InvalidIdentity:
                 raise InvalidIdentity("Invalid email or password")
 
-            except APIException:
-                # This error will be triggered when email is passed in bad format
-                raise APIException("Please check the format of your inputs.")
+            except APIException as e:
+
+                if "invalid parameters" in e.args[0]:
+                    # This error will be triggered when email is passed in bad format
+                    raise APIException("Please check the format of your inputs.")
+                else:
+                    raise e
 
         self.client.auth.value = credentials_
         self._is_active()
