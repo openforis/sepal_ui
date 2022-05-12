@@ -9,6 +9,7 @@ StateIcon
     import ipyvuetify as v 
     from traitlets import Unicode
     from sepal_ui import sepalwidgets as sw 
+    from sepal_ui.model import Model
     
     # correct colors for the documentation 
     # set to dark in SEPAL by default 
