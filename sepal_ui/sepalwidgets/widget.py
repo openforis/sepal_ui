@@ -130,19 +130,26 @@ class CopyToClip(v.VuetifyTemplate):
 
 
 class StateIcon(Tooltip):
-    """Custom icon with multiple state colors.
+    """
+    Custom icon with multiple state colors.
 
     Args:
-
         model (sepal_ui.Model): Model to manage StateIcon behaviour from outside.
         model_trait (str): Name of trait to be linked with state icon. Must exists in model.
-        states (dict): Dictionary where keys are the state name to be linked with self value
-            and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
-
+        states (dict): Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
     """
 
     value = Unicode().tag(sync=True)
     "str: key name of the current state of component. Values must be same as states_dict keys."
+
+    states = None
+    'dict: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
+
+    right = True
+    "bool: TODO"
+
+    icon = None
+    "v.Icon: the colored Icon of the tooltip"
 
     def __init__(self, model, model_trait, states=None):
 
