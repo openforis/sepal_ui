@@ -1,33 +1,8 @@
 import sepal_ui.scripts.utils as su
-from traitlets import observe, dlink, Bool
 from planet_model import PlanetModel
 import ipyvuetify as v
 import sepal_ui.sepalwidgets as sw
-
-
-class StateIcon(sw.Tooltip):
-
-    valid = Bool(False).tag(sync=True)
-
-    def __init__(self, model):
-
-        self.right = True
-        self.icon = v.Icon(children=["fas fa-circle"], color="red", small=True)
-
-        super().__init__(self.icon, "Not connected")
-
-        dlink((model, "active"), (self, "valid"))
-
-    @observe("valid")
-    def swap(self, change):
-        """Swap between active and deactive mode"""
-
-        if change["new"]:
-            self.icon.color = "green"
-            self.children = ["Connected"]
-        else:
-            self.icon.color = "red"
-            self.children = ["Not connected"]
+from sepal_ui import color
 
 
 class PlanetView(sw.Layout):
@@ -55,7 +30,13 @@ class PlanetView(sw.Layout):
         )
         self.w_password = sw.PasswordField(label="Planet password")
         self.w_key = sw.PasswordField(label="Planet API key", v_model="").hide()
-        self.w_state = StateIcon(self.planet_model)
+
+        states = {
+            True: ("Connected", color.success),
+            False: ("Not connected", color.error),
+        }
+
+        self.w_state = sw.StateIcon(self.planet_model, "active", states)
 
         self.w_method = v.Select(
             label="Login method",
