@@ -21,11 +21,14 @@ StateIcon
     
     model = TestModel()
     state_icon_a = sw.StateIcon(model, "state_value")
-    state_icon_a
     
     state_icon_b = sw.StateIcon(model, "state_value")
     state_icon_b.value = "non_valid"
-    state_icon_b
+    
+    sw.Col(children=[
+        sw.Flex(xs12=True, children=[state_icon_a]),
+        sw.Flex(xs12=True, children=[state_icon_b]),
+    ])
 
 
 .. note::
