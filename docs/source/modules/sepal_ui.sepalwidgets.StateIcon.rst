@@ -7,5 +7,4 @@ sepal\_ui.sepalwidgets.StateIcon
     
         ~StateIcon.value
         ~StateIcon.states
-        ~StateIcon.right
         ~StateIcon.icon

@@ -137,6 +137,7 @@ class StateIcon(Tooltip):
         model (sepal_ui.Model): Model to manage StateIcon behaviour from outside.
         model_trait (str): Name of trait to be linked with state icon. Must exists in model.
         states (dict): Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
+        kwargs: Any arguments from a v.Tooltip
     """
 
     value = Unicode().tag(sync=True)
@@ -145,29 +146,27 @@ class StateIcon(Tooltip):
     states = None
     'dict: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
 
-    right = True
-    "bool: TODO"
-
     icon = None
     "v.Icon: the colored Icon of the tooltip"
 
-    def __init__(self, model, model_trait, states=None):
+    def __init__(self, model, model_trait, states=None, **kwargs):
 
+        # set the default parameter of the tooltip
+        kwargs["right"] = kwargs.pop("right", True)
+
+        # init the states
         default_states = {
             "valid": ("Valid", color.success),
             "non_valid": ("Not valid", color.error),
         }
-
         self.states = default_states if not states else states
-
-        self.right = True
 
         # Get the first value (states first key) to use as default one
         init_value = self.states[next(iter(self.states))]
 
         self.icon = v.Icon(children=["fas fa-circle"], color=init_value[1], small=True)
 
-        super().__init__(self.icon, init_value[0])
+        super().__init__(self.icon, init_value[0], **kwargs)
 
         # Directional from there to link here.
         dlink((model, model_trait), (self, "value"))
