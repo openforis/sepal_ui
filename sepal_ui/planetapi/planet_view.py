@@ -1,8 +1,9 @@
-import sepal_ui.scripts.utils as su
-from planet_model import PlanetModel
 import ipyvuetify as v
-import sepal_ui.sepalwidgets as sw
+
 from sepal_ui import color
+from sepal_ui.planetapi import PlanetModel
+import sepal_ui.scripts.utils as su
+import sepal_ui.sepalwidgets as sw
 
 
 class PlanetView(sw.Layout):
@@ -32,8 +33,8 @@ class PlanetView(sw.Layout):
         self.w_key = sw.PasswordField(label="Planet API key", v_model="").hide()
 
         states = {
-            True: ("Connected", color.success),
             False: ("Not connected", color.error),
+            True: ("Connected", color.success),
         }
 
         self.w_state = sw.StateIcon(self.planet_model, "active", states)
@@ -74,11 +75,19 @@ class PlanetView(sw.Layout):
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
 
+    def reset(self):
+        """Empty credentials fields"""
+
+        self.w_username.v_model = None
+        self.w_password.v_model = None
+        self.w_key.v_model = None
+
     def _swap_inputs(self, change):
         """Swap between credentials and api key inputs"""
 
         self.planet_model._init_client(None)
         self.alert.reset()
+        self.reset()
 
         if change["new"] == "api_key":
             self.w_username.hide()
