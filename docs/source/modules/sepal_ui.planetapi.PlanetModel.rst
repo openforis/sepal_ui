@@ -5,6 +5,10 @@ sepal\_ui.planetapi.PlanetModel
 
     .. rubric:: Attributes
     
+    ~PlanetModel.SUBS_URL
+    ~PlanetModel.active
+    ~PlanetModel.client
+    
     .. autosummary::
     
         ~PlanetModel.active

@@ -17,6 +17,30 @@ class PlanetView(sw.Layout):
 
     """
 
+    planet_model = None
+    "sepal_ui.planetlab.PlanetModel: backend model to manipulate interface actions"
+
+    btn = None
+    "sw.Btn: Button to trigger the validation process in the associated model"
+
+    alert = None
+    "sw.Alert: Alert component to display end-user action results"
+
+    w_username = None
+    "sw.TextField: the widget to set credential username"
+
+    w_password = None
+    "sw.PasswordField: the widget to set credential password"
+
+    w_key = None
+    "sw.PasswordField: the widget to set credential API key"
+
+    w_state = None
+    "sw.StateIcon: the circle to inform the user on the current connexion state"
+
+    w_method = None
+    "sw.Select: the widget to select connection method"
+
     def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
 
         self.class_ = "d-block flex-wrap"
@@ -83,6 +107,8 @@ class PlanetView(sw.Layout):
         self.w_password.v_model = None
         self.w_key.v_model = None
 
+        return
+
     def _swap_inputs(self, change):
         """Swap between credentials and api key inputs"""
 
@@ -99,6 +125,8 @@ class PlanetView(sw.Layout):
             self.w_password.show()
             self.w_key.hide()
 
+        return
+
     @su.loading_button()
     def validate(self, *args):
         """Initialize planet client and validate if is active"""
@@ -109,3 +137,5 @@ class PlanetView(sw.Layout):
             credentials = self.w_key.v_model
 
         self.planet_model.init_client(credentials, event=True)
+
+        return

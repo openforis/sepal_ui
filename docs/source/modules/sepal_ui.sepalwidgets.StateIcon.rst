@@ -5,6 +5,6 @@ sepal\_ui.sepalwidgets.StateIcon
 
     .. rubric:: Attributes
     
-        ~StateIcon.value
-        ~StateIcon.states
-        ~StateIcon.icon
+    ~StateIcon.value
+    ~StateIcon.states
+    ~StateIcon.icon

@@ -189,3 +189,5 @@ class StateIcon(Tooltip):
             )
         self.icon.color = self.states[new_val][1]
         self.children = [self.states[new_val][0]]
+
+        return

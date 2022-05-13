@@ -19,6 +19,7 @@ class PlanetModel(Model):
     """
 
     SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
+    "str: the url of the planet API subscription"
 
     active = Bool(False).tag(sync=True)
     "bool: whether if the client has an active subscription or not"
@@ -70,6 +71,8 @@ class PlanetModel(Model):
                 "Your credentials do not have any valid planet subscription."
             )
 
+        return
+
     def _is_active(self):
         """check if the key has an associated active subscription"""
 
@@ -79,6 +82,8 @@ class PlanetModel(Model):
         # read the subs
         # it will be empty if no sub are set
         self.active = any([True for sub in subs if sub.get("state") == "active"])
+
+        return
 
     def get_subscriptions(self):
         """load the user subscriptions and throw an error if none are found"""
