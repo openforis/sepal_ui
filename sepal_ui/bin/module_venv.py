@@ -22,11 +22,14 @@ from colorama import init, Fore
 # init colors for all plateforms
 init()
 
-if __name__ == "__main__":
+# init parser
+parser = argparse.ArgumentParser(description=__doc__, usage="module_venv")
+
+
+def main():
 
     # read arguments (there should be none)
-    p = argparse.ArgumentParser(usage=__doc__)
-    args = p.parse_args()
+    parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}venv creation interface{Fore.RESET}")
@@ -113,3 +116,7 @@ if __name__ == "__main__":
     print(
         f'{Fore.GREEN}The test venv have been created, it can be found in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
     )
+
+
+if __name__ == "__main__":
+    main()

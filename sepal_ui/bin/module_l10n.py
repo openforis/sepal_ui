@@ -17,6 +17,9 @@ from sepal_ui.scripts import utils as su
 # init colors for all plateforms
 init()
 
+# init the parser
+parser = argparse.ArgumentParser(description=__doc__, usage="module_l10n")
+
 
 def check_locale(locale):
     """
@@ -31,11 +34,10 @@ def check_locale(locale):
     return locale in countries.code.values
 
 
-if __name__ == "__main__":
+def main():
 
     # parse agruments
-    p = argparse.ArgumentParser(usage=__doc__)
-    args = p.parse_args()
+    parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}sepal-ui localisation script{Fore.RESET}")
@@ -60,3 +62,7 @@ if __name__ == "__main__":
     print(
         f'{Fore.GREEN} The provided language code ("{locale}") has been set as default language for all SEPAL applications.{Fore.RESET}'
     )
+
+
+if __name__ == "__main__":
+    main()

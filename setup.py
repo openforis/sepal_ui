@@ -48,6 +48,7 @@ setup_params = {
         "pipreqs",
         "cryptography",
         "planet",
+        "pyyaml",
     ],
     "extras_require": {
         "dev": [
@@ -66,6 +67,7 @@ setup_params = {
             "sphinx-copybutton",
             "pandoc",
             "m2r2",
+            "sphinxcontrib-autoprogram",
         ],
     },
     "packages": [
@@ -90,14 +92,16 @@ setup_params = {
             "bin/*",
         ]
     },
-    "scripts": [
-        "sepal_ui/bin/module_deploy",
-        "sepal_ui/bin/module_factory",
-        "sepal_ui/bin/module_l10n",
-        "sepal_ui/bin/module_theme",
-        "sepal_ui/bin/module_venv",
-        "sepal_ui/bin/activate_venv",
-    ],
+    "entry_points": {
+        "console_scripts": [
+            "module_deploy = sepal_ui.bin.module_deploy:main",
+            "module_factory = sepal_ui.bin.module_factory:main",
+            "module_l10n = sepal_ui.bin.module_l10n:main",
+            "module_theme = sepal_ui.bin.module_theme:main",
+            "module_venv = sepal_ui.bin.module_venv:main",
+            "activate_venv = sepal_ui.bin.activate_venv:main",
+        ]
+    },
     "classifiers": [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
