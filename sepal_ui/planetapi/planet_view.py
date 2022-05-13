@@ -7,16 +7,17 @@ import sepal_ui.sepalwidgets as sw
 
 
 class PlanetView(sw.Layout):
+    """Stand-alone interface to capture planet lab credentials, validate its  subscription and
+    connect to the client stored in the model.
+
+    Args:
+        bnt (sw.Btn, optional): Button to trigger the validation process in the associated model.
+        alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
+        planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+
+    """
+
     def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
-        """Stand-alone interface to capture planet lab credentials, validate its  subscription and
-        connect to the client stored in the model.
-
-        Args:
-            bnt (sw.Btn, optional): Button to trigger the validation process in the associated model.
-            alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
-            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
-
-        """
 
         self.class_ = "d-block flex-wrap"
 
@@ -85,7 +86,7 @@ class PlanetView(sw.Layout):
     def _swap_inputs(self, change):
         """Swap between credentials and api key inputs"""
 
-        self.planet_model._init_client(None)
+        self.planet_model.init_client(None)
         self.alert.reset()
         self.reset()
 
@@ -107,4 +108,4 @@ class PlanetView(sw.Layout):
         else:
             credentials = self.w_key.v_model
 
-        self.planet_model._init_client(credentials, event=True)
+        self.planet_model.init_client(credentials, event=True)

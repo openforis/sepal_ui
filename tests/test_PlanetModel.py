@@ -39,10 +39,10 @@ class TestPlanetModel:
 
         planet_model = PlanetModel("")
 
-        planet_model._init_client(request.getfixturevalue(credentials))
+        planet_model.init_client(request.getfixturevalue(credentials))
         assert planet_model.active is True
 
-        planet_model._init_client("wrongkey")
+        planet_model.init_client("wrongkey")
         assert planet_model.active is False
 
     def test_init_client_from_event(self):
@@ -51,15 +51,15 @@ class TestPlanetModel:
 
         # Test with bad credentials format
         with pytest.raises(APIException):
-            planet_model._init_client(("asdf", "1234"), event=True)
+            planet_model.init_client(("asdf", "1234"), event=True)
 
         # Test with empty credentials
         with pytest.raises(ValueError):
-            planet_model._init_client("", event=True)
+            planet_model.init_client("", event=True)
 
         # Test with valid credentials format, but non real
         with pytest.raises(InvalidIdentity):
-            planet_model._init_client(("valid@email.format", "not_exists"), event=True)
+            planet_model.init_client(("valid@email.format", "not_exists"), event=True)
 
     def test_is_active(self, planet_key):
 

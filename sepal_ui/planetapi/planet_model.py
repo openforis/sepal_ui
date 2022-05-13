@@ -8,35 +8,38 @@ from planet.api import filters
 
 
 class PlanetModel(Model):
+    """
+    Planet model helper to connect planet API client and perform requests. It can be
+    instantiated whether itself or linked with a PlanetView input helper. All the methods
+    are aimed to be used without the need of a view.
+
+    Args:
+        credentials ([tuple, str], optional): planet API key or tuple of username and password of planet explorer.
+
+    """
 
     SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
 
     active = Bool(False).tag(sync=True)
     "bool: whether if the client has an active subscription or not"
 
+    client = None
+    "planet.api.ClientV1: planet api initialized client."
+
     def __init__(self, credentials=None):
-
-        """Planet helper class useful to handle recurrent sepal module operations
-
-        Args:
-            credentials ([tuple, str], optional): tuple of username and password of planet explorer. Or string API key.
-
-        Params:
-            client (planet.api.ClientV1): planet api initialized client.
-
-        """
 
         # Instantiate a fake client to avoid
         # https://github.com/12rambau/sepal_ui/pull/439#issuecomment-1121538658
         # This will be changed when planet launches new release
         self.client = api.ClientV1("fake_init")
-        self._init_client(credentials)
+        self.init_client(credentials)
 
-    def _init_client(self, credentials, event=None):
+    def init_client(self, credentials, event=None):
         """Initialize planet client with api key or credentials. It will handle errors
         if the method is called from an event (view)
 
         Args:
+            credentials (str, tuple): planet API key or tuple of username and password of planet explorer.
             event (bool): whether to initialize from an event or not.
         """
 
