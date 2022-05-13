@@ -177,11 +177,15 @@ class StateIcon(Tooltip):
 
         new_val = change["new"]
 
+        if not new_val:
+            # Use the first value when there is not initial value.
+            self.value = next(iter(self.states))
+            return
+
         # Perform a little check with comprehensive error message
-        if change["new"] not in self.states:
+        if new_val not in self.states:
             raise ValueError(
                 f"Value '{new_val}' is not a valid value. Use {list(self.states.keys())}"
             )
-
         self.icon.color = self.states[new_val][1]
         self.children = [self.states[new_val][0]]

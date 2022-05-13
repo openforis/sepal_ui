@@ -6,30 +6,30 @@ StateIcon
 .. jupyter-execute::
     :raises:
     
-    import ipyvuetify as v 
+    import ipyvuetify as v
     from traitlets import Unicode
-    from sepal_ui import sepalwidgets as sw 
+    from sepal_ui import sepalwidgets as sw
     from sepal_ui.model import Model
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     v.theme.dark = False
-    
+
     # Define a dummy model to manipulate externally the icon state
     class TestModel(Model):
         state_value = Unicode().tag(sync=True)
-    
+
     model = TestModel()
     state_icon_a = sw.StateIcon(model, "state_value")
-    
+
     state_icon_b = sw.StateIcon(model, "state_value")
     state_icon_b.value = "non_valid"
-    
+
     sw.Col(children=[
         sw.Flex(xs12=True, children=[state_icon_a]),
+        sw.Divider(class_="my-5"),
         sw.Flex(xs12=True, children=[state_icon_b]),
     ])
-
 
 .. note::
 
