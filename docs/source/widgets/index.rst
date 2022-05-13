@@ -61,3 +61,5 @@ In this section, an example of each of our component will be given. You should r
     disclaimer
     vector
     
+    planet_view
+    
