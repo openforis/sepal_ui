@@ -62,8 +62,9 @@ class AoiModel(Model):
     "str: the base url to download gadm maps"
 
     GADM_ZIP_DIR = Path.home() / "tmp" / "GADM_zip"
-    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
     "pathlib.Path: the zip dir where we download the zips"
+
+    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
 
     GAUL_ASSET = "FAO/GAUL/2015/level{}"
     "str: the GAUL asset name"
