@@ -284,7 +284,7 @@ class AoiView(sw.Card):
             def bind_name(change):
                 self.model.name = change["new"]
 
-            self.w_draw.observe(lambda x: bind_name(x), "v_model")
+            self.w_draw.observe(bind_name, "v_model")
 
         if self.ee:
             self.w_asset = sw.VectorField(
