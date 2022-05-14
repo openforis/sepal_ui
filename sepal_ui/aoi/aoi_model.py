@@ -215,7 +215,8 @@ class AoiModel(Model):
 
     def set_object(self, method=None):
         """
-        set the object (gdf/featurecollection) based on the model inputs. The method can be manually overwrite
+        set the object (gdf/featurecollection) based on the model inputs. The method can
+        be manually overwritten
 
         Args:
             method (str, optional): a model loading method
@@ -384,7 +385,8 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin):
-        """Set the object according to given an administrative number in the GADM norm. The object will be projected in EPSG:4326"""
+        """Set the object according to given an administrative number in the GADM norm.
+        The object will be projected in EPSG:4326"""
 
         if not admin:
             raise Exception("Select an administrative layer")

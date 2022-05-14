@@ -279,6 +279,13 @@ class AoiView(sw.Card):
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
         if self.map_:
             self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
+
+            # Change model feature name with event
+            def bind_name(change):
+                self.model.name = change["new"]
+
+            self.w_draw.observe(lambda x: bind_name(x), "v_model")
+
         if self.ee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
@@ -309,8 +316,7 @@ class AoiView(sw.Card):
             .bind(self.w_points, "point_json")
             .bind(self.w_method, "method")
         )
-        if self.map_:
-            self.model.bind(self.w_draw, "name")
+
         if self.ee:
             self.model.bind(self.w_asset, "asset_name")
 

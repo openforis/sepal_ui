@@ -49,6 +49,11 @@ class TestAoiView:
         view = aoi.AoiView(map_=m, folder=gee_dir)
         assert view.map_ == m
 
+        # test model name when using view
+        view = aoi.AoiView(admin=100, folder=gee_dir)
+
+        assert view.model.name == "GLP"
+
         return
 
     def test_admin(self, gee_dir):
