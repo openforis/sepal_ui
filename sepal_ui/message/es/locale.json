@@ -85,6 +85,28 @@
 	"mapping": {
 		"no_image": "El archivo de imagen no existe"
 	},
+	"planet": {
+		"exception": {
+			"empty": "",
+			"format": "",
+			"invalid": "",
+			"nosubs": ""
+		},
+		"widget": {
+			"username": "",
+			"password": "",
+			"apikey": "",
+			"method": {
+				"label": "",
+				"credentials": "",
+				"api_key": ""
+			}
+		},
+		"status": {
+			"offilne": "",
+			"online": ""
+		}
+	},
 	"rec": {
 		"table": {
 			"title": "Editor de clasificación",
