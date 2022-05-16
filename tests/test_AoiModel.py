@@ -5,7 +5,6 @@ from zipfile import ZipFile
 import pytest
 
 from sepal_ui import aoi
-from sepal_ui.scripts import gee
 
 
 class TestAoiModel:
@@ -215,7 +214,7 @@ class TestAoiModel:
 
     def test_from_point(self, alert, fake_points, gee_dir):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
 
         # uncomplete json
         points = {
@@ -237,14 +236,11 @@ class TestAoiModel:
         aoi_model._from_points(points)
         assert aoi_model.name == "point"
 
-        gee.wait_for_completion("aoi_point", alert)
-        ee.data.deleteAsset(gee_dir + "/aoi_point")
-
         return
 
     def test_from_vector(self, alert, gee_dir, fake_vector):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
 
         # with no pathname
         with pytest.raises(Exception):
@@ -254,15 +250,11 @@ class TestAoiModel:
         vector = {"pathname": fake_vector, "column": "ALL", "value": None}
         aoi_model._from_vector(vector)
         assert aoi_model.name == "gadm36_VAT_0"
-        gee.wait_for_completion("aoi_gadm36_VAT_0", alert)
-        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0")
 
         # all params
         vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
         aoi_model._from_vector(vector)
         assert aoi_model.name == "gadm36_VAT_0_GID_0_VAT"
-        gee.wait_for_completion("aoi_gadm36_VAT_0_GID_0_VAT", alert)
-        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0_GID_0_VAT")
 
         # missing value
         vector = {"pathname": fake_vector, "column": "GID_0", "value": None}
@@ -273,7 +265,7 @@ class TestAoiModel:
 
     def test_from_geo_json(self, alert, gee_dir, square):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
 
         # no points
         with pytest.raises(Exception):
@@ -283,8 +275,6 @@ class TestAoiModel:
         aoi_model.name = "square"
         aoi_model._from_geo_json(square)
         assert aoi_model.name == "square"
-        gee.wait_for_completion("aoi_square")
-        ee.data.deleteAsset(gee_dir + "/aoi_square")
 
         return
 
