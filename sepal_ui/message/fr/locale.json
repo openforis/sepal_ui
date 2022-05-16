@@ -64,7 +64,6 @@
 		"aoi_name": "Selectionner un nom d'AOI",
 		"asset": "Nom de l'Asset",
 		"btn": "Selectionner cet AOI",
-		"no_inputs": "Fournir des entrées entièrement qualifiées avant de valider votre AOI",
 		"complete": "L'AOI a été selectionnée",
 		"shape_drawn": "Une forme a été dessinée",
 		"file_pattern": "aoi_{}",
@@ -79,8 +78,19 @@
 		"no_shape": "Aucune figure n'a été dessiné sur la carte",
 		"shp_error": "Une erreur est survenue avec le fichier .shp utilisé",
 		"aoi_message": "Cliquer sur le boutton pour valider votre AOI",
-		"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'identifiant",
-		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine"
+		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine",
+		"exception": {
+			"no_inputs": "",
+			"no_asset": "",
+			"no_value": "",
+			"uncomplete": "",
+			"no_file": "",
+			"duplicate_key": "",
+			"no_draw": "",
+			"no_admlyr": "",
+			"invalid_code": "",
+			"no_gdf": ""
+		}
 	},
 	"mapping": {
 		"no_image": "Le fichier image n'existe pas."
