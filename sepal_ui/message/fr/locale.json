@@ -85,6 +85,28 @@
 	"mapping": {
 		"no_image": "Le fichier image n'existe pas."
 	},
+	"planet": {
+		"exception": {
+			"empty": "Veuillez renseigner tous les champs obligatoires.",
+			"format": "Merci de vérifier le format de vos données.",
+			"invalid": "Email ou mot de passe invalide",
+			"nosubs": "Vos identifiants n'ont pas d'abonnement PlanetLab valide."
+		},
+		"widget": {
+			"username": "Nom d'utilisateur PlanetLab",
+			"password": "Mot de passe PlanetLab",
+			"apikey": "Clé API PlanetLab",
+			"method": {
+				"label": "Méthode d'accès",
+				"credentials": "Identifiants",
+				"api_key": "Clé API PlanetLab"
+			}
+		},
+		"status": {
+			"offilne": "Non connecté",
+			"online": "Connecté"
+		}
+	},
 	"rec": {
 		"table": {
 			"title": "Editeur de classification",

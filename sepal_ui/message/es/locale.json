@@ -85,6 +85,28 @@
 	"mapping": {
 		"no_image": "El archivo de imagen no existe"
 	},
+	"planet": {
+		"exception": {
+			"empty": "Por favor completa todos los campos",
+			"format": "Por favor verifica el formato de tus entradas",
+			"invalid": "Correo electrónico o contraseña inválidos",
+			"nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet."
+		},
+		"widget": {
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"apikey": "API key",
+			"method": {
+				"label": "Método de inicio de sesión",
+				"credentials": "Credenciales",
+				"api_key": "API key"
+			}
+		},
+		"status": {
+			"offilne": "Desconectado",
+			"online": "Conectado"
+		}
+	},
 	"rec": {
 		"table": {
 			"title": "Editor de clasificación",
