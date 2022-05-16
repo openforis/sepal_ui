@@ -85,6 +85,28 @@
 	"mapping": {
 		"no_image": "图像文件不存在。"
 	},
+	"planet": {
+		"exception": {
+			"empty": "",
+			"format": "",
+			"invalid": "",
+			"nosubs": ""
+		},
+		"widget": {
+			"username": "",
+			"password": "",
+			"apikey": "",
+			"method": {
+				"label": "",
+				"credentials": "",
+				"api_key": ""
+			}
+		},
+		"status": {
+			"offilne": "",
+			"online": ""
+		}
+	},
 	"rec": {
 		"table": {
 			"title": "分类编辑器",
