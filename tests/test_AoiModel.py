@@ -193,62 +193,30 @@ class TestAoiModel:
 
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
 
-        # ****   test that no method returns an error ****
+        # test that no method returns an error
         with pytest.raises(Exception):
             aoi_model.set_object()
 
-        # test admin definition
-        with pytest.raises(Exception):
-            aoi_model.admin = 0
-            aoi_model.set_object("ADMIN0")
+        return
 
-        aoi_model.admin = 85
-        aoi_model.set_object("ADMIN0")
+    def test_from_admin(self, alert, gee_dir):
+
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+
+        # with fake number
+        with pytest.raises(Exception):
+            aoi_model._from_admin(0)
+
+        # test france
+        aoi_model._from_admin(85)
         assert aoi_model.name == "FRA"
 
-        # ****    test vector    ****
-        # with no pathname
-        with pytest.raises(Exception):
-            aoi_model.vector_json = fake_vector
-            aoi_model.set_object("SHAPE")
+        return
 
-        # only pathname and all
-        vector = {"pathname": fake_vector, "column": "ALL", "value": None}
-        aoi_model.vector_json = vector
-        aoi_model.set_object("SHAPE")
-        assert aoi_model.name == "gadm36_VAT_0"
-        gee.wait_for_completion("aoi_gadm36_VAT_0", alert)
-        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0")
+    def test_from_point(self, alert, fake_points, gee_dir):
 
-        # all params
-        vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
-        aoi_model.vector_json = vector
-        aoi_model.set_object("SHAPE")
-        assert aoi_model.name == "gadm36_VAT_0_GID_0_VAT"
-        gee.wait_for_completion("aoi_gadm36_VAT_0_GID_0_VAT", alert)
-        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0_GID_0_VAT")
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
 
-        # missing value
-        vector = {"pathname": fake_vector, "column": "GID_0", "value": None}
-        with pytest.raises(Exception):
-            aoi_model.vector_json = vector
-            aoi_model.set_object("SHAPE")
-
-        # ****    drawn shape    ****
-        # no points
-        with pytest.raises(Exception):
-            aoi_model.geo_json = {}
-            aoi_model.set_model("DRAW")
-
-        # fully qualified square
-        aoi_model.geo_json = square
-        aoi_model.name = "square"
-        aoi_model.set_object("DRAW")
-        assert aoi_model.name == "square"
-        gee.wait_for_completion("aoi_square")
-        ee.data.deleteAsset(gee_dir + "/aoi_square")
-
-        # ****    point file name    ****
         # uncomplete json
         points = {
             "pathname": None,
@@ -257,8 +225,7 @@ class TestAoiModel:
             "lng_column": "lon",
         }
         with pytest.raises(Exception):
-            aoi_model.point_json = points
-            aoi_model.set_object("POINTS")
+            aoi_model._from_points(points)
 
         # complete
         points = {
@@ -267,36 +234,82 @@ class TestAoiModel:
             "lat_column": "lat",
             "lng_column": "lon",
         }
-        aoi_model.point_json = points
-        aoi_model.set_object("POINTS")
+        aoi_model._from_points(points)
         assert aoi_model.name == "point"
 
         gee.wait_for_completion("aoi_point", alert)
         ee.data.deleteAsset(gee_dir + "/aoi_point")
 
-        # ****    test asset name    ****
+        return
+
+    def test_from_vector(self, alert, gee_dir, fake_vector):
+
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+
+        # with no pathname
+        with pytest.raises(Exception):
+            aoi_model._from_vector(fake_vector)
+
+        # only pathname and all
+        vector = {"pathname": fake_vector, "column": "ALL", "value": None}
+        aoi_model._from_vector(vector)
+        assert aoi_model.name == "gadm36_VAT_0"
+        gee.wait_for_completion("aoi_gadm36_VAT_0", alert)
+        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0")
+
+        # all params
+        vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
+        aoi_model._from_vector(vector)
+        assert aoi_model.name == "gadm36_VAT_0_GID_0_VAT"
+        gee.wait_for_completion("aoi_gadm36_VAT_0_GID_0_VAT", alert)
+        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0_GID_0_VAT")
+
+        # missing value
+        vector = {"pathname": fake_vector, "column": "GID_0", "value": None}
+        with pytest.raises(Exception):
+            aoi_model._from_vector(vector)
+
+        return
+
+    def test_from_geo_json(self, alert, gee_dir, square):
+
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+
+        # no points
+        with pytest.raises(Exception):
+            aoi_model._from_geo_json({})
+
+        # fully qualified square
+        aoi_model.name = "square"
+        aoi_model._from_geo_json(square)
+        assert aoi_model.name == "square"
+        gee.wait_for_completion("aoi_square")
+        ee.data.deleteAsset(gee_dir + "/aoi_square")
+
+        return
+
+    def test_from_asset(self, alert, gee_dir, asset_france):
+
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+
         # no asset name
         with pytest.raises(Exception):
-            aoi_model.asset_name = asset_france
-            aoi_model.set_object("ASSET")
+            aoi_model._from_asset(asset_france)
 
         # only pathname and all
         asset = {"pathname": asset_france, "column": "ALL", "value": None}
-        aoi_model.asset_name = asset
-        aoi_model.set_object("ASSET")
+        aoi_model._from_asset(asset)
         assert aoi_model.name == "france"
 
         # all params
         asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": 85}
-        aoi_model.asset_name = asset
-        aoi_model.set_object("ASSET")
+        aoi_model._from_asset(asset)
         assert aoi_model.name == "france_ADM0_CODE_85"
 
         # missing value
         asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": None}
         with pytest.raises(Exception):
-            aoi_model.asset_name = asset
-            aoi_model.set_object("ASSET")
+            aoi_model._from_asset(asset)
 
         return
 
