@@ -62,6 +62,11 @@ class TestAoiModel:
 
     def test_get_columns(self, aoi_model_france):
 
+        # test that before any data is set the method raise an error
+        with pytest.raises(Exception):
+            aoi_model = aoi.AoiModel()
+            aoi_model.get_columns()
+
         # test data
         test_data = [
             "ADM0_CODE",
@@ -81,6 +86,11 @@ class TestAoiModel:
 
     def test_get_fields(self, aoi_model_france):
 
+        # test that before any data is set the method raise an error
+        with pytest.raises(Exception):
+            aoi_model = aoi.AoiModel()
+            aoi_model.get_fields("toto")
+
         # init
         column = "ADM0_CODE"
 
@@ -91,6 +101,11 @@ class TestAoiModel:
         return
 
     def test_get_selected(self, aoi_model_france, asset_france):
+
+        # test that before any data is set the method raise an error
+        with pytest.raises(Exception):
+            aoi_model = aoi.AoiModel()
+            aoi_model.get_fields("toto", "toto")
 
         # init
         ee_france = ee.FeatureCollection(asset_france)
