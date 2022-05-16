@@ -280,8 +280,6 @@ class AoiModel(Model):
             self.feature_collection.getInfo()["features"]
         ).set_crs(epsg=4326)
 
-        # set the name
-
         return self
 
     def _from_points(self, point_json):

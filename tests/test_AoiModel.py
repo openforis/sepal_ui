@@ -5,6 +5,7 @@ from zipfile import ZipFile
 import pytest
 
 from sepal_ui import aoi
+from sepal_ui.scripts import gee
 
 
 class TestAoiModel:
@@ -168,6 +169,161 @@ class TestAoiModel:
         assert all(
             [getattr(aoi_model_france, out) is None for out in aoi_model_outputs]
         )
+
+        return
+
+    def test_set_object(
+        self, alert, gee_dir, fake_vector, asset_france, fake_points, square
+    ):
+
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+
+        # ****   test that no method returns an error ****
+        with pytest.raises(Exception):
+            aoi_model.set_object()
+
+        # test admin definition
+        with pytest.raises(Exception):
+            aoi_model.admin = 0
+            aoi_model.set_object("ADMIN0")
+
+        aoi_model.admin = 85
+        aoi_model.set_object("ADMIN0")
+        assert aoi_model.name == "FRA"
+
+        # ****    test vector    ****
+        # with no pathname
+        with pytest.raises(Exception):
+            aoi_model.vector_json = fake_vector
+            aoi_model.set_object("SHAPE")
+
+        # only pathname and all
+        vector = {"pathname": fake_vector, "column": "ALL", "value": None}
+        aoi_model.vector_json = vector
+        aoi_model.set_object("SHAPE")
+        assert aoi_model.name == "gadm36_VAT_0"
+        gee.wait_for_completion("aoi_gadm36_VAT_0", alert)
+        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0")
+
+        # all params
+        vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
+        aoi_model.vector_json = vector
+        aoi_model.set_object("SHAPE")
+        assert aoi_model.name == "gadm36_VAT_0_GID_0_VAT"
+        gee.wait_for_completion("aoi_gadm36_VAT_0_GID_0_VAT", alert)
+        ee.data.deleteAsset(gee_dir + "/aoi_gadm36_VAT_0_GID_0_VAT")
+
+        # missing value
+        vector = {"pathname": fake_vector, "column": "GID_0", "value": None}
+        with pytest.raises(Exception):
+            aoi_model.vector_json = vector
+            aoi_model.set_object("SHAPE")
+
+        # ****    drawn shape    ****
+        # no points
+        with pytest.raises(Exception):
+            aoi_model.geo_json = {}
+            aoi_model.set_model("DRAW")
+
+        # fully qualified square
+        aoi_model.geo_json = square
+        aoi_model.name = "square"
+        aoi_model.set_object("DRAW")
+        assert aoi_model.name == "square"
+        gee.wait_for_completion("aoi_square")
+        ee.data.deleteAsset(gee_dir + "/aoi_square")
+
+        # ****    point file name    ****
+        # uncomplete json
+        points = {
+            "pathname": None,
+            "id_column": "id",
+            "lat_column": "lat",
+            "lng_column": "lon",
+        }
+        with pytest.raises(Exception):
+            aoi_model.point_json = points
+            aoi_model.set_object("POINTS")
+
+        # complete
+        points = {
+            "pathname": fake_points,
+            "id_column": "id",
+            "lat_column": "lat",
+            "lng_column": "lon",
+        }
+        aoi_model.point_json = points
+        aoi_model.set_object("POINTS")
+        assert aoi_model.name == "point"
+
+        gee.wait_for_completion("aoi_point", alert)
+        ee.data.deleteAsset(gee_dir + "/aoi_point")
+
+        # ****    test asset name    ****
+        # no asset name
+        with pytest.raises(Exception):
+            aoi_model.asset_name = asset_france
+            aoi_model.set_object("ASSET")
+
+        # only pathname and all
+        asset = {"pathname": asset_france, "column": "ALL", "value": None}
+        aoi_model.asset_name = asset
+        aoi_model.set_object("ASSET")
+        assert aoi_model.name == "france"
+
+        # all params
+        asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": 85}
+        aoi_model.asset_name = asset
+        aoi_model.set_object("ASSET")
+        assert aoi_model.name == "france_ADM0_CODE_85"
+
+        # missing value
+        asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": None}
+        with pytest.raises(Exception):
+            aoi_model.asset_name = asset
+            aoi_model.set_object("ASSET")
+
+        return
+
+    @pytest.fixture
+    def square(self):
+        """a geojson square around the vatican city"""
+
+        return {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [12.445173, 41.899176],
+                                [12.445173, 41.908813],
+                                [12.4592, 41.908813],
+                                [12.4592, 41.899176],
+                                [12.445173, 41.899176],
+                            ]
+                        ],
+                    },
+                }
+            ],
+        }
+
+    @pytest.fixture
+    def fake_points(self, tmp_dir):
+        """create a fake point file the tmp file will be destroyed after the tests"""
+
+        file = tmp_dir / "point.csv"
+        with file.open("w") as f:
+            f.write("lat,lon,id\n")
+            f.write("1,1,0\n")
+            f.write("0,0,1\n")
+
+        yield file
+
+        file.unlink()
 
         return
 
