@@ -85,6 +85,28 @@
 	"mapping": {
 		"no_image": "The image file does not exist."
 	},
+    "planet" : {
+        "exception" : {
+            "empty": "Please fill the required field(s).",
+            "format" : "Please check the format of your inputs.",
+            "invalid" : "Invalid email or password",
+            "nosubs" : "Your credentials do not have any valid planet subscription."
+        },
+        "widget": {
+            "username": "Planet username",
+            "password": "Planet password",
+            "apikey": "Planet API key",
+            "method": {
+                "label": "Login method",
+                "credentials":"Credentials",
+                "api_key":"Planet API key"
+            }
+        },
+        "status" : {
+            "offilne":"Not connected",
+            "online":"Connected"
+        }
+    },
 	"rec": {
 		"table": {
 			"title": "Classification editor",
