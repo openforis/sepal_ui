@@ -87,24 +87,24 @@
 	},
 	"planet": {
 		"exception": {
-			"empty": "",
-			"format": "",
-			"invalid": "",
-			"nosubs": ""
+			"empty": "Por favor completa todos los campos",
+			"format": "Por favor verifica el formato de tus entradas",
+			"invalid": "Correo electrónico o contraseña inválidos",
+			"nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet."
 		},
 		"widget": {
-			"username": "",
-			"password": "",
-			"apikey": "",
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"apikey": "API key",
 			"method": {
-				"label": "",
-				"credentials": "",
-				"api_key": ""
+				"label": "Método de inicio de sesión",
+				"credentials": "Credenciales",
+				"api_key": "API key"
 			}
 		},
 		"status": {
-			"offilne": "",
-			"online": ""
+			"offilne": "Desconectado",
+			"online": "Conectado"
 		}
 	},
 	"rec": {
