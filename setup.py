@@ -47,6 +47,7 @@ setup_params = {
         "natsort",
         "pipreqs",
         "cryptography",
+        "planet",
         "pyyaml",
     ],
     "extras_require": {
@@ -80,6 +81,7 @@ setup_params = {
         "sepal_ui.translator",
         "sepal_ui.model",
         "sepal_ui.reclassify",
+        "sepal_ui.planetapi",
     ],
     "package_data": {
         "sepal_ui": [

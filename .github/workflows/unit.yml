@@ -6,6 +6,8 @@ on:
   
 env:
   EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
+  PLANET_API_CREDENTIALS: '${{ secrets.PLANET_API_CREDENTIALS }}'
+  PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
 
 jobs:
   build:

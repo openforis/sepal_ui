@@ -16,6 +16,7 @@ Content
     sepal_ui.sepalwidgets
     sepal_ui.translator
     sepal_ui.reclassify
+    sepal_ui.planetapi
     
 .. rubric:: Attributes
 
