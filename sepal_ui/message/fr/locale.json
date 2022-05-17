@@ -80,16 +80,16 @@
 		"aoi_message": "Cliquer sur le boutton pour valider votre AOI",
 		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine",
 		"exception": {
-			"no_inputs": "",
-			"no_asset": "",
-			"no_value": "",
-			"uncomplete": "",
-			"no_file": "",
-			"duplicate_key": "",
-			"no_draw": "",
-			"no_admlyr": "",
-			"invalid_code": "",
-			"no_gdf": ""
+			"no_inputs": "Merci de fournir des entrées entièrement définies avant de valider votre AOI",
+			"no_asset": "Veuillez sélectionner un asset Earthengine.",
+			"no_value": "Veuillez sélectionner une valeur.",
+			"uncomplete": "Tous les champs sont obligatoires, merci de les remplir.",
+			"no_file": "Veuillez sélectionner un fichier.",
+			"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'id",
+			"no_draw": "Veuillez dessiner une forme sur la carte",
+			"no_admlyr": "Sélectionnez une couche administrative",
+			"invalid_code": "Le code administratif n'est pas dans la base de données.",
+			"no_gdf": "Vous devez définir le gdf avant d'interagir avec celui-ci"
 		}
 	},
 	"mapping": {
