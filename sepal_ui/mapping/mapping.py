@@ -6,7 +6,6 @@ if "GDAL_DATA" in list(os.environ.keys()):
 if "PROJ_LIB" in list(os.environ.keys()):
     del os.environ["PROJ_LIB"]
 
-import collections
 from pathlib import Path
 from distutils.util import strtobool
 import warnings
@@ -203,9 +202,14 @@ class SepalMap(ipl.Map):
 
             return
 
+    @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):
         """
-        Remove local layer from memory
+        Remove local layer from memory.
+
+        .. danger::
+
+            Does nothing now.
 
         Args:
             local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
@@ -213,13 +217,10 @@ class SepalMap(ipl.Map):
         Return:
             self
         """
-        name = local_layer if type(local_layer) == str else local_layer.name
-
-        if name in self.loaded_rasters.keys():
-            self.loaded_rasters.pop(name)
 
         return self
 
+    @deprecated(version="2.8.0", reason="use remove_layer(-1) instead")
     def remove_last_layer(self, local=False):
         """
         Remove last added layer from Map
@@ -230,27 +231,7 @@ class SepalMap(ipl.Map):
         Return:
             self
         """
-        if len(self.layers) > 1:
-
-            last_layer = self.layers[-1]
-
-            if local:
-                local_rasters = [
-                    lr for lr in self.layers if isinstance(lr, ipl.LocalTileLayer)
-                ]
-                if local_rasters:
-                    last_layer = local_rasters[-1]
-                    self.remove_layer(last_layer)
-
-                    # If last layer is local_layer, remove it from memory
-                    if isinstance(last_layer, ipl.LocalTileLayer):
-                        self._remove_local_raster(last_layer)
-            else:
-                self.remove_layer(last_layer)
-
-                # If last layer is local_layer, remove it from memory
-                if isinstance(last_layer, ipl.LocalTileLayer):
-                    self._remove_local_raster(last_layer)
+        self.remove_layer(-1)
 
         return self
 
@@ -354,7 +335,7 @@ class SepalMap(ipl.Map):
         Args:
             image (str | pathlib.Path): The image file path.
             bands (int or list, optional): The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
-            layer_name (str, optional): The layer name to use for the raster. Defaults to None.
+            layer_name (str, optional): The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
             colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to None.
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
@@ -364,14 +345,14 @@ class SepalMap(ipl.Map):
             colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it.
         """
 
-        if type(image) == str:
-            image = Path(image)
+        # force cast to Path
+        image = Path(image)
 
         if not image.is_file():
             raise Exception(ms.mapping.no_image)
 
         # check inputs
-        if layer_name in self.loaded_rasters.keys():
+        if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
         if isinstance(colormap, str):
@@ -389,12 +370,10 @@ class SepalMap(ipl.Map):
             da = da.rio.reproject(epsg_4326)
 
         # Create a named tuple with raster bounds and resolution
-        local_raster = collections.namedtuple(
-            "LocalRaster",
-            ("name", "left", "bottom", "right", "top", "x_res", "y_res", "data"),
-        )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
-
-        self.loaded_rasters[layer_name] = local_raster
+        # local_raster = collections.namedtuple(
+        #    "LocalRaster",
+        #    ("name", "left", "bottom", "right", "top", "x_res", "y_res", "data"),
+        # )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
 
         multi_band = False
         if len(da.band) > 1 and type(bands) != int:
@@ -803,10 +782,8 @@ class SepalMap(ipl.Map):
             key (Layer, int, str): the key to find the layer to delete
         """
 
-        if isinstance(key, int) or isinstance(key, str):
+        if isinstance(key, (int, str, ipl.Layer)):
             layer = self.find_layer(key)
-        elif isinstance(key, ipl.Layer):
-            layer = key
         else:
             raise ValueError(
                 f"Key must be of type 'str', 'int' or 'Layer'. {type(key)} given."
@@ -828,11 +805,13 @@ class SepalMap(ipl.Map):
         Args:
             base (bool, optional): wether or not the basemaps should be removed, default to False
         """
-        gen = (tl for tl in self.layers)
-        gen = gen if base else (tl for tl in self.layers if tl.base is False)
+        # filter out the basemaps if base == False
+        all_layers = (tl for tl in self.layers)
+        all_layers_no_basmaps = (tl for tl in self.layers if tl.base is False)
+        gen = all_layers if base is True else all_layers_no_basmaps
 
-        for layer in gen:
-            self.remove_layer(layer)
+        # remove them using the built generator
+        [self.remove_layer(layer) for layer in gen]
 
         return
 
@@ -891,17 +870,19 @@ class SepalMap(ipl.Map):
         Search a layer by name or index
 
         Args:
-            key (str, int): the layer name or the layer index
+            key (Layer, str, int): the layer name, index or directly the layer
 
         Return:
-            (TileLayer): the first layer using the same name or index else None
+            (TileLLayerayer): the first layer using the same name or index else None
         """
 
         if isinstance(key, str):
-            layer = next((tl for tl in self.layers if tl.name == key), None)
+            layer = next((lyr for lyr in self.layers if lyr.name == key), None)
         elif isinstance(key, int):
             size = len(self.layers)
             layer = self.layers[key] if -size <= key < size else None
+        elif isinstance(key, ipl.Layer):
+            layer = next((lyr for lyr in self.layers if lyr == key), None)
         else:
             raise ValueError(f"key must be a int or a str, {type(key)} given")
 
