@@ -62,9 +62,9 @@ class SepalMap(ipl.Map):
         kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
     """
 
-    # ############################################################################
-    # ###                              Map parameters                          ###
-    # ############################################################################
+    # ##########################################################################
+    # ###                              Map parameters                        ###
+    # ##########################################################################
 
     ee = True
     "bool: either the map will use geempa binding or not"
@@ -269,8 +269,6 @@ class SepalMap(ipl.Map):
 
         return
 
-    setCenter = set_center
-
     @su.need_ee
     def zoom_ee_object(self, ee_geometry, zoom_out=1):
         """
@@ -299,8 +297,6 @@ class SepalMap(ipl.Map):
         self.zoom_bounds([min_lon, min_lat, max_lon, max_lat], zoom_out)
 
         return self
-
-    centerObject = zoom_ee_object
 
     def zoom_bounds(self, bounds, zoom_out=1):
         """
@@ -714,8 +710,6 @@ class SepalMap(ipl.Map):
 
         return
 
-    addLayer = add_ee_Layer
-
     @staticmethod
     def get_basemap_list():
         """
@@ -912,3 +906,12 @@ class SepalMap(ipl.Map):
             raise ValueError(f"key must be a int or a str, {type(key)} given")
 
         return layer
+
+    # ##########################################################################
+    # ###                overwrite geemap calls                              ###
+    # ##########################################################################
+
+    setCenter = set_center
+    centerObject = zoom_ee_object
+    addLayer = add_ee_Layer
+    getScale = get_scale
