@@ -20,7 +20,7 @@ from matplotlib import colors as mpc
 from matplotlib import colorbar
 import ipywidgets as widgets
 from rasterio.crs import CRS
-from traitlets import Bool, link, observe
+from traitlets import Bool
 import ipyvuetify as v
 import ipyleaflet as ipl
 import ee
@@ -33,6 +33,8 @@ from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
 from sepal_ui.mapping.basemaps import xyz_to_leaflet
 from sepal_ui.mapping.draw_control import DrawControl
+from sepal_ui.mapping.v_inspector import VInspector
+
 
 __all__ = ["SepalMap"]
 
@@ -70,9 +72,6 @@ class SepalMap(ipl.Map):
 
     vinspector = Bool(False).tag(sync=True)
     "bool: either or not the datainspector is available"
-
-    loaded_rasters = {}
-    "dict: the list of loaded rasters"
 
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
@@ -113,94 +112,9 @@ class SepalMap(ipl.Map):
         self.dc = DrawControl(self)
         not dc or self.add_control(self.dc)
 
-        # Add value inspector
-        self.w_vinspector = widgets.Checkbox(
-            value=False,
-            description="Inspect values",
-            indent=False,
-            layout=widgets.Layout(width="18ex"),
-        )
-
-        if vinspector:
-            self.add_control(
-                ipl.WidgetControl(widget=self.w_vinspector, position="topright")
-            )
-
-            link((self.w_vinspector, "value"), (self, "vinspector"))
-
-        # Create output space for raster interaction
-        self.output_r = widgets.Output(layout={"border": "1px solid black"})
-        self.output_control_r = ipl.WidgetControl(
-            widget=self.output_r, position="bottomright"
-        )
-        self.add_control(self.output_control_r)
-
-        # define interaction with rasters
-        self.on_interaction(self._raster_interaction)
-
-    @observe("vinspector")
-    def _change_cursor(self, change):
-        """Method to be called when vinspector trait changes"""
-
-        if self.vinspector:
-            self.default_style = {"cursor": "crosshair"}
-        else:
-            self.default_style = {"cursor": "grab"}
-
-        return
-
-    def _raster_interaction(self, **kwargs):
-        """Define a behavior when ispector checked and map clicked"""
-
-        if kwargs.get("type") == "click" and self.vinspector:
-            latlon = kwargs.get("coordinates")
-            self.default_style = {"cursor": "wait"}
-
-            local_rasters = [
-                lr.name for lr in self.layers if isinstance(lr, ipl.LocalTileLayer)
-            ]
-
-            if local_rasters:
-
-                with self.output_r:
-                    self.output_r.clear_output(wait=True)
-
-                    for lr_name in local_rasters:
-
-                        lr = self.loaded_rasters[lr_name]
-                        lat, lon = latlon
-
-                        # Verify if the selected latlon is the image bounds
-                        if any(
-                            [
-                                lat < lr.bottom,
-                                lat > lr.top,
-                                lon < lr.left,
-                                lon > lr.right,
-                            ]
-                        ):
-                            print("Location out of raster bounds")
-                        else:
-                            # row in pixel coordinates
-                            y = int(((lr.top - lat) / abs(lr.y_res)))
-
-                            # column in pixel coordinates
-                            x = int(((lon - lr.left) / abs(lr.x_res)))
-
-                            # get height and width
-                            h, w = lr.data.shape
-                            value = lr.data[y][x]
-                            print(f"{lr_name}")
-                            print(f"Lat: {round(lat,4)}, Lon: {round(lon,4)}")
-                            print(f"x:{x}, y:{y}")
-                            print(f"Pixel value: {value}")
-            else:
-                with self.output_r:
-                    self.output_r.clear_output()
-
-            self.default_style = {"cursor": "crosshair"}
-
-            return
+        # specific v_inspector
+        self.v_inspector = VInspector(self)
+        not vinspector or self.add_control(self.v_inspector)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):
@@ -368,12 +282,6 @@ class SepalMap(ipl.Map):
         epsg_4326 = "EPSG:4326"
         if da.rio.crs != CRS.from_string(epsg_4326):
             da = da.rio.reproject(epsg_4326)
-
-        # Create a named tuple with raster bounds and resolution
-        # local_raster = collections.namedtuple(
-        #    "LocalRaster",
-        #    ("name", "left", "bottom", "right", "top", "x_res", "y_res", "data"),
-        # )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
 
         multi_band = False
         if len(da.band) > 1 and type(bands) != int:
@@ -646,13 +554,15 @@ class SepalMap(ipl.Map):
             raise AttributeError(err_str)
 
         # force cast to featureCollection if needed
-        if any(
-            [
-                isinstance(ee_object, ee.geometry.Geometry),
-                isinstance(ee_object, ee.feature.Feature),
-                isinstance(ee_object, ee.featurecollection.FeatureCollection),
-            ]
+        if isinstance(
+            ee_object,
+            (
+                ee.geometry.Geometry,
+                ee.feature.Feature,
+                ee.featurecollection.FeatureCollection,
+            ),
         ):
+
             features = ee.FeatureCollection(ee_object)
 
             width = vis_params.pop("width", 2)
