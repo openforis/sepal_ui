@@ -242,7 +242,7 @@ class SepalMap(ipl.Map):
         opacity=1.0,
         fit_bounds=True,
         get_base_url=lambda _: "https://sepal.io/api/sandbox/jupyter",
-        colorbar_position="bottomright",
+        colorbar_position=False,
     ):
         """
         Adds a local raster dataset to the map.
@@ -257,7 +257,7 @@ class SepalMap(ipl.Map):
             opacity (float, optional): the opacity of the layer, default 1.0.
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
             get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
-            colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it.
+            colorbar_position (str, optional): The position of the colorbar. By default set to False to remove it.
         """
 
         # force cast to Path
@@ -304,7 +304,7 @@ class SepalMap(ipl.Map):
             "y_dim": y_dim,
             "fit_bounds": fit_bounds,
             "get_base_url": get_base_url,
-            # 'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
+            "colorbar_position": colorbar_position,
             "rgb_dim": "band" if multi_band else None,
             "colormap": None if multi_band else colormap,
         }
