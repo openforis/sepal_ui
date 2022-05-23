@@ -1,9 +1,11 @@
 import ipyvuetify as v
 from ipyleaflet import WidgetControl
+import ee
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
+from sepal_ui.mapping.layer import EELayer
 
 
 class VInspector(WidgetControl):
@@ -99,9 +101,15 @@ class VInspector(WidgetControl):
         layers = [lyr for lyr in self.m.layers if lyr.base is False]
         for lyr in layers:
             children.append(sw.Html(tag="h5", children=[lyr.name]))
-            children.append(
-                sw.Html(tag="p", children=["data reading method not yet ready"])
-            )
+
+            if isinstance(lyr, EELayer):
+                data = self._from_eelayer(lyr.ee_object, latlon)
+            else:
+                data = {"info": "data reading method not yet ready"}
+
+            for k, val in data.items():
+                children.append(sw.Html(tag="span", children=[f"{k}: {val}"]))
+                children.append(sw.Html(tag="br", children=[]))
 
         # set them in the card
         self.text.children = children
@@ -110,3 +118,32 @@ class VInspector(WidgetControl):
         self.m.default_style = {"cursor": "crosshair"}
 
         return
+
+    @su.need_ee
+    def _from_eelayer(self, ee_obj, coords):
+        """extract the values of the ee_object for the considered point"""
+
+        # create a gee point
+        lat, lng = coords
+        ee_point = ee.Geometry.Point(lng, lat)
+
+        if isinstance(ee_obj, ee.FeatureCollection):
+
+            # filter all the value to the point
+            pixel_values = ee_obj.filterBounds(ee_point).first().toDictionary()
+
+        elif isinstance(ee_obj, (ee.Image)):
+
+            # reduce the layer region using mean
+            pixel_values = ee_obj.reduceRegion(
+                geometry=ee_point,
+                scale=self.m.get_scale(),
+                reducer=ee.Reducer.mean(),
+            )
+
+        else:
+            raise ValueError(
+                f'the layer object is a "{type(ee_obj)}" which is not accepted.'
+            )
+
+        return pixel_values.getInfo()

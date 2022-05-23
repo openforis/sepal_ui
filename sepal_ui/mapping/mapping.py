@@ -34,6 +34,7 @@ from sepal_ui.message import ms
 from sepal_ui.mapping.basemaps import xyz_to_leaflet
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.v_inspector import VInspector
+from sepal_ui.mapping.layer import EELayer
 
 
 __all__ = ["SepalMap"]
@@ -541,14 +542,15 @@ class SepalMap(ipl.Map):
             name = "Layer " + str(layer_count + 1)
 
         # check the type of the ee object and raise an error if it's not recognized
-        if not any(
-            [
-                isinstance(ee_object, ee.Image),
-                isinstance(ee_object, ee.ImageCollection),
-                isinstance(ee_object, ee.FeatureCollection),
-                isinstance(ee_object, ee.Feature),
-                isinstance(ee_object, ee.Geometry),
-            ]
+        if not isinstance(
+            ee_object,
+            (
+                ee.Image,
+                ee.ImageCollection,
+                ee.FeatureCollection,
+                ee.Feature,
+                ee.Geometry,
+            ),
         ):
             err_str = "\n\nThe image argument in 'addLayer' function must be an instance of one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
             raise AttributeError(err_str)
@@ -575,18 +577,20 @@ class SepalMap(ipl.Map):
             )
 
             image = image_fill.blend(image_outline)
+            obj = features
 
         # use directly the ee object if Image
         elif isinstance(ee_object, ee.image.Image):
-            image = ee_object
+            image = obj = ee_object
 
         # use mosaicing if the ee_object is a ImageCollection
         elif isinstance(ee_object, ee.imagecollection.ImageCollection):
-            image = ee_object.mosaic()
+            image = obj = ee_object.mosaic()
 
         # create the colored image
         map_id_dict = ee.Image(image).getMapId(vis_params)
-        tile_layer = ipl.TileLayer(
+        tile_layer = EELayer(
+            ee_object=obj,
             url=map_id_dict["tile_fetcher"].url_format,
             attribution="Google Earth Engine",
             name=name,
