@@ -42,12 +42,11 @@ class VInspector(WidgetControl):
         slot = {"name": "activator", "variable": "menu", "children": btn}
         title = sw.CardTitle(children=[sw.Html(tag="h4", children=["Inspector"])])
         self.text = sw.CardText(children=["select a point"])
-        self.card = sw.Card(
-            children=[title, self.text], min_width="400px", min_height="200px"
-        )
+        self.card = sw.Card(children=[title, self.text], min_width="400px")
 
         # assempble everything in a menu
         self.menu = sw.Menu(
+            max_height="40vh",
             v_model=False,
             value=False,
             close_on_click=False,
@@ -77,7 +76,6 @@ class VInspector(WidgetControl):
 
         return
 
-    @su.switch("loading", on_widgets=["card"])
     def read_data(self, **kwargs):
         """
         Read the data when the map is clicked with the vinspector activated
@@ -88,7 +86,9 @@ class VInspector(WidgetControl):
         if not (is_click and is_active):
             return
 
-        # set the curosr to loading mode
+        # set the loading mode. Cannot be done as a decorator to avoid
+        # flickering while moving the cursor on the map
+        self.card.loading = True
         self.m.default_style = {"cursor": "wait"}
 
         # init the text children
@@ -122,7 +122,15 @@ class VInspector(WidgetControl):
         self.text.children = children
 
         # set back the cursor to crosshair
+        self.card.loading = False
         self.m.default_style = {"cursor": "crosshair"}
+
+        # one last flicker to replace the menu next to the btn
+        # if not it goes below the map
+        # i've try playing with the styles but it didn't worked out well
+        # lost hours on this issue : 1h
+        self.menu.v_model = False
+        self.menu.v_model = True
 
         return
 
