@@ -3,6 +3,7 @@ from ipyleaflet import WidgetControl
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
+from sepal_ui import color as sc
 
 
 class VInspector(WidgetControl):
@@ -30,7 +31,7 @@ class VInspector(WidgetControl):
             v_on="menu.on",
             color="text-color",
             outlined=True,
-            style_="padding: 0px; min-width: 0px; width: 30px; height: 30px;",
+            style_=f"padding: 0px; min-width: 0px; width: 30px; height: 30px; background: {sc.bg};",
             children=[icon],
         )
         slot = {"name": "activator", "variable": "menu", "children": btn}

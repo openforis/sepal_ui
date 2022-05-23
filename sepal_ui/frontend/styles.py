@@ -91,6 +91,7 @@ class Styles(v.VuetifyTemplate):
             .leaflet-top, .leaflet-bottom {z-index : 2 !important;}
             .leaflet-widgetcontrol {box-shadow: none}
             main.v-content {padding-top: 0px !important;}
+            .leaflet-control-container .vuetify-styles .v-application {background: rgb(0,0,0,0);}
         </style>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     """
