@@ -94,10 +94,14 @@ class VInspector(WidgetControl):
         # init the text children
         children = []
 
+        # get the coordinates as (x, y)
+        coords = [c for c in reversed(kwargs.get("coordinates"))]
+
         # write the coordinates
-        latlon = kwargs.get("coordinates")
-        children.append(sw.Html(tag="h4", children=["Coordinates"]))
-        children.append(sw.Html(tag="p", children=[str(latlon)]))
+        children.append(
+            sw.Html(tag="h4", children=["Coordinates (longitude, latitude)"])
+        )
+        children.append(sw.Html(tag="p", children=[str(coords)]))
 
         # write the layers data
         children.append(sw.Html(tag="h4", children=["Layers"]))
@@ -106,11 +110,11 @@ class VInspector(WidgetControl):
             children.append(sw.Html(tag="h5", children=[lyr.name]))
 
             if isinstance(lyr, EELayer):
-                data = self._from_eelayer(lyr.ee_object, latlon)
+                data = self._from_eelayer(lyr.ee_object, coords)
             elif isinstance(lyr, GeoJSON):
-                data = self._from_geojson(lyr.data, latlon)
+                data = self._from_geojson(lyr.data, coords)
             elif isinstance(lyr, LocalTileLayer):
-                data = self._from_raster(lyr.raster, latlon)
+                data = self._from_raster(lyr.raster, coords)
             else:
                 data = {"info": "data reading method not yet ready"}
 
@@ -141,15 +145,14 @@ class VInspector(WidgetControl):
 
         Args:
             ee_obj (ee.object): the ee object to reduce to a single point
-            coords (tuple): the coordinates of the point (lat, lng).
+            coords (tuple): the coordinates of the point (lng, lat).
 
         Return:
             (dict): tke value associated to the bad/feature names
         """
 
         # create a gee point
-        lat, lng = coords
-        ee_point = ee.Geometry.Point(lng, lat)
+        ee_point = ee.Geometry.Point(*coords)
 
         if isinstance(ee_obj, ee.FeatureCollection):
 
@@ -187,15 +190,14 @@ class VInspector(WidgetControl):
 
         Args:
             data (GeoJSON): the shape to reduce to a single point
-            coords (tuple): the coordinates of the point (lat, lng).
+            coords (tuple): the coordinates of the point (lng, lat).
 
         Return:
             (dict): tke value associated to the feature names
         """
 
-        # extract the coordinates as a point
-        lat, lng = coords
-        point = sg.Point(lng, lat)
+        # extract the coordinates as a poin
+        point = sg.Point(*coords)
 
         # filter the data to 1 point
         gdf = gpd.GeoDataFrame.from_features(data)
@@ -220,15 +222,14 @@ class VInspector(WidgetControl):
 
         Args:
             raster (str): the path to the image to reduce to a single point
-            coords (tuple): the coordinates of the point (lat, lng).
+            coords (tuple): the coordinates of the point (lng, lat).
 
         Return:
             (dict): tke value associated to the feature names
         """
 
         # extract the coordinates as a point
-        lat, lng = coords
-        point = sg.Point(lng, lat)
+        point = sg.Point(*coords)
 
         # extract the pixel size in degrees (equatorial appoximation)
         scale = self.m.get_scale() * 0.00001
@@ -242,7 +243,7 @@ class VInspector(WidgetControl):
         # sample is not available for da so I udo as in GEE a mean reducer around 1px
         # is it an overkill ? yes
         if sg.box(*da.rio.bounds()).contains(point):
-            bounds = (lng - scale, lat - scale, lng + scale, lat + scale)
+            bounds = point.buffer(scale).bounds
             window = rio.windows.from_bounds(*bounds, transform=da.rio.transform())
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
