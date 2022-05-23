@@ -1,13 +1,22 @@
 import ipyvuetify as v
-from ipyleaflet import WidgetControl, GeoJSON
+from ipyleaflet import WidgetControl, GeoJSON, LocalTileLayer
 import ee
 import geopandas as gpd
 from shapely import geometry as sg
+import rioxarray
+import xarray_leaflet
+from rasterio.crs import CRS
+import rasterio as rio
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui import color as sc
 from sepal_ui.mapping.layer import EELayer
+
+# call x_array leaflet at least once
+# flake8 will complain as it's a pluggin (i.e. never called)
+# We don't want to ignore testing F401
+xarray_leaflet
 
 
 class VInspector(WidgetControl):
@@ -108,6 +117,8 @@ class VInspector(WidgetControl):
                 data = self._from_eelayer(lyr.ee_object, latlon)
             elif isinstance(lyr, GeoJSON):
                 data = self._from_geojson(lyr.data, latlon)
+            elif isinstance(lyr, LocalTileLayer):
+                data = self._from_raster(lyr.raster, latlon)
             else:
                 data = {"info": "data reading method not yet ready"}
 
@@ -200,5 +211,45 @@ class VInspector(WidgetControl):
             pixel_values = gdf_filtered.iloc[0].to_dict()
             pixel_values.pop("geometry")
             pixel_values.pop("style")
+
+        return pixel_values
+
+    def _from_raster(self, raster, coords):
+        """
+        extract the values of the data-array for the considered point
+
+        Args:
+            raster (str): the path to the image to reduce to a single point
+            coords (tuple): the coordinates of the point (lat, lng).
+
+        Return:
+            (dict): tke value associated to the feature names
+        """
+
+        # extract the coordinates as a point
+        lat, lng = coords
+        point = sg.Point(lng, lat)
+
+        # extract the pixel size in degrees (equatorial appoximation)
+        scale = self.m.get_scale() * 0.00001
+
+        # open the image and unproject it
+        da = rioxarray.open_rasterio(raster, masked=True)
+        da = da.chunk((1000, 1000))
+        if da.rio.crs != CRS.from_string("EPSG:4326"):
+            da = da.rio.reproject("EPSG:4326")
+
+        # sample is not available for da so I udo as in GEE a mean reducer around 1px
+        # is it an overkill ? yes
+        if sg.box(*da.rio.bounds()).contains(point):
+            bounds = (lng - scale, lat - scale, lng + scale, lat + scale)
+            window = rio.windows.from_bounds(*bounds, transform=da.rio.transform())
+            da_filtered = da.rio.isel_window(window)
+            means = da_filtered.mean(axis=(1, 2)).to_numpy()
+            pixel_values = {f"band {i+1}": v for i, v in enumerate(means)}
+
+        # if the point is out of the image display None
+        else:
+            pixel_values = {f"band {i+1}": None for i in range(da.rio.count)}
 
         return pixel_values

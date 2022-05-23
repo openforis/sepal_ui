@@ -311,10 +311,11 @@ class SepalMap(ipl.Map):
 
         # display the layer on the map
         layer = da.leaflet.plot(**kwargs)
-
         layer.name = layer_name
-
         layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
+
+        # add the da to the layer as an extra member for the v_inspector
+        layer.raster = str(image)
 
         return
 
