@@ -1,4 +1,3 @@
-import ipyvuetify as v
 from ipyleaflet import WidgetControl, GeoJSON, LocalTileLayer
 import ee
 import geopandas as gpd
@@ -10,8 +9,8 @@ import rasterio as rio
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
-from sepal_ui import color as sc
 from sepal_ui.mapping.layer import EELayer
+from sepal_ui.mapping.map_btn import MapBtn
 
 # call x_array leaflet at least once
 # flake8 will complain as it's a pluggin (i.e. never called)
@@ -39,14 +38,7 @@ class VInspector(WidgetControl):
         kwargs["position"] = kwargs.pop("position", "bottomright")
 
         # create a clickable btn
-        icon = sw.Icon(small=True, children=["mdi-cloud-download"])
-        btn = v.Btn(
-            v_on="menu.on",
-            color="text-color",
-            outlined=True,
-            style_=f"padding: 0px; min-width: 0px; width: 30px; height: 30px; background: {sc.bg};",
-            children=[icon],
-        )
+        btn = MapBtn(logo="fas fa-chart-bar", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         title = sw.CardTitle(children=[sw.Html(tag="h4", children=["Inspector"])])
         self.text = sw.CardText(children=["select a point"])

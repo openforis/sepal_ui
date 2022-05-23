@@ -173,3 +173,11 @@ layer_hover_style = {
     "fill": True,
     "fillOpacity": 0,
 }
+
+map_btn_style = {
+    "padding": "0px",
+    "min-width": "0px",
+    "width": "30px",
+    "height": "30px",
+    "background": color.bg,
+}
