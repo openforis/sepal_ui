@@ -1,6 +1,8 @@
 import ipyvuetify as v
-from ipyleaflet import WidgetControl
+from ipyleaflet import WidgetControl, GeoJSON
 import ee
+import geopandas as gpd
+from shapely import geometry as sg
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -104,6 +106,8 @@ class VInspector(WidgetControl):
 
             if isinstance(lyr, EELayer):
                 data = self._from_eelayer(lyr.ee_object, latlon)
+            elif isinstance(lyr, GeoJSON):
+                data = self._from_geojson(lyr.data, latlon)
             else:
                 data = {"info": "data reading method not yet ready"}
 
@@ -121,7 +125,16 @@ class VInspector(WidgetControl):
 
     @su.need_ee
     def _from_eelayer(self, ee_obj, coords):
-        """extract the values of the ee_object for the considered point"""
+        """
+        extract the values of the ee_object for the considered point
+
+        Args:
+            ee_obj (ee.object): the ee object to reduce to a single point
+            coords (tuple): the coordinates of the point (lat, lng).
+
+        Return:
+            (dict): tke value associated to the bad/feature names
+        """
 
         # create a gee point
         lat, lng = coords
@@ -130,7 +143,16 @@ class VInspector(WidgetControl):
         if isinstance(ee_obj, ee.FeatureCollection):
 
             # filter all the value to the point
-            pixel_values = ee_obj.filterBounds(ee_point).first().toDictionary()
+            features = ee_obj.filterBounds(ee_point)
+
+            # if there is none, print non for every property
+            if features.size().getInfo() == 0:
+                cols = ee_obj.first().propertyNames().getInfo()
+                pixel_values = {c: None for c in cols if c not in ["system:index"]}
+
+            # else simply return all the values of the first element
+            else:
+                pixel_values = features.first().toDictionary().getInfo()
 
         elif isinstance(ee_obj, (ee.Image)):
 
@@ -139,11 +161,44 @@ class VInspector(WidgetControl):
                 geometry=ee_point,
                 scale=self.m.get_scale(),
                 reducer=ee.Reducer.mean(),
-            )
+            ).getInfo()
 
         else:
             raise ValueError(
                 f'the layer object is a "{type(ee_obj)}" which is not accepted.'
             )
 
-        return pixel_values.getInfo()
+        return pixel_values
+
+    def _from_geojson(self, data, coords):
+        """
+        extract the values of the data for the considered point
+
+        Args:
+            data (GeoJSON): the shape to reduce to a single point
+            coords (tuple): the coordinates of the point (lat, lng).
+
+        Return:
+            (dict): tke value associated to the feature names
+        """
+
+        # extract the coordinates as a point
+        lat, lng = coords
+        point = sg.Point(lng, lat)
+
+        # filter the data to 1 point
+        gdf = gpd.GeoDataFrame.from_features(data)
+        gdf_filtered = gdf[gdf.contains(point)]
+
+        # only display the columns name if empty
+        if len(gdf_filtered) == 0:
+            cols = list(set(["geometry", "style"]) ^ set(gdf.columns.to_list()))
+            pixel_values = {c: None for c in cols}
+
+        # else print the values of the first element
+        else:
+            pixel_values = gdf_filtered.iloc[0].to_dict()
+            pixel_values.pop("geometry")
+            pixel_values.pop("style")
+
+        return pixel_values
