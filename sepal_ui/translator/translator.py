@@ -166,7 +166,8 @@ class Translator(SimpleNamespace):
         Identify numbered dictionnaries embeded in the dict and transform them into lists
 
         This function is an helper to prevent deprecation after the introduction of pontoon for translation.
-        The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing so this function will transform back this "numbered" dictionnary (with integer keys) into lists.
+        The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing
+        so this function will transform back this "numbered" dictionnary (with integer keys) into lists.
 
         Args:
             d (dict): the dictionnary to sanitize
@@ -252,7 +253,8 @@ class Translator(SimpleNamespace):
         """
         gather all the .json file in the provided l10n folder as 1 single json dict
 
-        the json dict will be sanitysed and the key will be used as if they were coming from 1 single file. be careful with duplication
+        the json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
+        be careful with duplication. empty string keys will be removed.
 
         Args:
             folder (pathlib.path)
@@ -264,6 +266,29 @@ class Translator(SimpleNamespace):
 
         final_json = {}
         for f in folder.glob("*.json"):
-            final_json = {**final_json, **cls.sanitize(json.loads(f.read_text()))}
+            tmp_dict = cls.delete_empty(json.loads(f.read_text()))
+            final_json = {**final_json, **cls.sanitize(tmp_dict)}
 
         return final_json
+
+    @versionadded(version="2.8.1")
+    @classmethod
+    def delete_empty(cls, d):
+        """
+        Remove empty strings ("") recursively from the dictionaries. This is to prevent untranslated strings from
+        Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
+
+        Args:
+            d (dict): the dictionnary to sanitize
+
+        Return:
+            (dict): the sanitized dictionnary
+
+        """
+        for k, v in list(d.items()):
+            if isinstance(v, dict):
+                cls.delete_empty(v)
+            elif v == "":
+                del d[k]
+
+        return d

@@ -197,7 +197,7 @@ class FileInput(v.Flex, SepalWidget):
         self,
         extentions=[],
         folder=Path.home(),
-        label="search file",
+        label=ms.widgets.fileinput.label,
         v_model=None,
         clearable=False,
         **kwargs,
@@ -210,7 +210,10 @@ class FileInput(v.Flex, SepalWidget):
         self.folder = folder
 
         self.selected_file = v.TextField(
-            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=None
+            readonly=True,
+            label=ms.widgets.fileinput.placeholder,
+            class_="ml-5 mt-5",
+            v_model=None,
         )
 
         self.loading = v.ProgressLinear(
@@ -469,18 +472,27 @@ class LoadTableField(v.Col, SepalWidget):
     }
     "dict: The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
-    def __init__(self, label="Table file", **kwargs):
+    def __init__(self, label=ms.widgets.table.label, **kwargs):
 
         self.fileInput = FileInput([".csv", ".txt"], label=label)
 
         self.IdSelect = v.Select(
-            _metadata={"name": "id_column"}, items=[], label="Id", v_model=None
+            _metadata={"name": "id_column"},
+            items=[],
+            label=ms.widgets.table.column.id,
+            v_model=None,
         )
         self.LngSelect = v.Select(
-            _metadata={"name": "lng_column"}, items=[], label="Longitude", v_model=None
+            _metadata={"name": "lng_column"},
+            items=[],
+            label=ms.widgets.table.column.lng,
+            v_model=None,
         )
         self.LatSelect = v.Select(
-            _metadata={"name": "lat_column"}, items=[], label="Latitude", v_model=None
+            _metadata={"name": "lat_column"},
+            items=[],
+            label=ms.widgets.table.column.lat,
+            v_model=None,
         )
 
         # set default parameters
@@ -885,7 +897,7 @@ class VectorField(v.Col, SepalWidget):
     "Traitlet: The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx}"
 
     column_base_items = [
-        {"text": "Use all features", "value": "ALL"},
+        {"text": ms.widgets.vector.all, "value": "ALL"},
         {"divider": True},
     ]
     "list: the column compulsory selector (ALL)"
@@ -893,7 +905,7 @@ class VectorField(v.Col, SepalWidget):
     feature_collection = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(self, label="vector_file", gee=False, **kwargs):
+    def __init__(self, label=ms.widgets.vector.label, gee=False, **kwargs):
 
         # set the 3 wigets
         if not gee:
@@ -906,11 +918,14 @@ class VectorField(v.Col, SepalWidget):
         self.w_column = v.Select(
             _metadata={"name": "column"},
             items=self.column_base_items,
-            label="Column",
+            label=ms.widgets.vector.column,
             v_model="ALL",
         )
         self.w_value = v.Select(
-            _metadata={"name": "value"}, items=[], label="Value", v_model=None
+            _metadata={"name": "value"},
+            items=[],
+            label=ms.widgets.vector.value,
+            v_model=None,
         )
         su.hide_component(self.w_value)
 

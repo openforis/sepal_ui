@@ -2,6 +2,29 @@
 	"test_key": "Clef de test",
 	"status": "Status : {}",
 	"widgets": {
+		"fileinput": {
+			"label": "chercher un fichier",
+			"placeholder": "Fichier sélectionné"
+		},
+		"table": {
+			"label": "Fichier de tableau",
+			"column": {
+				"id": "Id",
+				"lat": "latitude",
+				"lng": "longitude"
+			}
+		},
+		"vector": {
+			"label": "Fichier de vecteur",
+			"column": "colonne",
+			"value": "valeur",
+			"all": "Utiliser toutes les features"
+		},
+		"navdrawer": {
+			"code": "Code source",
+			"wiki": "Wiki",
+			"bug": "Signaler un Bug"
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
@@ -41,7 +64,6 @@
 		"aoi_name": "Selectionner un nom d'AOI",
 		"asset": "Nom de l'Asset",
 		"btn": "Selectionner cet AOI",
-		"no_inputs": "Fournir des entrées entièrement qualifiées avant de valider votre AOI",
 		"complete": "L'AOI a été selectionnée",
 		"shape_drawn": "Une forme a été dessinée",
 		"file_pattern": "aoi_{}",
@@ -56,11 +78,44 @@
 		"no_shape": "Aucune figure n'a été dessiné sur la carte",
 		"shp_error": "Une erreur est survenue avec le fichier .shp utilisé",
 		"aoi_message": "Cliquer sur le boutton pour valider votre AOI",
-		"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'identifiant",
-		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine"
+		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine",
+		"exception": {
+			"no_inputs": "Merci de fournir des entrées entièrement définies avant de valider votre AOI",
+			"no_asset": "Veuillez sélectionner un asset Earthengine.",
+			"no_value": "Veuillez sélectionner une valeur.",
+			"uncomplete": "Tous les champs sont obligatoires, merci de les remplir.",
+			"no_file": "Veuillez sélectionner un fichier.",
+			"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'id",
+			"no_draw": "Veuillez dessiner une forme sur la carte",
+			"no_admlyr": "Sélectionnez une couche administrative",
+			"invalid_code": "Le code administratif n'est pas dans la base de données.",
+			"no_gdf": "Vous devez définir le gdf avant d'interagir avec celui-ci"
+		}
 	},
 	"mapping": {
 		"no_image": "Le fichier image n'existe pas."
+	},
+	"planet": {
+		"exception": {
+			"empty": "Veuillez renseigner tous les champs obligatoires.",
+			"format": "Merci de vérifier le format de vos données.",
+			"invalid": "Email ou mot de passe invalide",
+			"nosubs": "Vos identifiants n'ont pas d'abonnement PlanetLab valide."
+		},
+		"widget": {
+			"username": "Nom d'utilisateur PlanetLab",
+			"password": "Mot de passe PlanetLab",
+			"apikey": "Clé API PlanetLab",
+			"method": {
+				"label": "Méthode d'accès",
+				"credentials": "Identifiants",
+				"api_key": "Clé API PlanetLab"
+			}
+		},
+		"status": {
+			"offilne": "Non connecté",
+			"online": "Connecté"
+		}
 	},
 	"rec": {
 		"table": {
