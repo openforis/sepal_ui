@@ -51,10 +51,14 @@ basemaps = Box(xyz_to_leaflet(), frozen_box=True)
 
 class SepalMap(ipl.Map):
     """
-    The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
-    Numerous methods have been added in the class to help you deal with your workflow implementation.
-    It can natively display raster from .tif files and files and ee objects using methods that have the same signature as the GEE JavaScripts console.
+    The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all
+    its parameter.
+    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of
+    the sepal_ui layout.
+    Numerous methods have been added in the class to help you deal with your workflow
+    implementation.
+    It can natively display raster from .tif files and files and ee objects using methods
+    that have the same signature as the GEE JavaScripts console.
 
     Args:
         basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
@@ -275,8 +279,10 @@ class SepalMap(ipl.Map):
 
         da = rioxarray.open_rasterio(image, masked=True)
 
-        # The dataset can be too big to hold in memory, so we will chunk it into smaller pieces.
-        # That will also improve performances as the generation of a tile can be done in parallel using Dask.
+        # The dataset can be too big to hold in memory, so we will chunk it into smaller
+        # pieces.
+        # That will also improve performances as the generation of a tile can be done
+        # in parallel using Dask.
         da = da.chunk((1000, 1000))
 
         # unproject if necessary
@@ -438,8 +444,10 @@ class SepalMap(ipl.Map):
         viz_name=False,
     ):
         """
-        Copy the addLayer method from geemap to read and guess the vizaulization parameters the same way as in SEPAL recipes.
-        If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
+        Copy the addLayer method from geemap to read and guess the vizaulization
+        parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and vizualization metadata exist, SepalMap will use
+        them automatically.
 
         Args:
             ee_object (ee.Object): the ee OBject to draw on the map
@@ -553,8 +561,10 @@ class SepalMap(ipl.Map):
                 ee.Geometry,
             ),
         ):
-            err_str = "\n\nThe image argument in 'addLayer' function must be an instance of one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
-            raise AttributeError(err_str)
+            raise AttributeError(
+                "\n\nThe image argument in 'addLayer' function must be an instance of "
+                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
+            )
 
         # force cast to featureCollection if needed
         if isinstance(
@@ -682,7 +692,8 @@ class SepalMap(ipl.Map):
                     props[i]["type"] = "rgb"
                 else:
                     warnings.warn(
-                        "the embed viz properties are incomplete or badly set, please review our documentation",
+                        "the embed viz properties are incomplete or badly set, "
+                        "please review our documentation",
                         SepalWarning,
                     )
                     props = {}
@@ -691,7 +702,8 @@ class SepalMap(ipl.Map):
 
     def remove_layer(self, key):
         """
-        Remove a layer based on a key. The key can be, a Layer object, the name of a layer or the index in the layer list
+        Remove a layer based on a key. The key can be, a Layer object, the name of a
+        layer or the index in the layer list
 
         Args:
             key (Layer, int, str): the key to find the layer to delete
@@ -722,8 +734,8 @@ class SepalMap(ipl.Map):
         """
         # filter out the basemaps if base == False
         all_layers = (tl for tl in self.layers)
-        all_layers_no_basmaps = (tl for tl in self.layers if tl.base is False)
-        gen = all_layers if base is True else all_layers_no_basmaps
+        all_layers_no_basmaps = (tl for tl in self.layers if not tl.base)
+        gen = all_layers if base else all_layers_no_basmaps
 
         # remove them using the built generator
         [self.remove_layer(layer) for layer in gen]
