@@ -19,4 +19,5 @@ sepal\_ui.mapping
       sepal_ui.mapping.SepalMap
       sepal_ui.mapping.FullScreenControl
       sepal_ui.mapping.DrawControl
-      sepal_ui.mapping.Layer
+      sepal_ui.mapping.EELayer
+      sepal_ui.mapping.MapBtn
