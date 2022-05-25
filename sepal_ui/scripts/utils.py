@@ -579,7 +579,7 @@ def set_type(color):
 @versionadded(version="2.8.0")
 def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
     """
-    Transform a geojson object into a featureCollection
+    Transform a geojson object into a featureCollection or a Geometry
     No sanity check is performed on the initial geo_json. It must respect the
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
 
@@ -617,6 +617,6 @@ def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
 
     # some error handling because we are fancy
     else:
-        raise Exception("Could not convert the geojson to ee.Geometry()")
+        raise ValueError("Could not convert the geojson to ee.Geometry()")
 
     return

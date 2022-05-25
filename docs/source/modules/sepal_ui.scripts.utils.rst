@@ -25,6 +25,7 @@ sepal\_ui.scripts.utils
         set_config_locale
         set_config_theme
         set_type
+        geojson_to_ee
       
 .. autofunction:: sepal_ui.scripts.utils.catch_errors
 
@@ -60,19 +61,5 @@ sepal\_ui.scripts.utils
 
 .. autofunction:: sepal_ui.scripts.utils.set_type
 
-
-      
-
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
+.. autofunction:: sepal_ui.scripts.utils.geojson_to_ee
 
