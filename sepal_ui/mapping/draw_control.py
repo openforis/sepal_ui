@@ -8,7 +8,8 @@ class DrawControl(DrawControl):
     A custom DrawingControl object to handle edition of features
 
     Args:
-        kwargs (optional): any available arguments from a ipyleaflet DrawingControl
+        m (ipyleaflet.Map): the map on which he drawControl is displayed
+        kwargs (optional): any available arguments from a ipyleaflet.DrawingControl
     """
 
     m = None

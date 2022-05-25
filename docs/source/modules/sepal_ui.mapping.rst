@@ -18,3 +18,4 @@ sepal\_ui.mapping
       
       sepal_ui.mapping.SepalMap
       sepal_ui.mapping.FullScreenControl
+      sepal_ui.mapping.DrawControl
