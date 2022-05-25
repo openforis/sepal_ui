@@ -1,6 +1,6 @@
-import collections
 from ipyleaflet import TileLayer
 import xyzservices.providers as xyz
+from xyzservices import TileProvider
 
 
 xyz_tiles = {
@@ -33,10 +33,9 @@ xyz_tiles = {
 "(dict): Custom XYZ tile services."
 
 
-def get_xyz_dict(free_only=True):
+def get_xyz_dict(free_only=True, _collection=xyz, _output={}):
     """
     Returns a dictionary of xyz services.
-    Adapted from https://github.com/giswqs/geemap
 
     Args:
         free_only (bool, optional): Whether to return only free xyz tile services that do not require an access token. Defaults to True.
@@ -45,40 +44,20 @@ def get_xyz_dict(free_only=True):
         dict: A dictionary of xyz services.
     """
 
-    xyz_dict = {}
-    for item in xyz.values():
-        try:
-            name = item["name"]
-            tile = eval("xyz." + name)
-            if eval("xyz." + name + ".requires_token()"):
-                if free_only:
-                    pass
-                else:
-                    xyz_dict[name] = tile
-            else:
-                xyz_dict[name] = tile
+    for v in _collection.values():
+        if isinstance(v, TileProvider):
+            if not (v.requires_token() and free_only):
+                _output[v.name] = v
+        else:  # it's a Bunch
+            get_xyz_dict(free_only, v, _output)
 
-        except Exception:
-            for sub_item in item:
-                name = item[sub_item]["name"]
-                tile = eval("xyz." + name)
-                if eval("xyz." + name + ".requires_token()"):
-                    if free_only:
-                        pass
-                    else:
-                        xyz_dict[name] = tile
-                else:
-                    xyz_dict[name] = tile
-
-    xyz_dict = collections.OrderedDict(sorted(xyz_dict.items()))
-
-    return xyz_dict
+    return _output
 
 
 def xyz_to_leaflet():
     """
     Convert all available xyz tile services to ipyleaflet tile layers.
-    adapted from https://github.com/giswqs/geemap
+    Adapted from https://github.com/giswqs/geemap
 
     Returns:
         dict: A dictionary of ipyleaflet tile layers.
@@ -93,14 +72,13 @@ def xyz_to_leaflet():
             url=url, name=name, attribution=attribution, max_zoom=22, base=True
         )
 
-    xyz_dict = get_xyz_dict()
-    for item in xyz_dict:
-        name = xyz_dict[item].name
-        url = xyz_dict[item].build_url()
-        attribution = xyz_dict[item].attribution
-        max_zoom = xyz_dict[item].pop("max_zoom", 22)
-        leaflet_dict[name] = TileLayer(
-            url=url, name=name, max_zoom=max_zoom, attribution=attribution, base=True
+    for i, item in get_xyz_dict().items():
+        leaflet_dict[item.name] = TileLayer(
+            url=item.build_url(),
+            name=item.name,
+            max_zoom=item.get("max_zoom", 22),
+            attribution=item.attribution,
+            base=True,
         )
 
     return leaflet_dict
