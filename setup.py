@@ -50,6 +50,7 @@ setup_params = {
         "xyzservices",
         "planet",
         "pyyaml",
+        "python-box",
     ],
     "extras_require": {
         "dev": [

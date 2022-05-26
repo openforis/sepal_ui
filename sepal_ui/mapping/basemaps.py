@@ -1,6 +1,15 @@
 from ipyleaflet import TileLayer
 import xyzservices.providers as xyz
 from xyzservices import TileProvider
+from box import Box
+
+
+class BasemapBox(Box):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __repr__(self):
+        return ",\n".join(list(self.keys()))
 
 
 xyz_tiles = {
@@ -82,3 +91,7 @@ def xyz_to_leaflet():
         )
 
     return leaflet_dict
+
+
+basemaps = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+"(Box.box): the basemaps list as a box"
