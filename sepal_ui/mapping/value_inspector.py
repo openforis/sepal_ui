@@ -18,7 +18,7 @@ from sepal_ui.mapping.map_btn import MapBtn
 xarray_leaflet
 
 
-class VInspector(WidgetControl):
+class ValueInspector(WidgetControl):
 
     m = None
     "(ipyleaflet.Map) the map on which he vinspector is displayed to interact with it's layers"
@@ -40,7 +40,19 @@ class VInspector(WidgetControl):
         # create a clickable btn
         btn = MapBtn(logo="fas fa-chart-bar", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
-        title = sw.CardTitle(children=[sw.Html(tag="h4", children=["Inspector"])])
+        self.close_card_btn = sw.Icon(children=["fa fa-close"], small=True)
+        title = sw.CardTitle(
+            children=[
+                sw.Html(
+                    tag="h4",
+                    children=[
+                        "Inspector",
+                    ],
+                ),
+                sw.Spacer(),
+                self.close_card_btn,
+            ]
+        )
         self.text = sw.CardText(children=["select a point"])
         self.card = sw.Card(children=[title, self.text], min_width="400px")
 
@@ -65,11 +77,15 @@ class VInspector(WidgetControl):
         # add js behaviour
         self.menu.observe(self.toggle_cursor, "v_model")
         self.m.on_interaction(self.read_data)
+        self.close_card_btn.on_event("click", self.close_card)
+
+    def close_card(self, widget, event, data):
+        """Manually close card (menu)"""
+        self.menu.v_model = False
 
     def toggle_cursor(self, change):
-        """
-        Toggle the cursor displa on the map to notify to the user that the inspector mode is activated
-        """
+        """Toggle the cursor displa on the map to notify to the user that the inspector
+        mode is activated"""
 
         cursors = [{"cursor": "grab"}, {"cursor": "crosshair"}]
         self.m.default_style = cursors[self.menu.v_model]
@@ -95,7 +111,7 @@ class VInspector(WidgetControl):
         children = []
 
         # get the coordinates as (x, y)
-        coords = [c for c in reversed(kwargs.get("coordinates"))]
+        coords = [round(c, 3) for c in reversed(kwargs.get("coordinates"))]
 
         # write the coordinates
         children.append(
@@ -105,7 +121,7 @@ class VInspector(WidgetControl):
 
         # write the layers data
         children.append(sw.Html(tag="h4", children=["Layers"]))
-        layers = [lyr for lyr in self.m.layers if lyr.base is False]
+        layers = [lyr for lyr in self.m.layers if not lyr.base]
         for lyr in layers:
             children.append(sw.Html(tag="h5", children=[lyr.name]))
 
@@ -202,19 +218,16 @@ class VInspector(WidgetControl):
         # filter the data to 1 point
         gdf = gpd.GeoDataFrame.from_features(data)
         gdf_filtered = gdf[gdf.contains(point)]
+        skip_cols = ["geometry", "style"]
 
         # only display the columns name if empty
         if len(gdf_filtered) == 0:
-            cols = list(set(["geometry", "style"]) ^ set(gdf.columns.to_list()))
-            pixel_values = {c: None for c in cols}
+            cols = list(set(skip_cols) ^ set(gdf.columns.to_list()))
+            return {c: None for c in cols}
 
         # else print the values of the first element
         else:
-            pixel_values = gdf_filtered.iloc[0].to_dict()
-            pixel_values.pop("geometry")
-            pixel_values.pop("style")
-
-        return pixel_values
+            return gdf_filtered.iloc[0, ~gdf.columns.isin(skip_cols)].to_dict()
 
     def _from_raster(self, raster, coords):
         """
