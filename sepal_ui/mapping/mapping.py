@@ -33,7 +33,7 @@ from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
 from sepal_ui.mapping.basemaps import xyz_to_leaflet
 from sepal_ui.mapping.draw_control import DrawControl
-from sepal_ui.mapping.v_inspector import VInspector
+from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.mapping.layer import EELayer
 
 
@@ -118,7 +118,7 @@ class SepalMap(ipl.Map):
         not dc or self.add_control(self.dc)
 
         # specific v_inspector
-        self.v_inspector = VInspector(self)
+        self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")

@@ -6,11 +6,14 @@ import rioxarray
 import xarray_leaflet
 from rasterio.crs import CRS
 import rasterio as rio
+import ipyvuetify as v
 
+from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.map_btn import MapBtn
+from sepal_ui.frontend.styles import COMPONENTS
 
 # call x_array leaflet at least once
 # flake8 will complain as it's a pluggin (i.e. never called)
@@ -18,7 +21,7 @@ from sepal_ui.mapping.map_btn import MapBtn
 xarray_leaflet
 
 
-class VInspector(WidgetControl):
+class ValueInspector(WidgetControl):
 
     m = None
     "(ipyleaflet.Map) the map on which he vinspector is displayed to interact with it's layers"
@@ -37,21 +40,34 @@ class VInspector(WidgetControl):
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "bottomright")
 
+        # create a loading to place it on top of the card. It will always be visible
+        # even when the card is scrolled
+        self.w_loading = sw.ProgressLinear(
+            indeterminate=False,
+            background_color=color.menu,
+            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
+        )
+
         # create a clickable btn
         btn = MapBtn(logo="fas fa-chart-bar", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         title = sw.CardTitle(children=[sw.Html(tag="h4", children=["Inspector"])])
         self.text = sw.CardText(children=["select a point"])
-        self.card = sw.Card(children=[title, self.text], min_width="400px")
+        self.card = sw.Card(
+            color=color.menu,
+            max_height="40vh",
+            children=[title, self.text],
+            min_width="400px",
+            style_="overflow: auto; border-radius: 0 0 0 0;",
+        )
 
         # assempble everything in a menu
         self.menu = sw.Menu(
-            max_height="40vh",
             v_model=False,
             value=False,
             close_on_click=False,
             close_on_content_click=False,
-            children=[self.card],
+            children=[self.w_loading, self.card],
             v_slots=[slot],
             offset_x=True,
             top="bottom" in kwargs["position"],
@@ -88,7 +104,7 @@ class VInspector(WidgetControl):
 
         # set the loading mode. Cannot be done as a decorator to avoid
         # flickering while moving the cursor on the map
-        self.card.loading = True
+        self.w_loading.indeterminate = True
         self.m.default_style = {"cursor": "wait"}
 
         # init the text children
@@ -126,7 +142,7 @@ class VInspector(WidgetControl):
         self.text.children = children
 
         # set back the cursor to crosshair
-        self.card.loading = False
+        self.w_loading.indeterminate = False
         self.m.default_style = {"cursor": "crosshair"}
 
         # one last flicker to replace the menu next to the btn
