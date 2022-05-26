@@ -91,6 +91,7 @@ class SepalMap(ipl.Map):
         kwargs["basemap"] = {}
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
+        kwargs["scroll_wheel_zoom"] = True
 
         # Init the map
         super().__init__(**kwargs)
