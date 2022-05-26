@@ -24,18 +24,16 @@ from traitlets import Bool
 import ipyvuetify as v
 import ipyleaflet as ipl
 import ee
-from box import Box
 from deprecated.sphinx import deprecated
 
 import sepal_ui.frontend.styles as styles
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
-from sepal_ui.mapping.basemaps import xyz_to_leaflet
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.v_inspector import VInspector
 from sepal_ui.mapping.layer import EELayer
-
+from sepal_ui.mapping.basemaps import basemaps
 
 __all__ = ["SepalMap"]
 
@@ -43,10 +41,6 @@ __all__ = ["SepalMap"]
 # flake8 will complain as it's a pluggin (i.e. never called)
 # We don't want to ignore testing F401
 xarray_leaflet
-
-# init the basemaps
-basemaps = Box(xyz_to_leaflet(), frozen_box=True)
-"(Box.box): the basemaps list as a box"
 
 
 class SepalMap(ipl.Map):
@@ -620,7 +614,6 @@ class SepalMap(ipl.Map):
         """
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object
-
         Return:
             ([str]): the list of the basemap names
         """
