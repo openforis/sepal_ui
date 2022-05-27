@@ -22,15 +22,24 @@ xarray_leaflet
 
 
 class ValueInspector(WidgetControl):
+    """
+    Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
+
+    Args:
+        m (ipyleaflet.Map): the map on which he vinspector is displayed to interact with it's layers
+    """
 
     m = None
     "(ipyleaflet.Map) the map on which he vinspector is displayed to interact with it's layers"
 
-    menu = None
+    w_loading = None
+    "(vuetify.ProgressLinear): the progress bar on top of the Card"
 
-    card = None
+    menu = None
+    "(vuetify.Menu): the menu displayed when the map btn is clicked"
 
     text = None
+    "(vuetify.CardText): the text element from the card that is edited when the user click on the map"
 
     def __init__(self, m, **kwargs):
 
@@ -49,28 +58,19 @@ class ValueInspector(WidgetControl):
         )
 
         # create a clickable btn
-        btn = MapBtn(logo="fas fa-chart-bar", v_on="menu.on")
+        btn = MapBtn(logo="fas fa-crosshairs", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
-        self.close_card_btn = sw.Icon(children=["fa fa-close"], small=True)
-        title = sw.CardTitle(
-            children=[
-                sw.Html(
-                    tag="h4",
-                    children=[
-                        "Inspector",
-                    ],
-                ),
-                sw.Spacer(),
-                self.close_card_btn,
-            ]
-        )
+        close_btn = sw.Icon(children=["fas fa-times"], small=True)
+        title = sw.Html(tag="h4", children=["Inspector"])
+        card_title = sw.CardTitle(children=[title, sw.Spacer(), close_btn])
         self.text = sw.CardText(children=["select a point"])
-        self.card = sw.Card(
+        card = sw.Card(
+            tile=True,
             color=color.menu,
             max_height="40vh",
-            children=[title, self.text],
+            children=[card_title, self.text],
             min_width="400px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
+            style_="overflow: auto",
         )
 
         # assempble everything in a menu
@@ -79,7 +79,7 @@ class ValueInspector(WidgetControl):
             value=False,
             close_on_click=False,
             close_on_content_click=False,
-            children=[self.w_loading, self.card],
+            children=[self.w_loading, card],
             v_slots=[slot],
             offset_x=True,
             top="bottom" in kwargs["position"],
@@ -93,15 +93,13 @@ class ValueInspector(WidgetControl):
         # add js behaviour
         self.menu.observe(self.toggle_cursor, "v_model")
         self.m.on_interaction(self.read_data)
-        self.close_card_btn.on_event("click", self.close_card)
-
-    def close_card(self, widget, event, data):
-        """Manually close card (menu)"""
-        self.menu.v_model = False
+        close_btn.on_event("click", lambda *_: setattr(self.menu, "v_model", False))
 
     def toggle_cursor(self, change):
-        """Toggle the cursor displa on the map to notify to the user that the inspector
-        mode is activated"""
+        """
+        Toggle the cursor display on the map to notify to the user that the inspector
+        mode is activated
+        """
 
         cursors = [{"cursor": "grab"}, {"cursor": "crosshair"}]
         self.m.default_style = cursors[self.menu.v_model]
@@ -111,6 +109,9 @@ class ValueInspector(WidgetControl):
     def read_data(self, **kwargs):
         """
         Read the data when the map is clicked with the vinspector activated
+
+        Args:
+            kwargs: any arguments from the map interaction
         """
         # check if the v_inspector is active
         is_click = kwargs.get("type") == "click"
@@ -127,13 +128,13 @@ class ValueInspector(WidgetControl):
         children = []
 
         # get the coordinates as (x, y)
-        coords = [round(c, 3) for c in reversed(kwargs.get("coordinates"))]
+        lng, lat = coords = [c for c in reversed(kwargs.get("coordinates"))]
 
         # write the coordinates
         children.append(
             sw.Html(tag="h4", children=["Coordinates (longitude, latitude)"])
         )
-        children.append(sw.Html(tag="p", children=[str(coords)]))
+        children.append(sw.Html(tag="p", children=[f"[{lng:.3f}, {lat:.3f}]"]))
 
         # write the layers data
         children.append(sw.Html(tag="h4", children=["Layers"]))
@@ -180,7 +181,7 @@ class ValueInspector(WidgetControl):
             coords (tuple): the coordinates of the point (lng, lat).
 
         Return:
-            (dict): tke value associated to the bad/feature names
+            (dict): tke value associated to the image/feature names
         """
 
         # create a gee point
@@ -200,7 +201,7 @@ class ValueInspector(WidgetControl):
             else:
                 pixel_values = features.first().toDictionary().getInfo()
 
-        elif isinstance(ee_obj, (ee.Image)):
+        elif isinstance(ee_obj, ee.Image):
 
             # reduce the layer region using mean
             pixel_values = ee_obj.reduceRegion(
@@ -238,8 +239,8 @@ class ValueInspector(WidgetControl):
 
         # only display the columns name if empty
         if len(gdf_filtered) == 0:
-            cols = list(set(skip_cols) ^ set(gdf.columns.to_list()))
-            return {c: None for c in cols}
+            cols = gdf.columns.to_list()
+            return {c: None for c in cols if c not in skip_cols}
 
         # else print the values of the first element
         else:
@@ -269,7 +270,7 @@ class ValueInspector(WidgetControl):
         if da.rio.crs != CRS.from_string("EPSG:4326"):
             da = da.rio.reproject("EPSG:4326")
 
-        # sample is not available for da so I udo as in GEE a mean reducer around 1px
+        # sample is not available for da so I do as in GEE a mean reducer around 1px
         # is it an overkill ? yes
         if sg.box(*da.rio.bounds()).contains(point):
             bounds = point.buffer(scale).bounds

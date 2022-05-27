@@ -1,23 +1,25 @@
 sepal\_ui.mapping.ValueInspector
 ================================
 
-.. autoclass:: sepal_ui.mapping.FullScreenControl
+.. autoclass:: sepal_ui.mapping.ValueInspector
 
     .. rubric:: Attributes
     
     .. autosummary::
     
-        ~FullScreenControl.ICONS
-        ~FullScreenControl.METHODS
-        ~FullScreenControl.zoomed
-        ~FullScreenControl.w_btn
-        ~FullScreenControl.template
-        
+        ~ValueInspector.m
+        ~ValueInspector.w_loading
+        ~ValueInspector.menu
+        ~ValueInspector.text
+
     .. rubric:: Methods
     
     .. autosummary::
         :nosignatures:
         
-        ~FullScreenControl.toggle_fullscreen
+        ~ValueInspector.toggle_cursor
+        ~ValueInspector.read_data
         
-.. automethod:: sepal_ui.mapping.FullScreenControl.toggle_fullscreen
+.. automethod:: sepal_ui.mapping.ValueInspector.toggle_cursor
+
+.. automethod:: sepal_ui.mapping.ValueInspector.read_data

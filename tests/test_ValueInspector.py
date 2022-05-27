@@ -1,173 +1,166 @@
 import pytest
 from pathlib import Path
-import shutil
-import json
-from configparser import ConfigParser
+import ee
+from urllib.request import urlretrieve
+import math
+import geopandas as gpd
 
-from sepal_ui import config_file
-from sepal_ui.translator import Translator
+from sepal_ui import mapping as sm
+from sepal_ui.scripts import utils as su
 
 
-class TestTranslator:
-    def test_init(self, translation_folder, tmp_config_file):
+class TestValueInspector:
+    def test_init(self):
 
-        # assert that the test key exist in fr
-        translator = Translator(translation_folder, "fr")
-        assert translator.test_key == "Clef de test"
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
+        m.add_control(value_inspector)
 
-        # assert that the the code work if the path is a str
-        translator = Translator(str(translation_folder), "fr")
-        assert translator.test_key == "Clef de test"
+        assert isinstance(value_inspector, sm.ValueInspector)
 
-        # assert that the test does not exist in es and we fallback to en
-        translator = Translator(translation_folder, "es")
-        assert translator.test_key == "Test key"
+    def test_toogle_cursor(self):
 
-        # assert that using a non existing lang lead to fallback to english
-        translator = Translator(translation_folder, "it")
-        assert translator.test_key == "Test key"
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
+        m.add_control(value_inspector)
 
-        # assert that if nothing is set it will use the confi_file (fr-FR)
-        translator = Translator(translation_folder)
-        assert translator.test_key == "Clef de test"
+        # activate the window
+        value_inspector.menu.v_model = True
+        assert m.default_style.cursor == "crosshair"
 
-        return
-
-    def test_search_key(self):
-
-        # assert that having a wrong key in the json will raise an error
-        key = "toto"
-        d = {"a": {"toto": "b"}, "c": "d"}
-
-        with pytest.raises(Exception):
-            Translator.search_key(d, key)
+        # close with the menu
+        value_inspector.menu.v_model = False
+        assert m.default_style.cursor == "grab"
 
         return
 
-    def test_sanitize(self):
+    def test_read_data(self):
 
-        # a test dict with many embeded numbered list
-        # but also an already existing list
-        test = {
-            "a": {"0": "b", "1": "c"},
-            "d": {"e": {"0": "f", "1": "g"}, "h": "i"},
-            "j": ["k", "l"],
-        }
+        # not testing the display of anything here just the interaction
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
+        m.add_control(value_inspector)
 
-        # the sanitize version of this
-        result = {
-            "a": ["b", "c"],
-            "d": {"e": ["f", "g"], "h": "i"},
-            "j": ["k", "l"],
-        }
+        # click anywhere without activation
+        value_inspector.read_data(type="click", coordinates=[0, 0])
+        assert len(value_inspector.text.children) == 1
 
-        assert Translator.sanitize(test) == result
+        # click when activated
+        value_inspector.menu.v_model = True
+        value_inspector.read_data(type="click", coordinates=[0, 0])
+        assert len(value_inspector.text.children) == 3
 
         return
 
-    def test_delete_empty(self):
+    @su.need_ee
+    def test_free_eelayer(self, world_temp, ee_adm2):
 
-        test = {"a": "", "b": 1, "c": {"d": ""}, "e": {"f": "", "g": 2}}
-        result = {"b": 1, "c": {}, "e": {"g": 2}}
+        # create a map with a value inspector
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
 
-        assert Translator.delete_empty(test) == result
+        # check a nodata place on Image
+        data = value_inspector._from_eelayer(world_temp.mosaic(), [0, 0])
+        assert data == {"temperature_2m": None}
 
-    def test_missing_keys(self, translation_folder):
+        # check vatican city
+        data = value_inspector._from_eelayer(world_temp.mosaic(), [12.457, 41.902])
+        assert data == {"temperature_2m": 296.00286865234375}
 
-        # check that all keys are in the fr dict
-        translator = Translator(translation_folder, "fr")
-        assert translator.missing_keys() == "All messages are translated"
+        # check a featurecollection on nodata place
+        data = value_inspector._from_eelayer(ee_adm2, [0, 0])
+        assert data == {"ADM2_CODE": None}
 
-        # check that 1 key is missing
-        translator = Translator(translation_folder, "es")
-        assert translator.missing_keys() == "root['test_key']"
-
-        return
-
-    def test_find_target(self, translation_folder):
-
-        # test grid
-        test_grid = {
-            "en": ("en", "en"),
-            "en-US": ("en-US", "en"),
-            "fr-FR": ("fr-FR", "fr-FR"),
-            "fr-CA": ("fr-CA", "fr"),
-            "fr": ("fr", "fr"),
-            "da": ("da", None),
-        }
-
-        # loop in the test grid to check multiple language combinations
-        for k, v in test_grid.items():
-            assert Translator.find_target(translation_folder, k) == v
+        # check the featurecollection on vatican city
+        data = value_inspector._from_eelayer(ee_adm2, [12.457, 41.902])
+        assert data == {"ADM2_CODE": 18350}
 
         return
 
-    def test_available_locales(self, translation_folder):
+    def test_from_geojson(self, adm0_vatican):
 
-        # expected grid
-        res = ["es", "fr", "fr-FR", "en"]
+        # create a map with a value inspector
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
 
-        # create the translator
-        # -en- to -en-
-        translator = Translator(translation_folder)
+        # check a featurecollection on nodata place
+        data = value_inspector._from_geojson(adm0_vatican, [0, 0])
+        assert data == {"GID_0": None, "NAME_0": None}
 
-        for locale in res:
-            assert locale in translator.available_locales()
-
-        return
-
-    @pytest.fixture(scope="class")
-    def translation_folder(self):
-        """
-        Generate a fully qualified translation folder with limited keys in en, fr and es.
-        Cannot use the temfile lib as we need the directory to appear in the tree
-        """
-
-        # set up the appropriate keys for each language
-        keys = {
-            "en": {"a_key": "A key", "test_key": "Test key"},
-            "fr": {"a_key": "Une clef", "test_key": "Clef de test"},
-            "fr-FR": {"a_key": "Une clef", "test_key": "Clef de test"},
-            "es": {"a_key": "Una llave"},
-        }
-
-        # generate the tmp_dir in the test directory
-        tmp_dir = Path(__file__).parent / "data" / "messages"
-        tmp_dir.mkdir(exist_ok=True, parents=True)
-
-        # create the translation files
-        for lan, d in keys.items():
-            folder = tmp_dir / lan
-            folder.mkdir()
-            (folder / "locale.json").write_text(json.dumps(d, indent=2))
-
-        yield tmp_dir
-
-        # flush everything
-        shutil.rmtree(tmp_dir)
+        # check the featurecollection on vatican city
+        data = value_inspector._from_geojson(adm0_vatican, [12.457, 41.902])
+        assert data == {"GID_0": "VAT", "NAME_0": "Vatican City"}
 
         return
 
-    @pytest.fixture(scope="function")
-    def tmp_config_file(self):
-        """
-        Erase any existing config file and replace it with one specifically
-        design for thesting the translation
-        """
+    def test_from_raster(self, raster_bahamas):
 
-        # erase anything that exists
-        if config_file.is_file():
-            config_file.unlink()
+        # create a map with a value inspector
+        m = sm.SepalMap()
+        value_inspector = sm.ValueInspector(m)
 
-        # create a new file
-        config = ConfigParser()
-        config.add_section("sepal-ui")
-        config.set("sepal-ui", "locale", "fr-FR")
-        config.write(config_file.open("w"))
+        # check a featurecollection on nodata place
+        data = value_inspector._from_raster(raster_bahamas, [0, 0])
+        assert data == {"band 1": None, "band 2": None, "band 3": None}
 
-        yield 1
+        # check the featurecollection on vatican city
+        data = value_inspector._from_raster(raster_bahamas, [-78.072, 24.769])
+        assert math.isclose(data["band 1"], 70.46553, rel_tol=1e-5)
+        assert math.isclose(data["band 2"], 91.41595, rel_tol=1e-5)
+        assert math.isclose(data["band 3"], 93.08673, rel_tol=1e-5)
 
-        # flush it
-        config_file.unlink()
+        return
+
+    @pytest.fixture
+    def world_temp(self):
+        """get the world temperature dataset from GEE"""
+
+        return (
+            ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY")
+            .filter(ee.Filter.date("2020-07-01", "2020-07-02"))
+            .select("temperature_2m")
+        )
+
+    @pytest.fixture
+    def ee_adm2(self):
+        """get a featurecollection with only adm2code values"""
+
+        return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
+
+    @pytest.fixture
+    def raster_bahamas(self):
+        """add a raster file of the bahamas coming from rasterio test suit"""
+
+        rgb = Path.home() / "rgb.tif"
+
+        if not rgb.is_file():
+            file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+            urlretrieve(file, rgb)
+
+        yield rgb
+
+        rgb.unlink()
+
+        return
+
+    @pytest.fixture
+    def adm0_vatican(self):
+        """create a geojson of vatican city"""
+
+        zip_file = Path.home() / "VAT.zip"
+
+        if not zip_file.is_file():
+            urlretrieve(
+                "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_VAT_gpkg.zip",
+                zip_file,
+            )
+
+        layer_name = "gadm36_VAT_0"
+        level_gdf = gpd.read_file(f"{zip_file}!gadm36_VAT.gpkg", layer=layer_name)
+        geojson = level_gdf.__geo_interface__
+
+        yield geojson
+
+        zip_file.unlink()
 
         return
