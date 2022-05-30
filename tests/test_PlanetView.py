@@ -1,9 +1,13 @@
 import os
 import json
+
+import pytest
+
 from sepal_ui.planetapi import PlanetView
 from sepal_ui import sepalwidgets as sw
 
 
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetView:
     def test_init(
         self,

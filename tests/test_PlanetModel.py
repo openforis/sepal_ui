@@ -1,12 +1,15 @@
 import json
 import os
+
 import pytest
 import planet
 from planet.api import APIException
 from planet.api.client import InvalidIdentity
+
 from sepal_ui.planetapi import PlanetModel
 
 
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetModel:
     @pytest.fixture
     def planet_key(self):
@@ -45,6 +48,7 @@ class TestPlanetModel:
         planet_model.init_client("wrongkey")
         assert planet_model.active is False
 
+    @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
     def test_init_client_from_event(self):
 
         planet_model = PlanetModel("")
@@ -61,6 +65,7 @@ class TestPlanetModel:
         with pytest.raises(InvalidIdentity):
             planet_model.init_client(("valid@email.format", "not_exists"), event=True)
 
+    @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
     def test_is_active(self, planet_key):
 
         # We only need to test with a key.
