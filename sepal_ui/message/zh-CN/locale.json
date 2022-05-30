@@ -64,7 +64,6 @@
 		"aoi_name": "选择一个AOI名称",
 		"asset": "GEE资产名称",
 		"btn": "选择AOI",
-		"no_inputs": "在确认AOI前提供了完全合格的输入",
 		"complete": "已选择该AOI",
 		"shape_drawn": "已绘制形状",
 		"file_pattern": "aoi_{}",
@@ -79,11 +78,44 @@
 		"no_shape": "地图上未绘制形状",
 		"shp_error": "提供.shp文件时出错",
 		"aoi_message": "点击\"选择这些输入\"以确认您的AOI",
-		"duplicate_key": "您选择的键值重复。请为您的纬度、经度和ID参数选择不同的列",
-		"geojson_to_ee": "将您的.csv文件转换为ee_objects"
+		"geojson_to_ee": "将您的.csv文件转换为ee_objects",
+		"exception": {
+			"no_inputs": "",
+			"no_asset": "",
+			"no_value": "",
+			"uncomplete": "",
+			"no_file": "",
+			"duplicate_key": "",
+			"no_draw": "",
+			"no_admlyr": "",
+			"invalid_code": "",
+			"no_gdf": ""
+		}
 	},
 	"mapping": {
 		"no_image": "图像文件不存在。"
+	},
+	"planet": {
+		"exception": {
+			"empty": "",
+			"format": "",
+			"invalid": "",
+			"nosubs": ""
+		},
+		"widget": {
+			"username": "",
+			"password": "",
+			"apikey": "",
+			"method": {
+				"label": "",
+				"credentials": "",
+				"api_key": ""
+			}
+		},
+		"status": {
+			"offilne": "",
+			"online": ""
+		}
 	},
 	"rec": {
 		"table": {

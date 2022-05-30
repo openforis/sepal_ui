@@ -4,6 +4,7 @@ from sepal_ui import color
 from sepal_ui.planetapi import PlanetModel
 import sepal_ui.scripts.utils as su
 import sepal_ui.sepalwidgets as sw
+from sepal_ui.message import ms
 
 
 class PlanetView(sw.Layout):
@@ -11,7 +12,7 @@ class PlanetView(sw.Layout):
     connect to the client stored in the model.
 
     Args:
-        bnt (sw.Btn, optional): Button to trigger the validation process in the associated model.
+        btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
         alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
         planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
 
@@ -27,19 +28,19 @@ class PlanetView(sw.Layout):
     "sw.Alert: Alert component to display end-user action results"
 
     w_username = None
-    "sw.TextField: the widget to set credential username"
+    "sw.TextField: widget to set credential username"
 
     w_password = None
-    "sw.PasswordField: the widget to set credential password"
+    "sw.PasswordField: widget to set credential password"
 
     w_key = None
-    "sw.PasswordField: the widget to set credential API key"
+    "sw.PasswordField: widget to set credential API key"
 
     w_state = None
-    "sw.StateIcon: the circle to inform the user on the current connexion state"
+    "sw.StateIcon: circle widget to inform the user on the current connection state"
 
     w_method = None
-    "sw.Select: the widget to select connection method"
+    "sw.Select: dropdown widget to select connection method"
 
     def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
 
@@ -52,25 +53,25 @@ class PlanetView(sw.Layout):
         self.alert = alert if alert else sw.Alert()
 
         self.w_username = sw.TextField(
-            label="Planet username", class_="mr-2", v_model=""
+            label=ms.planet.widget.username, class_="mr-2", v_model=""
         )
-        self.w_password = sw.PasswordField(label="Planet password")
-        self.w_key = sw.PasswordField(label="Planet API key", v_model="").hide()
+        self.w_password = sw.PasswordField(label=ms.planet.widget.password)
+        self.w_key = sw.PasswordField(label=ms.planet.widget.apikey, v_model="").hide()
 
         states = {
-            False: ("Not connected", color.error),
-            True: ("Connected", color.success),
+            False: (ms.planet.status.offilne, color.error),
+            True: (ms.planet.status.online, color.success),
         }
 
         self.w_state = sw.StateIcon(self.planet_model, "active", states)
 
         self.w_method = v.Select(
-            label="Login method",
+            label=ms.planet.widget.method.label,
             class_="mr-2",
             v_model="credentials",
             items=[
-                {"value": "api_key", "text": "API Key"},
-                {"value": "credentials", "text": "Credentials"},
+                {"value": "credentials", "text": ms.planet.widget.method.credentials},
+                {"value": "api_key", "text": ms.planet.widget.method.api_key},
             ],
         )
 
@@ -116,14 +117,9 @@ class PlanetView(sw.Layout):
         self.alert.reset()
         self.reset()
 
-        if change["new"] == "api_key":
-            self.w_username.hide()
-            self.w_password.hide()
-            self.w_key.show()
-        else:
-            self.w_username.show()
-            self.w_password.show()
-            self.w_key.hide()
+        self.w_username.toggle_viz()
+        self.w_password.toggle_viz()
+        self.w_key.toggle_viz()
 
         return
 

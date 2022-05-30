@@ -64,7 +64,6 @@
 		"aoi_name": "",
 		"asset": "",
 		"btn": "",
-		"no_inputs": "",
 		"complete": "",
 		"shape_drawn": "",
 		"file_pattern": "",
@@ -79,11 +78,44 @@
 		"no_shape": "",
 		"shp_error": "",
 		"aoi_message": "",
-		"duplicate_key": "",
-		"geojson_to_ee": ""
+		"geojson_to_ee": "",
+		"exception": {
+			"no_inputs": "",
+			"no_asset": "",
+			"no_value": "",
+			"uncomplete": "",
+			"no_file": "",
+			"duplicate_key": "",
+			"no_draw": "",
+			"no_admlyr": "",
+			"invalid_code": "",
+			"no_gdf": ""
+		}
 	},
 	"mapping": {
 		"no_image": ""
+	},
+	"planet": {
+		"exception": {
+			"empty": "",
+			"format": "",
+			"invalid": "",
+			"nosubs": ""
+		},
+		"widget": {
+			"username": "",
+			"password": "",
+			"apikey": "",
+			"method": {
+				"label": "",
+				"credentials": "",
+				"api_key": ""
+			}
+		},
+		"status": {
+			"offilne": "",
+			"online": ""
+		}
 	},
 	"rec": {
 		"table": {

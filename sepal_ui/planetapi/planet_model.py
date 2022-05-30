@@ -1,10 +1,12 @@
 from planet.api import APIException
 from planet.api.client import InvalidIdentity
-
-from sepal_ui.model import Model
-from traitlets import Bool
 from planet import api
 from planet.api import filters
+
+from traitlets import Bool
+
+from sepal_ui.model import Model
+from sepal_ui.message import ms
 
 
 class PlanetModel(Model):
@@ -46,20 +48,19 @@ class PlanetModel(Model):
 
         credentials_ = credentials
         if event and not any(tuple(credentials)):
-            raise ValueError("Please fill the required field(s).")
+            raise ValueError(ms.planet.exception.empty)
 
         if isinstance(credentials_, tuple):
             try:
                 credentials_ = api.ClientV1().login(*credentials_)["api_key"]
 
             except InvalidIdentity:
-                raise InvalidIdentity("Invalid email or password")
+                raise InvalidIdentity(ms.planet.exception.empty)
 
             except APIException as e:
-
                 if "invalid parameters" in e.args[0]:
                     # This error will be triggered when email is passed in bad format
-                    raise APIException("Please check the format of your inputs.")
+                    raise APIException(ms.planet.exception.invalid)
                 else:
                     raise e
 
@@ -67,9 +68,7 @@ class PlanetModel(Model):
         self._is_active()
 
         if event and not self.active:
-            raise Exception(
-                "Your credentials do not have any valid planet subscription."
-            )
+            raise Exception(ms.planet.exception.nosubs)
 
         return
 

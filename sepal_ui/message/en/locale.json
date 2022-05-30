@@ -64,7 +64,6 @@
 		"aoi_name": "Select an AOI name",
 		"asset": "GEE Asset name",
 		"btn": "Select AOI",
-		"no_inputs": "Provided fully qualified inputs before validating your AOI",
 		"complete": "The AOI has been selected",
 		"shape_drawn": "A shape has been drawn",
 		"file_pattern": "aoi_{}",
@@ -79,12 +78,45 @@
 		"no_shape": "No shape has been drawn on the map",
 		"shp_error": "An error occured with provided .shp file",
 		"aoi_message": "click on \"selet these inputs\" to validate your AOI",
-		"duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
-		"geojson_to_ee": "Convert your .csv file into a ee_object"
+		"geojson_to_ee": "Convert your .csv file into a ee_object",
+		"exception" : {
+			"no_inputs": "Please provide fully qualified inputs before validating your AOI",
+			"no_asset" : "Please select an asset.",
+			"no_value" : "Please select a value.",
+			"uncomplete" : "All fields are required, please fill them.", 
+			"no_file": "Please select a file.", 
+			"duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
+			"no_draw": "Please draw a shape in the map", 
+			"no_admlyr": "Select an administrative layer",
+			"invalid_code": "The code is not in the database", 
+			"no_gdf": "You must set the gdf before interacting with it"
+		}
 	},
 	"mapping": {
 		"no_image": "The image file does not exist."
 	},
+    "planet" : {
+        "exception" : {
+            "empty": "Please fill the required field(s).",
+            "format" : "Please check the format of your inputs.",
+            "invalid" : "Invalid email or password",
+            "nosubs" : "Your credentials do not have any valid planet subscription."
+        },
+        "widget": {
+            "username": "Planet username",
+            "password": "Planet password",
+            "apikey": "Planet API key",
+            "method": {
+                "label": "Login method",
+                "credentials":"Credentials",
+                "api_key":"Planet API key"
+            }
+        },
+        "status" : {
+            "offilne":"Not connected",
+            "online":"Connected"
+        }
+    },
 	"rec": {
 		"table": {
 			"title": "Classification editor",
