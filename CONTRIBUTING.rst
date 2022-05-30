@@ -122,6 +122,30 @@ The CI should take everything in control from here and execute the :code:`Upload
     
 Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically. 
 
+
+Setting ENV variables
+---------------------
+
+Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though are also skippable.
+
+To store a variable in your local session, just type :code:`export=` followed by the var value.
+
+.. code-block:: console 
+
+    $ export PLANET_API_KEY="neverending_resourcesapi"
+    
+However, this variable will expire everytime you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
+    
+.. code-block:: console 
+
+    $ vim .bash_profile
+
+.. note::
+    The current enviromental keys and its structure is the following:
+
+    - PLANET_API_CREDENTIALS: '{"username": "user@neim.com", "password": "secure"}'
+    - PLANET_API_KEY: "string_planet_api_key"
+
 .. spelling:: 
 
     pre
