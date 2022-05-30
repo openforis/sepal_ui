@@ -623,7 +623,7 @@ class SepalMap(ipl.Map):
     @staticmethod
     def get_viz_params(image):
         """
-        Return the vizual parmaeters that are set in the metadata of the image
+        Return the vizual parameters that are set in the metadata of the image
 
         Args:
             image (ee.Image): the image to analyse
@@ -694,21 +694,17 @@ class SepalMap(ipl.Map):
 
         return props
 
-    def remove_layer(self, key):
+    def remove_layer(self, key, base=False):
         """
         Remove a layer based on a key. The key can be, a Layer object, the name of a
         layer or the index in the layer list
 
         Args:
             key (Layer, int, str): the key to find the layer to delete
+            base (bool, optional): either the basemaps should be included in the search or not. default t false
         """
 
-        if isinstance(key, (int, str, ipl.Layer)):
-            layer = self.find_layer(key)
-        else:
-            raise ValueError(
-                f"Key must be of type 'str', 'int' or 'Layer'. {type(key)} given."
-            )
+        layer = self.find_layer(key, base)
 
         # catch if the layer doesn't exist
         if layer is None:
@@ -786,24 +782,28 @@ class SepalMap(ipl.Map):
 
         return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
 
-    def find_layer(self, key):
+    def find_layer(self, key, base=False):
         """
         Search a layer by name or index
 
         Args:
             key (Layer, str, int): the layer name, index or directly the layer
+            base (bool, optional): either the basemaps should be included in the search or not. default t false
 
         Return:
             (TileLLayerayer): the first layer using the same name or index else None
         """
 
+        # filter the layers
+        layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
+
         if isinstance(key, str):
-            layer = next((lyr for lyr in self.layers if lyr.name == key), None)
+            layer = next((lyr for lyr in layers if lyr.name == key), None)
         elif isinstance(key, int):
-            size = len(self.layers)
-            layer = self.layers[key] if -size <= key < size else None
+            size = len(layers)
+            layer = layers[key] if -size <= key < size else None
         elif isinstance(key, ipl.Layer):
-            layer = next((lyr for lyr in self.layers if lyr == key), None)
+            layer = next((lyr for lyr in layers if lyr == key), None)
         else:
             raise ValueError(f"key must be a int or a str, {type(key)} given")
 
