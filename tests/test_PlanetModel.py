@@ -48,7 +48,6 @@ class TestPlanetModel:
         planet_model.init_client("wrongkey")
         assert planet_model.active is False
 
-    @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
     def test_init_client_from_event(self):
 
         planet_model = PlanetModel("")
@@ -65,7 +64,6 @@ class TestPlanetModel:
         with pytest.raises(InvalidIdentity):
             planet_model.init_client(("valid@email.format", "not_exists"), event=True)
 
-    @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
     def test_is_active(self, planet_key):
 
         # We only need to test with a key.
