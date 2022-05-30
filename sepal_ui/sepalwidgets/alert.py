@@ -2,7 +2,6 @@ from datetime import datetime
 
 from ipywidgets import jslink
 import ipyvuetify as v
-from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
@@ -223,51 +222,6 @@ class Alert(v.Alert, SepalWidget):
 
         self.children = [""]
         self.hide()
-
-        return self
-
-    @deprecated(version="2.1.0", reason="use a Model object instead")
-    def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
-        """
-        Bind the attribute to the widget and display it in the alert.
-        The binded input need to have an active `v_model` trait.
-        After the binding, whenever the `v_model` of the input is changed, the io attribute is changed accordingly.
-        The value can also be displayed in the alert with a custom message with the following format = `[custom message] + [v_model]`
-
-        Args:
-            widget (v.XX): an ipyvuetify input element with an activated `v_model` trait
-            obj (io): any io object
-            attribute (str): the name of the attribute in io object
-            msg (str, optionnal): the output message displayed before the variable
-            verbose (bool, optional): wheter the variable should be displayed to the user
-            secret (bool, optional): either if the variable is secret or not. If true only "*" will be shown in the output
-
-        Return:
-            self
-        """
-        if not msg:
-            msg = "The selected variable is: "
-
-        def _on_change(change, obj=obj, attribute=attribute, msg=msg):
-
-            # if the key doesn't exist the getattr function will raise an AttributeError
-            getattr(obj, attribute)
-
-            # change the obj value
-            setattr(obj, attribute, change["new"])
-
-            # add the message if needed
-            if secret:
-                msg += "*" * len(str(change["new"]))
-            else:
-                msg += str(change["new"])
-
-            if verbose:
-                self.add_msg(msg)
-
-            return
-
-        widget.observe(_on_change, "v_model")
 
         return self
 

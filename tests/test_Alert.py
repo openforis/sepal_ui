@@ -1,4 +1,3 @@
-import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
@@ -107,43 +106,6 @@ class TestAlert:
         # check that the divider is changing color
         alert.type = "success"
         assert alert.children[1].type_ == "success"
-
-    def test_bind(self):
-        class Test_io:
-            def __init__(self):
-                self.out = None
-
-        test_io = Test_io()
-
-        widget = v.TextField(v_model=None)
-        alert = sw.Alert()
-        alert2 = sw.Alert()
-        alert3 = sw.Alert()
-        alert4 = sw.Alert()
-
-        # binding without text
-        res = alert.bind(widget, test_io, "out")
-        alert2.bind(widget, test_io, "out", "new variable : ")
-        alert3.bind(widget, test_io, "out", verbose=False)
-        alert4.bind(widget, test_io, "out", secret=True)
-
-        assert res == alert
-
-        # check when value change
-        msg = "toto"
-        widget.v_model = msg
-
-        assert alert.viz is True
-        assert test_io.out == widget.v_model
-        assert alert.children[0].children[0] == f"The selected variable is: {msg}"
-        assert alert2.children[0].children[0] == f"new variable : {msg}"
-        assert len(alert3.children) == 0
-        assert (
-            alert4.children[0].children[0]
-            == f"The selected variable is: {'*'*len(msg)}"
-        )
-
-        return
 
     def test_check_input(self):
 
