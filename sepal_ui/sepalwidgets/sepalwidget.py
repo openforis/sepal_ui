@@ -1,8 +1,9 @@
 from ipyvue import VueWidget
 import ipyvuetify as v
 from traitlets import Unicode, Bool, observe
+from deprecated.sphinx import versionadded
 
-__all__ = ["SepalWidget"]
+__all__ = ["SepalWidget", "Tooltip"]
 
 
 class SepalWidget(v.VuetifyWidget):
@@ -11,6 +12,7 @@ class SepalWidget(v.VuetifyWidget):
 
     Args:
         viz (bool, optional): define if the widget should be visible or not
+        tooltip (str, optional): tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
     """
 
     viz = Bool(True).tag(sync=True)
@@ -19,13 +21,19 @@ class SepalWidget(v.VuetifyWidget):
     old_class = Unicode("").tag(sync=True)
     "Unicode: a saving attribute of the widget class"
 
-    def __init__(self, viz=True, **kwargs):
+    widget = None
+    "sw.ToolTip: the full widget and it's tooltip. Useful for display purposes when a tooltip has been set"
+
+    def __init__(self, viz=True, tooltip=None, **kwargs):
 
         # init the widget
         super().__init__(**kwargs)
 
         # setup the viz status
         self.viz = viz
+
+        # create a tooltip only if a message is set
+        self.set_tooltip(tooltip)
 
     @observe("viz")
     def _set_viz(self, change):
@@ -166,3 +174,47 @@ class SepalWidget(v.VuetifyWidget):
         self.children = new_childrens
 
         return self
+
+    @versionadded(version="2.9.0", reason="Tooltip are now integrated to widgets")
+    def set_tooltip(self, txt=None, **kwargs):
+        """
+        Create a tooltip associated with the widget. If the text is not set, the tooltip will be automatically removed. Once the tooltip is set the object variable can be accessed normally but to render the widget, one will need to use :code:`self.widget` (irreversible).
+
+        Args:
+            txt (str): anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
+            kwargs: any options available in a Tooltip widget
+
+        Returns:
+            (sw.Tooltip): the tooltip associated with the object
+        """
+        if isinstance(self.widget, Tooltip):
+            self.widget.children = [txt]
+            self.widget.disabled = not bool(txt)
+        elif bool(txt) is True:
+            self.widget = Tooltip(self, txt, **kwargs)
+
+        return self
+
+
+class Tooltip(v.Tooltip):
+    """
+    Custom widget to display tooltip when mouse is over widget
+
+    Args:
+        widget (Vuetify.widget): widget used to display tooltip
+        tooltip (str): the text to display in the tooltip
+    """
+
+    def __init__(self, widget, tooltip, **kwargs):
+
+        # set some default parameters
+        kwargs["close_delay"] = kwargs.pop("close_delay", 200)
+
+        self.v_slots = [
+            {"name": "activator", "variable": "tooltip", "children": widget}
+        ]
+        widget.v_on = "tooltip.on"
+
+        self.children = [tooltip]
+
+        super().__init__(**kwargs)

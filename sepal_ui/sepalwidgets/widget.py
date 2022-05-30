@@ -4,10 +4,10 @@ from traitlets import Unicode, Any, observe, dlink
 from ipywidgets import link
 from deprecated.sphinx import versionadded
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 from sepal_ui import color
 
-__all__ = ["Markdown", "Tooltip", "CopyToClip", "StateIcon"]
+__all__ = ["Markdown", "CopyToClip", "StateIcon"]
 
 
 class Markdown(v.Layout, SepalWidget):
@@ -43,27 +43,6 @@ class Markdown(v.Layout, SepalWidget):
 
         # call the constructor
         super().__init__(**kwargs)
-
-
-class Tooltip(v.Tooltip):
-    """
-    Custom widget to display tooltip when mouse is over widget
-
-    Args:
-        widget (Vuetify.widget): widget used to display tooltip
-        tooltip (str): the text to display in the tooltip
-    """
-
-    def __init__(self, widget, tooltip, *args, **kwargs):
-
-        self.v_slots = [
-            {"name": "activator", "variable": "tooltip", "children": widget}
-        ]
-        widget.v_on = "tooltip.on"
-
-        self.children = [tooltip]
-
-        super().__init__(*args, **kwargs)
 
 
 @versionadded(version="2.2.0", reason="New clipping widget")
