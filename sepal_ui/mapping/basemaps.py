@@ -42,7 +42,7 @@ xyz_tiles = {
 "(dict): Custom XYZ tile services."
 
 
-def get_xyz_dict(free_only=True, _collection=xyz, _output={}):
+def get_xyz_dict(free_only=True, _collection=None, _output=None):
     """
     Returns a dictionary of xyz services.
 
@@ -52,6 +52,9 @@ def get_xyz_dict(free_only=True, _collection=xyz, _output={}):
     Returns:
         dict: A dictionary of xyz services.
     """
+
+    _collection = xyz if _collection is None else _collection
+    _output = {} if _output is None else _output
 
     for v in _collection.values():
         if isinstance(v, TileProvider):
