@@ -8,6 +8,9 @@ __all__ = ["SepalWidget"]
 class SepalWidget(v.VuetifyWidget):
     """
     Custom vuetifyWidget to add specific methods
+
+    Args:
+        viz (bool, optional): define if the widget should be visible or not
     """
 
     viz = Bool(True).tag(sync=True)
@@ -16,12 +19,7 @@ class SepalWidget(v.VuetifyWidget):
     old_class = Unicode("").tag(sync=True)
     "Unicode: a saving attribute of the widget class"
 
-    def __init__(self, **kwargs):
-
-        # remove viz from kwargs
-        # class_list need to be setup before viz
-        # to let hide and shw function run
-        viz = kwargs.pop("viz", True)
+    def __init__(self, viz=True, **kwargs):
 
         # init the widget
         super().__init__(**kwargs)
