@@ -50,6 +50,7 @@ setup_params = {
         "xyzservices",
         "planet",
         "pyyaml",
+        "dask",
     ],
     "extras_require": {
         "dev": [
