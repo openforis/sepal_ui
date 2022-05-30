@@ -20,7 +20,6 @@ from matplotlib import colors as mpc
 from matplotlib import colorbar
 import ipywidgets as widgets
 from rasterio.crs import CRS
-from traitlets import Bool
 import ipyvuetify as v
 import ipyleaflet as ipl
 import ee
@@ -33,7 +32,7 @@ from sepal_ui.message import ms
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.mapping.layer import EELayer
-from sepal_ui.mapping.basemaps import basemaps
+from sepal_ui.mapping.basemaps import basemap_tiles
 
 __all__ = ["SepalMap"]
 
@@ -67,17 +66,15 @@ class SepalMap(ipl.Map):
     # ##########################################################################
 
     ee = True
-    "bool: either the map will use geempa binding or not"
+    "bool: either the map will use ee binding or not"
 
-    vinspector = Bool(False).tag(sync=True)
-    "bool: either or not the datainspector is available"
+    v_inspector = None
+    "mapping.ValueInspector: the value inspector of the map"
 
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
-
-        self.world_copy_jump = True
 
         # set the default parameters
         kwargs["center"] = kwargs.pop("center", [0, 0])
@@ -86,6 +83,7 @@ class SepalMap(ipl.Map):
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
         kwargs["scroll_wheel_zoom"] = True
+        kwargs["world_copy_jump"] = kwargs.pop("world_copy_jump", True)
 
         # Init the map
         super().__init__(**kwargs)
@@ -160,7 +158,7 @@ class SepalMap(ipl.Map):
         """
 
         self.center = [lat, lon]
-        self.zoom = zoom or self.zoom
+        self.zoom = self.zoom if zoom is None else zoom
 
         return
 
@@ -424,7 +422,6 @@ class SepalMap(ipl.Map):
             output.clear_output()
             plt.show()
 
-        self.colorbar = colormap_ctrl
         self.add_control(colormap_ctrl)
 
         return
@@ -618,7 +615,7 @@ class SepalMap(ipl.Map):
             ([str]): the list of the basemap names
         """
 
-        return [k for k in basemaps.keys()]
+        return [k for k in basemap_tiles.keys()]
 
     @staticmethod
     def get_viz_params(image):
@@ -708,7 +705,7 @@ class SepalMap(ipl.Map):
 
         # catch if the layer doesn't exist
         if layer is None:
-            raise ipl.LayerException(f"layer not on map:{key}")
+            raise ipl.LayerException(f"layer not on map: {key}")
 
         super().remove_layer(layer)
 
@@ -723,12 +720,10 @@ class SepalMap(ipl.Map):
             base (bool, optional): wether or not the basemaps should be removed, default to False
         """
         # filter out the basemaps if base == False
-        all_layers = (tl for tl in self.layers)
-        all_layers_no_basmaps = (tl for tl in self.layers if not tl.base)
-        gen = all_layers if base else all_layers_no_basmaps
+        layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
 
-        # remove them using the built generator
-        [self.remove_layer(layer) for layer in gen]
+        # remove them using the layer objects as keys
+        [self.remove_layer(layer, base) for layer in layers]
 
         return
 
@@ -762,12 +757,12 @@ class SepalMap(ipl.Map):
         Args:
             basemap (str, optional): Can be one of string from basemaps. Defaults to 'HYBRID'.
         """
-        if basemap not in basemaps.keys():
-            keys = "\n".join(basemaps.keys())
+        if basemap not in basemap_tiles.keys():
+            keys = "\n".join(basemap_tiles.keys())
             msg = f"Basemap can only be one of the following:\n{keys}"
             raise ValueError(msg)
 
-        self.add_layer(basemaps[basemap])
+        self.add_layer(basemap_tiles[basemap])
 
         return
 

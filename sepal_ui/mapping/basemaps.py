@@ -93,5 +93,5 @@ def xyz_to_leaflet():
     return leaflet_dict
 
 
-basemaps = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+basemap_tiles = BasemapBox(xyz_to_leaflet(), frozen_box=True)
 "(Box.box): the basemaps list as a box"
