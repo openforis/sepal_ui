@@ -14,6 +14,7 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui.frontend.styles import COMPONENTS
+from sepal_ui.message import ms
 
 # call x_array leaflet at least once
 # flake8 will complain as it's a pluggin (i.e. never called)
@@ -61,9 +62,9 @@ class ValueInspector(WidgetControl):
         btn = MapBtn(logo="fas fa-crosshairs", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         close_btn = sw.Icon(children=["fas fa-times"], small=True)
-        title = sw.Html(tag="h4", children=["Inspector"])
+        title = sw.Html(tag="h4", children=[ms.v_inspector.title])
         card_title = sw.CardTitle(children=[title, sw.Spacer(), close_btn])
-        self.text = sw.CardText(children=["select a point"])
+        self.text = sw.CardText(children=[ms.v_inspector.landing])
         card = sw.Card(
             tile=True,
             color=color.menu,
@@ -73,7 +74,7 @@ class ValueInspector(WidgetControl):
             style_="overflow: auto",
         )
 
-        # assempble everything in a menu
+        # assemble everything in a menu
         self.menu = sw.Menu(
             v_model=False,
             value=False,
@@ -130,10 +131,9 @@ class ValueInspector(WidgetControl):
         # get the coordinates as (x, y)
         lng, lat = coords = [c for c in reversed(kwargs.get("coordinates"))]
 
-        # write the coordinates
-        children.append(
-            sw.Html(tag="h4", children=["Coordinates (longitude, latitude)"])
-        )
+        # write the coordinates and the scale
+        txt = ms.v_inspector.coords.format(round(self.m.get_scale()))
+        children.append(sw.Html(tag="h4", children=[txt]))
         children.append(sw.Html(tag="p", children=[f"[{lng:.3f}, {lat:.3f}]"]))
 
         # write the layers data
@@ -149,7 +149,7 @@ class ValueInspector(WidgetControl):
             elif isinstance(lyr, LocalTileLayer):
                 data = self._from_raster(lyr.raster, coords)
             else:
-                data = {"info": "data reading method not yet ready"}
+                data = {ms.v_inspector.info.header: ms.v_inspector.info.text}
 
             for k, val in data.items():
                 children.append(sw.Html(tag="span", children=[f"{k}: {val}"]))
@@ -277,10 +277,14 @@ class ValueInspector(WidgetControl):
             window = rio.windows.from_bounds(*bounds, transform=da.rio.transform())
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
-            pixel_values = {f"band {i+1}": v for i, v in enumerate(means)}
+            pixel_values = {
+                ms.v_inspector.band.format(i + 1): v for i, v in enumerate(means)
+            }
 
         # if the point is out of the image display None
         else:
-            pixel_values = {f"band {i+1}": None for i in range(da.rio.count)}
+            pixel_values = {
+                ms.v_inspector.band.format(i + 1): None for i in range(da.rio.count)
+            }
 
         return pixel_values
