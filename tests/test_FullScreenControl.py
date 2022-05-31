@@ -14,7 +14,7 @@ class TestFullScreenControl:
         assert isinstance(control, sm.FullScreenControl)
         assert control in map_.controls
         assert control.zoomed is False
-        assert control.w_btn.icon == "arrows-alt"
+        assert "fas fa-expand" in control.w_btn.logo.children
 
         return
 
@@ -26,15 +26,15 @@ class TestFullScreenControl:
 
         # trigger the click
         # I cannot test the javascript but i can test everything else
-        control.toggle_fullscreen(None)
+        control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is True
-        assert control.w_btn.icon == "compress"
+        assert "fas fa-compress" in control.w_btn.logo.children
 
         # click again to reset to initial state
-        control.toggle_fullscreen(None)
+        control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is False
-        assert control.w_btn.icon == "arrows-alt"
+        assert "fas fa-expand" in control.w_btn.logo.children
 
         return

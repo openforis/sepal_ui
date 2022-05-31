@@ -1,7 +1,8 @@
 from ipyleaflet import WidgetControl
 from IPython.display import display
 import ipyvuetify as v
-from ipywidgets import Button, Layout
+
+from sepal_ui.mapping.map_btn import MapBtn
 
 
 class FullScreenControl(WidgetControl):
@@ -14,10 +15,10 @@ class FullScreenControl(WidgetControl):
     .. versionadded:: 2.7.0
 
     Args:
-        kwargs (optional): any availabel arguments from a ipyleaflet WidgetControl
+        kwargs (optional): any available arguments from a ipyleaflet WidgetControl
     """
 
-    ICONS = ["arrows-alt", "compress"]
+    ICONS = ["fas fa-expand", "fas fa-compress"]
     "list: The icons that will be used to toggle between expand and compressed mode"
 
     METHODS = ["embed", "fullscreen"]
@@ -35,13 +36,7 @@ class FullScreenControl(WidgetControl):
     def __init__(self, **kwargs):
 
         # create a btn
-        self.w_btn = Button(
-            tooltip="set fullscreen",
-            icon=self.ICONS[self.zoomed],
-            layout=Layout(
-                width="30px", height="30px", line_height="30px", padding="0px"
-            ),
-        )
+        self.w_btn = MapBtn(logo=self.ICONS[self.zoomed])
 
         # overwrite the widget set in the kwargs (if any)
         kwargs["widget"] = self.w_btn
@@ -52,7 +47,7 @@ class FullScreenControl(WidgetControl):
         super().__init__(**kwargs)
 
         # add javascrip behaviour
-        self.w_btn.on_click(self.toggle_fullscreen)
+        self.w_btn.on_event("click", self.toggle_fullscreen)
 
         # template with js behaviour
         # "jupyter_fullscreen" place tje "leaflet-container element on the front screen
@@ -89,7 +84,7 @@ class FullScreenControl(WidgetControl):
         )
         display(self.template)
 
-    def toggle_fullscreen(self, widget):
+    def toggle_fullscreen(self, widget, event, data):
         """
         Toggle the fullscreen state of the map by sending the required javascript method, changing the w_btn icons and the zoomed state of the control.
         """
@@ -98,7 +93,7 @@ class FullScreenControl(WidgetControl):
         self.zoomed = not self.zoomed
 
         # change button icon
-        self.w_btn.icon = self.ICONS[self.zoomed]
+        self.w_btn.logo.children = [self.ICONS[self.zoomed]]
 
         # zoom
         self.template.send({"method": self.METHODS[self.zoomed], "args": []})
