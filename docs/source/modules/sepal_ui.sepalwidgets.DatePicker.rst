@@ -16,7 +16,7 @@ sepal\_ui.sepalwidgets.DatePicker
     .. autosummary::
         :nosignatures:
         
-        ~Datepicker.close_menu
+        ~DatePicker.close_menu
         ~DatePicker.disable
         ~DatePicker.is_valid_date
         ~DatePicker.check_date
