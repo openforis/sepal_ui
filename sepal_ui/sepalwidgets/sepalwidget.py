@@ -191,6 +191,8 @@ class SepalWidget(v.VuetifyWidget):
             (sw.Tooltip): the tooltip associated with the object
         """
         if isinstance(self.with_tooltip, Tooltip):
+            # If it's already created, and there are new kwargs, let's modify it
+            [setattr(self.with_tooltip, attr, value) for attr, value in kwargs.items()]
             self.with_tooltip.children = [txt]
             self.with_tooltip.disabled = not bool(txt)
         elif bool(txt) is True:
