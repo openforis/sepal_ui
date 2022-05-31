@@ -126,7 +126,7 @@ Once it's done you need to trigger the rebuild of SEPAL. modify the following `f
 Setting ENV variables
 ---------------------
 
-Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though are also skippable.
+Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though they are also skippable.
 
 To store a variable in your local session, just type :code:`export=` followed by the var value.
 
