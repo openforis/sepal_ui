@@ -691,7 +691,7 @@ class SepalMap(ipl.Map):
 
         return props
 
-    def remove_layer(self, key, base=False):
+    def remove_layer(self, key, base=False, none_ok=False):
         """
         Remove a layer based on a key. The key can be, a Layer object, the name of a
         layer or the index in the layer list
@@ -699,9 +699,10 @@ class SepalMap(ipl.Map):
         Args:
             key (Layer, int, str): the key to find the layer to delete
             base (bool, optional): either the basemaps should be included in the search or not. default t false
+            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
         """
 
-        layer = self.find_layer(key, base)
+        layer = self.find_layer(key, base, none_ok)
 
         # catch if the layer doesn't exist
         if layer is None:
@@ -737,7 +738,7 @@ class SepalMap(ipl.Map):
         """
 
         # remove existing layer before addition
-        existing_layer = self.find_layer(layer.name)
+        existing_layer = self.find_layer(layer.name, none_ok=True)
         not existing_layer or self.remove_layer(existing_layer)
 
         # apply default coloring for geoJson
@@ -777,13 +778,14 @@ class SepalMap(ipl.Map):
 
         return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
 
-    def find_layer(self, key, base=False):
+    def find_layer(self, key, base=False, none_ok=False):
         """
         Search a layer by name or index
 
         Args:
             key (Layer, str, int): the layer name, index or directly the layer
-            base (bool, optional): either the basemaps should be included in the search or not. default t false
+            base (bool, optional): either the basemaps should be included in the search or not. default to false
+            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
 
         Return:
             (TileLLayerayer): the first layer using the same name or index else None
@@ -801,6 +803,9 @@ class SepalMap(ipl.Map):
             layer = next((lyr for lyr in layers if lyr == key), None)
         else:
             raise ValueError(f"key must be a int or a str, {type(key)} given")
+
+        if layer is None and none_ok is False:
+            raise ValueError(f"no layer corresponding to {key} on the map")
 
         return layer
 

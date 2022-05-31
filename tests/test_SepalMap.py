@@ -323,7 +323,10 @@ class TestSepalMap:
         res = m.find_layer("Classification")
         assert res.name == "Classification"
 
-        res = m.find_layer("toto")
+        # assert the two ways of handling non existing layer
+        with pytest.raises(ValueError):
+            res = m.find_layer("toto")
+        res = m.find_layer("toto", none_ok=True)
         assert res is None
 
         # search by index
@@ -333,8 +336,9 @@ class TestSepalMap:
         res = m.find_layer(-1)
         assert res.name == "RGB"
 
-        res = m.find_layer(50)  # out of bounds
-        assert res is None
+        # out of bounds
+        with pytest.raises(ValueError):
+            res = m.find_layer(50)
 
         # search by layer
         res = m.find_layer(m.layers[2])
@@ -346,7 +350,7 @@ class TestSepalMap:
         assert res.base is True
 
         # search something that is not a key
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             m.find_layer(m)
 
         return
