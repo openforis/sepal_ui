@@ -11,7 +11,7 @@ from sepal_ui import mapping as sm
 import sepal_ui.frontend.styles as styles
 
 # create a seed so that we can check values
-random.seed(10)
+random.seed(42)
 
 
 class TestSepalMap:
@@ -19,6 +19,7 @@ class TestSepalMap:
 
         # check that the map start with no info
         m = sm.SepalMap()
+        id1 = m._id  # to check that the next map has another ID
 
         assert isinstance(m, sm.SepalMap)
         assert m._id == "sbnpsa"
@@ -36,12 +37,11 @@ class TestSepalMap:
 
         # check that the map start with a DC
         m = sm.SepalMap(dc=True)
-        assert m._id == "fbqpkc"
+        assert m._id != id1
         assert m.dc in m.controls
 
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
-        assert m._id == "hxlbne"
         assert m.v_inspector in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
@@ -59,8 +59,8 @@ class TestSepalMap:
         zoom = random.randint(0, 22)
         m.set_center(lng, lat, zoom)
 
-        assert m.zoom == 5.0
-        assert m.center == [-23, 53]
+        assert m.zoom == zoom
+        assert m.center == [lat, lng]
 
         return
 
