@@ -27,4 +27,4 @@ sepal\_ui.sepalwidgets.DatePicker
 
 .. automethod:: sepal_ui.sepalwidgets.DatePicker.check_date
 
-.. autofunction:: sepal_ui.sepalwidgets.DatePicker.disable
+.. autofunction:: sepal_ui.sepalwidgets.DatePicker.is_valid_date
