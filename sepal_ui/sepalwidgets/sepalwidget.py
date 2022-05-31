@@ -21,8 +21,8 @@ class SepalWidget(v.VuetifyWidget):
     old_class = Unicode("").tag(sync=True)
     "Unicode: a saving attribute of the widget class"
 
-    widget = None
-    "sw.ToolTip: the full widget and it's tooltip. Useful for display purposes when a tooltip has been set"
+    with_tooltip = None
+    "sw.ToolTip: the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
 
     def __init__(self, viz=True, tooltip=None, **kwargs):
 
@@ -178,7 +178,10 @@ class SepalWidget(v.VuetifyWidget):
     @versionadded(version="2.9.0", reason="Tooltip are now integrated to widgets")
     def set_tooltip(self, txt=None, **kwargs):
         """
-        Create a tooltip associated with the widget. If the text is not set, the tooltip will be automatically removed. Once the tooltip is set the object variable can be accessed normally but to render the widget, one will need to use :code:`self.widget` (irreversible).
+        Create a tooltip associated with the widget. If the text is not set, the
+        tooltip will be automatically removed. Once the tooltip is set the object
+        variable can be accessed normally but to render the widget, one will need
+        to use :code:`self.with_tooltip` (irreversible).
 
         Args:
             txt (str): anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
@@ -187,11 +190,11 @@ class SepalWidget(v.VuetifyWidget):
         Returns:
             (sw.Tooltip): the tooltip associated with the object
         """
-        if isinstance(self.widget, Tooltip):
-            self.widget.children = [txt]
-            self.widget.disabled = not bool(txt)
+        if isinstance(self.with_tooltip, Tooltip):
+            self.with_tooltip.children = [txt]
+            self.with_tooltip.disabled = not bool(txt)
         elif bool(txt) is True:
-            self.widget = Tooltip(self, txt, **kwargs)
+            self.with_tooltip = Tooltip(self, txt, **kwargs)
 
         return self
 
