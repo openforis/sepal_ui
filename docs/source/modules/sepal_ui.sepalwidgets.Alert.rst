@@ -14,7 +14,6 @@ sepal\_ui.sepalwidgets.Alert
         ~Alert.append_msg
         ~Alert.remove_last_msg
         ~Alert.reset
-        ~Alert.bind
         ~Alert.check_input
         
 .. automethod:: sepal_ui.sepalwidgets.Alert.update_progress
@@ -28,8 +27,6 @@ sepal\_ui.sepalwidgets.Alert
 .. automethod:: sepal_ui.sepalwidgets.Alert.remove_last_msg
 
 .. automethod:: sepal_ui.sepalwidgets.Alert.reset
-
-.. automethod:: sepal_ui.sepalwidgets.Alert.bind
 
 .. automethod:: sepal_ui.sepalwidgets.Alert.check_input
         

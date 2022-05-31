@@ -127,7 +127,7 @@ In this package every :code:`Model` object that will be used in the project are 
 Message
 ^^^^^^^
 
-In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in :doc:`./translate-app.html`.
+In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in :doc:`./translate-app`.
 
 Parameter 
 ^^^^^^^^^

@@ -5,6 +5,8 @@ sepal\_ui.sepalwidgets.Banner
 
     .. rubric:: Attributes
     
+    .. autosummary::
+    
         ~Banner.btn_close
 
     .. rubric:: Methods
