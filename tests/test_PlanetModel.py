@@ -1,12 +1,15 @@
 import json
 import os
+
 import pytest
 import planet
 from planet.api import APIException
 from planet.api.client import InvalidIdentity
+
 from sepal_ui.planetapi import PlanetModel
 
 
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetModel:
     @pytest.fixture
     def planet_key(self):
