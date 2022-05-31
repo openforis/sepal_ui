@@ -15,6 +15,7 @@ class FullScreenControl(WidgetControl):
     .. versionadded:: 2.7.0
 
     Args:
+        m (SepalMap): the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
         kwargs (optional): any available arguments from a ipyleaflet WidgetControl
     """
 

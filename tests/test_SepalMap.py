@@ -1,5 +1,5 @@
 from pathlib import Path
-from random import randint
+import random
 from urllib.request import urlretrieve
 import math
 
@@ -10,6 +10,9 @@ from ipyleaflet import GeoJSON, LocalTileLayer
 from sepal_ui import mapping as sm
 import sepal_ui.frontend.styles as styles
 
+# create a seed so that we can check values
+random.seed(10)
+
 
 class TestSepalMap:
     def test_init(self):
@@ -18,6 +21,7 @@ class TestSepalMap:
         m = sm.SepalMap()
 
         assert isinstance(m, sm.SepalMap)
+        assert m._id == "sbnpsa"
         assert m.center == [0, 0]
         assert m.zoom == 2
         assert len(m.layers) == 1
@@ -32,10 +36,12 @@ class TestSepalMap:
 
         # check that the map start with a DC
         m = sm.SepalMap(dc=True)
+        assert m._id == "fbqpkc"
         assert m.dc in m.controls
 
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
+        assert m._id == "hxlbne"
         assert m.v_inspector in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
@@ -48,13 +54,13 @@ class TestSepalMap:
 
         m = sm.SepalMap()
 
-        lat = randint(-90, 90)
-        lng = randint(-180, 180)
-        zoom = randint(0, 22)
+        lat = random.randint(-90, 90)
+        lng = random.randint(-180, 180)
+        zoom = random.randint(0, 22)
         m.set_center(lng, lat, zoom)
 
-        assert m.zoom == zoom
-        assert m.center == [lat, lng]
+        assert m.zoom == 5.0
+        assert m.center == [-23, 53]
 
         return
 
