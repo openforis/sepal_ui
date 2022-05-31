@@ -14,7 +14,7 @@ from configparser import ConfigParser
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import deprecated, versionadded
+from deprecated.sphinx import versionadded
 
 import sepal_ui
 
@@ -85,23 +85,6 @@ def create_download_link(pathname):
     link = f"https://sepal.io/api/sandbox/jupyter/files/{download_path}"
 
     return link
-
-
-@deprecated(
-    version="2.5.4",
-    reason="This function makes no sense outside of create_download_link. It will be removed in the next minor version",
-)
-def is_absolute(url):
-    """
-    Check if the given URL is an absolute or relative path
-
-    Args:
-        url (str): the URL to test
-
-    Return:
-        (bool): True if absolute else False
-    """
-    return bool(urlparse(str(url)).netloc)
 
 
 def random_string(string_length=3):

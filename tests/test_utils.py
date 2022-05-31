@@ -61,18 +61,6 @@ class TestUtils:
 
         return
 
-    def test_is_absolute(self):
-
-        # test an absolute URL (wikipedia home page)
-        link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
-        su.is_absolute(link) is True
-
-        # test a relative URL ('toto/tutu.html')
-        link = "toto/tutu.html"
-        assert su.is_absolute(link) is False
-
-        return
-
     def test_random_string(self):
 
         # use a seed for the random function
