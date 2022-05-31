@@ -30,7 +30,7 @@ sepal\_ui.sepalwidgets
    sepal_ui.sepalwidgets.Tile
    sepal_ui.sepalwidgets.TileAbout
    sepal_ui.sepalwidgets.TileDisclaimer
-   sepal_ui.sepalwidgets.Tooltip
+   sepal_ui.sepalwidgets.sepalwidget.Tooltip
    sepal_ui.sepalwidgets.VectorField 
    sepal_ui.sepalwidgets.LocaleSelect
    sepal_ui.sepalwidgets.ThemeSelect

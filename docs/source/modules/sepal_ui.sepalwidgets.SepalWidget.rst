@@ -21,6 +21,7 @@ sepal\_ui.sepalwidgets.SepalWidget
         ~SepalWidget.reset
         ~SepalWidget.get_children
         ~SepalWidget.set_children
+        ~SepalWidget.set_tooltip
         
 .. automethod:: sepal_ui.sepalwidgets.SepalWidget.toggle_viz
 
@@ -33,3 +34,5 @@ sepal\_ui.sepalwidgets.SepalWidget
 .. automethod:: sepal_ui.sepalwidgets.SepalWidget.get_children
 
 .. automethod:: sepal_ui.sepalwidgets.SepalWidget.set_children
+
+.. automethod:: sepal_ui.sepalwidgets.SepalWidget.set_tooltip
