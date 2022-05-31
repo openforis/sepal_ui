@@ -22,7 +22,6 @@ class TestSepalMap:
         id1 = m._id  # to check that the next map has another ID
 
         assert isinstance(m, sm.SepalMap)
-        assert m._id == "sbnpsa"
         assert m.center == [0, 0]
         assert m.zoom == 2
         assert len(m.layers) == 1
