@@ -33,7 +33,7 @@ class FullScreenControl(WidgetControl):
     template = None
     "ipyvuetify.VuetifyTemplate: embeds the 2 javascripts methods to change the rendering of the map"
 
-    def __init__(self, **kwargs):
+    def __init__(self, m, **kwargs):
 
         # create a btn
         self.w_btn = MapBtn(logo=self.ICONS[self.zoomed])
@@ -59,7 +59,7 @@ class FullScreenControl(WidgetControl):
         <script>
             {methods: {
                 jupyter_fullscreen() {
-                    var element = document.getElementsByClassName("leaflet-container")[0];
+                    var element = document.querySelector(".%s .leaflet-container");
                     element.style.position = "fixed";
                     element.style.width = "100vw";
                     element.style.height = "100vh";
@@ -69,7 +69,7 @@ class FullScreenControl(WidgetControl):
                     window.dispatchEvent(new Event('resize'));
                 },
                 jupyter_embed() {
-                    var element = document.getElementsByClassName("leaflet-container")[0];
+                    var element = document.querySelector(".%s .leaflet-container");
                     element.style.position = "";
                     element.style.width = "";
                     element.style.height = "";
@@ -81,6 +81,7 @@ class FullScreenControl(WidgetControl):
             }}
         </script>
         """
+            % (m._id, m._id)
         )
         display(self.template)
 
