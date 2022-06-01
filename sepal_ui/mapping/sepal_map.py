@@ -10,6 +10,8 @@ from pathlib import Path
 from distutils.util import strtobool
 import warnings
 import math
+import string
+import random
 
 from haversine import haversine
 import numpy as np
@@ -74,6 +76,9 @@ class SepalMap(ipl.Map):
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
+    _id = None
+    "str: a unique 6 letters str to identify the map in the DOM"
+
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
         # set the default parameters
@@ -113,6 +118,11 @@ class SepalMap(ipl.Map):
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
+
+        # create a proxy ID to the element
+        # this id should be unique and will be used by mutators to identify this map
+        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
+        self.add_class(self._id)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):

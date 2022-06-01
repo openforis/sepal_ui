@@ -8,7 +8,7 @@ class TestFullScreenControl:
         map_ = sm.SepalMap()
 
         # add a fullscreenControl
-        control = sm.FullScreenControl()
+        control = sm.FullScreenControl(map_)
         map_.add_control(control)
 
         assert isinstance(control, sm.FullScreenControl)
@@ -21,7 +21,7 @@ class TestFullScreenControl:
     def test_toggle_fullscreen(self):
 
         map_ = sm.SepalMap()
-        control = sm.FullScreenControl()
+        control = sm.FullScreenControl(map_)
         map_.add_control(control)
 
         # trigger the click

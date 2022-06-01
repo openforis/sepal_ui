@@ -10,6 +10,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.ee
         ~SepalMap.dc
         ~SepalMap.v_inspector
+        ~SepalMap._id
         
     .. rubric:: Methods
     
