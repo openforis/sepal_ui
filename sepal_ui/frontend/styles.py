@@ -1,6 +1,7 @@
 from pathlib import Path
 from configparser import ConfigParser
 from types import SimpleNamespace
+import matplotlib as mpl
 from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v
@@ -58,7 +59,41 @@ def get_theme(config_file):
 theme = getattr(v.theme.themes, get_theme(config_file))
 "traitlets: the theme used in sepal"
 
-color = SimpleNamespace(
+
+class ColorSimpleNamespace(SimpleNamespace):
+    """Custom simple name space to store and access to the sepal_ui colors and
+    with a magic method to display them. Inspired by:
+    https://github.com/mwaskom/seaborn/blob/master/seaborn/palettes.py
+    """
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+
+    def as_hex(self):
+        """Return a color palette with hex codes instead of RGB values."""
+        return [mpl.colors.rgb2hex(color) for name, color in self.__dict__.items()]
+
+    def _repr_html_(self):
+        """Rich display of the color palette in an HTML frontend."""
+        s = 60
+        html = "<tr><table>"
+        for c in self.as_hex():
+            html += f"""
+                <th>
+                    <svg  width="{s}" height="{s}">
+                        <rect width="{s}" height="{s}" style="fill:{c};
+                        stroke-width:1;stroke:rgb(255,255,255)"/>'
+                    </svg>
+                </th>
+                """
+        html += "</tr><tr>"
+        html += "".join([f"<td>{n}</br>{c}</td>" for n, c in self.__dict__.items()])
+        html += "</tr></table>"
+        return html
+
+
+color = ColorSimpleNamespace(
     main=theme.main,
     darker=theme.darker,
     bg=theme.bg_color,
