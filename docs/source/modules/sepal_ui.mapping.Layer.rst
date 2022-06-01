@@ -1,10 +1,10 @@
-sepal\_ui.mapping.Layer
-=======================
+sepal\_ui.mapping.EELayer
+=========================
 
-.. autoclass:: sepal_ui.mapping.Layer
+.. autoclass:: sepal_ui.mapping.EELayer
 
     .. rubric:: Attributes
     
     .. autosummary::
     
-        ~Layer.ee_object
+        ~EELayer.ee_object
