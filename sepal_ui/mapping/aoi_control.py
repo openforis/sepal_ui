@@ -18,8 +18,11 @@ class AoiControl(WidgetControl):
     m = None
     "(ipyleaflet.Map): the map on which he AoiControl is displayed to interact with itszoom and center"
 
-    aoi_bounds = None
+    aoi_list = None
     "(list): the list of ListItem used in the menu. each one as the name provided by the user and the value of the bounds"
+
+    aoi_bounds = None
+    "(dict): the list of bounds to fit on. using the aoi names as keys"
 
     def __init__(self, m, **kwargs):
 
