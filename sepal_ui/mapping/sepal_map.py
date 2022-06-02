@@ -179,18 +179,10 @@ class SepalMap(ipl.Map):
         ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
-        ee_bounds = ee_geometry.bounds().coordinates()
-        coords = ee_bounds.get(0).getInfo()
-
-        # Get (x, y) of the 4 cardinal points
-        bl, br, tr, tl, _ = coords
-
-        # Get (x, y) of the 4 cardinal points
-        min_lon, min_lat = bl
-        max_lon, max_lat = tr
+        coords = ee_geometry.bounds().coordinates().get(0).getInfo()
 
         # zoom on these bounds
-        self.zoom_bounds([min_lon, min_lat, max_lon, max_lat], zoom_out)
+        self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
 
         return self
 
