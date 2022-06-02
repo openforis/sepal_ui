@@ -10,8 +10,6 @@ from pathlib import Path
 from distutils.util import strtobool
 import warnings
 import math
-import string
-import random
 
 from haversine import haversine
 import numpy as np
@@ -76,9 +74,6 @@ class SepalMap(ipl.Map):
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
-    _id = None
-    "str: a unique 6 letters str to identify the map in the DOM"
-
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
         # set the default parameters
@@ -118,11 +113,6 @@ class SepalMap(ipl.Map):
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
-
-        # create a proxy ID to the element
-        # this id should be unique and will be used by mutators to identify this map
-        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
-        self.add_class(self._id)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):
@@ -173,17 +163,20 @@ class SepalMap(ipl.Map):
         return
 
     @su.need_ee
-    def zoom_ee_object(self, ee_geometry, zoom_out=1):
+    def zoom_ee_object(self, item, zoom_out=1):
         """
         Get the proper zoom to the given ee geometry.
 
         Args:
-            ee_geometry (ee.Geometry): the geometry to zoom on
+            item (ee.ComputedObject): the geometry to zoom on
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
             self
         """
+
+        # type check the given object
+        ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
         ee_bounds = ee_geometry.bounds().coordinates()
