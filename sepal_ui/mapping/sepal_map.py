@@ -10,6 +10,8 @@ from pathlib import Path
 from distutils.util import strtobool
 import warnings
 import math
+import string
+import random
 
 from haversine import haversine
 import numpy as np
@@ -74,6 +76,9 @@ class SepalMap(ipl.Map):
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
+    _id = None
+    "str: a unique 6 letters str to identify the map in the DOM"
+
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
         # set the default parameters
@@ -113,6 +118,11 @@ class SepalMap(ipl.Map):
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
+
+        # create a proxy ID to the element
+        # this id should be unique and will be used by mutators to identify this map
+        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
+        self.add_class(self._id)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):
@@ -182,16 +192,35 @@ class SepalMap(ipl.Map):
         coords = ee_geometry.bounds().coordinates().get(0).getInfo()
 
         # zoom on these bounds
-        self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
+        return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
 
-        return self
+    def zoom_raster(self, layer, zoom_out=1):
+        """
+        Adapt the zoom to the given LocalLayer. The localLayer need to come from the add_raster method to embed the image name
+
+        Args:
+            layer (LocalTileLayer): the localTile layer to zoom on. it needs to embed the "raster" member
+            zoom_out (int) (optional): Zoom out the bounding zoom
+
+        Return:
+            self
+        """
+
+        da = rioxarray.open_rasterio(layer.raster, masked=True)
+
+        # unproject if necessary
+        epsg_4326 = "EPSG:4326"
+        if da.rio.crs != CRS.from_string(epsg_4326):
+            da = da.rio.reproject(epsg_4326)
+
+        return self.zoom_bounds(da.rio.bounds(), zoom_out)
 
     def zoom_bounds(self, bounds, zoom_out=1):
         """
         Adapt the zoom to the given bounds. and center the image.
 
         Args:
-            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy
+            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
@@ -245,6 +274,9 @@ class SepalMap(ipl.Map):
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
             get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
             colorbar_position (str, optional): The position of the colorbar. By default set to False to remove it.
+
+        Return:
+            (LocalTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
 
         # force cast to Path
@@ -306,7 +338,7 @@ class SepalMap(ipl.Map):
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
 
-        return
+        return layer
 
     @deprecated(version="2.8.0", reason="use dc methods instead")
     def show_dc(self):
