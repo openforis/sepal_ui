@@ -203,21 +203,16 @@ class SepalMap(ipl.Map):
         # Center map to the centroid of the layer(s)
         self.center = [(maxy - miny) / 2 + miny, (maxx - minx) / 2 + minx]
 
-        tl = (minx, maxy)
-        bl = (minx, miny)
-        tr = (maxx, maxy)
-        br = (maxx, miny)
+        # create the tuples for each corner
+        tl, br, bl, tr = (minx, maxy), (maxx, miny), (minx, miny), (maxx, maxy)
 
+        # find zoom level to display the biggest diagonal (in km)
+        lg, zoom = 40075, 1  # number of displayed km at zoom 1
         maxsize = max(haversine(tl, br), haversine(bl, tr))
-
-        lg = 40075  # number of displayed km at zoom 1
-        zoom = 1
         while lg > maxsize:
-            zoom += 1
-            lg /= 2
+            (zoom, lg) = (zoom + 1, lg / 2)
 
-        if zoom_out > zoom:
-            zoom_out = zoom - 1
+        zoom_out = (zoom - 1) if zoom_out > zoom else zoom_out
 
         self.zoom = zoom - zoom_out
 
