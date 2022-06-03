@@ -8,6 +8,7 @@ import ee
 from ipyleaflet import GeoJSON, LocalTileLayer
 
 from sepal_ui import mapping as sm
+from sepal_ui import get_theme
 import sepal_ui.frontend.styles as styles
 
 # create a seed so that we can check values
@@ -25,10 +26,17 @@ class TestSepalMap:
         assert m.center == [0, 0]
         assert m.zoom == 2
         assert len(m.layers) == 1
-        assert m.layers[0].name == "CartoDB.DarkMatter"
+
+        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
+        # Get current theme
+        dark_theme = True if get_theme() == "dark" else False
+
+        # The basemap will change depending on the current theme.
+        assert m.layers[0].name == basemaps[not dark_theme]
 
         # check that the map start with several basemaps
-        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
         m = sm.SepalMap(basemaps)
         assert len(m.layers) == 2
         layers_name = [layer.name for layer in m.layers]

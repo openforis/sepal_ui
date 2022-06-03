@@ -39,9 +39,11 @@ if not DARK_THEME.keys() == LIGHT_THEME.keys():
     raise Exception("Both dictionaries has to have the same color names")
 
 
-def get_theme(config):
+def get_theme():
     """
     get theme name from the config file (default to dark)
+
+    Args:
 
     Return:
         (str): the theme to use
@@ -54,7 +56,7 @@ class SepalColor(HasTraits, SimpleNamespace):
     with a magic method to display theme."""
 
     # Initialize with the current theme
-    _dark_theme = Bool(True if get_theme(config) == "dark" else False).tag(sync=True)
+    _dark_theme = Bool(True if get_theme() == "dark" else False).tag(sync=True)
     "bool: whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
     new_colors = None

@@ -1,4 +1,4 @@
-from sepal_ui.conf import config_file, config
+from sepal_ui.conf import config, config_file
 from sepal_ui.frontend.styles import color, get_theme
 
 import ipyvuetify as v

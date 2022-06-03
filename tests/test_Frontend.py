@@ -34,15 +34,32 @@ class TestFrontend:
         assert config.get("sepal-ui", "theme") == "dark"
 
     def test_repr_html(self):
+
         # Arrange
-        expected_html = "<h3>Current theme: light</h3><table><th><svg width='60' height='60'><rect width='60' height='60' style='fill:#0000ff;stroke-width:1;stroke:rgb(255,255,255)'/></svg></th></tr><tr><td>main</br>blue</td></tr></table>"
+        expected_title_dark = "<h3>Current theme: dark</h3>"
+        expected_dark = "primary</br>#b3842e"
 
         # Act
-        sns = SepalColor(main="blue")
-        sns._dark_theme = False
+        color = SepalColor()
+        color._dark_theme = True
 
-        html = sns._repr_html_().__str__()
+        html = color._repr_html_().__str__()
         html = re.sub(r"[\n] [ ]+", "", html)
 
         # Assert
-        assert expected_html == html
+        assert expected_title_dark in html
+        assert expected_dark in html
+
+        # Arrange
+
+        expected_title_light = "<h3>Current theme: light</h3>"
+        expected_light = "primary</br>#1976D2"
+
+        # Act
+        color._dark_theme = False
+        html = color._repr_html_().__str__()
+        html = re.sub(r"[\n] [ ]+", "", html)
+
+        # Assert
+        assert expected_title_light in html
+        assert expected_light in html

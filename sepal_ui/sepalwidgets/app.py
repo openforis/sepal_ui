@@ -704,7 +704,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     def __init__(self, **kwargs):
 
         # get the current theme name
-        self.theme = sepal_ui.get_theme(sepal_ui.config)
+        self.theme = sepal_ui.get_theme()
 
         # set the btn parameters
         kwargs["x_small"] = kwargs.pop("x_small", True)
