@@ -52,7 +52,7 @@ Widget package is currently empty so we will create an extra :code:`password_fie
     We here decided to use the web convention 1 file 1 object, which may sound weird for the most pythonic freaks. 
     If you prefer to use the **PEP 8** module convention. delete the widget folder and write everything in a :code:`widget.py` module.
 
-initialize the object
+Initialize the object
 ^^^^^^^^^^^^^^^^^^^^^
 
 Here we will create the object with its expected attributes 
@@ -94,8 +94,32 @@ Here we embed our widget in a line layout. In this layout I used 2 widgets, a :c
 I used the class "ml-1" (margin left 1) to let some room between the :code:`TextField` and the :code:`Password`.
 The text_field is using the keyword :code:`type` to display a :code:`password` in the HTML convention. it means that the input will no be displayed. 
 
-toggle the visibility 
-^^^^^^^^^^^^^^^^^^^^^
+Base colors
+^^^^^^^^^^^
+
+To be aligned with the sepal UI, is highly recommended to use the sepal theme colors in your components. By default, widgets will use a color palette depending on the current theme, however, if you want to customize their style, you can use any of the sepal base colors. To display them, use the following lines.
+
+.. jupyter-execute::
+    :raises:
+    
+    from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+
+    from sepal_ui import color
+    color._dark_theme = True
+    display(color)
+    
+    color._dark_theme = False
+    display(color)
+
+
+
+Toggle visibility 
+^^^^^^^^^^^^^^^^^
 
 Now we want to add a behavior to our object. When we click on the eye, the :code:`PasswordField` should toggle its visibility: 
 
