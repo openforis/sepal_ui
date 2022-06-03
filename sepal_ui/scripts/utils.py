@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import os
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,17 +10,14 @@ import warnings
 from unidecode import unidecode
 from functools import wraps
 from itertools import product
-from configparser import ConfigParser
 
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import versionadded, deprecated
 
 import sepal_ui
-
-from sepal_ui import config_file
-from sepal_ui.frontend.styles import TYPES
+from sepal_ui.conf import config_file, config
 from .warning import SepalWarning
 
 
@@ -478,6 +476,33 @@ def next_string(string):
     return string
 
 
+def set_config(key, value, section="sepal-ui"):
+    """
+    Set the provided value to the given key for the given section in the sepal-ui config
+    file
+
+    Args:
+        key (str): key configuration name
+        value (str): value to be referenced by the configuration key
+        section (str, optional): configuration section, defaults to sepal-ui.
+    """
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section(section)
+
+    # set the value
+    config.set("sepal-ui", key, value)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_locale(locale):
     """
@@ -506,6 +531,9 @@ def set_config_locale(locale):
     return
 
 
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_theme(theme):
     """
@@ -547,6 +575,7 @@ def set_type(color):
         (str): a pre-defined material color
 
     """
+    from sepal_ui.frontend.styles import TYPES
 
     if color not in TYPES:
         warnings.warn(
