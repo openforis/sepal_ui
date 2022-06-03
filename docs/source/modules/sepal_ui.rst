@@ -22,11 +22,10 @@ Content
 
 .. autosummary::
     
-    sepal_ui.theme
     sepal_ui.color
     sepal_ui.config_file
     
-.. rubric:: Attributes
+.. rubric:: Methods
 
 .. autosummary::
     
