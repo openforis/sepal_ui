@@ -31,6 +31,7 @@ class AoiTile(sw.Tile):
 
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
+        self.map.dc.hide()
 
         # create the view
         # the view include the model

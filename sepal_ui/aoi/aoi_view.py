@@ -2,8 +2,6 @@ from traitlets import Int
 from datetime import datetime as dt
 
 import pandas as pd
-import geopandas as gpd
-from shapely import geometry as sg
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -279,12 +277,6 @@ class AoiView(sw.Card):
             label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
         )
 
-        # Change model feature name with event
-        # def bind_name(change):
-        #    self.model.name = change["new"]
-        #
-        # self.w_draw.observe(bind_name, "v_model")
-
         # group them together with the same key as the select_method object
         self.components = {
             "ADMIN0": self.w_admin_0,
@@ -292,11 +284,9 @@ class AoiView(sw.Card):
             "ADMIN2": self.w_admin_2,
             "SHAPE": self.w_vector,
             "POINTS": self.w_points,
+            "DRAW": self.w_draw,
+            "ASSET": self.w_asset,
         }
-        if self.map_:
-            self.components["DRAW"] = self.w_draw
-        if self.ee:
-            self.components["ASSET"] = self.w_asset
 
         # hide them all
         [c.hide() for c in self.components.values()]
@@ -329,23 +319,25 @@ class AoiView(sw.Card):
         # js events
         self.w_method.observe(self._activate, "v_model")  # activate widgets
         self.btn.on_event("click", self._update_aoi)  # load the informations
-        if self.map_:
-            self.map_.dc.on_draw(self._handle_draw)  # handle map drawing
 
     @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
+
+        # read the information from the geojson datas
+        if self.map_:
+            self.model.geo_json = self.map_.dc.to_json()
 
         # update the model
         self.model.set_object()
 
         # update the map
         if self.map_:
-            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
+            self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
 
             if self.ee:
-                self.map_.addLayer(
+                self.map_.add_ee_layer(
                     self.model.feature_collection, {"color": sc.success}, "aoi"
                 )
             else:
@@ -362,10 +354,7 @@ class AoiView(sw.Card):
         """clear the aoi_model from input and remove the layer from the map (if existing)"""
 
         # clear the map
-        if self.map_:
-            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
-            # self.map_.center = [0, 0]
-            # self.map_.zoom = 3
+        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
 
         # clear the model
         self.model.clear_attributes()
@@ -388,10 +377,9 @@ class AoiView(sw.Card):
         # clear the geo_json saved features to start from scratch
         if self.map_:
             if change["new"] == "DRAW":
-                self.map_.show_dc()
-                self.model.geo_json = None
+                self.map_.dc.show()
             else:
-                self.map_.hide_dc()
+                self.map_.dc.hide()
 
         # clear the inputs
         [w.reset() for w in self.components.values()]
@@ -402,56 +390,7 @@ class AoiView(sw.Card):
             for k, w in self.components.items()
         ]
 
-        return self
-
-    def _handle_draw(self, target, action, geo_json):
-        """handle the draw on map event"""
-
-        # update the automatic name
-        if not self.w_draw.v_model:
-            self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-
-        # Init the json if it's not
-        if self.model.geo_json is None:
-            self.model.geo_json = {"type": "FeatureCollection", "features": []}
-
-        # polygonize circles
-        if "radius" in geo_json["properties"]["style"]:
-            geo_json = self.polygonize(geo_json)
-
-        if action == "created":  # no edit as you don't know which one to change
-            self.model.geo_json["features"].append(geo_json)
-        elif action == "deleted":
-            self.model.geo_json["features"].remove(geo_json)
+        # init the name to the current value
+        self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
 
         return self
-
-    @staticmethod
-    def polygonize(geo_json):
-        """
-        Transform a ipyleaflet circle (a point with a radius) into a GeoJson multipolygon
-
-        Params:
-            geo_json (json): the circle geojson
-
-        Return:
-            (json): the polygonised circle
-        """
-
-        # get the input
-        radius = geo_json["properties"]["style"]["radius"]
-        coordinates = geo_json["geometry"]["coordinates"]
-
-        # create shapely point
-        circle = (
-            gpd.GeoSeries([sg.Point(coordinates)], crs=4326)
-            .to_crs(3857)
-            .buffer(radius)
-            .to_crs(4326)
-        )
-
-        # insert it in the geo_json
-        json = geo_json
-        json["geometry"] = circle[0].__geo_interface__
-
-        return json

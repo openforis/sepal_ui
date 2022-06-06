@@ -436,7 +436,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    def add_ee_Layer(
+    def add_ee_layer(
         self,
         ee_object,
         vis_params={},
@@ -714,11 +714,9 @@ class SepalMap(ipl.Map):
 
         layer = self.find_layer(key, base, none_ok)
 
-        # catch if the layer doesn't exist
-        if layer is None:
-            raise ipl.LayerException(f"layer not on map: {key}")
-
-        super().remove_layer(layer)
+        # the error is catched in find_layer
+        if layer is not None:
+            super().remove_layer(layer)
 
         return
 
@@ -825,5 +823,5 @@ class SepalMap(ipl.Map):
 
     setCenter = set_center
     centerObject = zoom_ee_object
-    addLayer = add_ee_Layer
+    addLayer = add_ee_layer
     getScale = get_scale
