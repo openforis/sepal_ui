@@ -78,5 +78,6 @@ class TestDrawControl:
         assert "features" in res
         assert "style" not in res["features"][0]["properties"]
         assert all([math.isclose(c, 0, abs_tol=0.1) for c in circle.centroid.coords[0]])
+        assert len(res["features"][0]["geometry"]["coordinates"][0]) == 65
 
         return

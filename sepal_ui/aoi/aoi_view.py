@@ -320,6 +320,9 @@ class AoiView(sw.Card):
         self.w_method.observe(self._activate, "v_model")  # activate widgets
         self.btn.on_event("click", self._update_aoi)  # load the informations
 
+        # reset te aoi_model
+        self.model.clear_attributes()
+
     @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
@@ -356,14 +359,21 @@ class AoiView(sw.Card):
         # clear the map
         self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
 
+        # clear the inputs
+        [w.reset() for w in self.components.values()]
+        print(self.w_draw.v_model)
+
         # clear the model
         self.model.clear_attributes()
+        print(self.w_draw.v_model)
 
         # reset the alert
         self.alert.reset()
+        print(self.w_draw.v_model)
 
         # reset the view of the widgets
         self.w_method.v_model = None
+        print(self.w_draw.v_model)
 
         return self
 
@@ -391,6 +401,7 @@ class AoiView(sw.Card):
         ]
 
         # init the name to the current value
-        self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+        now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
 
         return self

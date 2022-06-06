@@ -51,7 +51,6 @@ class TestAoiView:
 
         # test model name when using view
         view = aoi.AoiView(admin=100, folder=gee_dir)
-
         assert view.model.name == "GLP"
 
         return
@@ -148,24 +147,6 @@ class TestAoiView:
         assert len(aoi_gee_view.map_.layers) == 1
         assert aoi_gee_view.w_method.v_model is None
         assert aoi_gee_view.model.name is None
-
-        return
-
-    def test_polygonize(self):
-
-        src_json = {
-            "properties": {"style": {"radius": 1000}},  # 1 km
-            "geometry": {"coordinates": [0, 0]},
-        }
-
-        # number of sides in the polygons
-        # check this number instead of a regular output
-        # because different geopandas versions give different results (7th decimal)
-
-        # check the transformation
-        dst_json = aoi.AoiView.polygonize(src_json)
-        assert dst_json["geometry"]["type"] == "Polygon"
-        assert len(dst_json["geometry"]["coordinates"][0]) == 65
 
         return
 
