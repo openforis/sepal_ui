@@ -266,16 +266,13 @@ class AoiView(sw.Card):
         # create the method widget
         self.w_method = MethodSelect(methods, gee=gee, map_=map_)
 
-        # add the 6 methods blocks
+        # add the methods blocks
         self.w_admin_0 = AdminField(0, gee=gee).get_items()
         self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
         self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
         self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name)
-        self.w_asset = sw.VectorField(
-            label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
-        )
 
         # group them together with the same key as the select_method object
         self.components = {
@@ -285,7 +282,6 @@ class AoiView(sw.Card):
             "SHAPE": self.w_vector,
             "POINTS": self.w_points,
             "DRAW": self.w_draw,
-            "ASSET": self.w_asset,
         }
 
         # hide them all
@@ -303,8 +299,17 @@ class AoiView(sw.Card):
             .bind(self.w_points, "point_json")
             .bind(self.w_method, "method")
             .bind(self.w_draw, "name")
-            .bind(self.w_asset, "asset_name")
         )
+
+        # defint the asset select separately. If no gee is set up we don't want any
+        # gee based widget to be requested. If it's the case, application that does not support GEE
+        # will crash if the user didn't authenticate
+        if self.ee:
+            self.w_asset = sw.VectorField(
+                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+            )
+            self.components["ASSET"] = self.w_asset
+            self.model.bind(self.w_asset, "asset_name")
 
         # add a validation btn
         self.btn = sw.Btn(ms.aoi_sel.btn)
