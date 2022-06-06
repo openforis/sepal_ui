@@ -27,11 +27,13 @@ class MethodSelect(sw.Select):
     'XXX' will add the selected method to the list when '-XXX' will discard it.
     You cannot mix adding and removing behaviours.
 
-    Params:
+    Args:
         methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
+        map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        gee (bool, optional): wether to bind to ee or not
     """
 
-    def __init__(self, methods="ALL", gee=True):
+    def __init__(self, methods="ALL", gee=True, map_=None):
 
         # create the method list
         if methods == "ALL":
@@ -63,8 +65,9 @@ class MethodSelect(sw.Select):
         else:
             raise Exception("I don't get what you meant")
 
-        if not gee:
-            self.methods.pop("ASSET", None)
+        # clean the list from things we can't use
+        gee is True or self.methods.pop("ASSET", None)
+        map_ is not None or self.methods.pop("DRAW", None)
 
         # build the item list with header
         prev_type = None
@@ -102,7 +105,7 @@ class AdminField(sw.Select):
     CODE = AoiModel.CODE
     NAME = AoiModel.NAME
 
-    def __init__(self, level, parent=None, gee=True, **kwargs):
+    def __init__(self, level, parent=None, gee=True):
 
         # save ee state
         self.ee = gee
@@ -112,15 +115,12 @@ class AdminField(sw.Select):
         self.parent = parent
 
         # init an empty widget
-        self.v_model = None
-        self.items = []
-        self.clearable = True
-        self.label = ms.aoi_sel.adm[level]
-        super().__init__(**kwargs)
+        super().__init__(
+            v_model=None, items=[], clearable=True, label=ms.aoi_sel.adm[level]
+        )
 
         # add js behaviour
-        if self.parent:
-            self.parent.observe(self._update, "v_model")
+        self.parent is None or self.parent.observe(self._update, "v_model")
 
     def show(self):
         """
@@ -131,9 +131,7 @@ class AdminField(sw.Select):
         """
 
         super().show()
-
-        if self.parent:
-            self.parent.show()
+        self.parent is None or self.parent.show()
 
         return self
 
@@ -258,9 +256,8 @@ class AoiView(sw.Card):
 
         # set ee dependencie
         self.ee = gee
-        if gee:
-            su.init_ee()
-            self.folder = folder
+        self.folder = folder
+        gee is False or su.init_ee()
 
         # get the model
         self.model = AoiModel(sw.Alert(), gee=gee, folder=folder, **kwargs)
@@ -269,27 +266,24 @@ class AoiView(sw.Card):
         self.map_ = map_
 
         # create the method widget
-        self.w_method = MethodSelect(methods, gee=gee)
+        self.w_method = MethodSelect(methods, gee=gee, map_=map_)
 
         # add the 6 methods blocks
-        self.w_admin_0 = AdminField(0, gee=gee).get_items().hide()
-        self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee).hide()
-        self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee).hide()
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
-        self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
-        if self.map_:
-            self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
+        self.w_admin_0 = AdminField(0, gee=gee).get_items()
+        self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
+        self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
+        self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
+        self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name)
+        self.w_asset = sw.VectorField(
+            label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+        )
 
-            # Change model feature name with event
-            def bind_name(change):
-                self.model.name = change["new"]
-
-            self.w_draw.observe(bind_name, "v_model")
-
-        if self.ee:
-            self.w_asset = sw.VectorField(
-                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
-            ).hide()
+        # Change model feature name with event
+        # def bind_name(change):
+        #    self.model.name = change["new"]
+        #
+        # self.w_draw.observe(bind_name, "v_model")
 
         # group them together with the same key as the select_method object
         self.components = {
@@ -304,6 +298,9 @@ class AoiView(sw.Card):
         if self.ee:
             self.components["ASSET"] = self.w_asset
 
+        # hide them all
+        [c.hide() for c in self.components.values()]
+
         # use the same alert as in the model
         self.alert = self.model.alert
 
@@ -315,10 +312,9 @@ class AoiView(sw.Card):
             .bind(self.w_vector, "vector_json")
             .bind(self.w_points, "point_json")
             .bind(self.w_method, "method")
+            .bind(self.w_draw, "name")
+            .bind(self.w_asset, "asset_name")
         )
-
-        if self.ee:
-            self.model.bind(self.w_asset, "asset_name")
 
         # add a validation btn
         self.btn = sw.Btn(ms.aoi_sel.btn)
