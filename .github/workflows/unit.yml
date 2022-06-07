@@ -33,6 +33,20 @@ jobs:
         uses: tonybajan/flake8-check-action@v1.0.0
         with:
             repotoken: ${{ secrets.GITHUB_TOKEN }}
+      - name: build the documentation
+        if: matrix.python-version == "3.8"
+        run: sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
+        
+      - name: Check that there are no unexpected Sphinx warnings
+        if: matrix.python-version == "3.8"
+        shell: python
+        run: |
+          from pathlib import Path
+          text = Path("warnings.txt").read_text().strip()
+          print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
+          unexpected = [ii for ii in text.split("\n")]
+          assert len(unexpected) == 0
+      
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
       - name: coverage
