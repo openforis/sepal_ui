@@ -565,7 +565,7 @@ def set_config_theme(theme):
 @versionadded(version="2.7.1")
 def set_type(color):
     """
-    Return a pre-defined material colors based on the requested type_ parameter. If the parameter is not a predifined color,
+    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
     fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
 
     Args:
