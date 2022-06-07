@@ -40,7 +40,9 @@ jobs:
             
       - name: build the documentation
         if: matrix.python-version == '3.8'
-        run: sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
+        run: |
+          apt-get install python3-sphinx
+          sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
         
       - name: Check that there are no unexpected Sphinx warnings
         if: matrix.python-version == '3.8'
