@@ -307,7 +307,7 @@ class AoiView(sw.Card):
         if self.ee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
-            )
+            ).hide()
             self.components["ASSET"] = self.w_asset
             self.model.bind(self.w_asset, "asset_name")
 
