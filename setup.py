@@ -51,7 +51,6 @@ setup_params = {
         "planet",
         "pyyaml",
         "dask",
-        "traitlets",
     ],
     "extras_require": {
         "dev": [
