@@ -41,7 +41,7 @@ jobs:
       - name: build the documentation
         if: matrix.python-version == '3.8'
         run: |
-          sudo apt-get install -y python3-sphinx
+          pip install .[doc]
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
         
       - name: Check that there are no unexpected Sphinx warnings
