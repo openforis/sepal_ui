@@ -51,7 +51,8 @@ jobs:
           from pathlib import Path
           text = Path("warnings.txt").read_text().strip()
           print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
-          unexpected = [ii for ii in text.split("\n") if "transition" not in ii]
+          warnings = [ii for ii in text.split("\n")]
+          unexpected = [ii for ii in text.split("\n") if any(i in ii for i in ["transition", "CHANGELOG.md")]
           assert len(unexpected) == 0
       
       - name: test with pytest
