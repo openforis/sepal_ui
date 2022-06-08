@@ -71,7 +71,7 @@ class AoiControl(WidgetControl):
 
         # add js behaviours
         btn.on_event("click", self.click_btn)
-        self.aoi_list.observe(self.zoom, "v_model")
+        # self.aoi_list.observe(self.zoom, "v_model")
 
     def click_btn(self, widget, event, data):
         """
@@ -137,15 +137,14 @@ class AoiControl(WidgetControl):
 
         return
 
-    def zoom(self, change):
+    def zoom(self, widget, event, data):
         """
         Zoom on the specified bounds
-
-        Args:
-            change["new"]: a tuple of the bounds of the geometry (minx, miny, maxx, maxy)
         """
 
-        self.m.zoom_bounds(change["new"])
+        # the widget store the bounding box in value
+        # a tuple of the bounds of the geometry (minx, miny, maxx, maxy)
+        self.m.zoom_bounds(widget.value)
 
         return
 
@@ -161,6 +160,7 @@ class AoiControl(WidgetControl):
             text = sw.ListItemContent(children=[sw.ListItemTitle(children=[name])])
             item = sw.ListItem(dense=True, value=bounds, children=[text])
             children.append(item)
+            item.on_event("click", self.zoom)
 
         self.aoi_list.children = children
 

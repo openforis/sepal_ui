@@ -1,6 +1,7 @@
 import pytest
 import ee
 from shapely import geometry as sg
+from box import Box
 
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
@@ -90,7 +91,7 @@ class TestAoiControl:
         aoi_control.add_aoi("test1", point)
 
         # zoom on it
-        aoi_control.zoom({"new": point.bounds})
+        aoi_control.zoom(Box({"value": point.bounds}), None, None)
 
         assert m.center == [20.0, 10.0]
         assert m.zoom == 1090.0
