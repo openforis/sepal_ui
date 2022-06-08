@@ -470,7 +470,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
     def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.

@@ -19,11 +19,11 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
+        kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
     """
 
     type_ = Unicode("").tag(sync=True)
-    "str: Added type_ trait to specify the current color of the divider"
+    "str: Added type\_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
         kwargs["class_"] = class_
