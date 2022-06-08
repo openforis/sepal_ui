@@ -109,6 +109,11 @@ class Alert(v.Alert, SepalWidget):
             with self.progress_output:
                 self.progress_output.clear_output()
                 self.progress_bar = tqdm(**tqdm_args)
+                self.progress_bar.container.children[0].add_class(f"{self.type}--text")
+                self.progress_bar.container.children[2].add_class(f"{self.type}--text")
+                self.progress_bar.container.children[1].add_class("toto")
+
+                # style.bar_color = '#ffff00'
 
                 # Initialize bar
                 self.progress_bar.update(0)
@@ -118,7 +123,9 @@ class Alert(v.Alert, SepalWidget):
         if progress == 1:
 
             self.progress_bar.close()
-            self.progress_bar.colour = color.success
+            # self.progress_bar.colour = color.success
+
+        return
 
     def add_msg(self, msg, type_="info"):
         """
