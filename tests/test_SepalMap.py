@@ -368,6 +368,18 @@ class TestSepalMap:
 
         return
 
+    def test_zoom_raster(self, byte):
+
+        m = sm.SepalMap()
+        layer = m.add_raster(byte, fit_bounds=False)
+        m.zoom_raster(layer)
+
+        center = [33.89703655465772, -117.63458938969723]
+        assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
+        assert m.zoom == 15.0
+
+        return
+
     @pytest.fixture
     def rgb(self):
         """add a raster file of the bahamas coming from rasterio test suit"""
