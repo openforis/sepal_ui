@@ -281,21 +281,20 @@ class FileInput(v.Flex, SepalWidget):
 
     def reset(self, *args):
         """
-        Clear the File selection and move to the root folder if something was selected
+        Clear the File selection and move to the root folder.
 
         Return:
             self
         """
 
-        root = Path("~").expanduser()
+        # note: The args arguments are useless here but need to be kept so that
+        # the function is natively compatible with the clear btn
 
-        if self.v_model is not None:
+        # move to root
+        self._on_file_select({"new": Path.home()})
 
-            # move to root
-            self._on_file_select({"new": root})
-
-            # remove v_model
-            self.v_model = None
+        # remove v_model
+        self.v_model = None
 
         return self
 
@@ -528,6 +527,8 @@ class LoadTableField(v.Col, SepalWidget):
         # clear the fileInput
         self.fileInput.reset()
 
+        return
+
     @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
@@ -540,13 +541,13 @@ class LoadTableField(v.Col, SepalWidget):
         self._set_v_model("pathname", path)
 
         # exit if none
-        if not path:
+        if path is None:
             return self
 
         df = pd.read_csv(path, sep=None, engine="python")
 
         if len(df.columns) < 3:
-            self._clear_select()
+            self._set_v_model("pathname", None)
             self.fileInput.selected_file.error_messages = (
                 ms.widgets.load_table.too_small
             )
