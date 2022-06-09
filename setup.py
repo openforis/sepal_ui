@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from subprocess import check_call
 
-version = "2.9.3"
+version = "2.9.4"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -61,7 +61,7 @@ setup_params = {
             "pytest",
         ],
         "doc": [
-            "jupyter-sphinx @ git+https://github.com/jupyter/jupyter-sphinx.git",
+            "jupyter-sphinx",
             "pydata-sphinx-theme==0.9.0",
             "sphinx-notfound-page",
             "Sphinx",
