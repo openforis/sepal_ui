@@ -9,7 +9,7 @@ Currently translated in the following languages:
 
 .. csv-table::
 
-    English, Français, Español
+    English, Français, Español, 中国人
 
 You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
 
@@ -40,4 +40,5 @@ Meet our :doc:`contributor <./start/authors>`.
     tutorials/index
     widgets/index
     modules/sepal_ui
+    cli/index
     changelog

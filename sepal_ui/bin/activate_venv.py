@@ -1,18 +1,31 @@
-#!/usr/bin/python3
+"""
+Script to manually activate one of the venv available in the current Jupyter environment.
+
+Application are designed to run on specific venv, created to avoid lib deprecation.
+this script allows the user to easily activate one of the venv have already installed in Jupyter and customize it
+"""
+
 import subprocess
 from pathlib import Path
 import pandas as pd
 from colorama import init, Fore
+import argparse
 
 # init colors for all plateforms
 init()
 
-if __name__ == "__main__":
+parser = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
+
+
+def main():
+
+    # parse agruments
+    parser.parse_args()
 
     print(
         f"{Fore.CYAN} Welcome to the virtual env activation, loading your venvs... \n{Fore.RESET}"
     )
-    
+
     # Get usr venvs
     result = subprocess.run(["jupyter", "kernelspec", "list"], stdout=subprocess.PIPE)
 
@@ -35,7 +48,6 @@ if __name__ == "__main__":
             )
         )
         venvs = pd.concat([venvs, test_envs])
-    
     venvs = venvs.reset_index(drop=True)
     venvs.columns = ["env name", "path"]
 
@@ -56,7 +68,6 @@ if __name__ == "__main__":
             print(f"{Fore.RED}Your selection is not valid {Fore.RESET}")
         else:
             valid = True
-    
     # Activate virtual env
     kernel_path = Path(venvs.iloc[selection]["path"])
     test = "module-venv" in str(kernel_path)
@@ -78,3 +89,7 @@ if __name__ == "__main__":
     )
 
     print(f"The current env is: {result.stdout}")
+
+
+if __name__ == "__main__":
+    main()

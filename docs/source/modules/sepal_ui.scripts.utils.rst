@@ -13,7 +13,6 @@ sepal\_ui.scripts.utils
         get_file_size
         hide_component
         init_ee
-        is_absolute
         loading_button
         need_ee
         next_string
@@ -25,6 +24,7 @@ sepal\_ui.scripts.utils
         set_config_locale
         set_config_theme
         set_type
+        geojson_to_ee
       
 .. autofunction:: sepal_ui.scripts.utils.catch_errors
 
@@ -35,8 +35,6 @@ sepal\_ui.scripts.utils
 .. autofunction:: sepal_ui.scripts.utils.hide_component
 
 .. autofunction:: sepal_ui.scripts.utils.init_ee
-
-.. autofunction:: sepal_ui.scripts.utils.is_absolute
 
 .. autofunction:: sepal_ui.scripts.utils.loading_button
 
@@ -60,19 +58,5 @@ sepal\_ui.scripts.utils
 
 .. autofunction:: sepal_ui.scripts.utils.set_type
 
-
-      
-
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
+.. autofunction:: sepal_ui.scripts.utils.geojson_to_ee
 

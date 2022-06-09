@@ -1,13 +1,18 @@
 from ipyvue import VueWidget
 import ipyvuetify as v
 from traitlets import Unicode, Bool, observe
+from deprecated.sphinx import versionadded
 
-__all__ = ["SepalWidget"]
+__all__ = ["SepalWidget", "Tooltip"]
 
 
 class SepalWidget(v.VuetifyWidget):
     """
     Custom vuetifyWidget to add specific methods
+
+    Args:
+        viz (bool, optional): define if the widget should be visible or not
+        tooltip (str, optional): tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
     """
 
     viz = Bool(True).tag(sync=True)
@@ -16,18 +21,19 @@ class SepalWidget(v.VuetifyWidget):
     old_class = Unicode("").tag(sync=True)
     "Unicode: a saving attribute of the widget class"
 
-    def __init__(self, **kwargs):
+    with_tooltip = None
+    "sw.ToolTip: the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
 
-        # remove viz from kwargs
-        # class_list need to be setup before viz
-        # to let hide and shw function run
-        viz = kwargs.pop("viz", True)
+    def __init__(self, viz=True, tooltip=None, **kwargs):
 
         # init the widget
         super().__init__(**kwargs)
 
         # setup the viz status
         self.viz = viz
+
+        # create a tooltip only if a message is set
+        self.set_tooltip(tooltip)
 
     @observe("viz")
     def _set_viz(self, change):
@@ -113,10 +119,10 @@ class SepalWidget(v.VuetifyWidget):
         return self
 
     def get_children(self, id_):
-        """Retrieve all children elements that matches with the given id_.
+        """Retrieve all children elements that matches with the given id\_.
 
         Args:
-            id_ (str, optional): attribute id to compare with.
+            id\_ (str, optional): attribute id to compare with.
 
         Returns:
             Will return a list with all mathing elements if there are more than one,
@@ -168,3 +174,52 @@ class SepalWidget(v.VuetifyWidget):
         self.children = new_childrens
 
         return self
+
+    @versionadded(version="2.9.0", reason="Tooltip are now integrated to widgets")
+    def set_tooltip(self, txt=None, **kwargs):
+        """
+        Create a tooltip associated with the widget. If the text is not set, the
+        tooltip will be automatically removed. Once the tooltip is set the object
+        variable can be accessed normally but to render the widget, one will need
+        to use :code:`self.with_tooltip` (irreversible).
+
+        Args:
+            txt (str): anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
+            kwargs: any options available in a Tooltip widget
+
+        Returns:
+            (sw.Tooltip): the tooltip associated with the object
+        """
+        if isinstance(self.with_tooltip, Tooltip):
+            # If it's already created, and there are new kwargs, let's modify it
+            [setattr(self.with_tooltip, attr, value) for attr, value in kwargs.items()]
+            self.with_tooltip.children = [txt]
+            self.with_tooltip.disabled = not bool(txt)
+        elif bool(txt) is True:
+            self.with_tooltip = Tooltip(self, txt, **kwargs)
+
+        return self
+
+
+class Tooltip(v.Tooltip):
+    """
+    Custom widget to display tooltip when mouse is over widget
+
+    Args:
+        widget (Vuetify.widget): widget used to display tooltip
+        tooltip (str): the text to display in the tooltip
+    """
+
+    def __init__(self, widget, tooltip, **kwargs):
+
+        # set some default parameters
+        kwargs["close_delay"] = kwargs.pop("close_delay", 200)
+
+        self.v_slots = [
+            {"name": "activator", "variable": "tooltip", "children": widget}
+        ]
+        widget.v_on = "tooltip.on"
+
+        self.children = [tooltip]
+
+        super().__init__(**kwargs)

@@ -2,6 +2,29 @@
 	"test_key": "clave de prueba",
 	"status": "Estado: {}",
 	"widgets": {
+		"fileinput": {
+			"label": "buscar archivos",
+			"placeholder": "Archivo seleccionado"
+		},
+		"table": {
+			"label": "Tabla de archivos",
+			"column": {
+				"id": "id",
+				"lat": "latitud",
+				"lng": "longitud"
+			}
+		},
+		"vector": {
+			"label": "Archivo vectorial",
+			"column": "columna",
+			"value": "Valor",
+			"all": "Usar todos los features"
+		},
+		"navdrawer": {
+			"code": "Código fuente",
+			"wiki": "Wiki",
+			"bug": "Reportar error"
+		},
 		"asset_select": {
 			"types": {
 				"0": "Raster",
@@ -18,35 +41,34 @@
 			"placeholder": "users/nombre_usuario/asset_personalizado"
 		},
 		"load_table": {
-			"too_small": "El archivo indicado tiene menos de 3 columnas. Por favor, indique un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
+			"too_small": "El archivo ingresado contiene menos de 3 columnas. Por favor, selecciona un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
 		},
 		"banner": {
 			"close": "cerrar",
-			"next": ""
+			"next": "siguiente ({} más)"
 		}
 	},
 	"aoi_sel": {
 		"title": "Seleccionar área de interés (AOI)",
-		"administrative": "Definiciones administrativas",
+		"administrative": "Límites administrativos",
 		"custom": "Geometrías personalizadas",
 		"method": "Método de selección de AOI",
 		"adm": {
 			"0": "País/Provincia",
-			"1": "Nivel de administración 1",
-			"2": "Nivel de administración 2"
+			"1": "Nivel administrativo 1",
+			"2": "Nivel administrativo 2"
 		},
 		"vector": "Archivo vectorial",
-		"draw": "Figuras dibujadas",
+		"draw": "Dibujar figura(s) en el mapa",
 		"points": "Archivo de puntos",
-		"aoi_name": "Seleccionar un nombre de AOI",
+		"aoi_name": "Crea un nombre para tu AOI",
 		"asset": "Nombre del asset",
-		"btn": "Seleccione estas entradas",
-		"no_inputs": "Proporcione entradas completas antes de validar su AOI",
-		"complete": "La AOI ha sido seleccionada",
+		"btn": "Usar selección",
+		"complete": "El AOI ha sido seleccionada",
 		"shape_drawn": "Se ha dibujado una figura",
 		"file_pattern": "aoi_{}",
-		"no_selection": "No se ha recogido ningún método de selección",
-		"no_country": "No se ha seleccionado ningún país",
+		"no_selection": "No has elegido ningún método de selección",
+		"no_country": "No has seleccionado ningún país",
 		"asset_already_exist": "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
 		"asset_created": "El Asset ya ha sido creado bajo el nombre: {}",
 		"name_used": "El nombre ya está en uso, cámbielo o borre el archivo anterior en su cuenta de GEE",
@@ -56,11 +78,44 @@
 		"no_shape": "No se ha dibujado ninguna forma en el mapa",
 		"shp_error": "Ocurrió un error con el shapefile seleccionado",
 		"aoi_message": "haga clic en \"seleccionar estas opciones\" para validar su AOI.",
-		"duplicate_key": "Hay una llave duplicada en su selección. Por favor, seleccione diferentes columnas para los parámetros de latitud, longitud e identificación",
-		"geojson_to_ee": "Convierta su archivo .csv en un objeto de Google Earth Engine"
+		"geojson_to_ee": "Convierta su archivo .csv en un objeto de Google Earth Engine",
+		"exception": {
+			"no_inputs": "",
+			"no_asset": "",
+			"no_value": "",
+			"uncomplete": "",
+			"no_file": "",
+			"duplicate_key": "",
+			"no_draw": "",
+			"no_admlyr": "",
+			"invalid_code": "",
+			"no_gdf": ""
+		}
 	},
 	"mapping": {
 		"no_image": "El archivo de imagen no existe"
+	},
+	"planet": {
+		"exception": {
+			"empty": "Por favor completa todos los campos",
+			"format": "Por favor verifica el formato de tus entradas",
+			"invalid": "Correo electrónico o contraseña inválidos",
+			"nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet."
+		},
+		"widget": {
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"apikey": "API key",
+			"method": {
+				"label": "Método de inicio de sesión",
+				"credentials": "Credenciales",
+				"api_key": "API key"
+			}
+		},
+		"status": {
+			"offilne": "Desconectado",
+			"online": "Conectado"
+		}
 	},
 	"rec": {
 		"table": {
@@ -145,12 +200,12 @@
 			"btn": "Reclasificar",
 			"export": {
 				"0": {
-					"0": "",
-					"1": ""
+					"0": "El vector ha sido creado y añadido a tu cuenta de SEPAL: {}",
+					"1": "La imagen ha sido creada y añadida a tu cuenta de SEPAL: {}"
 				},
 				"1": {
-					"0": "",
-					"1": ""
+					"0": "El FeatureCollection ha sido exportado a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación.",
+					"1": "La imagen ha sido exportada a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación."
 				}
 			}
 		},
@@ -159,8 +214,8 @@
 		}
 	},
 	"locale": {
-		"change": "",
-		"fallback": ""
+		"change": "La configuración regional \"{0}\" será usada como idioma predeterminado en las aplicaciones de SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios. Ten en cuenta que si \"{0}\" no está disponible en otra aplicación, SEPAL usará el idioma más cercano posible.",
+		"fallback": "La configuración regional \"{0}\" no está disponible para esta aplicación. En su lugar usaremos \"{1}\". Por favor, informa al mantenedor de la aplicación si deseas añadir \"{0}\" a los idiomas soportados."
 	},
 	"theme": {
 		"change": "El tema \"{0}\" se utilizará como tema predeterminado en las aplicaciones SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios."

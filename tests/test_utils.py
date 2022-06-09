@@ -6,6 +6,9 @@ from configparser import ConfigParser
 import random
 
 import ipyvuetify as v
+from shapely import geometry as sg
+import ee
+import geopandas as gpd
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -55,18 +58,6 @@ class TestUtils:
         res = su.create_download_link(path)
 
         assert expected_link in res
-
-        return
-
-    def test_is_absolute(self):
-
-        # test an absolute URL (wikipedia home page)
-        link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
-        su.is_absolute(link) is True
-
-        # test a relative URL ('toto/tutu.html')
-        link = "toto/tutu.html"
-        assert su.is_absolute(link) is False
 
         return
 
@@ -364,5 +355,39 @@ class TestUtils:
         with pytest.warns(SepalWarning):
             res = su.set_type("toto")
             assert res == "info"
+
+        return
+
+    @su.need_ee
+    def test_geojson_to_ee(self):
+
+        # create a point list
+        points = [sg.Point(i, i + 1) for i in range(4)]
+        d = {"col1": [str(i) for i in range(len(points))], "geometry": points}
+        gdf = gpd.GeoDataFrame(d, crs="EPSG:4326")
+        gdf_buffer = gdf.copy()
+        gdf_buffer.geometry = gdf_buffer.buffer(0.5)
+
+        # test a featurecollection
+        ee_feature_collection = su.geojson_to_ee(gdf_buffer.__geo_interface__)
+        assert isinstance(ee_feature_collection, ee.FeatureCollection)
+        assert ee_feature_collection.size().getInfo() == len(points)
+
+        # test a feature
+        feature = gdf_buffer.iloc[:1].__geo_interface__["features"][0]
+        ee_feature = su.geojson_to_ee(feature)
+        assert isinstance(ee_feature, ee.Geometry)
+
+        # test a single point
+        point = sg.Point(0, 1)
+        point = gdf.iloc[:1].__geo_interface__["features"][0]
+        ee_point = su.geojson_to_ee(point)
+        assert isinstance(ee_point, ee.Geometry)
+        assert ee_point.coordinates().getInfo() == [0, 1]
+
+        # test a badly shaped dict
+        dict_ = {"type": ""}  # minimal feature from __geo_interface__
+        with pytest.raises(ValueError):
+            su.geojson_to_ee(dict_)
 
         return

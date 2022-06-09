@@ -39,6 +39,7 @@ In this section, an example of each of our component will be given. You should r
     markdown
     tooltip
     clip
+    stateicon
     
     alert
     statebar
@@ -59,4 +60,6 @@ In this section, an example of each of our component will be given. You should r
     about
     disclaimer
     vector
+    
+    planet_view
     

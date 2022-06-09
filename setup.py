@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from subprocess import check_call
 
-version = "2.8.0"
+version = "2.9.0"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -33,7 +33,6 @@ setup_params = {
         "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
-        "geemap==0.8.9",
         "earthengine-api",
         "markdown",
         "xarray_leaflet",
@@ -47,6 +46,11 @@ setup_params = {
         "natsort",
         "pipreqs",
         "cryptography",
+        "python-box",
+        "xyzservices",
+        "planet",
+        "pyyaml",
+        "dask",
     ],
     "extras_require": {
         "dev": [
@@ -65,6 +69,7 @@ setup_params = {
             "sphinx-copybutton",
             "pandoc",
             "m2r2",
+            "sphinxcontrib-autoprogram",
         ],
     },
     "packages": [
@@ -78,6 +83,7 @@ setup_params = {
         "sepal_ui.translator",
         "sepal_ui.model",
         "sepal_ui.reclassify",
+        "sepal_ui.planetapi",
     ],
     "package_data": {
         "sepal_ui": [
@@ -88,20 +94,21 @@ setup_params = {
             "bin/*",
         ]
     },
-    "scripts": [
-        "sepal_ui/bin/module_deploy",
-        "sepal_ui/bin/module_factory",
-        "sepal_ui/bin/module_l10n",
-        "sepal_ui/bin/module_theme",
-        "sepal_ui/bin/module_venv",
-        "sepal_ui/bin/activate_venv",
-    ],
+    "entry_points": {
+        "console_scripts": [
+            "module_deploy = sepal_ui.bin.module_deploy:main",
+            "module_factory = sepal_ui.bin.module_factory:main",
+            "module_l10n = sepal_ui.bin.module_l10n:main",
+            "module_theme = sepal_ui.bin.module_theme:main",
+            "module_venv = sepal_ui.bin.module_venv:main",
+            "activate_venv = sepal_ui.bin.activate_venv:main",
+        ]
+    },
     "classifiers": [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

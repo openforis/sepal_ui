@@ -255,13 +255,19 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
         code_link = []
         if code:
-            item_code = DrawerItem("Source code", icon="far fa-file-code", href=code)
+            item_code = DrawerItem(
+                ms.widgets.navdrawer.code, icon="far fa-file-code", href=code
+            )
             code_link.append(item_code)
         if wiki:
-            item_wiki = DrawerItem("Wiki", icon="fas fa-book-open", href=wiki)
+            item_wiki = DrawerItem(
+                ms.widgets.navdrawer.wiki, icon="fas fa-book-open", href=wiki
+            )
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem("Bug report", icon="fas fa-bug", href=issue)
+            item_bug = DrawerItem(
+                ms.widgets.navdrawer.bug, icon="fas fa-bug", href=issue
+            )
             code_link.append(item_bug)
 
         children = [
@@ -464,7 +470,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
     def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
@@ -671,7 +677,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.btn.color = "info"
 
         # change the paramater file
-        su.set_config_locale(loc.code)
+        su.set_config("locale", loc.code)
 
         return
 
@@ -698,7 +704,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     def __init__(self, **kwargs):
 
         # get the current theme name
-        self.theme = sepal_ui.get_theme(sepal_ui.config_file)
+        self.theme = sepal_ui.get_theme()
 
         # set the btn parameters
         kwargs["x_small"] = kwargs.pop("x_small", True)
@@ -727,7 +733,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         self.children[0].children = [self.THEME_ICONS[self.theme]]
 
         # change the paramater file
-        su.set_config_theme(self.theme)
+        su.set_config("theme", self.theme)
 
         # trigger other events by changing v_model
         self.v_model = self.theme

@@ -16,7 +16,7 @@ sepal\_ui.sepalwidgets.DatePicker
     .. autosummary::
         :nosignatures:
         
-        ~Datepicker.close_menu
+        ~DatePicker.close_menu
         ~DatePicker.disable
         ~DatePicker.is_valid_date
         ~DatePicker.check_date
@@ -27,4 +27,4 @@ sepal\_ui.sepalwidgets.DatePicker
 
 .. automethod:: sepal_ui.sepalwidgets.DatePicker.check_date
 
-.. autofunction:: sepal_ui.sepalwidgets.DatePicker.disable
+.. autofunction:: sepal_ui.sepalwidgets.DatePicker.is_valid_date

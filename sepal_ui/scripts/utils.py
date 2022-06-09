@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import os
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,17 +10,14 @@ import warnings
 from unidecode import unidecode
 from functools import wraps
 from itertools import product
-from configparser import ConfigParser
 
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import deprecated, versionadded
+from deprecated.sphinx import versionadded, deprecated
 
 import sepal_ui
-
-from sepal_ui import config_file
-from sepal_ui.frontend.styles import TYPES
+from sepal_ui.conf import config_file, config
 from .warning import SepalWarning
 
 
@@ -87,23 +85,6 @@ def create_download_link(pathname):
     return link
 
 
-@deprecated(
-    version="2.5.4",
-    reason="This function makes no sense outside of create_download_link. It will be removed in the next minor version",
-)
-def is_absolute(url):
-    """
-    Check if the given URL is an absolute or relative path
-
-    Args:
-        url (str): the URL to test
-
-    Return:
-        (bool): True if absolute else False
-    """
-    return bool(urlparse(str(url)).netloc)
-
-
 def random_string(string_length=3):
     """
     Generates a random string of fixed length.
@@ -115,7 +96,6 @@ def random_string(string_length=3):
         (str): A random string
     """
 
-    # random.seed(1001)
     letters = string.ascii_lowercase
 
     return "".join(random.choice(letters) for i in range(string_length))
@@ -496,6 +476,33 @@ def next_string(string):
     return string
 
 
+def set_config(key, value, section="sepal-ui"):
+    """
+    Set the provided value to the given key for the given section in the sepal-ui config
+    file
+
+    Args:
+        key (str): key configuration name
+        value (str): value to be referenced by the configuration key
+        section (str, optional): configuration section, defaults to sepal-ui.
+    """
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section(section)
+
+    # set the value
+    config.set("sepal-ui", key, value)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_locale(locale):
     """
@@ -524,6 +531,9 @@ def set_config_locale(locale):
     return
 
 
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_theme(theme):
     """
@@ -555,7 +565,7 @@ def set_config_theme(theme):
 @versionadded(version="2.7.1")
 def set_type(color):
     """
-    Return a pre-defined material colors based on the requested type_ parameter. If the parameter is not a predifined color,
+    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
     fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
 
     Args:
@@ -565,6 +575,7 @@ def set_type(color):
         (str): a pre-defined material color
 
     """
+    from sepal_ui.frontend.styles import TYPES
 
     if color not in TYPES:
         warnings.warn(
@@ -574,3 +585,49 @@ def set_type(color):
         color = TYPES[0]
 
     return color
+
+
+@versionadded(version="2.8.0")
+def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
+    """
+    Transform a geojson object into a featureCollection or a Geometry
+    No sanity check is performed on the initial geo_json. It must respect the
+    `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
+
+    Args:
+        geo_json (dict): a geo_json dictionnary
+        geodesic (bool, optional): Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
+        encoding (str, optional): The encoding of characters. Defaults to "utf-8".
+
+    Returns:
+        (ee.FeatureCollection): the created featurecollection
+    """
+
+    # from a featureCollection
+    if geo_json["type"] == "FeatureCollection":
+        for feature in geo_json["features"]:
+            if feature["geometry"]["type"] != "Point":
+                feature["geometry"]["geodesic"] = geodesic
+        features = ee.FeatureCollection(geo_json)
+        return features
+
+    # from a single feature
+    elif geo_json["type"] == "Feature":
+        geom = None
+        # Checks whether it is a point
+        if geo_json["geometry"]["type"] == "Point":
+            coordinates = geo_json["geometry"]["coordinates"]
+            longitude = coordinates[0]
+            latitude = coordinates[1]
+            geom = ee.Geometry.Point(longitude, latitude)
+        # for every other geometry simply create a geometry
+        else:
+            geom = ee.Geometry(geo_json["geometry"], "", geodesic)
+
+        return geom
+
+    # some error handling because we are fancy
+    else:
+        raise ValueError("Could not convert the geojson to ee.Geometry()")
+
+    return

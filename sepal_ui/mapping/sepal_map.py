@@ -6,257 +6,143 @@ if "GDAL_DATA" in list(os.environ.keys()):
 if "PROJ_LIB" in list(os.environ.keys()):
     del os.environ["PROJ_LIB"]
 
-import collections
 from pathlib import Path
 from distutils.util import strtobool
 import warnings
+import math
+import string
+import random
 
-import geemap
 from haversine import haversine
 import numpy as np
 import rioxarray
-import xarray_leaflet  # do not remove: plugin for rioxarray so it is never called but always used
+import xarray_leaflet
 import matplotlib.pyplot as plt
 from matplotlib import colors as mpc
 from matplotlib import colorbar
 import ipywidgets as widgets
-from ipyleaflet import (
-    AttributionControl,
-    DrawControl,
-    LayersControl,
-    LocalTileLayer,
-    ScaleControl,
-    WidgetControl,
-    ZoomControl,
-    GeoJSON,
-)
 from rasterio.crs import CRS
-from traitlets import Bool, link, observe
 import ipyvuetify as v
-import ipyleaflet
+import ipyleaflet as ipl
 import ee
+from deprecated.sphinx import deprecated
 
 import sepal_ui.frontend.styles as styles
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
+from sepal_ui.mapping.draw_control import DrawControl
+from sepal_ui.mapping.value_inspector import ValueInspector
+from sepal_ui.mapping.layer import EELayer
+from sepal_ui.mapping.basemaps import basemap_tiles
 
 __all__ = ["SepalMap"]
 
-# call x_array leaflet at least one
+# call x_array leaflet at least once
 # flake8 will complain as it's a pluggin (i.e. never called)
 # We don't want to ignore testing F401
 xarray_leaflet
 
 
-class SepalMap(geemap.Map):
+class SepalMap(ipl.Map):
     """
-    The SepalMap class inherits from geemap.Map. It can thus be initialized with all its parameter.
-    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
-    Numerous methods have been added in the class to help you deal with your workflow implementation.
-    It can natively display raster from .tif files and files and ee objects using methods that have the same signature as the GEE JavaScripts console.
+    The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all
+    its parameter.
+    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of
+    the sepal_ui layout.
+    Numerous methods have been added in the class to help you deal with your workflow
+    implementation.
+    It can natively display raster from .tif files and files and ee objects using methods
+    that have the same signature as the GEE JavaScripts console.
 
     Args:
         basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-        kwargs (optional): any parameter from a geemap.Map. if set, 'ee_initialize' will be overwritten.
+        kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
     """
 
-    # ############################################################################
-    # ###                              Map parameters                          ###
-    # ############################################################################
+    # ##########################################################################
+    # ###                              Map parameters                        ###
+    # ##########################################################################
 
     ee = True
-    "bool: either the map will use geempa binding or not"
+    "bool: either the map will use ee binding or not"
 
-    vinspector = Bool(False).tag(sync=True)
-    "bool: either or not the datainspector is available"
-
-    loaded_rasters = {}
-    "dict: the list of loaded rasters"
+    v_inspector = None
+    "mapping.ValueInspector: the value inspector of the map"
 
     dc = None
     "ipyleaflet.DrawingControl: the drawing control of the map"
 
+    _id = None
+    "str: a unique 6 letters str to identify the map in the DOM"
+
     def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
 
-        self.world_copy_jump = True
-
         # set the default parameters
-        kwargs["ee_initialize"] = False  # we do it ourselves
-        kwargs["add_google_map"] = kwargs.pop("add_google_map", False)
         kwargs["center"] = kwargs.pop("center", [0, 0])
         kwargs["zoom"] = kwargs.pop("zoom", 2)
+        kwargs["basemap"] = {}
+        kwargs["zoom_control"] = False
+        kwargs["attribution_control"] = False
+        kwargs["scroll_wheel_zoom"] = True
+        kwargs["world_copy_jump"] = kwargs.pop("world_copy_jump", True)
 
         # Init the map
         super().__init__(**kwargs)
 
         # init ee
         self.ee = gee
-        if gee:
-            su.init_ee()
+        not gee or su.init_ee()
 
         # add the basemaps
         self.clear_layers()
-        if len(basemaps):
-            [self.add_basemap(basemap) for basemap in set(basemaps)]
-        else:
-            default_basemap = (
-                "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
-            )
-            self.add_basemap(default_basemap)
+        default_basemap = (
+            "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+        )
+        basemaps = basemaps or [default_basemap]
+        [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
-        self.clear_controls()
-        self.add_control(ZoomControl(position="topright"))
-        self.add_control(LayersControl(position="topright"))
-        self.add_control(AttributionControl(position="bottomleft"))
-        self.add_control(ScaleControl(position="bottomleft", imperial=False))
-
-        # change the prefix
-        for control in self.controls:
-            if type(control) == AttributionControl:
-                control.prefix = "SEPAL"
+        self.add_control(ipl.ZoomControl(position="topright"))
+        self.add_control(ipl.LayersControl(position="topright"))
+        self.add_control(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
+        self.add_control(ipl.ScaleControl(position="bottomleft", imperial=False))
 
         # specific drawing control
-        self.set_drawing_controls(dc)
+        self.dc = DrawControl(self)
+        not dc or self.add_control(self.dc)
 
-        # Add value inspector
-        self.w_vinspector = widgets.Checkbox(
-            value=False,
-            description="Inspect values",
-            indent=False,
-            layout=widgets.Layout(width="18ex"),
-        )
+        # specific v_inspector
+        self.v_inspector = ValueInspector(self)
+        not vinspector or self.add_control(self.v_inspector)
 
-        if vinspector:
-            self.add_control(
-                WidgetControl(widget=self.w_vinspector, position="topright")
-            )
+        # create a proxy ID to the element
+        # this id should be unique and will be used by mutators to identify this map
+        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
+        self.add_class(self._id)
 
-            link((self.w_vinspector, "value"), (self, "vinspector"))
-
-        # Create output space for raster interaction
-        self.output_r = widgets.Output(layout={"border": "1px solid black"})
-        self.output_control_r = WidgetControl(
-            widget=self.output_r, position="bottomright"
-        )
-        self.add_control(self.output_control_r)
-
-        # define interaction with rasters
-        self.on_interaction(self._raster_interaction)
-
-    @observe("vinspector")
-    def _change_cursor(self, change):
-        """Method to be called when vinspector trait changes"""
-
-        if self.vinspector:
-            self.default_style = {"cursor": "crosshair"}
-        else:
-            self.default_style = {"cursor": "grab"}
-
-        return
-
-    def _raster_interaction(self, **kwargs):
-        """Define a behavior when ispector checked and map clicked"""
-
-        if kwargs.get("type") == "click" and self.vinspector:
-            latlon = kwargs.get("coordinates")
-            self.default_style = {"cursor": "wait"}
-
-            local_rasters = [
-                lr.name for lr in self.layers if isinstance(lr, LocalTileLayer)
-            ]
-
-            if local_rasters:
-
-                with self.output_r:
-                    self.output_r.clear_output(wait=True)
-
-                    for lr_name in local_rasters:
-
-                        lr = self.loaded_rasters[lr_name]
-                        lat, lon = latlon
-
-                        # Verify if the selected latlon is the image bounds
-                        if any(
-                            [
-                                lat < lr.bottom,
-                                lat > lr.top,
-                                lon < lr.left,
-                                lon > lr.right,
-                            ]
-                        ):
-                            print("Location out of raster bounds")
-                        else:
-                            # row in pixel coordinates
-                            y = int(((lr.top - lat) / abs(lr.y_res)))
-
-                            # column in pixel coordinates
-                            x = int(((lon - lr.left) / abs(lr.x_res)))
-
-                            # get height and width
-                            h, w = lr.data.shape
-                            value = lr.data[y][x]
-                            print(f"{lr_name}")
-                            print(f"Lat: {round(lat,4)}, Lon: {round(lon,4)}")
-                            print(f"x:{x}, y:{y}")
-                            print(f"Pixel value: {value}")
-            else:
-                with self.output_r:
-                    self.output_r.clear_output()
-
-            self.default_style = {"cursor": "crosshair"}
-
-            return
-
-    def set_drawing_controls(self, add=False):
-        """
-        Create a drawing control for the map.
-        It will be possible to draw rectangles, circles and polygons.
-
-        Args:
-            add (bool): either to add the dc to the object attribute or not
-
-        return:
-            self
-        """
-
-        color = v.theme.themes.dark.info
-
-        dc = DrawControl(
-            edit=False,
-            marker={},
-            circlemarker={},
-            polyline={},
-            rectangle={"shapeOptions": {"color": color}},
-            circle={"shapeOptions": {"color": color}},
-            polygon={"shapeOptions": {"color": color}},
-        )
-
-        self.dc = dc if add else None
-
-        return self
-
+    @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer):
         """
-        Remove local layer from memory
+        Remove local layer from memory.
+
+        .. danger::
+
+            Does nothing now.
 
         Args:
-            local_layer (str | geemap.layer): The local layer to remove or its name
+            local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
 
         Return:
             self
         """
-        name = local_layer if type(local_layer) == str else local_layer.name
-
-        if name in self.loaded_rasters.keys():
-            self.loaded_rasters.pop(name)
 
         return self
 
+    @deprecated(version="2.8.0", reason="use remove_layer(-1) instead")
     def remove_last_layer(self, local=False):
         """
         Remove last added layer from Map
@@ -267,68 +153,74 @@ class SepalMap(geemap.Map):
         Return:
             self
         """
-        if len(self.layers) > 1:
-
-            last_layer = self.layers[-1]
-
-            if local:
-                local_rasters = [
-                    lr for lr in self.layers if isinstance(lr, LocalTileLayer)
-                ]
-                if local_rasters:
-                    last_layer = local_rasters[-1]
-                    self.remove_layer(last_layer)
-
-                    # If last layer is local_layer, remove it from memory
-                    if isinstance(last_layer, LocalTileLayer):
-                        self._remove_local_raster(last_layer)
-            else:
-                self.remove_layer(last_layer)
-
-                # If last layer is local_layer, remove it from memory
-                if isinstance(last_layer, LocalTileLayer):
-                    self._remove_local_raster(last_layer)
+        self.remove_layer(-1)
 
         return self
 
+    def set_center(self, lon, lat, zoom=None):
+        """
+        Centers the map view at a given coordinates with the given zoom level.
+
+        Args:
+            lon (float): The longitude of the center, in degrees.
+            lat	(float): The latitude of the center, in degrees.
+            zoom (int|optional): The zoom level, from 1 to 24. Defaults to None.
+        """
+
+        self.center = [lat, lon]
+        self.zoom = self.zoom if zoom is None else zoom
+
+        return
+
     @su.need_ee
-    def zoom_ee_object(self, ee_geometry, zoom_out=1):
+    def zoom_ee_object(self, item, zoom_out=1):
         """
         Get the proper zoom to the given ee geometry.
 
         Args:
-            ee_geometry (ee.Geometry): the geometry to zoom on
+            item (ee.ComputedObject): the geometry to zoom on
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
             self
         """
 
-        # center the image
-        self.centerObject(ee_geometry)
+        # type check the given object
+        ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
-        ee_bounds = ee_geometry.bounds().coordinates()
-        coords = ee_bounds.get(0).getInfo()
-
-        # Get (x, y) of the 4 cardinal points
-        bl, br, tr, tl, _ = coords
-
-        # Get (x, y) of the 4 cardinal points
-        min_lon, min_lat = bl
-        max_lon, max_lat = tr
+        coords = ee_geometry.bounds().coordinates().get(0).getInfo()
 
         # zoom on these bounds
-        self.zoom_bounds([min_lon, min_lat, max_lon, max_lat], zoom_out)
+        return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
 
-        return self
+    def zoom_raster(self, layer, zoom_out=1):
+        """
+        Adapt the zoom to the given LocalLayer. The localLayer need to come from the add_raster method to embed the image name
+
+        Args:
+            layer (LocalTileLayer): the localTile layer to zoom on. it needs to embed the "raster" member
+            zoom_out (int) (optional): Zoom out the bounding zoom
+
+        Return:
+            self
+        """
+
+        da = rioxarray.open_rasterio(layer.raster, masked=True)
+
+        # unproject if necessary
+        epsg_4326 = "EPSG:4326"
+        if da.rio.crs != CRS.from_string(epsg_4326):
+            da = da.rio.reproject(epsg_4326)
+
+        return self.zoom_bounds(da.rio.bounds(), zoom_out)
 
     def zoom_bounds(self, bounds, zoom_out=1):
         """
         Adapt the zoom to the given bounds. and center the image.
 
         Args:
-            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy
+            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out (int) (optional): Zoom out the bounding zoom
 
         Return:
@@ -340,21 +232,16 @@ class SepalMap(geemap.Map):
         # Center map to the centroid of the layer(s)
         self.center = [(maxy - miny) / 2 + miny, (maxx - minx) / 2 + minx]
 
-        tl = (minx, maxy)
-        bl = (minx, miny)
-        tr = (maxx, maxy)
-        br = (maxx, miny)
+        # create the tuples for each corner
+        tl, br, bl, tr = (minx, maxy), (maxx, miny), (minx, miny), (maxx, maxy)
 
+        # find zoom level to display the biggest diagonal (in km)
+        lg, zoom = 40075, 1  # number of displayed km at zoom 1
         maxsize = max(haversine(tl, br), haversine(bl, tr))
-
-        lg = 40075  # number of displayed km at zoom 1
-        zoom = 1
         while lg > maxsize:
-            zoom += 1
-            lg /= 2
+            (zoom, lg) = (zoom + 1, lg / 2)
 
-        if zoom_out > zoom:
-            zoom_out = zoom - 1
+        zoom_out = (zoom - 1) if zoom_out > zoom else zoom_out
 
         self.zoom = zoom - zoom_out
 
@@ -371,7 +258,7 @@ class SepalMap(geemap.Map):
         opacity=1.0,
         fit_bounds=True,
         get_base_url=lambda _: "https://sepal.io/api/sandbox/jupyter",
-        colorbar_position="bottomright",
+        colorbar_position=False,
     ):
         """
         Adds a local raster dataset to the map.
@@ -379,24 +266,27 @@ class SepalMap(geemap.Map):
         Args:
             image (str | pathlib.Path): The image file path.
             bands (int or list, optional): The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
-            layer_name (str, optional): The layer name to use for the raster. Defaults to None.
+            layer_name (str, optional): The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
             colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to None.
             x_dim (str, optional): The x dimension. Defaults to 'x'.
             y_dim (str, optional): The y dimension. Defaults to 'y'.
             opacity (float, optional): the opacity of the layer, default 1.0.
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
             get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
-            colorbar_position (str, optional): The position of the colorbar (default to "bottomright"). set to False to remove it.
+            colorbar_position (str, optional): The position of the colorbar. By default set to False to remove it.
+
+        Return:
+            (LocalTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
 
-        if type(image) == str:
-            image = Path(image)
+        # force cast to Path
+        image = Path(image)
 
         if not image.is_file():
             raise Exception(ms.mapping.no_image)
 
         # check inputs
-        if layer_name in self.loaded_rasters.keys():
+        if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
         if isinstance(colormap, str):
@@ -404,22 +294,16 @@ class SepalMap(geemap.Map):
 
         da = rioxarray.open_rasterio(image, masked=True)
 
-        # The dataset can be too big to hold in memory, so we will chunk it into smaller pieces.
-        # That will also improve performances as the generation of a tile can be done in parallel using Dask.
+        # The dataset can be too big to hold in memory, so we will chunk it into smaller
+        # pieces.
+        # That will also improve performances as the generation of a tile can be done
+        # in parallel using Dask.
         da = da.chunk((1000, 1000))
 
         # unproject if necessary
         epsg_4326 = "EPSG:4326"
         if da.rio.crs != CRS.from_string(epsg_4326):
             da = da.rio.reproject(epsg_4326)
-
-        # Create a named tuple with raster bounds and resolution
-        local_raster = collections.namedtuple(
-            "LocalRaster",
-            ("name", "left", "bottom", "right", "top", "x_res", "y_res", "data"),
-        )(layer_name, *da.rio.bounds(), *da.rio.resolution(), da.data[0])
-
-        self.loaded_rasters[layer_name] = local_raster
 
         multi_band = False
         if len(da.band) > 1 and type(bands) != int:
@@ -441,50 +325,35 @@ class SepalMap(geemap.Map):
             "y_dim": y_dim,
             "fit_bounds": fit_bounds,
             "get_base_url": get_base_url,
-            # 'colorbar_position': colorbar_position, # will be uncoment when the colobared version of xarray-leaflet will be released
+            "colorbar_position": colorbar_position,
             "rgb_dim": "band" if multi_band else None,
             "colormap": None if multi_band else colormap,
         }
 
         # display the layer on the map
         layer = da.leaflet.plot(**kwargs)
-
         layer.name = layer_name
-
         layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
 
-        return
+        # add the da to the layer as an extra member for the v_inspector
+        layer.raster = str(image)
 
+        return layer
+
+    @deprecated(version="2.8.0", reason="use dc methods instead")
     def show_dc(self):
         """
         show the drawing control on the map
-
-        Return:
-            self
         """
-
-        if self.dc:
-            self.dc.clear()
-
-            if self.dc not in self.controls:
-                self.add_control(self.dc)
-
+        self.dc.show()
         return self
 
+    @deprecated(version="2.8.0", reason="use dc methods instead")
     def hide_dc(self):
         """
         hide the drawing control of the map
-
-        Return:
-            self
         """
-
-        if self.dc:
-            self.dc.clear()
-
-            if self.dc in self.controls:
-                self.remove_control(self.dc)
-
+        self.dc.hide()
         return self
 
     def add_colorbar(
@@ -519,7 +388,6 @@ class SepalMap(geemap.Map):
         """
 
         width, height = 6.0, 0.4
-
         alpha = 1
 
         if colors is not None:
@@ -542,9 +410,8 @@ class SepalMap(geemap.Map):
             norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         else:
-            raise ValueError(
-                'cmap keyword or "palette" key in vis_params must be provided.'
-            )
+            msg = '"cmap" keyword or "colors" key must be provided.'
+            raise ValueError(msg)
 
         style = "dark_background" if v.theme.dark is True else "classic"
 
@@ -565,11 +432,10 @@ class SepalMap(geemap.Map):
             fig.patch.set_alpha(0.0)  # remove bg of the fig
             ax.patch.set_alpha(0.0)  # remove bg of the ax
 
-        if layer_name:
-            cb.set_label(layer_name)
+        not layer_name or cb.set_label(layer_name)
 
         output = widgets.Output()
-        colormap_ctrl = ipyleaflet.WidgetControl(
+        colormap_ctrl = ipl.WidgetControl(
             widget=output,
             position=position,
             transparent_bg=True,
@@ -578,17 +444,11 @@ class SepalMap(geemap.Map):
             output.clear_output()
             plt.show()
 
-        self.colorbar = colormap_ctrl
-        if layer_name in self.ee_layer_names:
-            if "colorbar" in self.ee_layer_dict[layer_name]:
-                self.remove_control(self.ee_layer_dict[layer_name]["colorbar"])
-            self.ee_layer_dict[layer_name]["colorbar"] = colormap_ctrl
-
         self.add_control(colormap_ctrl)
 
         return
 
-    def addLayer(
+    def add_ee_Layer(
         self,
         ee_object,
         vis_params={},
@@ -598,8 +458,10 @@ class SepalMap(geemap.Map):
         viz_name=False,
     ):
         """
-        Override the addLayer method from geemap to read the guess the vizaulization parameters the same way as in SEPAL recipes.
-        If the vizparams are empty and vizualization metadata exist, SepalMap will use them automatically.
+        Copy the addLayer method from geemap to read and guess the vizaulization
+        parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and vizualization metadata exist, SepalMap will use
+        them automatically.
 
         Args:
             ee_object (ee.Object): the ee OBject to draw on the map
@@ -695,8 +557,74 @@ class SepalMap(geemap.Map):
                 ee_object = asset.select(vis_params["bands"]).hsvToRgb()
                 vis_params["bands"] = ["red", "green", "blue"]
 
-        # call the function using the replacing the empty viz params with the new one.
-        super().addLayer(ee_object, vis_params, name, shown, opacity)
+        # create the layer based on these new values
+        image = None
+
+        if name is None:
+            layer_count = len(self.layers)
+            name = "Layer " + str(layer_count + 1)
+
+        # check the type of the ee object and raise an error if it's not recognized
+        if not isinstance(
+            ee_object,
+            (
+                ee.Image,
+                ee.ImageCollection,
+                ee.FeatureCollection,
+                ee.Feature,
+                ee.Geometry,
+            ),
+        ):
+            raise AttributeError(
+                "\n\nThe image argument in 'addLayer' function must be an instance of "
+                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
+            )
+
+        # force cast to featureCollection if needed
+        if isinstance(
+            ee_object,
+            (
+                ee.geometry.Geometry,
+                ee.feature.Feature,
+                ee.featurecollection.FeatureCollection,
+            ),
+        ):
+
+            features = ee.FeatureCollection(ee_object)
+
+            width = vis_params.pop("width", 2)
+            color = vis_params.pop("color", "000000")
+
+            const_image = ee.Image.constant(0.5)
+            image_fill = features.style(fillColor=color).updateMask(const_image)
+            image_outline = features.style(
+                color=color, fillColor="00000000", width=width
+            )
+
+            image = image_fill.blend(image_outline)
+            obj = features
+
+        # use directly the ee object if Image
+        elif isinstance(ee_object, ee.image.Image):
+            image = obj = ee_object
+
+        # use mosaicing if the ee_object is a ImageCollection
+        elif isinstance(ee_object, ee.imagecollection.ImageCollection):
+            image = obj = ee_object.mosaic()
+
+        # create the colored image
+        map_id_dict = ee.Image(image).getMapId(vis_params)
+        tile_layer = EELayer(
+            ee_object=obj,
+            url=map_id_dict["tile_fetcher"].url_format,
+            attribution="Google Earth Engine",
+            name=name,
+            opacity=opacity,
+            visible=shown,
+            max_zoom=24,
+        )
+
+        self.add_layer(tile_layer)
 
         return
 
@@ -705,17 +633,16 @@ class SepalMap(geemap.Map):
         """
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object
-
         Return:
             ([str]): the list of the basemap names
         """
 
-        return [k for k in geemap.ee_basemaps.keys()]
+        return [k for k in basemap_tiles.keys()]
 
     @staticmethod
     def get_viz_params(image):
         """
-        Return the vizual parmaeters that are set in the metadata of the image
+        Return the vizual parameters that are set in the metadata of the image
 
         Args:
             image (ee.Image): the image to analyse
@@ -778,28 +705,137 @@ class SepalMap(geemap.Map):
                     props[i]["type"] = "rgb"
                 else:
                     warnings.warn(
-                        "the embed viz properties are incomplete or badly set, please review our documentation",
+                        "the embed viz properties are incomplete or badly set, "
+                        "please review our documentation",
                         SepalWarning,
                     )
                     props = {}
 
         return props
 
-    def add_layer(self, layer, hover=False):
-        """Add layer and use a default style for the GeoJSON inputs
+    def remove_layer(self, key, base=False, none_ok=False):
+        """
+        Remove a layer based on a key. The key can be, a Layer object, the name of a
+        layer or the index in the layer list
 
-        hover (bool): whether to use the default hover style or not.
-
+        Args:
+            key (Layer, int, str): the key to find the layer to delete
+            base (bool, optional): either the basemaps should be included in the search or not. default t false
+            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
         """
 
-        if isinstance(layer, GeoJSON):
+        layer = self.find_layer(key, base, none_ok)
 
-            if not layer.style:
-                layer.style = styles.layer_style
+        # catch if the layer doesn't exist
+        if layer is None:
+            raise ipl.LayerException(f"layer not on map: {key}")
 
-            if hover and not layer.hover_style:
-                layer.hover_style = styles.layer_hover_style
+        super().remove_layer(layer)
+
+        return
+
+    def remove_all(self, base=False):
+        """
+        Remove all the layers from the maps.
+        If base is set to True, the basemaps are removed as well
+
+        Args:
+            base (bool, optional): wether or not the basemaps should be removed, default to False
+        """
+        # filter out the basemaps if base == False
+        layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
+
+        # remove them using the layer objects as keys
+        [self.remove_layer(layer, base) for layer in layers]
+
+        return
+
+    def add_layer(self, layer, hover=False):
+        """
+        Add layer and use a default style for the GeoJSON inputs.
+        Remove existing layer if already on the map.
+
+        layer (ipyleaflet.Layer): any layer type from ipyleaflet
+        hover (bool): whether to use the default hover style or not.
+        """
+
+        # remove existing layer before addition
+        existing_layer = self.find_layer(layer.name, none_ok=True)
+        not existing_layer or self.remove_layer(existing_layer)
+
+        # apply default coloring for geoJson
+        if isinstance(layer, ipl.GeoJSON):
+            layer.style = layer.style or styles.layer_style
+            hover_style = styles.layer_hover_style if hover else layer.hover_style
+            layer.hover_style = layer.hover_style or hover_style
 
         super().add_layer(layer)
 
-        return self
+        return
+
+    def add_basemap(self, basemap="HYBRID"):
+        """
+        Adds a basemap to the map.
+
+        Args:
+            basemap (str, optional): Can be one of string from basemaps. Defaults to 'HYBRID'.
+        """
+        if basemap not in basemap_tiles.keys():
+            keys = "\n".join(basemap_tiles.keys())
+            msg = f"Basemap can only be one of the following:\n{keys}"
+            raise ValueError(msg)
+
+        self.add_layer(basemap_tiles[basemap])
+
+        return
+
+    def get_scale(self):
+        """
+        Returns the approximate pixel scale of the current map view, in meters.
+        Reference: https://blogs.bing.com/maps/2006/02/25/map-control-zoom-levels-gt-resolution
+
+        Returns:
+            (float): Map resolution in meters.
+        """
+
+        return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
+
+    def find_layer(self, key, base=False, none_ok=False):
+        """
+        Search a layer by name or index
+
+        Args:
+            key (Layer, str, int): the layer name, index or directly the layer
+            base (bool, optional): either the basemaps should be included in the search or not. default to false
+            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
+
+        Return:
+            (TileLLayerayer): the first layer using the same name or index else None
+        """
+
+        # filter the layers
+        layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
+
+        if isinstance(key, str):
+            layer = next((lyr for lyr in layers if lyr.name == key), None)
+        elif isinstance(key, int):
+            size = len(layers)
+            layer = layers[key] if -size <= key < size else None
+        elif isinstance(key, ipl.Layer):
+            layer = next((lyr for lyr in layers if lyr == key), None)
+        else:
+            raise ValueError(f"key must be a int or a str, {type(key)} given")
+
+        if layer is None and none_ok is False:
+            raise ValueError(f"no layer corresponding to {key} on the map")
+
+        return layer
+
+    # ##########################################################################
+    # ###                overwrite geemap calls                              ###
+    # ##########################################################################
+
+    setCenter = set_center
+    centerObject = zoom_ee_object
+    addLayer = add_ee_Layer
+    getScale = get_scale

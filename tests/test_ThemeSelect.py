@@ -1,9 +1,7 @@
 from configparser import ConfigParser
-
 import pytest
-
 from sepal_ui import sepalwidgets as sw
-from sepal_ui import config_file
+from sepal_ui import config_file, get_theme
 
 
 class TestThemeSelect:
@@ -14,14 +12,20 @@ class TestThemeSelect:
 
         return
 
-    def test_change_language(self, theme_select):
+    def test_change_theme(self, theme_select):
+
+        # Get the current theme
+        themes = ["dark", "light"]
+        dark_theme = True if get_theme() == "dark" else False
 
         # change value
         theme_select.fire_event("click", None)
         config = ConfigParser()
         config.read(config_file)
         assert "sepal-ui" in config.sections()
-        assert config["sepal-ui"]["theme"] == "light"
+
+        # New theme has to be the opposite than the initial
+        assert config["sepal-ui"]["theme"] == themes[dark_theme]
 
         return
 

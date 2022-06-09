@@ -7,7 +7,6 @@ import tempfile
 import pandas as pd
 import geopandas as gpd
 from ipyleaflet import GeoJSON
-import geemap
 import ee
 
 from sepal_ui import color
@@ -24,7 +23,8 @@ class AoiModel(Model):
     """
     an Model object dedicated to the sorage and the manipulation of aoi.
     It is meant to be used with the AoiView object (embeded in the AoiTile).
-    By using this you will be able to provide your application with aoi as an ee_object or a gdf, depending if you activated the ee binding or not.
+    By using this you will be able to provide your application with aoi as an ee_object
+    or a gdf, depending if you activated the ee binding or not.
     The class also provide insight on your aoi geometry.
 
     Args:
@@ -62,8 +62,9 @@ class AoiModel(Model):
     "str: the base url to download gadm maps"
 
     GADM_ZIP_DIR = Path.home() / "tmp" / "GADM_zip"
-    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
     "pathlib.Path: the zip dir where we download the zips"
+
+    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
 
     GAUL_ASSET = "FAO/GAUL/2015/level{}"
     "str: the GAUL asset name"
@@ -215,7 +216,8 @@ class AoiModel(Model):
 
     def set_object(self, method=None):
         """
-        set the object (gdf/featurecollection) based on the model inputs. The method can be manually overwrite
+        set the object (gdf/featurecollection) based on the model inputs. The method can
+        be manually overwritten
 
         Args:
             method (str, optional): a model loading method
@@ -241,7 +243,7 @@ class AoiModel(Model):
         elif self.method == "ASSET":
             self._from_asset(self.asset_name)
         else:
-            raise Exception(ms.aoi_sel.no_inputs)
+            raise Exception(ms.aoi_sel.exception.no_inputs)
 
         self.alert.add_msg(ms.aoi_sel.complete, "success")
 
@@ -251,12 +253,13 @@ class AoiModel(Model):
         """set the ee.FeatureCollection output from an existing asset"""
 
         if not (asset_name["pathname"]):
-            raise Exception("Please select an asset.")
+            raise Exception(ms.aoi_sel.exception.no_asset)
 
         if asset_name["column"] != "ALL":
             if asset_name["value"] is None:
-                raise Exception("Please select a value.")
+                raise Exception(ms.aoi_sel.exception.no_value)
 
+        # set the name
         self.name = Path(asset_name["pathname"]).stem.replace(self.ASSET_SUFFIX, "")
         ee_col = ee.FeatureCollection(asset_name["pathname"])
 
@@ -271,13 +274,8 @@ class AoiModel(Model):
         self.feature_collection = ee_col
 
         # create a gdf form te feature_collection
-        # cannot be used before geemap 0.8.17 (not released)
-        # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-        self.gdf = gpd.GeoDataFrame.from_features(
-            self.feature_collection.getInfo()["features"]
-        ).set_crs(epsg=4326)
-
-        # set the name
+        features = self.feature_collection.getInfo()["features"]
+        self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         return self
 
@@ -285,7 +283,7 @@ class AoiModel(Model):
         """set the object output from a csv json"""
 
         if not all(point_json.values()):
-            raise Exception("All fields are required, please fill them.")
+            raise Exception(ms.aoi_sel.exception.uncomplete)
 
         # cast the pathname to pathlib Path
         point_file = Path(point_json["pathname"])
@@ -293,7 +291,7 @@ class AoiModel(Model):
         # check that the columns are well set
         values = [v for v in point_json.values()]
         if not len(values) == len(set(values)):
-            raise Exception(ms.aoi_sel.duplicate_key)
+            raise Exception(ms.aoi_sel.exception.duplicate_key)
 
         # create the gdf
         df = pd.read_csv(point_file, sep=None, engine="python")
@@ -310,7 +308,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = ee.FeatureCollection(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -321,11 +319,11 @@ class AoiModel(Model):
         """set the object output from a vector json"""
 
         if not (vector_json["pathname"]):
-            raise Exception("Please select a file.")
+            raise Exception(ms.aoi_sel.exception.no_file)
 
         if vector_json["column"] != "ALL":
             if vector_json["value"] is None:
-                raise Exception("Please select a value.")
+                raise Exception(ms.aoi_sel.exception.no_value)
 
         # cast the pathname to pathlib Path
         vector_file = Path(vector_json["pathname"])
@@ -343,7 +341,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -354,7 +352,7 @@ class AoiModel(Model):
         """set the gdf output from a geo_json"""
 
         if not geo_json:
-            raise Exception("Please draw a shape in the map")
+            raise Exception(ms.aoi_sel.exception.no_draw)
 
         # remove the style property from geojson as it's not recognize by geopandas and gee
         for feat in geo_json["features"]:
@@ -369,7 +367,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -384,10 +382,11 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin):
-        """Set the object according to given an administrative number in the GADM norm. The object will be projected in EPSG:4326"""
+        """Set the object according to given an administrative number in the GADM norm.
+        The object will be projected in EPSG:4326"""
 
         if not admin:
-            raise Exception("Select an administrative layer")
+            raise Exception(ms.aoi_sel.exception.no_admlyr)
 
         # get the admin level corresponding to the given admin code
         df = pd.read_csv(self.FILE[self.ee])
@@ -398,7 +397,7 @@ class AoiModel(Model):
         )
 
         if not is_in.any().any():
-            raise Exception("The code is not in the database")
+            raise Exception(ms.aoi_sel.exception.invalid_code)
         else:
             index = 3 if self.ee else -1
             level = (
@@ -413,11 +412,8 @@ class AoiModel(Model):
             ).filter(ee.Filter.eq(f"ADM{level}_CODE", admin))
 
             # transform it into gdf
-            # cannot be used before geemap 0.8.17 (not released)
-            # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-            self.gdf = gpd.GeoDataFrame.from_features(
-                self.feature_collection.getInfo()["features"]
-            ).set_crs(epsg=4326)
+            features = self.feature_collection.getInfo()["features"]
+            self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         else:
             # save the country iso_code
@@ -503,7 +499,7 @@ class AoiModel(Model):
         """
 
         if self.gdf is None:
-            raise Exception("You must set the gdf before interacting with it")
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             aoi_ee = ee.Feature(self.feature_collection.first())
@@ -529,7 +525,7 @@ class AoiModel(Model):
         """
 
         if self.gdf is None:
-            raise Exception("You must set the gdf before interacting with it")
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             fields = self.feature_collection.distinct(column).aggregate_array(column)
@@ -548,7 +544,7 @@ class AoiModel(Model):
         """
 
         if self.gdf is None:
-            raise Exception("You must set the gdf before interacting with it")
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             selected_feature = self.feature_collection.filterMetadata(
@@ -619,7 +615,7 @@ class AoiModel(Model):
         """
 
         if self.gdf is None:
-            raise Exception("You must set the gdf before converting it into GeoJSON")
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         # read the data from geojson and add the name as a property of the shape
         # useful when handler are added from ipyleaflet

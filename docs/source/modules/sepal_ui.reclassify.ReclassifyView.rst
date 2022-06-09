@@ -1,4 +1,4 @@
-sepal\_ui.reclassify.ReclassifyTile
+sepal\_ui.reclassify.ReclassifyView
 ===================================
 
 .. autoclass:: sepal_ui.reclassify.ReclassifyView
