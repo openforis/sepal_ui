@@ -602,7 +602,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # extract the language information from the translator
         # if not set default to english
-        code = "en" if translator is None else translator.target
+        code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 
