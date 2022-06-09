@@ -98,6 +98,7 @@ html_theme_options = {
     "switcher": {
         "json_url": "https://gist.githubusercontent.com/12rambau/19b3df149f4e732eb67e38566b716d39/raw/a9c0a4c9fe4f2fef42d0e4415d8cae5f0655dc5a/sepal_ui_versions.json",
     },
+    "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
             "name": "GitHub",
