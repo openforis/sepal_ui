@@ -2,19 +2,6 @@ sepal\_ui.translator.Translator
 ===============================
 
 .. autoclass:: sepal_ui.translator.Translator
-
-    .. rubric:: Attributes
-
-    .. autosummary::
-
-        ~Translator.default_dict
-        ~Translator.target_dict
-        ~Translator.default
-        ~Translator.target
-        ~Translator.targeted
-        ~Translator.match
-        ~Translator.keys
-        ~Translator.folder
    
     .. rubric:: Methods
 
@@ -33,7 +20,7 @@ sepal\_ui.translator.Translator
 
 .. automethod:: sepal_ui.translator.Translator.sanitize
 
-.. automethod:: sepal_ui.translator.Translator.search_key
+.. autofunction:: sepal_ui.translator.Translator.search_key
 
 .. automethod:: sepal_ui.translator.Translator.available_locales
 
