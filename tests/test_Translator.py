@@ -105,6 +105,12 @@ class TestTranslator:
         for locale in res:
             assert locale in translator.available_locales()
 
+        # Check no hidden and protected files are in locales
+        locales = translator.available_locales()
+        assert not all(
+            [(loc.startswith(".") or loc.startswith("_")) for loc in locales]
+        )
+
         return
 
     @pytest.fixture(scope="class")

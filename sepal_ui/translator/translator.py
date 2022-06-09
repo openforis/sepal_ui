@@ -208,10 +208,10 @@ class Translator(Box):
         Return the available locales in the l10n folder
 
         Return:
-            (list): the lilst of str codes
+            (list): the list of str codes
         """
 
-        return [f.name for f in Path(self._folder).iterdir() if f.is_dir()]
+        return [f.name for f in Path(self._folder).glob("[!^._]*") if f.is_dir()]
 
     @versionadded(version="2.7.0")
     @classmethod
