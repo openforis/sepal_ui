@@ -37,7 +37,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.getScale
         ~SepalMap.addLayer
         ~SepalMap.centerObject
-        ~SepalLap.zoom_raster
+        ~SepalMap.zoom_raster
         
 .. automethod:: sepal_ui.mapping.SepalMap.remove_last_layer
 
