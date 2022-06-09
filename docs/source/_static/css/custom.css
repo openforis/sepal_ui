@@ -33,6 +33,6 @@ html[data-theme=light] {
     --pst-color-primary: #196692;
 }
 
-html[data-theme=dark] img {
+html[data-theme=dark] {
     --pst-color-primary: #196692;
 }
