@@ -1,3 +1,4 @@
+from copy import deepcopy
 from shapely import geometry as sg
 from ipyleaflet import DrawControl
 import geopandas as gpd
@@ -62,7 +63,7 @@ class DrawControl(DrawControl):
             (dict): the json representation of all the geometries draw on the map
         """
 
-        features = [self.polygonize(feat) for feat in self.data]
+        features = [self.polygonize(feat) for feat in deepcopy(self.data)]
         [feat["properties"].pop("style") for feat in features]
 
         return {"type": "FeatureCollection", "features": features}
@@ -81,7 +82,7 @@ class DrawControl(DrawControl):
             (dict): the polygonised feature
         """
 
-        if "radius" not in geo_json["properties"]["style"]:
+        if "Point" not in geo_json["geometry"]["type"]:
             return geo_json
 
         # create shapely point
