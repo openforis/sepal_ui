@@ -1,0 +1,12 @@
+[
+    {
+        "name": "dev",
+        "version": "latest",
+        "url": "https://sepal-ui.readthedocs.io/en/latest/"
+    },
+    {
+        "name": "2.9.0 (stable)", 
+        "version": "v_2.9.0",
+        "url": "https://sepal-ui.readthedocs.io/en/v_2.9.0"
+    }
+]

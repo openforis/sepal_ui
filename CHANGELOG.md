@@ -1,3 +1,15 @@
+## v_2.9.2 (2022-06-09)
+
+### Fix
+
+- build the wheel
+
+## v_2.9.1 (2022-06-09)
+
+### Fix
+
+- allow the build off the wheel
+
 ## v_2.9.0 (2022-06-09)
 
 ### Feat

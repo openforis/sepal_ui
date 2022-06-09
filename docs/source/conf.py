@@ -4,7 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+# -- Path setup ----------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,7 +28,7 @@ os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", 
 DOC_DIR = Path(__file__).parent
 
 
-# -- Project information -----------------------------------------------------
+# -- Project information -------------------------------------------------------
 
 # General information about the project.
 project = "sepal-ui"
@@ -39,7 +39,7 @@ author = __author__
 release = __version__
 
 
-# -- General configuration ---------------------------------------------------
+# -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -69,7 +69,7 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 # to be able to read RST files
 source_suffix = [".rst", ".md"]
 
-# -- Load the images from the master sepal-doc -------------------------------
+# -- Load the images from the master sepal-doc ---------------------------------
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
     "_image/dwn/sepal.png",
@@ -84,7 +84,18 @@ urlretrieve(
 )
 
 
-# -- Options for HTML output -------------------------------------------------
+# -- Options for HTML output ---------------------------------------------------
+
+# Define the version we use for matching in the version switcher.
+json_url = "https://sepal-ui.readthedocs.io/en/latest/_static/switcher.json"
+version_match = os.environ.get("READTHEDOCS_VERSION")
+# If READTHEDOCS_VERSION doesn't exist, we're not on RTD
+# If it is an integer, we're in a PR build and the version isn't correct.
+if not version_match or version_match.isdigit():
+    # For local development, infer the version to latest
+    release = "dev"
+    version_match = "latest"
+    json_url = "/_static/switcher.json"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -94,7 +105,10 @@ html_logo = "_image/dwn/sepal.png"
 html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "use_edit_page_button": True,
     "show_prev_next": False,
+    "switcher": {"json_url": json_url, "version": version_match},
+    "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
             "name": "GitHub",
@@ -107,7 +121,6 @@ html_theme_options = {
             "icon": "fab fa-python",
         },
     ],
-    "use_edit_page_button": True,
 }
 html_context = {
     "github_user": "12rambau",
