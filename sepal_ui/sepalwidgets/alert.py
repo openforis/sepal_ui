@@ -1,5 +1,5 @@
 from datetime import datetime
-from tqdm.auto import tqdm
+from tqdm.notebook import tqdm
 from ipywidgets import jslink, Output
 import ipyvuetify as v
 from traitlets import Unicode, observe, directional_link, Bool
@@ -74,7 +74,7 @@ class Alert(v.Alert, SepalWidget):
         self.progress_output = Output()
         self.progress_bar = None
 
-    def update_progress(self, progress, msg="Progress", bar_length=30, **tqdm_args):
+    def update_progress(self, progress, msg="Progress", **tqdm_args):
         """
         Update the Alert message with a progress bar. This function will stay until we
         manage to use tqdm in the widgets
@@ -111,9 +111,6 @@ class Alert(v.Alert, SepalWidget):
                 self.progress_bar = tqdm(**tqdm_args)
                 self.progress_bar.container.children[0].add_class(f"{self.type}--text")
                 self.progress_bar.container.children[2].add_class(f"{self.type}--text")
-                self.progress_bar.container.children[1].add_class("toto")
-
-                # style.bar_color = '#ffff00'
 
                 # Initialize bar
                 self.progress_bar.update(0)
@@ -121,9 +118,7 @@ class Alert(v.Alert, SepalWidget):
         self.progress_bar.update(progress * 100 - self.progress_bar.n)
 
         if progress == 1:
-
             self.progress_bar.close()
-            # self.progress_bar.colour = color.success
 
         return
 
