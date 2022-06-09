@@ -105,6 +105,7 @@ html_logo = "_image/dwn/sepal.png"
 html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "use_edit_page_button": True,
     "show_prev_next": False,
     "switcher": {"json_url": json_url, "version": version_match},
     "navbar_start": ["navbar-logo", "version-switcher"],
@@ -120,7 +121,6 @@ html_theme_options = {
             "icon": "fab fa-python",
         },
     ],
-    "use_edit_page_button": True,
 }
 html_context = {
     "github_user": "12rambau",
