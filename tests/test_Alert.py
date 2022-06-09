@@ -183,8 +183,8 @@ class TestAlert:
 
         # test a random update
         alert.update_progress(0.5)
-        assert alert.children[1].children[0].children[2].children[0] == " 50.0%"
+        assert alert.progress_bar.n == 50
 
         # show that a value > 1 raise an error
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             alert.update_progress(1.5)
