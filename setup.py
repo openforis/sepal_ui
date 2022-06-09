@@ -51,6 +51,7 @@ setup_params = {
         "planet",
         "pyyaml",
         "dask",
+        "tqdm",
     ],
     "extras_require": {
         "dev": [
