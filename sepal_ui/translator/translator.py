@@ -68,7 +68,7 @@ class Translator(Box):
 
         # # unpack the json as a simple namespace
         ms_json = json.dumps(ms_dict)
-        ms_boxes = json.loads(ms_json, object_hook=lambda d: Box(**d))
+        ms_boxes = json.loads(ms_json, object_hook=lambda d: Box(**d, frozen_box=True))
 
         private_keys = {
             "_folder": str(folder),
@@ -77,7 +77,7 @@ class Translator(Box):
             "_target": target,
             "_match": match,
         }
-        super(Box, self).__init__({**private_keys, **ms_boxes})
+        super(Box, self).__init__(**private_keys, **ms_boxes, frozen_box=True)
 
     @versionadded(version="2.7.0")
     @staticmethod
