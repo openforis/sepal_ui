@@ -1,3 +1,9 @@
+## v_2.9.4 (2022-06-09)
+
+### Fix
+
+- drop jupyter-sphinx git version I think the rendering is going to fail but it's preventing me from building the wheel and to use Jupyterlite I need the wheel Sorry not sorry
+
 ## v_2.9.3 (2022-06-09)
 
 ### Fix
