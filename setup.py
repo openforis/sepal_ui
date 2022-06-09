@@ -62,7 +62,7 @@ setup_params = {
         ],
         "doc": [
             "jupyter-sphinx @ git+https://github.com/jupyter/jupyter-sphinx.git",
-            "pydata-sphinx-theme @ git+https://github.com/pydata/pydata-sphinx-theme.git",
+            "pydata-sphinx-theme==0.9.0",
             "sphinx-notfound-page",
             "Sphinx",
             "sphinxcontrib-spelling",

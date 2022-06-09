@@ -1,11 +1,13 @@
+/*******************************************************************************
+ *  add padding to the jupyter-sphinx widgets
+ */
 div.jupyter_container.docutils {
   padding: .4em;
 }
 
-/*********************************************************************************
+/*******************************************************************************
  *  make the footer inlined
- *
- **/
+ */
 .footer-item {
   display: inline-block;
 }
@@ -16,11 +18,21 @@ div.jupyter_container.docutils {
 }
 
 /*******************************************************************************
-* overwrite image filter in dark theme 
-* most of our images are from SEPAL which is already using a dark theme 
-* there is no need for extra contrast and dimned brightness
-*
-*/
+ * overwrite image filter in dark theme 
+ * most of our images are from SEPAL which is already using a dark theme 
+ * there is no need for extra contrast and dimned brightness
+ */
 html[data-theme=dark] img {
    filter: brightness(1) contrast(1);
+}
+
+/*******************************************************************************
+ * Customize the colors of the website
+ */
+html[data-theme=light] {
+    --pst-color-primary: #196692;
+}
+
+html[data-theme=dark] img {
+    --pst-color-primary: #196692;
 }
