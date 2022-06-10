@@ -128,6 +128,7 @@ class Styles(v.VuetifyTemplate):
     - remove shadow of widget-control
     - remove padding of the main content
     - load fontawsome as a resource
+    - ensure that tqdm bars are using a transparent background when displayed in an alert
     """
 
     template = Unicode(
@@ -138,6 +139,7 @@ class Styles(v.VuetifyTemplate):
             .leaflet-widgetcontrol {box-shadow: none}
             main.v-content {padding-top: 0px !important;}
             .leaflet-control-container .vuetify-styles .v-application {background: rgb(0,0,0,0);}
+            .v-alert__wrapper .progress {background-color: transparent;}
         </style>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     """

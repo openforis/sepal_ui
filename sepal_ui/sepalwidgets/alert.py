@@ -1,12 +1,12 @@
 from datetime import datetime
-
-from ipywidgets import jslink
+from tqdm.notebook import tqdm
+from ipywidgets import jslink, Output
 import ipyvuetify as v
 from traitlets import Unicode, observe, directional_link, Bool
 
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.scripts.utils import set_type
-from sepal_ui.frontend.styles import TYPES
+from sepal_ui.frontend.styles import TYPES, color
 from sepal_ui.message import ms
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
@@ -71,10 +71,13 @@ class Alert(v.Alert, SepalWidget):
         super().__init__(**kwargs)
 
         self.hide()
+        self.progress_output = Output()
+        self.progress_bar = None
 
-    def update_progress(self, progress, msg="Progress", bar_length=30):
+    def update_progress(self, progress, msg="Progress", **tqdm_args):
         """
-        Update the Alert message with a progress bar. This function will stay until we manage to use tqdm in the widgets
+        Update the Alert message with a progress bar. This function will stay until we
+        manage to use tqdm in the widgets
 
         Args:
             progress (float): the progress status in float [0, 1]
@@ -85,38 +88,39 @@ class Alert(v.Alert, SepalWidget):
             self
         """
 
-        # define the characters to use in the progress bar
-        plain_char = "█"
-        empty_char = " "
-
         # cast the progress to float
         progress = float(progress)
         if not (0 <= progress <= 1):
             raise ValueError(f"progress should be in [0, 1], {progress} given")
 
-        # set the length parameter
-        block = int(round(bar_length * progress))
+        # Prevent adding multiple times
+        if self.progress_output not in self.children:
 
-        # construct the message content
-        text = f"|{plain_char * block + empty_char * (bar_length - block)}|"
+            self.children = [self.progress_output]
 
-        # add the message to the output
-        self.add_live_msg(
-            v.Html(
-                tag="span",
-                children=[
-                    v.Html(tag="span", children=[f"{msg}: "], class_="d-inline"),
-                    v.Html(tag="pre", class_="info--text d-inline", children=[text]),
-                    v.Html(
-                        tag="span",
-                        children=[f" {progress *100:.1f}%"],
-                        class_="d-inline",
-                    ),
-                ],
+            tqdm_args["bar_format"] = tqdm_args.pop(
+                "bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}"
             )
-        )
+            tqdm_args["dynamic_ncols"] = tqdm_args.pop("dynamic_ncols", tqdm_args)
+            tqdm_args["total"] = tqdm_args.pop("total", 100)
+            tqdm_args["desc"] = tqdm_args.pop("desc", msg)
+            tqdm_args["colour"] = tqdm_args.pop("tqdm_args", getattr(color, self.type))
 
-        return self
+            with self.progress_output:
+                self.progress_output.clear_output()
+                self.progress_bar = tqdm(**tqdm_args)
+                self.progress_bar.container.children[0].add_class(f"{self.type}--text")
+                self.progress_bar.container.children[2].add_class(f"{self.type}--text")
+
+                # Initialize bar
+                self.progress_bar.update(0)
+
+        self.progress_bar.update(progress * 100 - self.progress_bar.n)
+
+        if progress == 1:
+            self.progress_bar.close()
+
+        return
 
     def add_msg(self, msg, type_="info"):
         """
