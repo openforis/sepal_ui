@@ -167,7 +167,7 @@ class TestSepalMap:
         res = sm.SepalMap.get_basemap_list()
 
         # last time I checked there were 128
-        assert len(res) == 128
+        assert len(res) == 131
 
         return
 
