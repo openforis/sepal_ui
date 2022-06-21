@@ -35,6 +35,7 @@ setup_params = {
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
         "earthengine-api",
         "markdown",
+        "ipyleaflet>=0.14.0",
         "xarray_leaflet",
         "shapely",
         "geopandas",
