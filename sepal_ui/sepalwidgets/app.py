@@ -1,15 +1,32 @@
+from traitlets import link, Bool, observe
 from functools import partial
 from datetime import datetime
+from pathlib import Path
+from itertools import cycle
 
 import ipyvuetify as v
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import versionadded, versionchanged
+import pandas as pd
+from ipywidgets import jsdlink
 
+import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
-from sepal_ui.frontend.styles import sepal_main, sepal_darker
 from sepal_ui.frontend import js
+from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 
-__all__ = ["AppBar", "DrawerItem", "NavDrawer", "Footer", "App"]
+
+__all__ = [
+    "AppBar",
+    "DrawerItem",
+    "NavDrawer",
+    "Footer",
+    "App",
+    "LocaleSelect",
+    "ThemeSelect",
+]
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -18,6 +35,7 @@ class AppBar(v.AppBar, SepalWidget):
 
     Args:
         title (str, optional): the title of the app
+        translator (sw.Translator, optional): the app translator to pass to the locale selector object
         kwargs(dict, optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
     """
 
@@ -27,21 +45,36 @@ class AppBar(v.AppBar, SepalWidget):
     title = None
     "v.ToolBarTitle: the widget containing the app title"
 
-    def __init__(self, title="SEPAL module", **kwargs):
+    locale = None
+    "sw.LocaleSelect: the locale selector of all apps"
+
+    theme = None
+    "sw.ThemeSelect: the theme selector of all apps"
+
+    def __init__(self, title="SEPAL module", translator=None, **kwargs):
 
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["mdi-dots-vertical"])],
+            children=[v.Icon(class_="white--text", children=["fas fa-ellipsis-v"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
 
+        self.locale = LocaleSelect(translator=translator)
+        self.theme = ThemeSelect()
+
         # set the default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["dense"] = kwargs.pop("dense", True)
         kwargs["app"] = True
-        kwargs["children"] = [self.toggle_button, self.title]
+        kwargs["children"] = [
+            self.toggle_button,
+            self.title,
+            v.Spacer(),
+            self.locale,
+            self.theme,
+        ]
 
         super().__init__(**kwargs)
 
@@ -69,21 +102,38 @@ class DrawerItem(v.ListItem, SepalWidget):
 
     Args:
         title (str): the title of the drawer item
-        icon(str, optional): the full name of a mdi-icon
+        icon(str, optional): the full name of a mdi/fa icon
         card (str, optional): the mount_id of tiles in the app
         href (str, optional): the absolute link to an external web page
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
+        model (optional): sepalwidget model where is defined the bin_var trait
+        bind_var (optional): required when model is selected. Trait to link with 'alert' self trait parameter
     """
 
     rt = None
     "sw.ResizeTrigger: the trigger to resize maps and other javascript object when jumping from a tile to another"
 
-    def __init__(self, title, icon=None, card=None, href=None, **kwargs):
+    alert = Bool(False).tag(sync=True)
+    "Bool: trait to control visibility of an alert in the drawer item"
+
+    alert_badge = None
+    "v.ListItemAction: red circle to display in the drawer"
+
+    def __init__(
+        self,
+        title,
+        icon=None,
+        card=None,
+        href=None,
+        model=None,
+        bind_var=None,
+        **kwargs,
+    ):
 
         # set the resizetrigger
         self.rt = js.rt
 
-        icon = icon if icon else "mdi-folder-outline"
+        icon = icon if icon else "far fa-folder"
 
         children = [
             v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
@@ -107,6 +157,45 @@ class DrawerItem(v.ListItem, SepalWidget):
 
         # call the constructor
         super().__init__(**kwargs)
+
+        # cannot be set as a class member because it will be shared with all
+        # the other draweritems.
+        self.alert_badge = v.ListItemAction(
+            children=[v.Icon(children=["fas fa-circle"], x_small=True, color="red")]
+        )
+
+        if model:
+            if not bind_var:
+                raise Exception(
+                    "You have selected a model, you need a trait to bind with drawer."
+                )
+
+            link((model, bind_var), (self, "alert"))
+
+    @observe("alert")
+    def add_notif(self, change):
+        """Add a notification alert to drawer"""
+
+        if change["new"]:
+            if self.alert_badge not in self.children:
+                new_children = self.children[:]
+                new_children.append(self.alert_badge)
+                self.children = new_children
+        else:
+            self.remove_notif()
+
+        return
+
+    def remove_notif(self):
+        """Remove notification alert"""
+
+        if self.alert_badge in self.children:
+            new_children = self.children[:]
+            new_children.remove(self.alert_badge)
+
+            self.children = new_children
+
+        return
 
     def display_tile(self, tiles):
         """
@@ -138,6 +227,9 @@ class DrawerItem(v.ListItem, SepalWidget):
         # change the current item status
         self.input_value = True
 
+        # Remove notification
+        self.remove_notif()
+
         return self
 
 
@@ -163,13 +255,19 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
         code_link = []
         if code:
-            item_code = DrawerItem("Source code", icon="mdi-file-code", href=code)
+            item_code = DrawerItem(
+                ms.widgets.navdrawer.code, icon="far fa-file-code", href=code
+            )
             code_link.append(item_code)
         if wiki:
-            item_wiki = DrawerItem("Wiki", icon="mdi-book-open-page-variant", href=wiki)
+            item_wiki = DrawerItem(
+                ms.widgets.navdrawer.wiki, icon="fas fa-book-open", href=wiki
+            )
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem("Bug report", icon="mdi-bug", href=issue)
+            item_bug = DrawerItem(
+                ms.widgets.navdrawer.bug, icon="fas fa-bug", href=issue
+            )
             code_link.append(item_bug)
 
         children = [
@@ -181,7 +279,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         # set default parameters
         kwargs["v_model"] = kwargs.pop("v_model", True)
         kwargs["app"] = True
-        kwargs["color"] = kwargs.pop("color", sepal_darker)
+        kwargs["color"] = kwargs.pop("color", color.darker)
         kwargs["children"] = children
 
         # call the constructor
@@ -242,7 +340,7 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs["color"] = kwargs.pop("color", sepal_main)
+        kwargs["color"] = kwargs.pop("color", color.main)
         kwargs["class_"] = kwargs.pop("class_", "white--text")
         kwargs["app"] = True
         kwargs["children"] = [text]
@@ -262,7 +360,8 @@ class App(v.App, SepalWidget):
         tiles ([sw.Tile]): the tiles of the app
         appBar (sw.AppBar, optional): the appBar of the application
         footer (sw.Footer, optional): the footer of the application
-        navDrawer (sw.NavDrawer): the navdrawer of the application
+        navDrawer (sw.NavDrawer, optional): the navdrawer of the application
+        translator (sw.Translator, optional): the translator of the app to display language informations
         kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
     """
 
@@ -281,7 +380,15 @@ class App(v.App, SepalWidget):
     content = None
     "v.Content: the tiles organized in a fluid container"
 
-    def __init__(self, tiles=[""], appBar=None, footer=None, navDrawer=None, **kwargs):
+    def __init__(
+        self,
+        tiles=[""],
+        appBar=None,
+        footer=None,
+        navDrawer=None,
+        translator=None,
+        **kwargs,
+    ):
 
         self.tiles = None if tiles == [""] else tiles
 
@@ -289,7 +396,7 @@ class App(v.App, SepalWidget):
 
         # create a false appBar if necessary
         if not appBar:
-            appBar = AppBar()
+            appBar = AppBar(translator=translator)
         self.appBar = appBar
         app_children.append(self.appBar)
 
@@ -326,6 +433,16 @@ class App(v.App, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
+        # display a warning if the set language cannot be reached
+        if translator is not None:
+            if translator.match is False:
+                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+                self.add_banner(msg, type_="error")
+
+        # add js event
+        self.appBar.locale.observe(self._locale_info, "value")
+        self.appBar.theme.observe(self._theme_info, "v_model")
+
     def show_tile(self, name):
         """
         Select the tile to display when the app is launched
@@ -353,30 +470,272 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    def add_banner(self, msg, **kwargs):
+    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
+    def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
-        Display an alert object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent
+        Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
-            msg (str): the message to write in the Alert
-            kwargs: any arguments of the v.Alert constructor. if set, 'children' will be overwritten.
+            *args: all required sw.Banner arguments.
+            **kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
 
         Return:
             self
         """
 
-        kwargs["type"] = kwargs.pop("type", "info")
-        kwargs["border"] = kwargs.pop("border", "left")
-        kwargs["class_"] = kwargs.pop("class_", "mt-5")
-        kwargs["transition"] = kwargs.pop("transition", "slide-x-transition")
-        kwargs["prominent"] = kwargs.pop("prominent", True)
-        kwargs["dismissible"] = kwargs.pop("dismissible", True)
-        kwargs["children"] = [msg]  # cannot be overwritten
+        # the Banner was previously an Alert. for compatibility we accept the type parameter
+        type_ = kwargs.pop("type", type_)
 
-        # create the alert
-        alert = v.Alert(**kwargs)
+        # the banner will be piled up from the first to the latest.
+        # only the first one is shown
+        # dismissed banner are remove from the children
 
-        # add the alert to the app
-        self.content.children = [alert] + self.content.children.copy()
+        # extract the banner from the app children
+        children, banner_list = [], []
+        for e in self.content.children.copy():
+            dst = banner_list if isinstance(e, Banner) else children
+            dst.append(e)
+
+        # only set viz to true if it's the first one
+        viz = False if len(banner_list) > 0 else True
+
+        # create the baner and interactions
+        w_bnr = Banner(msg, type_, id_, persistent, viz=viz, **kwargs)
+        banner_list += [w_bnr]
+
+        # display the number of banner in queue
+        banner_list[0].set_btn(len(banner_list) - 1)
+
+        # place everything back in the app chldren list
+        self.content.children = banner_list + children
+
+        # add interaction at the end
+        w_bnr.observe(self._remove_banner, "v_model")
 
         return self
+
+    def _locale_info(self, change):
+        """display information about the locale change"""
+
+        if change["new"] != "":
+            msg = ms.locale.change.format(change["new"])
+            self.add_banner(msg)
+
+        return
+
+    def _theme_info(self, change):
+        """display information about the theme change"""
+
+        if change["new"] != "":
+            msg = ms.theme.change.format(change["new"])
+            self.add_banner(msg)
+
+        return
+
+    def _remove_banner(self, change):
+        """
+        Adapt the banner display so that the first one is the oly one shown displaying the number of other banner in the queue
+        I'm force to create a function as lambda method cannot do assignments before python 3.9.
+        """
+        if change["new"] is False:
+
+            # extract the banner from the app children
+            children, banner_list = [], []
+            for e in self.content.children.copy():
+                dst = banner_list if isinstance(e, Banner) else children
+                dst.append(e)
+
+            # remove the banner from the list
+            banner_list.remove(change["owner"])
+
+            # change the visibility of the widgets
+            [setattr(b, "viz", i == 0) for i, b in enumerate(banner_list)]
+
+            # set the btn of the the first element if possible
+            len(banner_list) == 0 or banner_list[0].set_btn(len(banner_list) - 1)
+
+            # place everything back in the app chldren list
+            self.content.children = banner_list + children
+
+        return
+
+
+class LocaleSelect(v.Menu, SepalWidget):
+    """
+    An language selector for sepal-ui based application.
+
+    It displays the currently requested language (not the one used by the translator).
+    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+    .. warning:: as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
+
+    .. versionadded:: 2.7.0
+
+
+    Args:
+        translator (sw.Translator, optional): the translator of the app, to match the used language
+        kwargs (dict, optional): any arguments for a Btn object, children will be override
+    """
+
+    COUNTRIES = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
+    "pandas.DataFrame: the country list as a df. columns [code, name, flag]"
+
+    FLAG = "https://flagcdn.com/{}.svg"
+    "str: the url of the svg flag images"
+
+    ATTR = {"src": "https://flagcdn.com/gb.svg", "width": "30", "alt": "en-UK"}
+    "dict: the default flag parameter, default to english"
+
+    btn = None
+    "v.Btn: the btn to click when changing language"
+
+    language_list = None
+    "v.List: the list of countries with their flag,name in english, and ISO code"
+
+    def __init__(self, translator=None, **kwargs):
+
+        # extract the available language from the translator
+        # default to only en-US if no translator is set
+        available_locales = (
+            ["en"] if translator is None else translator.available_locales()
+        )
+
+        # extract the language information from the translator
+        # if not set default to english
+        code = "en" if translator is None else translator.target
+        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
+        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+
+        kwargs["small"] = kwargs.pop("small", True)
+        kwargs["v_model"] = False
+        kwargs["v_on"] = "x.on"
+        kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
+        self.btn = v.Btn(**kwargs)
+
+        self.language_list = v.List(
+            dense=True,
+            flat=True,
+            color=color.menu,
+            v_model=True,
+            max_height="300px",
+            style_="overflow: auto; border-radius: 0 0 0 0;",
+            children=[
+                v.ListItemGroup(
+                    children=self._get_country_items(available_locales), v_model=""
+                )
+            ],
+        )
+
+        super().__init__(
+            children=[self.language_list],
+            v_model=False,
+            close_on_content_click=True,
+            v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
+            value=loc.code,
+        )
+
+        # add js behaviour
+        jsdlink((self.language_list.children[0], "v_model"), (self, "value"))
+        self.language_list.children[0].observe(self._on_locale_select, "v_model")
+
+    def _get_country_items(self, locales):
+        """get the list of countries as a list of listItem. reduce the list to the available language of the module"""
+
+        country_list = []
+        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
+        for r in filtered_countries.itertuples(index=False):
+
+            attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
+
+            children = [
+                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
+                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
+                v.ListItemActionText(children=[r.code]),
+            ]
+
+            country_list.append(v.ListItem(value=r.code, children=children))
+
+        return country_list
+
+    def _on_locale_select(self, change):
+        """
+        adapt the application to the newly selected language
+
+        Display the new flag and country code on the widget btn
+        change the value in the config file
+        """
+
+        # get the line in the locale dataframe
+        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
+
+        # change the btn attributes
+        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+        self.btn.children = [
+            v.Html(tag="img", attributes=attr, class_="mr-1"),
+            loc.code,
+        ]
+        self.btn.color = "info"
+
+        # change the paramater file
+        su.set_config("locale", loc.code)
+
+        return
+
+
+class ThemeSelect(v.Btn, SepalWidget):
+    """
+    A theme selector for sepal-ui based application.
+
+    It displays the currently requested theme (default to dark).
+    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+    .. versionadded:: 2.7.0
+
+    Args:
+        kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
+    """
+
+    THEME_ICONS = {"dark": "fas fa-moon", "light": "fas fa-sun"}
+    "dict: the dictionnry of icons to use for each theme (used as keys)"
+
+    theme = "dark"
+    "str: the current theme of the widget (default to dark)"
+
+    def __init__(self, **kwargs):
+
+        # get the current theme name
+        self.theme = sepal_ui.get_theme()
+
+        # set the btn parameters
+        kwargs["x_small"] = kwargs.pop("x_small", True)
+        kwargs["fab"] = kwargs.pop("fab", True)
+        kwargs["class_"] = kwargs.pop("class_", "ml-2")
+        kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
+        kwargs["v_model"] = self.theme
+
+        # create the btn
+        super().__init__(**kwargs)
+
+        # add some js events
+        self.on_event("click", self.toggle_theme)
+
+    def toggle_theme(self, widget, event, data):
+        """
+        toggle the btn icon from dark to light and adapt the configuration file at the same time
+        """
+        # use a cycle to go through the themes
+        theme_cycle = cycle(self.THEME_ICONS.keys())
+        next(t for t in theme_cycle if t == self.theme)
+        self.theme = next(t for t in theme_cycle)
+
+        # change icon
+        self.color = "info"
+        self.children[0].children = [self.THEME_ICONS[self.theme]]
+
+        # change the paramater file
+        su.set_config("theme", self.theme)
+
+        # trigger other events by changing v_model
+        self.v_model = self.theme
+
+        return

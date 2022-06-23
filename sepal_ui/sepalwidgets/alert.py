@@ -1,13 +1,15 @@
 from datetime import datetime
-
-from ipywidgets import jslink
+from tqdm.notebook import tqdm
+from ipywidgets import jslink, Output
 import ipyvuetify as v
-from deprecated.sphinx import deprecated
 from traitlets import Unicode, observe, directional_link, Bool
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, TYPES
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts.utils import set_type
+from sepal_ui.frontend.styles import TYPES, color
+from sepal_ui.message import ms
 
-__all__ = ["Divider", "Alert", "StateBar"]
+__all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
 
 class Divider(v.Divider, SepalWidget):
@@ -17,11 +19,11 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
+        kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
     """
 
     type_ = Unicode("").tag(sync=True)
-    "str: Added type_ trait to specify the current color of the divider"
+    "str: Added type\_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
         kwargs["class_"] = class_
@@ -40,14 +42,8 @@ class Divider(v.Divider, SepalWidget):
             self
         """
 
-        type_ = change["new"]
-        classes = self.class_.split(" ")
-        existing = list(set(classes) & set(TYPES))
-        if existing:
-            classes[classes.index(existing[0])] = type_
-            self.class_ = " ".join(classes)
-        else:
-            self.class_ += f" {type_}"
+        self.class_list.remove(*TYPES)
+        self.class_list.add(change["new"])
 
         return self
 
@@ -64,21 +60,24 @@ class Alert(v.Alert, SepalWidget):
         kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
-    def __init__(self, type_=None, **kwargs):
+    def __init__(self, type_="info", **kwargs):
 
         # set default parameters
         kwargs["text"] = kwargs.pop("text", True)
-        kwargs["type"] = type_ if (type_ in TYPES) else TYPES[0]
+        kwargs["type"] = set_type(type_)
         kwargs["class_"] = kwargs.pop("class_", "mt-5")
 
         # call the constructor
         super().__init__(**kwargs)
 
         self.hide()
+        self.progress_output = Output()
+        self.progress_bar = None
 
-    def update_progress(self, progress, msg="Progress", bar_length=30):
+    def update_progress(self, progress, msg="Progress", **tqdm_args):
         """
-        Update the Alert message with a progress bar. This function will stay until we manage to use tqdm in the widgets
+        Update the Alert message with a progress bar. This function will stay until we
+        manage to use tqdm in the widgets
 
         Args:
             progress (float): the progress status in float [0, 1]
@@ -89,38 +88,39 @@ class Alert(v.Alert, SepalWidget):
             self
         """
 
-        # define the characters to use in the progress bar
-        plain_char = "█"
-        empty_char = " "
-
         # cast the progress to float
         progress = float(progress)
         if not (0 <= progress <= 1):
             raise ValueError(f"progress should be in [0, 1], {progress} given")
 
-        # set the length parameter
-        block = int(round(bar_length * progress))
+        # Prevent adding multiple times
+        if self.progress_output not in self.children:
 
-        # construct the message content
-        text = f"|{plain_char * block + empty_char * (bar_length - block)}|"
+            self.children = [self.progress_output]
 
-        # add the message to the output
-        self.add_live_msg(
-            v.Html(
-                tag="span",
-                children=[
-                    v.Html(tag="span", children=[f"{msg}: "], class_="d-inline"),
-                    v.Html(tag="pre", class_="info--text d-inline", children=[text]),
-                    v.Html(
-                        tag="span",
-                        children=[f" {progress *100:.1f}%"],
-                        class_="d-inline",
-                    ),
-                ],
+            tqdm_args["bar_format"] = tqdm_args.pop(
+                "bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}"
             )
-        )
+            tqdm_args["dynamic_ncols"] = tqdm_args.pop("dynamic_ncols", tqdm_args)
+            tqdm_args["total"] = tqdm_args.pop("total", 100)
+            tqdm_args["desc"] = tqdm_args.pop("desc", msg)
+            tqdm_args["colour"] = tqdm_args.pop("tqdm_args", getattr(color, self.type))
 
-        return self
+            with self.progress_output:
+                self.progress_output.clear_output()
+                self.progress_bar = tqdm(**tqdm_args)
+                self.progress_bar.container.children[0].add_class(f"{self.type}--text")
+                self.progress_bar.container.children[2].add_class(f"{self.type}--text")
+
+                # Initialize bar
+                self.progress_bar.update(0)
+
+        self.progress_bar.update(progress * 100 - self.progress_bar.n)
+
+        if progress == 1:
+            self.progress_bar.close()
+
+        return
 
     def add_msg(self, msg, type_="info"):
         """
@@ -135,7 +135,7 @@ class Alert(v.Alert, SepalWidget):
             self
         """
         self.show()
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
+        self.type = set_type(type_)
         self.children = [v.Html(tag="p", children=[msg])]
 
         return self
@@ -157,8 +157,7 @@ class Alert(v.Alert, SepalWidget):
         current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
 
         self.show()
-        self.type = type_ if (type_ in TYPES) else TYPES[0]
-
+        self.type = set_type(type_)
         self.children = [
             v.Html(tag="p", children=["[{}]".format(current_time)]),
             v.Html(tag="p", children=[msg]),
@@ -227,51 +226,6 @@ class Alert(v.Alert, SepalWidget):
 
         self.children = [""]
         self.hide()
-
-        return self
-
-    @deprecated(version="2.1.0", reason="use a Model object instead")
-    def bind(self, widget, obj, attribute, msg=None, verbose=True, secret=False):
-        """
-        Bind the attribute to the widget and display it in the alert.
-        The binded input need to have an active `v_model` trait.
-        After the binding, whenever the `v_model` of the input is changed, the io attribute is changed accordingly.
-        The value can also be displayed in the alert with a custom message with the following format = `[custom message] + [v_model]`
-
-        Args:
-            widget (v.XX): an ipyvuetify input element with an activated `v_model` trait
-            obj (io): any io object
-            attribute (str): the name of the attribute in io object
-            msg (str, optionnal): the output message displayed before the variable
-            verbose (bool, optional): wheter the variable should be displayed to the user
-            secret (bool, optional): either if the variable is secret or not. If true only "*" will be shown in the output
-
-        Return:
-            self
-        """
-        if not msg:
-            msg = "The selected variable is: "
-
-        def _on_change(change, obj=obj, attribute=attribute, msg=msg):
-
-            # if the key doesn't exist the getattr function will raise an AttributeError
-            getattr(obj, attribute)
-
-            # change the obj value
-            setattr(obj, attribute, change["new"])
-
-            # add the message if needed
-            if secret:
-                msg += "*" * len(str(change["new"]))
-            else:
-                msg += str(change["new"])
-
-            if verbose:
-                self.add_msg(msg)
-
-            return
-
-        widget.observe(_on_change, "v_model")
 
         return self
 
@@ -355,3 +309,86 @@ class StateBar(v.SystemBar):
         self.loading = loading
 
         return self
+
+
+class Banner(v.Snackbar, SepalWidget):
+    """
+    Custom Snackbar widget to display messages as a banner in module App.
+
+    Args:
+       msg (str, optional): Message to display in application banner. default to nothing
+       type\_ (str, optional): Used to display an appropiate banner color. fallback to "info".
+       id_ (str, optional): unique banner identificator.
+       persistent (bool, optional): Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+       kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
+    """
+
+    btn_close = None
+    "v.Btn: the closing btn of the banner"
+
+    def __init__(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
+
+        # compute the type and default to "info" if it's not existing
+        type_ = set_type(type_)
+
+        # create the closing btn
+        self.btn_close = v.Btn(
+            small=True, text=True, children=[ms.widgets.banner.close]
+        )
+
+        # compute timeout based on the persistent and timeout parameter
+        computed_timeout = 0 if persistent is True else self.get_timeout(msg)
+
+        kwargs["color"] = kwargs.pop("color", type_)
+        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
+        kwargs["attributes"] = {"id": id_}
+        kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs["timeout"] = kwargs.pop("timeout", False) or computed_timeout
+        kwargs["top"] = True
+        kwargs["vertical"] = True
+        kwargs["children"] = [msg] + [self.btn_close]
+        kwargs["class_"] = "mb-1"
+
+        super().__init__(**kwargs)
+
+        self.btn_close.on_event("click", self.close)
+
+    def close(self, *args):
+        """Close button event to close snackbar alert"""
+        self.v_model = False
+
+        return
+
+    def get_timeout(self, text):
+        """
+        Calculate timeout in miliseconds to read the message
+
+        Args:
+            text (str): the text displayed in the banner to adapt the duration of the timeout
+
+        Returns
+            (int): the duration of the timeout in milliseconds
+        """
+
+        wpm = 180  # readable words per minute
+        word_length = 5  # standardized number of chars in calculable word
+        words = len(text) / word_length
+        words_time = ((words / wpm) * 60) * 1000
+
+        delay = 1500  # milliseconds before user starts reading the notification
+        bonus = 1000  # extra time
+
+        return delay + words_time + bonus
+
+    def set_btn(self, nb_banner):
+        """
+        Change the btn display to inform the user on the number of banners in the queue
+
+        Args:
+            nb_banner (int): the number of banners in the queue
+        """
+        msg = ms.widgets.banner
+        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
+        self.btn_close.children = [txt]
+
+        return

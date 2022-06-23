@@ -7,7 +7,9 @@ sepal\_ui.sepalwidgets.DrawerItem
     
     .. autosummary::
     
-        ~DrawerItem.rt        
+        ~DrawerItem.rt 
+        ~DrawerItem.alert
+        ~DrawerItem.alert_badge
     
     .. rubric:: Methods
     
@@ -15,5 +17,11 @@ sepal\_ui.sepalwidgets.DrawerItem
         :nosignatures:
         
         ~DrawerItem.display_tile
+        ~DrawerItem.add_notif
+        ~DrawerItem.remove_notif
         
 .. automethod:: sepal_ui.sepalwidgets.DrawerItem.display_tile
+
+.. automethod:: sepal_ui.sepalwidgets.DrawerItem.add_notif
+
+.. automethod:: sepal_ui.sepalwidgets.DrawerItem.remove_notif

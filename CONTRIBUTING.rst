@@ -1,5 +1,5 @@
-Contribute
-==========
+Contributing guidelines
+=======================
 
 .. warning::
 
@@ -17,6 +17,18 @@ After forking the projet, run the following command to start developing:
 
     :code:`pre-commits` are installed in edit mode. Every commit that does not respect the conventional commits framework will be refused. 
     you can read this `documentation <https://www.conventionalcommits.org/en/v1.0.0/>`_ to learn more about them and we highly recommend to use the :code:`commitizen` lib to create your commits: `<https://commitizen-tools.github.io/commitizen>`_.
+    
+Participate to translation
+--------------------------
+
+The tool is currently tranlated in the following languages: 
+
+.. csv-table::
+
+    English, Français, Español
+
+You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__. Contributors can suggest new languages and new translation. The admin will review this modification as fast as possible. If nobody in the core team master the suggested language, we'll be force to trust you !
+
 
 Develop within the project
 --------------------------
@@ -109,6 +121,30 @@ Then push the current :code:`master` branch to the :code:`release` branch. You c
 The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://badge.fury.io/py/sepal-ui>`_.
     
 Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically. 
+
+
+Setting ENV variables
+---------------------
+
+Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though they are also skippable.
+
+To store a variable in your local session, just type :code:`export=` followed by the var value.
+
+.. code-block:: console 
+
+    $ export PLANET_API_KEY="neverending_resourcesapi"
+    
+However, this variable will expire everytime you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
+    
+.. code-block:: console 
+
+    $ vim .bash_profile
+
+.. note::
+    The current enviromental keys and its structure is the following:
+
+    - PLANET_API_CREDENTIALS: '{"username": "user@neim.com", "password": "secure"}'
+    - PLANET_API_KEY: "string_planet_api_key"
 
 .. spelling:: 
 

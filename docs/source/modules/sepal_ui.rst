@@ -16,10 +16,19 @@ Content
     sepal_ui.sepalwidgets
     sepal_ui.translator
     sepal_ui.reclassify
+    sepal_ui.planetapi
     
 .. rubric:: Attributes
 
 .. autosummary::
     
-    sepal_ui.theme
     sepal_ui.color
+    sepal_ui.config_file
+    
+.. rubric:: Methods
+
+.. autosummary::
+    
+    sepal_ui.get_theme
+    
+.. autofunction:: sepal_ui.get_theme

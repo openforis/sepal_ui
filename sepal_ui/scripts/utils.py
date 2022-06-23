@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import os
 from pathlib import Path
 from urllib.parse import urlparse
@@ -13,9 +14,10 @@ from itertools import product
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
+from deprecated.sphinx import versionadded, deprecated
 
 import sepal_ui
-
+from sepal_ui.conf import config_file, config
 from .warning import SepalWarning
 
 
@@ -64,32 +66,23 @@ def create_download_link(pathname):
         (str): the download link
     """
 
-    if type(pathname) == str:
-        pathname = Path(pathname)
+    # return the link if it's an absolute url
+    if isinstance(pathname, str) and bool(urlparse(str(pathname)).netloc):
+        return pathname
 
-    result_path = Path(pathname).expanduser()
-    home_path = Path("~").expanduser()
+    # create a downloadable link from the jupyter node
+    pathname = Path(pathname)
+    try:
+        download_path = pathname.relative_to(Path.home())
+    except ValueError:
+        download_path = pathname
 
-    # will be available with python 3.9
-    # download_path = result_path.relative_to(home_path) if result_path.is_relative_to(home_path) else result_path
-    download_path = os.path.relpath(result_path, home_path)
-
-    link = f"/api/files/download?path=/{download_path}"
+    # I want to use the ipyurl lib to guess the url of the Jupyter server on the fly
+    # but I don't really understand how it works
+    # so here is an ugly fix only compatible with SEPAL
+    link = f"https://sepal.io/api/sandbox/jupyter/files/{download_path}"
 
     return link
-
-
-def is_absolute(url):
-    """
-    Check if the given URL is an absolute or relative path
-
-    Args:
-        url (str): the URL to test
-
-    Return:
-        (bool): True if absolute else False
-    """
-    return bool(urlparse(str(url)).netloc)
 
 
 def random_string(string_length=3):
@@ -103,7 +96,6 @@ def random_string(string_length=3):
         (str): A random string
     """
 
-    # random.seed(1001)
     letters = string.ascii_lowercase
 
     return "".join(random.choice(letters) for i in range(string_length))
@@ -128,7 +120,7 @@ def get_file_size(filename):
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
 
     i = int(math.floor(math.log(file_size, 1024)))
-    s = file_size / (1024 ** i)
+    s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
 
@@ -462,7 +454,15 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
 
 
 def next_string(string):
-    """Create a string followed by an underscore and a consecutive number"""
+    """
+    Create a string followed by an underscore and a consecutive number
+
+    Args:
+        string (str): the initial string
+
+    Returns:
+        (str): the incremented string
+    """
 
     # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
     split = string.split("_")
@@ -474,3 +474,160 @@ def next_string(string):
         string += "_1"
 
     return string
+
+
+def set_config(key, value, section="sepal-ui"):
+    """
+    Set the provided value to the given key for the given section in the sepal-ui config
+    file
+
+    Args:
+        key (str): key configuration name
+        value (str): value to be referenced by the configuration key
+        section (str, optional): configuration section, defaults to sepal-ui.
+    """
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section(section)
+
+    # set the value
+    config.set("sepal-ui", key, value)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
+@versionadded(version="2.7.0")
+def set_config_locale(locale):
+    """
+    Set the provided local in the sepal-ui config file
+
+    Args:
+        locale (str): a locale name in IETF BCP 47 (no verifications are performed)
+    """
+
+    config = ConfigParser()
+
+    # read the existing file if available
+    if config_file.is_file():
+        config.read(config_file)
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section("sepal-ui")
+
+    # set the value
+    config.set("sepal-ui", "locale", locale)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
+@versionadded(version="2.7.0")
+def set_config_theme(theme):
+    """
+    Set the provided theme in the sepal-ui config file
+
+    Args:
+        theme (str): a theme name (currently supporting "dark" and "light")
+    """
+
+    config = ConfigParser()
+
+    # read the existing file if available
+    if config_file.is_file():
+        config.read(config_file)
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section("sepal-ui")
+
+    # set the value
+    config.set("sepal-ui", "theme", theme)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@versionadded(version="2.7.1")
+def set_type(color):
+    """
+    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
+    fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
+
+    Args:
+        color (str): the requested color
+
+    Returns:
+        (str): a pre-defined material color
+
+    """
+    from sepal_ui.frontend.styles import TYPES
+
+    if color not in TYPES:
+        warnings.warn(
+            f'the selected color "{color}" is not a pre-defined material color. It should be one from [{", ".join(TYPES)}]',
+            SepalWarning,
+        )
+        color = TYPES[0]
+
+    return color
+
+
+@versionadded(version="2.8.0")
+def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
+    """
+    Transform a geojson object into a featureCollection or a Geometry
+    No sanity check is performed on the initial geo_json. It must respect the
+    `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
+
+    Args:
+        geo_json (dict): a geo_json dictionnary
+        geodesic (bool, optional): Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
+        encoding (str, optional): The encoding of characters. Defaults to "utf-8".
+
+    Returns:
+        (ee.FeatureCollection): the created featurecollection
+    """
+
+    # from a featureCollection
+    if geo_json["type"] == "FeatureCollection":
+        for feature in geo_json["features"]:
+            if feature["geometry"]["type"] != "Point":
+                feature["geometry"]["geodesic"] = geodesic
+        features = ee.FeatureCollection(geo_json)
+        return features
+
+    # from a single feature
+    elif geo_json["type"] == "Feature":
+        geom = None
+        # Checks whether it is a point
+        if geo_json["geometry"]["type"] == "Point":
+            coordinates = geo_json["geometry"]["coordinates"]
+            longitude = coordinates[0]
+            latitude = coordinates[1]
+            geom = ee.Geometry.Point(longitude, latitude)
+        # for every other geometry simply create a geometry
+        else:
+            geom = ee.Geometry(geo_json["geometry"], "", geodesic)
+
+        return geom
+
+    # some error handling because we are fancy
+    else:
+        raise ValueError("Could not convert the geojson to ee.Geometry()")
+
+    return

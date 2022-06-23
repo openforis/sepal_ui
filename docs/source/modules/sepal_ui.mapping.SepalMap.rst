@@ -8,30 +8,40 @@ sepal\_ui.mapping.SepalMap
     .. autosummary::
     
         ~SepalMap.ee
-        ~SepalMap.vinspector
-        ~SepalMap.loaded_rasters
         ~SepalMap.dc
+        ~SepalMap.v_inspector
+        ~SepalMap._id
         
     .. rubric:: Methods
     
     .. autosummary::
         :nosignatures:
         
-        ~SepalMap.set_drawing_controls
         ~SepalMap.remove_last_layer
+        ~SepalMap.set_center
         ~SepalMap.zoom_ee_object
         ~SepalMap.zoom_bounds
         ~SepalMap.add_raster
         ~SepalMap.show_dc
         ~SepalMap.hide_dc
         ~SepalMap.add_colorbar
-        ~SepalMap.addLayer
+        ~SepalMap.add_ee_layer
         ~SepalMap.get_basemap_list
         ~SepalMap.get_viz_params
+        ~SepalMap.remove_layer
+        ~SepalMap.remove_all
+        ~SepalMap.add_layer
+        ~SepalMap.add_basemap
+        ~SepalMap.get_scale
+        ~SepalMap.setCenter
+        ~SepalMap.getScale
+        ~SepalMap.addLayer
+        ~SepalMap.centerObject
+        ~SepalMap.zoom_raster
         
-.. automethod:: sepal_ui.mapping.SepalMap.set_drawing_controls
-
 .. automethod:: sepal_ui.mapping.SepalMap.remove_last_layer
+
+.. automethod:: sepal_ui.mapping.SepalMap.set_center
 
 .. automethod:: sepal_ui.mapping.SepalMap.zoom_ee_object
 
@@ -45,8 +55,30 @@ sepal\_ui.mapping.SepalMap
 
 .. automethod:: sepal_ui.mapping.SepalMap.add_colorbar
 
-.. automethod:: sepal_ui.mapping.SepalMap.addLayer
+.. automethod:: sepal_ui.mapping.SepalMap.add_ee_layer
 
-.. automethod:: sepal_ui.mapping.SepalMap.get_basemap_list
+.. autofunction:: sepal_ui.mapping.SepalMap.get_basemap_list
 
 .. automethod:: sepal_ui.mapping.SepalMap.get_viz_params
+
+.. automethod:: sepal_ui.mapping.SepalMap.remove_layer
+
+.. automethod:: sepal_ui.mapping.SepalMap.remove_all
+
+.. automethod:: sepal_ui.mapping.SepalMap.add_layer
+
+.. automethod:: sepal_ui.mapping.SepalMap.add_basemap
+
+.. automethod:: sepal_ui.mapping.SepalMap.get_scale
+
+.. automethod:: sepal_ui.mapping.SepalMap.find_layer
+
+.. automethod:: sepal_ui.mapping.SepalMap.setCenter
+
+.. automethod:: sepal_ui.mapping.SepalMap.addLayer
+
+.. automethod:: sepal_ui.mapping.SepalMap.getScale
+
+.. automethod:: sepal_ui.mapping.SepalMap.centerObject
+
+.. automethod:: sepal_ui.mapping.SepalMap.zoom_raster

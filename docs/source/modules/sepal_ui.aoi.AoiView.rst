@@ -31,11 +31,8 @@ sepal\_ui.aoi.AoiView
         :nosignatures:
    
         ~AoiView.reset
-        ~AoiView.polygonize
         
 .. automethod:: sepal_ui.aoi.AoiView.reset
-
-.. automethod:: sepal_ui.aoi.AoiView.polygonize
         
    
    

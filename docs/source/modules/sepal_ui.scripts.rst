@@ -3,24 +3,6 @@ sepal\_ui.scripts
 
 .. automodule:: sepal_ui.scripts
 
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-
 .. rubric:: Modules
 
 .. autosummary::

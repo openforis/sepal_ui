@@ -50,20 +50,18 @@ class ClassTable(sw.DataTable):
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
             ms.rec.table.btn.edit,
-            icon="mdi-pencil",
+            icon="fas fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
-            ms.rec.table.btn.delete, icon="mdi-delete", color="error", small=True
+            ms.rec.table.btn.delete, icon="fas fa-trash-alt", color="error", small=True
         )
         self.add_btn = sw.Btn(
-            ms.rec.table.btn.add, icon="mdi-plus", color="success", small=True
+            ms.rec.table.btn.add, icon="fas fa-plus", color="success", small=True
         )
-        self.save_btn = sw.Btn(
-            ms.rec.table.btn.save, icon="mdi-content-save", small=True
-        )
+        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon="far fa-save", small=True)
 
         slot = v.Toolbar(
             class_="d-flex mb-6",
@@ -533,7 +531,7 @@ class SaveDialog(v.Dialog):
 
 class TableView(sw.Card):
     """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
+    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile"
 
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
@@ -593,7 +591,10 @@ class TableView(sw.Card):
             folder=self.class_path,
         )
         self.btn = sw.Btn(
-            ms.rec.table.classif.btn, icon="mdi-table", color="success", outlined=True
+            ms.rec.table.classif.btn,
+            icon="far fa-table",
+            color="success",
+            outlined=True,
         )
         w_panels = v.ExpansionPanels(
             children=[

@@ -298,7 +298,7 @@ class ReclassifyTable(sw.SimpleTable):
 class ReclassifyView(sw.Card):
     """
     Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE).
-    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
+    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "reclassify_tile"
 
     Args:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -489,16 +489,18 @@ class ReclassifyView(sw.Card):
         self.save_dialog = SaveMatrixDialog(folder=out_path)
         self.import_dialog = ImportMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(
-            ms.rec.rec.input.btn, "mdi-table", color="success", small=True
+            ms.rec.rec.input.btn, "far fa-table", color="success", small=True
         )
         self.import_table = sw.Btn(
-            "import", "mdi-download", color="secondary", small=True, class_="ml-2 mr-2"
+            "import",
+            "fas fa-download",
+            color="secondary",
+            small=True,
+            class_="ml-2 mr-2",
         )
-        self.save_table = sw.Btn(
-            "save", "mdi-content-save", color="secondary", small=True
-        )
+        self.save_table = sw.Btn("save", "fas fa-save", color="secondary", small=True)
         self.reclassify_btn = sw.Btn(
-            ms.rec.rec.btn, "mdi-checkerboard", small=True, disabled=True
+            ms.rec.rec.btn, "fas fa-chess-board", small=True, disabled=True
         )
 
         self.toolbar = v.Toolbar(

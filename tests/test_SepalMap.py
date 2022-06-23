@@ -1,11 +1,18 @@
 from pathlib import Path
+import random
+from urllib.request import urlretrieve
+import math
 
 import pytest
 import ee
-import geemap
-from ipyleaflet import basemaps, basemap_to_tiles
+from ipyleaflet import GeoJSON, LocalTileLayer
 
 from sepal_ui import mapping as sm
+from sepal_ui import get_theme
+import sepal_ui.frontend.styles as styles
+
+# create a seed so that we can check values
+random.seed(42)
 
 
 class TestSepalMap:
@@ -13,27 +20,36 @@ class TestSepalMap:
 
         # check that the map start with no info
         m = sm.SepalMap()
+        id1 = m._id  # to check that the next map has another ID
 
         assert isinstance(m, sm.SepalMap)
         assert m.center == [0, 0]
         assert m.zoom == 2
         assert len(m.layers) == 1
-        assert m.layers[0].name == "CartoDB.DarkMatter"
 
-        # check that the map start with a DC
-        m = sm.SepalMap(dc=True)
-        assert isinstance(m.dc, geemap.DrawControl)
+        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
+        # Get current theme
+        dark_theme = True if get_theme() == "dark" else False
+
+        # The basemap will change depending on the current theme.
+        assert m.layers[0].name == basemaps[not dark_theme]
 
         # check that the map start with several basemaps
-        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
         m = sm.SepalMap(basemaps)
         assert len(m.layers) == 2
         layers_name = [layer.name for layer in m.layers]
         assert all(b in layers_name for b in basemaps)
 
+        # check that the map start with a DC
+        m = sm.SepalMap(dc=True)
+        assert m._id != id1
+        assert m.dc in m.controls
+
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
-        assert isinstance(m, sm.SepalMap)
+        assert m.v_inspector in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -41,69 +57,17 @@ class TestSepalMap:
 
         return
 
-    def test_set_drawing_controls(self):
+    def test_set_center(self):
 
         m = sm.SepalMap()
 
-        # check that the dc is not add on false
-        res = m.set_drawing_controls(False)
+        lat = random.randint(-90, 90)
+        lng = random.randint(-180, 180)
+        zoom = random.randint(0, 22)
+        m.set_center(lng, lat, zoom)
 
-        assert res == m
-        assert not any(isinstance(c, geemap.DrawControl) for c in m.controls)
-
-        m.set_drawing_controls(True)
-        assert isinstance(m.dc, geemap.DrawControl)
-        assert m.dc.rectangle == {"shapeOptions": {"color": "#79B1C9"}}
-        assert m.dc.polygon == {"shapeOptions": {"color": "#79B1C9"}}
-        assert m.dc.marker == {}
-        assert m.dc.polyline == {}
-
-        return
-
-    @pytest.mark.skip(reason="problem dealing with local rasters")
-    def test_remove_local_raster(self):
-        # init
-        m = sm.SepalMap()
-
-        # download the raster
-        out_dir = Path.home()
-        dem = out_dir / "dem.tif"
-
-        if not dem.isfile():
-            dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
-            geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
-
-        # add a raster
-        m.add_raster(dem, colormap="terrain", layer_name="DEM")
-
-        # remove it using its name
-        res = m._remove_local_raster("DEM")
-
-        assert res == m
-        assert len(m.loaded_rasters) == 0
-
-        # remove the file
-        dem.unlink()
-
-        return
-
-    def test_remove_last_layer(self):
-
-        # init
-        m = sm.SepalMap()
-
-        # there is just one (the basemap) so not supposed to move
-        res = m.remove_last_layer()
-
-        assert res == m
-        assert len(m.layers) == 1
-
-        # add 1 layer and remove it
-        layer = basemap_to_tiles(basemaps.CartoDB.Positron)
-        m.add_layer(layer)
-        m.remove_last_layer()
-
-        assert len(m.layers) == 1
+        assert m.zoom == zoom
+        assert m.center == [lat, lng]
 
         return
 
@@ -150,101 +114,18 @@ class TestSepalMap:
         return
 
     @pytest.mark.skip(reason="problem dealing with local rasters")
-    def test_add_raster(self):
+    def test_add_raster(self, rgb, byte):
 
-        # create a map
         m = sm.SepalMap()
 
-        # load a 1 band raster
-        out_dir = Path.home()
-        name = "dem"
-        dem = out_dir / "dem.tif"
-        if not dem.is_file():
-            dem_url = "https://drive.google.com/file/d/1vRkAWQYsLWCi6vcTMk8vLxoXMFbdMFn8/view?usp=sharing"
-            geemap.download_from_gdrive(dem_url, "dem.tif", out_dir, unzip=False)
-        m.add_raster(dem, layer_name=name)
+        # add a rgb layer to the map
+        m.add_raster(rgb, layer_name="rgb")
+        assert m.layers[1].name == "rgb"
+        assert isinstance(m.layers[1], LocalTileLayer)
 
-        # check name
-        assert name in m.loaded_layers
-        # check the colormap
-        # check opacity
-
-        # add the same one
-        m.add_raster(dem, layer_name=name)
-
-        # check that repeated name lead to specific strings
-
-        # load a multiband file
-        name = "landsat"
-        opacity = 0.5
-        landsat = out_dir / "landsat.tif"
-        if not landsat.is_file():
-            landsat_url = "https://drive.google.com/file/d/1EV38RjNxdwEozjc9m0FcO3LFgAoAX1Uw/view?usp=sharing"
-            geemap.download_from_gdrive(
-                landsat_url, "landsat.tif", out_dir, unzip=False
-            )
-        m.add_raster(landsat, layer_name=name, opacity=opacity)
-
-        # check that it's displayed
-        # force opacity of the layer
-
-        m.add_raster(landsat, layer_name=name, opacity=14)
-
-        # test > 1 opacity settings
-
-        return
-
-    def test_show_dc(self):
-
-        # add a map with a dc
-        m = sm.SepalMap(dc=True)
-
-        # draw something
-
-        # show dc
-        res = m.show_dc()
-
-        assert res == m
-        assert m.dc in m.controls
-
-        return
-
-    def hide_dc(self):
-
-        # add a map with a dc
-        m = sm.SepalMap(dc=True)
-
-        # show dc
-        m.show_dc()
-
-        # hide it
-        res = m.hide_dc()
-
-        assert res == m
-        assert m.dc not in m.controls
-
-        return
-
-    def test_change_cursor(self):
-
-        # add a map
-        m = sm.SepalMap()
-
-        # change the vinspector trait
-        m.vinspector = True
-        assert m.default_style.get_state("cursor") == {"cursor": "crosshair"}
-
-        # change it back
-        m.vinspector = False
-        assert m.default_style.get_state("cursor") == {"cursor": "grab"}
-
-        return
-
-    def test_get_basemap_list(self):
-
-        res = sm.SepalMap.get_basemap_list()
-
-        assert isinstance(res, list)
+        # add a byte layer
+        m.add_raster(byte, layer_name="byte")
+        assert m.layers[2].name == "byte"
 
         return
 
@@ -254,11 +135,11 @@ class TestSepalMap:
         m = sm.SepalMap()
         m.add_colorbar(colors=["#fc8d59", "#ffffbf", "#91bfdb"], vmin=0, vmax=5)
 
-        assert len(m.controls) == 6  # only thing I can check
+        assert len(m.controls) == 5  # only thing I can check
 
         return
 
-    def test_addLayer(self, asset_image_viz):
+    def test_add_ee_layer(self, asset_image_viz):
 
         # create map and image
         image = ee.Image(asset_image_viz)
@@ -278,6 +159,15 @@ class TestSepalMap:
         m.addLayer(dataset)
 
         assert len(m.layers) == 2
+
+        return
+
+    def test_get_basemap_list(self):
+
+        res = sm.SepalMap.get_basemap_list()
+
+        # last time I checked there were 128
+        assert len(res) == 131
 
         return
 
@@ -333,3 +223,203 @@ class TestSepalMap:
         assert res == expected
 
         return
+
+    def test_remove_layer(self, ee_map_with_layers):
+
+        m = ee_map_with_layers
+
+        # remove using a layer without counting the base
+        m.remove_layer(0)
+        assert len(m.layers) == 4
+        assert m.layers[0].base is True
+
+        # remove when authorizing selection of bases
+        m.remove_layer(0, base=True)
+        assert len(m.layers) == 3
+        assert m.layers[0].name == "Classification"
+
+        return
+
+    def test_remove_all(self, ee_map_with_layers):
+
+        m = ee_map_with_layers
+
+        m.remove_all()
+        assert len(m.layers) == 1
+
+        m.remove_all(base=True)
+        assert len(m.layers) == 0
+
+        return
+
+    def test_add_layer(self):
+
+        m = sm.SepalMap()
+
+        polygon = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-80.37597656249999, 25.720735134412106],
+                                [-66.181640625, 18.312810846425442],
+                                [-64.8193359375, 32.10118973232094],
+                                [-80.37597656249999, 25.720735134412106],
+                            ]
+                        ],
+                    },
+                }
+            ],
+        }
+
+        # Arrange without style and requesting default hover.
+        geojson = GeoJSON(data=polygon)
+
+        # Act
+        m.add_layer(geojson, hover=True)
+
+        # Assert
+        new_layer = m.layers[-1]
+
+        assert new_layer.style == styles.layer_style
+        assert new_layer.hover_style == styles.layer_hover_style
+
+        # Arrange with style
+        layer_style = {"color": "blue"}
+        layer_hover_style = {"color": "red"}
+        geojson = GeoJSON(
+            data=polygon, style=layer_style, hover_style=layer_hover_style
+        )
+
+        # Act
+        m.add_layer(geojson)
+
+        # Assert
+        new_layer = m.layers[-1]
+
+        assert new_layer.style == layer_style
+        assert new_layer.hover_style == layer_hover_style
+
+    def test_add_basemap(self):
+
+        m = sm.SepalMap()
+        m.add_basemap("HYBRID")
+
+        assert len(m.layers) == 2
+        assert m.layers[1].name == "Google Satellite"
+        assert m.layers[1].base is True
+
+        # check that a wrong layer raise an error if it's not part of the leaflet basemap list
+        with pytest.raises(Exception):
+            m.add_basemap("TOTO")
+
+        return
+
+    def test_get_scale(self):
+
+        m = sm.SepalMap()
+        m.zoom = 5
+
+        assert math.isclose(m.get_scale(), 4891.97)
+
+        return
+
+    def test_find_layer(self, ee_map_with_layers):
+
+        m = ee_map_with_layers
+
+        # search by name
+        res = m.find_layer("Classification")
+        assert res.name == "Classification"
+
+        # assert the two ways of handling non existing layer
+        with pytest.raises(ValueError):
+            res = m.find_layer("toto")
+        res = m.find_layer("toto", none_ok=True)
+        assert res is None
+
+        # search by index
+        res = m.find_layer(0)
+        assert res.name == "NDWI harmonics"
+
+        res = m.find_layer(-1)
+        assert res.name == "RGB"
+
+        # out of bounds
+        with pytest.raises(ValueError):
+            res = m.find_layer(50)
+
+        # search by layer
+        res = m.find_layer(m.layers[2])
+        assert res.name == "Classification"
+
+        # search including the basemap
+        res = m.find_layer(0, base=True)
+        assert "Carto" in res.name
+        assert res.base is True
+
+        # search something that is not a key
+        with pytest.raises(ValueError):
+            m.find_layer(m)
+
+        return
+
+    def test_zoom_raster(self, byte):
+
+        m = sm.SepalMap()
+        layer = m.add_raster(byte, fit_bounds=False)
+        m.zoom_raster(layer)
+
+        center = [33.89703655465772, -117.63458938969723]
+        assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
+        assert m.zoom == 15.0
+
+        return
+
+    @pytest.fixture
+    def rgb(self):
+        """add a raster file of the bahamas coming from rasterio test suit"""
+
+        rgb = Path.home() / "rgb.tif"
+
+        if not rgb.is_file():
+            file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+            urlretrieve(file, rgb)
+
+        yield rgb
+
+        rgb.unlink()
+
+        return
+
+    @pytest.fixture
+    def byte(self):
+        """add a raster file of the bahamas coming from rasterio test suit"""
+
+        rgb = Path.home() / "byte.tif"
+
+        if not rgb.is_file():
+            file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
+            urlretrieve(file, rgb)
+
+        yield rgb
+
+        rgb.unlink()
+
+        return
+
+    @pytest.fixture
+    def ee_map_with_layers(self, asset_image_viz):
+
+        image = ee.Image(asset_image_viz)
+        m = sm.SepalMap()
+
+        # display all the viz available in the image
+        for viz in sm.SepalMap.get_viz_params(image).values():
+            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+
+        return m

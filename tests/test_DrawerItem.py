@@ -1,3 +1,6 @@
+import pytest
+from sepal_ui.model import Model
+from traitlets import Bool
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
@@ -7,13 +10,13 @@ class TestDrawerItem:
     def test_init_cards(self):
         title = "toto"
         id_ = "toto_id"
-        icon = "mdi-folder"
+        icon = "fas fa-folder"
 
         # default init
         drawerItem = sw.DrawerItem(title)
         assert isinstance(drawerItem, v.ListItem)
         assert isinstance(drawerItem.children[0].children[0], v.Icon)
-        assert drawerItem.children[0].children[0].children[0] == "mdi-folder-outline"
+        assert drawerItem.children[0].children[0].children[0] == "far fa-folder"
         assert isinstance(drawerItem.children[1].children[0], v.ListItemTitle)
         assert drawerItem.children[1].children[0].children[0] == title
 
@@ -60,3 +63,32 @@ class TestDrawerItem:
                 assert tile.viz is False
 
         return
+
+    @pytest.fixture
+    def model(self):
+        class TestModel(Model):
+            app_ready = Bool(False).tag(sync=True)
+
+        return TestModel()
+
+    def test_add_notif(self, model):
+
+        drawer_item = sw.DrawerItem("title", model=model, bind_var="app_ready")
+
+        model.app_ready = True
+
+        assert drawer_item.alert_badge in drawer_item.children
+
+        model.app_ready = False
+
+        assert drawer_item.alert_badge not in drawer_item.children
+
+    def test_remove_notif(self, model):
+
+        drawer_item = sw.DrawerItem("title", model=model, bind_var="app_ready")
+
+        model.app_ready = True
+
+        drawer_item.remove_notif()
+
+        assert drawer_item.alert_badge not in drawer_item.children

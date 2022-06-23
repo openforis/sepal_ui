@@ -1,14 +1,20 @@
 import pytest
 from unittest.mock import patch
 import warnings
+from configparser import ConfigParser
 
 import random
 
 import ipyvuetify as v
+from shapely import geometry as sg
+import ee
+import geopandas as gpd
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
+from sepal_ui import config_file
+from sepal_ui.frontend.styles import TYPES
 
 
 class TestUtils:
@@ -47,23 +53,11 @@ class TestUtils:
         # check the URL for a 'toto/tutu.png' path
         path = "toto/tutu.png"
 
-        expected_link = "/api/files/download?path="
+        expected_link = "https://sepal.io/api/sandbox/jupyter/files/"
 
         res = su.create_download_link(path)
 
         assert expected_link in res
-
-        return
-
-    def test_is_absolute(self):
-
-        # test an absolute URL (wikipedia home page)
-        link = "https://fr.wikipedia.org/wiki/Wikipédia:Accueil_principal"
-        su.is_absolute(link) is True
-
-        # test a relative URL ('toto/tutu.html')
-        link = "toto/tutu.html"
-        assert su.is_absolute(link) is False
 
         return
 
@@ -100,7 +94,7 @@ class TestUtils:
         # mock every pow of 1024 to YB
         for i in range(9):
             with patch("pathlib.Path.stat") as stat:
-                stat.return_value.st_size = test_value * (1024 ** i)
+                stat.return_value.st_size = test_value * (1024**i)
 
                 txt = su.get_file_size("random")
                 assert txt == f"7.5 {size_name[i]}"
@@ -296,3 +290,104 @@ class TestUtils:
         assert su.next_string(input_string) == output_string
         assert su.next_string(input_string)[-1].isdigit()
         assert su.next_string("name_1") == "name_2"
+
+        return
+
+    def test_set_config_locale(self):
+
+        # remove any config file that could exist
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a config_file with a set language
+        locale = "fr-FR"
+        su.set_config_locale(locale)
+
+        config = ConfigParser()
+        config.read(config_file)
+        assert "sepal-ui" in config.sections()
+        assert config["sepal-ui"]["locale"] == locale
+
+        # change an existing locale
+        locale = "es-CO"
+        su.set_config_locale(locale)
+        config.read(config_file)
+        assert config["sepal-ui"]["locale"] == locale
+
+        # destroy the file again
+        config_file.unlink()
+
+        return
+
+    def test_set_config_theme(self):
+
+        # remove any config file that could exist
+        if config_file.is_file():
+            config_file.unlink()
+
+        # create a config_file with a set language
+        theme = "dark"
+        su.set_config_theme(theme)
+
+        config = ConfigParser()
+        config.read(config_file)
+        assert "sepal-ui" in config.sections()
+        assert config["sepal-ui"]["theme"] == theme
+
+        # change an existing locale
+        theme = "light"
+        su.set_config_theme(theme)
+        config.read(config_file)
+        assert config["sepal-ui"]["theme"] == theme
+
+        # destroy the file again
+        config_file.unlink()
+
+        return
+
+    def test_set_style(self):
+
+        # test every legit type
+        for t in TYPES:
+            assert t == su.set_type(t)
+
+        # test the fallback to info
+        with pytest.warns(SepalWarning):
+            res = su.set_type("toto")
+            assert res == "info"
+
+        return
+
+    @su.need_ee
+    def test_geojson_to_ee(self):
+
+        # create a point list
+        points = [sg.Point(i, i + 1) for i in range(4)]
+        d = {"col1": [str(i) for i in range(len(points))], "geometry": points}
+        gdf = gpd.GeoDataFrame(d, crs="EPSG:4326")
+        gdf_buffer = gdf.copy()
+        gdf_buffer.geometry = gdf_buffer.buffer(0.5)
+
+        # test a featurecollection
+        ee_feature_collection = su.geojson_to_ee(gdf_buffer.__geo_interface__)
+        assert isinstance(ee_feature_collection, ee.FeatureCollection)
+        assert ee_feature_collection.size().getInfo() == len(points)
+
+        # test a feature
+        feature = gdf_buffer.iloc[:1].__geo_interface__["features"][0]
+        ee_feature = su.geojson_to_ee(feature)
+        assert isinstance(ee_feature, ee.Geometry)
+
+        # test a single point
+        point = sg.Point(0, 1)
+        point = gdf.iloc[:1].__geo_interface__["features"][0]
+        ee_point = su.geojson_to_ee(point)
+        assert isinstance(ee_point, ee.Geometry)
+        assert ee_point.coordinates().getInfo() == [0, 1]
+
+        # test a badly shaped dict
+        dict_ = {"type": ""}  # minimal feature from __geo_interface__
+        with pytest.raises(ValueError):
+            su.geojson_to_ee(dict_)
+
+        return

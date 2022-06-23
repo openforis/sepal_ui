@@ -1,0 +1,230 @@
+{
+	"test_key": "Test key",
+	"status": "Status: {}",
+	"widgets": {
+		"fileinput": {
+			"label": "search file",
+			"placeholder": "Selected file"
+		},
+		"table": {
+			"label": "Table file",
+			"column": {
+				"id": "id",
+				"lat": "latitude",
+				"lng": "longitude"
+			}
+		},
+		"vector": {
+			"label": "Vector file",
+			"column": "column",
+			"value": "value",
+			"all": "Use all features"
+		},
+		"navdrawer": {
+			"code": "Source code",
+			"wiki": "Wiki",
+			"bug": "Bug report"
+		},
+		"asset_select": {
+			"types": {
+				"0": "Raster",
+				"1": "Table",
+				"2": "Image collection",
+				"3": "Algorithm",
+				"4": "Folder"
+			},
+			"label": "Select an asset",
+			"custom": "Custom",
+			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
+			"wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
+			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it",
+			"placeholder": "users/custom_user/custom_asset"
+		},
+		"load_table": {
+			"too_small": "The provided file have less than 3 columns. Please provide a complete point file with at least ID, lattitude and longitude columns."
+		},
+		"banner": {
+			"close": "close",
+			"next": "next ({} more)"
+		}
+	},
+	"aoi_sel": {
+		"title": "Select Area Of Interest (AOI)",
+		"administrative": "Administrative definitions",
+		"custom": "Custom geometries",
+		"method": "AOI selection method",
+		"adm": {
+			"0": "Country/Province",
+			"1": "Admin level 1",
+			"2": "Admin level 2"
+		},
+		"vector": "Vector file",
+		"draw": "Drawn shapes",
+		"points": "Point file",
+		"aoi_name": "Select an AOI name",
+		"asset": "GEE Asset name",
+		"btn": "Select AOI",
+		"complete": "The AOI has been selected",
+		"shape_drawn": "A shape has been drawn",
+		"file_pattern": "aoi_{}",
+		"no_selection": "No selection method has been picked up",
+		"no_country": "No Country has been selected",
+		"asset_already_exist": "The asset was already existing you can continue to use it. It's also available at :{}",
+		"asset_created": "The asset has been created under the name : {}",
+		"name_used": "The name was already in used, change it or delete the previous asset in your GEE acount",
+		"no_asset": "No Asset has been provided",
+		"check_if_asset": "Check carefully that your string is an assetId",
+		"not_available": "This function is not yet available",
+		"no_shape": "No shape has been drawn on the map",
+		"shp_error": "An error occured with provided .shp file",
+		"aoi_message": "click on \"selet these inputs\" to validate your AOI",
+		"geojson_to_ee": "Convert your .csv file into a ee_object",
+		"exception" : {
+			"no_inputs": "Please provide fully qualified inputs before validating your AOI",
+			"no_asset" : "Please select an asset.",
+			"no_value" : "Please select a value.",
+			"uncomplete" : "All fields are required, please fill them.", 
+			"no_file": "Please select a file.", 
+			"duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
+			"no_draw": "Please draw a shape in the map", 
+			"no_admlyr": "Select an administrative layer",
+			"invalid_code": "The code is not in the database", 
+			"no_gdf": "You must set the gdf before interacting with it"
+		}
+	},
+	"mapping": {
+		"no_image": "The image file does not exist."
+	},
+    "planet" : {
+        "exception" : {
+            "empty": "Please fill the required field(s).",
+            "format" : "Please check the format of your inputs.",
+            "invalid" : "Invalid email or password",
+            "nosubs" : "Your credentials do not have any valid planet subscription."
+        },
+        "widget": {
+            "username": "Planet username",
+            "password": "Planet password",
+            "apikey": "Planet API key",
+            "method": {
+                "label": "Login method",
+                "credentials":"Credentials",
+                "api_key":"Planet API key"
+            }
+        },
+        "status" : {
+            "offilne":"Not connected",
+            "online":"Connected"
+        }
+    },
+	"rec": {
+		"table": {
+			"title": "Classification editor",
+			"classif": {
+				"title": "select existing table",
+				"file_select": "Class file",
+				"btn": "Get table"
+			},
+			"table": "Classification table",
+			"schema": {
+				"id": "id",
+				"code": "code",
+				"description": "description",
+				"color": "color"
+			},
+			"btn": {
+				"edit": "edit",
+				"save": "save",
+				"add": "add",
+				"delete": "delete"
+			},
+			"edit_dialog": {
+				"titles": {
+					"0": "New element",
+					"1": "Modify element"
+				},
+				"btn": {
+					"save": {
+						"name": "save",
+						"tooltip": "create new class"
+					},
+					"modify": {
+						"name": "modify",
+						"tooltip": "modify existing class"
+					},
+					"cancel": {
+						"name": "cancel",
+						"tooltip": "cancel operation"
+					}
+				}
+			},
+			"save_dialog": {
+				"filename": "Insert output file name",
+				"placeholder": "new_table",
+				"btn": {
+					"save": {
+						"name": "save",
+						"tooltip": "save table"
+					},
+					"cancel": {
+						"name": "cancel",
+						"tooltip": "cancel operation"
+					}
+				},
+				"title": "save classifcation table",
+				"info": "The table will be stored in {}"
+			}
+		},
+		"rec": {
+			"title": "Reclassify image",
+			"headers": {
+				"0": "Original class",
+				"1": "Destination class"
+			},
+			"input": {
+				"optional": "Optional",
+				"title": "Select input classification",
+				"asset": "input asset",
+				"file": "input file",
+				"band": {
+					"label": "select band/property",
+					"hint": "The band/property to use as class reference"
+				},
+				"classif": {
+					"title": "Select destination classification system",
+					"label": "class file"
+				},
+				"btn": "get table"
+			},
+			"table": "Reclassify table",
+			"btn": "Reclassify",
+			"export": {
+				"0": {
+					"0": "The Vector has been created and added to your SEPAL Folder: {}",
+					"1": "The Image has been created and added to your SEPAL folder: {}"
+				},
+				"1": {
+					"0": "The FeatureCollection has been exported to GEE as {}. Use the code editor interface to follow the exportation process",
+					"1": "The Image has been exported to GEE as {}. Use the code editor interface to follow the exportation process"
+				}
+			}
+		},
+		"tile": {
+			"title": "Reclassification"
+		}
+	},
+	"locale": {
+		"change": "The locale \"{0}\" will now be used as default language in SEPAL apps. Please restart the current application to take this change into account. Note that if \"{0}\" is not avalaible in another application, SEPAL will fallback to the closest possible language",
+		"fallback": "The \"{0}\" locale is not available for this application. We will be using \"{1}\" instead. Please report to the maintainer if you want to add \"{0}\" to the suported languages."
+	},
+	"theme": {
+		"change": "The theme \"{0}\" will be used as default theme in SEPAL apps. Please restart the current application to take this change into account."
+	},
+	"disclaimer": {
+		"p": {
+			"0": "FAO declines all responsibility for errors or deficiencies in the database or software or in the documentation accompanying it for program maintenance and upgrading as well as for any damage that may arise from them.",
+			"1": "FAO also declines any responsibility for updating the data and assumes no responsibility for errors and omissions in the data provided.",
+			"2": "Users are, however, kindly asked to report any errors or deficiencies in this product to FAO."
+		}
+	}
+}

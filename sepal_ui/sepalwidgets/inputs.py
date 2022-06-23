@@ -1,14 +1,15 @@
 from pathlib import Path
+from datetime import datetime
 
 import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode
+from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
 from ipywidgets import jslink
 import pandas as pd
 import ee
 import geopandas as gpd
 from natsort import humansorted
 
-
+from sepal_ui import color
 from sepal_ui.message import ms
 from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
 from sepal_ui.scripts import utils as su
@@ -40,12 +41,18 @@ class DatePicker(v.Layout, SepalWidget):
     menu = None
     "v.Menu: the menu widget to display the datepicker"
 
+    date_text = None
+    "v.TextField: the text field of the datepicker widget"
+
+    disabled = Bool(False).tag(sync=True)
+    "traitlets.Bool: the disabled status of the Datepicker object"
+
     def __init__(self, label="Date", **kwargs):
 
         # create the widgets
         date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
 
-        date_text = v.TextField(
+        self.date_text = v.TextField(
             v_model=None,
             label=label,
             hint="YYYY-MM-DD format",
@@ -66,7 +73,7 @@ class DatePicker(v.Layout, SepalWidget):
                 {
                     "name": "activator",
                     "variable": "menuData",
-                    "children": date_text,
+                    "children": self.date_text,
                 }
             ],
         )
@@ -81,8 +88,28 @@ class DatePicker(v.Layout, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        jslink((date_picker, "v_model"), (date_text, "v_model"))
-        jslink((date_picker, "v_model"), (self, "v_model"))
+        jslink((date_picker, "v_model"), (self.date_text, "v_model"))
+        jslink((self, "v_model"), (date_picker, "v_model"))
+
+    @observe("v_model")
+    def check_date(self, change):
+        """
+        A method to check if the value of the set v_model is a correctly formated date
+        Reset the widget and display an error if it's not the case
+        """
+
+        self.date_text.error_messages = None
+
+        # exit immediately if nothing is set
+        if change["new"] is None:
+            return
+
+        # change the error status
+        if not self.is_valid_date(change["new"]):
+            msg = self.date_text.hint
+            self.date_text.error_messages = msg
+
+        return
 
     @observe("v_model")
     def close_menu(self, change):
@@ -92,6 +119,35 @@ class DatePicker(v.Layout, SepalWidget):
         self.menu.v_model = False
 
         return
+
+    @observe("disabled")
+    def disable(self, change):
+        """A method to disabled the appropriate components in the datipkcer object"""
+
+        self.menu.v_slots[0]["children"].disabled = self.disabled
+
+        return
+
+    @staticmethod
+    def is_valid_date(date):
+        """
+        Check if the date is provided using the date format required for the widget
+
+        Args:
+            date (str): the date to test in YYYY-MM-DD format
+
+        Return:
+            (bool): the date to test
+        """
+
+        try:
+            date = datetime.strptime(date, "%Y-%m-%d")
+            valid = True
+
+        except Exception:
+            valid = False
+
+        return valid
 
 
 class FileInput(v.Flex, SepalWidget):
@@ -141,7 +197,7 @@ class FileInput(v.Flex, SepalWidget):
         self,
         extentions=[],
         folder=Path.home(),
-        label="search file",
+        label=ms.widgets.fileinput.label,
         v_model=None,
         clearable=False,
         **kwargs,
@@ -154,18 +210,21 @@ class FileInput(v.Flex, SepalWidget):
         self.folder = folder
 
         self.selected_file = v.TextField(
-            readonly=True, label="Selected file", class_="ml-5 mt-5", v_model=None
+            readonly=True,
+            label=ms.widgets.fileinput.placeholder,
+            class_="ml-5 mt-5",
+            v_model=None,
         )
 
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color="grey darken-3",
-            color=COMPONENTS["PROGRESS_BAR"]["color"],
+            background_color=color.menu,
+            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
             dense=True,
-            color="grey darken-3",
+            color=color.menu,
             flat=True,
             v_model=True,
             max_height="300px",
@@ -183,18 +242,18 @@ class FileInput(v.Flex, SepalWidget):
                     "name": "activator",
                     "variable": "x",
                     "children": Btn(
-                        icon="mdi-file-search", v_model=False, v_on="x.on", text=label
+                        icon="fas fa-search", v_model=False, v_on="x.on", text=label
                     ),
                 }
             ],
         )
 
         self.reload = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["mdi-cached"])]
+            icon=True, color="primary", children=[v.Icon(children=["fas fa-sync-alt"])]
         )
 
         self.clear = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["mdi-close"])]
+            icon=True, color="primary", children=[v.Icon(children=["fas fa-times"])]
         )
         if not clearable:
             su.hide_component(self.clear)
@@ -222,21 +281,20 @@ class FileInput(v.Flex, SepalWidget):
 
     def reset(self, *args):
         """
-        Clear the File selection and move to the root folder if something was selected
+        Clear the File selection and move to the root folder.
 
         Return:
             self
         """
 
-        root = Path("~").expanduser()
+        # note: The args arguments are useless here but need to be kept so that
+        # the function is natively compatible with the clear btn
 
-        if self.v_model is not None:
+        # move to root
+        self._on_file_select({"new": Path.home()})
 
-            # move to root
-            self._on_file_select({"new": root})
-
-            # remove v_model
-            self.v_model = None
+        # remove v_model
+        self.v_model = None
 
         return self
 
@@ -283,17 +341,24 @@ class FileInput(v.Flex, SepalWidget):
 
         return self
 
+    @su.switch("indeterminate", on_widgets=["loading"])
     def _change_folder(self):
         """Change the target folder"""
+
+        # get the items
+        items = self._get_items()
+
         # reset files
-        self.file_list.children[0].children = self._get_items()
+        # this is reseting the scroll to top without using js scripts
+        self.file_list.children[0].children = []
+
+        # set the new files
+        self.file_list.children[0].children = items
 
         return
 
     def _get_items(self):
         """Return the list of items inside the folder"""
-
-        self.loading.indeterminate = True
 
         folder = self.folder
 
@@ -311,13 +376,13 @@ class FileInput(v.Flex, SepalWidget):
 
             if el.is_dir():
                 icon = ICON_TYPES[""]["icon"]
-                color = ICON_TYPES[""]["color"]
+                color = ICON_TYPES[""]["color"][v.theme.dark]
             elif el.suffix in ICON_TYPES.keys():
                 icon = ICON_TYPES[el.suffix]["icon"]
-                color = ICON_TYPES[el.suffix]["color"]
+                color = ICON_TYPES[el.suffix]["color"][v.theme.dark]
             else:
                 icon = ICON_TYPES["DEFAULT"]["icon"]
-                color = ICON_TYPES["DEFAULT"]["color"]
+                color = ICON_TYPES["DEFAULT"]["color"][v.theme.dark]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -342,7 +407,7 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=ICON_TYPES["PARENT"]["color"],
+                            color=ICON_TYPES["PARENT"]["color"][v.theme.dark],
                             children=[ICON_TYPES["PARENT"]["icon"]],
                         )
                     ]
@@ -355,8 +420,6 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list.extend(file_list)
         folder_list.insert(0, parent_item)
-
-        self.loading.indeterminate = False
 
         return folder_list
 
@@ -408,18 +471,27 @@ class LoadTableField(v.Col, SepalWidget):
     }
     "dict: The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
-    def __init__(self, label="Table file", **kwargs):
+    def __init__(self, label=ms.widgets.table.label, **kwargs):
 
         self.fileInput = FileInput([".csv", ".txt"], label=label)
 
         self.IdSelect = v.Select(
-            _metadata={"name": "id_column"}, items=[], label="Id", v_model=None
+            _metadata={"name": "id_column"},
+            items=[],
+            label=ms.widgets.table.column.id,
+            v_model=None,
         )
         self.LngSelect = v.Select(
-            _metadata={"name": "lng_column"}, items=[], label="Longitude", v_model=None
+            _metadata={"name": "lng_column"},
+            items=[],
+            label=ms.widgets.table.column.lng,
+            v_model=None,
         )
         self.LatSelect = v.Select(
-            _metadata={"name": "lat_column"}, items=[], label="Latitude", v_model=None
+            _metadata={"name": "lat_column"},
+            items=[],
+            label=ms.widgets.table.column.lat,
+            v_model=None,
         )
 
         # set default parameters
@@ -455,6 +527,8 @@ class LoadTableField(v.Col, SepalWidget):
         # clear the fileInput
         self.fileInput.reset()
 
+        return
+
     @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
@@ -464,16 +538,16 @@ class LoadTableField(v.Col, SepalWidget):
 
         # set the path
         path = change["new"]
-        self.v_model["pathname"] = path
+        self._set_v_model("pathname", path)
 
         # exit if none
-        if not path:
+        if path is None:
             return self
 
         df = pd.read_csv(path, sep=None, engine="python")
 
         if len(df.columns) < 3:
-            self._clear_select()
+            self._set_v_model("pathname", None)
             self.fileInput.selected_file.error_messages = (
                 ms.widgets.load_table.too_small
             )
@@ -511,9 +585,24 @@ class LoadTableField(v.Col, SepalWidget):
         """change the v_model value when a select is changed"""
 
         name = change["owner"]._metadata["name"]
-        self.v_model[name] = change["new"]
+        self._set_v_model(name, change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return
 
 
 class AssetSelect(v.Combobox, SepalWidget):
@@ -578,7 +667,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         kwargs["v_model"] = kwargs.pop("v_model", None)
         kwargs["clearable"] = kwargs.pop("clearable", True)
         kwargs["dense"] = kwargs.pop("dense", True)
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-cached")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-sync")
         kwargs["class_"] = kwargs.pop("class_", "my-5")
         kwargs["placeholder"] = kwargs.pop(
             "placeholder", ms.widgets.asset_select.placeholder
@@ -655,7 +744,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         return
 
     @su.switch("loading", "disabled")
-    def _get_items(self, change=None):
+    def _get_items(self, *args):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
@@ -710,7 +799,7 @@ class PasswordField(v.TextField, SepalWidget):
         kwargs["class_"] = kwargs.pop("class_", "mr-2")
         kwargs["v_model"] = kwargs.pop("v_model", "")
         kwargs["type"] = "password"
-        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-ey-off")
+        kwargs["append_icon"] = kwargs.pop("append_icon", "mdi-eye-off")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -824,7 +913,7 @@ class VectorField(v.Col, SepalWidget):
     "Traitlet: The json saved v_model shaped as {'pathname': xx, 'column': xx, 'value': xx}"
 
     column_base_items = [
-        {"text": "Use all features", "value": "ALL"},
+        {"text": ms.widgets.vector.all, "value": "ALL"},
         {"divider": True},
     ]
     "list: the column compulsory selector (ALL)"
@@ -832,7 +921,7 @@ class VectorField(v.Col, SepalWidget):
     feature_collection = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(self, label="vector_file", gee=False, **kwargs):
+    def __init__(self, label=ms.widgets.vector.label, gee=False, **kwargs):
 
         # set the 3 wigets
         if not gee:
@@ -845,11 +934,14 @@ class VectorField(v.Col, SepalWidget):
         self.w_column = v.Select(
             _metadata={"name": "column"},
             items=self.column_base_items,
-            label="Column",
+            label=ms.widgets.vector.column,
             v_model="ALL",
         )
         self.w_value = v.Select(
-            _metadata={"name": "value"}, items=[], label="Value", v_model=None
+            _metadata={"name": "value"},
+            items=[],
+            label=ms.widgets.vector.value,
+            v_model=None,
         )
         su.hide_component(self.w_value)
 
@@ -886,7 +978,7 @@ class VectorField(v.Col, SepalWidget):
         self.feature_collection = None
 
         # set the pathname value
-        self.v_model["pathname"] = change["new"]
+        self._set_v_model("pathname", change["new"])
 
         # exit if nothing
         if not change["new"]:
@@ -920,7 +1012,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_value.v_model = None
 
         # set the value
-        self.v_model["column"] = change["new"]
+        self._set_v_model("column", change["new"])
 
         # hide value if "ALL" or none
         if change["new"] in ["ALL", None]:
@@ -948,6 +1040,21 @@ class VectorField(v.Col, SepalWidget):
         """Update the value name and reduce the gdf"""
 
         # set the value
-        self.v_model["value"] = change["new"]
+        self._set_v_model("value", change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return

@@ -2,8 +2,6 @@ from traitlets import Int
 from datetime import datetime as dt
 
 import pandas as pd
-import geopandas as gpd
-from shapely import geometry as sg
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import utils as su
@@ -27,11 +25,13 @@ class MethodSelect(sw.Select):
     'XXX' will add the selected method to the list when '-XXX' will discard it.
     You cannot mix adding and removing behaviours.
 
-    Params:
+    Args:
         methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
+        map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        gee (bool, optional): wether to bind to ee or not
     """
 
-    def __init__(self, methods="ALL", gee=True):
+    def __init__(self, methods="ALL", gee=True, map_=None):
 
         # create the method list
         if methods == "ALL":
@@ -63,8 +63,9 @@ class MethodSelect(sw.Select):
         else:
             raise Exception("I don't get what you meant")
 
-        if not gee:
-            self.methods.pop("ASSET", None)
+        # clean the list from things we can't use
+        gee is True or self.methods.pop("ASSET", None)
+        map_ is not None or self.methods.pop("DRAW", None)
 
         # build the item list with header
         prev_type = None
@@ -102,7 +103,7 @@ class AdminField(sw.Select):
     CODE = AoiModel.CODE
     NAME = AoiModel.NAME
 
-    def __init__(self, level, parent=None, gee=True, **kwargs):
+    def __init__(self, level, parent=None, gee=True):
 
         # save ee state
         self.ee = gee
@@ -112,15 +113,12 @@ class AdminField(sw.Select):
         self.parent = parent
 
         # init an empty widget
-        self.v_model = None
-        self.items = []
-        self.clearable = True
-        self.label = ms.aoi_sel.adm[level]
-        super().__init__(**kwargs)
+        super().__init__(
+            v_model=None, items=[], clearable=True, label=ms.aoi_sel.adm[level]
+        )
 
         # add js behaviour
-        if self.parent:
-            self.parent.observe(self._update, "v_model")
+        self.parent is None or self.parent.observe(self._update, "v_model")
 
     def show(self):
         """
@@ -131,9 +129,7 @@ class AdminField(sw.Select):
         """
 
         super().show()
-
-        if self.parent:
-            self.parent.show()
+        self.parent is None or self.parent.show()
 
         return self
 
@@ -258,9 +254,8 @@ class AoiView(sw.Card):
 
         # set ee dependencie
         self.ee = gee
-        if gee:
-            su.init_ee()
-            self.folder = folder
+        self.folder = folder
+        gee is False or su.init_ee()
 
         # get the model
         self.model = AoiModel(sw.Alert(), gee=gee, folder=folder, **kwargs)
@@ -269,20 +264,15 @@ class AoiView(sw.Card):
         self.map_ = map_
 
         # create the method widget
-        self.w_method = MethodSelect(methods, gee=gee)
+        self.w_method = MethodSelect(methods, gee=gee, map_=map_)
 
-        # add the 6 methods blocks
-        self.w_admin_0 = AdminField(0, gee=gee).get_items().hide()
-        self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee).hide()
-        self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee).hide()
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector).hide()
-        self.w_points = sw.LoadTableField(label=ms.aoi_sel.points).hide()
-        if self.map_:
-            self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
-        if self.ee:
-            self.w_asset = sw.VectorField(
-                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
-            ).hide()
+        # add the methods blocks
+        self.w_admin_0 = AdminField(0, gee=gee).get_items()
+        self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
+        self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
+        self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
+        self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name)
 
         # group them together with the same key as the select_method object
         self.components = {
@@ -291,11 +281,11 @@ class AoiView(sw.Card):
             "ADMIN2": self.w_admin_2,
             "SHAPE": self.w_vector,
             "POINTS": self.w_points,
+            "DRAW": self.w_draw,
         }
-        if self.map_:
-            self.components["DRAW"] = self.w_draw
-        if self.ee:
-            self.components["ASSET"] = self.w_asset
+
+        # hide them all
+        [c.hide() for c in self.components.values()]
 
         # use the same alert as in the model
         self.alert = self.model.alert
@@ -308,10 +298,17 @@ class AoiView(sw.Card):
             .bind(self.w_vector, "vector_json")
             .bind(self.w_points, "point_json")
             .bind(self.w_method, "method")
+            .bind(self.w_draw, "name")
         )
-        if self.map_:
-            self.model.bind(self.w_draw, "name")
+
+        # defint the asset select separately. If no gee is set up we don't want any
+        # gee based widget to be requested. If it's the case, application that does not support GEE
+        # will crash if the user didn't authenticate
         if self.ee:
+            self.w_asset = sw.VectorField(
+                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+            ).hide()
+            self.components["ASSET"] = self.w_asset
             self.model.bind(self.w_asset, "asset_name")
 
         # add a validation btn
@@ -327,23 +324,28 @@ class AoiView(sw.Card):
         # js events
         self.w_method.observe(self._activate, "v_model")  # activate widgets
         self.btn.on_event("click", self._update_aoi)  # load the informations
-        if self.map_:
-            self.map_.dc.on_draw(self._handle_draw)  # handle map drawing
 
-    @su.loading_button(debug=False)
+        # reset te aoi_model
+        self.model.clear_attributes()
+
+    @su.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
+
+        # read the information from the geojson datas
+        if self.map_:
+            self.model.geo_json = self.map_.dc.to_json()
 
         # update the model
         self.model.set_object()
 
         # update the map
         if self.map_:
-            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
+            self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
 
             if self.ee:
-                self.map_.addLayer(
+                self.map_.add_ee_layer(
                     self.model.feature_collection, {"color": sc.success}, "aoi"
                 )
             else:
@@ -360,19 +362,23 @@ class AoiView(sw.Card):
         """clear the aoi_model from input and remove the layer from the map (if existing)"""
 
         # clear the map
-        if self.map_:
-            [self.map_.remove_layer(lr) for lr in self.map_.layers if lr.name == "aoi"]
-            # self.map_.center = [0, 0]
-            # self.map_.zoom = 3
+        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
+
+        # clear the inputs
+        [w.reset() for w in self.components.values()]
+        print(self.w_draw.v_model)
 
         # clear the model
         self.model.clear_attributes()
+        print(self.w_draw.v_model)
 
         # reset the alert
         self.alert.reset()
+        print(self.w_draw.v_model)
 
         # reset the view of the widgets
         self.w_method.v_model = None
+        print(self.w_draw.v_model)
 
         return self
 
@@ -386,10 +392,9 @@ class AoiView(sw.Card):
         # clear the geo_json saved features to start from scratch
         if self.map_:
             if change["new"] == "DRAW":
-                self.map_.show_dc()
-                self.model.geo_json = None
+                self.map_.dc.show()
             else:
-                self.map_.hide_dc()
+                self.map_.dc.hide()
 
         # clear the inputs
         [w.reset() for w in self.components.values()]
@@ -400,56 +405,8 @@ class AoiView(sw.Card):
             for k, w in self.components.items()
         ]
 
-        return self
-
-    def _handle_draw(self, target, action, geo_json):
-        """handle the draw on map event"""
-
-        # update the automatic name
-        if not self.w_draw.v_model:
-            self.w_draw.v_model = f'Manual_aoi_{dt.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-
-        # Init the json if it's not
-        if self.model.geo_json is None:
-            self.model.geo_json = {"type": "FeatureCollection", "features": []}
-
-        # polygonize circles
-        if "radius" in geo_json["properties"]["style"]:
-            geo_json = self.polygonize(geo_json)
-
-        if action == "created":  # no edit as you don't know which one to change
-            self.model.geo_json["features"].append(geo_json)
-        elif action == "deleted":
-            self.model.geo_json["features"].remove(geo_json)
+        # init the name to the current value
+        now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
 
         return self
-
-    @staticmethod
-    def polygonize(geo_json):
-        """
-        Transform a ipyleaflet circle (a point with a radius) into a GeoJson multipolygon
-
-        Params:
-            geo_json (json): the circle geojson
-
-        Return:
-            (json): the polygonised circle
-        """
-
-        # get the input
-        radius = geo_json["properties"]["style"]["radius"]
-        coordinates = geo_json["geometry"]["coordinates"]
-
-        # create shapely point
-        circle = (
-            gpd.GeoSeries([sg.Point(coordinates)], crs=4326)
-            .to_crs(3857)
-            .buffer(radius)
-            .to_crs(4326)
-        )
-
-        # insert it in the geo_json
-        json = geo_json
-        json["geometry"] = circle[0].__geo_interface__
-
-        return json

@@ -76,6 +76,27 @@ class TestAssetSelect:
 
         return
 
+    def test_get_items(self, asset_select):
+
+        # Arrange: assume this asset will be always in the GSA
+        test_asset = "users/bornToBeAlive/sepal_ui_test/italy"
+
+        # Act: test function itself
+        asset_select.items = []
+        asset_select._get_items()
+
+        # Assert
+        assert test_asset in asset_select.items
+
+        # Test button event
+
+        # Act
+        asset_select.items = []
+        asset_select.fire_event("click:prepend", None)
+
+        # Assert
+        assert test_asset in asset_select.items
+
     @pytest.fixture
     def default_items(self):
         """some default public data from GEE"""
