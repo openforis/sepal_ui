@@ -77,7 +77,11 @@ class Translator(Box):
             "_target": target,
             "_match": match,
         }
-        super(Box, self).__init__(**private_keys, **ms_boxes, frozen_box=True)
+
+        # the final box is not frozen
+        # waiting for an answer here: https://github.com/cdgriffith/Box/issues/223
+        # it the meantime it's easy to call the translator using a frozen_box argument
+        super(Box, self).__init__(**private_keys, **ms_boxes)
 
     @versionadded(version="2.7.0")
     @staticmethod
