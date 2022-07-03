@@ -12,7 +12,6 @@ sepal\_ui.aoi.AoiModel
        ~AoiModel.NAME
        ~AoiModel.ISO
        ~AoiModel.GADM_BASE_URL
-       ~AoiModel.GADM_ZIP_DIR
        ~AoiModel.GAUL_ASSET
        ~AoiModel.ASSET_SUFFIX
        ~AoiModel.CUSTOM
