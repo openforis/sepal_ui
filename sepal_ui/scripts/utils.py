@@ -17,6 +17,7 @@ from matplotlib import colors as c
 from deprecated.sphinx import versionadded, deprecated
 
 import sepal_ui
+from sepal_ui.message import ms
 from sepal_ui.conf import config_file, config
 from .warning import SepalWarning
 
@@ -631,3 +632,31 @@ def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
         raise ValueError("Could not convert the geojson to ee.Geometry()")
 
     return
+
+
+def check_input(input_, msg=ms.utils.check_input.error):
+    """
+    Check if the inpupt value is initialized.
+    If not raise an error, else return True
+
+    Args:
+        input\_ (any): the input to check
+        msg (str, optionnal): the message to display if the input is not set
+
+    Return:
+        (bool): check if the value is initialized
+    """
+
+    # by the default the variable is considered valid
+    init = True
+
+    # check the collection type that are the only one supporting the len method
+    try:
+        init = False if len(input_) == 0 else init
+    except Exception:
+        init = False if input_ is None else init
+
+    if init is False:
+        raise ValueError(msg)
+
+    return init
