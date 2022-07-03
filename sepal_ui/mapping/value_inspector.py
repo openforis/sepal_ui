@@ -3,7 +3,7 @@ import ee
 import geopandas as gpd
 from shapely import geometry as sg
 import rioxarray
-import xarray_leaflet
+import xarray_leaflet  # noqa: F401
 from rasterio.crs import CRS
 import rasterio as rio
 import ipyvuetify as v
@@ -15,11 +15,6 @@ from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui.frontend.styles import COMPONENTS
 from sepal_ui.message import ms
-
-# call x_array leaflet at least once
-# flake8 will complain as it's a pluggin (i.e. never called)
-# We don't want to ignore testing F401
-xarray_leaflet
 
 
 class ValueInspector(WidgetControl):

@@ -16,7 +16,7 @@ import random
 from haversine import haversine
 import numpy as np
 import rioxarray
-import xarray_leaflet
+import xarray_leaflet  # noqa: F401
 import matplotlib.pyplot as plt
 from matplotlib import colors as mpc
 from matplotlib import colorbar
@@ -37,11 +37,6 @@ from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.basemaps import basemap_tiles
 
 __all__ = ["SepalMap"]
-
-# call x_array leaflet at least once
-# flake8 will complain as it's a pluggin (i.e. never called)
-# We don't want to ignore testing F401
-xarray_leaflet
 
 
 class SepalMap(ipl.Map):
