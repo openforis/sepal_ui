@@ -35,9 +35,10 @@ class TestTranslator:
 
     def test_search_key(self):
 
-        # assert that having a wrong key in the json will raise an error
+        # assert that having a wrong key  at root level
+        # in the json will raise an error
         key = "toto"
-        d = {"a": {"toto": "b"}, "c": "d"}
+        d = {"toto": {"a": "b"}, "c": "d"}
 
         with pytest.raises(Exception):
             Translator.search_key(d, key)
@@ -72,16 +73,6 @@ class TestTranslator:
 
         assert Translator.delete_empty(test) == result
 
-    def test_missing_keys(self, translation_folder):
-
-        # check that all keys are in the fr dict
-        translator = Translator(translation_folder, "fr")
-        assert translator.missing_keys() == "All messages are translated"
-
-        # check that 1 key is missing
-        translator = Translator(translation_folder, "es")
-        assert translator.missing_keys() == "root['test_key']"
-
         return
 
     def test_find_target(self, translation_folder):
@@ -113,6 +104,12 @@ class TestTranslator:
 
         for locale in res:
             assert locale in translator.available_locales()
+
+        # Check no hidden and protected files are in locales
+        locales = translator.available_locales()
+        assert not all(
+            [(loc.startswith(".") or loc.startswith("_")) for loc in locales]
+        )
 
         return
 
