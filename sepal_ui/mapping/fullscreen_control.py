@@ -57,9 +57,10 @@ class FullScreenControl(WidgetControl):
         self.w_btn.on_event("click", self.toggle_fullscreen)
 
         # save the 2 fullscrenn js code in a table 0 for embeded and 1 for fullscreen
+        js_dir = Path(__file__).parents[1] / "frontend/js"
         js = [
-            (Path(__file__).parent / "jupyter_embed.js").read_text() % m._id,
-            (Path(__file__).parent / "jupyter_fullscreen.js").read_text() % m._id,
+            (js_dir / f"jupyter_{state}.js").read_text() % m._id
+            for state in ["embed", "fullscreen"]
         ]
 
         # template with js behaviour
@@ -76,7 +77,7 @@ class FullScreenControl(WidgetControl):
         display(self.template)
 
         # display the map in the requested default state
-        display(Javascript(js[1]))
+        display(Javascript(js[self.zoomed]))
 
     def toggle_fullscreen(self, widget, event, data):
         """
