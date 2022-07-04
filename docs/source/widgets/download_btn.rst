@@ -10,6 +10,7 @@ The default color is set to "success". if no URL is set the button is disabled.
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     
@@ -28,6 +29,7 @@ the linked URL can be dynamically set with the :code:`set_url` method.
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     

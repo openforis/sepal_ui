@@ -435,8 +435,10 @@ class App(v.App, SepalWidget):
 
         # display a warning if the set language cannot be reached
         if translator is not None:
-            if translator.match is False:
-                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+            if translator._match is False:
+                msg = ms.locale.fallback.format(
+                    translator._targeted, translator._target
+                )
                 self.add_banner(msg, type_="error")
 
         # add js event
@@ -602,7 +604,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # extract the language information from the translator
         # if not set default to english
-        code = "en" if translator is None else translator.target
+        code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 

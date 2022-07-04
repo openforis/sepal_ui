@@ -13,6 +13,7 @@ Any argument from the original :code:`Alert` ipyvuetify class can be used to com
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -41,6 +42,7 @@ Update the Alert message with a progress bar
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -58,7 +60,8 @@ Add a message in the alert by replacing all the existing one.
 
 .. jupyter-execute::
     :raises:
-
+    :stderr:
+    
     from sepal_ui import sepalwidgets as sw
     
     # correct colors for the documentation 
@@ -79,6 +82,7 @@ Add a message in the alert by replacing all the existing one and add a timestamp
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -100,6 +104,7 @@ Append a message in a new parragraph, with or without :code:`Divider`.
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -123,6 +128,7 @@ Remove the last msg printed in the Alert widget.
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -149,6 +155,7 @@ If not return :code:`False` and display an error message else return :code:`True
 
 .. jupyter-execute::
     :raises:
+    :stderr:
     
     from sepal_ui import sepalwidgets as sw
     

@@ -15,6 +15,7 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from sepal_ui import aoi
