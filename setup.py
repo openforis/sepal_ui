@@ -49,7 +49,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet",
+        "planet<2",
         "pyyaml",
         "dask",
         "tqdm",
