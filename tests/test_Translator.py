@@ -31,6 +31,13 @@ class TestTranslator:
         translator = Translator(translation_folder)
         assert translator.test_key == "Clef de test"
 
+        # check the internal variables once to make sure that they are not removed/changed
+        assert translator._folder == str(translation_folder)
+        assert translator._default == "en"
+        assert translator._targeted == "fr-FR"
+        assert translator._target == "fr-FR"
+        assert translator._match is True
+
         return
 
     def test_search_key(self):
