@@ -1,7 +1,7 @@
-sepal\_ui.frontend.js
-=====================
+sepal\_ui.frontend.resize\_trigger
+==================================
 
-.. automodule:: sepal_ui.frontend.js
+.. automodule:: sepal_ui.frontend.resize_trigger
 
     .. rubric:: Classes
 
@@ -9,7 +9,7 @@ sepal\_ui.frontend.js
    
         ResizeTrigger
 
-.. autoclass:: sepal_ui.frontend.js.ResizeTrigger
+.. autoclass:: sepal_ui.frontend.resize_trigger.ResizeTrigger
 
     .. rubric:: Attributes
     
@@ -23,7 +23,7 @@ sepal\_ui.frontend.js
     
         ~ResizeTrigger.resize
         
-.. automethod:: sepal_ui.frontend.js.ResizeTrigger.resize
+.. automethod:: sepal_ui.frontend.resize_trigger.ResizeTrigger.resize
    
    
 

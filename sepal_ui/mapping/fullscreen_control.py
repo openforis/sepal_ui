@@ -70,7 +70,7 @@ class FullScreenControl(WidgetControl):
         self.template = v.VuetifyTemplate(
             template=(
                 "<script>{methods: {jupyter_embed(){%s}, jupyter_fullscreen(){%s}}}</script>"
-                % (*js)
+                % (js[0], js[1])
             )
         )
         display(self.template)
