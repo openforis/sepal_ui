@@ -1,5 +1,7 @@
+from pathlib import Path
+
 from ipyleaflet import WidgetControl
-from IPython.display import display
+from IPython.display import display, Javascript
 import ipyvuetify as v
 
 from sepal_ui.mapping.map_btn import MapBtn
@@ -16,6 +18,7 @@ class FullScreenControl(WidgetControl):
 
     Args:
         m (SepalMap): the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
+        fullscreen (bool, optional): either the map should be displayed in fullscreen by default. default to false.
         kwargs (optional): any available arguments from a ipyleaflet WidgetControl
     """
 
@@ -25,8 +28,8 @@ class FullScreenControl(WidgetControl):
     METHODS = ["embed", "fullscreen"]
     "list: The javascript methods name to be used to switch from expand to compress mode"
 
-    zoomed = False
-    "bool: the current zoomed level (``True`` for expanded and ``False`` for compressed"
+    zoomed = None
+    "bool: the current zoomed level: ``True`` for expanded and ``False`` for compressed"
 
     w_btn = None
     "ipywidget.Button: the btn to display on the map"
@@ -34,7 +37,10 @@ class FullScreenControl(WidgetControl):
     template = None
     "ipyvuetify.VuetifyTemplate: embeds the 2 javascripts methods to change the rendering of the map"
 
-    def __init__(self, m, **kwargs):
+    def __init__(self, m, fullscreen=False, **kwargs):
+
+        # register the required zoom value
+        self.zoomed = fullscreen
 
         # create a btn
         self.w_btn = MapBtn(logo=self.ICONS[self.zoomed])
@@ -50,41 +56,27 @@ class FullScreenControl(WidgetControl):
         # add javascrip behaviour
         self.w_btn.on_event("click", self.toggle_fullscreen)
 
+        # save the 2 fullscrenn js code in a table 0 for embeded and 1 for fullscreen
+        js = [
+            (Path(__file__).parent / "jupyter_embed.js").read_text() % m._id,
+            (Path(__file__).parent / "jupyter_fullscreen.js").read_text() % m._id,
+        ]
+
         # template with js behaviour
         # "jupyter_fullscreen" place tje "leaflet-container element on the front screen
         # and expand it's display to the full screen
         # "jupyter_embed" reset all the changed parameter
         # both trigger the resize event to force the reload of the Tilelayers
         self.template = v.VuetifyTemplate(
-            template="""
-        <script>
-            {methods: {
-                jupyter_fullscreen() {
-                    var element = document.querySelector(".%s .leaflet-container");
-                    element.style.position = "fixed";
-                    element.style.width = "100vw";
-                    element.style.height = "100vh";
-                    element.style.zIndex = 800;
-                    element.style.top = 0;
-                    element.style.left = 0;
-                    window.dispatchEvent(new Event('resize'));
-                },
-                jupyter_embed() {
-                    var element = document.querySelector(".%s .leaflet-container");
-                    element.style.position = "";
-                    element.style.width = "";
-                    element.style.height = "";
-                    element.style.zIndex = "";
-                    element.style.top = "";
-                    element.style.left = "";
-                    window.dispatchEvent(new Event('resize'));
-                }
-            }}
-        </script>
-        """
-            % (m._id, m._id)
+            template=(
+                "<script>{methods: {jupyter_embed(){%s}, jupyter_fullscreen(){%s}}}</script>"
+                % (*js)
+            )
         )
         display(self.template)
+
+        # display the map in the requested default state
+        display(Javascript(js[1]))
 
     def toggle_fullscreen(self, widget, event, data):
         """
