@@ -8,6 +8,6 @@ sepal\_ui.frontend
 .. autosummary::
    :toctree:
 
-   sepal_ui.frontend.js
+   sepal_ui.frontend.resize_trigger
    sepal_ui.frontend.styles
 

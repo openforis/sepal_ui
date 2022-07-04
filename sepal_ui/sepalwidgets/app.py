@@ -13,7 +13,7 @@ import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
-from sepal_ui.frontend import js
+from sepal_ui.frontend.resize_trigger import rt
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
@@ -131,7 +131,7 @@ class DrawerItem(v.ListItem, SepalWidget):
     ):
 
         # set the resizetrigger
-        self.rt = js.rt
+        self.rt = rt
 
         icon = icon if icon else "far fa-folder"
 
