@@ -10,6 +10,7 @@ In the following example we create a fake file on the fly and use it to display 
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path 

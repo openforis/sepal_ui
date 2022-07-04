@@ -435,8 +435,10 @@ class App(v.App, SepalWidget):
 
         # display a warning if the set language cannot be reached
         if translator is not None:
-            if translator.match is False:
-                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+            if translator._match is False:
+                msg = ms.locale.fallback.format(
+                    translator._targeted, translator._target
+                )
                 self.add_banner(msg, type_="error")
 
         # add js event
