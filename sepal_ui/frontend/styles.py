@@ -20,6 +20,7 @@ DARK_THEME = {
     "bg": "#121212",  # Are not traits
     "menu": "#424242",  # Are not traits
 }
+"dict: colors used for the dark theme"
 
 LIGHT_THEME = {
     "primary": v.theme.themes.light.primary,
@@ -34,6 +35,7 @@ LIGHT_THEME = {
     "bg": "#FFFFFF",
     "menu": "#FFFFFF",
 }
+"dict: colors used for the light theme"
 
 if not DARK_THEME.keys() == LIGHT_THEME.keys():
     raise Exception("Both dictionaries has to have the same color names")
@@ -43,8 +45,6 @@ def get_theme():
     """
     get theme name from the config file (default to dark)
 
-    Args:
-
     Return:
         (str): the theme to use
     """
@@ -52,8 +52,10 @@ def get_theme():
 
 
 class SepalColor(HasTraits, SimpleNamespace):
-    """Custom simple name space to store and access to the sepal_ui colors and
-    with a magic method to display theme."""
+    """
+    Custom simple name space to store and access to the sepal_ui colors and
+    with a magic method to display theme.
+    """
 
     # Initialize with the current theme
     _dark_theme = Bool(True if get_theme() == "dark" else False).tag(sync=True)
@@ -150,7 +152,6 @@ class Styles(v.VuetifyTemplate):
 styles = Styles()
 display(styles)
 
-# default styling of the aoi layer
 AOI_STYLE = {
     "stroke": True,
     "color": "grey",
@@ -160,16 +161,17 @@ AOI_STYLE = {
     "fillColor": "grey",
     "fillOpacity": 0.4,
 }
+"dict: default styling of the aoi layer"
 
 # the colors are set as follow.
 # 1 (True): dark theme
 # 0 (false): light theme
-# This will need to be changed if we want to support more than 2 theme
 COMPONENTS = {
     "PROGRESS_BAR": {
         "color": ["#2196f3", "#3f51b5"],
     }
 }
+"dict: components colors for both light and dark theme"
 
 _folder = {"color": ["#ffca28", "#ffc107"], "icon": "far fa-folder"}
 _table = {"color": ["#4caf50", "#00c853"], "icon": "far fa-table"}
@@ -190,6 +192,7 @@ ICON_TYPES = {
     "DEFAULT": _other,
     "PARENT": _parent,
 }
+"dict: the coloring of the mime type in the File selector"
 
 TYPES = (
     "info",
@@ -201,8 +204,7 @@ TYPES = (
     "warning",
     "anchor",
 )
-
-# Default styles to GeoJSON layers added to a SepalMap.
+"tuple: the different types defined by ipyvuetify"
 
 layer_style = {
     "stroke": True,
@@ -212,6 +214,7 @@ layer_style = {
     "fill": True,
     "fillOpacity": 0,
 }
+"dict: Default styles to GeoJSON layers added to a SepalMap"
 
 layer_hover_style = {
     "stroke": True,
@@ -221,6 +224,7 @@ layer_hover_style = {
     "fill": True,
     "fillOpacity": 0,
 }
+"dict: Default hovering styles to GeoJSON layers added to a SepalMap"
 
 map_btn_style = {
     "padding": "0px",
@@ -229,3 +233,4 @@ map_btn_style = {
     "height": "30px",
     "background": color.bg,
 }
+"dict: Default styleapplied to map btn"
