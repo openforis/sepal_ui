@@ -10,6 +10,7 @@ The default color is set to "primary".
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     
@@ -31,6 +32,7 @@ Btn can be used to launch function on any Javascript event such as "click".
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     

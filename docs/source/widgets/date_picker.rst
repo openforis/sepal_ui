@@ -9,6 +9,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     

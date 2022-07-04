@@ -14,6 +14,7 @@ Remember that, even though the widget is wrapped by the tooltip, the widget meth
 
 .. jupyter-execute::
     :raises:
+    :stderr:
     
     from sepal_ui import sepalwidgets as sw 
 
@@ -45,6 +46,7 @@ The external :code:`Tooltip` is a custom widget to provide easy to use tooltip i
 
 .. jupyter-execute::
     :raises:
+    :stderr:
     
     from sepal_ui import sepalwidgets as sw 
     
