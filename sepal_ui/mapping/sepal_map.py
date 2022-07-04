@@ -12,6 +12,7 @@ import warnings
 import math
 import string
 import random
+import json
 
 from haversine import haversine
 import numpy as np
@@ -27,7 +28,7 @@ import ipyleaflet as ipl
 import ee
 from deprecated.sphinx import deprecated
 
-import sepal_ui.frontend.styles as styles
+from sepal_ui.frontend import styles as ss
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
@@ -763,8 +764,18 @@ class SepalMap(ipl.Map):
 
         # apply default coloring for geoJson
         if isinstance(layer, ipl.GeoJSON):
-            layer.style = layer.style or styles.layer_style
-            hover_style = styles.layer_hover_style if hover else layer.hover_style
+
+            # define the default values
+            default_style = json.loads((ss.json_dir / "layer.json").read_text())
+            default_style.update(color=ss.color.primary)
+            default_hover_style = json.loads(
+                (ss.json_dir / "layer_hover.json").read_text()
+            )
+            default_hover_style.update(color=ss.color.primary)
+
+            # apply the style depending on the parameters
+            layer.style = layer.style or default_style
+            hover_style = default_hover_style if hover else layer.hover_style
             layer.hover_style = layer.hover_style or hover_style
 
         super().add_layer(layer)

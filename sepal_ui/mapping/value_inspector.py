@@ -1,3 +1,5 @@
+import json
+
 from ipyleaflet import WidgetControl, GeoJSON, LocalTileLayer
 import ee
 import geopandas as gpd
@@ -13,7 +15,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import utils as su
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.map_btn import MapBtn
-from sepal_ui.frontend.styles import COMPONENTS
+from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 
 # call x_array leaflet at least once
@@ -52,10 +54,11 @@ class ValueInspector(WidgetControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
+        p_style = json.loads((ss.json_dir / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
             background_color=color.menu,
-            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
+            color=p_style["color"][v.theme.dark],
         )
 
         # create a clickable btn

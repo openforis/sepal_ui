@@ -9,8 +9,7 @@ import geopandas as gpd
 from ipyleaflet import GeoJSON
 import ee
 
-from sepal_ui import color
-from sepal_ui.frontend.styles import AOI_STYLE
+from sepal_ui.frontend import styles as ss
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
 from sepal_ui.message import ms
@@ -624,7 +623,8 @@ class AoiModel(Model):
             f["properties"]["name"] = self.name
 
         # adapt the style to the theme
-        style = {**AOI_STYLE, "color": color.success, "fillColor": color.success}
+        style = json.loads((ss.json_dir / "aoi.json").read_text())
+        style.update(color=ss.color.success, fillColor=ss.color.success)
 
         # create a GeoJSON object
         self.ipygeojson = GeoJSON(

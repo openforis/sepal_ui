@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from traitlets import HasTraits, observe, Bool
 from types import SimpleNamespace
 from traitlets import Unicode
@@ -152,48 +154,6 @@ class Styles(v.VuetifyTemplate):
 styles = Styles()
 display(styles)
 
-AOI_STYLE = {
-    "stroke": True,
-    "color": "grey",
-    "weight": 2,
-    "opacity": 1,
-    "fill": True,
-    "fillColor": "grey",
-    "fillOpacity": 0.4,
-}
-"dict: default styling of the aoi layer"
-
-# the colors are set as follow.
-# 1 (True): dark theme
-# 0 (false): light theme
-COMPONENTS = {
-    "PROGRESS_BAR": {
-        "color": ["#2196f3", "#3f51b5"],
-    }
-}
-"dict: components colors for both light and dark theme"
-
-_folder = {"color": ["#ffca28", "#ffc107"], "icon": "far fa-folder"}
-_table = {"color": ["#4caf50", "#00c853"], "icon": "far fa-table"}
-_vector = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-vector-square"}
-_other = {"color": ["#00bcd4", "#03a9f4"], "icon": "far fa-file"}
-_parent = {"color": ["#424242", "#ffffff"], "icon": "far fa-folder-open"}
-_image = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-image"}
-
-ICON_TYPES = {
-    "": _folder,
-    ".csv": _table,
-    ".txt": _table,
-    ".tif": _image,
-    ".tiff": _image,
-    ".vrt": _image,
-    ".shp": _vector,
-    ".geojson": _vector,
-    "DEFAULT": _other,
-    "PARENT": _parent,
-}
-"dict: the coloring of the mime type in the File selector"
-
 TYPES = (
     "info",
     "primary",
@@ -206,31 +166,14 @@ TYPES = (
 )
 "tuple: the different types defined by ipyvuetify"
 
-layer_style = {
-    "stroke": True,
-    "color": color.primary,
-    "weight": 2,
-    "opacity": 1,
-    "fill": True,
-    "fillOpacity": 0,
-}
-"dict: Default styles to GeoJSON layers added to a SepalMap"
+# the colors are set as follow.
+# 1 (True): dark theme
+# 0 (false): light theme
+json_dir = Path(__file__).parent / "json"
+"pathlib.Path: the path to the json style folder"
 
-layer_hover_style = {
-    "stroke": True,
-    "color": color.primary,
-    "weight": 5,
-    "opacity": 1,
-    "fill": True,
-    "fillOpacity": 0,
-}
-"dict: Default hovering styles to GeoJSON layers added to a SepalMap"
+css_dir = Path(__file__).parent / "css"
+"pathlib.Path: the path to the css style folder"
 
-map_btn_style = {
-    "padding": "0px",
-    "min-width": "0px",
-    "width": "30px",
-    "height": "30px",
-    "background": color.bg,
-}
-"dict: Default styleapplied to map btn"
+js_dir = Path(__file__).parent / "js"
+"pathlib.Path: the path to the js style folder"

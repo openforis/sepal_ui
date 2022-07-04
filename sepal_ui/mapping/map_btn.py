@@ -1,7 +1,8 @@
+import json
 import ipyvuetify as v
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend.styles import map_btn_style
+from sepal_ui.frontend import styles as ss
 
 
 class MapBtn(v.Btn, sw.SepalWidget):
@@ -22,10 +23,14 @@ class MapBtn(v.Btn, sw.SepalWidget):
         # create the icon
         self.logo = sw.Icon(small=True, children=[logo])
 
+        # create the style from default
+        style = json.loads((ss.json_dir / "map_btn.json").read_text())
+        style.update(background=ss.color.bg)
+
         # some parameters are overloaded to match the map requirements
         kwargs["color"] = "text-color"
         kwargs["outlined"] = True
-        kwargs["style_"] = " ".join([f"{k}: {v};" for k, v in map_btn_style.items()])
+        kwargs["style_"] = " ".join([f"{k}: {v};" for k, v in style.items()])
         kwargs["children"] = [self.logo]
         kwargs["icon"] = False
 
