@@ -8,6 +8,7 @@ Overview
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -37,6 +38,7 @@ Hide the component by changing its class.
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -69,6 +71,7 @@ Show the component by changing its class.
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -101,6 +104,7 @@ remove the :code:`v_model` of the component and replace it by :code:`None`.
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 

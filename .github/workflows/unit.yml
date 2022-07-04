@@ -52,7 +52,8 @@ jobs:
           text = Path("warnings.txt").read_text().strip()
           print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
           warnings = [ii for ii in text.split("\n")]
-          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in ["transition", "CHANGELOG.md", "ipykernel"])]
+          expected = ["transition", "CHANGELOG.md"]
+          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in expected)]
           assert len(unexpected) == 0
       
       - name: test with pytest
