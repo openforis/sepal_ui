@@ -76,7 +76,7 @@ class Tile(v.Layout, SepalWidget):
         self._metadata["mount_id"] = "nested_tile"
 
         # remove elevation
-        self.elevation = False
+        self.children[0].elevation = False
 
         # remove title
         self.set_title()

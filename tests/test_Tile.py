@@ -81,7 +81,7 @@ class TestTile:
 
         assert res == tile
         assert tile._metadata["mount_id"] == "nested_tile"
-        assert tile.elevation is False
+        assert tile.children[0].elevation == 0
         assert len(tile.children[0].children) == 1
 
         return
