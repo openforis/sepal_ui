@@ -5,7 +5,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 
 
-class StateBarControl(WidgetControl):
+class LayerStateControl(WidgetControl):
     """
     A specific statebar dedicated to the the counting of loading tiles in the map
 

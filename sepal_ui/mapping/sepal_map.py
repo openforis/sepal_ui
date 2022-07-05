@@ -33,6 +33,7 @@ from sepal_ui.scripts.warning import SepalWarning
 from sepal_ui.message import ms
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.value_inspector import ValueInspector
+from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.basemaps import basemap_tiles
 
@@ -132,8 +133,8 @@ class SepalMap(ipl.Map):
         not vinspector or self.add_control(self.v_inspector)
 
         # specific statebar
-        # self.state = sm.StateBar(loading=False)
-        # not statebar or self.add_control(self.state)
+        self.state = LayerStateControl(self)
+        not statebar or self.add_control(self.state)
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
