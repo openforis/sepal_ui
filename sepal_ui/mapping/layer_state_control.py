@@ -12,6 +12,12 @@ class LayerStateControl(WidgetControl):
     every time a map is added to the map the counter will be raised by one. same behaviour with removed.
     """
 
+    m = None
+    "SepalMap: the map connected to the control"
+
+    w_state = None
+    "sw.StateBar: the stateBar displaying the number of layer loading on the map"
+
     nb_layer = Int(0).tag(sync=True)
     "Int: the number of layers in the map"
 
