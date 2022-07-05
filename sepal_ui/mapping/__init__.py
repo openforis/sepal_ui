@@ -4,4 +4,4 @@ from .draw_control import *
 from .value_inspector import *
 from .layer import *
 from .map_btn import *
-from .state_bar import *
+from .statebar_control import *

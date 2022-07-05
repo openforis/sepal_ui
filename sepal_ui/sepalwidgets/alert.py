@@ -281,7 +281,7 @@ class StateBar(v.SystemBar, SepalWidget):
             value=100,
             small=True,
             size=15,
-            color=color.sepal_darker,
+            color="primary",
             class_="mr-2",
         )
 

@@ -131,6 +131,10 @@ class SepalMap(ipl.Map):
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
 
+        # specific statebar
+        # self.state = sm.StateBar(loading=False)
+        # not statebar or self.add_control(self.state)
+
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
         self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
