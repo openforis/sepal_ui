@@ -4,3 +4,4 @@ from .draw_control import *
 from .value_inspector import *
 from .layer import *
 from .map_btn import *
+from .aoi_control import *

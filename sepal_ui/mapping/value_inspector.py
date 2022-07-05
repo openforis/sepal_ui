@@ -26,7 +26,7 @@ class ValueInspector(WidgetControl):
     """
 
     m = None
-    "(ipyleaflet.Map) the map on which he vinspector is displayed to interact with it's layers"
+    "(ipyleaflet.Map): the map on which he vinspector is displayed to interact with it's layers"
 
     w_loading = None
     "(vuetify.ProgressLinear): the progress bar on top of the Card"
