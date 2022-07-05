@@ -5,3 +5,4 @@ from .value_inspector import *
 from .layer import *
 from .map_btn import *
 from .layer_state_control import *
+from .aoi_control import *

@@ -23,3 +23,4 @@ sepal\_ui.mapping
       sepal_ui.mapping.MapBtn
       sepal_ui.mapping.ValueInspector
       sepal_ui.mapping.LayerStateControl
+      sepal_ui.mapping.AoiControl

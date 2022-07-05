@@ -391,3 +391,24 @@ class TestUtils:
             su.geojson_to_ee(dict_)
 
         return
+
+    def test_check_input(self):
+
+        with pytest.raises(ValueError, match="The value has not been initialized"):
+            su.check_input(None)
+
+        with pytest.raises(ValueError, match="toto"):
+            su.check_input(None, "toto")
+
+        res = su.check_input(1)
+        assert res is True
+
+        # test lists
+        res = su.check_input([range(2)])
+        assert res is True
+
+        # test empty list
+        with pytest.raises(ValueError):
+            su.check_input([])
+
+        return

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from IPython.display import display
 import ipyvuetify as v
 from traitlets import Unicode
@@ -9,25 +11,17 @@ class ResizeTrigger(v.VuetifyTemplate):
     Every time resize is called, the javascript resize event is trigger of the application
     """
 
-    template = Unicode(
-        """
-        <script>
-            {methods: {
-                jupyter_resize(){
-                    window.dispatchEvent(new Event('resize'));
-                }
-            }}
-        </script>
-    """
-    ).tag(sync=True)
+    # load the js file
+    js = Path(__file__).parent / "js/jupyter_resize.js"
+    template = Unicode("<script>{methods: {jupyter_resize(){%s}}}</script>" % js).tag(
+        sync=True
+    )
     "Unicode: the javascript script to manually trigger the resize event"
 
     def resize(self):
         """trigger the template method i.e. the resize event"""
 
-        self.send({"method": "resize"})
-
-        return
+        return self.send({"method": "resize"})
 
 
 # create one single resizetrigger that will be used as a singleton everywhere
