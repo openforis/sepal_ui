@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import os
 from pathlib import Path
 from urllib.parse import urlparse
@@ -9,17 +10,15 @@ import warnings
 from unidecode import unidecode
 from functools import wraps
 from itertools import product
-from configparser import ConfigParser
 
 import ee
 from cryptography.fernet import Fernet
 from matplotlib import colors as c
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import versionadded, deprecated
 
 import sepal_ui
-
-from sepal_ui import config_file
-from sepal_ui.frontend.styles import TYPES
+from sepal_ui.message import ms
+from sepal_ui.conf import config_file, config
 from .warning import SepalWarning
 
 
@@ -98,7 +97,6 @@ def random_string(string_length=3):
         (str): A random string
     """
 
-    # random.seed(1001)
     letters = string.ascii_lowercase
 
     return "".join(random.choice(letters) for i in range(string_length))
@@ -479,6 +477,33 @@ def next_string(string):
     return string
 
 
+def set_config(key, value, section="sepal-ui"):
+    """
+    Set the provided value to the given key for the given section in the sepal-ui config
+    file
+
+    Args:
+        key (str): key configuration name
+        value (str): value to be referenced by the configuration key
+        section (str, optional): configuration section, defaults to sepal-ui.
+    """
+
+    # set the section if needed
+    if "sepal-ui" not in config.sections():
+        config.add_section(section)
+
+    # set the value
+    config.set("sepal-ui", key, value)
+
+    # save back the file
+    config.write(config_file.open("w"))
+
+    return
+
+
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_locale(locale):
     """
@@ -507,6 +532,9 @@ def set_config_locale(locale):
     return
 
 
+@deprecated(
+    version="2.9.1", reason="This function will be removed in favor of set_config()"
+)
 @versionadded(version="2.7.0")
 def set_config_theme(theme):
     """
@@ -538,7 +566,7 @@ def set_config_theme(theme):
 @versionadded(version="2.7.1")
 def set_type(color):
     """
-    Return a pre-defined material colors based on the requested type_ parameter. If the parameter is not a predifined color,
+    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
     fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
 
     Args:
@@ -548,6 +576,7 @@ def set_type(color):
         (str): a pre-defined material color
 
     """
+    from sepal_ui.frontend.styles import TYPES
 
     if color not in TYPES:
         warnings.warn(
@@ -603,3 +632,31 @@ def geojson_to_ee(geo_json, geodesic=False, encoding="utf-8"):
         raise ValueError("Could not convert the geojson to ee.Geometry()")
 
     return
+
+
+def check_input(input_, msg=ms.utils.check_input.error):
+    """
+    Check if the inpupt value is initialized.
+    If not raise an error, else return True
+
+    Args:
+        input\_ (any): the input to check
+        msg (str, optionnal): the message to display if the input is not set
+
+    Return:
+        (bool): check if the value is initialized
+    """
+
+    # by the default the variable is considered valid
+    init = True
+
+    # check the collection type that are the only one supporting the len method
+    try:
+        init = False if len(input_) == 0 else init
+    except Exception:
+        init = False if input_ is None else init
+
+    if init is False:
+        raise ValueError(msg)
+
+    return init

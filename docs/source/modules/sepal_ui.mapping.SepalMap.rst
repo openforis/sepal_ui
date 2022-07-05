@@ -10,6 +10,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.ee
         ~SepalMap.dc
         ~SepalMap.v_inspector
+        ~SepalMap._id
         
     .. rubric:: Methods
     
@@ -24,7 +25,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.show_dc
         ~SepalMap.hide_dc
         ~SepalMap.add_colorbar
-        ~SepalMap.add_ee_Layer
+        ~SepalMap.add_ee_layer
         ~SepalMap.get_basemap_list
         ~SepalMap.get_viz_params
         ~SepalMap.remove_layer
@@ -36,6 +37,7 @@ sepal\_ui.mapping.SepalMap
         ~SepalMap.getScale
         ~SepalMap.addLayer
         ~SepalMap.centerObject
+        ~SepalMap.zoom_raster
         
 .. automethod:: sepal_ui.mapping.SepalMap.remove_last_layer
 
@@ -53,7 +55,7 @@ sepal\_ui.mapping.SepalMap
 
 .. automethod:: sepal_ui.mapping.SepalMap.add_colorbar
 
-.. automethod:: sepal_ui.mapping.SepalMap.add_ee_Layer
+.. automethod:: sepal_ui.mapping.SepalMap.add_ee_layer
 
 .. autofunction:: sepal_ui.mapping.SepalMap.get_basemap_list
 
@@ -78,3 +80,5 @@ sepal\_ui.mapping.SepalMap
 .. automethod:: sepal_ui.mapping.SepalMap.getScale
 
 .. automethod:: sepal_ui.mapping.SepalMap.centerObject
+
+.. automethod:: sepal_ui.mapping.SepalMap.zoom_raster

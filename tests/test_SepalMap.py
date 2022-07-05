@@ -1,5 +1,5 @@
 from pathlib import Path
-from random import randint
+import random
 from urllib.request import urlretrieve
 import math
 
@@ -8,7 +8,11 @@ import ee
 from ipyleaflet import GeoJSON, LocalTileLayer
 
 from sepal_ui import mapping as sm
+from sepal_ui import get_theme
 import sepal_ui.frontend.styles as styles
+
+# create a seed so that we can check values
+random.seed(42)
 
 
 class TestSepalMap:
@@ -16,15 +20,23 @@ class TestSepalMap:
 
         # check that the map start with no info
         m = sm.SepalMap()
+        id1 = m._id  # to check that the next map has another ID
 
         assert isinstance(m, sm.SepalMap)
         assert m.center == [0, 0]
         assert m.zoom == 2
         assert len(m.layers) == 1
-        assert m.layers[0].name == "CartoDB.DarkMatter"
+
+        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
+        # Get current theme
+        dark_theme = True if get_theme() == "dark" else False
+
+        # The basemap will change depending on the current theme.
+        assert m.layers[0].name == basemaps[not dark_theme]
 
         # check that the map start with several basemaps
-        basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+
         m = sm.SepalMap(basemaps)
         assert len(m.layers) == 2
         layers_name = [layer.name for layer in m.layers]
@@ -32,6 +44,7 @@ class TestSepalMap:
 
         # check that the map start with a DC
         m = sm.SepalMap(dc=True)
+        assert m._id != id1
         assert m.dc in m.controls
 
         # check that the map starts with a vinspector
@@ -48,9 +61,9 @@ class TestSepalMap:
 
         m = sm.SepalMap()
 
-        lat = randint(-90, 90)
-        lng = randint(-180, 180)
-        zoom = randint(0, 22)
+        lat = random.randint(-90, 90)
+        lng = random.randint(-180, 180)
+        zoom = random.randint(0, 22)
         m.set_center(lng, lat, zoom)
 
         assert m.zoom == zoom
@@ -154,7 +167,7 @@ class TestSepalMap:
         res = sm.SepalMap.get_basemap_list()
 
         # last time I checked there were 128
-        assert len(res) == 128
+        assert len(res) == 131
 
         return
 
@@ -352,6 +365,18 @@ class TestSepalMap:
         # search something that is not a key
         with pytest.raises(ValueError):
             m.find_layer(m)
+
+        return
+
+    def test_zoom_raster(self, byte):
+
+        m = sm.SepalMap()
+        layer = m.add_raster(byte, fit_bounds=False)
+        m.zoom_raster(layer)
+
+        center = [33.89703655465772, -117.63458938969723]
+        assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
+        assert m.zoom == 15.0
 
         return
 

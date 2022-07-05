@@ -13,7 +13,7 @@ import sepal_ui
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
-from sepal_ui.frontend import js
+from sepal_ui.frontend.resize_trigger import rt
 from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
 
@@ -131,7 +131,7 @@ class DrawerItem(v.ListItem, SepalWidget):
     ):
 
         # set the resizetrigger
-        self.rt = js.rt
+        self.rt = rt
 
         icon = icon if icon else "far fa-folder"
 
@@ -435,8 +435,10 @@ class App(v.App, SepalWidget):
 
         # display a warning if the set language cannot be reached
         if translator is not None:
-            if translator.match is False:
-                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+            if translator._match is False:
+                msg = ms.locale.fallback.format(
+                    translator._targeted, translator._target
+                )
                 self.add_banner(msg, type_="error")
 
         # add js event
@@ -470,7 +472,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
     def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
@@ -602,7 +604,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # extract the language information from the translator
         # if not set default to english
-        code = "en" if translator is None else translator.target
+        code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 
@@ -677,7 +679,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.btn.color = "info"
 
         # change the paramater file
-        su.set_config_locale(loc.code)
+        su.set_config("locale", loc.code)
 
         return
 
@@ -704,7 +706,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     def __init__(self, **kwargs):
 
         # get the current theme name
-        self.theme = sepal_ui.get_theme(sepal_ui.config_file)
+        self.theme = sepal_ui.get_theme()
 
         # set the btn parameters
         kwargs["x_small"] = kwargs.pop("x_small", True)
@@ -733,7 +735,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         self.children[0].children = [self.THEME_ICONS[self.theme]]
 
         # change the paramater file
-        su.set_config_theme(self.theme)
+        su.set_config("theme", self.theme)
 
         # trigger other events by changing v_model
         self.v_model = self.theme

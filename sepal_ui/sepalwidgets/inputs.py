@@ -281,21 +281,20 @@ class FileInput(v.Flex, SepalWidget):
 
     def reset(self, *args):
         """
-        Clear the File selection and move to the root folder if something was selected
+        Clear the File selection and move to the root folder.
 
         Return:
             self
         """
 
-        root = Path("~").expanduser()
+        # note: The args arguments are useless here but need to be kept so that
+        # the function is natively compatible with the clear btn
 
-        if self.v_model is not None:
+        # move to root
+        self._on_file_select({"new": Path.home()})
 
-            # move to root
-            self._on_file_select({"new": root})
-
-            # remove v_model
-            self.v_model = None
+        # remove v_model
+        self.v_model = None
 
         return self
 
@@ -528,6 +527,8 @@ class LoadTableField(v.Col, SepalWidget):
         # clear the fileInput
         self.fileInput.reset()
 
+        return
+
     @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
@@ -537,16 +538,16 @@ class LoadTableField(v.Col, SepalWidget):
 
         # set the path
         path = change["new"]
-        self.v_model["pathname"] = path
+        self._set_v_model("pathname", path)
 
         # exit if none
-        if not path:
+        if path is None:
             return self
 
         df = pd.read_csv(path, sep=None, engine="python")
 
         if len(df.columns) < 3:
-            self._clear_select()
+            self._set_v_model("pathname", None)
             self.fileInput.selected_file.error_messages = (
                 ms.widgets.load_table.too_small
             )
@@ -584,9 +585,24 @@ class LoadTableField(v.Col, SepalWidget):
         """change the v_model value when a select is changed"""
 
         name = change["owner"]._metadata["name"]
-        self.v_model[name] = change["new"]
+        self._set_v_model(name, change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return
 
 
 class AssetSelect(v.Combobox, SepalWidget):
@@ -962,7 +978,7 @@ class VectorField(v.Col, SepalWidget):
         self.feature_collection = None
 
         # set the pathname value
-        self.v_model["pathname"] = change["new"]
+        self._set_v_model("pathname", change["new"])
 
         # exit if nothing
         if not change["new"]:
@@ -996,7 +1012,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_value.v_model = None
 
         # set the value
-        self.v_model["column"] = change["new"]
+        self._set_v_model("column", change["new"])
 
         # hide value if "ALL" or none
         if change["new"] in ["ALL", None]:
@@ -1024,6 +1040,21 @@ class VectorField(v.Col, SepalWidget):
         """Update the value name and reduce the gdf"""
 
         # set the value
-        self.v_model["value"] = change["new"]
+        self._set_v_model("value", change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return
