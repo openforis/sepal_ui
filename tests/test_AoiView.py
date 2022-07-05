@@ -1,7 +1,5 @@
 import pytest
 
-import ee
-
 from sepal_ui import aoi
 from sepal_ui.mapping import SepalMap
 from sepal_ui.message import ms
@@ -16,7 +14,7 @@ class TestAoiView:
 
         # init without ee
         view = aoi.AoiView(gee=False)
-        assert view.model.ee == False
+        assert view.model.ee is False
 
         # init with ADMIN
         view = aoi.AoiView("ADMIN", folder=gee_dir)
@@ -51,6 +49,10 @@ class TestAoiView:
         view = aoi.AoiView(map_=m, folder=gee_dir)
         assert view.map_ == m
 
+        # test model name when using view
+        view = aoi.AoiView(admin=100, folder=gee_dir)
+        assert view.model.name == "GLP"
+
         return
 
     def test_admin(self, gee_dir):
@@ -78,10 +80,10 @@ class TestAoiView:
             for k, c in view.components.items():
 
                 if k == method:
-                    assert not "d-none" in c.class_
+                    assert "d-none" not in c.class_
                 elif hasattr(c, "parent"):
                     if view.components[k].parent == c:
-                        assert not "d-none" in c.class_
+                        assert "d-none" not in c.class_
                 else:
                     assert "d-none" in c.class_
 
@@ -132,7 +134,7 @@ class TestAoiView:
 
         # select Italy
         item = next(i for i in aoi_gee_view.w_admin_0.items if i["text"] == "Italy")
-        aoi_gee_view.w_method.v_model == "ADMIN0"
+        aoi_gee_view.w_method.v_model = "ADMIN0"
         aoi_gee_view.w_admin_0.v_model = item["value"]
 
         # launch the update
@@ -143,27 +145,8 @@ class TestAoiView:
 
         # checks
         assert len(aoi_gee_view.map_.layers) == 1
-        assert aoi_gee_view.w_method.v_model == None
-        assert aoi_gee_view.model.name == None
-
-        return
-
-    def test_polygonize(self):
-
-        src_json = {
-            "properties": {"style": {"radius": 1000}},  # 1 km
-            "geometry": {"coordinates": [0, 0]},
-        }
-
-        # number of sides in the polygons
-        # check this number instead of a regular output
-        # because different geopandas versions give different results (7th decimal)
-        nb_sides = 66
-
-        # check the transformation
-        dst_json = aoi.AoiView.polygonize(src_json)
-        assert dst_json["geometry"]["type"] == "Polygon"
-        assert len(dst_json["geometry"]["coordinates"][0]) == 65
+        assert aoi_gee_view.w_method.v_model is None
+        assert aoi_gee_view.model.name is None
 
         return
 

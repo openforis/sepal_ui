@@ -55,15 +55,15 @@ class TestApp:
 
         for tile in tiles:
             if tile == main_tile:
-                assert tile.viz == True
+                assert tile.viz is True
             else:
-                assert tile.viz == False
+                assert tile.viz is False
 
         for di in drawer_items:
             if di._metadata["card_id"] == id_:
-                assert di.input_value == True
+                assert di.input_value is True
             else:
-                assert di.input_value == False
+                assert di.input_value is False
 
         return
 
@@ -71,25 +71,51 @@ class TestApp:
 
         # without type
         msg = "toto"
-        res = app.add_banner(msg)
-        alert = app.content.children[0]
+        res = app.add_banner(msg, id_="test_info")
+
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_info"),
+            False,
+        )
 
         assert res == app
-        assert isinstance(alert, v.Alert)
-        assert alert.type == "info"
+        assert isinstance(alert, v.Snackbar)
+        assert alert.color == "info"
         assert alert.children[0] == msg
 
         # with type
         type_ = "error"
-        res = app.add_banner(msg, type=type_)
-        alert = app.content.children[0]
+        res = app.add_banner(msg, id_="test_error", type=type_)
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_error"),
+            False,
+        )
 
         assert res == app
-        assert isinstance(alert, v.Alert)
-        assert alert.type == type_
+        assert isinstance(alert, v.Snackbar)
+        assert alert.color == "error"
         assert alert.children[0] == msg
 
         return
+
+    def test_close_banner(self, app):
+        """Test closing banner event"""
+
+        msg = "test"
+        app.add_banner(msg, id_="test_close")
+
+        alert = next(
+            (c for c in app.content.children if c.attributes.get("id") == "test_close"),
+            False,
+        )
+
+        # Check if banner is active
+        assert alert.v_model is True
+
+        # Close banner
+        alert.children[1].fire_event("click", None)
+
+        assert alert.v_model is False
 
     @pytest.fixture
     def app(self):
@@ -100,9 +126,5 @@ class TestApp:
         drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]
         appBar = sw.AppBar()
         footer = sw.Footer()
-
-        # set tile parameters
-        title = "main_title"
-        id_ = "main_id"
 
         return sw.App(tiles, appBar, footer, sw.NavDrawer(drawer_items))

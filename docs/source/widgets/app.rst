@@ -15,6 +15,7 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from sepal_ui import aoi
@@ -37,7 +38,7 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
     # Uncomment this line in a voila executed notebook 
     #app
 
-.. figure:: ../../img/app.png
+.. figure:: ../_image/widget/app.png
     :alt: app
 
 

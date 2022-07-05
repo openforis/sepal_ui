@@ -1,8 +1,6 @@
-import ee
 import pytest
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.scripts import utils as su
 
 
 class TestAssetSelect:
@@ -41,22 +39,22 @@ class TestAssetSelect:
 
         # set a legit asset
         asset_select._validate({"new": default_items[0]})
-        assert asset_select.valid == True
+        assert asset_select.valid is True
         assert asset_select.error_messages is None
-        assert asset_select.error == False
+        assert asset_select.error is False
 
         # set a fake asset
         asset_select._validate({"new": "toto/tutu"})
         assert asset_select.error_messages is not None
-        assert asset_select.valid == False
-        assert asset_select.error == True
+        assert asset_select.valid is False
+        assert asset_select.error is True
 
         # set a real asset but with wrong type
         asset_select.types = ["TABLE"]
         asset_select._validate({"new": default_items[0]})
         assert asset_select.error_messages is not None
-        assert asset_select.valid == False
-        assert asset_select.error == True
+        assert asset_select.valid is False
+        assert asset_select.error is True
 
         return
 
@@ -77,6 +75,27 @@ class TestAssetSelect:
         assert asset_select.types == ["IMAGE"]
 
         return
+
+    def test_get_items(self, asset_select):
+
+        # Arrange: assume this asset will be always in the GSA
+        test_asset = "users/bornToBeAlive/sepal_ui_test/italy"
+
+        # Act: test function itself
+        asset_select.items = []
+        asset_select._get_items()
+
+        # Assert
+        assert test_asset in asset_select.items
+
+        # Test button event
+
+        # Act
+        asset_select.items = []
+        asset_select.fire_event("click:prepend", None)
+
+        # Assert
+        assert test_asset in asset_select.items
 
     @pytest.fixture
     def default_items(self):

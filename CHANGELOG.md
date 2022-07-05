@@ -1,21 +1,384 @@
-## v_2.4.0 (2021-10-19)
-
-### Refactor
-
-- make v_model default and empty value as None instead of empty string
-- be consistent when concatenating
+## v_2.9.4 (2022-06-09)
 
 ### Fix
 
+- drop jupyter-sphinx git version I think the rendering is going to fail but it's preventing me from building the wheel and to use Jupyterlite I need the wheel Sorry not sorry
+
+## v_2.9.3 (2022-06-09)
+
+### Fix
+
+- build the wheel
+
+## v_2.9.2 (2022-06-09)
+
+### Fix
+
+- build the wheel
+
+## v_2.9.1 (2022-06-09)
+
+### Fix
+
+- allow the build off the wheel
+
+## v_2.9.0 (2022-06-09)
+
+### Feat
+
+- extend color simplenamspace to interactively display colors in …
+- extend color simplenamspace to interactively display colors in jypyter
+- refresh tooltip if there are new kwargs
+- return basemap box as default object from basemaps module
+- make wheel scroll default param
+- add a MapBtn
+- create planet handler
+- add keys and fix review
+- reset input fields when changing method
+- capture any other errors, direcrtyl from api
+- introduce StateIcon. An interactive icon.
+- make alert and button optional elements
+- create stand alone Planet credentials view
+- create planet handler
+
+### Refactor
+
+- adapt tests to get the current theme"
+- enrich color object to display both theme colors
+- deprecate specific set theme and create generic function
+- initialize configuration file and make it available to all modules
+- improve zoom_bounds quality
+- improve zoom_ee_object quality
+- instantiate config parser and import in init
+- deprecate is_absolute
+- deprecate is_absolute
+- overwrite default sw default Tooltip object
+- rename tooltip wrapper widget
+- remove uncalled skips
+- set viz parameter outside of kwargs
+- use keys for vinspector messages
+- rename value inspector module and add a closing icon
+- some line breaks and removed a pair of condionals
+- reorder the coordinates
+- move the v_inspector away from SepalMap
+- cleaning
+- split the gee command override from the rest of SepalMap
+- use sepalwidgets StateIcon component
+- admit any type for value trait
+- add kwargs to the StateIcon
+- make command cli tools as python scripts to align autoprogram plugin
+- make parser var name descriptive and add module commands to path
+- use a fake init key
+- undo test
+- remove dust
+- raise error when credentials empty
+- move theDrawControl to its own file It will be supporting the drawing methods (editing, polygonize) from there
+- clean the import of ipyleaflet widgets
+- add translation keys for navdrawer items
+- add translation keys for navdrawer items
+- rename files
+- rename planet to avoid main planet package ambibuity
+
+### Fix
+
+- zoom automatically on raster layers
+- digest all ee.ComputedObject
+- legacy assert
+- fullscreen control now specify which map to fullscreen
+- add the none_ok parameter to find_layer
+- remove bind method from Alert
+- skip planet test if no API key
+- remove bind method from Alert Fix #295
+- skip planet test if no API key Fix #481
+- add_tooltip method
+- typo
+- include a base filter to sepal_map search and delete methods
+- prepare refactoring of ValueInspector
+- avoid the v_inspector to move down the map
+- remove legacy dot on the map Fix #456
+- inspect rasters
+- read GeoJSON data
+- inspect ee_objects
+- remove background for btns on maps
+- closes #466
+- doc typo
+- typo
+- closes #466
+- validate when there is no initial value in module
+- add missing import
+- use quotes to define the planet_credentials
+- remove empty string from the translation dict
+- use keys for the fileinput placeholder Fix #464
+- avoid circular reference
+- geemap was still called in aoi_model
+- remove_all method to remove all layers but the basemaps
+- overwrite remove_layer to use index, name or layer
+- find layer by name and by index
+- set the basemaps as basemaps #422
+- drop usage of geemap + cleaning #455
+- continue using geemap 0.8.9
+- remove empty string from the translation dict Fix #449
+- fix #452
+
+## v_2.8.0 (2022-04-18)
+
+### Fix
+
+- remove empty versions from the changelog
+- prevent Alert with no parameters to raise a warning
+- backward compatibility of the type parameter
+- use msg for banner btn
+- only display the oldest banner queue the other and hide them
+- raise a warning if type is badly defined
+- display the number of stackbar in the queue
+- create the disclaimer tile on the fly
+- change logo source in light theme
+- unproject images in add_raster
+- unproject images in add_raster Fix #434
+
+### Feat
+
+- new set and get children to sepalwidget. Aims to close #443
+- create Banner widget to display important message to end-user
+- override ipyleaflet Map  add_layer method to use default style
+
+### Refactor
+
+- rename _tmp class name with the actual new sepalwidget name
+- deal with type_ the same way we do it in Alert
+- use a persistent parameter instead of timeout
+- simplify add_banner method by calling Banner widget
+- return map when new layer added + make more clear param name
+- change alert by snackbar when creating a banner aims to close #438
+- move theme, color and theme function to styles
+
+## v_2.7.0 (2022-03-28)
+
+### Refactor
+
+- get folder name instead stem
+- change kernel by venv. reset df index
+- clean leftover
+- don't use shell=True
+- reduce line number
+- sanityse scripts
+- cleaning
+- use observe decorator
+- observe alert trait even though no model
+
+### Feat
+
+- cmd script to activate virtual envs
+- warn user this process will take some time
+- avoid adding multiple banners
+- control the theme using a btn
+- add theme in the config file
+- add interaction with drawer. closes #415
+- new fullscreen widget
+- new LocaleSelect widget
+- function to update config language
+- allow the tranlator to read config file
+- new fullscreen widget
+
+### Fix
+
+- use repository name instead of stem
+- guess the languages available
+- check that the folder is a module directory
+- add a script to test enviroment
+- remove alert if change of the same parameter
+- set return statement
+- trigger the icon change
+- display only one alert per type use a lambda function and next intead of multiple ifs. set the v_model to false to systematically see the transition
+- specify the archive format
+- solve build issue in RDT
+- typo in attribution map
+- the lib translator was still using the old implementation
+- display message to the end user when changing theme
+- change menus colors according to theme
+- control selected aoi color
+- adapt map basemap to theme
+- control the theming with the config file
+- control datepicker value using v_model
+- us all .json in l10n folders
+- create a script to switch language parameters from terminal
+- display only the locales available for the current app
+- display only the locales available for the current app
+- use mdi icons in Numberfields
+- password eyes not diplayed
+- use mdi icons for pre-designed prepend-icon Fix #414
+- display messages to the end user on locale change
+- make the localSelector responsive to translator values
+- add the Local widget in the navbar
+- change config file on click
+- debug non working flags
+- support for subvarieties of language Fix #408
+- add a disabled trait to datepicker Fix #409
+
+## v_2.6.2 (2022-02-18)
+
+### Fix
+
+- prevent crash when badly design viz params are used Fix #405
+
+## v_2.6.1 (2022-02-17)
+
+### Fix
+
+- add the message file in the distrib
+- make readme copatible with pypi release
+- make readme compatible with pypi release  has syntax errors in markup and would not be rendered on PyPI.     line 6: Error: Document or section may not begin with a transition.
+
+## v_2.6.0 (2022-02-16)
+
+### Refactor
+
+- ignore untitled files
+- ignore untitled files
+- remove __setattr__ magic method.
+- typo in class name
+- remove __setattr__ magic method.
+- reshape messages to fit the translator requirements
+- replace every occurence of mdi icons
+- use `/` in Path
+
+### Fix
+
+- remove fr file from merge
+- avoid deprecation by reshaping dictionnary
+- remove {locale}.json files
+- remove list from json files potoon is not compatible with lists but only key dictionaries
+- add basepath
+- set the name in the properties of the GEJSON output
+- don't use the named 'tmp' directory
+- don't use the named 'tmp' directory Fix #391
+- set the name in the properties of the GEJSON output Fix #390
+- typo
+
+### Feat
+
+- change translator behaviour to meet l10n requirements
+
+## v_2.5.5 (2022-01-12)
+
+### Fix
+
+- avoid meta sepal when clicking on download btn
+
+## v_2.5.4 (2022-01-11)
+
+### Fix
+
+- scroll back to the top when change folde Fix #232
+- only install pre-commit hooks once
+- only install pre-commit hooks once Fix #373
+- use https instead of git
+- reset model output when selecting a new AOI Fix #366
+
+### Refactor
+
+- cleaning
+
+## v_2.5.3 (2021-12-08)
+
+### Fix
+
+- solve the build issue in SEPAL
+- cryptography since flake8 linting cryptography is not a lazy dependency anymore
+- install missing packages
+
+## v_2.5.2 (2021-12-07)
+
+### Fix
+
+- prevent bug when image have no properties Fix #361
+
+## v_2.5.1 (2021-12-07)
+
+### Fix
+
+- git based libs are not compatible with pipy
+
+## v_2.5.0 (2021-12-06)
+
+### Refactor
+
+- use named arguments to improve readability
+- import sepal_ui after sys
+- use flake8 in pre-commit
+- reset github folder as hidden
+- remove deprecation notice
+- minor logical operator writing
+- deprecate toggle
+- use class management methods Fix #119
+- use kwargs pop
+- fix some of the parameters
+- remove __init__ in model
+- use kwargs pop Avoid the duplication of parameter using an elegant and python method called dict poping
+- add black basge Fix #326
+- black typo
+- remove legacy print
+- typo in package name
+- change lib name Change the lib name to meet the name used in PiPy Some change will need to be done in the documentation to reflect this change
+- use * instead of list comprehension
+
+### Fix
+
+- manage inverted bands
+- display hsv images
+- display categorical values without sld
+- specific case of hsv display
+- specific case of categorical data
+- handle when the viz_name is not in the image
+- overwrite addLayer to read metadata display parameters
+- add the colors to the documentation Fix #312
+- display folder as folder even when there is a suffix Fix #350
+- display vrt file as images Fix #351
+- change internal structure of widgets Improve coverage by testing markdown
+- Sepalwidget set viz
+- close fileinput menu when v_model is set
+- close menu when date is selected Fix #17
+- viz can be set in params
+- make viz into a trait It now controls the vizibility
+- hide the icon if set to empty
+- set back the missing members
+- hide the icon is set to empty
+- add increm parameter
+- change param
+- reload assetSelect on types change Fix #323
+- prevent setting asset of wrong type Fix #322
+- limit the items list to type The self.items += is not a usable operator for list trait I was force to use a tmp list to really update the filter the items
+- typo in Réunion name
+- open link in new tabs Fix #311
+- adapt test to new libs
+- add a banner on top of app Fix #314
+- init the items of the ClassTable Fix #313
+
+### Feat
+
+- overwrite all vuetify components
+- overwrite all vuetify components
+
+## v_2.4.0 (2021-10-19)
+
+### Feat
+
+- filter by column and value in AOI.
+- filter by column and value in AOI. - closes: #296
+
+### Fix
+
+- display specific warnings in alerts
 - replace default v_model fon VectorField as trait
 - doc build failed
 - only display SepalWarning in Alerts
 - this assignation was overwritting the w_asset dict
 - vector field method. closes #306
 
-### Feat
+### Refactor
 
-- filter by column and value in AOI. - closes: #296
+- make v_model default and empty value as None instead of empty string
+- be consistent when concatenating
 
 ## v_2.3.0 (2021-10-06)
 
@@ -23,6 +386,7 @@
 
 - add enforce_aoi to reclassify_model
 - use split instead of indexing Fix #302
+- prevent tooltip error when calling. closes #298
 - prevent tooltip error when calling. closes #298
 - little typo
 - fiix some minor bugs and add human sorted
@@ -54,12 +418,43 @@
 - typo
 - clip margins
 - use RPC to serve the resize method
+- use RPC to serve the resize method
 - catch when on_widget and targets have different length
 - get the widget instead of the widget name
 - local variable referenced before assignment
 - **docs**: fix typo
 - include the save parameter to the view when someones initialize the view without the model
+
+### Refactor
+
+- remove un-used method
+- renamed Clip -> CopyToClip
+- only set targets at the begining
+- create a state bar to control if a table is already created
+- use switch decorator
+- make all view children elements part of the View class
+
+### Feat
+
+- declare all variable
+- Copy to clipboard
+- add copy-to-clipboard widget
+- create common used fixtures
+- add a targets parameter to switch method
+- test reclassify model
+- add a target parameter in the switch method
+- create validation for the reclassify model method
+
+## v_2.1.1 (2021-09-15)
+
+### Fix
+
 - typo in setup
+
+## v_2.1.0 (2021-09-15)
+
+### Fix
+
 - folder init in reclassifyTile
 - typo in json dict
 - display the btn at the bottom of the table
@@ -71,16 +466,11 @@
 - use init_ee instead of ee.initialize()
 - import table
 - minor typo
+- remove type and feat: introducing switch decorator
 - remove type
 
 ### Refactor
 
-- remove un-used method
-- renamed Clip -> CopyToClip
-- only set targets at the begining
-- create a state bar to control if a table is already created
-- use switch decorator
-- make all view children elements part of the View class
 - **lang**: add keys
 - remove test notebook
 - ensure a value is set to the func
@@ -99,16 +489,11 @@
 - typo
 - reintroduce type attribute
 - fix french typos
+- create __all__ variable to fix imports
 - place __all__ at the file start
 
 ### Feat
 
-- declare all variable
-- add copy-to-clipboard widget
-- create common used fixtures
-- test reclassify model
-- add a target parameter in the switch method
-- create validation for the reclassify model method
 - change state when something is loaded
 - test asset validity
 - add commitizen check
@@ -116,83 +501,4 @@
 - separate the reclassified image and its visualization
 - define default_asset trait in SelectAsset. it will accept whether strings for unique default assets or lists for multiple. The trait can be observed to update the list anytime
 - introducing switch decorator
-
-## v_2.0.3 (2021-06-09)
-
-## v_2.0.2 (2021-06-08)
-
-## v_2.0.1 (2021-06-02)
-
-## v_2.0.0 (2021-05-26)
-
-## v_1.1.5 (2021-04-02)
-
-## v_1.1.4 (2021-03-26)
-
-## v_1.1.3 (2021-03-26)
-
-## v_1.1.2 (2021-03-24)
-
-## v_1.1.1 (2021-03-17)
-
-## v_1.1.0 (2021-02-26)
-
-## v_1.0.2 (2021-01-15)
-
-## v_1.0.1 (2020-12-24)
-
-## v_1.0.0 (2020-12-04)
-
-## v_0.7.9 (2020-11-19)
-
-## v_0.7.8 (2020-11-16)
-
-## v_0.7.7 (2020-11-05)
-
-## v_0.7.6 (2020-11-02)
-
-## v_0.7.5 (2020-11-02)
-
-## v_0.7.4 (2020-11-02)
-
-## v_0.7.3-beta (2020-10-09)
-
-## v_0.7.2-beta (2020-10-09)
-
-## v_0.7.1-beta (2020-09-18)
-
-## v_0.7-beta (2020-09-17)
-
-## v_0.6-beta (2020-09-14)
-
-## v_0.5-beta (2020-08-11)
-
-## v_0.4-beta (2020-08-06)
-
-## v_0.3-beta (2020-07-31)
-
-## v_0.2-beta (2020-07-27)
-
-## v_0.1.11-alpha (2020-07-27)
-
-## v_0.1.10-alpha (2020-07-27)
-
-## v_0.1.9-alpha (2020-07-27)
-
-## v0.1.8-alpha (2020-07-27)
-
-## v_0.1.7-alpha (2020-07-27)
-
-## v_0.1.6-alpha (2020-07-27)
-
-## v_0.1.5-alpha (2020-07-27)
-
-## v_0.1.4-alpha (2020-07-27)
-
-## v_0.1.3-alpha (2020-07-27)
-
-## v_0.1.2-alpha (2020-07-27)
-
-## v_0.1-alpha (2020-07-27)
-
-## v_0.0-alpha (2020-07-27)
+- improve assetSelect component

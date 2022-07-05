@@ -1,7 +1,7 @@
-import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.frontend.styles import TYPES
 
 
 class TestAlert:
@@ -9,11 +9,11 @@ class TestAlert:
 
         # default init
         alert = sw.Alert()
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.type == "info"
 
         # every legit types
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert = sw.Alert(type_)
             assert alert.type == type_
 
@@ -31,11 +31,11 @@ class TestAlert:
         # single msg
         res = alert.add_msg(msg)
         assert res == alert
-        assert alert.viz == True
+        assert alert.viz is True
         assert alert.children[0].children[0] == msg
 
         # single msg with type
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert.add_msg(msg, type_)
             assert alert.type == type_
             assert alert.children[0].children[0] == msg
@@ -55,11 +55,11 @@ class TestAlert:
         # single msg
         res = alert.add_live_msg(msg)
         assert res == alert
-        assert alert.viz == True
+        assert alert.viz is True
         assert alert.children[1].children[0] == msg
 
         # single msg with type
-        for type_ in sw.TYPES:
+        for type_ in TYPES:
             alert.add_live_msg(msg, type_)
             assert alert.type == type_
             assert alert.children[1].children[0] == msg
@@ -107,51 +107,14 @@ class TestAlert:
         alert.type = "success"
         assert alert.children[1].type_ == "success"
 
-    def test_bind(self):
-        class Test_io:
-            def __init__(self):
-                self.out = None
-
-        test_io = Test_io()
-
-        widget = v.TextField(v_model=None)
-        alert = sw.Alert()
-        alert2 = sw.Alert()
-        alert3 = sw.Alert()
-        alert4 = sw.Alert()
-
-        # binding without text
-        res = alert.bind(widget, test_io, "out")
-        alert2.bind(widget, test_io, "out", "new variable : ")
-        alert3.bind(widget, test_io, "out", verbose=False)
-        alert4.bind(widget, test_io, "out", secret=True)
-
-        assert res == alert
-
-        # check when value change
-        msg = "toto"
-        widget.v_model = msg
-
-        assert alert.viz == True
-        assert test_io.out == widget.v_model
-        assert alert.children[0].children[0] == f"The selected variable is: {msg}"
-        assert alert2.children[0].children[0] == f"new variable : {msg}"
-        assert len(alert3.children) == False
-        assert (
-            alert4.children[0].children[0]
-            == f"The selected variable is: {'*'*len(msg)}"
-        )
-
-        return
-
     def test_check_input(self):
 
         alert = sw.Alert()
 
         var_test = None
         res = alert.check_input(var_test)
-        assert res == False
-        assert alert.viz == True
+        assert res is False
+        assert alert.viz is True
         assert alert.children[0].children[0] == "The value has not been initialized"
 
         res = alert.check_input(var_test, "toto")
@@ -159,17 +122,17 @@ class TestAlert:
 
         var_test = 1
         res = alert.check_input(var_test)
-        assert res == True
+        assert res is True
 
         # test lists
         var_test = [range(2)]
         res = alert.check_input(var_test)
-        assert res == True
+        assert res is True
 
         # test empty list
         var_test = []
         res = alert.check_input(var_test)
-        assert res == False
+        assert res is False
 
         return
 
@@ -177,7 +140,7 @@ class TestAlert:
 
         alert = sw.Alert().add_msg("toto").reset()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert len(alert.children) == 1
         assert alert.children[0] == ""
 
@@ -188,13 +151,13 @@ class TestAlert:
         # check with a no msg alert
         alert = sw.Alert().remove_last_msg()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.children[0] == ""
 
         # check with a 1 msg alert
         alert = sw.Alert().add_msg("toto").remove_last_msg()
 
-        assert alert.viz == False
+        assert alert.viz is False
         assert alert.children[0] == ""
 
         # check with a multiple msg alert
@@ -207,7 +170,7 @@ class TestAlert:
 
         alert.remove_last_msg()
 
-        assert alert.viz == True
+        assert alert.viz is True
         assert len(alert.children) == 4
         assert alert.children[nb_msg - 2].children[0] == f"{string}{nb_msg-2}"
 
@@ -220,8 +183,8 @@ class TestAlert:
 
         # test a random update
         alert.update_progress(0.5)
-        assert alert.children[1].children[0].children[2].children[0] == " 50.0%"
+        assert alert.progress_bar.n == 50
 
         # show that a value > 1 raise an error
-        with pytest.raises(Exception):
+        with pytest.raises(ValueError):
             alert.update_progress(1.5)

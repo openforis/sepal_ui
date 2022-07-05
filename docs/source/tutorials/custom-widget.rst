@@ -52,7 +52,7 @@ Widget package is currently empty so we will create an extra :code:`password_fie
     We here decided to use the web convention 1 file 1 object, which may sound weird for the most pythonic freaks. 
     If you prefer to use the **PEP 8** module convention. delete the widget folder and write everything in a :code:`widget.py` module.
 
-initialize the object
+Initialize the object
 ^^^^^^^^^^^^^^^^^^^^^
 
 Here we will create the object with its expected attributes 
@@ -69,7 +69,7 @@ Here we will create the object with its expected attributes
         def __init__(self, label="Password", **kwargs):
 
             # create the eye icon
-            self.eye = v.Icon(class_ = 'ml-1', children=['mdi-eye'])
+            self.eye = v.Icon(class_ = 'ml-1', children=['fas fa-eye'])
 
             # create the texfied 
             self.text_field = v.TextField(
@@ -94,12 +94,36 @@ Here we embed our widget in a line layout. In this layout I used 2 widgets, a :c
 I used the class "ml-1" (margin left 1) to let some room between the :code:`TextField` and the :code:`Password`.
 The text_field is using the keyword :code:`type` to display a :code:`password` in the HTML convention. it means that the input will no be displayed. 
 
-toggle the visibility 
-^^^^^^^^^^^^^^^^^^^^^
+Base colors
+^^^^^^^^^^^
+
+To be aligned with the sepal UI, is highly recommended to use the sepal theme colors in your components. By default, widgets will use a color palette depending on the current theme, however, if you want to customize their style, you can use any of the sepal base colors. To display them, use the following lines.
+
+.. jupyter-execute::
+    :raises:
+    
+    from sepal_ui import sepalwidgets as sw 
+    
+    # correct colors for the documentation 
+    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+    v.theme.dark = False
+
+    from sepal_ui import color
+    color._dark_theme = True
+    display(color)
+    
+    color._dark_theme = False
+    display(color)
+
+
+
+Toggle visibility 
+^^^^^^^^^^^^^^^^^
 
 Now we want to add a behavior to our object. When we click on the eye, the :code:`PasswordField` should toggle its visibility: 
 
-* The eye should switch from :code:`mdi-eye` and :code:`mdi-eye-off`
+* The eye should switch from :code:`fas fa-eye` and :code:`fas fa-eye-slash`
 * The text_field should switch from type :code:`password` to :code:`text`
 
 To do so we will first add 2 class static variable (caps lock) to list the 2 types and icon and set them on the two attributes of my class. a new attribute needs to be created to remind the current state of the password. 
@@ -114,7 +138,7 @@ I'll call it :code:`password_viz` as the :code:`viz` parameter is already an att
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
-        EYE_ICONS = ['mdi-eye', 'mdi-eye-off'] # new icon list
+        EYE_ICONS = ['fas fa-eye', 'fas fa-eye-slash'] # new icon list
         TYPES = ['password', 'text'] # new type list
    
         def __init__(self, label="Password", **kwargs):
@@ -200,7 +224,7 @@ finally we obtain the following reusable widget :
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
-        EYE_ICONS = ['mdi-eye', 'mdi-eye-off'] # new icon list
+        EYE_ICONS = ['fas fa-eye', 'fas fa-eye-slash'] # new icon list
         TYPES = ['password', 'text'] # new type list
    
         def __init__(self, label="Password", **kwargs):

@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/img/sepal_header.png
+.. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal_header.png
 
 Sepal_ui
 --------
@@ -6,6 +6,10 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467835.svg
+   :target: https://doi.org/10.5281/zenodo.6467835
+   :alt: Citation
 
 .. image:: https://badge.fury.io/py/sepal-ui.svg
     :target: https://badge.fury.io/py/sepal-ui
@@ -14,6 +18,10 @@ Sepal_ui
 .. image:: https://img.shields.io/pypi/dm/sepal-ui?color=307CC2&logo=python&logoColor=gainsboro  
     :target: https://pypi.org/project/sepal-ui/
     :alt: PyPI - Downloads
+    
+.. image:: https://img.shields.io/pypi/pyversions/sepal-ui
+   :target: https://pypi.org/project/sepal-ui/
+   :alt: supported Python version
 
 .. image:: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml/badge.svg
     :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml
@@ -38,20 +46,37 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
    :target: https://conventionalcommits.org
    :alt: conventional commit
+   
+.. image:: https://badges.crowdin.net/sepal-ui/localized.svg
+   :target: https://crowdin.com/project/sepal-ui
+   :alt: Crowdin
+   
+--------------------------------------------------------------------------------
 
-:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
+Currently translated in the following languages:
+
+.. csv-table::
+
+    English, Français, Español, 中国人
+
+You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
+
+--------------------------------------------------------------------------------
+
+:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and a demo app can be launched on Heroku following this link: `<https://sepal-ui.herokuapp.com>`__.
 
-We are happy to receive feedback and we welcome any kind of contribution
+We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/img/sepal_ui_demo.gif
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_screenshot.png
 
 Contribute
 ----------
 
 If you want to contribute you can fork the project in you own repository and then use it. 
-If you consider working with us, please follow the `contributing guidelines <https://github.com/12rambau/sepal_ui/blob/master/CONTRIBUTE.rst>`_. 
-Meet our `contributor <https://github.com/12rambau/sepal_ui/blob/master/AUTHORS.rst>`_. 
+If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`__. 
+
+Meet our `contributor <AUTHORS.rst>`__. 
 

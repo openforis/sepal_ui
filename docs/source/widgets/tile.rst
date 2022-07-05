@@ -9,6 +9,7 @@ Any argument from the original :code:`Card` ipyvuetify class can be used to comp
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -41,6 +42,7 @@ Prepare the tile to be used as a nested component in a tile. The elevation will 
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -66,6 +68,7 @@ Replace the current content of the tile with the provided inputs. it will keep t
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -91,6 +94,7 @@ Replace the current title and activate it. If no title is provided, the title is
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -116,6 +120,7 @@ Return the current title of the tile
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 
@@ -141,6 +146,7 @@ Display only the widgets that are part of the input_list. the widget_list is the
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     import ipyvuetify as v 

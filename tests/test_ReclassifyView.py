@@ -254,6 +254,6 @@ class TestReclassifyView:
         yield model_local
 
         # delete the shp files
-        [f.unlink() for f in tmp_dir.glob(f"nybb.*")]
+        [f.unlink() for f in tmp_dir.glob("nybb.*")]
 
         return

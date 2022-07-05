@@ -14,24 +14,24 @@ class TestBtn:
         assert btn.children[1] == "Click"
 
         # extensive btn
-        btn = sw.Btn("toto", "mdi-folder")
+        btn = sw.Btn("toto", "fas fa-folder")
         assert btn.children[1] == "toto"
         assert isinstance(btn.v_icon, v.Icon)
-        assert btn.v_icon.children[0] == "mdi-folder"
+        assert btn.v_icon.children[0] == "fas fa-folder"
 
         return
 
     def test_set_icon(self, btn):
 
         # new icon
-        icon = "mdi-folder"
+        icon = "fas fa-folder"
         btn = btn.set_icon(icon)
 
         assert isinstance(btn.v_icon, v.Icon)
         assert btn.v_icon.children[0] == icon
 
         # change existing icon
-        icon = "mdi-file"
+        icon = "fas fa-file"
         btn.set_icon(icon)
         assert btn.v_icon.children[0] == icon
 
@@ -41,12 +41,12 @@ class TestBtn:
 
         btn = btn.toggle_loading()
 
-        assert btn.loading == True
-        assert btn.disabled == True
+        assert btn.loading is True
+        assert btn.disabled is True
 
         btn.toggle_loading()
-        assert btn.loading == False
-        assert btn.disabled == False
+        assert btn.loading is False
+        assert btn.disabled is False
 
         return
 

@@ -1,8 +1,7 @@
 from pathlib import Path
 from colorsys import rgb_to_hls, rgb_to_hsv
-from traitlets import Int, Dict, link
+from traitlets import Int
 
-from ipywidgets import Output
 import ipyvuetify as v
 from matplotlib.colors import to_rgb
 import pandas as pd
@@ -15,7 +14,7 @@ from sepal_ui.message import ms
 __all__ = ["TableView"]
 
 
-class ClassTable(v.DataTable, sw.SepalWidget):
+class ClassTable(sw.DataTable):
 
     """
     Custom data table to modify, display and save classification. From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
@@ -51,20 +50,18 @@ class ClassTable(v.DataTable, sw.SepalWidget):
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
             ms.rec.table.btn.edit,
-            icon="mdi-pencil",
+            icon="fas fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
-            ms.rec.table.btn.delete, icon="mdi-delete", color="error", small=True
+            ms.rec.table.btn.delete, icon="fas fa-trash-alt", color="error", small=True
         )
         self.add_btn = sw.Btn(
-            ms.rec.table.btn.add, icon="mdi-plus", color="success", small=True
+            ms.rec.table.btn.add, icon="fas fa-plus", color="success", small=True
         )
-        self.save_btn = sw.Btn(
-            ms.rec.table.btn.save, icon="mdi-content-save", small=True
-        )
+        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon="far fa-save", small=True)
 
         slot = v.Toolbar(
             class_="d-flex mb-6",
@@ -122,9 +119,6 @@ class ClassTable(v.DataTable, sw.SepalWidget):
             return self
 
         # if there is, retrieve the content of the file to populate the table
-
-        items = []
-        # read the file using pandas
         df = pd.read_csv(items_file, header=None)
 
         # TODO: We can check if the input file has header names, and if so, extract the
@@ -484,7 +478,7 @@ class SaveDialog(v.Dialog):
 
         self.alert.add_msg(msg)
 
-    def show():
+    def show(self):
         """
         display the dialog and write down the text in the alert
 
@@ -516,7 +510,7 @@ class SaveDialog(v.Dialog):
 
         # write each line values but not the id
         lines = [list(item.values())[1:] for item in self.table.items]
-        txt = [",".join(str(e) for e in l) + "\n" for l in lines]
+        txt = [",".join(str(e) for e in ln) + "\n" for ln in lines]
         out_file.with_suffix(".csv").write_text("".join(txt))
 
         # Every time a file is saved, we update the current widget state
@@ -535,9 +529,9 @@ class SaveDialog(v.Dialog):
         return
 
 
-class TableView(v.Card, sw.SepalWidget):
+class TableView(sw.Card):
     """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
+    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile"
 
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
@@ -597,7 +591,10 @@ class TableView(v.Card, sw.SepalWidget):
             folder=self.class_path,
         )
         self.btn = sw.Btn(
-            ms.rec.table.classif.btn, icon="mdi-table", color="success", outlined=True
+            ms.rec.table.classif.btn,
+            icon="far fa-table",
+            color="success",
+            outlined=True,
         )
         w_panels = v.ExpansionPanels(
             children=[

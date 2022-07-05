@@ -2,13 +2,14 @@ import json
 from pathlib import Path
 from traitlets import Any
 from urllib.request import urlretrieve
+import tempfile
 
 import pandas as pd
 import geopandas as gpd
 from ipyleaflet import GeoJSON
-import geemap
 import ee
 
+from sepal_ui import color
 from sepal_ui.frontend.styles import AOI_STYLE
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
@@ -22,7 +23,8 @@ class AoiModel(Model):
     """
     an Model object dedicated to the sorage and the manipulation of aoi.
     It is meant to be used with the AoiView object (embeded in the AoiTile).
-    By using this you will be able to provide your application with aoi as an ee_object or a gdf, depending if you activated the ee binding or not.
+    By using this you will be able to provide your application with aoi as an ee_object
+    or a gdf, depending if you activated the ee binding or not.
     The class also provide insight on your aoi geometry.
 
     Args:
@@ -37,9 +39,9 @@ class AoiModel(Model):
 
     """
 
-    ############################################################################
-    ###                      dataset const                                   ###
-    ############################################################################
+    # ###########################################################################
+    # ###                      dataset const                                  ###
+    # ###########################################################################
 
     FILE = [
         Path(__file__).parents[1] / "scripts" / "gadm_database.csv",
@@ -54,14 +56,15 @@ class AoiModel(Model):
     "list(str): GADM(0) and GAUL(1) naming key format"
 
     ISO = ["GID_0", "ISO 3166-1 alpha-3"]
-    "list(str): GADM(0) and GAUl(1) iso codes key"
+    "list(str): GADM(0) and GAUL(1) iso codes key"
 
     GADM_BASE_URL = "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
     "str: the base url to download gadm maps"
 
     GADM_ZIP_DIR = Path.home() / "tmp" / "GADM_zip"
-    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
     "pathlib.Path: the zip dir where we download the zips"
+
+    GADM_ZIP_DIR.mkdir(parents=True, exist_ok=True)
 
     GAUL_ASSET = "FAO/GAUL/2015/level{}"
     "str: the GAUL asset name"
@@ -69,9 +72,9 @@ class AoiModel(Model):
     ASSET_SUFFIX = "aoi_"
     "str: the suffix to identify the asset in GEE"
 
-    ############################################################################
-    ###                             const methods                            ###
-    ############################################################################
+    # ###########################################################################
+    # ###                             const methods                           ###
+    # ###########################################################################
 
     CUSTOM = ms.aoi_sel.custom
     "str: the word displayed for custom method in the relevant lang"
@@ -90,9 +93,9 @@ class AoiModel(Model):
     }
     "dict(str): the word displayed for all selection methods in the relevant lang"
 
-    ############################################################################
-    ###                      widget related traitlets                        ###
-    ############################################################################
+    # ###########################################################################
+    # ###                      widget related traitlets                       ###
+    # ###########################################################################
 
     method = Any(None).tag(sync=True)
     "str: the currently selected method"
@@ -115,9 +118,9 @@ class AoiModel(Model):
     name = Any(None).tag(sync=True)
     "str: the name of the file to create (used only in drawn shaped)"
 
-    ############################################################################
-    ###                           model parameters                           ###
-    ############################################################################
+    # ###########################################################################
+    # ###                           model parameters                          ###
+    # ###########################################################################
 
     ee = True
     "bool: either or not the model is bound to gee"
@@ -125,20 +128,36 @@ class AoiModel(Model):
     folder = None
     "str: the folder name used in GEE related component, mainly used for debugging"
 
+    alert = None
+    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
+
+    default_vector = None
+    "(str|pathlib.path: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
+
+    default_asset = None
+    "str: the default administrative area in GADM or GAUL norm"
+
+    default_admin = None
+    "str: the default asset name, need to point to a readable FeatureCollection"
+
+    # ###########################################################################
+    # ###                           model outputs                             ###
+    # ###########################################################################
+
+    dst_asset_id = None
+    "str: the exported asset id"
+
+    selected_feature = None
+    "ee.Feature|GoeSeries: the Feature associated with a query"
+
     gdf = None
     "geopandas.GeoDataFrame: the geodataframe corresponding to the selected AOI"
 
     feature_collection = None
-    "str: the name of the asset used to described the AOI"
+    "ee.FeatureCollection: The feature Collection generated by the parameters (only for GEE models)"
 
     ipygeojson = None
     "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
-
-    alert = None
-    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
-
-    dst_asset_id = None
-    "str: the exported asset id"
 
     def __init__(
         self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
@@ -186,18 +205,19 @@ class AoiModel(Model):
         )
 
         # set the default gdf if possible
-        if self.vector_json != None:
+        if self.vector_json is not None:
             self.set_object("SHAPE")
-        elif self.admin != None:
+        elif self.admin is not None:
             self.set_object("ADMIN0")  # any level will work
-        elif self.asset_name != None:
+        elif self.asset_name is not None:
             self.set_object("ASSET")
 
         return self
 
     def set_object(self, method=None):
         """
-        set the object (gdf/featurecollection) based on the model inputs. The method can be manually overwrite
+        set the object (gdf/featurecollection) based on the model inputs. The method can
+        be manually overwritten
 
         Args:
             method (str, optional): a model loading method
@@ -205,6 +225,9 @@ class AoiModel(Model):
         Return:
             self
         """
+
+        # clear the model output if existing
+        self.clear_output()
 
         # overwrite self.method
         self.method = method or self.method
@@ -220,7 +243,7 @@ class AoiModel(Model):
         elif self.method == "ASSET":
             self._from_asset(self.asset_name)
         else:
-            raise Exception(ms.aoi_sel.no_inputs)
+            raise Exception(ms.aoi_sel.exception.no_inputs)
 
         self.alert.add_msg(ms.aoi_sel.complete, "success")
 
@@ -230,12 +253,13 @@ class AoiModel(Model):
         """set the ee.FeatureCollection output from an existing asset"""
 
         if not (asset_name["pathname"]):
-            raise Exception("Please select an asset.")
+            raise Exception(ms.aoi_sel.exception.no_asset)
 
         if asset_name["column"] != "ALL":
             if asset_name["value"] is None:
-                raise Exception("Please select a value.")
+                raise Exception(ms.aoi_sel.exception.no_value)
 
+        # set the name
         self.name = Path(asset_name["pathname"]).stem.replace(self.ASSET_SUFFIX, "")
         ee_col = ee.FeatureCollection(asset_name["pathname"])
 
@@ -250,13 +274,8 @@ class AoiModel(Model):
         self.feature_collection = ee_col
 
         # create a gdf form te feature_collection
-        # cannot be used before geemap 0.8.17 (not released)
-        # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-        self.gdf = gpd.GeoDataFrame.from_features(
-            self.feature_collection.getInfo()["features"]
-        ).set_crs(epsg=4326)
-
-        # set the name
+        features = self.feature_collection.getInfo()["features"]
+        self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         return self
 
@@ -264,7 +283,7 @@ class AoiModel(Model):
         """set the object output from a csv json"""
 
         if not all(point_json.values()):
-            raise Exception("All fields are required, please fill them.")
+            raise Exception(ms.aoi_sel.exception.uncomplete)
 
         # cast the pathname to pathlib Path
         point_file = Path(point_json["pathname"])
@@ -272,7 +291,7 @@ class AoiModel(Model):
         # check that the columns are well set
         values = [v for v in point_json.values()]
         if not len(values) == len(set(values)):
-            raise Exception(ms.aoi_sel.duplicate_key)
+            raise Exception(ms.aoi_sel.exception.duplicate_key)
 
         # create the gdf
         df = pd.read_csv(point_file, sep=None, engine="python")
@@ -289,7 +308,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = ee.FeatureCollection(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -300,11 +319,11 @@ class AoiModel(Model):
         """set the object output from a vector json"""
 
         if not (vector_json["pathname"]):
-            raise Exception("Please select a file.")
+            raise Exception(ms.aoi_sel.exception.no_file)
 
         if vector_json["column"] != "ALL":
             if vector_json["value"] is None:
-                raise Exception("Please select a value.")
+                raise Exception(ms.aoi_sel.exception.no_value)
 
         # cast the pathname to pathlib Path
         vector_file = Path(vector_json["pathname"])
@@ -316,13 +335,13 @@ class AoiModel(Model):
         self.name = vector_file.stem
 
         # filter it if necessary
-        if vector_json["value"] != None:
+        if vector_json["value"] is not None:
             self.gdf = self.gdf[self.gdf[vector_json["column"]] == vector_json["value"]]
             self.name = f"{self.name}_{vector_json['column']}_{vector_json['value']}"
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -333,7 +352,7 @@ class AoiModel(Model):
         """set the gdf output from a geo_json"""
 
         if not geo_json:
-            raise Exception("Please draw a shape in the map")
+            raise Exception(ms.aoi_sel.exception.no_draw)
 
         # remove the style property from geojson as it's not recognize by geopandas and gee
         for feat in geo_json["features"]:
@@ -348,7 +367,7 @@ class AoiModel(Model):
 
         if self.ee:
             # transform the gdf to ee.FeatureCollection
-            self.feature_collection = geemap.geojson_to_ee(self.gdf.__geo_interface__)
+            self.feature_collection = su.geojson_to_ee(self.gdf.__geo_interface__)
 
             # export as a GEE asset
             self.export_to_asset()
@@ -363,10 +382,11 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin):
-        """Set the object according to given an administrative number in the GADM norm. The object will be projected in EPSG:4326"""
+        """Set the object according to given an administrative number in the GADM norm.
+        The object will be projected in EPSG:4326"""
 
         if not admin:
-            raise Exception("Select an administrative layer")
+            raise Exception(ms.aoi_sel.exception.no_admlyr)
 
         # get the admin level corresponding to the given admin code
         df = pd.read_csv(self.FILE[self.ee])
@@ -377,7 +397,7 @@ class AoiModel(Model):
         )
 
         if not is_in.any().any():
-            raise Exception("The code is not in the database")
+            raise Exception(ms.aoi_sel.exception.invalid_code)
         else:
             index = 3 if self.ee else -1
             level = (
@@ -392,29 +412,26 @@ class AoiModel(Model):
             ).filter(ee.Filter.eq(f"ADM{level}_CODE", admin))
 
             # transform it into gdf
-            # cannot be used before geemap 0.8.17 (not released)
-            # self.gdf = geemap.ee_to_geopandas(self.feature_collection)
-            self.gdf = gpd.GeoDataFrame.from_features(
-                self.feature_collection.getInfo()["features"]
-            ).set_crs(epsg=4326)
+            features = self.feature_collection.getInfo()["features"]
+            self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         else:
             # save the country iso_code
             iso_3 = admin[:3]
 
-            # download the geopackage in tmp
-            zip_file = self.GADM_ZIP_DIR / f"{iso_3}.zip"
+            # download the geopackage in a tmp directory
+            with tempfile.TemporaryDirectory() as tmp_dir:
 
-            if not zip_file.is_file():
+                zip_file = Path(tmp_dir) / f"{iso_3}.zip"
 
                 # get the zip from GADM server only the ISO_3 code need to be used
                 urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
 
-            # read the geopackage
-            layer_name = f"gadm36_{iso_3}_{level}"
-            level_gdf = gpd.read_file(
-                f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
-            )
+                # read the geopackage
+                layer_name = f"gadm36_{iso_3}_{level}"
+                level_gdf = gpd.read_file(
+                    f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
+                )
 
             # get the exact admin from this layer
             self.gdf = level_gdf[level_gdf[self.CODE[self.ee].format(level)] == admin]
@@ -428,6 +445,23 @@ class AoiModel(Model):
             for i in range(int(level) + 1)
         ]
         self.name = "_".join(names)
+
+        return self
+
+    def clear_output(self):
+        """
+        Clear the output of the aoi selector without changing the traits and/or the parameters.
+
+        Return:
+            self
+        """
+
+        # reset the outputs
+        self.gdf = None
+        self.feature_collection = None
+        self.ipygeojson = None
+        self.selected_feature = None
+        self.dst_asset_id = None
 
         return self
 
@@ -449,10 +483,7 @@ class AoiModel(Model):
         [setattr(self, attr, None) for attr in self.trait_names()]
 
         # reset the outputs
-        self.gdf = None
-        self.feature_collection = None
-        self.ipygeojson = None
-        self.selected_feature = None
+        self.clear_output()
 
         # reset the default
         self.set_default(vector, admin, asset)
@@ -467,8 +498,8 @@ class AoiModel(Model):
             ([str]): sorted list of column names
         """
 
-        if type(self.gdf) == type(None):
-            raise Exception("You must set the gdf before interacting with it")
+        if self.gdf is None:
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             aoi_ee = ee.Feature(self.feature_collection.first())
@@ -493,8 +524,8 @@ class AoiModel(Model):
 
         """
 
-        if type(self.gdf) == type(None):
-            raise Exception("You must set the gdf before interacting with it")
+        if self.gdf is None:
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             fields = self.feature_collection.distinct(column).aggregate_array(column)
@@ -512,8 +543,8 @@ class AoiModel(Model):
             (ee.Feature|GoeSeries): the Feature associated with the query
         """
 
-        if type(self.gdf) == type(None):
-            raise Exception("You must set the gdf before interacting with it")
+        if self.gdf is None:
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.ee:
             selected_feature = self.feature_collection.filterMetadata(
@@ -583,12 +614,21 @@ class AoiModel(Model):
             (GeoJSON): the geojson layer of the aoi gdf
         """
 
-        if type(self.gdf) == type(None):
-            raise Exception("You must set the gdf before converting it into GeoJSON")
+        if self.gdf is None:
+            raise Exception(ms.aoi_sel.exception.no_gdf)
 
+        # read the data from geojson and add the name as a property of the shape
+        # useful when handler are added from ipyleaflet
         data = json.loads(self.gdf.to_json())
+        for f in data["features"]:
+            f["properties"]["name"] = self.name
+
+        # adapt the style to the theme
+        style = {**AOI_STYLE, "color": color.success, "fillColor": color.success}
+
+        # create a GeoJSON object
         self.ipygeojson = GeoJSON(
-            data=data, style=AOI_STYLE, name="aoi", attribution="SEPA(c)"
+            data=data, style=style, name="aoi", attribution="SEPAL(c)"
         )
 
         return self.ipygeojson

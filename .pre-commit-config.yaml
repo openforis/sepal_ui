@@ -1,11 +1,16 @@
 repos:
   - repo: 'https://github.com/psf/black'
-    rev: 21.7b0
+    rev: 22.3.0
     hooks:
       - id: black
+        stages: [commit]
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        stages: [commit]
   - repo: 'https://github.com/commitizen-tools/commitizen'
     rev: v2.18.0
     hooks:
       - id: commitizen
-        stages:
-          - commit-msg
+        stages: [commit-msg]

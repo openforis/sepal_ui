@@ -8,6 +8,7 @@ Overview
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     
@@ -51,6 +52,7 @@ Then In your notebook you can call the key in a markdown widget and display it a
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw 
     

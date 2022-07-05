@@ -1,0 +1,3 @@
+files:
+  - source: /sepal_ui/message/en/*.json
+    translation: /sepal_ui/message/%locale%/%original_file_name%

@@ -81,7 +81,7 @@ class TestTile:
 
         assert res == tile
         assert tile._metadata["mount_id"] == "nested_tile"
-        assert tile.elevation == False
+        assert tile.elevation is False
         assert len(tile.children[0].children) == 1
 
         return
@@ -95,8 +95,8 @@ class TestTile:
         res = tile.hide()
 
         assert res == tile
-        assert tile.viz == False
-        assert not "d-inline" in tile.class_
+        assert tile.viz is False
+        assert "d-inline" not in tile.class_
 
         return
 
@@ -109,7 +109,7 @@ class TestTile:
         res = tile.show()
 
         assert res == tile
-        assert tile.viz == True
+        assert tile.viz is True
         assert "d-inline" in tile.class_
 
         return
@@ -133,7 +133,7 @@ class TestTile:
 
         for input_ in inputs:
             if input_ == input_2_show:
-                assert not "d-none" in str(input_.class_)
+                assert "d-none" not in str(input_.class_)
             else:
                 assert "d-none" in input_.class_
 
@@ -150,9 +150,7 @@ class TestTile:
 
     def test_tile_about(self):
 
-        pathname = (
-            Path(__file__).parent / ".." / "sepal_ui" / "scripts" / "disclaimer.md"
-        )
+        pathname = Path(__file__).parents[1] / "CODE_OF_CONDUCT.md"
 
         tile = sw.TileAbout(pathname)
 

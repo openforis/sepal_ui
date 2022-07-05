@@ -3,7 +3,7 @@
 404 not found
 =============
 
-.. image:: ../img/dwn/404-compass.png
+.. image:: _image/dwn/404-compass.png
     :align: left
     :width: 40%
 

@@ -1,4 +1,3 @@
-import ipyvuetify as v
 import pytest
 
 from sepal_ui import sepalwidgets as sw
@@ -9,15 +8,15 @@ class TestClip:
 
         # minimal clip
         clip = sw.CopyToClip()
-        assert clip.tf.outlined == True
+        assert clip.tf.outlined is True
         assert isinstance(clip.tf.label, str)
-        assert clip.tf.append_icon == "mdi-clipboard-outline"
-        assert clip.tf.v_model == None
+        assert clip.tf.append_icon == "fas fa-clipboard"
+        assert clip.tf.v_model is None
 
         # clip with extra options
         clip = sw.CopyToClip(outlined=False, dense=True)
-        assert clip.tf.outlined == False
-        assert clip.tf.dense == True
+        assert clip.tf.outlined is False
+        assert clip.tf.dense is True
 
         return
 
@@ -28,7 +27,7 @@ class TestClip:
         # I don't know how to check the clipboard
 
         # check the icon change
-        assert clip.tf.append_icon == "mdi-check"
+        assert clip.tf.append_icon == "fas fa-clipboard-check"
 
         return
 

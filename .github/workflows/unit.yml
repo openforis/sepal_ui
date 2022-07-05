@@ -2,11 +2,12 @@ name: Build
 
 on: 
   - push
-  - pull_request
   - workflow_dispatch
   
 env:
   EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
+  PLANET_API_CREDENTIALS: '${{ secrets.PLANET_API_CREDENTIALS }}'
+  PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
 
 jobs:
   build:
@@ -14,21 +15,55 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v2
+      
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+          
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install .[test]
+        
       - name: Test formatting
         uses: psf/black@stable
+        with:
+            version: "22.3.0"
+            
+      - name: PEP8 rules
+        uses: tonybajan/flake8-check-action@v1.0.0
+        with:
+            repotoken: ${{ secrets.GITHUB_TOKEN }}
+            
+      - name: build the documentation
+        if: matrix.python-version == '3.8'
+        run: |
+          pip install .[doc]
+          sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
+        
+      - name: Check that there are no unexpected Sphinx warnings
+        if: matrix.python-version == '3.8'
+        shell: python
+        run: |
+          from pathlib import Path
+          text = Path("warnings.txt").read_text().strip()
+          print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
+          warnings = [ii for ii in text.split("\n")]
+          expected = ["transition", "CHANGELOG.md"]
+          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in expected)]
+          assert len(unexpected) == 0
+      
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
+        
       - name: coverage
-        run: coverage report -m
+        run: coverage xml
+        
       - name: codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v2
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            verbose: true
