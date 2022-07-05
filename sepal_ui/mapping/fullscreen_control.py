@@ -37,7 +37,7 @@ class FullScreenControl(WidgetControl):
     def __init__(self, m, **kwargs):
 
         # create a btn
-        self.w_btn = MapBtn(logo=self.ICONS[self.zoomed])
+        self.w_btn = MapBtn(self.ICONS[self.zoomed])
 
         # overwrite the widget set in the kwargs (if any)
         kwargs["widget"] = self.w_btn
@@ -95,7 +95,7 @@ class FullScreenControl(WidgetControl):
         self.zoomed = not self.zoomed
 
         # change button icon
-        self.w_btn.logo.children = [self.ICONS[self.zoomed]]
+        self.w_btn.children[0].children = [self.ICONS[self.zoomed]]
 
         # zoom
         self.template.send({"method": self.METHODS[self.zoomed], "args": []})

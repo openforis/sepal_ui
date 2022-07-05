@@ -59,7 +59,7 @@ class ValueInspector(WidgetControl):
         )
 
         # create a clickable btn
-        btn = MapBtn(logo="fas fa-crosshairs", v_on="menu.on")
+        btn = MapBtn("fas fa-crosshairs", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         close_btn = sw.Icon(children=["fas fa-times"], small=True)
         title = sw.Html(tag="h4", children=[ms.v_inspector.title])
