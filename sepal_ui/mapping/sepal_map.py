@@ -28,6 +28,7 @@ import ipyleaflet as ipl
 import ee
 from deprecated.sphinx import deprecated
 
+from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
@@ -761,12 +762,12 @@ class SepalMap(ipl.Map):
         if isinstance(layer, ipl.GeoJSON):
 
             # define the default values
-            default_style = json.loads((ss.json_dir / "layer.json").read_text())
-            default_style.update(color=ss.color.primary)
+            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
+            default_style.update(color=color.primary)
             default_hover_style = json.loads(
-                (ss.json_dir / "layer_hover.json").read_text()
+                (ss.JSON_DIR / "layer_hover.json").read_text()
             )
-            default_hover_style.update(color=ss.color.primary)
+            default_hover_style.update(color=color.primary)
 
             # apply the style depending on the parameters
             layer.style = layer.style or default_style

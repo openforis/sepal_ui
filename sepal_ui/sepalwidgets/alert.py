@@ -5,9 +5,10 @@ import ipyvuetify as v
 from traitlets import Unicode, observe, directional_link, Bool
 from deprecated.sphinx import deprecated
 
+from sepal_ui import color
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.scripts.utils import set_type
-from sepal_ui.frontend.styles import TYPES, color
+from sepal_ui.frontend.styles import TYPES
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 

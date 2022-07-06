@@ -194,7 +194,7 @@ class FileInput(v.Flex, SepalWidget):
     v_model = Unicode(None, allow_none=True).tag(sync=True)
     "str: the v_model of the input"
 
-    ICON_STYLE = json.loads((ss.json_dir / "file_icons.json").read_text())
+    ICON_STYLE = json.loads((ss.JSON_DIR / "file_icons.json").read_text())
     "dict: the style applied to the icons in the file menu"
 
     def __init__(
@@ -220,7 +220,7 @@ class FileInput(v.Flex, SepalWidget):
             v_model=None,
         )
 
-        p_style = json.loads((ss.json_dir / "progress_bar.json").read_text())
+        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
             background_color=color.menu,

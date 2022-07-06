@@ -49,7 +49,7 @@ class ValueInspector(WidgetControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
-        p_style = json.loads((ss.json_dir / "progress_bar.json").read_text())
+        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
             background_color=color.menu,

@@ -5,7 +5,6 @@ from types import SimpleNamespace
 from traitlets import Unicode
 from IPython.display import display
 import ipyvuetify as v
-from pathlib import Path
 
 from sepal_ui import config
 import sepal_ui.scripts.utils as su
@@ -39,6 +38,18 @@ LIGHT_THEME = {
     "menu": "#FFFFFF",
 }
 "dict: colors used for the light theme"
+
+# the colors are set using tables as follow.
+# 1 (True): dark theme
+# 0 (false): light theme
+JSON_DIR = Path(__file__).parent / "json"
+"pathlib.Path: the path to the json style folder"
+
+CSS_DIR = Path(__file__).parent / "css"
+"pathlib.Path: the path to the css style folder"
+
+JS_DIR = Path(__file__).parent / "js"
+"pathlib.Path: the path to the js style folder"
 
 if not DARK_THEME.keys() == LIGHT_THEME.keys():
     raise Exception("Both dictionaries has to have the same color names")
@@ -121,10 +132,6 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
-color = SepalColor()
-'color: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'
-
-
 class Styles(v.VuetifyTemplate):
     """
     Fixed styles to fix display issues in the lib:
@@ -136,7 +143,7 @@ class Styles(v.VuetifyTemplate):
     - ensure that tqdm bars are using a transparent background when displayed in an alert
     """
 
-    css = (Path(__file__).parent / "css/custom.css").read_text()
+    css = (CSS_DIR / "custom.css").read_text()
     cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     template = Unicode(
         f'<style>{css}</style><link rel="stylesheet" href="{cdn}"/>'
@@ -146,27 +153,5 @@ class Styles(v.VuetifyTemplate):
 
 styles = Styles()
 display(styles)
-
-TYPES = (
-    "info",
-    "primary",
-    "secondary",
-    "accent",
-    "error",
-    "success",
-    "warning",
-    "anchor",
-)
+TYPES = ("info", "primary", "secondary", "accent", "error", "success", "warning", "anchor")  # fmt: skip
 "tuple: the different types defined by ipyvuetify"
-
-# the colors are set as follow.
-# 1 (True): dark theme
-# 0 (false): light theme
-json_dir = Path(__file__).parent / "json"
-"pathlib.Path: the path to the json style folder"
-
-css_dir = Path(__file__).parent / "css"
-"pathlib.Path: the path to the css style folder"
-
-js_dir = Path(__file__).parent / "js"
-"pathlib.Path: the path to the js style folder"
