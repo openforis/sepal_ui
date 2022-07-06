@@ -125,7 +125,8 @@ class TestTranslator:
 
         # check key usage method and the lib content at the same time
         expected = ["test_key"]
-        res = ms.key_use("/home/prambaud/libs/sepal_ui/sepal_ui/", "ms")
+        lib_folder = Path(__file__).parents[1]
+        res = ms.key_use(lib_folder, "ms")
         assert res == expected
 
         return
