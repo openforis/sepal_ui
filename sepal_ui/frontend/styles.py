@@ -58,6 +58,8 @@ LIGHT_THEME = {
     "menu": "#FFFFFF",
 }
 "dict: colors used for the light theme"
+TYPES = ("info", "primary", "secondary", "accent", "error", "success", "warning", "anchor")  # fmt: skip
+"tuple: the different types defined by ipyvuetify"
 
 ################################################################################
 # define classes and method to make the application resonsive
@@ -161,5 +163,3 @@ class Styles(v.VuetifyTemplate):
 
 styles = Styles()
 display(styles)
-TYPES = ("info", "primary", "secondary", "accent", "error", "success", "warning", "anchor")  # fmt: skip
-"tuple: the different types defined by ipyvuetify"
