@@ -212,15 +212,24 @@ class EditDialog(v.Dialog):
         self.title = v.CardTitle(children=[self.TITLES[0]])
 
         # Action buttons
-        btn_txt = ms.rec.table.edit_dialog.btn
-        self.save = sw.Btn(btn_txt.save.name)
-        save_tool = sw.Tooltip(self.save, btn_txt.save.tooltip, bottom=True)
+        self.save = sw.Btn(ms.rec.table.edit_dialog.btn.save.name)
+        save_tool = sw.Tooltip(
+            self.save, ms.rec.table.edit_dialog.btn.save.tooltip, bottom=True
+        )
 
-        self.modify = sw.Btn(btn_txt.modify.name).hide()  # by default modify is hidden
-        modify_tool = sw.Tooltip(self.modify, btn_txt.modify.tooltip, bottom=True)
+        self.modify = sw.Btn(
+            ms.rec.table.edit_dialog.btn.modify.name
+        ).hide()  # by default modify is hidden
+        modify_tool = sw.Tooltip(
+            self.modify, ms.rec.table.edit_dialog.btn.modify.tooltip, bottom=True
+        )
 
-        self.cancel = sw.Btn(btn_txt.cancel.name, outlined=True, class_="ml-2")
-        cancel_tool = sw.Tooltip(self.cancel, btn_txt.cancel.tooltip, bottom=True)
+        self.cancel = sw.Btn(
+            ms.rec.table.edit_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+        )
+        cancel_tool = sw.Tooltip(
+            self.cancel, ms.rec.table.edit_dialog.btn.cancel.tooltip, bottom=True
+        )
 
         actions = v.CardActions(children=[save_tool, modify_tool, cancel_tool])
 
