@@ -268,7 +268,13 @@ class Translator(Box):
     def key_use(self, folder, name):
         """
         Parse all the files in the folder and check if keys are all used at least once.
-        Return the unused key names
+        Return the unused key names.
+
+        .. warning::
+
+            Don't forget that there are many ways of calling Translator variables
+            (getattr, save.cm.xxx in another variable etc...) SO don't forget to check
+            manually the variables suggested by this method before deleting them
 
         Args:
             folder (pathlib.Path): The application folder using this translator data
