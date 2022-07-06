@@ -228,13 +228,13 @@ class FileInput(v.Flex, SepalWidget):
             flat=True,
             v_model=True,
             max_height="300px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
+            style_="overflow: auto;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
         )
 
         self.file_menu = v.Menu(
-            min_width="300px",
-            max_width="300px",
+            min_width="400px",
+            max_width="400px",
             children=[self.loading, self.file_list],
             v_model=False,
             close_on_content_click=False,
