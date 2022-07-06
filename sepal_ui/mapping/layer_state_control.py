@@ -66,8 +66,11 @@ class LayerStateControl(WidgetControl):
             modified_layer.observe(self.update_loading, "loading")
 
         # remove a layer
-        elif len(change["new"]) < len(change["old"]) and modified_layer.loading is True:
-            self.nb_loading_layer += -1
+        elif len(change["new"]) < len(change["old"]):
+            # the test is splitted as not all the layers have a loading trait
+            if hasattr(modified_layer, "loading") is True:
+                if modified_layer.loading is True:
+                    self.nb_loading_layer += -1
 
         return
 
