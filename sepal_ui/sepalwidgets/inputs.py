@@ -234,7 +234,7 @@ class FileInput(v.Flex, SepalWidget):
 
         self.file_menu = v.Menu(
             min_width="300px",
-            # max_width="300px",
+            max_width="300px",
             children=[self.loading, self.file_list],
             v_model=False,
             close_on_content_click=False,
@@ -416,7 +416,7 @@ class FileInput(v.Flex, SepalWidget):
                     ]
                 ),
                 v.ListItemContent(
-                    children=[v.ListItemTitle(children=[f"..{folder.parent}"])]
+                    children=[v.ListItemTitle(children=[f".. /{folder.parent.stem}"])]
                 ),
             ],
         )
