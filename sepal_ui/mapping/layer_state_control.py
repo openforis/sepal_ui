@@ -50,6 +50,7 @@ class LayerStateControl(WidgetControl):
         """
 
         # exit if nothing changed
+        # for example we change a layer parameters and it trigger this one
         if len(change["new"]) == len(change["old"]):
             return
 
@@ -65,7 +66,7 @@ class LayerStateControl(WidgetControl):
             modified_layer.observe(self.update_loading, "loading")
 
         # remove a layer
-        elif len(change["new"]) < len(change["old"]) and modified_layer is True:
+        elif len(change["new"]) < len(change["old"]) and modified_layer.loading is True:
             self.nb_loading_layer += -1
 
         return
