@@ -59,10 +59,6 @@ LIGHT_THEME = {
 }
 "dict: colors used for the light theme"
 
-
-if not DARK_THEME.keys() == LIGHT_THEME.keys():
-    raise Exception("Both dictionaries has to have the same color names")
-
 ################################################################################
 # define classes and method to make the application resonsive
 #
