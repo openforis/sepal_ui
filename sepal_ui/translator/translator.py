@@ -5,6 +5,7 @@ from configparser import ConfigParser
 
 from deprecated.sphinx import versionadded, deprecated
 from box import Box
+import pandas as pd
 
 from sepal_ui import config_file
 
@@ -262,3 +263,52 @@ class Translator(Box):
                 del d[k]
 
         return d
+
+    @versionadded(version="2.10.0")
+    def key_use(self, folder, name):
+        """
+        Parse all the files in the folder and check if keys are all used at least once.
+        Return the unused key names
+
+        Args:
+            folder (pathlib.Path): The application folder using this translator data
+            name (str): the name use by the translator in this app (usually "cm")
+
+        Return:
+            (list): the list of unused keys
+        """
+        # cannot set FORBIDDEN_KEY in the Box as it would lock another key
+        FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]
+
+        # sanitize folder
+        folder = Path(folder)
+
+        # get all the python files recursively
+        py_files = [
+            f for f in folder.glob("**/*.py") if ".ipynb_checkpoints" not in str(f)
+        ]
+
+        # get the flat version of all keys
+        keys = list(set(pd.json_normalize(self).columns) ^ set(FORBIDDEN_KEYS))
+
+        # init the unused keys list
+        unused_keys = []
+
+        for k in keys:
+
+            # by default we consider that the is never used
+            is_present = False
+
+            # read each python file and search for the pattern of the key
+            # if it's find change status of the counter and exit the search
+            for f in py_files:
+                tmp = f.read_text()
+                if f"{name}.{k}" in tmp:
+                    is_present = True
+                    break
+
+            # if nothing is find, the value is still False and the key can be
+            # added to the list
+            is_present or unused_keys.append(k)
+
+        return unused_keys

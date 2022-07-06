@@ -15,6 +15,7 @@ sepal\_ui.translator.Translator
         ~Translator.available_locales
         ~Translator.merge_dict
         ~Translator.delete_empty
+        ~Translator.key_use
         
 .. automethod:: sepal_ui.translator.Translator.missing_keys
 
@@ -29,5 +30,7 @@ sepal\_ui.translator.Translator
 .. automethod:: sepal_ui.translator.Translator.delete_empty
 
 .. autofunction:: sepal_ui.translator.Translator.find_target
+
+.. automethod:: sepal_ui.translator.Translator.key_use
    
    
