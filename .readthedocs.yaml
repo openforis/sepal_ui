@@ -9,6 +9,9 @@ build:
   os: ubuntu-20.04
   tools:
     python: "3.9"
+  jobs:
+    pre_build:
+      sphinx-apidoc --force --separate --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -25,3 +28,4 @@ python:
     path: .
     extra_requirements:
       - doc
+      
