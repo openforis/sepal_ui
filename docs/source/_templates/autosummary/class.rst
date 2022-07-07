@@ -10,7 +10,7 @@
 
     .. autosummary::
 
-       {% for item in attributes if item not in inherited_members -%}
+       {% for item in attributes -%}
        ~{{ name }}.{{ item }}
        {% endfor -%}
     {% endif -%}
@@ -23,7 +23,7 @@
     .. autosummary::
        :nosignatures:
        
-       {% for item in methods  if item not in inherited_members -%}
+       {% for item in methods -%}
        ~{{ name }}.{{ item }}
        {% endfor -%}
     {% endif -%}

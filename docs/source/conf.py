@@ -15,6 +15,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
+import ipyvuetify as v
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
