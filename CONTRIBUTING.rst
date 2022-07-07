@@ -145,6 +145,17 @@ However, this variable will expire everytime you start a new session, to create 
 
     - PLANET_API_CREDENTIALS: '{"username": "user@neim.com", "password": "secure"}'
     - PLANET_API_KEY: "string_planet_api_key"
+    
+Build the API documentation files
+---------------------------------
+
+We are using :code:`api-doc` to build the documentation of the lib so if you want to see the API related documentation in your local build you need to run the following lines from the :code:`sepal_ui` folder: 
+
+.. code-block:: console
+    
+    sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules
+
+You can then build the documentation, it will automatically call :code:`autodoc` and :code:`autosummary` during the process.
 
 .. spelling:: 
 

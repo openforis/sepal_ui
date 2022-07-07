@@ -94,6 +94,9 @@ setup_params = {
             "scripts/*.json",
             "message/**/*.json",
             "bin/*",
+            "frontend/css/*.css",
+            "frontend/json/*.json",
+            "frontend/js/*.js",
         ]
     },
     "entry_points": {
