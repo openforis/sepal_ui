@@ -1,10 +1,10 @@
 import json
-from pathlib import Path
 from collections import abc
 from configparser import ConfigParser
+from pathlib import Path
 
-from deprecated.sphinx import versionadded, deprecated
 from box import Box
+from deprecated.sphinx import deprecated, versionadded
 
 from sepal_ui import config_file
 

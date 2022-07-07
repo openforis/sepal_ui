@@ -1,8 +1,8 @@
 import json
 import os
 
-import pytest
 import planet
+import pytest
 from planet.api import APIException
 from planet.api.client import InvalidIdentity
 

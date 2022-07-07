@@ -1,14 +1,15 @@
 from pathlib import Path
-from traitlets import Unicode
 
 import ipyvuetify as v
 import pandas as pd
+from traitlets import Unicode
 
-from .parameters import NO_VALUE, MATRIX_NAMES
 import sepal_ui.sepalwidgets as sw
-from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.utils import loading_button
+
+from .parameters import MATRIX_NAMES, NO_VALUE
 from .reclassify_model import ReclassifyModel
 
 __all__ = ["ReclassifyView"]

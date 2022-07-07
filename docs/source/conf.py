@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
-from sepal_ui import __version__, __author__
+from sepal_ui import __author__, __version__
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
