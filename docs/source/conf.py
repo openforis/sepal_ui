@@ -147,4 +147,4 @@ spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 
 # -- Options for autosummary output -------------------------------------------------
-# autosummary_generate = False
+autosummary_generate = True
