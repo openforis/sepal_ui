@@ -9,7 +9,7 @@ Subpackages
    :recursive:
    :toctree:
    
-   {% for package in subpackages %}
+   {% for package in subpackages -%}
    {{ package }}
    {% endfor %}
 
@@ -24,7 +24,7 @@ Submodules
    :recursive:
    :toctree:
    
-   {%- for submodule in submodules %}
+   {% for submodule in submodules -%}
    {{ submodule }}
    {% endfor %}
    
