@@ -1,7 +1,6 @@
-{{- pkgname | e | heading }}
+{{ pkgname | e | heading }}
 
-
-{%- if subpackages %}
+{% if subpackages -%}
 Subpackages
 -----------
 
@@ -11,12 +10,10 @@ Subpackages
    
    {% for package in subpackages -%}
    {{ package }}
-   {% endfor %}
+   {% endfor -%}
+{% endif -%}
 
-{% endif %}
-
-{%- if submodules %}
-
+{% if submodules %}
 Submodules
 ----------
 
@@ -26,6 +23,5 @@ Submodules
    
    {% for submodule in submodules -%}
    {{ submodule }}
-   {% endfor %}
-   
-{% endif %}
+   {% endfor -%}
+{% endif -%}
