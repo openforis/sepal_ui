@@ -138,7 +138,7 @@ html_static_path = ["_static"]
 # or fully qualified paths (eg. https://...)
 html_css_files = ["css/custom.css", "css/icon.css"]
 
-# -- Options for spelling output -------------------------------------------------
+# -- Options for spelling output -----------------------------------------------
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
@@ -146,5 +146,6 @@ spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 
-# -- Options for autosummary output -------------------------------------------------
+# -- Options for autosummary/autodoc output ------------------------------------
 autosummary_generate = True
+autoclass_content = "class"
