@@ -1,34 +1,32 @@
-Content
-=======
+sepal\_ui package
+=================
 
-.. rubric:: Modules
- 
-.. autosummary::
-    :nosignatures:
-    :toctree:
-    :recursive:
+.. automodule:: sepal_ui
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-    sepal_ui.aoi
-    sepal_ui.frontend
-    sepal_ui.mapping
-    sepal_ui.model
-    sepal_ui.scripts
-    sepal_ui.sepalwidgets
-    sepal_ui.translator
-    sepal_ui.reclassify
-    sepal_ui.planetapi
-    
-.. rubric:: Attributes
+Subpackages
+-----------
 
-.. autosummary::
-    
-    sepal_ui.color
-    sepal_ui.config_file
-    
-.. rubric:: Methods
+.. toctree::
+   :maxdepth: 4
 
-.. autosummary::
-    
-    sepal_ui.get_theme
-    
-.. autofunction:: sepal_ui.get_theme
+   sepal_ui.aoi
+   sepal_ui.frontend
+   sepal_ui.mapping
+   sepal_ui.message
+   sepal_ui.model
+   sepal_ui.planetapi
+   sepal_ui.reclassify
+   sepal_ui.scripts
+   sepal_ui.sepalwidgets
+   sepal_ui.translator
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sepal_ui.conf

@@ -1,13 +1,16 @@
-sepal\_ui.frontend
-==================
+sepal\_ui.frontend package
+==========================
 
 .. automodule:: sepal_ui.frontend
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Modules
+Submodules
+----------
 
-.. autosummary::
-   :toctree:
+.. toctree::
+   :maxdepth: 4
 
    sepal_ui.frontend.resize_trigger
    sepal_ui.frontend.styles
-

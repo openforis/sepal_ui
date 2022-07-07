@@ -1,15 +1,19 @@
-sepal\_ui.reclassify
-====================
+sepal\_ui.reclassify package
+============================
 
 .. automodule:: sepal_ui.reclassify
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Classes
+Submodules
+----------
 
-.. autosummary::
-   :toctree:
+.. toctree::
+   :maxdepth: 4
 
-   sepal_ui.reclassify.ReclassifyModel
-   sepal_ui.reclassify.ReclassifyTile
-   sepal_ui.reclassify.ReclassifyView
-   sepal_ui.reclassify.TableView
-
+   sepal_ui.reclassify.parameters
+   sepal_ui.reclassify.reclassify_model
+   sepal_ui.reclassify.reclassify_tile
+   sepal_ui.reclassify.reclassify_view
+   sepal_ui.reclassify.table_view

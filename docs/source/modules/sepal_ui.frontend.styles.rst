@@ -1,27 +1,7 @@
-sepal\_ui.frontend.styles
-=========================
+sepal\_ui.frontend.styles module
+================================
 
 .. automodule:: sepal_ui.frontend.styles
-
-    .. rubric:: Classes
-
-    .. autosummary::
-   
-        Styles
-        
-.. autoclass:: sepal_ui.frontend.styles.Styles
-
-    .. rubric:: Attributes
-    
-    .. autosummary::
-    
-        ~Styles.template
-   
-   
-
-   
-   
-   
-
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,12 +1,16 @@
-sepal\_ui.planetapi
-===================
+sepal\_ui.planetapi package
+===========================
 
 .. automodule:: sepal_ui.planetapi
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Classes
+Submodules
+----------
 
-.. autosummary::
-   :toctree:
+.. toctree::
+   :maxdepth: 4
 
-   sepal_ui.planetapi.PlanetModel
-   sepal_ui.planetapi.PlanetView
+   sepal_ui.planetapi.planet_model
+   sepal_ui.planetapi.planet_view

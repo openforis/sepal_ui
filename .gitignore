@@ -2,6 +2,7 @@
 .coverage
 ee_private_key.json
 warnings.txt
+docs/source/modules/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

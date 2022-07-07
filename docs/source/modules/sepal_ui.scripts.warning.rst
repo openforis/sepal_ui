@@ -1,17 +1,7 @@
-sepal\_ui.scripts.warning
-=========================
+sepal\_ui.scripts.warning module
+================================
 
 .. automodule:: sepal_ui.scripts.warning
-
-    .. rubric:: Exceptions
-
-    .. autosummary::
-   
-        SepalWarning
-      
-.. autoclass:: sepal_ui.scripts.warning.SepalWarning
-   
-   
-
-
-
+   :members:
+   :undoc-members:
+   :show-inheritance:

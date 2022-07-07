@@ -1,13 +1,15 @@
-sepal\_ui.translator
-====================
+sepal\_ui.translator package
+============================
 
-.. automodule:: sepal_ui.translator 
+.. automodule:: sepal_ui.translator
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Classes
+Submodules
+----------
 
-.. autosummary:: 
-    :toctree:
-    :nosignatures:
-   
-      sepal_ui.translator.Translator
-      
+.. toctree::
+   :maxdepth: 4
+
+   sepal_ui.translator.translator

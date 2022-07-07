@@ -1,12 +1,15 @@
-sepal\_ui.model
-===============
+sepal\_ui.model package
+=======================
 
 .. automodule:: sepal_ui.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Classes
+Submodules
+----------
 
-.. autosummary::
-   :toctree:
+.. toctree::
+   :maxdepth: 4
 
-   sepal_ui.model.Model
-
+   sepal_ui.model.model

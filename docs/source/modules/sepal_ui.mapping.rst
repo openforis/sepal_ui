@@ -1,25 +1,22 @@
-sepal\_ui.mapping
-=================
+sepal\_ui.mapping package
+=========================
 
 .. automodule:: sepal_ui.mapping
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. rubric:: Modules
+Submodules
+----------
 
-.. autosummary::
-   :toctree:
-   :recursive:
-   
+.. toctree::
+   :maxdepth: 4
+
+   sepal_ui.mapping.aoi_control
    sepal_ui.mapping.basemaps
-   
-.. rubric:: Classes
-
-.. autosummary::
-      :toctree:
-      
-      sepal_ui.mapping.SepalMap
-      sepal_ui.mapping.FullScreenControl
-      sepal_ui.mapping.DrawControl
-      sepal_ui.mapping.EELayer
-      sepal_ui.mapping.MapBtn
-      sepal_ui.mapping.ValueInspector
-      sepal_ui.mapping.AoiControl
+   sepal_ui.mapping.draw_control
+   sepal_ui.mapping.fullscreen_control
+   sepal_ui.mapping.layer
+   sepal_ui.mapping.map_btn
+   sepal_ui.mapping.sepal_map
+   sepal_ui.mapping.value_inspector

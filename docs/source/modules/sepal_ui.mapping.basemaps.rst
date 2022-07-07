@@ -1,16 +1,7 @@
-sepal\_ui.mapping.basemaps
-==========================
+sepal\_ui.mapping.basemaps module
+=================================
 
 .. automodule:: sepal_ui.mapping.basemaps
-
-    .. rubric:: Functions
-    
-    .. autosummary::
-        :nosignatures:
-        
-        get_xyz_dict
-        xyz_to_leaflet
-        
-.. autofunction:: sepal_ui.mapping.basemaps.get_xyz_dict
-
-.. autofunction:: sepal_ui.mapping.basemaps.xyz_to_leaflet
+   :members:
+   :undoc-members:
+   :show-inheritance:
