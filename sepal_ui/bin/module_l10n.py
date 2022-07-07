@@ -7,10 +7,11 @@ This script will update the parameters shared between all sepal-ui based modules
 The "language" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
 """
 
-import pandas as pd
-from colorama import init, Fore
-from pathlib import Path
 import argparse
+from pathlib import Path
+
+import pandas as pd
+from colorama import Fore, init
 
 from sepal_ui.scripts import utils as su
 

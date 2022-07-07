@@ -1,12 +1,10 @@
-from planet.api import APIException
-from planet.api.client import InvalidIdentity
 from planet import api
-from planet.api import filters
-
+from planet.api import APIException, filters
+from planet.api.client import InvalidIdentity
 from traitlets import Bool
 
-from sepal_ui.model import Model
 from sepal_ui.message import ms
+from sepal_ui.model import Model
 
 
 class PlanetModel(Model):

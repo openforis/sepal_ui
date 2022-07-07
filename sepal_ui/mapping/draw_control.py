@@ -1,7 +1,8 @@
 from copy import deepcopy
-from shapely import geometry as sg
-from ipyleaflet import DrawControl
+
 import geopandas as gpd
+from ipyleaflet import DrawControl
+from shapely import geometry as sg
 
 from sepal_ui import color
 

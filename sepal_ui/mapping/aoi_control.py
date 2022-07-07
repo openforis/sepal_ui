@@ -1,9 +1,9 @@
 import ee
-from shapely import geometry as sg
 from ipyleaflet import WidgetControl
+from shapely import geometry as sg
 
-from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui.scripts import utils as su
 
 

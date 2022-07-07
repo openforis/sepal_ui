@@ -1,21 +1,21 @@
-from traitlets import Any, Dict, Bool, Int
 from pathlib import Path
-from natsort import natsorted
 
-import pandas as pd
+import ee
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import rasterio as rio
-from rasterio.windows import from_bounds
 from matplotlib.colors import to_rgba
+from natsort import natsorted
+from rasterio.windows import from_bounds
+from traitlets import Any, Bool, Dict, Int
 
-from .parameters import NO_VALUE
+from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
-from sepal_ui.message import ms
 
-import ee
+from .parameters import NO_VALUE
 
 __all__ = ["ReclassifyModel"]
 

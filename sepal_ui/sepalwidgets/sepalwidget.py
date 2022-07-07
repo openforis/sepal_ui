@@ -1,7 +1,7 @@
-from ipyvue import VueWidget
 import ipyvuetify as v
-from traitlets import Unicode, Bool, observe
 from deprecated.sphinx import versionadded
+from ipyvue import VueWidget
+from traitlets import Bool, Unicode, observe
 
 __all__ = ["SepalWidget", "Tooltip"]
 

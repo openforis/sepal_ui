@@ -1,6 +1,7 @@
+from subprocess import check_call
+
 from setuptools import setup
 from setuptools.command.develop import develop
-from subprocess import check_call
 
 version = "2.9.4"
 
