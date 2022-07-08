@@ -55,6 +55,7 @@ setup_params = {
         "dask",
         "tqdm",
         "google-api-python-client",
+        "GDAL",
     ],
     "extras_require": {
         "dev": [
