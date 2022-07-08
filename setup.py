@@ -54,6 +54,7 @@ setup_params = {
         "pyyaml",
         "dask",
         "tqdm",
+        "google-api-python-client",
     ],
     "extras_require": {
         "dev": [
@@ -62,7 +63,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
-            "google_drive_downloader",
+            "googledrivedownloader",
         ],
         "doc": [
             "jupyter-sphinx",
