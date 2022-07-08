@@ -19,7 +19,7 @@ SERVICE = discovery.build(
     serviceName="drive",
     version="v3",
     cache_discovery=False,
-    credentials=ee.credentials(),
+    credentials=ee.Credentials(),
 )
 "the gdrive service used to access the content of the user folder"
 
@@ -35,6 +35,7 @@ def get_all_items(mime_type="image/tiff"):
 
     Args:
         mime_type (str, optional): the mime type to look for by default Tif images
+        folder (str): the id of the folder we want to look into
 
     Return:
         (list): the found items with 2 columns ('id' and 'name')
@@ -68,7 +69,7 @@ def get_items(file_name, mime_type="image/tiff"):
         (list): the list of file id corresponding to the requested filename in your gdrive account
     """
 
-    return [i for i in get_items(mime_type) if i["name"].startswith(file_name)]
+    return [i for i in get_all_items(mime_type) if i["name"].startswith(file_name)]
 
 
 def delete_items(items):
