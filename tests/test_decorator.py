@@ -159,3 +159,11 @@ class TestDecorator:
             obj.func6()
 
         return
+
+    @sd.need_ee
+    def test_init_ee(self):
+
+        # check that no error is raised
+        sd.init_ee()
+
+        return
