@@ -1,8 +1,9 @@
-import pytest
-from pathlib import Path
-import shutil
 import json
+import shutil
 from configparser import ConfigParser
+from pathlib import Path
+
+import pytest
 
 from sepal_ui import config_file
 from sepal_ui.translator import Translator

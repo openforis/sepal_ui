@@ -15,12 +15,13 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
+import ipyvuetify as v
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
-from sepal_ui import __version__, __author__
+from sepal_ui import __author__, __version__
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
@@ -138,7 +139,7 @@ html_static_path = ["_static"]
 # or fully qualified paths (eg. https://...)
 html_css_files = ["css/custom.css", "css/icon.css"]
 
-# -- Options for spelling output -------------------------------------------------
+# -- Options for spelling output -----------------------------------------------
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
@@ -146,5 +147,6 @@ spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 
-# -- Options for autosummary output -------------------------------------------------
-autosummary_generate = False
+# -- Options for autosummary/autodoc output ------------------------------------
+autosummary_generate = True
+autoclass_content = "class"

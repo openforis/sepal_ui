@@ -39,6 +39,6 @@ Meet our :doc:`contributor <./start/authors>`.
     start/index
     tutorials/index
     widgets/index
-    modules/sepal_ui
+    API Content <modules/sepal_ui>
     cli/index
     changelog

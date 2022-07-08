@@ -1,7 +1,7 @@
-from ipyleaflet import TileLayer
 import xyzservices.providers as xyz
-from xyzservices import TileProvider
 from box import Box
+from ipyleaflet import TileLayer
+from xyzservices import TileProvider
 
 
 class BasemapBox(Box):

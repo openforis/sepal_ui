@@ -1,7 +1,7 @@
-import pytest
 import ee
-from shapely import geometry as sg
+import pytest
 from box import Box
+from shapely import geometry as sg
 
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
