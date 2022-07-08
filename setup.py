@@ -62,6 +62,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "google_drive_downloader",
         ],
         "doc": [
             "jupyter-sphinx",
