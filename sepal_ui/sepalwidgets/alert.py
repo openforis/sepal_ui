@@ -380,8 +380,11 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             nb_banner (int): the number of banners in the queue
         """
-        msg = ms.widgets.banner
-        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
+        # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator
+        if nb_banner == 0:
+            txt = ms.widgets.banner.close
+        else:
+            txt = ms.widgets.banner.next.format(nb_banner)
         self.btn_close.children = [txt]
 
         return
