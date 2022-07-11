@@ -36,7 +36,7 @@ class AoiControl(WidgetControl):
         kwargs["position"] = kwargs.pop("position", "topright")
 
         # create a hoverable btn
-        btn = MapBtn(logo="fas fa-search-location", v_on="menu.on")
+        btn = MapBtn(content="fas fa-search-location", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
         w_list = sw.List(
