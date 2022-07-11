@@ -290,9 +290,11 @@ class Translator(Box):
         folder = Path(folder)
 
         # get all the python files recursively
-        py_files = [
-            f for f in folder.glob("**/*.py") if ".ipynb_checkpoints" not in str(f)
-        ]
+        py_files = []
+        for f in folder.glob("**/*.*py*"):
+            generated_files = [".ipynb_checkpoints", "__pycache__"]
+            if all([err not in str(f) for err in generated_files]):
+                py_files.append(f)
 
         # get the flat version of all keys
         keys = list(set(pd.json_normalize(self).columns) ^ set(FORBIDDEN_KEYS))
