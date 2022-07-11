@@ -17,7 +17,7 @@ class MapBtn(v.Btn, sw.SepalWidget):
     def __init__(self, content, **kwargs):
 
         # create the icon
-        if content.startswith("mdi") or content.startswith("fas"):
+        if content.startswith("mdi-") or content.startswith("fas fa-"):
             content = sw.Icon(small=True, children=[content])
         else:
             content = content[: min(3, len(content))].upper()
