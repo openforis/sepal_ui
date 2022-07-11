@@ -37,7 +37,6 @@
 			"custom": "Custom",
 			"no_access": "It seems like you do not have access to the input asset or it does not exist.",
 			"wrong_type": "The type of the selected asset ({}) does not match authorized asset type ({}).",
-			"hint": "Select an asset in the list or write a custom asset name. Be careful, you need to have access to this asset to use it",
 			"placeholder": "users/custom_user/custom_asset"
 		},
 		"load_table": {
@@ -65,20 +64,6 @@
 		"asset": "GEE Asset name",
 		"btn": "Select AOI",
 		"complete": "The AOI has been selected",
-		"shape_drawn": "A shape has been drawn",
-		"file_pattern": "aoi_{}",
-		"no_selection": "No selection method has been picked up",
-		"no_country": "No Country has been selected",
-		"asset_already_exist": "The asset was already existing you can continue to use it. It's also available at :{}",
-		"asset_created": "The asset has been created under the name : {}",
-		"name_used": "The name was already in used, change it or delete the previous asset in your GEE acount",
-		"no_asset": "No Asset has been provided",
-		"check_if_asset": "Check carefully that your string is an assetId",
-		"not_available": "This function is not yet available",
-		"no_shape": "No shape has been drawn on the map",
-		"shp_error": "An error occured with provided .shp file",
-		"aoi_message": "click on \"selet these inputs\" to validate your AOI",
-		"geojson_to_ee": "Convert your .csv file into a ee_object",
 		"exception" : {
 			"no_inputs": "Please provide fully qualified inputs before validating your AOI",
 			"no_asset" : "Please select an asset.",
@@ -98,7 +83,6 @@
     "planet" : {
         "exception" : {
             "empty": "Please fill the required field(s).",
-            "format" : "Please check the format of your inputs.",
             "invalid" : "Invalid email or password",
             "nosubs" : "Your credentials do not have any valid planet subscription."
         },
@@ -143,7 +127,7 @@
 					"0": "New element",
 					"1": "Modify element"
 				},
-				"btn": {
+                "btn": {
 					"save": {
 						"name": "save",
 						"tooltip": "create new class"

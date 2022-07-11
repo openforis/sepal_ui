@@ -1,13 +1,16 @@
 from datetime import datetime
-from tqdm.notebook import tqdm
-from ipywidgets import jslink, Output
-import ipyvuetify as v
-from traitlets import Unicode, observe, directional_link, Bool
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.scripts.utils import set_type
+import ipyvuetify as v
+from deprecated.sphinx import deprecated
+from ipywidgets import Output, jslink
+from tqdm.notebook import tqdm
+from traitlets import Bool, Unicode, directional_link, observe
+
 from sepal_ui.frontend.styles import TYPES, color
 from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.utils import set_type
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
@@ -229,6 +232,7 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
+    @deprecated(version="3.0", reason="This method is now part of the utils module")
     def check_input(self, input_, msg=None):
         """
         Check if the inpupt value is initialized.
@@ -241,20 +245,9 @@ class Alert(v.Alert, SepalWidget):
         Return:
             (bool): check if the value is initialized
         """
-        if not msg:
-            msg = "The value has not been initialized"
-        init = True
+        msg = msg or ms.utils.check_input.error
 
-        # check the collection type that are the only one supporting the len method
-        try:
-            init = False if len(input_) == 0 else init
-        except Exception:
-            init = False if input_ is None else init
-
-        if init is False:
-            self.add_msg(msg, "error")
-
-        return init
+        return su.check_input(input_, msg)
 
 
 class StateBar(v.SystemBar):
@@ -387,8 +380,11 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             nb_banner (int): the number of banners in the queue
         """
-        msg = ms.widgets.banner
-        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
+        # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator
+        if nb_banner == 0:
+            txt = ms.widgets.banner.close
+        else:
+            txt = ms.widgets.banner.next.format(nb_banner)
         self.btn_close.children = [txt]
 
         return

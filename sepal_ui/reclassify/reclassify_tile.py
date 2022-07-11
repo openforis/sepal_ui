@@ -1,11 +1,11 @@
 from pathlib import Path
-from traitlets import link
 
 import ipyvuetify as v
+from traitlets import link
 
+from sepal_ui import reclassify as rec
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
-from sepal_ui import reclassify as rec
 
 __all__ = ["ReclassifyTile"]
 

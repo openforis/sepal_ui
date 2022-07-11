@@ -10,14 +10,14 @@ The venv will be added to the list of usable Jupyter kernel. It will be named: "
 The kernel should automatically be added to the entry_point file.
 """
 
+import argparse
+import json
+import subprocess
 from pathlib import Path
 from shutil import rmtree
-import subprocess
-import yaml
-import json
-import argparse
 
-from colorama import init, Fore
+import yaml
+from colorama import Fore, init
 
 # init colors for all plateforms
 init()

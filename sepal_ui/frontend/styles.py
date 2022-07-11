@@ -1,11 +1,12 @@
-from traitlets import HasTraits, observe, Bool
+from pathlib import Path
 from types import SimpleNamespace
-from traitlets import Unicode
-from IPython.display import display
-import ipyvuetify as v
 
-from sepal_ui import config
+import ipyvuetify as v
+from IPython.display import display
+from traitlets import Bool, HasTraits, Unicode, observe
+
 import sepal_ui.scripts.utils as su
+from sepal_ui import config
 
 DARK_THEME = {
     "primary": "#b3842e",
@@ -131,18 +132,10 @@ class Styles(v.VuetifyTemplate):
     - ensure that tqdm bars are using a transparent background when displayed in an alert
     """
 
+    css = (Path(__file__).parent / "css/custom.css").read_text()
+    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     template = Unicode(
-        """
-        <style>
-            .leaflet-pane {z-index : 2 !important;}
-            .leaflet-top, .leaflet-bottom {z-index : 2 !important;}
-            .leaflet-widgetcontrol {box-shadow: none}
-            main.v-content {padding-top: 0px !important;}
-            .leaflet-control-container .vuetify-styles .v-application {background: rgb(0,0,0,0);}
-            .v-alert__wrapper .progress {background-color: transparent;}
-        </style>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
-    """
+        f'<style>{css}</style><link rel="stylesheet" href="{cdn}"/>'
     ).tag(sync=True)
     "Unicode: the trait embeding the maps style"
 

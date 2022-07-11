@@ -1,13 +1,13 @@
-from traitlets import Int
 from datetime import datetime as dt
 
 import pandas as pd
+from traitlets import Int
 
 import sepal_ui.sepalwidgets as sw
-from sepal_ui.scripts import utils as su
+from sepal_ui import color as sc
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
-from sepal_ui import color as sc
+from sepal_ui.scripts import utils as su
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN

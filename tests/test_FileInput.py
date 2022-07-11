@@ -1,5 +1,4 @@
 import pytest
-
 from traitlets import Any
 
 from sepal_ui import sepalwidgets as sw

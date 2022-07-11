@@ -1,7 +1,7 @@
-from traitlets import HasTraits
 import json
 
 from ipywidgets import dlink
+from traitlets import HasTraits
 
 __all__ = ["Model"]
 
