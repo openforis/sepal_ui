@@ -1,15 +1,15 @@
-from pathlib import Path
-import random
-from urllib.request import urlretrieve
 import math
+import random
+from pathlib import Path
+from urllib.request import urlretrieve
 
-import pytest
 import ee
+import pytest
 from ipyleaflet import GeoJSON, LocalTileLayer
 
-from sepal_ui import mapping as sm
-from sepal_ui import get_theme
 import sepal_ui.frontend.styles as styles
+from sepal_ui import get_theme
+from sepal_ui import mapping as sm
 
 # create a seed so that we can check values
 random.seed(42)

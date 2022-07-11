@@ -1,7 +1,7 @@
-from traitlets import Any
 import json
 
 import pytest
+from traitlets import Any
 
 from sepal_ui import model
 

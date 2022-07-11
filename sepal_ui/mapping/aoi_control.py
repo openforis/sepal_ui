@@ -1,9 +1,9 @@
 import ee
-from shapely import geometry as sg
 from ipyleaflet import WidgetControl
+from shapely import geometry as sg
 
-from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui.scripts import utils as su
 
 
@@ -36,7 +36,7 @@ class AoiControl(WidgetControl):
         kwargs["position"] = kwargs.pop("position", "topright")
 
         # create a hoverable btn
-        btn = MapBtn(logo="fas fa-search-location", v_on="menu.on")
+        btn = MapBtn(content="fas fa-search-location", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
         w_list = sw.List(
