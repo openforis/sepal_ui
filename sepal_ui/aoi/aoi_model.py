@@ -1,20 +1,20 @@
 import json
-from pathlib import Path
-from traitlets import Any
-from urllib.request import urlretrieve
 import tempfile
+from pathlib import Path
+from urllib.request import urlretrieve
 
-import pandas as pd
-import geopandas as gpd
-from ipyleaflet import GeoJSON
 import ee
+import geopandas as gpd
+import pandas as pd
+from ipyleaflet import GeoJSON
+from traitlets import Any
 
 from sepal_ui import color
 from sepal_ui.frontend.styles import AOI_STYLE
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts import gee
 from sepal_ui.message import ms
 from sepal_ui.model import Model
+from sepal_ui.scripts import gee
+from sepal_ui.scripts import utils as su
 
 __all__ = ["AoiModel"]
 

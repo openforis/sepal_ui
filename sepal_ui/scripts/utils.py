@@ -1,24 +1,25 @@
-from configparser import ConfigParser
-import os
-from pathlib import Path
-from urllib.parse import urlparse
-import string
-import random
 import math
+import os
+import random
 import re
+import string
 import warnings
-from unidecode import unidecode
+from configparser import ConfigParser
 from functools import wraps
 from itertools import product
+from pathlib import Path
+from urllib.parse import urlparse
 
 import ee
 from cryptography.fernet import Fernet
+from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
-from deprecated.sphinx import versionadded, deprecated
+from unidecode import unidecode
 
 import sepal_ui
+from sepal_ui.conf import config, config_file
 from sepal_ui.message import ms
-from sepal_ui.conf import config_file, config
+
 from .warning import SepalWarning
 
 

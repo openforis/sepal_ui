@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from IPython.display import display
 import ipyvuetify as v
+from IPython.display import display
 from traitlets import Unicode
 
 
