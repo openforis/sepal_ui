@@ -41,7 +41,11 @@ class MenuControl(WidgetControl):
             offset_x=True,
         )
 
-        super().__init__(widget=self.menu, position="bottomright")
+        # by default MenuControls will be displayed in the bottomright corner
+        kwargs["position"] = kwargs.pop("position", "bottomright")
+        kwargs["widget"] = self.menu
+
+        super().__init__(**kwargs)
 
         # place te menu according to the widget positioning
         self.update_position(None)
