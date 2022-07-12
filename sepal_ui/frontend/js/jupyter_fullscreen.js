@@ -4,9 +4,9 @@ const wait_unitl_element_appear = setInterval(() => {
     if (element != null) {
         element.style.position = "fixed";
         element.style.width = "100vw";
-        element.style.height = "100vh";
+        element.style.height = "calc(100vh - %s)";
         element.style.zIndex = 800;
-        element.style.top = 0;
+        element.style.bottom = 0;
         element.style.left = 0;
         window.dispatchEvent(new Event('resize'));
         clearInterval(wait_unitl_element_appear);
