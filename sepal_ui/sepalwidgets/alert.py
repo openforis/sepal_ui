@@ -250,7 +250,7 @@ class Alert(v.Alert, SepalWidget):
         return su.check_input(input_, msg)
 
 
-class StateBar(v.SystemBar):
+class StateBar(v.SystemBar, SepalWidget):
 
     """Widget to display quick messages on simple inline status bar
 

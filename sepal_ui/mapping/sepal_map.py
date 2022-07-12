@@ -31,6 +31,7 @@ import sepal_ui.frontend.styles as styles
 from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.layer import EELayer
+from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
@@ -55,6 +56,7 @@ class SepalMap(ipl.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        statebar (bool): wether or not to display the Statebar in the map
         kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
     """
 
@@ -74,7 +76,18 @@ class SepalMap(ipl.Map):
     _id = None
     "str: a unique 6 letters str to identify the map in the DOM"
 
-    def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
+    state = None
+    "sw.StateBar: the statebar to inform the user about tile loading"
+
+    def __init__(
+        self,
+        basemaps=[],
+        dc=False,
+        vinspector=False,
+        gee=True,
+        statebar=False,
+        **kwargs,
+    ):
 
         # set the default parameters
         kwargs["center"] = kwargs.pop("center", [0, 0])
@@ -113,6 +126,10 @@ class SepalMap(ipl.Map):
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
+
+        # specific statebar
+        self.state = LayerStateControl(self)
+        not statebar or self.add_control(self.state)
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map

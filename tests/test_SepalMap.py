@@ -51,6 +51,10 @@ class TestSepalMap:
         m = sm.SepalMap(vinspector=True)
         assert m.v_inspector in m.controls
 
+        # check that the map start with a statebar
+        m = sm.SepalMap(statebar=True)
+        assert m.state in m.controls
+
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
             m = sm.SepalMap(["TOTO"])
