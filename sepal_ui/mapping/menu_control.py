@@ -27,10 +27,10 @@ class MenuControl(WidgetControl):
         children = [card_content]
         if isinstance(card_content, sw.Tile):
             card_title = sw.CardTitle(children=[card_content.get_title()])
-            children.append(card_title)
+            children.insert(0, card_title)
             card_content.nest()
             card_content.class_list.replace("ma-5", "ma-0")
-            card_content.children[0].class_list.remove("pa-5")
+            card_content.children[0].class_list.replace("pa-5", "pa-2")
             card_content.children[0].raised = False
             card_content.children[0].elevation = 0
 
