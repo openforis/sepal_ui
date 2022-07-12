@@ -291,7 +291,7 @@ class Translator(Box):
 
         # get all the python files recursively
         py_files = []
-        for f in folder.glob("**/*.*py*"):
+        for f in folder.glob(r"**/*.[py][ipynb]"):
             generated_files = [".ipynb_checkpoints", "__pycache__"]
             if all([err not in str(f) for err in generated_files]):
                 py_files.append(f)
