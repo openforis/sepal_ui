@@ -11,6 +11,7 @@
       {% for item in functions -%}
       {% if item not in inherited_members -%}
       {{ item }}
+      {% endif -%}
       {% endfor -%}
 {% endif -%}
 {% endblock -%}
@@ -26,6 +27,7 @@
       {% for item in classes -%}
       {% if item not in inherited_members -%}
       {{ item }}
+      {% endif -%}
       {% endfor -%}
 {% endif -%}
 {% endblock -%}
