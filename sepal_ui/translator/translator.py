@@ -310,6 +310,7 @@ class Translator(Box):
             # read each python file and search for the pattern of the key
             # if it's find change status of the counter and exit the search
             for f in py_files:
+                print(f)
                 tmp = f.read_text()
                 if f"{name}.{k}" in tmp:
                     is_present = True
