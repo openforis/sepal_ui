@@ -19,6 +19,7 @@ class FullScreenControl(WidgetControl):
     Args:
         m (SepalMap): the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
         fullscreen (bool, optional): either the map should be displayed in fullscreen by default. default to false.
+        fullapp (bool, optional): either or not the map will be used as the sole widget/tile of an application
         kwargs (optional): any available arguments from a ipyleaflet WidgetControl
     """
 
@@ -37,7 +38,10 @@ class FullScreenControl(WidgetControl):
     template = None
     "ipyvuetify.VuetifyTemplate: embeds the 2 javascripts methods to change the rendering of the map"
 
-    def __init__(self, m, fullscreen=False, **kwargs):
+    def __init__(self, m, fullscreen=False, fullapp=False, **kwargs):
+
+        # set the offset
+        offset = "48px" if fullapp else "0px"
 
         # register the required zoom value
         self.zoomed = fullscreen
@@ -58,10 +62,8 @@ class FullScreenControl(WidgetControl):
 
         # save the 2 fullscrenn js code in a table 0 for embeded and 1 for fullscreen
         js_dir = Path(__file__).parents[1] / "frontend/js"
-        js = [
-            (js_dir / f"jupyter_{state}.js").read_text() % m._id
-            for state in ["embed", "fullscreen"]
-        ]
+        embed = (js_dir / "jupyter_embed.js").read_text() % m._id
+        full = (js_dir / "jupyter_fullscreen.js").read_text() % (m._id, offset)
 
         # template with js behaviour
         # "jupyter_fullscreen" place tje "leaflet-container element on the front screen
@@ -71,17 +73,19 @@ class FullScreenControl(WidgetControl):
         self.template = v.VuetifyTemplate(
             template=(
                 "<script>{methods: {jupyter_embed(){%s}, jupyter_fullscreen(){%s}}}</script>"
-                % (js[0], js[1])
+                % (embed, full)
             )
         )
         display(self.template)
 
         # display the map in the requested default state
-        display(Javascript(js[self.zoomed]))
+        js = full if self.zoomed else embed
+        display(Javascript(js))
 
     def toggle_fullscreen(self, widget, event, data):
         """
-        Toggle the fullscreen state of the map by sending the required javascript method, changing the w_btn icons and the zoomed state of the control.
+        Toggle the fullscreen state of the map by sending the required javascript method,
+        changing the w_btn icons and the zoomed state of the control.
         """
 
         # change the zoom state
