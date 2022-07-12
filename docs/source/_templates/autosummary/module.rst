@@ -9,6 +9,7 @@
       :nosignatures:
       
       {% for item in functions -%}
+      {% if item not in inherited_members -%}
       {{ item }}
       {% endfor -%}
 {% endif -%}
@@ -23,6 +24,7 @@
       :template: autosummary/class.rst
       
       {% for item in classes -%}
+      {% if item not in inherited_members -%}
       {{ item }}
       {% endfor -%}
 {% endif -%}
