@@ -291,7 +291,7 @@ class Translator(Box):
 
         # get all the python files recursively
         py_files = []
-        for f in folder.glob("**/*.*py*"):
+        for f in folder.glob(r"**/*.[py][ipynb]"):
             generated_files = [".ipynb_checkpoints", "__pycache__"]
             if all([err not in str(f) for err in generated_files]):
                 py_files.append(f)
@@ -310,7 +310,6 @@ class Translator(Box):
             # read each python file and search for the pattern of the key
             # if it's find change status of the counter and exit the search
             for f in py_files:
-                print(f)
                 tmp = f.read_text()
                 if f"{name}.{k}" in tmp:
                     is_present = True
