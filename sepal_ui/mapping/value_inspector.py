@@ -1,22 +1,22 @@
 import json
 
-from ipyleaflet import WidgetControl, GeoJSON, LocalTileLayer
 import ee
 import geopandas as gpd
-from shapely import geometry as sg
+import ipyvuetify as v
+import rasterio as rio
 import rioxarray
 import xarray_leaflet  # noqa: F401
+from ipyleaflet import GeoJSON, LocalTileLayer, WidgetControl
 from rasterio.crs import CRS
-import rasterio as rio
-import ipyvuetify as v
+from shapely import geometry as sg
 
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.scripts import utils as su
+from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.map_btn import MapBtn
-from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
 
 
 class ValueInspector(WidgetControl):
@@ -28,7 +28,7 @@ class ValueInspector(WidgetControl):
     """
 
     m = None
-    "(ipyleaflet.Map) the map on which he vinspector is displayed to interact with it's layers"
+    "(ipyleaflet.Map): the map on which he vinspector is displayed to interact with it's layers"
 
     w_loading = None
     "(vuetify.ProgressLinear): the progress bar on top of the Card"
@@ -57,7 +57,7 @@ class ValueInspector(WidgetControl):
         )
 
         # create a clickable btn
-        btn = MapBtn(logo="fas fa-crosshairs", v_on="menu.on")
+        btn = MapBtn("fas fa-crosshairs", v_on="menu.on")
         slot = {"name": "activator", "variable": "menu", "children": btn}
         close_btn = sw.Icon(children=["fas fa-times"], small=True)
         title = sw.Html(tag="h4", children=[ms.v_inspector.title])

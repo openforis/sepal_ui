@@ -1,22 +1,22 @@
-from pathlib import Path
-from datetime import datetime
 import json
+from datetime import datetime
+from pathlib import Path
 
-import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
-from ipywidgets import jslink
-import pandas as pd
 import ee
 import geopandas as gpd
+import ipyvuetify as v
+import pandas as pd
+from ipywidgets import jslink
 from natsort import humansorted
+from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
 
 from sepal_ui import color
-from sepal_ui.message import ms
 from sepal_ui.frontend import styles as ss
-from sepal_ui.scripts import utils as su
+from sepal_ui.message import ms
 from sepal_ui.scripts import gee
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.btn import Btn
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = [
     "DatePicker",
@@ -233,12 +233,13 @@ class FileInput(v.Flex, SepalWidget):
             flat=True,
             v_model=True,
             max_height="300px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
+            style_="overflow: auto;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
         )
 
         self.file_menu = v.Menu(
-            min_width=300,
+            min_width="400px",
+            max_width="400px",
             children=[self.loading, self.file_list],
             v_model=False,
             close_on_content_click=False,
@@ -400,7 +401,9 @@ class FileInput(v.Flex, SepalWidget):
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
                 file_size = su.get_file_size(el)
-                children.append(v.ListItemActionText(children=[file_size]))
+                children.append(
+                    v.ListItemActionText(class_="ml-1", children=[file_size])
+                )
                 file_list.append(v.ListItem(value=str(el), children=children))
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
@@ -418,7 +421,7 @@ class FileInput(v.Flex, SepalWidget):
                     ]
                 ),
                 v.ListItemContent(
-                    children=[v.ListItemTitle(children=[f"..{folder.parent}"])]
+                    children=[v.ListItemTitle(children=[f".. /{folder.parent.stem}"])]
                 ),
             ],
         )

@@ -1,0 +1,29 @@
+{{ pkgname | e | heading }}
+
+{% if subpackages -%}
+Subpackages
+-----------
+
+.. autosummary::
+   :recursive:
+   :toctree:
+   :template: autosummary/module.rst
+   
+   {% for package in subpackages -%}
+   {{ package }}
+   {% endfor -%}
+{% endif -%}
+
+{% if submodules %}
+Submodules
+----------
+
+.. autosummary::
+   :recursive:
+   :toctree:
+   :template: autosummary/module.rst
+   
+   {% for submodule in submodules -%}
+   {{ submodule }}
+   {% endfor -%}
+{% endif -%}

@@ -1,10 +1,10 @@
 import ipyvuetify as v
 
-from sepal_ui import color
-from sepal_ui.planetapi import PlanetModel
 import sepal_ui.scripts.utils as su
 import sepal_ui.sepalwidgets as sw
+from sepal_ui import color
 from sepal_ui.message import ms
+from sepal_ui.planetapi import PlanetModel
 
 
 class PlanetView(sw.Layout):

@@ -1,11 +1,11 @@
 from pathlib import Path
 from zipfile import ZipFile
 
-import pytest
 import geopandas as gpd
+import pytest
 
-from sepal_ui.reclassify import ReclassifyView, ReclassifyModel
 from sepal_ui import aoi
+from sepal_ui.reclassify import ReclassifyModel, ReclassifyView
 
 
 class TestReclassifyView:

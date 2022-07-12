@@ -1,12 +1,12 @@
 import os
 import time
 
-import pytest
 import ee
+import pytest
 
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts import gee
 from sepal_ui.message import ms
+from sepal_ui.scripts import gee
+from sepal_ui.scripts import utils as su
 
 su.init_ee()
 

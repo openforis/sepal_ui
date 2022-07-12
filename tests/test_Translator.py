@@ -1,10 +1,12 @@
-import pytest
-from pathlib import Path
-import shutil
 import json
+import shutil
 from configparser import ConfigParser
+from pathlib import Path
+
+import pytest
 
 from sepal_ui import config_file
+from sepal_ui.message import ms
 from sepal_ui.translator import Translator
 
 
@@ -117,6 +119,16 @@ class TestTranslator:
         assert not all(
             [(loc.startswith(".") or loc.startswith("_")) for loc in locales]
         )
+
+        return
+
+    def test_key_use(self):
+
+        # check key usage method and the lib content at the same time
+        expected = ["test_key"]
+        lib_folder = Path(__file__).parents[1] / "sepal_ui"
+        res = ms.key_use(lib_folder, "ms")
+        assert res == expected
 
         return
 

@@ -1,7 +1,7 @@
+import ipyvuetify as v
+
 from sepal_ui.conf import config, config_file
 from sepal_ui.frontend.styles import SepalColor, get_theme
-
-import ipyvuetify as v
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"

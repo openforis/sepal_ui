@@ -1,16 +1,17 @@
 from datetime import datetime
-from tqdm.notebook import tqdm
-from ipywidgets import jslink, Output
+
 import ipyvuetify as v
-from traitlets import Unicode, observe, directional_link, Bool
 from deprecated.sphinx import deprecated
+from ipywidgets import Output, jslink
+from tqdm.notebook import tqdm
+from traitlets import Bool, Unicode, directional_link, observe
 
 from sepal_ui import color
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.scripts.utils import set_type
 from sepal_ui.frontend.styles import TYPES
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.utils import set_type
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
@@ -250,7 +251,7 @@ class Alert(v.Alert, SepalWidget):
         return su.check_input(input_, msg)
 
 
-class StateBar(v.SystemBar):
+class StateBar(v.SystemBar, SepalWidget):
 
     """Widget to display quick messages on simple inline status bar
 
@@ -380,8 +381,11 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             nb_banner (int): the number of banners in the queue
         """
-        msg = ms.widgets.banner
-        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
+        # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator
+        if nb_banner == 0:
+            txt = ms.widgets.banner.close
+        else:
+            txt = ms.widgets.banner.next.format(nb_banner)
         self.btn_close.children = [txt]
 
         return

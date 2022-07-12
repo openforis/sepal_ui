@@ -1,11 +1,11 @@
 import ipyvuetify as v
-from markdown import markdown
-from traitlets import Unicode, Any, observe, dlink
-from ipywidgets import link
 from deprecated.sphinx import versionadded
+from ipywidgets import link
+from markdown import markdown
+from traitlets import Any, Unicode, dlink, observe
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 from sepal_ui import color
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 
 __all__ = ["Markdown", "CopyToClip", "StateIcon"]
 

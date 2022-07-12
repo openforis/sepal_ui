@@ -1,15 +1,15 @@
-from pathlib import Path
-import random
-from urllib.request import urlretrieve
-import math
 import json
+import math
+import random
+from pathlib import Path
+from urllib.request import urlretrieve
 
-import pytest
 import ee
+import pytest
 from ipyleaflet import GeoJSON, LocalTileLayer
 
-from sepal_ui import mapping as sm
 from sepal_ui import get_theme
+from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
 
 # create a seed so that we can check values
@@ -51,6 +51,10 @@ class TestSepalMap:
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
         assert m.v_inspector in m.controls
+
+        # check that the map start with a statebar
+        m = sm.SepalMap(statebar=True)
+        assert m.state in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):

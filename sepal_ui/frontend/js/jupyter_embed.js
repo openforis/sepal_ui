@@ -6,7 +6,7 @@ const wait_unitl_element_appear = setInterval(() => {
         element.style.width = "";
         element.style.height = "";
         element.style.zIndex = "";
-        element.style.top = "";
+        element.style.bottom = "";
         element.style.left = "";
         window.dispatchEvent(new Event('resize'));
         clearInterval(wait_unitl_element_appear);

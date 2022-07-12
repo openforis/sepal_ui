@@ -1,9 +1,9 @@
-import pytest
-from sepal_ui.model import Model
-from traitlets import Bool
 import ipyvuetify as v
+import pytest
+from traitlets import Bool
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.model import Model
 
 
 class TestDrawerItem:
