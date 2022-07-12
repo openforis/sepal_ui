@@ -1,3 +1,4 @@
+import json
 import math
 import random
 from pathlib import Path
@@ -7,9 +8,9 @@ import ee
 import pytest
 from ipyleaflet import GeoJSON, LocalTileLayer
 
-import sepal_ui.frontend.styles as styles
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
+from sepal_ui.frontend import styles as ss
 
 # create a seed so that we can check values
 random.seed(42)
@@ -289,8 +290,11 @@ class TestSepalMap:
         # Assert
         new_layer = m.layers[-1]
 
-        assert new_layer.style == styles.layer_style
-        assert new_layer.hover_style == styles.layer_hover_style
+        layer_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
+        hover_style = json.loads((ss.JSON_DIR / "layer_hover.json").read_text())
+
+        assert all([new_layer.style[k] == v for k, v in layer_style.items()])
+        assert all([new_layer.hover_style[k] == v for k, v in hover_style.items()])
 
         # Arrange with style
         layer_style = {"color": "blue"}
