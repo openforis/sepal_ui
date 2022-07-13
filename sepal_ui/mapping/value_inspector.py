@@ -6,7 +6,7 @@ import ipyvuetify as v
 import rasterio as rio
 import rioxarray
 import xarray_leaflet  # noqa: F401
-from ipyleaflet import GeoJSON, LocalTileLayer, WidgetControl
+from ipyleaflet import GeoJSON, LocalTileLayer
 from rasterio.crs import CRS
 from shapely import geometry as sg
 
@@ -14,12 +14,12 @@ from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
-from sepal_ui.mapping.map_btn import MapBtn
+from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 
 
-class ValueInspector(WidgetControl):
+class ValueInspector(MenuControl):
     """
     Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
@@ -45,7 +45,7 @@ class ValueInspector(WidgetControl):
         self.m = m
 
         # set some default parameters
-        kwargs["position"] = kwargs.pop("position", "bottomright")
+        kwargs["position"] = kwargs.pop("position", "topleft")
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
@@ -56,43 +56,16 @@ class ValueInspector(WidgetControl):
             color=p_style["color"][v.theme.dark],
         )
 
-        # create a clickable btn
-        btn = MapBtn("fas fa-crosshairs", v_on="menu.on")
-        slot = {"name": "activator", "variable": "menu", "children": btn}
-        close_btn = sw.Icon(children=["fas fa-times"], small=True)
-        title = sw.Html(tag="h4", children=[ms.v_inspector.title])
-        card_title = sw.CardTitle(children=[title, sw.Spacer(), close_btn])
+        # set up the content
+        title = sw.CardTitle(children=[ms.v_inspector.title])
         self.text = sw.CardText(children=[ms.v_inspector.landing])
-        card = sw.Card(
-            tile=True,
-            color=color.menu,
-            max_height="40vh",
-            children=[card_title, self.text],
-            min_width="400px",
-            style_="overflow: auto",
-        )
 
-        # assemble everything in a menu
-        self.menu = sw.Menu(
-            v_model=False,
-            value=False,
-            close_on_click=False,
-            close_on_content_click=False,
-            children=[self.w_loading, card],
-            v_slots=[slot],
-            offset_x=True,
-            top="bottom" in kwargs["position"],
-            bottom="top" in kwargs["position"],
-            left="right" in kwargs["position"],
-            right="left" in kwargs["position"],
-        )
-
-        super().__init__(widget=self.menu, **kwargs)
+        # create the menu widget
+        super().__init__("fas fa-crosshairs", self.text, title, **kwargs)
 
         # add js behaviour
         self.menu.observe(self.toggle_cursor, "v_model")
         self.m.on_interaction(self.read_data)
-        close_btn.on_event("click", lambda *_: setattr(self.menu, "v_model", False))
 
     def toggle_cursor(self, change):
         """

@@ -12,12 +12,13 @@ class MenuControl(WidgetControl):
     Args:
         icon_content (str): the icon content as specified in the sm.MapBtn object (i.e. a 3 letter name or an icon name)
         card_content (container): any container from sw. The sw.Tile is specifically design to fit in this component
+        card_title (str, optional): the card title. THe tile title will override this parameter if existing
     """
 
     menu = None
     "sw.Menu: the menu displayed on the map as a widget"
 
-    def __init__(self, icon_content, card_content, **kwargs):
+    def __init__(self, icon_content, card_content, card_title=None, **kwargs):
 
         # create a clickable btn
         btn = MapBtn(content=icon_content, v_on="menu.on")
@@ -26,13 +27,17 @@ class MenuControl(WidgetControl):
         # nest the content if it's a sw.Tile
         children = [card_content]
         if isinstance(card_content, sw.Tile):
-            card_title = sw.CardTitle(children=[card_content.get_title()])
-            children.insert(0, card_title)
+            card_title = card_content.get_title()
             card_content.nest()
             card_content.class_list.replace("ma-5", "ma-0")
             card_content.children[0].class_list.replace("pa-5", "pa-2")
             card_content.children[0].raised = False
             card_content.children[0].elevation = 0
+
+        # set up a title of needed
+        if card_title is not None:
+            card_title = sw.CardTitle(children=[card_title])
+            children.insert(0, card_title)
 
         # set up the content style
         card = sw.Card(
