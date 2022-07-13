@@ -1,13 +1,12 @@
 import ee
-from ipyleaflet import WidgetControl
 from shapely import geometry as sg
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.mapping.map_btn import MapBtn
+from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.scripts import utils as su
 
 
-class AoiControl(WidgetControl):
+class AoiControl(MenuControl):
     """
     Widget control providing zoom options for the end user. The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
 
@@ -35,43 +34,24 @@ class AoiControl(WidgetControl):
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "topright")
 
-        # create a hoverable btn
-        btn = MapBtn(content="fas fa-search-location", v_on="menu.on")
-        slot = {"name": "activator", "variable": "menu", "children": btn}
+        # create a list
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
-        w_list = sw.List(
-            dense=True,
-            flat=True,
-            v_model=True,
-            max_height="300px",
-            min_width="200px",
-            max_width="200px",
-            tile=True,
-            style_="overflow: auto;",
-            children=[self.aoi_list],
-        )
 
-        # assemble everything in a menu
-        self.menu = sw.Menu(
-            v_model=False,
-            value=False,
-            close_on_click=False,
-            children=[w_list],
-            open_on_click=False,
-            open_on_hover=True,
-            v_slots=[slot],
-            offset_x=True,
-            top="bottom" in kwargs["position"],
-            bottom="top" in kwargs["position"],
-            left="right" in kwargs["position"],
-            right="left" in kwargs["position"],
-        )
+        # create the widget
+        super().__init__("fas fa-search-location", self.aoi_list)
 
-        super().__init__(widget=self.menu, **kwargs)
+        # change a bit the behavior of the control
+        self.menu.open_on_hover = True
+        self.menu.open_on_click = False
+        self.menu.cole_on_content_click = True
+
+        # set the size of the card to 0 so that the list controls the widget display
+        self.set_size(
+            min_width="200px", max_width="200px", min_height=None, max_height="300px"
+        )
 
         # add js behaviours
-        btn.on_event("click", self.click_btn)
-        # self.aoi_list.observe(self.zoom, "v_model")
+        self.menu.v_slots[0]["children"].on_event("click", self.click_btn)
 
     def click_btn(self, widget, event, data):
         """

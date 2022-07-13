@@ -12,12 +12,13 @@ class MenuControl(WidgetControl):
     Args:
         icon_content (str): the icon content as specified in the sm.MapBtn object (i.e. a 3 letter name or an icon name)
         card_content (container): any container from sw. The sw.Tile is specifically design to fit in this component
+        card_title (str, optional): the card title. THe tile title will override this parameter if existing
     """
 
     menu = None
     "sw.Menu: the menu displayed on the map as a widget"
 
-    def __init__(self, icon_content, card_content, **kwargs):
+    def __init__(self, icon_content, card_content, card_title=None, **kwargs):
 
         # create a clickable btn
         btn = MapBtn(content=icon_content, v_on="menu.on")
@@ -26,21 +27,21 @@ class MenuControl(WidgetControl):
         # nest the content if it's a sw.Tile
         children = [card_content]
         if isinstance(card_content, sw.Tile):
-            card_title = sw.CardTitle(children=[card_content.get_title()])
-            children.insert(0, card_title)
+            card_title = card_content.get_title()
             card_content.nest()
             card_content.class_list.replace("ma-5", "ma-0")
             card_content.children[0].class_list.replace("pa-5", "pa-2")
             card_content.children[0].raised = False
             card_content.children[0].elevation = 0
 
+        # set up a title of needed
+        if card_title is not None:
+            card_title = sw.CardTitle(children=[card_title])
+            children.insert(0, card_title)
+
         # set up the content style
         card = sw.Card(
             tile=True,
-            max_height="40vh",
-            min_height="40vh",
-            max_width="400px",
-            min_width="400px",
             style_="overflow: auto",
             children=children,
         )
@@ -63,6 +64,9 @@ class MenuControl(WidgetControl):
 
         # place te menu according to the widget positioning
         self.update_position(None)
+        self.set_size()
+
+        # add some interaction
         self.observe(self.update_position, "position")
 
     def update_position(self, change):
@@ -74,4 +78,28 @@ class MenuControl(WidgetControl):
         self.menu.bottom = "top" in self.position
         self.menu.left = "right" in self.position
         self.menu.right = "left" in self.position
+
         return
+
+    def set_size(self, **kwargs):
+        """
+        Set the size of the card using all the sizing parameters from a v.Card
+
+        Args:
+          min_width(str, optional): a fully qualified css description of the wanted min_width. default to 400px.
+          max_width(str, optional): a fully qualified css description of the wanted max_width. default to 400px.
+          min_height(str, optional): a fully qualified css description of the wanted min_height. default to 40vh.
+          max_height(str, optional): a fully qualified css description of the wanted max_height. default to 40vh.
+
+        Return:
+          self
+        """
+
+        card = self.menu.children[0]
+
+        card.min_width = kwargs.pop("min_width", "400px")
+        card.max_width = kwargs.pop("max_width", "400px")
+        card.min_height = kwargs.pop("min_height", "40vh")
+        card.max_height = kwargs.pop("max_height", "40vh")
+
+        return self
