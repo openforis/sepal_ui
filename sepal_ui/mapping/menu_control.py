@@ -42,10 +42,6 @@ class MenuControl(WidgetControl):
         # set up the content style
         card = sw.Card(
             tile=True,
-            max_height="40vh",
-            min_height="40vh",
-            max_width="400px",
-            min_width="400px",
             style_="overflow: auto",
             children=children,
         )
@@ -68,6 +64,9 @@ class MenuControl(WidgetControl):
 
         # place te menu according to the widget positioning
         self.update_position(None)
+        self.set_size()
+
+        # add some interaction
         self.observe(self.update_position, "position")
 
     def update_position(self, change):
@@ -79,4 +78,28 @@ class MenuControl(WidgetControl):
         self.menu.bottom = "top" in self.position
         self.menu.left = "right" in self.position
         self.menu.right = "left" in self.position
+
         return
+
+    def set_size(self, **kwargs):
+        """
+        Set the size of the card using all the sizing parameters from a v.Card
+
+        Args:
+          min_width(str, optional): a fully qualified css description of the wanted min_width. default to 400px.
+          max_width(str, optional): a fully qualified css description of the wanted max_width. default to 400px.
+          min_height(str, optional): a fully qualified css description of the wanted min_height. default to 40vh.
+          max_height(str, optional): a fully qualified css description of the wanted max_height. default to 40vh.
+
+        Return:
+          self
+        """
+
+        card = self.menu.children[0]
+
+        card.min_width = kwargs.pop("min_width", "400px")
+        card.max_width = kwargs.pop("max_width", "400px")
+        card.min_height = kwargs.pop("min_height", "40vh")
+        card.max_height = kwargs.pop("max_height", "40vh")
+
+        return self

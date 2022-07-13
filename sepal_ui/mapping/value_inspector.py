@@ -63,6 +63,9 @@ class ValueInspector(MenuControl):
         # create the menu widget
         super().__init__("fas fa-crosshairs", self.text, title, **kwargs)
 
+        # adapt the size
+        self.set_size(min_height=0)
+
         # add js behaviour
         self.menu.observe(self.toggle_cursor, "v_model")
         self.m.on_interaction(self.read_data)
