@@ -1,69 +1,69 @@
 {
-	"test_key": "",
-	"status": "",
+	"test_key": "clave de prueba",
+	"status": "Estado: {}",
 	"widgets": {
 		"fileinput": {
-			"label": "",
-			"placeholder": ""
+			"label": "buscar archivos",
+			"placeholder": "Archivo seleccionado"
 		},
 		"table": {
-			"label": "",
+			"label": "Tabla de archivos",
 			"column": {
 				"id": "",
-				"lat": "",
-				"lng": ""
+				"lat": "latitud",
+				"lng": "longitud"
 			}
 		},
 		"vector": {
-			"label": "",
-			"column": "",
-			"value": "",
-			"all": ""
+			"label": "Archivo vectorial",
+			"column": "columna",
+			"value": "Valor",
+			"all": "Usar todos los features"
 		},
 		"navdrawer": {
-			"code": "",
+			"code": "Código fuente",
 			"wiki": "",
-			"bug": ""
+			"bug": "Reportar error"
 		},
 		"asset_select": {
 			"types": {
 				"0": "",
-				"1": "",
+				"1": "Tabla/Vector",
 				"2": "",
-				"3": "",
-				"4": ""
+				"3": "Algoritmo",
+				"4": "Directorio"
 			},
-			"label": "",
-			"custom": "",
-			"no_access": "",
-			"wrong_type": "",
-			"placeholder": ""
+			"label": "Selecciona un Asset",
+			"custom": "Personalizado",
+			"no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
+			"wrong_type": "El tipo del asset seleccionado: ({}), no coincide con ninguno de los tipos permitidos por el widget: ({}).",
+			"placeholder": "users/nombre_usuario/asset_personalizado"
 		},
 		"load_table": {
-			"too_small": ""
+			"too_small": "El archivo ingresado contiene menos de 3 columnas. Por favor, selecciona un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
 		},
 		"banner": {
-			"close": "",
-			"next": ""
+			"close": "cerrar",
+			"next": "siguiente ({} más)"
 		}
 	},
 	"aoi_sel": {
-		"title": "",
-		"administrative": "",
-		"custom": "",
-		"method": "",
+		"title": "Seleccionar área de interés (AOI)",
+		"administrative": "Límites administrativos",
+		"custom": "Geometrías personalizadas",
+		"method": "Método de selección de AOI",
 		"adm": {
-			"0": "",
-			"1": "",
-			"2": ""
+			"0": "País/Provincia",
+			"1": "Nivel administrativo 1",
+			"2": "Nivel administrativo 2"
 		},
-		"vector": "",
-		"draw": "",
-		"points": "",
-		"aoi_name": "",
-		"asset": "",
-		"btn": "",
-		"complete": "",
+		"vector": "Archivo vectorial",
+		"draw": "Dibujar figura(s) en el mapa",
+		"points": "Archivo de puntos",
+		"aoi_name": "Crea un nombre para tu AOI",
+		"asset": "Nombre del asset",
+		"btn": "Usar selección",
+		"complete": "El AOI ha sido seleccionada",
 		"exception": {
 			"no_inputs": "",
 			"no_asset": "",
@@ -78,137 +78,137 @@
 		}
 	},
 	"mapping": {
-		"no_image": ""
+		"no_image": "El archivo de imagen no existe"
 	},
 	"planet": {
 		"exception": {
-			"empty": "",
-			"invalid": "",
-			"nosubs": ""
+			"empty": "Por favor completa todos los campos",
+			"invalid": "Correo electrónico o contraseña inválidos",
+			"nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet."
 		},
 		"widget": {
-			"username": "",
-			"password": "",
-			"apikey": "",
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"apikey": "API key",
 			"method": {
-				"label": "",
-				"credentials": "",
-				"api_key": ""
+				"label": "Método de inicio de sesión",
+				"credentials": "Credenciales",
+				"api_key": "API key"
 			}
 		},
 		"status": {
-			"offilne": "",
-			"online": ""
+			"offilne": "Desconectado",
+			"online": "Conectado"
 		}
 	},
 	"rec": {
 		"table": {
-			"title": "",
+			"title": "Editor de clasificación",
 			"classif": {
-				"title": "",
-				"file_select": "",
-				"btn": ""
+				"title": "seleccionar tabla existente",
+				"file_select": "Archivo de clases",
+				"btn": "Conseguir tabla"
 			},
-			"table": "",
+			"table": "Tabla de clasificación",
 			"schema": {
 				"id": "",
-				"code": "",
-				"description": "",
+				"code": "código",
+				"description": "descripción",
 				"color": ""
 			},
 			"btn": {
-				"edit": "",
-				"save": "",
-				"add": "",
-				"delete": ""
+				"edit": "editar",
+				"save": "guardar",
+				"add": "añadir",
+				"delete": "eliminar"
 			},
 			"edit_dialog": {
 				"titles": {
-					"0": "",
-					"1": ""
+					"0": "Nuevo elemento",
+					"1": "Modificar elemento"
 				},
 				"btn": {
 					"save": {
-						"name": "",
-						"tooltip": ""
+						"name": "guardar",
+						"tooltip": "crear una nueva clase"
 					},
 					"modify": {
-						"name": "",
-						"tooltip": ""
+						"name": "modificar",
+						"tooltip": "modificar la clase existente"
 					},
 					"cancel": {
-						"name": "",
-						"tooltip": ""
+						"name": "cancelar",
+						"tooltip": "cancelar la operación"
 					}
 				}
 			},
 			"save_dialog": {
-				"filename": "",
-				"placeholder": "",
+				"filename": "Insertar el nombre del archivo de salida",
+				"placeholder": "nueva_tabla",
 				"btn": {
 					"save": {
-						"name": "",
-						"tooltip": ""
+						"name": "guardar",
+						"tooltip": "guardar tabla"
 					},
 					"cancel": {
-						"name": "",
-						"tooltip": ""
+						"name": "cancelar",
+						"tooltip": "cancelar la operación"
 					}
 				},
-				"title": "",
-				"info": ""
+				"title": "guardar tabla de clasificación",
+				"info": "La tabla se almacenará en {}"
 			}
 		},
 		"rec": {
-			"title": "",
+			"title": "Reclasificar imagen",
 			"headers": {
-				"0": "",
-				"1": ""
+				"0": "Clase originale",
+				"1": "Clase de destino"
 			},
 			"input": {
-				"optional": "",
-				"title": "",
-				"asset": "",
-				"file": "",
+				"optional": "Opcional",
+				"title": "Seleccionar clasificación de entrada",
+				"asset": "Asset de entrada",
+				"file": "archivo de entrada",
 				"band": {
-					"label": "",
-					"hint": ""
+					"label": "seleccionar banda/propiedad",
+					"hint": "La banda/propiedad a utilizar como referencia de clase"
 				},
 				"classif": {
-					"title": "",
-					"label": ""
+					"title": "Seleccionar sistema de clasificación de destinos",
+					"label": "archivo de clases"
 				},
-				"btn": ""
+				"btn": "conseguir tabla"
 			},
-			"table": "",
-			"btn": "",
+			"table": "Tabla de recalificación",
+			"btn": "Reclasificar",
 			"export": {
 				"0": {
-					"0": "",
-					"1": ""
+					"0": "El vector ha sido creado y añadido a tu cuenta de SEPAL: {}",
+					"1": "La imagen ha sido creada y añadida a tu cuenta de SEPAL: {}"
 				},
 				"1": {
-					"0": "",
-					"1": ""
+					"0": "El FeatureCollection ha sido exportado a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación.",
+					"1": "La imagen ha sido exportada a GEE como {}. Utiliza la interfaz del editor de código para seguir el proceso de exportación."
 				}
 			}
 		},
 		"tile": {
-			"title": ""
+			"title": "Recalificación"
 		}
 	},
 	"locale": {
-		"change": "",
-		"fallback": ""
+		"change": "La configuración regional \"{0}\" será usada como idioma predeterminado en las aplicaciones de SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios. Ten en cuenta que si \"{0}\" no está disponible en otra aplicación, SEPAL usará el idioma más cercano posible.",
+		"fallback": "La configuración regional \"{0}\" no está disponible para esta aplicación. En su lugar usaremos \"{1}\". Por favor, informa al mantenedor de la aplicación si deseas añadir \"{0}\" a los idiomas soportados."
 	},
 	"theme": {
-		"change": ""
+		"change": "El tema \"{0}\" se utilizará como tema predeterminado en las aplicaciones SEPAL. Por favor, reinicia la aplicación actual para aplicar los cambios."
 	},
 	"disclaimer": {
 		"p": {
-			"0": "",
-			"1": "",
-			"2": ""
+			"0": "La FAO declina toda responsabilidad respecto de los errores o deficiencias en la base de datos o los programas, o en la documentación que la acompaña a éstos, el mantenimiento y el mejoramiento del programa, así como por cualquier daño que pueda derivarse de ellos.",
+			"1": "Asimismo, la FAO no se considerará responsable de la actualización de los datos y no asume ningún tipo de responsabilidad respecto de los errores u omisiones en los datos proporcionados.",
+			"2": "No obstante, se ruega a los usuarios que informen de los errores o deficiencias que hallen en este producto de la FAO."
 		}
 	}
 }
