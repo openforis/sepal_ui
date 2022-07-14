@@ -1,12 +1,12 @@
 {
     "v_inspector": {
-        "title": "",
-        "landing": "",
+        "title": "Inspecteur",
+        "landing": "sélectionner un point",
         "info": {
             "header": "",
-            "text": ""
+            "text": "L'inspection des données n'est pas encore implémentée"
         },
-        "band": "",
-        "coords": ""
+        "band": "bande {}",
+        "coords": "Coordonnées (lng, lat) à {} m/px"
     }
 }
