@@ -9,6 +9,7 @@ Any argument from the original :code:`TextField` ipyvuetify class can be used to
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     

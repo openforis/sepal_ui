@@ -7,14 +7,14 @@ The script will extract the skeleton of a module from the sepal_ui_template GitH
 Placeholdre from the template will be replaced and the directory will be synced with a GitHub freshly created repository. Note that the repository need to be fully empty when the command is launched.
 """
 
-import re
-from pathlib import Path
-import subprocess
-import json
-from distutils.util import strtobool
 import argparse
+import json
+import re
+import subprocess
+from distutils.util import strtobool
+from pathlib import Path
 
-from colorama import init, Fore
+from colorama import Fore, init
 
 # init colors for all plateforms
 init()

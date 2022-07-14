@@ -1,9 +1,9 @@
 import re
 from types import SimpleNamespace
 
+import sepal_ui.scripts.utils as su
 from sepal_ui import config
 from sepal_ui.frontend.styles import SepalColor
-import sepal_ui.scripts.utils as su
 
 
 class TestFrontend:

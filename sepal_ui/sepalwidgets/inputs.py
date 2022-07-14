@@ -1,21 +1,22 @@
-from pathlib import Path
+import json
 from datetime import datetime
+from pathlib import Path
 
-import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
-from ipywidgets import jslink
-import pandas as pd
 import ee
 import geopandas as gpd
+import ipyvuetify as v
+import pandas as pd
+from ipywidgets import jslink
 from natsort import humansorted
+from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
 
 from sepal_ui import color
+from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
-from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
-from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.btn import Btn
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = [
     "DatePicker",
@@ -193,6 +194,9 @@ class FileInput(v.Flex, SepalWidget):
     v_model = Unicode(None, allow_none=True).tag(sync=True)
     "str: the v_model of the input"
 
+    ICON_STYLE = json.loads((ss.JSON_DIR / "file_icons.json").read_text())
+    "dict: the style applied to the icons in the file menu"
+
     def __init__(
         self,
         extentions=[],
@@ -216,10 +220,11 @@ class FileInput(v.Flex, SepalWidget):
             v_model=None,
         )
 
+        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
             background_color=color.menu,
-            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
+            color=p_style["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
@@ -228,12 +233,13 @@ class FileInput(v.Flex, SepalWidget):
             flat=True,
             v_model=True,
             max_height="300px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
+            style_="overflow: auto;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
         )
 
         self.file_menu = v.Menu(
-            min_width=300,
+            min_width="400px",
+            max_width="400px",
             children=[self.loading, self.file_list],
             v_model=False,
             close_on_content_click=False,
@@ -375,14 +381,14 @@ class FileInput(v.Flex, SepalWidget):
         for el in list_dir:
 
             if el.is_dir():
-                icon = ICON_TYPES[""]["icon"]
-                color = ICON_TYPES[""]["color"][v.theme.dark]
-            elif el.suffix in ICON_TYPES.keys():
-                icon = ICON_TYPES[el.suffix]["icon"]
-                color = ICON_TYPES[el.suffix]["color"][v.theme.dark]
+                icon = self.ICON_STYLE[""]["icon"]
+                color = self.ICON_STYLE[""]["color"][v.theme.dark]
+            elif el.suffix in self.ICON_STYLE.keys():
+                icon = self.ICON_STYLE[el.suffix]["icon"]
+                color = self.ICON_STYLE[el.suffix]["color"][v.theme.dark]
             else:
-                icon = ICON_TYPES["DEFAULT"]["icon"]
-                color = ICON_TYPES["DEFAULT"]["color"][v.theme.dark]
+                icon = self.ICON_STYLE["DEFAULT"]["icon"]
+                color = self.ICON_STYLE["DEFAULT"]["color"][v.theme.dark]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -395,7 +401,9 @@ class FileInput(v.Flex, SepalWidget):
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
                 file_size = su.get_file_size(el)
-                children.append(v.ListItemActionText(children=[file_size]))
+                children.append(
+                    v.ListItemActionText(class_="ml-1", children=[file_size])
+                )
                 file_list.append(v.ListItem(value=str(el), children=children))
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
@@ -407,13 +415,13 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=ICON_TYPES["PARENT"]["color"][v.theme.dark],
-                            children=[ICON_TYPES["PARENT"]["icon"]],
+                            color=self.ICON_STYLE["PARENT"]["color"][v.theme.dark],
+                            children=[self.ICON_STYLE["PARENT"]["icon"]],
                         )
                     ]
                 ),
                 v.ListItemContent(
-                    children=[v.ListItemTitle(children=[f"..{folder.parent}"])]
+                    children=[v.ListItemTitle(children=[f".. /{folder.parent.stem}"])]
                 ),
             ],
         )

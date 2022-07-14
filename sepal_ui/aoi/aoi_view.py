@@ -1,13 +1,13 @@
-from traitlets import Int
 from datetime import datetime as dt
 
 import pandas as pd
+from traitlets import Int
 
 import sepal_ui.sepalwidgets as sw
-from sepal_ui.scripts import utils as su
+from sepal_ui import color as sc
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
-from sepal_ui import color as sc
+from sepal_ui.scripts import utils as su
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN
@@ -187,7 +187,7 @@ class AoiView(sw.Card):
 
     Args:
         methods (list, optional): the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
-        map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        map\_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
         admin (int, optional): the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.

@@ -1,10 +1,10 @@
-import os
 import json
+import os
 
 import pytest
 
-from sepal_ui.planetapi import PlanetView
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.planetapi import PlanetView
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")

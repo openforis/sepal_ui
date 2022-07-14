@@ -1,6 +1,7 @@
+from subprocess import check_call
+
 from setuptools import setup
 from setuptools.command.develop import develop
-from subprocess import check_call
 
 version = "2.9.4"
 
@@ -49,7 +50,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet",
+        "planet<2",
         "pyyaml",
         "dask",
         "tqdm",
@@ -94,6 +95,9 @@ setup_params = {
             "scripts/*.json",
             "message/**/*.json",
             "bin/*",
+            "frontend/css/*.css",
+            "frontend/json/*.json",
+            "frontend/js/*.js",
         ]
     },
     "entry_points": {

@@ -111,28 +111,22 @@ class TestAlert:
 
         alert = sw.Alert()
 
-        var_test = None
-        res = alert.check_input(var_test)
-        assert res is False
-        assert alert.viz is True
-        assert alert.children[0].children[0] == "The value has not been initialized"
+        with pytest.raises(ValueError, match="The value has not been initialized"):
+            alert.check_input(None)
 
-        res = alert.check_input(var_test, "toto")
-        assert alert.children[0].children[0] == "toto"
+        with pytest.raises(ValueError, match="toto"):
+            alert.check_input(None, "toto")
 
-        var_test = 1
-        res = alert.check_input(var_test)
+        res = alert.check_input(1)
         assert res is True
 
         # test lists
-        var_test = [range(2)]
-        res = alert.check_input(var_test)
+        res = alert.check_input([range(2)])
         assert res is True
 
         # test empty list
-        var_test = []
-        res = alert.check_input(var_test)
-        assert res is False
+        with pytest.raises(ValueError):
+            alert.check_input([])
 
         return
 

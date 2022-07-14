@@ -6,42 +6,40 @@ if "GDAL_DATA" in list(os.environ.keys()):
 if "PROJ_LIB" in list(os.environ.keys()):
     del os.environ["PROJ_LIB"]
 
-from pathlib import Path
-from distutils.util import strtobool
-import warnings
+import json
 import math
-import string
 import random
+import string
+import warnings
+from distutils.util import strtobool
+from pathlib import Path
 
-from haversine import haversine
+import ee
+import ipyleaflet as ipl
+import ipyvuetify as v
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
-import xarray_leaflet
-import matplotlib.pyplot as plt
-from matplotlib import colors as mpc
-from matplotlib import colorbar
-import ipywidgets as widgets
-from rasterio.crs import CRS
-import ipyvuetify as v
-import ipyleaflet as ipl
-import ee
+import xarray_leaflet  # noqa: F401
 from deprecated.sphinx import deprecated
+from haversine import haversine
+from matplotlib import colorbar
+from matplotlib import colors as mpc
+from rasterio.crs import CRS
 
-import sepal_ui.frontend.styles as styles
+from sepal_ui import color
+from sepal_ui.frontend import styles as ss
+from sepal_ui.mapping.basemaps import basemap_tiles
+from sepal_ui.mapping.draw_control import DrawControl
+from sepal_ui.mapping.layer import EELayer
+from sepal_ui.mapping.layer_state_control import LayerStateControl
+from sepal_ui.mapping.value_inspector import ValueInspector
+from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
-from sepal_ui.message import ms
-from sepal_ui.mapping.draw_control import DrawControl
-from sepal_ui.mapping.value_inspector import ValueInspector
-from sepal_ui.mapping.layer import EELayer
-from sepal_ui.mapping.basemaps import basemap_tiles
 
 __all__ = ["SepalMap"]
-
-# call x_array leaflet at least once
-# flake8 will complain as it's a pluggin (i.e. never called)
-# We don't want to ignore testing F401
-xarray_leaflet
 
 
 class SepalMap(ipl.Map):
@@ -60,6 +58,7 @@ class SepalMap(ipl.Map):
         dc (bool, optional): wether or not the drawing control should be displayed. default to false
         vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
         gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+        statebar (bool): wether or not to display the Statebar in the map
         kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
     """
 
@@ -79,7 +78,18 @@ class SepalMap(ipl.Map):
     _id = None
     "str: a unique 6 letters str to identify the map in the DOM"
 
-    def __init__(self, basemaps=[], dc=False, vinspector=False, gee=True, **kwargs):
+    state = None
+    "sw.StateBar: the statebar to inform the user about tile loading"
+
+    def __init__(
+        self,
+        basemaps=[],
+        dc=False,
+        vinspector=False,
+        gee=True,
+        statebar=False,
+        **kwargs,
+    ):
 
         # set the default parameters
         kwargs["center"] = kwargs.pop("center", [0, 0])
@@ -118,6 +128,10 @@ class SepalMap(ipl.Map):
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
         not vinspector or self.add_control(self.v_inspector)
+
+        # specific statebar
+        self.state = LayerStateControl(self)
+        not statebar or self.add_control(self.state)
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
@@ -232,8 +246,8 @@ class SepalMap(ipl.Map):
         # Center map to the centroid of the layer(s)
         self.center = [(maxy - miny) / 2 + miny, (maxx - minx) / 2 + minx]
 
-        # create the tuples for each corner
-        tl, br, bl, tr = (minx, maxy), (maxx, miny), (minx, miny), (maxx, maxy)
+        # create the tuples for each corner in (lat/lng) convention
+        tl, br, bl, tr = (maxy, minx), (miny, maxx), (miny, minx), (maxy, maxx)
 
         # find zoom level to display the biggest diagonal (in km)
         lg, zoom = 40075, 1  # number of displayed km at zoom 1
@@ -763,8 +777,18 @@ class SepalMap(ipl.Map):
 
         # apply default coloring for geoJson
         if isinstance(layer, ipl.GeoJSON):
-            layer.style = layer.style or styles.layer_style
-            hover_style = styles.layer_hover_style if hover else layer.hover_style
+
+            # define the default values
+            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
+            default_style.update(color=color.primary)
+            default_hover_style = json.loads(
+                (ss.JSON_DIR / "layer_hover.json").read_text()
+            )
+            default_hover_style.update(color=color.primary)
+
+            # apply the style depending on the parameters
+            layer.style = layer.style or default_style
+            hover_style = default_hover_style if hover else layer.hover_style
             layer.hover_style = layer.hover_style or hover_style
 
         super().add_layer(layer)
