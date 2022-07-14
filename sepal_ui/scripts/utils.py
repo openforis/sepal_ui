@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import ee
+import httplib2
 from cryptography.fernet import Fernet
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
@@ -158,11 +159,11 @@ def init_ee():
             credentials = ee.ServiceAccountCredentials(
                 service_account, "ee_private_key.json"
             )
-            ee.Initialize(credentials)
+            ee.Initialize(credentials, http_transport=httplib2.Http())
 
         # if in local env use the local user credential
         else:
-            ee.Initialize()
+            ee.Initialize(http_transport=httplib2.Http())
 
     return
 
