@@ -10,8 +10,8 @@
 			"label": "Fichier de tableau",
 			"column": {
 				"id": "Id",
-				"lat": "",
-				"lng": ""
+				"lat": "latitude",
+				"lng": "longitude"
 			}
 		},
 		"vector": {
@@ -22,13 +22,13 @@
 		},
 		"navdrawer": {
 			"code": "Code source",
-			"wiki": "",
+			"wiki": "Wiki",
 			"bug": "Signaler un Bug"
 		},
 		"asset_select": {
 			"types": {
-				"0": "",
-				"1": "",
+				"0": "Raster",
+				"1": "Table",
 				"2": "Collection d'images",
 				"3": "Algorithme",
 				"4": "Dossier"
@@ -112,8 +112,8 @@
 			"table": "Table de classification",
 			"schema": {
 				"id": "Id",
-				"code": "",
-				"description": "",
+				"code": "code",
+				"description": "description",
 				"color": "couleur"
 			},
 			"btn": {
@@ -194,7 +194,7 @@
 			}
 		},
 		"tile": {
-			"title": ""
+			"title": "Reclassification"
 		}
 	},
 	"locale": {
