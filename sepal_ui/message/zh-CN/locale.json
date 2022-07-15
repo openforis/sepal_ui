@@ -111,7 +111,7 @@
 			},
 			"table": "分类表",
 			"schema": {
-				"id": "id",
+				"id": "",
 				"code": "代码",
 				"description": "描述",
 				"color": "颜色"

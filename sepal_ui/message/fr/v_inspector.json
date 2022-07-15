@@ -3,7 +3,7 @@
         "title": "Inspecteur",
         "landing": "sélectionner un point",
         "info": {
-            "header": "info",
+            "header": "",
             "text": "L'inspection des données n'est pas encore implémentée"
         },
         "band": "bande {}",
