@@ -39,14 +39,14 @@ jobs:
             repotoken: ${{ secrets.GITHUB_TOKEN }}
             
       - name: build the documentation
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == "3.8"
         run: |
           pip install .[doc]
           sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
         
       - name: Check that there are no unexpected Sphinx warnings
-        if: matrix.python-version == '3.8'
+        if: matrix.python-version == "3.8"
         shell: python
         run: |
           from pathlib import Path
@@ -56,6 +56,12 @@ jobs:
           expected = ["transition", "CHANGELOG.md", "modules.rst", "target"]
           unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in expected)]
           assert len(unexpected) == 0
+          
+      - name: build the templates application 
+        if: matrix.python-version == "3.8"
+        run: |
+          pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+          pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
       
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests

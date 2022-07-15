@@ -77,6 +77,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "nbmake ",
         ],
         "doc": [
             "jupyter-sphinx",
