@@ -186,10 +186,8 @@ def main():
     description = input(question)
 
     # default to a panel application
-    branch = "panel_app"
     question = f"{Fore.CYAN}Do you need a fullscreen application [n]? \n{Fore.RESET}"
     type_ = input(question) or "no"
-
     branch = "map_app" if strtobool(type_) is True else "panel_app"
 
     # adapt the name of the module to remove any special characters and spaces
