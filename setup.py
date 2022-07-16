@@ -1,3 +1,4 @@
+from pathlib import Path
 from subprocess import check_call
 
 from setuptools import setup
@@ -14,6 +15,20 @@ class DevelopCmd(develop):
         """overwrite run command to install pre-commit hooks in dev mode"""
         check_call(["pre-commit", "install", "-t", "pre-commit", "-t", "commit-msg"])
         super().run()
+
+
+def get_templates():
+    """Get all the templates files from the templates and save them in the distribution"""
+
+    root = Path(__file__).parent / "sepal_ui"
+    templates = (root / "templates").rglob("*")
+    ignore_files = [".ipynb_checkpoints", "__pycache__"]
+
+    return [
+        str(i.relative_to(root))
+        for i in templates
+        if not any([s in str(i) for s in ignore_files])
+    ]
 
 
 setup_params = {
@@ -62,6 +77,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "nbmake ",
         ],
         "doc": [
             "jupyter-sphinx",
@@ -98,6 +114,7 @@ setup_params = {
             "frontend/css/*.css",
             "frontend/json/*.json",
             "frontend/js/*.js",
+            *get_templates(),
         ]
     },
     "entry_points": {

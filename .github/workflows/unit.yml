@@ -60,6 +60,16 @@ jobs:
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
         
+      - name: build the template panel application 
+        if: matrix.python-version == '3.8'
+        run: |
+          pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+          
+      - name: build the template map application 
+        if: matrix.python-version == '3.8'
+        run: |
+          pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
+        
       - name: coverage
         run: coverage xml
         
