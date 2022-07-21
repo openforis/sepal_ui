@@ -7,6 +7,7 @@ This component is linked with its planet model and can be accessed as a paramete
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui.planetapi import PlanetView
     

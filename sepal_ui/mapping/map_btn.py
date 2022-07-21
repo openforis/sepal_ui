@@ -1,32 +1,39 @@
+import json
+
 import ipyvuetify as v
 
+from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend.styles import map_btn_style
+from sepal_ui.frontend import styles as ss
 
 
 class MapBtn(v.Btn, sw.SepalWidget):
     """
     Btn specifically design to be displayed on a map. It matches all the characteristics of
-    the classic leaflet btn but as they are from ipyvuetify we can use them in combination with Menu to produce on-the-map. The MapBtn is responsive to theme changes.
-    Tiles. It only accept icon as children as the space is very limited.
+    the classic leaflet btn but as they are from ipyvuetify we can use them in combination with Menu to produce on-the-map tiles.
+    The MapBtn is responsive to theme changes. It only accept icon or 3 letters as children as the space is very limited.
 
     Args:
-        logo (str): a fas/mdi fully qualified name
+        content (str): a fas/mdi fully qualified name or a string name. If a string name is used, only the 3 first letters will be displayed.
     """
 
-    logo = None
-    "(sw.Icon): a sw.Icon"
-
-    def __init__(self, logo, **kwargs):
+    def __init__(self, content, **kwargs):
 
         # create the icon
-        self.logo = sw.Icon(small=True, children=[logo])
+        if content.startswith("mdi-") or content.startswith("fas fa-"):
+            content = sw.Icon(small=True, children=[content])
+        else:
+            content = content[: min(3, len(content))].upper()
+
+        # create the style from default
+        style = json.loads((ss.JSON_DIR / "map_btn.json").read_text())
+        style.update(background=color.bg)
 
         # some parameters are overloaded to match the map requirements
         kwargs["color"] = "text-color"
         kwargs["outlined"] = True
-        kwargs["style_"] = " ".join([f"{k}: {v};" for k, v in map_btn_style.items()])
-        kwargs["children"] = [self.logo]
+        kwargs["style_"] = " ".join([f"{k}: {v};" for k, v in style.items()])
+        kwargs["children"] = [content]
         kwargs["icon"] = False
 
         super().__init__(**kwargs)

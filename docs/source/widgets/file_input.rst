@@ -9,6 +9,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     
@@ -32,6 +33,7 @@ Manually select a file from it's path. No verification on the extension is perfo
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path
@@ -56,6 +58,7 @@ Clear the File selection and move to the root folder if something was selected.
 
 .. jupyter-execute:: 
     :raises:
+    :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path

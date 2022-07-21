@@ -37,7 +37,6 @@
 			"custom": "",
 			"no_access": "",
 			"wrong_type": "",
-			"hint": "",
 			"placeholder": ""
 		},
 		"load_table": {
@@ -65,20 +64,6 @@
 		"asset": "",
 		"btn": "",
 		"complete": "",
-		"shape_drawn": "",
-		"file_pattern": "",
-		"no_selection": "",
-		"no_country": "",
-		"asset_already_exist": "",
-		"asset_created": "",
-		"name_used": "",
-		"no_asset": "",
-		"check_if_asset": "",
-		"not_available": "",
-		"no_shape": "",
-		"shp_error": "",
-		"aoi_message": "",
-		"geojson_to_ee": "",
 		"exception": {
 			"no_inputs": "",
 			"no_asset": "",
@@ -98,7 +83,6 @@
 	"planet": {
 		"exception": {
 			"empty": "",
-			"format": "",
 			"invalid": "",
 			"nosubs": ""
 		},

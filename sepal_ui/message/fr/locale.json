@@ -37,7 +37,6 @@
 			"custom": "Personnaliser",
 			"no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
 			"wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
-			"hint": "Sélectionnez un Asset dans la liste ou choisissez un Asset personnalisé. Attention, vous devez avoir accès à cet asset pour l'utiliser",
 			"placeholder": "users/utilisateur/asset_id"
 		},
 		"load_table": {
@@ -65,20 +64,6 @@
 		"asset": "Nom de l'Asset",
 		"btn": "Selectionner cet AOI",
 		"complete": "L'AOI a été selectionnée",
-		"shape_drawn": "Une forme a été dessinée",
-		"file_pattern": "aoi_{}",
-		"no_selection": "Aucune methode de selection n'a été choisie",
-		"no_country": "Aucun pays selectionné",
-		"asset_already_exist": "L'asset existe déjà, vous pouvez continuer de l'utiliser. Il est disponible ici : {}",
-		"asset_created": "L'asset a été créée sous le nom : {}",
-		"name_used": "L'asset est déjà utilisé, vous pouvez changer le nom de fichier ou supprimer celui déjà présent de votre compte GEE",
-		"no_asset": "Aucun asset n'a été renseigné",
-		"check_if_asset": "Verifier attentivement que vous avez utiliser une asset ID valide",
-		"not_available": "Cette fonction n'est pas encore disponible",
-		"no_shape": "Aucune figure n'a été dessiné sur la carte",
-		"shp_error": "Une erreur est survenue avec le fichier .shp utilisé",
-		"aoi_message": "Cliquer sur le boutton pour valider votre AOI",
-		"geojson_to_ee": "Convertir votre fichier .csv en object Google Earth Engine",
 		"exception": {
 			"no_inputs": "Merci de fournir des entrées entièrement définies avant de valider votre AOI",
 			"no_asset": "Veuillez sélectionner un asset Earthengine.",
@@ -98,7 +83,6 @@
 	"planet": {
 		"exception": {
 			"empty": "Veuillez renseigner tous les champs obligatoires.",
-			"format": "Merci de vérifier le format de vos données.",
 			"invalid": "Email ou mot de passe invalide",
 			"nosubs": "Vos identifiants n'ont pas d'abonnement PlanetLab valide."
 		},

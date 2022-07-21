@@ -1,8 +1,10 @@
-from setuptools import setup
-from setuptools.command.develop import develop
+from pathlib import Path
 from subprocess import check_call
 
-version = "2.9.4"
+from setuptools import setup
+from setuptools.command.develop import develop
+
+version = "2.10.0"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -13,6 +15,20 @@ class DevelopCmd(develop):
         """overwrite run command to install pre-commit hooks in dev mode"""
         check_call(["pre-commit", "install", "-t", "pre-commit", "-t", "commit-msg"])
         super().run()
+
+
+def get_templates():
+    """Get all the templates files from the templates and save them in the distribution"""
+
+    root = Path(__file__).parent / "sepal_ui"
+    templates = (root / "templates").rglob("*")
+    ignore_files = [".ipynb_checkpoints", "__pycache__"]
+
+    return [
+        str(i.relative_to(root))
+        for i in templates
+        if not any([s in str(i) for s in ignore_files])
+    ]
 
 
 setup_params = {
@@ -35,6 +51,7 @@ setup_params = {
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
         "earthengine-api",
         "markdown",
+        "ipyleaflet>=0.14.0",
         "xarray_leaflet",
         "shapely",
         "geopandas",
@@ -48,9 +65,10 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet",
+        "planet<2",
         "pyyaml",
         "dask",
+        "tqdm",
     ],
     "extras_require": {
         "dev": [
@@ -59,6 +77,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "nbmake ",
         ],
         "doc": [
             "jupyter-sphinx",
@@ -92,6 +111,10 @@ setup_params = {
             "scripts/*.json",
             "message/**/*.json",
             "bin/*",
+            "frontend/css/*.css",
+            "frontend/json/*.json",
+            "frontend/js/*.js",
+            *get_templates(),
         ]
     },
     "entry_points": {
@@ -112,6 +135,7 @@ setup_params = {
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     "cmdclass": {
         "develop": DevelopCmd,

@@ -9,6 +9,7 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
 
 .. jupyter-execute::
     :raises:
+    :stderr:
 
     from sepal_ui import reclassify as rec
     

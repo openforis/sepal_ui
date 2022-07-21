@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +42,7 @@ jobs:
         if: matrix.python-version == '3.8'
         run: |
           pip install .[doc]
+          sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
         
       - name: Check that there are no unexpected Sphinx warnings
@@ -52,11 +53,22 @@ jobs:
           text = Path("warnings.txt").read_text().strip()
           print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
           warnings = [ii for ii in text.split("\n")]
-          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in ["transition", "CHANGELOG.md"])]
+          expected = ["transition", "CHANGELOG.md", "modules.rst", "target"]
+          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in expected)]
           assert len(unexpected) == 0
       
       - name: test with pytest
         run: coverage run -m pytest --color=yes tests
+        
+      - name: build the template panel application 
+        if: matrix.python-version == '3.8'
+        run: |
+          pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+          
+      - name: build the template map application 
+        if: matrix.python-version == '3.8'
+        run: |
+          pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
         
       - name: coverage
         run: coverage xml

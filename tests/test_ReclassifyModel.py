@@ -1,15 +1,15 @@
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
-import pytest
 import ee
 import geopandas as gpd
+import pytest
 
+from sepal_ui import aoi
 from sepal_ui.reclassify import ReclassifyModel
 from sepal_ui.scripts import gee
-from sepal_ui import aoi
 
 
 class TestReclassifyModel:

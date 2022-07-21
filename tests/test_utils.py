@@ -1,20 +1,19 @@
-import pytest
-from unittest.mock import patch
+import random
 import warnings
 from configparser import ConfigParser
+from unittest.mock import patch
 
-import random
-
-import ipyvuetify as v
-from shapely import geometry as sg
 import ee
 import geopandas as gpd
+import ipyvuetify as v
+import pytest
+from shapely import geometry as sg
 
+from sepal_ui import config_file
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.frontend.styles import TYPES
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
-from sepal_ui import config_file
-from sepal_ui.frontend.styles import TYPES
 
 
 class TestUtils:
@@ -389,5 +388,26 @@ class TestUtils:
         dict_ = {"type": ""}  # minimal feature from __geo_interface__
         with pytest.raises(ValueError):
             su.geojson_to_ee(dict_)
+
+        return
+
+    def test_check_input(self):
+
+        with pytest.raises(ValueError, match="The value has not been initialized"):
+            su.check_input(None)
+
+        with pytest.raises(ValueError, match="toto"):
+            su.check_input(None, "toto")
+
+        res = su.check_input(1)
+        assert res is True
+
+        # test lists
+        res = su.check_input([range(2)])
+        assert res is True
+
+        # test empty list
+        with pytest.raises(ValueError):
+            su.check_input([])
 
         return

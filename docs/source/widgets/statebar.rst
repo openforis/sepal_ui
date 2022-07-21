@@ -9,6 +9,7 @@ any argument from the original :code:`SystemBar` ipyvuetify class can be used to
 
 .. jupyter-execute::
     :raises:
+    :stderr:
     
     from sepal_ui import sepalwidgets as sw 
     
@@ -31,6 +32,7 @@ State bar can be stopped using the following code. The :code:`msg` can be change
     
 .. jupyter-execute::
     :raises:
+    :stderr:
     
     from sepal_ui import sepalwidgets as sw 
     

@@ -1,9 +1,10 @@
-import pytest
-from pathlib import Path
-import ee
-from urllib.request import urlretrieve
 import math
+from pathlib import Path
+from urllib.request import urlretrieve
+
+import ee
 import geopandas as gpd
+import pytest
 
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su

@@ -1,22 +1,21 @@
-from traitlets import link, Bool, observe
-from functools import partial
 from datetime import datetime
-from pathlib import Path
+from functools import partial
 from itertools import cycle
+from pathlib import Path
 
 import ipyvuetify as v
-from deprecated.sphinx import versionadded, versionchanged
 import pandas as pd
+from deprecated.sphinx import versionadded, versionchanged
 from ipywidgets import jsdlink
+from traitlets import Bool, link, observe
 
 import sepal_ui
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
-from sepal_ui.frontend import js
-from sepal_ui.scripts import utils as su
+from sepal_ui.frontend.resize_trigger import rt
 from sepal_ui.message import ms
-
+from sepal_ui.scripts import utils as su
+from sepal_ui.sepalwidgets.alert import Banner
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = [
     "AppBar",
@@ -131,7 +130,7 @@ class DrawerItem(v.ListItem, SepalWidget):
     ):
 
         # set the resizetrigger
-        self.rt = js.rt
+        self.rt = rt
 
         icon = icon if icon else "far fa-folder"
 
@@ -435,8 +434,10 @@ class App(v.App, SepalWidget):
 
         # display a warning if the set language cannot be reached
         if translator is not None:
-            if translator.match is False:
-                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+            if translator._match is False:
+                msg = ms.locale.fallback.format(
+                    translator._targeted, translator._target
+                )
                 self.add_banner(msg, type_="error")
 
         # add js event
@@ -602,7 +603,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # extract the language information from the translator
         # if not set default to english
-        code = "en" if translator is None else translator.target
+        code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 

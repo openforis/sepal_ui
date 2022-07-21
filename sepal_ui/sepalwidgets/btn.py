@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import ipyvuetify as v
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.scripts import utils as su
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Btn", "DownloadBtn"]
 
