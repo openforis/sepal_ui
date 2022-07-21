@@ -1,3 +1,85 @@
+## v_2.10.0 (2022-07-21)
+
+### Refactor
+
+- cleaning
+- move decorator to their own modules
+- move decorator to their own module
+- isort the lib files
+- remove matplotlib import
+- edit style file structure
+- change statebar behavior
+- use json to store styling informations
+- move check_input to utils
+- use css and js file
+- move check_input to utils Fix #513
+- use noqa Fix #511
+- deprecate zip_dir fix #514
+- clean leftover + use tqdm.notebook
+- use the new DrawControl to manage edited features
+- aoi module
+
+### Fix
+
+- add the panel aaplication template
+- add the map_app template
+- add templates to the distibution
+- update modul_factory
+- stipout the notebooks
+- trick to make sepal_ui work with Python 3.10
+- use MenuControl in AoiControl
+- use menucontrol with value inspector
+- missing endif
+- use a pattern in glob
+- offset for the top navbar
+- automatically nest tiles in menucontrol
+- make the positioning optional
+- add ipynb files to translator test
+- use txt in mapbtn
+- solve conflict with AoiControl
+- be more specific in str testing
+- lat/lng were inverted in haversine
+- typo
+- use relative path in tests
+- remove existing unused keys
+- solve all the issue created by moving color from style to init
+- GeoJSON don't have loading member
+- merge current master
+- use 1single argument
+- make the fulsscreen responsive to init status
+- point to the correct variables in the translator Fix #521
+- use txt in mapbtn Fix #510
+- nest the card instead of the tile Fix #512
+- remove unwanted notebooks
+- describe the bug in the comment
+- avoid mutate dc.data jsons. Identify circle geometries by type
+- use search-location instead of at
+- AppBar is not looking for the good one
+- froze the Box to make sure it's never modified
+- use box for encapsulated dict
+- change color of the progress bar in alerts
+- avoid bug on repeated click
+- the points and vector were not triggering the v_model change event
+- hide asset
+- prevent crash when gee is set to false
+- avoid 3.10 to be transformed in 3.1
+- update translation keys
+- hide the statebar on map build
+- add the map loading state
+
+### Feat
+
+- add templates
+- make it possible to change the menu size constraints
+- add a menucontrol component
+- first implementation of key_use
+- open in fullscreen
+- introduce tqdm progress bar. related with #294
+- query only locales forlders
+- add methods to deal with editions in DrawControl
+- introduce tqdm progress bar. related with #294
+- create an AoiControl widget
+
 ## v_2.9.4 (2022-06-09)
 
 ### Fix
