@@ -46,6 +46,7 @@ setup_params = {
     "keywords": ["UI", "Python", "widget", "sepal"],
     "python_requires": ">=3.6.9",
     "install_requires": [
+        "werkzeug<2.2.0",  # https://github.com/python-restx/flask-restx/issues/460
         "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
