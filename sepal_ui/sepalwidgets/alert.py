@@ -92,6 +92,9 @@ class Alert(v.Alert, SepalWidget):
             self
         """
 
+        # show the alert
+        self.show()
+
         # cast the progress to float
         progress = float(progress)
         if not (0 <= progress <= 1):
