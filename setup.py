@@ -71,6 +71,7 @@ setup_params = {
         "localtileserver",
         "jupyter-server-proxy",
         "matplotlib",
+        "rioxarray",
     ],
     "extras_require": {
         "dev": [
