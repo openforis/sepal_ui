@@ -1,14 +1,15 @@
 from pathlib import Path
-from traitlets import Unicode
 
 import ipyvuetify as v
 import pandas as pd
+from traitlets import Unicode
 
-from .parameters import NO_VALUE, MATRIX_NAMES
 import sepal_ui.sepalwidgets as sw
-from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.utils import loading_button
+
+from .parameters import MATRIX_NAMES, NO_VALUE
 from .reclassify_model import ReclassifyModel
 
 __all__ = ["ReclassifyView"]
@@ -298,7 +299,7 @@ class ReclassifyTable(sw.SimpleTable):
 class ReclassifyView(sw.Card):
     """
     Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE).
-    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "reclassify_tile"
+    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "reclassify_tile"
 
     Args:
         model (ReclassifyModel): the reclassify model to manipulate the

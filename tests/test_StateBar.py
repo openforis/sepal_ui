@@ -7,6 +7,7 @@ class TestStateBar:
         # minimal state bar
         state_bar = sw.StateBar()
         assert len(state_bar.children) == 2
+        assert state_bar.viz is True
 
         return
 

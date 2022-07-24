@@ -9,7 +9,7 @@
 		"table": {
 			"label": "Tabla de archivos",
 			"column": {
-				"id": "id",
+				"id": "",
 				"lat": "latitud",
 				"lng": "longitud"
 			}
@@ -22,14 +22,14 @@
 		},
 		"navdrawer": {
 			"code": "Código fuente",
-			"wiki": "Wiki",
+			"wiki": "",
 			"bug": "Reportar error"
 		},
 		"asset_select": {
 			"types": {
-				"0": "Raster",
+				"0": "",
 				"1": "Tabla/Vector",
-				"2": "Image collection",
+				"2": "",
 				"3": "Algoritmo",
 				"4": "Directorio"
 			},
@@ -37,7 +37,6 @@
 			"custom": "Personalizado",
 			"no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
 			"wrong_type": "El tipo del asset seleccionado: ({}), no coincide con ninguno de los tipos permitidos por el widget: ({}).",
-			"hint": "Selecciona un asset en la lista o escribe el id de un asset personalizado. Recuerda que necesitas tener acceso a este para usarlo.",
 			"placeholder": "users/nombre_usuario/asset_personalizado"
 		},
 		"load_table": {
@@ -65,20 +64,6 @@
 		"asset": "Nombre del asset",
 		"btn": "Usar selección",
 		"complete": "El AOI ha sido seleccionada",
-		"shape_drawn": "Se ha dibujado una figura",
-		"file_pattern": "aoi_{}",
-		"no_selection": "No has elegido ningún método de selección",
-		"no_country": "No has seleccionado ningún país",
-		"asset_already_exist": "El Asset ya existe, puede seguir utilizándolo. Está disponible en :{}",
-		"asset_created": "El Asset ya ha sido creado bajo el nombre: {}",
-		"name_used": "El nombre ya está en uso, cámbielo o borre el archivo anterior en su cuenta de GEE",
-		"no_asset": "No se ha seleccionado ningún Asset",
-		"check_if_asset": "Compruebe que su cadena es un assetId",
-		"not_available": "Esta función aún no está disponible",
-		"no_shape": "No se ha dibujado ninguna forma en el mapa",
-		"shp_error": "Ocurrió un error con el shapefile seleccionado",
-		"aoi_message": "haga clic en \"seleccionar estas opciones\" para validar su AOI.",
-		"geojson_to_ee": "Convierta su archivo .csv en un objeto de Google Earth Engine",
 		"exception": {
 			"no_inputs": "",
 			"no_asset": "",
@@ -98,7 +83,6 @@
 	"planet": {
 		"exception": {
 			"empty": "Por favor completa todos los campos",
-			"format": "Por favor verifica el formato de tus entradas",
 			"invalid": "Correo electrónico o contraseña inválidos",
 			"nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet."
 		},
@@ -127,10 +111,10 @@
 			},
 			"table": "Tabla de clasificación",
 			"schema": {
-				"id": "id",
+				"id": "",
 				"code": "código",
 				"description": "descripción",
-				"color": "color"
+				"color": ""
 			},
 			"btn": {
 				"edit": "editar",

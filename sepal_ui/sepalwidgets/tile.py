@@ -2,10 +2,10 @@ from pathlib import Path
 
 import ipyvuetify as v
 
+from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.widget import Markdown
-from sepal_ui.scripts import utils as su
-from sepal_ui.message import ms
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
 
@@ -76,7 +76,7 @@ class Tile(v.Layout, SepalWidget):
         self._metadata["mount_id"] = "nested_tile"
 
         # remove elevation
-        self.elevation = False
+        self.children[0].elevation = False
 
         # remove title
         self.set_title()

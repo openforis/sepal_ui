@@ -1,22 +1,21 @@
-from traitlets import link, Bool, observe
-from functools import partial
 from datetime import datetime
-from pathlib import Path
+from functools import partial
 from itertools import cycle
+from pathlib import Path
 
 import ipyvuetify as v
-from deprecated.sphinx import versionadded, versionchanged
 import pandas as pd
+from deprecated.sphinx import versionadded, versionchanged
 from ipywidgets import jsdlink
+from traitlets import Bool, link, observe
 
 import sepal_ui
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui import color
-from sepal_ui.frontend import js
-from sepal_ui.scripts import utils as su
+from sepal_ui.frontend.resize_trigger import rt
 from sepal_ui.message import ms
-
+from sepal_ui.scripts import utils as su
+from sepal_ui.sepalwidgets.alert import Banner
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = [
     "AppBar",
@@ -131,7 +130,7 @@ class DrawerItem(v.ListItem, SepalWidget):
     ):
 
         # set the resizetrigger
-        self.rt = js.rt
+        self.rt = rt
 
         icon = icon if icon else "far fa-folder"
 
@@ -395,14 +394,14 @@ class App(v.App, SepalWidget):
         app_children = []
 
         # create a false appBar if necessary
-        if not appBar:
+        if appBar is None:
             appBar = AppBar(translator=translator)
         self.appBar = appBar
         app_children.append(self.appBar)
 
         # add the navDrawer if existing
         self.navDrawer = None
-        if navDrawer:
+        if navDrawer is not None:
             # bind app tile list to the navdrawer
             for di in navDrawer.items:
                 di.display_tile(tiles)
@@ -413,13 +412,16 @@ class App(v.App, SepalWidget):
             # add the drawers to the children
             self.navDrawer = navDrawer
             app_children.append(self.navDrawer)
+        else:
+            # remove the toggle button from the navbar
+            self.appBar.toggle_button.hide()
 
         # add the content of the app
         self.content = v.Content(children=[v.Container(fluid=True, children=tiles)])
         app_children.append(self.content)
 
         # add the footer if existing
-        if footer:
+        if footer is not None:
             self.footer = footer
             app_children.append(self.footer)
 
@@ -435,8 +437,10 @@ class App(v.App, SepalWidget):
 
         # display a warning if the set language cannot be reached
         if translator is not None:
-            if translator.match is False:
-                msg = ms.locale.fallback.format(translator.targeted, translator.target)
+            if translator._match is False:
+                msg = ms.locale.fallback.format(
+                    translator._targeted, translator._target
+                )
                 self.add_banner(msg, type_="error")
 
         # add js event
@@ -470,7 +474,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
     def add_banner(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
         """
         Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
@@ -602,7 +606,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         # extract the language information from the translator
         # if not set default to english
-        code = "en" if translator is None else translator.target
+        code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 

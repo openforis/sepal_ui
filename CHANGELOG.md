@@ -1,3 +1,207 @@
+## v_2.10.0 (2022-07-21)
+
+### Refactor
+
+- cleaning
+- move decorator to their own modules
+- move decorator to their own module
+- isort the lib files
+- remove matplotlib import
+- edit style file structure
+- change statebar behavior
+- use json to store styling informations
+- move check_input to utils
+- use css and js file
+- move check_input to utils Fix #513
+- use noqa Fix #511
+- deprecate zip_dir fix #514
+- clean leftover + use tqdm.notebook
+- use the new DrawControl to manage edited features
+- aoi module
+
+### Fix
+
+- add the panel aaplication template
+- add the map_app template
+- add templates to the distibution
+- update modul_factory
+- stipout the notebooks
+- trick to make sepal_ui work with Python 3.10
+- use MenuControl in AoiControl
+- use menucontrol with value inspector
+- missing endif
+- use a pattern in glob
+- offset for the top navbar
+- automatically nest tiles in menucontrol
+- make the positioning optional
+- add ipynb files to translator test
+- use txt in mapbtn
+- solve conflict with AoiControl
+- be more specific in str testing
+- lat/lng were inverted in haversine
+- typo
+- use relative path in tests
+- remove existing unused keys
+- solve all the issue created by moving color from style to init
+- GeoJSON don't have loading member
+- merge current master
+- use 1single argument
+- make the fulsscreen responsive to init status
+- point to the correct variables in the translator Fix #521
+- use txt in mapbtn Fix #510
+- nest the card instead of the tile Fix #512
+- remove unwanted notebooks
+- describe the bug in the comment
+- avoid mutate dc.data jsons. Identify circle geometries by type
+- use search-location instead of at
+- AppBar is not looking for the good one
+- froze the Box to make sure it's never modified
+- use box for encapsulated dict
+- change color of the progress bar in alerts
+- avoid bug on repeated click
+- the points and vector were not triggering the v_model change event
+- hide asset
+- prevent crash when gee is set to false
+- avoid 3.10 to be transformed in 3.1
+- update translation keys
+- hide the statebar on map build
+- add the map loading state
+
+### Feat
+
+- add templates
+- make it possible to change the menu size constraints
+- add a menucontrol component
+- first implementation of key_use
+- open in fullscreen
+- introduce tqdm progress bar. related with #294
+- query only locales forlders
+- add methods to deal with editions in DrawControl
+- introduce tqdm progress bar. related with #294
+- create an AoiControl widget
+
+## v_2.9.4 (2022-06-09)
+
+### Fix
+
+- drop jupyter-sphinx git version I think the rendering is going to fail but it's preventing me from building the wheel and to use Jupyterlite I need the wheel Sorry not sorry
+
+## v_2.9.3 (2022-06-09)
+
+### Fix
+
+- build the wheel
+
+## v_2.9.2 (2022-06-09)
+
+### Fix
+
+- build the wheel
+
+## v_2.9.1 (2022-06-09)
+
+### Fix
+
+- allow the build off the wheel
+
+## v_2.9.0 (2022-06-09)
+
+### Feat
+
+- extend color simplenamspace to interactively display colors in …
+- extend color simplenamspace to interactively display colors in jypyter
+- refresh tooltip if there are new kwargs
+- return basemap box as default object from basemaps module
+- make wheel scroll default param
+- add a MapBtn
+- create planet handler
+- add keys and fix review
+- reset input fields when changing method
+- capture any other errors, direcrtyl from api
+- introduce StateIcon. An interactive icon.
+- make alert and button optional elements
+- create stand alone Planet credentials view
+- create planet handler
+
+### Refactor
+
+- adapt tests to get the current theme"
+- enrich color object to display both theme colors
+- deprecate specific set theme and create generic function
+- initialize configuration file and make it available to all modules
+- improve zoom_bounds quality
+- improve zoom_ee_object quality
+- instantiate config parser and import in init
+- deprecate is_absolute
+- deprecate is_absolute
+- overwrite default sw default Tooltip object
+- rename tooltip wrapper widget
+- remove uncalled skips
+- set viz parameter outside of kwargs
+- use keys for vinspector messages
+- rename value inspector module and add a closing icon
+- some line breaks and removed a pair of condionals
+- reorder the coordinates
+- move the v_inspector away from SepalMap
+- cleaning
+- split the gee command override from the rest of SepalMap
+- use sepalwidgets StateIcon component
+- admit any type for value trait
+- add kwargs to the StateIcon
+- make command cli tools as python scripts to align autoprogram plugin
+- make parser var name descriptive and add module commands to path
+- use a fake init key
+- undo test
+- remove dust
+- raise error when credentials empty
+- move theDrawControl to its own file It will be supporting the drawing methods (editing, polygonize) from there
+- clean the import of ipyleaflet widgets
+- add translation keys for navdrawer items
+- add translation keys for navdrawer items
+- rename files
+- rename planet to avoid main planet package ambibuity
+
+### Fix
+
+- zoom automatically on raster layers
+- digest all ee.ComputedObject
+- legacy assert
+- fullscreen control now specify which map to fullscreen
+- add the none_ok parameter to find_layer
+- remove bind method from Alert
+- skip planet test if no API key
+- remove bind method from Alert Fix #295
+- skip planet test if no API key Fix #481
+- add_tooltip method
+- typo
+- include a base filter to sepal_map search and delete methods
+- prepare refactoring of ValueInspector
+- avoid the v_inspector to move down the map
+- remove legacy dot on the map Fix #456
+- inspect rasters
+- read GeoJSON data
+- inspect ee_objects
+- remove background for btns on maps
+- closes #466
+- doc typo
+- typo
+- closes #466
+- validate when there is no initial value in module
+- add missing import
+- use quotes to define the planet_credentials
+- remove empty string from the translation dict
+- use keys for the fileinput placeholder Fix #464
+- avoid circular reference
+- geemap was still called in aoi_model
+- remove_all method to remove all layers but the basemaps
+- overwrite remove_layer to use index, name or layer
+- find layer by name and by index
+- set the basemaps as basemaps #422
+- drop usage of geemap + cleaning #455
+- continue using geemap 0.8.9
+- remove empty string from the translation dict Fix #449
+- fix #452
+
 ## v_2.8.0 (2022-04-18)
 
 ### Fix

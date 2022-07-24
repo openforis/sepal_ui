@@ -1,21 +1,22 @@
-from pathlib import Path
+import json
 from datetime import datetime
+from pathlib import Path
 
-import ipyvuetify as v
-from traitlets import link, Int, Any, List, observe, Dict, Unicode, Bool
-from ipywidgets import jslink
-import pandas as pd
 import ee
 import geopandas as gpd
+import ipyvuetify as v
+import pandas as pd
+from ipywidgets import jslink
 from natsort import humansorted
+from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
 
 from sepal_ui import color
+from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
-from sepal_ui.frontend.styles import COMPONENTS, ICON_TYPES
-from sepal_ui.scripts import utils as su
 from sepal_ui.scripts import gee
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.btn import Btn
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = [
     "DatePicker",
@@ -193,6 +194,9 @@ class FileInput(v.Flex, SepalWidget):
     v_model = Unicode(None, allow_none=True).tag(sync=True)
     "str: the v_model of the input"
 
+    ICON_STYLE = json.loads((ss.JSON_DIR / "file_icons.json").read_text())
+    "dict: the style applied to the icons in the file menu"
+
     def __init__(
         self,
         extentions=[],
@@ -216,10 +220,11 @@ class FileInput(v.Flex, SepalWidget):
             v_model=None,
         )
 
+        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
             background_color=color.menu,
-            color=COMPONENTS["PROGRESS_BAR"]["color"][v.theme.dark],
+            color=p_style["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
@@ -228,12 +233,13 @@ class FileInput(v.Flex, SepalWidget):
             flat=True,
             v_model=True,
             max_height="300px",
-            style_="overflow: auto; border-radius: 0 0 0 0;",
+            style_="overflow: auto;",
             children=[v.ListItemGroup(children=self._get_items(), v_model="")],
         )
 
         self.file_menu = v.Menu(
-            min_width=300,
+            min_width="400px",
+            max_width="400px",
             children=[self.loading, self.file_list],
             v_model=False,
             close_on_content_click=False,
@@ -281,21 +287,20 @@ class FileInput(v.Flex, SepalWidget):
 
     def reset(self, *args):
         """
-        Clear the File selection and move to the root folder if something was selected
+        Clear the File selection and move to the root folder.
 
         Return:
             self
         """
 
-        root = Path("~").expanduser()
+        # note: The args arguments are useless here but need to be kept so that
+        # the function is natively compatible with the clear btn
 
-        if self.v_model is not None:
+        # move to root
+        self._on_file_select({"new": Path.home()})
 
-            # move to root
-            self._on_file_select({"new": root})
-
-            # remove v_model
-            self.v_model = None
+        # remove v_model
+        self.v_model = None
 
         return self
 
@@ -376,14 +381,14 @@ class FileInput(v.Flex, SepalWidget):
         for el in list_dir:
 
             if el.is_dir():
-                icon = ICON_TYPES[""]["icon"]
-                color = ICON_TYPES[""]["color"][v.theme.dark]
-            elif el.suffix in ICON_TYPES.keys():
-                icon = ICON_TYPES[el.suffix]["icon"]
-                color = ICON_TYPES[el.suffix]["color"][v.theme.dark]
+                icon = self.ICON_STYLE[""]["icon"]
+                color = self.ICON_STYLE[""]["color"][v.theme.dark]
+            elif el.suffix in self.ICON_STYLE.keys():
+                icon = self.ICON_STYLE[el.suffix]["icon"]
+                color = self.ICON_STYLE[el.suffix]["color"][v.theme.dark]
             else:
-                icon = ICON_TYPES["DEFAULT"]["icon"]
-                color = ICON_TYPES["DEFAULT"]["color"][v.theme.dark]
+                icon = self.ICON_STYLE["DEFAULT"]["icon"]
+                color = self.ICON_STYLE["DEFAULT"]["color"][v.theme.dark]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -396,7 +401,9 @@ class FileInput(v.Flex, SepalWidget):
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
                 file_size = su.get_file_size(el)
-                children.append(v.ListItemActionText(children=[file_size]))
+                children.append(
+                    v.ListItemActionText(class_="ml-1", children=[file_size])
+                )
                 file_list.append(v.ListItem(value=str(el), children=children))
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
@@ -408,13 +415,13 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=ICON_TYPES["PARENT"]["color"][v.theme.dark],
-                            children=[ICON_TYPES["PARENT"]["icon"]],
+                            color=self.ICON_STYLE["PARENT"]["color"][v.theme.dark],
+                            children=[self.ICON_STYLE["PARENT"]["icon"]],
                         )
                     ]
                 ),
                 v.ListItemContent(
-                    children=[v.ListItemTitle(children=[f"..{folder.parent}"])]
+                    children=[v.ListItemTitle(children=[f".. /{folder.parent.stem}"])]
                 ),
             ],
         )
@@ -528,6 +535,8 @@ class LoadTableField(v.Col, SepalWidget):
         # clear the fileInput
         self.fileInput.reset()
 
+        return
+
     @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change):
         """Update the select content when the fileinput v_model is changing"""
@@ -537,16 +546,16 @@ class LoadTableField(v.Col, SepalWidget):
 
         # set the path
         path = change["new"]
-        self.v_model["pathname"] = path
+        self._set_v_model("pathname", path)
 
         # exit if none
-        if not path:
+        if path is None:
             return self
 
         df = pd.read_csv(path, sep=None, engine="python")
 
         if len(df.columns) < 3:
-            self._clear_select()
+            self._set_v_model("pathname", None)
             self.fileInput.selected_file.error_messages = (
                 ms.widgets.load_table.too_small
             )
@@ -584,9 +593,24 @@ class LoadTableField(v.Col, SepalWidget):
         """change the v_model value when a select is changed"""
 
         name = change["owner"]._metadata["name"]
-        self.v_model[name] = change["new"]
+        self._set_v_model(name, change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return
 
 
 class AssetSelect(v.Combobox, SepalWidget):
@@ -962,7 +986,7 @@ class VectorField(v.Col, SepalWidget):
         self.feature_collection = None
 
         # set the pathname value
-        self.v_model["pathname"] = change["new"]
+        self._set_v_model("pathname", change["new"])
 
         # exit if nothing
         if not change["new"]:
@@ -996,7 +1020,7 @@ class VectorField(v.Col, SepalWidget):
         self.w_value.v_model = None
 
         # set the value
-        self.v_model["column"] = change["new"]
+        self._set_v_model("column", change["new"])
 
         # hide value if "ALL" or none
         if change["new"] in ["ALL", None]:
@@ -1024,6 +1048,21 @@ class VectorField(v.Col, SepalWidget):
         """Update the value name and reduce the gdf"""
 
         # set the value
-        self.v_model["value"] = change["new"]
+        self._set_v_model("value", change["new"])
 
         return self
+
+    def _set_v_model(self, key, value):
+        """
+        set the v_model from an external function to trigger the change event
+
+        Args:
+            key (str): the column name
+            value (any): the new value to set
+        """
+
+        tmp = self.v_model.copy()
+        tmp[key] = value
+        self.v_model = tmp
+
+        return

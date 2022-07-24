@@ -1,15 +1,16 @@
-from pathlib import Path
-import random
-from urllib.request import urlretrieve
+import json
 import math
+import random
+from pathlib import Path
+from urllib.request import urlretrieve
 
-import pytest
 import ee
+import pytest
 from ipyleaflet import GeoJSON, LocalTileLayer
 
-from sepal_ui import mapping as sm
 from sepal_ui import get_theme
-import sepal_ui.frontend.styles as styles
+from sepal_ui import mapping as sm
+from sepal_ui.frontend import styles as ss
 
 # create a seed so that we can check values
 random.seed(42)
@@ -50,6 +51,10 @@ class TestSepalMap:
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
         assert m.v_inspector in m.controls
+
+        # check that the map start with a statebar
+        m = sm.SepalMap(statebar=True)
+        assert m.state in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -167,7 +172,7 @@ class TestSepalMap:
         res = sm.SepalMap.get_basemap_list()
 
         # last time I checked there were 128
-        assert len(res) == 128
+        assert len(res) == 131
 
         return
 
@@ -285,8 +290,11 @@ class TestSepalMap:
         # Assert
         new_layer = m.layers[-1]
 
-        assert new_layer.style == styles.layer_style
-        assert new_layer.hover_style == styles.layer_hover_style
+        layer_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
+        hover_style = json.loads((ss.JSON_DIR / "layer_hover.json").read_text())
+
+        assert all([new_layer.style[k] == v for k, v in layer_style.items()])
+        assert all([new_layer.hover_style[k] == v for k, v in hover_style.items()])
 
         # Arrange with style
         layer_style = {"color": "blue"}
@@ -365,6 +373,18 @@ class TestSepalMap:
         # search something that is not a key
         with pytest.raises(ValueError):
             m.find_layer(m)
+
+        return
+
+    def test_zoom_raster(self, byte):
+
+        m = sm.SepalMap()
+        layer = m.add_raster(byte, fit_bounds=False)
+        m.zoom_raster(layer)
+
+        center = [33.89703655465772, -117.63458938969723]
+        assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
+        assert m.zoom == 15.0
 
         return
 

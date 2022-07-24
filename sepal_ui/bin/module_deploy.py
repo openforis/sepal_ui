@@ -14,11 +14,12 @@ Once the file have been created, please check it manually and make sure that the
 so taht they can be added to the troubleshoot function.
 """
 
-from pathlib import Path
-import subprocess
 import argparse
+import subprocess
+from pathlib import Path
 
-from colorama import init, Fore, Style
+from colorama import Fore, Style, init
+
 import sepal_ui
 
 # init colors for all plateforms

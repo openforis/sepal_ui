@@ -1,10 +1,9 @@
 import ipyvuetify as v
 
-from sepal_ui import sepalwidgets as sw
 from sepal_ui import mapping as sm
-from sepal_ui.message import ms
-
+from sepal_ui import sepalwidgets as sw
 from sepal_ui.aoi.aoi_view import AoiView
+from sepal_ui.message import ms
 
 __all__ = ["AoiTile"]
 
@@ -31,6 +30,7 @@ class AoiTile(sw.Tile):
 
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
+        self.map.dc.hide()
 
         # create the view
         # the view include the model

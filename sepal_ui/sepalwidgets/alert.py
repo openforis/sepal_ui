@@ -1,13 +1,17 @@
 from datetime import datetime
 
-from ipywidgets import jslink
 import ipyvuetify as v
-from traitlets import Unicode, observe, directional_link, Bool
+from deprecated.sphinx import deprecated
+from ipywidgets import Output, jslink
+from tqdm.notebook import tqdm
+from traitlets import Bool, Unicode, directional_link, observe
 
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.scripts.utils import set_type
+from sepal_ui import color
 from sepal_ui.frontend.styles import TYPES
 from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.utils import set_type
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
@@ -19,11 +23,11 @@ class Divider(v.Divider, SepalWidget):
 
     Args:
         class\_ (str, optional): the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. if set, 'class_' will be overwritten.
+        kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
     """
 
     type_ = Unicode("").tag(sync=True)
-    "str: Added type_ trait to specify the current color of the divider"
+    "str: Added type\_ trait to specify the current color of the divider"
 
     def __init__(self, class_="", **kwargs):
         kwargs["class_"] = class_
@@ -71,52 +75,54 @@ class Alert(v.Alert, SepalWidget):
         super().__init__(**kwargs)
 
         self.hide()
+        self.progress_output = Output()
+        self.progress_bar = None
 
-    def update_progress(self, progress, msg="Progress", bar_length=30):
+    def update_progress(self, progress, msg="Progress", **tqdm_args):
         """
-        Update the Alert message with a progress bar. This function will stay until we manage to use tqdm in the widgets
+        Update the Alert message with a tqdm progress bar.
 
         Args:
             progress (float): the progress status in float [0, 1]
             msg (str, optionnal): The message to use before the progress bar
-            bar_length (int, optionnal): the length of the progress bar in characters
 
         Return:
             self
         """
-
-        # define the characters to use in the progress bar
-        plain_char = "█"
-        empty_char = " "
 
         # cast the progress to float
         progress = float(progress)
         if not (0 <= progress <= 1):
             raise ValueError(f"progress should be in [0, 1], {progress} given")
 
-        # set the length parameter
-        block = int(round(bar_length * progress))
+        # Prevent adding multiple times
+        if self.progress_output not in self.children:
 
-        # construct the message content
-        text = f"|{plain_char * block + empty_char * (bar_length - block)}|"
+            self.children = [self.progress_output]
 
-        # add the message to the output
-        self.add_live_msg(
-            v.Html(
-                tag="span",
-                children=[
-                    v.Html(tag="span", children=[f"{msg}: "], class_="d-inline"),
-                    v.Html(tag="pre", class_="info--text d-inline", children=[text]),
-                    v.Html(
-                        tag="span",
-                        children=[f" {progress *100:.1f}%"],
-                        class_="d-inline",
-                    ),
-                ],
+            tqdm_args["bar_format"] = tqdm_args.pop(
+                "bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}"
             )
-        )
+            tqdm_args["dynamic_ncols"] = tqdm_args.pop("dynamic_ncols", tqdm_args)
+            tqdm_args["total"] = tqdm_args.pop("total", 100)
+            tqdm_args["desc"] = tqdm_args.pop("desc", msg)
+            tqdm_args["colour"] = tqdm_args.pop("tqdm_args", getattr(color, self.type))
 
-        return self
+            with self.progress_output:
+                self.progress_output.clear_output()
+                self.progress_bar = tqdm(**tqdm_args)
+                self.progress_bar.container.children[0].add_class(f"{self.type}--text")
+                self.progress_bar.container.children[2].add_class(f"{self.type}--text")
+
+                # Initialize bar
+                self.progress_bar.update(0)
+
+        self.progress_bar.update(progress * 100 - self.progress_bar.n)
+
+        if progress == 1:
+            self.progress_bar.close()
+
+        return
 
     def add_msg(self, msg, type_="info"):
         """
@@ -225,6 +231,7 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
+    @deprecated(version="3.0", reason="This method is now part of the utils module")
     def check_input(self, input_, msg=None):
         """
         Check if the inpupt value is initialized.
@@ -237,23 +244,12 @@ class Alert(v.Alert, SepalWidget):
         Return:
             (bool): check if the value is initialized
         """
-        if not msg:
-            msg = "The value has not been initialized"
-        init = True
+        msg = msg or ms.utils.check_input.error
 
-        # check the collection type that are the only one supporting the len method
-        try:
-            init = False if len(input_) == 0 else init
-        except Exception:
-            init = False if input_ is None else init
-
-        if init is False:
-            self.add_msg(msg, "error")
-
-        return init
+        return su.check_input(input_, msg)
 
 
-class StateBar(v.SystemBar):
+class StateBar(v.SystemBar, SepalWidget):
 
     """Widget to display quick messages on simple inline status bar
 
@@ -383,8 +379,11 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             nb_banner (int): the number of banners in the queue
         """
-        msg = ms.widgets.banner
-        txt = msg.close if nb_banner == 0 else msg.next.format(nb_banner)
+        # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator
+        if nb_banner == 0:
+            txt = ms.widgets.banner.close
+        else:
+            txt = ms.widgets.banner.next.format(nb_banner)
         self.btn_close.children = [txt]
 
         return

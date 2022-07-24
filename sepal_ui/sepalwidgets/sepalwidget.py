@@ -1,7 +1,7 @@
-from ipyvue import VueWidget
 import ipyvuetify as v
-from traitlets import Unicode, Bool, observe
 from deprecated.sphinx import versionadded
+from ipyvue import VueWidget
+from traitlets import Bool, Unicode, observe
 
 __all__ = ["SepalWidget", "Tooltip"]
 
@@ -119,10 +119,10 @@ class SepalWidget(v.VuetifyWidget):
         return self
 
     def get_children(self, id_):
-        """Retrieve all children elements that matches with the given id_.
+        """Retrieve all children elements that matches with the given id\_.
 
         Args:
-            id_ (str, optional): attribute id to compare with.
+            id\_ (str, optional): attribute id to compare with.
 
         Returns:
             Will return a list with all mathing elements if there are more than one,

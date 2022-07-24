@@ -4,7 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
+# -- Path setup ----------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -16,11 +16,13 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
 
+import ipyvuetify as v
+
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
-from sepal_ui import __version__, __author__
+from sepal_ui import __author__, __version__
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
@@ -28,7 +30,7 @@ os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", 
 DOC_DIR = Path(__file__).parent
 
 
-# -- Project information -----------------------------------------------------
+# -- Project information -------------------------------------------------------
 
 # General information about the project.
 project = "sepal-ui"
@@ -39,7 +41,7 @@ author = __author__
 release = __version__
 
 
-# -- General configuration ---------------------------------------------------
+# -- General configuration -----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -69,7 +71,7 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 # to be able to read RST files
 source_suffix = [".rst", ".md"]
 
-# -- Load the images from the master sepal-doc -------------------------------
+# -- Load the images from the master sepal-doc ---------------------------------
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
     "_image/dwn/sepal.png",
@@ -84,7 +86,18 @@ urlretrieve(
 )
 
 
-# -- Options for HTML output -------------------------------------------------
+# -- Options for HTML output ---------------------------------------------------
+
+# Define the version we use for matching in the version switcher.
+json_url = "https://sepal-ui.readthedocs.io/en/latest/_static/switcher.json"
+version_match = os.environ.get("READTHEDOCS_VERSION")
+# If READTHEDOCS_VERSION doesn't exist, we're not on RTD
+# If it is an integer, we're in a PR build and the version isn't correct.
+if not version_match or version_match.isdigit():
+    # For local development, infer the version to latest
+    release = "dev"
+    version_match = "latest"
+    json_url = "/_static/switcher.json"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -94,7 +107,10 @@ html_logo = "_image/dwn/sepal.png"
 html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "use_edit_page_button": True,
     "show_prev_next": False,
+    "switcher": {"json_url": json_url, "version": version_match},
+    "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
             "name": "GitHub",
@@ -107,7 +123,6 @@ html_theme_options = {
             "icon": "fab fa-python",
         },
     ],
-    "use_edit_page_button": True,
 }
 html_context = {
     "github_user": "12rambau",
@@ -125,7 +140,7 @@ html_static_path = ["_static"]
 # or fully qualified paths (eg. https://...)
 html_css_files = ["css/custom.css", "css/icon.css"]
 
-# -- Options for spelling output -------------------------------------------------
+# -- Options for spelling output -----------------------------------------------
 spelling_lang = "en_US"
 spelling_show_suggestions = True
 spelling_filters = ["_filters.names.Names"]
@@ -133,5 +148,6 @@ spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
 spelling_verbose = False
 spelling_exclude_patterns = ["modules/*"]
 
-# -- Options for autosummary output -------------------------------------------------
-autosummary_generate = False
+# -- Options for autosummary/autodoc output ------------------------------------
+autosummary_generate = True
+autoclass_content = "class"

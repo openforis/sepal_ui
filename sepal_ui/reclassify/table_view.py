@@ -1,15 +1,15 @@
-from pathlib import Path
 from colorsys import rgb_to_hls, rgb_to_hsv
-from traitlets import Int
+from pathlib import Path
 
 import ipyvuetify as v
-from matplotlib.colors import to_rgb
 import pandas as pd
+from matplotlib.colors import to_rgb
+from traitlets import Int
 
-from sepal_ui.reclassify import parameters as param
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.scripts import utils as su
 from sepal_ui.message import ms
+from sepal_ui.reclassify import parameters as param
+from sepal_ui.scripts import utils as su
 
 __all__ = ["TableView"]
 
@@ -212,15 +212,24 @@ class EditDialog(v.Dialog):
         self.title = v.CardTitle(children=[self.TITLES[0]])
 
         # Action buttons
-        btn_txt = ms.rec.table.edit_dialog.btn
-        self.save = sw.Btn(btn_txt.save.name)
-        save_tool = sw.Tooltip(self.save, btn_txt.save.tooltip, bottom=True)
+        self.save = sw.Btn(ms.rec.table.edit_dialog.btn.save.name)
+        save_tool = sw.Tooltip(
+            self.save, ms.rec.table.edit_dialog.btn.save.tooltip, bottom=True
+        )
 
-        self.modify = sw.Btn(btn_txt.modify.name).hide()  # by default modify is hidden
-        modify_tool = sw.Tooltip(self.modify, btn_txt.modify.tooltip, bottom=True)
+        self.modify = sw.Btn(
+            ms.rec.table.edit_dialog.btn.modify.name
+        ).hide()  # by default modify is hidden
+        modify_tool = sw.Tooltip(
+            self.modify, ms.rec.table.edit_dialog.btn.modify.tooltip, bottom=True
+        )
 
-        self.cancel = sw.Btn(btn_txt.cancel.name, outlined=True, class_="ml-2")
-        cancel_tool = sw.Tooltip(self.cancel, btn_txt.cancel.tooltip, bottom=True)
+        self.cancel = sw.Btn(
+            ms.rec.table.edit_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+        )
+        cancel_tool = sw.Tooltip(
+            self.cancel, ms.rec.table.edit_dialog.btn.cancel.tooltip, bottom=True
+        )
 
         actions = v.CardActions(children=[save_tool, modify_tool, cancel_tool])
 
@@ -531,7 +540,7 @@ class SaveDialog(v.Dialog):
 
 class TableView(sw.Card):
     """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id_ of the tile is set to "classification_tile"
+    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile"
 
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/

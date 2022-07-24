@@ -1,12 +1,15 @@
-from planet.api import APIException
-from planet.api.client import InvalidIdentity
-from planet import api
-from planet.api import filters
+import warnings
 
 from traitlets import Bool
 
-from sepal_ui.model import Model
 from sepal_ui.message import ms
+from sepal_ui.model import Model
+
+# import planet with a warning as it's thwowing an error message
+warnings.filterwarnings("ignore", category=FutureWarning)
+from planet import api  # noqa: E402
+from planet.api import APIException, filters  # noqa: E402
+from planet.api.client import InvalidIdentity  # noqa: E402
 
 
 class PlanetModel(Model):

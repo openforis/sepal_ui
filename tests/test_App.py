@@ -14,6 +14,7 @@ class TestApp:
         assert isinstance(app.children[0], v.Overlay)
         assert isinstance(app.children[1], sw.AppBar)
         assert isinstance(app.children[2], v.Content)
+        assert app.appBar.toggle_button.class_ == "d-none"
 
         # exhaustive
         navDrawer = sw.NavDrawer([sw.DrawerItem(f"title {i}") for i in range(5)])

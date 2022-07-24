@@ -5,11 +5,12 @@ Application are designed to run on specific venv, created to avoid lib deprecati
 this script allows the user to easily activate one of the venv have already installed in Jupyter and customize it
 """
 
+import argparse
 import subprocess
 from pathlib import Path
+
 import pandas as pd
-from colorama import init, Fore
-import argparse
+from colorama import Fore, init
 
 # init colors for all plateforms
 init()

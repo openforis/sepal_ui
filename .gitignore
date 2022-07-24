@@ -1,6 +1,7 @@
 # custom 
 .coverage
 ee_private_key.json
+warnings.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -75,6 +76,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/build/
+docs/source/modules/
 
 # PyBuilder
 target/
