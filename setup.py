@@ -51,8 +51,7 @@ setup_params = {
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
         "earthengine-api",
         "markdown",
-        "ipyleaflet>=0.14.0",
-        "xarray_leaflet",
+        "ipyleaflet>=0.14.0",  # to have access to data member in edition
         "shapely",
         "geopandas",
         "pandas",
@@ -69,6 +68,8 @@ setup_params = {
         "pyyaml",
         "dask",
         "tqdm",
+        "localtileserver",
+        "jupyter-server-proxy",
     ],
     "extras_require": {
         "dev": [
