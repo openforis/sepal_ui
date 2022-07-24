@@ -83,7 +83,7 @@ setup_params = {
             "nbmake ",
         ],
         "doc": [
-            "sphinx>=4,<5", # Remove this when MyST-NB supports Sphinx 5
+            "sphinx>=4,<5",  # Remove this when MyST-NB supports Sphinx 5
             "jupyter-sphinx",
             "pydata-sphinx-theme==0.9.0",
             "sphinx-notfound-page",
