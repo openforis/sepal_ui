@@ -125,7 +125,7 @@ class MenuControl(WidgetControl):
             [
                 setattr(c.menu, "v_model", False)
                 for c in self.m.controls
-                if isinstance(c, self.__class__) and c != self
+                if isinstance(c, MenuControl) and c != self
             ]
 
         return
