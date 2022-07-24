@@ -25,20 +25,18 @@ class AoiControl(MenuControl):
 
     def __init__(self, m, **kwargs):
 
-        # load the map
-        self.m = m
-
         # init the aoi data list
         self.aoi_bounds = {}
 
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "topright")
+        kwargs["m"] = m
 
         # create a list
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
 
         # create the widget
-        super().__init__("fas fa-search-location", self.aoi_list)
+        super().__init__("fas fa-search-location", self.aoi_list, **kwargs)
 
         # change a bit the behavior of the control
         self.menu.open_on_hover = True

@@ -51,3 +51,22 @@ class TestMenuControl:
         assert menu_control.menu.right is True
 
         return
+
+    def test_close_others(self):
+
+        # add controls on the map
+        m = sm.SepalMap()
+        control_1 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
+        control_2 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
+        m.add_control(control_1)
+        m.add_control(control_2)
+
+        # open the first one and then the second one
+        control_1.menu.v_model = True
+        control_2.menu.v_model = True
+
+        # check the values
+        assert control_1.menu.v_model is False
+        assert control_2.menu.v_model is True
+
+        return
