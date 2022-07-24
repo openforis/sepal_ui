@@ -70,6 +70,7 @@ setup_params = {
         "tqdm",
         "localtileserver",
         "jupyter-server-proxy",
+        "matplotlib",
     ],
     "extras_require": {
         "dev": [
