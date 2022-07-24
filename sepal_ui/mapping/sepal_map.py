@@ -21,9 +21,9 @@ import ipywidgets as widgets
 import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
-import xarray_leaflet  # noqa: F401
 from deprecated.sphinx import deprecated
 from haversine import haversine
+from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -266,13 +266,10 @@ class SepalMap(ipl.Map):
         image,
         bands=None,
         layer_name="Layer_" + su.random_string(),
-        colormap=plt.cm.inferno,
-        x_dim="x",
-        y_dim="y",
+        colormap="inferno",
         opacity=1.0,
+        client_host="/api/sandbox/jupyter/proxy/{port}",
         fit_bounds=True,
-        get_base_url=lambda _: "https://sepal.io/api/sandbox/jupyter",
-        colorbar_position=False,
     ):
         """
         Adds a local raster dataset to the map.
@@ -281,46 +278,41 @@ class SepalMap(ipl.Map):
             image (str | pathlib.Path): The image file path.
             bands (int or list, optional): The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
             layer_name (str, optional): The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
-            colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to None.
-            x_dim (str, optional): The x dimension. Defaults to 'x'.
-            y_dim (str, optional): The y dimension. Defaults to 'y'.
+            colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
             opacity (float, optional): the opacity of the layer, default 1.0.
+            client_host (str, optional): the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
-            get_base_url (callable, optional): A function taking the window URL and returning the base URL to use. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See xarray-leaflet lib for more details.
-            colorbar_position (str, optional): The position of the colorbar. By default set to False to remove it.
 
         Return:
             (LocalTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
 
-        # force cast to Path
+        # add the localtilelayer path to the environment
+        # if the value is already set we don't change anything
+        os.environ["LOCALTILESERVER_CLIENT_PREFIX"] = os.environ.pop(
+            "LOCALTILESERVER_CLIENT_PREFIX", client_host
+        )
+
+        # force cast to Path and then start the client
         image = Path(image)
 
         if not image.is_file():
             raise Exception(ms.mapping.no_image)
 
+        client = TileClient(image)
+
         # check inputs
         if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
-        if isinstance(colormap, str):
-            colormap = plt.cm.get_cmap(name=colormap)
+        # if isinstance(colormap, str):
+        #    colormap = plt.cm.get_cmap(name=colormap)
 
         da = rioxarray.open_rasterio(image, masked=True)
-
-        # The dataset can be too big to hold in memory, so we will chunk it into smaller
-        # pieces.
-        # That will also improve performances as the generation of a tile can be done
-        # in parallel using Dask.
         da = da.chunk((1000, 1000))
 
-        # unproject if necessary
-        epsg_4326 = "EPSG:4326"
-        if da.rio.crs != CRS.from_string(epsg_4326):
-            da = da.rio.reproject(epsg_4326)
-
         multi_band = False
-        if len(da.band) > 1 and type(bands) != int:
+        if len(da.band) > 1 and not isinstance(bands, int):
             multi_band = True
             if not bands:
                 bands = [3, 2, 1]
@@ -328,29 +320,33 @@ class SepalMap(ipl.Map):
             bands = 1
 
         if multi_band:
-            da = da.rio.write_nodata(0)
+            style = {
+                "bands": [
+                    {"band": bands[0], "palette": "#f00"},
+                    {"band": bands[1], "palette": "#0f0"},
+                    {"band": bands[2], "palette": "#00f"},
+                ]
+            }
         else:
-            da = da.rio.write_nodata(np.nan)
-        da = da.sel(band=bands)
+            style = {
+                "bands": [
+                    {"band": bands, "palette": colormap},
+                ]
+            }
 
-        kwargs = {
-            "m": self,
-            "x_dim": x_dim,
-            "y_dim": y_dim,
-            "fit_bounds": fit_bounds,
-            "get_base_url": get_base_url,
-            "colorbar_position": colorbar_position,
-            "rgb_dim": "band" if multi_band else None,
-            "colormap": None if multi_band else colormap,
-        }
-
-        # display the layer on the map
-        layer = da.leaflet.plot(**kwargs)
-        layer.name = layer_name
-        layer.opacity = opacity if abs(opacity) <= 1.0 else 1.0
+        # create the layer
+        layer = get_leaflet_tile_layer(
+            client, style=style, name=layer_name, opacity=opacity
+        )
+        self.add_layer(layer)
 
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
+
+        # zoom on the layer if requested
+        if fit_bounds is True:
+            self.center = client.center()
+            self.zoom = client.default_zoom
 
         return layer
 
