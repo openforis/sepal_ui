@@ -58,15 +58,26 @@ class TestMenuControl:
         m = sm.SepalMap()
         control_1 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
         control_2 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
+        control_3 = sm.MenuControl("fas fa-folder", sw.Card())
         m.add_control(control_1)
         m.add_control(control_2)
+        m.add_control(control_3)
 
         # open the first one and then the second one
         control_1.menu.v_model = True
         control_2.menu.v_model = True
+        control_3.menu.v_model = False
 
         # check the values
         assert control_1.menu.v_model is False
         assert control_2.menu.v_model is True
+        assert control_3.menu.v_model is False
+
+        # use the control that is not wired
+        control_3.menu.v_model = True
+
+        assert control_1.menu.v_model is False
+        assert control_2.menu.v_model is True
+        assert control_3.menu.v_model is True
 
         return
