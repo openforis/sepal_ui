@@ -4,7 +4,7 @@ from subprocess import check_call
 from setuptools import setup
 from setuptools.command.develop import develop
 
-version = "2.10.0"
+version = "2.10.1"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -46,13 +46,13 @@ setup_params = {
     "keywords": ["UI", "Python", "widget", "sepal"],
     "python_requires": ">=3.6.9",
     "install_requires": [
+        "werkzeug<2.2.0",  # https://github.com/python-restx/flask-restx/issues/460
         "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
         "earthengine-api",
         "markdown",
-        "ipyleaflet>=0.14.0",
-        "xarray_leaflet",
+        "ipyleaflet>=0.14.0",  # to have access to data member in edition
         "shapely",
         "geopandas",
         "pandas",
@@ -69,6 +69,10 @@ setup_params = {
         "pyyaml",
         "dask",
         "tqdm",
+        "localtileserver",
+        "jupyter-server-proxy",
+        "matplotlib",
+        "rioxarray",
     ],
     "extras_require": {
         "dev": [
@@ -80,6 +84,7 @@ setup_params = {
             "nbmake ",
         ],
         "doc": [
+            "sphinx>=4,<5",  # Remove this when MyST-NB supports Sphinx 5
             "jupyter-sphinx",
             "pydata-sphinx-theme==0.9.0",
             "sphinx-notfound-page",

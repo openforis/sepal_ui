@@ -80,17 +80,18 @@ class Alert(v.Alert, SepalWidget):
 
     def update_progress(self, progress, msg="Progress", **tqdm_args):
         """
-        Update the Alert message with a progress bar. This function will stay until we
-        manage to use tqdm in the widgets
+        Update the Alert message with a tqdm progress bar.
 
         Args:
             progress (float): the progress status in float [0, 1]
             msg (str, optionnal): The message to use before the progress bar
-            bar_length (int, optionnal): the length of the progress bar in characters
 
         Return:
             self
         """
+
+        # show the alert
+        self.show()
 
         # cast the progress to float
         progress = float(progress)

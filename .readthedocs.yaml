@@ -10,6 +10,8 @@ build:
   tools:
     python: "3.9"
   jobs:
+    pre_install:
+      - pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
     pre_build:
       - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 

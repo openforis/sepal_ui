@@ -394,14 +394,14 @@ class App(v.App, SepalWidget):
         app_children = []
 
         # create a false appBar if necessary
-        if not appBar:
+        if appBar is None:
             appBar = AppBar(translator=translator)
         self.appBar = appBar
         app_children.append(self.appBar)
 
         # add the navDrawer if existing
         self.navDrawer = None
-        if navDrawer:
+        if navDrawer is not None:
             # bind app tile list to the navdrawer
             for di in navDrawer.items:
                 di.display_tile(tiles)
@@ -412,13 +412,16 @@ class App(v.App, SepalWidget):
             # add the drawers to the children
             self.navDrawer = navDrawer
             app_children.append(self.navDrawer)
+        else:
+            # remove the toggle button from the navbar
+            self.appBar.toggle_button.hide()
 
         # add the content of the app
         self.content = v.Content(children=[v.Container(fluid=True, children=tiles)])
         app_children.append(self.content)
 
         # add the footer if existing
-        if footer:
+        if footer is not None:
             self.footer = footer
             app_children.append(self.footer)
 
