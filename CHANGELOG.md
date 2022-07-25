@@ -1,3 +1,22 @@
+## v_2.10.1 (2022-07-25)
+
+### Fix
+
+- fix: add support for matplotlib cmap following advices from https://github.com/banesullivan/localtileserver/issues/103
+- typo
+- change raster detection
+- drop usage of xarray-leaflet
+- use class name
+- close the controls when another one is opened Fix #551
+- show alert when progess updates Fix #556
+- set the navbar at the same z-index as map Fix #548
+- remove toggle_button from map app Fix #549
+
+### Refactor
+
+- the alert is now fully compatible with tqdm
+- the alert is now fully compatible with tqdm
+
 ## v_2.10.0 (2022-07-21)
 
 ### Refactor
