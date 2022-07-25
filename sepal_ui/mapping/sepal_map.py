@@ -284,7 +284,7 @@ class SepalMap(ipl.Map):
             fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
 
         Return:
-            (LocalTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
+            (BoundTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
 
         # add the localtilelayer path to the environment
