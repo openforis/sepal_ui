@@ -40,11 +40,9 @@ class ValueInspector(MenuControl):
 
     def __init__(self, m, **kwargs):
 
-        # load the map
-        self.m = m
-
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "topleft")
+        kwargs["m"] = m
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
