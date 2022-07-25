@@ -5,8 +5,7 @@ import geopandas as gpd
 import ipyvuetify as v
 import rasterio as rio
 import rioxarray
-import xarray_leaflet  # noqa: F401
-from ipyleaflet import GeoJSON, LocalTileLayer
+from ipyleaflet import GeoJSON
 from rasterio.crs import CRS
 from shapely import geometry as sg
 
@@ -120,7 +119,7 @@ class ValueInspector(MenuControl):
                 data = self._from_eelayer(lyr.ee_object, coords)
             elif isinstance(lyr, GeoJSON):
                 data = self._from_geojson(lyr.data, coords)
-            elif isinstance(lyr, LocalTileLayer):
+            elif type(lyr).__name__ == "BoundTileLayer":
                 data = self._from_raster(lyr.raster, coords)
             else:
                 data = {ms.v_inspector.info.header: ms.v_inspector.info.text}
