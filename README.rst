@@ -7,8 +7,8 @@ Sepal_ui
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467835.svg
-   :target: https://doi.org/10.5281/zenodo.6467835
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
+   :target: https://doi.org/10.5281/zenodo.6467834
    :alt: Citation
 
 .. image:: https://badge.fury.io/py/sepal-ui.svg
