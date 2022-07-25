@@ -25,6 +25,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           
+      - name: Install GDAL
+        run: |
+          python -m pip install --upgrade pip
+          pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
+          
       - name: Install dependencies
         run: pip install .[test]
         
