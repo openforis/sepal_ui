@@ -305,8 +305,10 @@ class SepalMap(ipl.Map):
         if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
-        # if isinstance(colormap, str):
-        #    colormap = plt.cm.get_cmap(name=colormap)
+        # set the colors as independant colors
+        if isinstance(colormap, str):
+            colormap = plt.cm.get_cmap(name=colormap)
+        color_list = [mpc.rgb2hex(colormap(i)) for i in range(colormap.N)]
 
         da = rioxarray.open_rasterio(image, masked=True)
         da = da.chunk((1000, 1000))
@@ -330,7 +332,7 @@ class SepalMap(ipl.Map):
         else:
             style = {
                 "bands": [
-                    {"band": bands, "palette": colormap},
+                    {"band": bands, "palette": color_list},
                 ]
             }
 
