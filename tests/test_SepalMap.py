@@ -6,7 +6,7 @@ from urllib.request import urlretrieve
 
 import ee
 import pytest
-from ipyleaflet import GeoJSON, LocalTileLayer
+from ipyleaflet import GeoJSON
 
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
@@ -118,7 +118,6 @@ class TestSepalMap:
 
         return
 
-    @pytest.mark.skip(reason="problem dealing with local rasters")
     def test_add_raster(self, rgb, byte):
 
         m = sm.SepalMap()
@@ -126,7 +125,7 @@ class TestSepalMap:
         # add a rgb layer to the map
         m.add_raster(rgb, layer_name="rgb")
         assert m.layers[1].name == "rgb"
-        assert isinstance(m.layers[1], LocalTileLayer)
+        assert type(m.layers[1]).__name__ == "BoundTileLayer"
 
         # add a byte layer
         m.add_raster(byte, layer_name="byte")
@@ -379,7 +378,7 @@ class TestSepalMap:
     def test_zoom_raster(self, byte):
 
         m = sm.SepalMap()
-        layer = m.add_raster(byte, fit_bounds=False)
+        layer = m.add_raster(byte)
         m.zoom_raster(layer)
 
         center = [33.89703655465772, -117.63458938969723]
