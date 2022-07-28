@@ -1,3 +1,10 @@
+## v_2.10.2 (2022-07-28)
+
+### Fix
+
+- use appropiate error
+- lazy import of localtileserver
+
 ## v_2.10.1 (2022-07-25)
 
 ### Fix
