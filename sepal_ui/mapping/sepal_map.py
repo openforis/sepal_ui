@@ -23,7 +23,6 @@ import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
 from haversine import haversine
-from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -286,6 +285,15 @@ class SepalMap(ipl.Map):
         Return:
             (BoundTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
+
+        # lazy import of localtileserver to avoid conflicts with GDAL
+        # environments
+        try:
+            from localtileserver import TileClient, get_leaflet_tile_layer  # noqa: E402
+        except ImportError:
+            raise ImportError(
+                "Your environment is not compatible with localtileserver, please check https://localtileserver.banesullivan.com/installation/index.html for more information"
+            )
 
         # add the localtilelayer path to the environment
         # if the value is already set we don't change anything
