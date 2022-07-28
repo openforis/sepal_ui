@@ -4,7 +4,7 @@ from subprocess import check_call
 from setuptools import setup
 from setuptools.command.develop import develop
 
-version = "2.10.1"
+version = "2.10.2"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
