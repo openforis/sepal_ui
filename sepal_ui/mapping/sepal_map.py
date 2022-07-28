@@ -290,8 +290,8 @@ class SepalMap(ipl.Map):
         # environments
         try:
             from localtileserver import TileClient, get_leaflet_tile_layer  # noqa: E402
-        except ImportError:
-            raise ImportError(
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
                 "Your environment is not compatible with localtileserver, please check https://localtileserver.banesullivan.com/installation/index.html for more information"
             )
 
