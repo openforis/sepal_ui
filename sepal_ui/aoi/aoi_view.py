@@ -361,28 +361,26 @@ class AoiView(sw.Card):
     def reset(self):
         """clear the aoi_model from input and remove the layer from the map (if existing)"""
 
-        # clear the map
-        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
-
-        # clear the inputs
-        [w.reset() for w in self.components.values()]
-
-        # clear the model
-        self.model.clear_attributes()
-
-        # reset the alert
-        self.alert.reset()
-
         # reset the view of the widgets
         self.w_method.v_model = None
 
+        # clear the map
+        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
+
         return self
 
+    @su.switch("loading", on_widgets=["w_method"])
     def _activate(self, change):
         """activate the adapted widgets"""
 
         # clear and hide the alert
         self.alert.reset()
+
+        # hide the widget so that the user doens't see status changes
+        [w.hide() for w in self.components.values()]
+
+        # clear the inputs in a second step as reseting a FileInput can be long
+        [w.reset() for w in self.components.values()]
 
         # deactivate or activate the dc
         # clear the geo_json saved features to start from scratch
@@ -392,17 +390,12 @@ class AoiView(sw.Card):
             else:
                 self.map_.dc.hide()
 
-        # clear the inputs
-        [w.reset() for w in self.components.values()]
-
-        # activate the widget
-        [
-            w.show() if change["new"] == k else w.hide()
-            for k, w in self.components.items()
-        ]
+        # activate the correct widget
+        w = next((w for k, w in self.components.items() if k == change["new"]), None)
+        w is None or w.show()
 
         # init the name to the current value
         now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
 
-        return self
+        return
