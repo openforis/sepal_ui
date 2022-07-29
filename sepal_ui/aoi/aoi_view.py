@@ -366,19 +366,15 @@ class AoiView(sw.Card):
 
         # clear the inputs
         [w.reset() for w in self.components.values()]
-        print(self.w_draw.v_model)
 
         # clear the model
         self.model.clear_attributes()
-        print(self.w_draw.v_model)
 
         # reset the alert
         self.alert.reset()
-        print(self.w_draw.v_model)
 
         # reset the view of the widgets
         self.w_method.v_model = None
-        print(self.w_draw.v_model)
 
         return self
 
