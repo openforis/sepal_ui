@@ -84,7 +84,7 @@ setup_params = {
             "nbmake ",
         ],
         "doc": [
-            "docutils<0.19",  # remove once m2r2 0.3.3 is released  
+            "docutils<0.19",  # remove once m2r2 0.3.3 is released
             "sphinx",
             "jupyter-sphinx",
             "pydata-sphinx-theme",

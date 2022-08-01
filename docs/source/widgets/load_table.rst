@@ -47,7 +47,7 @@ the value can be retrieve from the :code:`v_model` trait.
 
     More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.LoadTableField>`__.
 
-.. spelling::
+.. spelling:word-list::
 
     pathname
     lng
