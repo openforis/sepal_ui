@@ -84,9 +84,10 @@ setup_params = {
             "nbmake ",
         ],
         "doc": [
-            "sphinx>=4,<5",  # Remove this when MyST-NB supports Sphinx 5
+            "docutils<0.19",  # remove once m2r2 0.3.3 is released
+            "sphinx",
             "jupyter-sphinx",
-            "pydata-sphinx-theme==0.9.0",
+            "pydata-sphinx-theme",
             "sphinx-notfound-page",
             "Sphinx",
             "sphinxcontrib-spelling",

@@ -157,6 +157,6 @@ We are using :code:`api-doc` to build the documentation of the lib so if you wan
 
 You can then build the documentation, it will automatically call :code:`autodoc` and :code:`autosummary` during the process.
 
-.. spelling:: 
+.. spelling:word-list:: 
 
     pre
