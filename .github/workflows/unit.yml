@@ -30,6 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
           
+      - name: Install localetileserver
+        run: |
+          pip install localtileserver
+          
       - name: Install dependencies
         run: pip install .[test]
         
