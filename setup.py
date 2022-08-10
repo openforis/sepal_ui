@@ -69,7 +69,6 @@ setup_params = {
         "pyyaml",
         "dask",
         "tqdm",
-        "localtileserver",
         "jupyter-server-proxy",
         "matplotlib",
         "rioxarray",
