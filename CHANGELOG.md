@@ -1,3 +1,16 @@
+## v_2.10.3 (2022-08-10)
+
+### Fix
+
+- lazy import localtileserver
+- avoid reloading root when fileinput is already none
+
+### Refactor
+
+- .. spelling:word-list::
+- reset method
+- remove legacy print
+
 ## v_2.10.2 (2022-07-28)
 
 ### Fix
