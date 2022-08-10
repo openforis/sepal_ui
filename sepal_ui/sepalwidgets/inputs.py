@@ -296,11 +296,15 @@ class FileInput(v.Flex, SepalWidget):
         # note: The args arguments are useless here but need to be kept so that
         # the function is natively compatible with the clear btn
 
-        # move to root
-        self._on_file_select({"new": Path.home()})
+        # do nothing if nothing is set to avoids extremelly long waiting
+        # time when multiple fileInput are reset at the same time as in the aoiView
+        if self.v_model is not None:
 
-        # remove v_model
-        self.v_model = None
+            # move to root
+            self._on_file_select({"new": Path.home()})
+
+            # remove v_model
+            self.v_model = None
 
         return self
 
@@ -1015,12 +1019,16 @@ class VectorField(v.Col, SepalWidget):
     def _update_column(self, change):
         """Update the column name and empty the value list"""
 
+        # set the value
+        self._set_v_model("column", change["new"])
+
+        # exit if nothing as the only way to set this value to None is the reset
+        if not change["new"]:
+            return self
+
         # reset value widget
         self.w_value.items = []
         self.w_value.v_model = None
-
-        # set the value
-        self._set_v_model("column", change["new"])
 
         # hide value if "ALL" or none
         if change["new"] in ["ALL", None]:

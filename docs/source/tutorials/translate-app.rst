@@ -184,6 +184,6 @@ Open the :code:`component/message/test_translation.ipynb` notebook. change the :
 
 Once your output message is "All messages are translated" it means that all the dictionaries have the same keys and the same shape. if someone open your application in another language the translated message will be used instead of the English one.
 
-.. spelling:: 
+.. spelling:word-list:: 
 
     Español

@@ -1,5 +1,4 @@
 import ipyvuetify as v
-
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 

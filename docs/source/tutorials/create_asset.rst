@@ -165,6 +165,6 @@ and the corresponding display:
    :alt: rgb display
    :align: center
 
-.. spelling:: 
+.. spelling:word-list:: 
 
     colormap

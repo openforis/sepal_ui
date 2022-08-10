@@ -154,6 +154,6 @@ Widget
 
 At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this :doc:`./custom-widget`.
 
-.. spelling::
+.. spelling:word-list::
 
    utils

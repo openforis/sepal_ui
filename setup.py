@@ -4,7 +4,7 @@ from subprocess import check_call
 from setuptools import setup
 from setuptools.command.develop import develop
 
-version = "2.10.2"
+version = "2.10.3"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -69,7 +69,6 @@ setup_params = {
         "pyyaml",
         "dask",
         "tqdm",
-        "localtileserver",
         "jupyter-server-proxy",
         "matplotlib",
         "rioxarray",
@@ -84,9 +83,10 @@ setup_params = {
             "nbmake ",
         ],
         "doc": [
-            "sphinx>=4,<5",  # Remove this when MyST-NB supports Sphinx 5
+            "docutils<0.19",  # remove once m2r2 0.3.3 is released
+            "sphinx",
             "jupyter-sphinx",
-            "pydata-sphinx-theme==0.9.0",
+            "pydata-sphinx-theme",
             "sphinx-notfound-page",
             "Sphinx",
             "sphinxcontrib-spelling",
