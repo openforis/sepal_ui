@@ -2,6 +2,7 @@ from ipywidgets import HTML
 from traitlets import Bool, Dict, Unicode, observe
 
 import sepal_ui.sepalwidgets as sw
+from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 
 
@@ -22,8 +23,9 @@ class Legend(sw.Card):
 
     _html_table = None
 
-    def __init__(self, legend_dict, title="Legend", vertical=True, **kwargs):
+    def __init__(self, legend_dict, title=ms.mapping.legend, vertical=True, **kwargs):
 
+        # Be sure that the scroll bar will be shown up when legend horizontal
         self.style_ = "overflow-x:auto; white-space: nowrap;"
         self.max_width = 450
         self.max_height = 350
@@ -39,6 +41,12 @@ class Legend(sw.Card):
 
         self.set_legend(None)
 
+    def __len__(
+        self,
+    ):
+        """returns the number of elements in the legend"""
+        return len(self.legend_dict)
+
     @observe("legend_dict", "vertical")
     def set_legend(self, _):
         """Creates/update a legend based on the class legend_dict parameter"""
@@ -51,7 +59,10 @@ class Legend(sw.Card):
             elements = [
                 sw.Html(
                     tag="tr" if self.vertical else "td",
-                    children=[sw.Html(tag="td", children=self.color_box(color)), label],
+                    children=[
+                        sw.Html(tag="td", children=self.color_box(color)),
+                        label.capitalize(),
+                    ],
                 )
                 for label, color in self.legend_dict.items()
             ]
@@ -60,7 +71,7 @@ class Legend(sw.Card):
                 (
                     sw.Html(
                         tag="td",
-                        children=[label],
+                        children=[label.capitalize()],
                     ),
                     sw.Html(
                         tag="td",

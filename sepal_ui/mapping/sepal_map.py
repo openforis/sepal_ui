@@ -862,10 +862,10 @@ class SepalMap(ipl.Map):
 
     def add_legend(
         self,
-        title="Legend",
+        title=ms.mapping.legend,
         legend_dict={},
         position="bottomright",
-        vertical=False,
+        vertical=True,
     ):
         """Creates and adds a custom legend as widget control to the map
 
