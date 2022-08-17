@@ -65,7 +65,7 @@ class Translator(Box):
 
         # check if forbidden keys are being used
         # this will raise an error if any
-        [self.search_key(ms_dict, k) for k in FORBIDDEN_KEYS]
+        [self.search_key(ms_dict, k) for k in FORBIDDEN_KEYS + self._protected_keys]
 
         # # unpack the json as a simple namespace
         ms_json = json.dumps(ms_dict)
@@ -130,8 +130,7 @@ class Translator(Box):
 
         return (target, lang)
 
-    @staticmethod
-    def search_key(d, key):
+    def search_key(self, d, key):
         """
         Search a specific key in the d dictionary and raise an error if found
 
@@ -144,7 +143,9 @@ class Translator(Box):
             msg = f"You cannot use the key {key} in your translation dictionary"
             raise Exception(msg)
 
-        return
+        for k, v in d.items():
+            if isinstance(v, dict):
+                return self.search_key(v, key)
 
     @classmethod
     def sanitize(cls, d):
