@@ -1,15 +1,12 @@
-import warnings
-
+import httpx
+import planet.data_filter as filters
+from planet.auth import Auth
+from planet.http import AuthSession
+from planet.models import Request
 from traitlets import Bool
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
-
-# import planet with a warning as it's thwowing an error message
-warnings.filterwarnings("ignore", category=FutureWarning)
-from planet import api  # noqa: E402
-from planet.api import APIException, filters  # noqa: E402
-from planet.api.client import InvalidIdentity  # noqa: E402
 
 
 class PlanetModel(Model):
@@ -29,49 +26,32 @@ class PlanetModel(Model):
     active = Bool(False).tag(sync=True)
     "bool: whether if the client has an active subscription or not"
 
-    client = None
-    "planet.api.ClientV1: planet api initialized client."
+    session = None
+    "planet.http.session: planet session."
 
     def __init__(self, credentials=None):
 
-        # Instantiate a fake client to avoid
-        # https://github.com/12rambau/sepal_ui/pull/439#issuecomment-1121538658
-        # This will be changed when planet launches new release
-        self.client = api.ClientV1("fake_init")
-        self.init_client(credentials)
+        if credentials:
+            self.init_session(credentials)
 
-    def init_client(self, credentials, event=None):
-        """Initialize planet client with api key or credentials. It will handle errors
-        if the method is called from an event (view)
+    def init_session(self, credentials):
+        """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
-            credentials (str, tuple): planet API key or tuple of username and password of planet explorer.
-            event (bool): whether to initialize from an event or not.
+            credentials (list): planet API key of username and password pair of planet explorer.
         """
 
-        credentials_ = credentials
-        if event and not any(tuple(credentials)):
+        if not all(credentials):
             raise ValueError(ms.planet.exception.empty)
 
-        if isinstance(credentials_, tuple):
-            try:
-                credentials_ = api.ClientV1().login(*credentials_)["api_key"]
+        if len(credentials) == 2:
+            auth = Auth.from_login(*credentials)
+        else:
+            auth = Auth.from_key(credentials[0])
 
-            except InvalidIdentity:
-                raise InvalidIdentity(ms.planet.exception.empty)
-
-            except APIException as e:
-                if "invalid parameters" in e.args[0]:
-                    # This error will be triggered when email is passed in bad format
-                    raise APIException(ms.planet.exception.invalid)
-                else:
-                    raise e
-
-        self.client.auth.value = credentials_
+        self.session = AuthSession()
+        self.session._client = httpx.Client(auth=auth)
         self._is_active()
-
-        if event and not self.active:
-            raise Exception(ms.planet.exception.nosubs)
 
         return
 
@@ -90,9 +70,8 @@ class PlanetModel(Model):
     def get_subscriptions(self):
         """load the user subscriptions and throw an error if none are found"""
 
-        response = self.client.dispatcher.dispatch_request(
-            "get", self.SUBS_URL, auth=self.client.auth
-        )
+        req = Request(self.SUBS_URL, method="GET")
+        response = self.session.request(req)
 
         if response.status_code == 200:
             return response.json()
@@ -117,10 +96,12 @@ class PlanetModel(Model):
         """
 
         query = filters.and_filter(
-            filters.geom_filter(aoi),
-            filters.range_filter("cloud_cover", lte=cloud_cover),
-            filters.date_range("acquired", gt=start),
-            filters.date_range("acquired", lt=end),
+            [
+                filters.geometry_filter(aoi),
+                filters.range_filter("cloud_cover", lte=cloud_cover),
+                filters.date_range_filter("acquired", gt=start),
+                filters.date_range_filter("acquired", lt=end),
+            ]
         )
 
         # Skipping REScene because is not orthorrectified and
