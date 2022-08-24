@@ -1,12 +1,20 @@
-import httpx
+import asyncio
+from datetime import datetime
+
+import nest_asyncio
 import planet.data_filter as filters
+from planet import DataClient
 from planet.auth import Auth
-from planet.http import AuthSession
+from planet.exceptions import NoPermission
+from planet.http import Session
 from planet.models import Request
 from traitlets import Bool
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
+
+# known problem https://github.com/jupyter/notebook/issues/3397
+nest_asyncio.apply()
 
 
 class PlanetModel(Model):
@@ -41,16 +49,21 @@ class PlanetModel(Model):
             credentials (list): planet API key of username and password pair of planet explorer.
         """
 
+        if not isinstance(credentials, list):
+            credentials = [credentials]
+
         if not all(credentials):
             raise ValueError(ms.planet.exception.empty)
 
         if len(credentials) == 2:
-            auth = Auth.from_login(*credentials)
+            self.auth = Auth.from_login(*credentials)
         else:
-            auth = Auth.from_key(credentials[0])
+            self.auth = Auth.from_key(credentials[0])
 
-        self.session = AuthSession()
-        self.session._client = httpx.Client(auth=auth)
+        # self.session = AuthSession()
+        # self.session._client = httpx.Client(auth=self.auth)
+
+        self.session = Session(auth=self.auth)
         self._is_active()
 
         return
@@ -68,15 +81,20 @@ class PlanetModel(Model):
         return
 
     def get_subscriptions(self):
-        """load the user subscriptions and throw an error if none are found"""
+        """load the user subscriptions and return empty list if nothing found"""
 
         req = Request(self.SUBS_URL, method="GET")
-        response = self.session.request(req)
 
-        if response.status_code == 200:
-            return response.json()
+        try:
+            response = asyncio.run(self.session.request(req))
+            if response.status_code == 200:
+                return response.json()
 
-        return []
+        except NoPermission:
+            return []
+
+        except Exception as e:
+            raise e
 
     def get_items(self, aoi, start, end, cloud_cover, limit_to_x_pages=None):
         """
@@ -89,36 +107,43 @@ class PlanetModel(Model):
             cloud_cover (float): maximum cloud coverage.
             limit_to_x_pages (int): number of pages to constrain the search.
                 Defaults None to use all of them.
-
         Return:
             items (list): items found using the search query
 
         """
 
-        query = filters.and_filter(
+        start, end = [
+            date.strftime("%Y-%m-%d")
+            for date in [start, end]
+            if isinstance(date, datetime)
+        ] or [start, end]
+
+        and_filter = filters.and_filter(
             [
                 filters.geometry_filter(aoi),
                 filters.range_filter("cloud_cover", lte=cloud_cover),
-                filters.date_range_filter("acquired", gt=start),
-                filters.date_range_filter("acquired", lt=end),
+                filters.date_range_filter(
+                    "acquired", gt=datetime.strptime(start, "%Y-%m-%d")
+                ),
+                filters.date_range_filter(
+                    "acquired", lt=datetime.strptime(end, "%Y-%m-%d")
+                ),
             ]
         )
 
-        # Skipping REScene because is not orthorrectified and
-        # cannot be clipped.
-        asset_types = ["PSScene"]
+        # PSScene3Band and PSScene4Band item type and assets will be deprecated by January 2023
+        # But we'll keep them here because there are images tagged with these labels
+        # item types from https://developers.planet.com/docs/apis/data/items-assets/
 
-        # build the request
-        request = filters.build_search_request(query, asset_types)
-        result = self.client.quick_search(request)
+        item_types = ["PSScene", "PSScene3Band", "PSScene4Band"]
 
-        # get all the results
+        async def main():
+            """Create an asyncrhonous function here to avoid making the main get_items
+            as async. So we can keep calling get_items without any change."""
+            client = DataClient(self.session)
+            items = await client.search(item_types, and_filter, name="quick_search")
+            items.limit = limit_to_x_pages
+            items_list = [item async for item in items]
+            return items_list
 
-        items_pages = []
-        limit_to_x_pages = None
-        for page in result.iter(limit_to_x_pages):
-            items_pages.append(page.get())
-
-        items = [item for page in items_pages for item in page["features"]]
-
-        return items
+        return asyncio.run(main())

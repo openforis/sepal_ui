@@ -1,10 +1,10 @@
 import ipyvuetify as v
 
-import sepal_ui.scripts.utils as su
 import sepal_ui.sepalwidgets as sw
 from sepal_ui import color
 from sepal_ui.message import ms
 from sepal_ui.planetapi import PlanetModel
+from sepal_ui.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):
@@ -102,18 +102,18 @@ class PlanetView(sw.Layout):
         self.btn.on_event("click", self.validate)
 
     def reset(self):
-        """Empty credentials fields"""
+        """Empty credentials fields and restart activation mode"""
 
         self.w_username.v_model = None
         self.w_password.v_model = None
         self.w_key.v_model = None
+        self.planet_model.active = False
 
         return
 
     def _swap_inputs(self, change):
         """Swap between credentials and api key inputs"""
 
-        self.planet_model.init_client(None)
         self.alert.reset()
         self.reset()
 
@@ -123,15 +123,15 @@ class PlanetView(sw.Layout):
 
         return
 
-    @su.loading_button()
+    @loading_button(debug=True)
     def validate(self, *args):
         """Initialize planet client and validate if is active"""
 
         if self.w_method.v_model == "credentials":
-            credentials = (self.w_username.v_model, self.w_password.v_model)
+            credentials = [self.w_username.v_model, self.w_password.v_model]
         else:
-            credentials = self.w_key.v_model
+            credentials = [self.w_key.v_model]
 
-        self.planet_model.init_client(credentials, event=True)
+        self.planet_model.init_session(credentials)
 
         return
