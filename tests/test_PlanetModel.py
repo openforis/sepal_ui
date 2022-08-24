@@ -3,8 +3,6 @@ import os
 
 import planet
 import pytest
-from planet.api import APIException
-from planet.api.client import InvalidIdentity
 
 from sepal_ui.planetapi import PlanetModel
 
@@ -20,7 +18,7 @@ class TestPlanetModel:
 
         credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
 
-        return tuple(credentials.values())
+        return list(credentials.values())
 
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init(self, credentials, request):
@@ -29,7 +27,7 @@ class TestPlanetModel:
         planet_model = PlanetModel(request.getfixturevalue(credentials))
 
         assert isinstance(planet_model, PlanetModel)
-        assert isinstance(planet_model.client, planet.api.ClientV1)
+        assert isinstance(planet_model.session, planet.http.Session)
         assert planet_model.active is True
 
         # Test with a valid api key
@@ -40,29 +38,29 @@ class TestPlanetModel:
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init_client(self, credentials, request):
 
-        planet_model = PlanetModel("")
+        planet_model = PlanetModel()
 
-        planet_model.init_client(request.getfixturevalue(credentials))
+        planet_model.init_session(request.getfixturevalue(credentials))
         assert planet_model.active is True
 
-        planet_model.init_client("wrongkey")
+        planet_model.init_session("wrongkey")
         assert planet_model.active is False
 
-    def test_init_client_from_event(self):
+    def test_init_session_from_event(self):
 
-        planet_model = PlanetModel("")
+        planet_model = PlanetModel()
 
         # Test with bad credentials format
-        with pytest.raises(APIException):
-            planet_model.init_client(("asdf", "1234"), event=True)
+        with pytest.raises(planet.exceptions.APIError):
+            planet_model.init_session(["asdf", "1234"])
 
         # Test with empty credentials
         with pytest.raises(ValueError):
-            planet_model.init_client("", event=True)
+            planet_model.init_session("")
 
         # Test with valid credentials format, but non real
-        with pytest.raises(InvalidIdentity):
-            planet_model.init_client(("valid@email.format", "not_exists"), event=True)
+        with pytest.raises(planet.exceptions.APIError):
+            planet_model.init_session(["valid@email.format", "not_exists"])
 
     def test_is_active(self, planet_key):
 
@@ -82,7 +80,8 @@ class TestPlanetModel:
 
         subs = planet_model.get_subscriptions()
 
-        # Check object has length
+        # Check object has length, because there is no way to check a value
+        # that might change over the time.
         assert len(subs)
 
     def test_get_planet_items(self, planet_key):
