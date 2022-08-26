@@ -128,7 +128,7 @@ class StateIcon(Tooltip):
     icon = None
     "v.Icon: the colored Icon of the tooltip"
 
-    def __init__(self, model, model_trait, states=None, **kwargs):
+    def __init__(self, model=None, model_trait=None, states=None, **kwargs):
 
         # set the default parameter of the tooltip
         kwargs["right"] = kwargs.pop("right", True)
@@ -148,7 +148,8 @@ class StateIcon(Tooltip):
         super().__init__(self.icon, init_value[0], **kwargs)
 
         # Directional from there to link here.
-        dlink((model, model_trait), (self, "value"))
+        if all([model, model_trait]):
+            dlink((model, model_trait), (self, "value"))
 
     @observe("value")
     def _swap(self, change):
@@ -167,6 +168,6 @@ class StateIcon(Tooltip):
                 f"Value '{new_val}' is not a valid value. Use {list(self.states.keys())}"
             )
         self.icon.color = self.states[new_val][1]
-        self.children = [self.states[new_val][0]]
+        # self.children = [self.states[new_val][0]]
 
         return
