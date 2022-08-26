@@ -1,9 +1,8 @@
 import ipyvuetify as v
 
 import sepal_ui.sepalwidgets as sw
-from sepal_ui import color
 from sepal_ui.message import ms
-from sepal_ui.planetapi import PlanetModel
+from sepal_ui.planetapi import InfoView, PlanetModel
 from sepal_ui.scripts.decorator import loading_button
 
 
@@ -27,6 +26,9 @@ class PlanetView(sw.Layout):
     alert = None
     "sw.Alert: Alert component to display end-user action results"
 
+    info = False
+    "bool: either to display or not a detailed description about the planet subscriptions"
+
     w_username = None
     "sw.TextField: widget to set credential username"
 
@@ -36,13 +38,12 @@ class PlanetView(sw.Layout):
     w_key = None
     "sw.PasswordField: widget to set credential API key"
 
-    w_state = None
-    "sw.StateIcon: circle widget to inform the user on the current connection state"
-
     w_method = None
     "sw.Select: dropdown widget to select connection method"
 
-    def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
+    def __init__(
+        self, *args, btn=None, alert=None, planet_model=None, info=False, **kwargs
+    ):
 
         self.class_ = "d-block flex-wrap"
 
@@ -57,13 +58,7 @@ class PlanetView(sw.Layout):
         )
         self.w_password = sw.PasswordField(label=ms.planet.widget.password)
         self.w_key = sw.PasswordField(label=ms.planet.widget.apikey, v_model="").hide()
-
-        states = {
-            False: (ms.planet.status.offilne, color.error),
-            True: (ms.planet.status.online, color.success),
-        }
-
-        self.w_state = sw.StateIcon(self.planet_model, "active", states)
+        self.w_info_view = InfoView(model=self.planet_model)
 
         self.w_method = v.Select(
             label=ms.planet.widget.method.label,
@@ -77,7 +72,7 @@ class PlanetView(sw.Layout):
 
         w_validation = v.Flex(
             style_="flex-grow: 0 !important;",
-            children=[self.btn, self.w_state],
+            children=[self.btn],
             class_="pr-1 flex-nowrap",
         )
         self.children = [
@@ -94,6 +89,9 @@ class PlanetView(sw.Layout):
 
         if not btn:
             self.children[-1].set_children(w_validation, "last")
+
+        # Set it here to avoid displacements when using button
+        self.set_children(self.w_info_view, "last")
 
         if not alert:
             self.set_children(self.alert, "last")

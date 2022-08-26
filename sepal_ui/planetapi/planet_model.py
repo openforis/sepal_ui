@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from itertools import compress
 
 import nest_asyncio
 import planet.data_filter as filters
@@ -31,16 +32,24 @@ class PlanetModel(Model):
     SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
     "str: the url of the planet API subscription"
 
+    credentials = None
+    "list: list containing [api_key] or pair of [username, password] to log in"
+
     active = Bool(False).tag(sync=True)
     "bool: whether if the client has an active subscription or not"
 
     session = None
     "planet.http.session: planet session."
 
+    subscriptions = None
+    "list[(dict)]: list containing all the dictionary info from the available subscriptions"
+
     def __init__(self, credentials=None):
 
         if credentials:
             self.init_session(credentials)
+
+        self.subscriptions = None
 
     def init_session(self, credentials):
         """Initialize planet client with api key or credentials. It will handle errors.
@@ -60,9 +69,6 @@ class PlanetModel(Model):
         else:
             self.auth = Auth.from_key(credentials[0])
 
-        # self.session = AuthSession()
-        # self.session._client = httpx.Client(auth=self.auth)
-
         self.session = Session(auth=self.auth)
         self._is_active()
 
@@ -71,12 +77,33 @@ class PlanetModel(Model):
     def _is_active(self):
         """check if the key has an associated active subscription"""
 
-        # get the subs from the api key
+        self.active = False
+        self.subscriptions = []
+
+        # get the subs from the api key and save them in the model. It will be useful
+        # to avoid doing more calls.
         subs = self.get_subscriptions()
 
-        # read the subs
-        # it will be empty if no sub are set
-        self.active = any([True for sub in subs if sub.get("state") == "active"])
+        # As there is not any key that identify the nicfi contract,
+        # let's find though all the subscriptions a representative name
+        wildcards = [
+            "Level_0",
+            "Level_1",
+            "Level2",
+        ]
+
+        masks = [[wildc in str(sub) for wildc in wildcards] for sub in subs]
+
+        def get_subscription(index):
+            mask = masks[index]
+            return next(iter(list(compress(subs, mask))))
+
+        self.subscriptions = {
+            sub_name: get_subscription(i)
+            for i, sub_name in enumerate(["level_0", "level_1", "level_2"])
+        }
+
+        self.active = True
 
         return
 
@@ -91,9 +118,13 @@ class PlanetModel(Model):
                 return response.json()
 
         except NoPermission:
-            return []
+            self.subscriptions = []
+            raise Exception(
+                "You don't have permission to access to this resource. Check your input data."
+            )
 
         except Exception as e:
+            self.subscriptions = []
             raise e
 
     def get_items(self, aoi, start, end, cloud_cover, limit_to_x_pages=None):
