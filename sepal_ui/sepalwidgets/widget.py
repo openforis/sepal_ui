@@ -153,7 +153,7 @@ class StateIcon(Tooltip):
     @observe("values")
     def _swap(self, change):
         """Swap between states"""
-        print("changing")
+
         new_val = change["new"]
 
         if not new_val:

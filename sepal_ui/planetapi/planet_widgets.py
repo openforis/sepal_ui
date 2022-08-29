@@ -116,7 +116,7 @@ class InfoCard(sw.Card):
 
         title = sub["plan"]["name"].replace("_", " ")
         state = sub["state"].capitalize()
-        self.w_state.value = sub["state"]
+        self.w_state.values = sub["state"]
 
         from_ = datetime.fromisoformat(sub["active_from"])
         to = datetime.fromisoformat(sub["active_to"])
