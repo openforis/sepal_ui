@@ -36,7 +36,7 @@ class InfoView(sw.ExpansionPanels):
                 children=[btns[label][0]],
                 disabled=True,
                 color=btns[label][1][0],
-                small=True,
+                x_small=True,
                 class_="mr-2",
                 attributes={"id": label},
                 link=True,
@@ -77,10 +77,8 @@ class InfoView(sw.ExpansionPanels):
     def _toggle_btns(self, change):
         """Activate specific button. It will be available if the subscription
         to that level is active"""
-        print(change)
-        print(change["new"])
+
         if change["new"] is False:
-            print("adsfasdfasdfasdf")
             self.v_model = 1
 
         for btn_id in btns.keys():
