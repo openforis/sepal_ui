@@ -137,11 +137,11 @@ class TestTranslator:
 
     def test_key_use(self):
 
-        # check key usage method and the lib content at the same time
-        expected = ["test_key"]
+        # check key usage method
+        # don't test if all keys are translated, crowdin will monitor it
         lib_folder = Path(__file__).parents[1] / "sepal_ui"
-        res = ms.key_use(lib_folder, "ms")
-        assert res == expected
+
+        assert "test_key" in ms.key_use(lib_folder, "ms")
 
         return
 
