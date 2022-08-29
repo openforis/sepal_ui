@@ -105,7 +105,7 @@ html_theme_options = {
     },
     "use_edit_page_button": True,
     "show_prev_next": False,
-    "switcher": {"json_url": json_url, "version": version_match},
+    "switcher": {"json_url": json_url, "version_match": version_match},
     "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
