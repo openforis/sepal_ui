@@ -94,6 +94,7 @@ setup_params = {
             "pandoc",
             "m2r2",
             "sphinxcontrib-autoprogram",
+            "sphinx-favicon",
         ],
     },
     "packages": [
