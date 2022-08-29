@@ -11,7 +11,7 @@ from ipyleaflet import GeoJSON
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
-from sepal_ui.mapping.legend import Legend
+from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
 random.seed(42)
@@ -402,8 +402,10 @@ class TestSepalMap:
         ee_map_with_layers.add_legend(legend_dict=legend_dict)
 
         # just test that is a Legend, the rest is tested by Legend
-        assert isinstance(ee_map_with_layers.legend, Legend)
+        assert isinstance(ee_map_with_layers.legend, LegendControl)
         assert ee_map_with_layers.legend.legend_dict == legend_dict
+
+        return
 
     @pytest.fixture
     def rgb(self):

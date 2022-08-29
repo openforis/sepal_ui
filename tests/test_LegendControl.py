@@ -1,6 +1,6 @@
 import re
 
-from sepal_ui.mapping import Legend
+from sepal_ui.mapping import LegendControl
 
 
 class TestLegend:
@@ -25,11 +25,11 @@ class TestLegend:
             "Warning",
         ]
 
-        legend = Legend(legend_dict, title="Legend")
+        legend = LegendControl(legend_dict, title="Legend")
 
         # Check all the default values
         assert legend.title == "Legend"
-        assert legend.html_title.children[0] == "Legend"
+        assert legend._html_title.children[0] == "Legend"
         assert legend.legend_dict == legend_dict
 
         # check all the labels and colors are present in the html
@@ -37,8 +37,9 @@ class TestLegend:
         assert all([color in str(legend._html_table) for color in legend_dict.values()])
 
         # Check the lenght
-
         assert len(legend) == 6
+
+        return
 
     def test_set_legend(self):
 
@@ -47,7 +48,7 @@ class TestLegend:
             "info": "#79b1c9",
         }
 
-        legend = Legend(legend_dict)
+        legend = LegendControl(legend_dict)
 
         new_legend = {
             "forest": "#b3842e",
@@ -78,6 +79,8 @@ class TestLegend:
         legend.vertical = False
         assert str(legend._html_table).count("'tr'") == 0
 
+        return
+
     def test_update_title(self):
 
         legend_dict = {
@@ -85,13 +88,15 @@ class TestLegend:
             "info": "#79b1c9",
         }
 
-        legend = Legend(legend_dict)
+        legend = LegendControl(legend_dict)
 
         legend.title = "leyenda"
 
         # Check all the default values
         assert legend.title == "leyenda"
-        assert legend.html_title.children[0] == "leyenda"
+        assert legend._html_title.children[0] == "leyenda"
+
+        return
 
     def test_color_box(self):
 
@@ -99,9 +104,11 @@ class TestLegend:
             "forest": "#b3842e",
             "info": "#79b1c9",
         }
-        legend = Legend(legend_dict)
+        legend = LegendControl(legend_dict)
         str_box = re.sub("[ ]+", "", str(legend.color_box("blue", 50)[0]))
 
         assert "fill:#0000ff" in str_box
         assert "width='50'" in str_box
         assert "'height='25.0'" in str_box
+
+        return
