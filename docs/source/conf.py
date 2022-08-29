@@ -96,7 +96,6 @@ if not version_match or version_match.isdigit():
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
     "logo": {
