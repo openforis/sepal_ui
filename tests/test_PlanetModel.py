@@ -30,10 +30,9 @@ class TestPlanetModel:
         assert isinstance(planet_model.session, planet.http.Session)
         assert planet_model.active is True
 
-        # Test with a valid api key
-        planet_model = PlanetModel("not valid")
-
-        assert planet_model.active is False
+        # Test with an invalid api key
+        with pytest.raises(Exception):
+            planet_model = PlanetModel("not valid")
 
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init_client(self, credentials, request):
@@ -43,8 +42,8 @@ class TestPlanetModel:
         planet_model.init_session(request.getfixturevalue(credentials))
         assert planet_model.active is True
 
-        planet_model.init_session("wrongkey")
-        assert planet_model.active is False
+        with pytest.raises(Exception):
+            planet_model.init_session("wrongkey")
 
     def test_init_session_from_event(self):
 
@@ -70,9 +69,8 @@ class TestPlanetModel:
         planet_model._is_active()
         assert planet_model.active is True
 
-        planet_model = PlanetModel("wrongkey")
-        planet_model._is_active()
-        assert planet_model.active is False
+        with pytest.raises(Exception):
+            planet_model = PlanetModel("wrongkey")
 
     def test_get_subscriptions(self, planet_key):
 
