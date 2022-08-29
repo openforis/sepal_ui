@@ -45,7 +45,7 @@ class LegendControl(WidgetControl):
         self._html_title = sw.Html(tag="h4", children=[f"{self.title}"])
         self._html_table = sw.Html(tag="table", children=[])
 
-        # create a card insode the widget
+        # create a card inside the widget
         # Be sure that the scroll bar will be shown up when legend horizontal
         card = sw.Card(
             style_="overflow-x:auto; white-space: nowrap;",
