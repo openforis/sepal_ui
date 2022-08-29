@@ -1,3 +1,4 @@
+from ipyleaflet import WidgetControl
 from ipywidgets import HTML
 from traitlets import Bool, Dict, Unicode, observe
 
@@ -6,53 +7,75 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 
 
-class Legend(sw.Card):
+class LegendControl(WidgetControl):
     """
-    Custom Card to display and update map legend
+    A custom Legend widget ready to be embed in a map
 
+    This Legend can be control though it's different attributes, changin it's position of course but also the orientation ,the keys and their colors.
+
+    .. versionadded:: 2.10.4
+
+    Args:
+        legend_dict (dict): the dictionnary to fill the legend values. cannot be empty.
+        title (str) title of the legend, if not set a default value in the current language will be used
+        vertical (bool): the orientation of the legend. default to True
     """
 
-    title = Unicode("Legend").tag(sync=True)
-    "str: title of the legend. defaults to 'Legend'"
+    title = Unicode(None).tag(sync=True)
+    "Unicode: title of the legend."
 
-    legend_dict = Dict({}).tag(sync=True)
-    "dict: dictionary with key as label name and value as color"
+    legend_dict = Dict(None).tag(sync=True)
+    "Dict: dictionary with key as label name and value as color"
 
-    vertical = Bool(True).tag(sync=True)
-    "bool: whether to display the legend in a vertical or horizontal way"
+    vertical = Bool(None).tag(sync=True)
+    "Bool: whether to display the legend in a vertical or horizontal way"
 
     _html_table = None
 
+    _html_title = None
+
     def __init__(self, legend_dict, title=ms.mapping.legend, vertical=True, **kwargs):
 
-        # Be sure that the scroll bar will be shown up when legend horizontal
-        self.style_ = "overflow-x:auto; white-space: nowrap;"
-        self.max_width = 450
-        self.max_height = 350
+        # init traits
         self.title = title
         self.legend_dict = legend_dict
         self.vertical = vertical
 
-        self.html_title = sw.Html(tag="h4", children=[f"{self.title}"])
+        # generate the content based on the init options
+        self._html_title = sw.Html(tag="h4", children=[f"{self.title}"])
         self._html_table = sw.Html(tag="table", children=[])
-        self.children = [self.html_title, self._html_table]
+
+        # create a card insode the widget
+        # Be sure that the scroll bar will be shown up when legend horizontal
+        card = sw.Card(
+            style_="overflow-x:auto; white-space: nowrap;",
+            max_width=450,
+            max_height=350,
+            children=[self._html_title, self._html_table],
+        )
+
+        # set some parameters for the actual widget
+        kwargs["widget"] = card
+        kwargs["position"] = kwargs.pop("position", "bottomright")
 
         super().__init__(**kwargs)
 
+        # set the legend
         self.set_legend(None)
 
     def __len__(
         self,
     ):
         """returns the number of elements in the legend"""
+
         return len(self.legend_dict)
 
     @observe("legend_dict", "vertical")
     def set_legend(self, _):
-        """Creates/update a legend based on the class legend_dict parameter"""
+        """Creates/update a legend based on the class legend_dict member"""
 
         # Do this to avoid crash when called by trait
-        if not self._html_table:
+        if self._html_table is None:
             return
 
         if self.vertical:
@@ -85,10 +108,19 @@ class Legend(sw.Card):
 
         self._html_table.children = elements
 
+        return
+
     @observe("title")
     def _update_title(self, change):
         """Trait method to update the title of the legend"""
-        self.html_title.children = change["new"]
+
+        # Do this to avoid crash when called by trait
+        if self._html_title is None:
+            return
+
+        self._html_title.children = change["new"]
+
+        return
 
     @staticmethod
     def color_box(color, size=30):

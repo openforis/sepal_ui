@@ -33,7 +33,7 @@ from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.layer_state_control import LayerStateControl
-from sepal_ui.mapping.legend import Legend
+from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
@@ -867,7 +867,8 @@ class SepalMap(ipl.Map):
         position="bottomright",
         vertical=True,
     ):
-        """Creates and adds a custom legend as widget control to the map
+        """
+        Creates and adds a custom legend as widget control to the map
 
         Args:
             title (str, optional): Title of the legend. Defaults to 'Legend'.
@@ -875,11 +876,11 @@ class SepalMap(ipl.Map):
         """
 
         # Define as class member so it can be accessed from outside.
-        self.legend = Legend(legend_dict, title=title, vertical=vertical)
+        self.legend = LegendControl(
+            legend_dict, title=title, vertical=vertical, position=position
+        )
 
-        legend_control = ipl.WidgetControl(widget=self.legend, position=position)
-
-        self.add_control(legend_control)
+        return self.add_control(self.legend)
 
     # ##########################################################################
     # ###                overwrite geemap calls                              ###
