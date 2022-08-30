@@ -9,7 +9,7 @@ from planet.auth import Auth
 from planet.exceptions import NoPermission
 from planet.http import Session
 from planet.models import Request
-from traitlets import Bool
+from traitlets import Bool, Dict
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
@@ -35,21 +35,23 @@ class PlanetModel(Model):
     credentials = None
     "list: list containing [api_key] or pair of [username, password] to log in"
 
-    active = Bool(False).tag(sync=True)
-    "bool: whether if the client has an active subscription or not"
-
     session = None
     "planet.http.session: planet session."
 
-    subscriptions = None
+    subscriptions = Dict().tag(sync=True)
     "list[(dict)]: list containing all the dictionary info from the available subscriptions"
+
+    active = Bool(False).tag(sync=True)
+    "Bool: value to determine if at least one subscription has the active true state"
 
     def __init__(self, credentials=None):
 
+        self.subscriptions = {}
+        self.session = None
+        self.active = False
+
         if credentials:
             self.init_session(credentials)
-
-        self.subscriptions = None
 
     def init_session(self, credentials):
         """Initialize planet client with api key or credentials. It will handle errors.
@@ -77,8 +79,7 @@ class PlanetModel(Model):
     def _is_active(self):
         """check if the key has an associated active subscription"""
 
-        self.active = False
-        self.subscriptions = []
+        self.subscriptions = {}
 
         # get the subs from the api key and save them in the model. It will be useful
         # to avoid doing more calls.
@@ -93,17 +94,32 @@ class PlanetModel(Model):
         ]
 
         masks = [[wildc in str(sub) for wildc in wildcards] for sub in subs]
+        others = [i for i, mask in enumerate(masks) if not any(mask)]
 
-        def get_subscription(index):
-            mask = masks[index]
-            return next(iter(list(compress(subs, mask))))
+        subs_groups = [
+            list(enumerate(others)),
+            enumerate(["level_0", "level_1", "level_2"]),
+        ]
+
+        def get_subscription(nicfi, index):
+
+            if nicfi:
+                mask = masks[index]
+                return next(iter(list(compress(subs, mask))))
+            else:
+                return subs[subs_groups[nicfi][index][1]]
 
         self.subscriptions = {
-            sub_name: get_subscription(i)
-            for i, sub_name in enumerate(["level_0", "level_1", "level_2"])
+            group: {
+                sub_name: get_subscription(bool(nicfi), i)
+                for i, sub_name in subs_groups[bool(nicfi)]
+            }
+            for nicfi, group in enumerate(["others", "nicfi"])
         }
 
-        self.active = True
+        # self.active = any()
+        states = self.search_status(self.subscriptions)
+        self.active = any([next(iter(d.values())) for d in states])
 
         return
 
@@ -118,13 +134,13 @@ class PlanetModel(Model):
                 return response.json()
 
         except NoPermission:
-            self.subscriptions = []
+            self.subscriptions = {}
             raise Exception(
                 "You don't have permission to access to this resource. Check your input data."
             )
 
         except Exception as e:
-            self.subscriptions = []
+            self.subscriptions = {}
             raise e
 
     def get_items(self, aoi, start, end, cloud_cover, limit_to_x_pages=None):
@@ -178,3 +194,24 @@ class PlanetModel(Model):
             return items_list
 
         return asyncio.run(main())
+
+    @staticmethod
+    def search_status(d):
+
+        states = []
+
+        def recursive(d, k):
+            if "plan" in d:
+                plan = d.get("plan")
+                state = True if plan.get("state") == "active" else False
+                states.append({k: state})
+
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    item = recursive(v, k)
+                    if item:
+                        return item
+
+        recursive(d, None)
+
+        return states

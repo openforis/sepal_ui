@@ -4,10 +4,10 @@ import ipyvuetify as v
 
 import sepal_ui.sepalwidgets as sw
 
+# key_name: [label, [non_active_coloor, active_color]]
 btns = {
-    "level_0": ["Level 0", ["menu", "success"]],
-    "level_1": ["Level 1", ["menu", "success"]],
-    "level_2": ["Level 2", ["menu", "success"]],
+    "nicfi": ["NICFI", ["menu", "success"]],
+    "others": ["Others", ["menu", "success"]],
 }
 
 
@@ -26,8 +26,9 @@ class InfoView(sw.ExpansionPanels):
 
         self.model = model
         self.v_model = 1
-        self.current_level = None
+        self.current = None
         self.readonly = True
+        self.max_height = 300
 
         super().__init__(*args, **kwargs)
 
@@ -42,7 +43,7 @@ class InfoView(sw.ExpansionPanels):
                 link=True,
                 label=True,
             )
-            for label in ["level_0", "level_1", "level_2"]
+            for label in btns.keys()
         ]
 
         self.info_card = InfoCard().hide()
@@ -58,65 +59,80 @@ class InfoView(sw.ExpansionPanels):
 
         [chip.on_event("click", self.open_info) for chip in subs_btn]
 
-        self.model.observe(self._toggle_btns, "active")
+        self.model.observe(self._toggle_btns, "subscriptions")
 
     def open_info(self, widget, event, data):
         """Srhink or srhunk the content of the expansion panel, sending a request to
         build the data"""
-        if self.current_level == widget.attributes["id"]:
+
+        if self.current == widget.attributes["id"]:
             self.v_model = (not self.v_model) * 1
         else:
             self.v_model = 0
 
-        self.current_level = widget.attributes["id"]
+        self.current = widget.attributes["id"]
 
-        subscription = self.model.subscriptions[self.current_level]
+        subs_group = self.model.subscriptions[widget.attributes["id"]]
 
-        self.info_card.update(subscription).show()
+        self.info_card.update(subs_group).show()
+
+    def _turn_btn(self, btn_id, state):
+        """Toggle the status of the given button"""
+
+        btn = self.get_children(btn_id)
+        btn.disabled = not state
+        btn.color = btns[btn_id][1][state]
 
     def _toggle_btns(self, change):
-        """Activate specific button. It will be available if the subscription
-        to that level is active"""
 
-        if change["new"] is False:
+        if not change["new"]:
             self.v_model = 1
+            [self._turn_btn(btn_id, False) for btn_id in btns.keys()]
+            return
 
-        for btn_id in btns.keys():
-            btn = self.get_children(btn_id)
-            btn.disabled = not change["new"]
-            btn.color = btns[btn_id][1][change["new"]]
+        for plan_type in btns.keys():
+            for plan in self.model.subscriptions[plan_type].values():
+                # Turn on if at least one of them is True
+                state = True if plan.get("state") else False
+                self._turn_btn(plan_type, state)
+                if state:
+                    break
 
 
-class InfoCard(sw.Card):
+class InfoCard(sw.Layout):
     """Information card that will display the subscription data"""
 
     def __init__(self):
 
+        self.class_ = "d-block"
+
         super().__init__()
 
-        self.w_state = sw.StateIcon(
+        self.children = [v.CardText(children=[])]
+
+    def reset(self):
+        """Remove everything from the view"""
+
+        self.children = []
+
+    def _make_content(self, sub):
+        """Creates individual subscription card from a subscription list"""
+
+        title = sub["plan"]["name"].replace("_", " ")
+        state = sub["state"].capitalize()
+
+        # Create an individual State icon for all the elements, it has to be
+        # independant
+        w_state = sw.StateIcon(
             states={
                 "non_active": ["Non active", "error"],
                 "active": ["Active", "success"],
             }
         )
-        self.title = sw.CardTitle(children=[v.Spacer(), self.w_state])
-        self.subtitle = v.CardSubtitle(children=[])
-        self.content = v.CardText(children=[])
+        w_state.values = sub["state"]
 
-        self.children = [
-            self.title,
-            self.subtitle,
-            v.Divider(),
-            self.content,
-        ]
-
-    def update(self, sub):
-        """Extract the info from the subscription and set it in the card"""
-
-        title = sub["plan"]["name"].replace("_", " ")
-        state = sub["state"].capitalize()
-        self.w_state.values = sub["state"]
+        w_title = sw.CardTitle(children=[title, v.Spacer(), w_state])
+        w_subtitle = v.CardSubtitle(children=[state])
 
         from_ = datetime.fromisoformat(sub["active_from"])
         to = datetime.fromisoformat(sub["active_to"])
@@ -128,14 +144,6 @@ class InfoCard(sw.Card):
             "to": ["Until:", to.strftime("%Y/%m/%d")],
             "days_left": ["Days left:", f"{days_left}"],
         }
-
-        title_children = self.title.children
-        if len(title_children) == 2:
-            self.title.set_children(title)
-        else:
-            self.title.children = [title] + title_children[1:]
-
-        self.subtitle.children = [state]
 
         content = [
             (
@@ -153,6 +161,24 @@ class InfoCard(sw.Card):
         # Flat the nested elements and remove the last divider
         content = [e for row in content for e in row][:-1]
 
-        self.content.children = [v.Layout(class_="d-flex flex-wrap", children=content)]
+        return (
+            [w_title, w_subtitle]
+            + [v.Layout(class_="d-flex flex-wrap", children=content)]
+            + [v.Divider(class_="my-2")]
+        )
+
+    def update(self, subs_group):
+        """Extract the info from the subscription and set it in the card.
+
+        Args:
+
+            subs_group (list): list of subscriptions belonging to the same category ('nicfi', 'others')
+        """
+
+        content = [
+            v.Card(children=self._make_content(sub)) for sub in subs_group.values()
+        ]
+
+        self.children = content
 
         return self

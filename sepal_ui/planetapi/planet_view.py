@@ -106,7 +106,7 @@ class PlanetView(sw.Layout):
         self.w_username.v_model = None
         self.w_password.v_model = None
         self.w_key.v_model = None
-        self.planet_model.active = False
+        self.planet_model.__init__()
 
         return
 
@@ -125,6 +125,8 @@ class PlanetView(sw.Layout):
     @loading_button(debug=True)
     def validate(self, *args):
         """Initialize planet client and validate if is active"""
+
+        self.planet_model.__init__()
 
         if self.w_method.v_model == "credentials":
             credentials = [self.w_username.v_model, self.w_password.v_model]
