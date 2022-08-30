@@ -11,6 +11,7 @@ from ipyleaflet import GeoJSON
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
+from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
 random.seed(42)
@@ -384,6 +385,25 @@ class TestSepalMap:
         center = [33.89703655465772, -117.63458938969723]
         assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
         assert m.zoom == 15.0
+
+        return
+
+    def test_add_legend(self, ee_map_with_layers):
+
+        legend_dict = {
+            "forest": "#b3842e",
+            "non forest": "#a1458e",
+            "secondary": "#324a88",
+            "success": "#3f802a",
+            "info": "#79b1c9",
+            "warning": "#b8721d",
+        }
+
+        ee_map_with_layers.add_legend(legend_dict=legend_dict)
+
+        # just test that is a Legend, the rest is tested by Legend
+        assert isinstance(ee_map_with_layers.legend, LegendControl)
+        assert ee_map_with_layers.legend.legend_dict == legend_dict
 
         return
 

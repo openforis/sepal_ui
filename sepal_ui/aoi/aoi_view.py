@@ -138,7 +138,7 @@ class AdminField(sw.Select):
         update the item list based on the given filter
 
         Params:
-            filter_ (str): The code of the parent v_model to filter the current results
+            filter\_ (str): The code of the parent v_model to filter the current results
 
         Return:
             self
