@@ -34,7 +34,9 @@ class LegendControl(WidgetControl):
 
     _html_title = None
 
-    def __init__(self, legend_dict, title=ms.mapping.legend, vertical=True, **kwargs):
+    def __init__(
+        self, legend_dict={}, title=ms.mapping.legend, vertical=True, **kwargs
+    ):
 
         # init traits
         self.title = title
@@ -47,36 +49,48 @@ class LegendControl(WidgetControl):
 
         # create a card inside the widget
         # Be sure that the scroll bar will be shown up when legend horizontal
-        card = sw.Card(
+        self.legend_card = sw.Card(
+            attributes={"id": "legend_card"},
             style_="overflow-x:auto; white-space: nowrap;",
             max_width=450,
             max_height=350,
             children=[self._html_title, self._html_table],
-        )
+        ).hide()
 
         # set some parameters for the actual widget
-        kwargs["widget"] = card
+        kwargs["widget"] = self.legend_card
         kwargs["position"] = kwargs.pop("position", "bottomright")
 
         super().__init__(**kwargs)
 
-        # set the legend
-        self.set_legend(None)
+        self._set_legend(legend_dict)
 
-    def __len__(
-        self,
-    ):
+    def __len__(self):
         """returns the number of elements in the legend"""
 
         return len(self.legend_dict)
 
+    def hide(self):
+        """Hide control by hiding its content"""
+        self.legend_card.hide()
+
+    def show(self):
+        """Show control by displaying its content"""
+        self.legend_card.show()
+
     @observe("legend_dict", "vertical")
-    def set_legend(self, _):
+    def _set_legend(self, _):
         """Creates/update a legend based on the class legend_dict member"""
 
-        # Do this to avoid crash when called by trait
+        # Do this to avoid crash when called by trait for the first time
         if self._html_table is None:
             return
+
+        if not self.legend_dict:
+            self.hide()
+            return
+
+        self.show()
 
         if self.vertical:
             elements = [
@@ -123,7 +137,7 @@ class LegendControl(WidgetControl):
         return
 
     @staticmethod
-    def color_box(color, size=30):
+    def color_box(color, size=35):
         """Returns an rectangular SVG html element with the provided color"""
 
         # Define height and width based on the size
