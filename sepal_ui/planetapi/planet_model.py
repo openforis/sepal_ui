@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-from itertools import compress
 
 import nest_asyncio
 import planet.data_filter as filters
@@ -93,31 +92,18 @@ class PlanetModel(Model):
             "Level2",
         ]
 
-        masks = [[wildc in str(sub) for wildc in wildcards] for sub in subs]
-        others = [i for i, mask in enumerate(masks) if not any(mask)]
+        subscriptions = {"nicfi": [], "others": []}
 
-        subs_groups = [
-            list(enumerate(others)),
-            enumerate(["level_0", "level_1", "level_2"]),
-        ]
+        for sub in subs:
+            for w in wildcards:
+                if w in str(sub):
+                    subscriptions["nicfi"].append(sub)
+                    break
+            if sub not in subscriptions["nicfi"]:
+                subscriptions["others"].append(sub)
 
-        def get_subscription(nicfi, index):
+        self.subscriptions = subscriptions
 
-            if nicfi:
-                mask = masks[index]
-                return next(iter(list(compress(subs, mask))))
-            else:
-                return subs[subs_groups[nicfi][index][1]]
-
-        self.subscriptions = {
-            group: {
-                sub_name: get_subscription(bool(nicfi), i)
-                for i, sub_name in subs_groups[bool(nicfi)]
-            }
-            for nicfi, group in enumerate(["others", "nicfi"])
-        }
-
-        # self.active = any()
         states = self.search_status(self.subscriptions)
         self.active = any([next(iter(d.values())) for d in states])
 
@@ -200,18 +186,11 @@ class PlanetModel(Model):
 
         states = []
 
-        def recursive(d, k):
-            if "plan" in d:
-                plan = d.get("plan")
-                state = True if plan.get("state") == "active" else False
-                states.append({k: state})
-
-            for k, v in d.items():
-                if isinstance(v, dict):
-                    item = recursive(v, k)
-                    if item:
-                        return item
-
-        recursive(d, None)
+        for k, v in d.items():
+            for subs in v:
+                if "plan" in subs:
+                    plan = subs.get("plan")
+                    state = True if plan.get("state") == "active" else False
+                    states.append({plan.get("name"): state})
 
         return states

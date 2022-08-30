@@ -91,7 +91,8 @@ class InfoView(sw.ExpansionPanels):
             return
 
         for plan_type in btns.keys():
-            for plan in self.model.subscriptions[plan_type].values():
+            for subs in self.model.subscriptions[plan_type]:
+                plan = subs.get("plan")
                 # Turn on if at least one of them is True
                 state = True if plan.get("state") else False
                 self._turn_btn(plan_type, state)
@@ -135,13 +136,13 @@ class InfoCard(sw.Layout):
         w_subtitle = v.CardSubtitle(children=[state])
 
         from_ = datetime.fromisoformat(sub["active_from"])
-        to = datetime.fromisoformat(sub["active_to"])
+        to = not sub["active_to"] is None and datetime.fromisoformat(sub["active_to"])
         now = datetime.now(timezone.utc)
-        days_left = (to - now).days
+        days_left = "∞" if not to else (to - now).days
 
         info_dict = {
             "from": ["From:", from_.strftime("%Y/%m/%d")],
-            "to": ["Until:", to.strftime("%Y/%m/%d")],
+            "to": ["Until:", "∞" if not to else to.strftime("%Y/%m/%d")],
             "days_left": ["Days left:", f"{days_left}"],
         }
 
@@ -175,9 +176,7 @@ class InfoCard(sw.Layout):
             subs_group (list): list of subscriptions belonging to the same category ('nicfi', 'others')
         """
 
-        content = [
-            v.Card(children=self._make_content(sub)) for sub in subs_group.values()
-        ]
+        content = [v.Card(children=self._make_content(sub)) for sub in subs_group]
 
         self.children = content
 
