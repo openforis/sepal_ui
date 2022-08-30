@@ -78,7 +78,8 @@
 		}
 	},
 	"mapping": {
-		"no_image": "图像文件不存在。"
+		"no_image": "图像文件不存在。",
+		"legend": ""
 	},
 	"planet": {
 		"exception": {
