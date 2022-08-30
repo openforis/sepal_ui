@@ -53,6 +53,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx-favicon",
     "notfound.extension",
     "sphinxcontrib.spelling",
     "sphinxcontrib.autoprogram",
@@ -72,14 +73,6 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 source_suffix = [".rst", ".md"]
 
 # -- Load the images from the master sepal-doc ---------------------------------
-urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
-    "_image/dwn/sepal.png",
-)
-urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/favicon.ico",
-    "_image/dwn/favicon.ico",
-)
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/404-compass.png",
     "_image/dwn/404-compass.png",
@@ -103,13 +96,16 @@ if not version_match or version_match.isdigit():
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "_image/dwn/sepal.png"
-html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "header_links_before_dropdown": 6,
+    "logo": {
+        "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_static/sepal_light.png",
+        "image_dark": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_static/sepal_dark.png",
+    },
     "use_edit_page_button": True,
     "show_prev_next": False,
-    "switcher": {"json_url": json_url, "version": version_match},
+    "switcher": {"json_url": json_url, "version_match": version_match},
     "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
@@ -130,6 +126,28 @@ html_context = {
     "github_version": "master",
     "doc_path": "docs/source",
 }
+
+favicons = [
+    {
+        "rel": "apple-touch-icon",
+        "size": "180x180",
+        "static-file": "apple-touch-icon.png",
+    },
+    {
+        "rel": "icon",
+        "type": "image/png",
+        "size": "32x32",
+        "static-file": "favicon-32x32.png",
+    },
+    {
+        "rel": "icon",
+        "type": "image/png",
+        "size": "16x16",
+        "static-file": "favicon-16x16.png",
+    },
+    {"rel": "mask-icon", "static-file": "safari-pinned-tab.svg", "color": "#186691"},
+    {"rel": "manifest", "static-file": "/site.webmanifest"},
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
