@@ -50,7 +50,9 @@ class InfoView(sw.ExpansionPanels):
         self.children = [
             v.ExpansionPanel(
                 children=[
-                    v.ExpansionPanelHeader(children=[v.Flex(children=subs_btn)]),
+                    v.ExpansionPanelHeader(
+                        hide_actions=True, children=[v.Flex(children=subs_btn)]
+                    ),
                     v.ExpansionPanelContent(v_model=1, children=[self.info_card]),
                 ]
             )
@@ -103,7 +105,7 @@ class InfoCard(sw.Layout):
     """Information card that will display the subscription data"""
 
     def __init__(self):
-
+        self.style_ = "max-height: 240px; overflow: auto"
         self.class_ = "d-block"
 
         super().__init__()
