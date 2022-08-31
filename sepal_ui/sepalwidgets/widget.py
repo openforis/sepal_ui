@@ -1,8 +1,7 @@
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
-from ipywidgets import link
 from markdown import markdown
-from traitlets import Any, Unicode, dlink, observe
+from traitlets import Any, Unicode, link, observe
 
 from sepal_ui import color
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
@@ -119,7 +118,7 @@ class StateIcon(Tooltip):
         kwargs: Any arguments from a v.Tooltip
     """
 
-    value = Any().tag(sync=True)
+    values = Any().tag(sync=True)
     "bool, str, int: key name of the current state of component. Values must be same as states_dict keys."
 
     states = None
@@ -128,7 +127,7 @@ class StateIcon(Tooltip):
     icon = None
     "v.Icon: the colored Icon of the tooltip"
 
-    def __init__(self, model, model_trait, states=None, **kwargs):
+    def __init__(self, model=None, model_trait=None, states=None, **kwargs):
 
         # set the default parameter of the tooltip
         kwargs["right"] = kwargs.pop("right", True)
@@ -148,9 +147,10 @@ class StateIcon(Tooltip):
         super().__init__(self.icon, init_value[0], **kwargs)
 
         # Directional from there to link here.
-        dlink((model, model_trait), (self, "value"))
+        if all([model, model_trait]):
+            link((model, model_trait), (self, "values"))
 
-    @observe("value")
+    @observe("values")
     def _swap(self, change):
         """Swap between states"""
 
