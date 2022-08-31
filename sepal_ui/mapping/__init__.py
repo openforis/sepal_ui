@@ -3,6 +3,7 @@ from .draw_control import *
 from .fullscreen_control import *
 from .layer import *
 from .layer_state_control import *
+from .legend_control import *
 from .map_btn import *
 from .menu_control import *
 from .sepal_map import *
