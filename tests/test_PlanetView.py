@@ -9,9 +9,7 @@ from sepal_ui.planetapi import PlanetView
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetView:
-    def test_init(
-        self,
-    ):
+    def test_init(self):
 
         # With own components
         planet_view = PlanetView()
@@ -27,9 +25,7 @@ class TestPlanetView:
         assert planet_view.btn == external_btn
         assert planet_view.alert == external_alert
 
-    def test_reset(
-        self,
-    ):
+    def test_reset(self):
 
         # Arrange
         planet_view = PlanetView()
@@ -46,9 +42,7 @@ class TestPlanetView:
         planet_view.w_password.v_model is None
         planet_view.w_key.v_model is None
 
-    def test_swap(
-        self,
-    ):
+    def test_swap(self):
 
         # Arramge
         planet_view = PlanetView()
@@ -71,9 +65,7 @@ class TestPlanetView:
         assert planet_view.w_password.viz is False
         assert planet_view.w_key.viz is True
 
-    def test_validate(
-        self,
-    ):
+    def test_validate(self):
 
         # Arrange
         credentials = tuple(json.loads(os.getenv("PLANET_API_CREDENTIALS")).values())

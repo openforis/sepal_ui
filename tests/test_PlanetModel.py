@@ -75,7 +75,6 @@ class TestPlanetModel:
     def test_get_subscriptions(self, planet_key):
 
         planet_model = PlanetModel(planet_key)
-
         subs = planet_model.get_subscriptions()
 
         # Check object has length, because there is no way to check a value

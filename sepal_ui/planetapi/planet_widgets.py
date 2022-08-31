@@ -28,7 +28,6 @@ class InfoView(sw.ExpansionPanels):
         self.v_model = 1
         self.current = None
         self.readonly = True
-        self.max_height = 300
 
         super().__init__(*args, **kwargs)
 
@@ -111,16 +110,11 @@ class InfoCard(sw.Layout):
 
         self.children = [v.CardText(children=[])]
 
-    def reset(self):
-        """Remove everything from the view"""
-
-        self.children = []
-
     def _make_content(self, sub):
         """Creates individual subscription card from a subscription list"""
 
         title = sub["plan"]["name"].replace("_", " ")
-        state = sub["state"].capitalize()
+        state = sub["plan"]["state"]
 
         # Create an individual State icon for all the elements, it has to be
         # independant
@@ -130,10 +124,10 @@ class InfoCard(sw.Layout):
                 "active": ["Active", "success"],
             }
         )
-        w_state.values = sub["state"]
+        w_state.values = state
 
         w_title = sw.CardTitle(children=[title, v.Spacer(), w_state])
-        w_subtitle = v.CardSubtitle(children=[state])
+        w_subtitle = v.CardSubtitle(children=[state.capitalize()])
 
         from_ = datetime.fromisoformat(sub["active_from"])
         to = not sub["active_to"] is None and datetime.fromisoformat(sub["active_to"])
@@ -176,7 +170,10 @@ class InfoCard(sw.Layout):
             subs_group (list): list of subscriptions belonging to the same category ('nicfi', 'others')
         """
 
-        content = [v.Card(children=self._make_content(sub)) for sub in subs_group]
+        content = [
+            v.Card(class_="pa-2", children=self._make_content(sub))
+            for sub in subs_group
+        ]
 
         self.children = content
 
