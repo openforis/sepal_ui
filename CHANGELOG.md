@@ -1,3 +1,42 @@
+## v_2.11.1 (2022-09-01)
+
+### Fix
+
+- https://peps.python.org/pep-0440/#direct-references
+
+## v_2.11.0 (2022-09-01)
+
+### Feat
+
+- creates an overflow scrollbar when there is more than one subscription card
+- add Sepal Map method to create and set legend
+- hide legend when there is not content
+- integrate levels of nicfi contract inside planet_view and planet_model
+- add legend key to message box
+- add Sepal Map method to create and set legend
+
+### Refactor
+
+- simplify structure
+- support 'others' subscriptions
+- small changes
+- make optional model and trait, the object change method can be autonomously called
+- upgrade planetapi object to match with planet>=2
+- move to planet V2
+- use message key for legend title
+
+### Fix
+
+- set all the links inlines
+- FAO dark logo
+- the logo is was wrong
+- fix the json file
+- transform legend into a legendControl
+- #579
+- fix imports error
+- find forbiden keys recursivesly
+- find forbiden keys recursivesly
+
 ## v_2.10.3 (2022-08-10)
 
 ### Fix

@@ -40,9 +40,15 @@ class TestTranslator:
         assert translator._target == "fr-FR"
         assert translator._match is True
 
+        # Check that is failing when using
+
         return
 
     def test_search_key(self):
+
+        # generate the tmp_dir in the test directory
+        tmp_dir = Path(__file__).parent / "data" / "messages"
+        tmp_dir.mkdir(exist_ok=True, parents=True)
 
         # assert that having a wrong key  at root level
         # in the json will raise an error
@@ -50,7 +56,14 @@ class TestTranslator:
         d = {"toto": {"a": "b"}, "c": "d"}
 
         with pytest.raises(Exception):
-            Translator.search_key(d, key)
+            Translator(tmp_dir).search_key(d, key)
+
+        # Search when the key is in a deeper nested level
+        key = "nested_key"
+        d = {"en": {"level1": {"level2": {"nested_key": "value"}}}}
+
+        with pytest.raises(Exception):
+            Translator(tmp_dir).search_key(d, key)
 
         return
 
@@ -124,11 +137,11 @@ class TestTranslator:
 
     def test_key_use(self):
 
-        # check key usage method and the lib content at the same time
-        expected = ["test_key"]
+        # check key usage method
+        # don't test if all keys are translated, crowdin will monitor it
         lib_folder = Path(__file__).parents[1] / "sepal_ui"
-        res = ms.key_use(lib_folder, "ms")
-        assert res == expected
+
+        assert "test_key" in ms.key_use(lib_folder, "ms")
 
         return
 

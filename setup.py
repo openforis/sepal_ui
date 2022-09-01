@@ -4,7 +4,7 @@ from subprocess import check_call
 from setuptools import setup
 from setuptools.command.develop import develop
 
-version = "2.10.3"
+version = "2.11.1"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -65,7 +65,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet<2",
+        "planet @ git+https://github.com/planetlabs/planet-client-python.git@2.0a2#3c4af2569797ed17e66a5d21c1d84252731f3e61",  # this is a prerelease
         "pyyaml",
         "dask",
         "tqdm",
@@ -94,6 +94,7 @@ setup_params = {
             "pandoc",
             "m2r2",
             "sphinxcontrib-autoprogram",
+            "sphinx-favicon",
         ],
     },
     "packages": [
