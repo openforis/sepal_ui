@@ -1,3 +1,9 @@
+## v_2.11.1 (2022-09-01)
+
+### Fix
+
+- https://peps.python.org/pep-0440/#direct-references
+
 ## v_2.11.0 (2022-09-01)
 
 ### Feat
