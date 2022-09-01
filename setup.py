@@ -65,7 +65,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet @ git+https://github.com/planetlabs/planet-client-python.git@2.0a2#egg=planet",  # this is a prerelease
+        "planet @ git+https://github.com/planetlabs/planet-client-python.git@2.0a2#3c4af2569797ed17e66a5d21c1d84252731f3e61",  # this is a prerelease
         "pyyaml",
         "dask",
         "tqdm",
