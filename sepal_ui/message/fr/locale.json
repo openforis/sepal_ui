@@ -79,7 +79,7 @@
 	},
 	"mapping": {
 		"no_image": "Le fichier image n'existe pas.",
-		"legend": ""
+		"legend": "Légende"
 	},
 	"planet": {
 		"exception": {
