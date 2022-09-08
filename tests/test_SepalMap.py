@@ -169,10 +169,18 @@ class TestSepalMap:
 
     def test_get_basemap_list(self):
 
+        # Retrieve 5 random maps
+        random_basemaps = [
+            "Esri.OceanBasemap",
+            "OpenStreetMap",
+            "HikeBike.HikeBike",
+            "HikeBike.HillShading",
+            "BasemapAT.orthofoto",
+        ]
+
         res = sm.SepalMap.get_basemap_list()
 
-        # last time I checked there were 128
-        assert len(res) == 131
+        assert all([bm in res for bm in random_basemaps])
 
         return
 
