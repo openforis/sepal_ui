@@ -298,7 +298,7 @@ class TestSepalMap:
         # Assert
         new_layer = m.layers[-1]
 
-        layer_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
+        layer_style = json.loads((ss.JSON_DIR / "layer.json").read_text())["layer"]
         hover_style = json.loads((ss.JSON_DIR / "layer_hover.json").read_text())
 
         assert all([new_layer.style[k] == v for k, v in layer_style.items()])
