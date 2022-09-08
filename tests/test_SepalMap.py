@@ -144,6 +144,31 @@ class TestSepalMap:
 
         return
 
+    def test_add_ee_layer_exceptions(self):
+
+        map_ = sm.SepalMap()
+
+        # Test add a non ee map element
+        with pytest.raises(AttributeError):
+            map_.addLayer({})
+
+        # Test add a feature collection with invalid style
+        geometry = ee.FeatureCollection(
+            ee.Geometry.Polygon(
+                [
+                    [
+                        [-103.198046875, 36.866172202843465],
+                        [-103.198046875, 34.655531078083534],
+                        [-100.385546875, 34.655531078083534],
+                        [-100.385546875, 36.866172202843465],
+                    ]
+                ],
+            )
+        )
+
+        with pytest.raises(AttributeError):
+            map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
+
     def test_add_ee_layer(self, asset_image_viz):
 
         # create map and image
@@ -162,6 +187,26 @@ class TestSepalMap:
         dataset = ee.Image("CSP/ERGo/1_0/Global/ALOS_mTPI")
         dataset = ee.Image().addBands(dataset)  # with all bands and 0 properties
         m.addLayer(dataset)
+
+        assert len(m.layers) == 2
+
+        # Test with vector
+
+        geometry = ee.FeatureCollection(
+            ee.Geometry.Polygon(
+                [
+                    [
+                        [-103.198046875, 36.866172202843465],
+                        [-103.198046875, 34.655531078083534],
+                        [-100.385546875, 34.655531078083534],
+                        [-100.385546875, 36.866172202843465],
+                    ]
+                ],
+            )
+        )
+
+        map_ = sm.SepalMap()
+        map_.addLayer(geometry, {"color": "red", "fillColor": None})
 
         assert len(m.layers) == 2
 
