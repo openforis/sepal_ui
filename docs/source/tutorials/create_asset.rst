@@ -1,11 +1,19 @@
-Create a GEE asset compatible with SEPAL
-========================================
+Map visualization
+*****************
+
+In this section, you will find information related to map visualization. In the :ref:`first section <geeraster>` you will learn how to set the styles to a GEE image fully compatible with both SEPAL and sepal-ui, and in the :ref:`last section <geevector>`, you will find the info about the default and custom styles that can be applied to :code:`sepal_ui.mapping.SepalMap`.
+
+.. _geeraster:
+
+Set EE Image visualization
+==========================
+
 
 In the current release of SEPAL, Custom assets can be displayed in the main interface to overlay different information in the same place. 
 As the main goal of this library is to create assets in the the SEPAL framework and as :code:`sepal_ui` is bound to GEE for many modules, we will present you here the different way of creating an :code:`Image` asset that can be automatically displayed in SEPAL and remain consistent with what you display in your app. 
 
-create a visualization 
-----------------------
+Create a visualization
+``````````````````````
 
 To create an :code:`ee.Image` compatible with the visualization tool of SEPAL, add extra-properties to the :code:`ee.Image` using the :code:`set` method:
 
@@ -43,6 +51,9 @@ Each key of this dictionary should start with :code:`visualisation_<number>_<key
 .. figure:: ../_image/tutorials/create_asset/all_viz_example.png
    :alt: all viz example
    :align: center
+   
+Visualization types
+```````````````````
 
 RGB false colors 
 ----------------
@@ -164,6 +175,40 @@ and the corresponding display:
 .. figure:: ../_image/tutorials/create_asset/viz_class.png
    :alt: rgb display
    :align: center
+   
+   
+.. _geevector:
+
+Set EE vector visualization
+===========================
+
+By default, when adding a vector (ee.Geometry, ee.Feature, ee.FeatureCollection) layer to a :code:`SepalMap` map, it will use pre-defined styles (features without fill color and primary color in the borders), which means, that if no visualization parameters (:code:`vis_params`) are passed, it will use these. 
+
+The visualization parameters are added as a second argument in the :code:`SepalMap().add_layer(layer, vis_params)` method, and it is receiving a dictionary. To check the available style parameters, please refer to the `ee.FeatureCollection style <https://developers.google.com/earth-engine/apidocs/ee-featurecollection-style>`_ documentation.
+
+
+.. note::
+   
+   By default, the :code:`fillColor` property is set as transparent. If you'd like to use the same color as the border but with 50% of opacity, just set the value of the property as :code:`None`, just as in the example below.
+
+.. code-block:: python
+
+    geometry = ee.FeatureCollection(
+        ee.Geometry.Polygon(
+            [
+                [
+                    [-103.198046875, 36.866172202843465],
+                    [-103.198046875, 34.655531078083534],
+                    [-100.385546875, 34.655531078083534],
+                    [-100.385546875, 36.866172202843465],
+                ]
+            ],
+        )
+    )
+
+    map_ = sm.SepalMap()
+    map_.addLayer(geometry, {"color": "red", "fillColor": None})
+
 
 .. spelling:word-list:: 
 

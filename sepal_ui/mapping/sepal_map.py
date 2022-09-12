@@ -27,7 +27,7 @@ from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
 
-from sepal_ui import color
+from sepal_ui import color as scolors
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
@@ -493,16 +493,32 @@ class SepalMap(ipl.Map):
             viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
         """
 
+        # check the type of the ee object and raise an error if it's not recognized
+        if not isinstance(
+            ee_object,
+            (
+                ee.Image,
+                ee.ImageCollection,
+                ee.FeatureCollection,
+                ee.Feature,
+                ee.Geometry,
+            ),
+        ):
+            raise AttributeError(
+                "\n\nThe image argument in 'addLayer' function must be an instance of "
+                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
+            )
+
         # get the list of viz params
         viz = self.get_viz_params(ee_object)
 
         # get the requested vizparameters name
         # if non is set use the first one
-        if not viz == {}:
+        if viz:
             viz_name = viz_name or viz[next(iter(viz))]["name"]
 
         # apply it to vis_params
-        if vis_params == {} and viz != {}:
+        if not vis_params and viz:
 
             # find the viz params in the list
             try:
@@ -585,22 +601,6 @@ class SepalMap(ipl.Map):
             layer_count = len(self.layers)
             name = "Layer " + str(layer_count + 1)
 
-        # check the type of the ee object and raise an error if it's not recognized
-        if not isinstance(
-            ee_object,
-            (
-                ee.Image,
-                ee.ImageCollection,
-                ee.FeatureCollection,
-                ee.Feature,
-                ee.Geometry,
-            ),
-        ):
-            raise AttributeError(
-                "\n\nThe image argument in 'addLayer' function must be an instance of "
-                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
-            )
-
         # force cast to featureCollection if needed
         if isinstance(
             ee_object,
@@ -610,17 +610,31 @@ class SepalMap(ipl.Map):
                 ee.featurecollection.FeatureCollection,
             ),
         ):
+            default_vis = json.loads((ss.JSON_DIR / "layer.json").read_text())[
+                "ee_layer"
+            ]
+            default_vis.update(color=scolors.primary)
+
+            # We want to get all the default styles and only change those whose are
+            # in the provided visualization.
+            default_vis.update(vis_params)
+
+            vis_params = default_vis
 
             features = ee.FeatureCollection(ee_object)
-
-            width = vis_params.pop("width", 2)
-            color = vis_params.pop("color", "000000")
-
             const_image = ee.Image.constant(0.5)
-            image_fill = features.style(fillColor=color).updateMask(const_image)
-            image_outline = features.style(
-                color=color, fillColor="00000000", width=width
-            )
+
+            try:
+                image_fill = features.style(**vis_params).updateMask(const_image)
+                image_outline = features.style(**vis_params)
+
+            except AttributeError:
+                # Raise a more understandable error
+                raise AttributeError(
+                    "You can only use the following styles: 'color', 'pointSize', "
+                    "'pointShape', 'width', 'fillColor', 'styleProperty', "
+                    "'neighborhood', 'lineType'"
+                )
 
             image = image_fill.blend(image_outline)
             obj = features
@@ -786,12 +800,14 @@ class SepalMap(ipl.Map):
         if isinstance(layer, ipl.GeoJSON):
 
             # define the default values
-            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())
-            default_style.update(color=color.primary)
+            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())[
+                "layer"
+            ]
+            default_style.update(color=scolors.primary)
             default_hover_style = json.loads(
                 (ss.JSON_DIR / "layer_hover.json").read_text()
             )
-            default_hover_style.update(color=color.primary)
+            default_hover_style.update(color=scolors.primary)
 
             # apply the style depending on the parameters
             layer.style = layer.style or default_style
