@@ -6,6 +6,7 @@ from urllib.request import urlretrieve
 import ee
 import geopandas as gpd
 import pandas as pd
+from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON
 from traitlets import Any
 
@@ -123,9 +124,6 @@ class AoiModel(Model):
     folder = None
     "str: the folder name used in GEE related component, mainly used for debugging"
 
-    alert = None
-    "sepal_ui.sepalwidgets.Alert: the alert to display outputs"
-
     default_vector = None
     "(str|pathlib.path: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
 
@@ -154,8 +152,12 @@ class AoiModel(Model):
     ipygeojson = None
     "ipyleaflet.GeoJSON: the representation of the AOI as a ipyleaflet layer"
 
+    @deprecated(
+        version="2.11.3",
+        reason=":code:`alert` positional argument will be removed. Successfull output messages has to be created in AoiView.",
+    )
     def __init__(
-        self, alert, gee=True, vector=None, admin=None, asset=None, folder=None
+        self, alert=None, gee=True, vector=None, admin=None, asset=None, folder=None
     ):
 
         super().__init__()
@@ -165,9 +167,6 @@ class AoiModel(Model):
         if gee:
             su.init_ee()
             self.folder = folder or ee.data.getAssetRoots()[0]["id"]
-
-        # the Alert used to display information
-        self.alert = alert
 
         # set default values
         self.set_default(vector, admin, asset)
@@ -239,8 +238,6 @@ class AoiModel(Model):
             self._from_asset(self.asset_name)
         else:
             raise Exception(ms.aoi_sel.exception.no_inputs)
-
-        self.alert.add_msg(ms.aoi_sel.complete, "success")
 
         return self
 
