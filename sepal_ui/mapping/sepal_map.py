@@ -631,7 +631,7 @@ class SepalMap(ipl.Map):
             except AttributeError:
                 # Raise a more understandable error
                 raise AttributeError(
-                    "You only can use the following styles: 'color', 'pointSize', "
+                    "You can only use the following styles: 'color', 'pointSize', "
                     "'pointShape', 'width', 'fillColor', 'styleProperty', "
                     "'neighborhood', 'lineType'"
                 )
