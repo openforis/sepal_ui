@@ -1,3 +1,16 @@
+## v_2.12.0 (2022-09-13)
+
+### Fix
+
+- set the drawer on top of the appbar
+- remove alert from aoi_model and add model as optional in aoi_view
+- remove alert from aoi_model and add model as optional in aoi_view This is a solution in order to close #589
+- set the navbar on top of the appbar
+
+### Feat
+
+- creates a default layer style to add_ee_layers. closes #425.
+
 ## v_2.11.2 (2022-09-01)
 
 ### Fix
