@@ -78,7 +78,8 @@
 		}
 	},
 	"mapping": {
-		"no_image": ""
+		"no_image": "",
+		"legend": ""
 	},
 	"planet": {
 		"exception": {

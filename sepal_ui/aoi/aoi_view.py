@@ -1,10 +1,10 @@
 from datetime import datetime as dt
 
 import pandas as pd
+from deprecated.sphinx import versionadded
 from traitlets import Int
 
 import sepal_ui.sepalwidgets as sw
-from sepal_ui import color as sc
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
@@ -250,7 +250,13 @@ class AoiView(sw.Card):
     alert = None
     "sw.Alert: a alert to display message to the end user"
 
-    def __init__(self, methods="ALL", map_=None, gee=True, folder=None, **kwargs):
+    @versionadded(
+        version="2.11.3",
+        reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
+    )
+    def __init__(
+        self, methods="ALL", map_=None, gee=True, folder=None, model=None, **kwargs
+    ):
 
         # set ee dependencie
         self.ee = gee
@@ -258,7 +264,8 @@ class AoiView(sw.Card):
         gee is False or su.init_ee()
 
         # get the model
-        self.model = AoiModel(sw.Alert(), gee=gee, folder=folder, **kwargs)
+        self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
+        print(self.model)
 
         # get the map if filled
         self.map_ = map_
@@ -288,7 +295,7 @@ class AoiView(sw.Card):
         [c.hide() for c in self.components.values()]
 
         # use the same alert as in the model
-        self.alert = self.model.alert
+        self.alert = sw.Alert()
 
         # bind the widgets to the model
         (
@@ -338,6 +345,7 @@ class AoiView(sw.Card):
 
         # update the model
         self.model.set_object()
+        self.alert.add_msg(ms.aoi_sel.complete, "success")
 
         # update the map
         if self.map_:
@@ -345,9 +353,7 @@ class AoiView(sw.Card):
             self.map_.zoom_bounds(self.model.total_bounds())
 
             if self.ee:
-                self.map_.add_ee_layer(
-                    self.model.feature_collection, {"color": sc.success}, "aoi"
-                )
+                self.map_.add_ee_layer(self.model.feature_collection, {}, name="aoi")
             else:
                 self.map_.add_layer(self.model.get_ipygeojson())
 
