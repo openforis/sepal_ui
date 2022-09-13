@@ -265,7 +265,6 @@ class AoiView(sw.Card):
 
         # get the model
         self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
-        print(self.model)
 
         # get the map if filled
         self.map_ = map_
