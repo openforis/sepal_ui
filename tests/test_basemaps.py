@@ -6,14 +6,33 @@ from sepal_ui import mapping as sm
 class TestBasemaps:
     def test_get_xyz_dict(self):
 
-        assert len(sm.basemaps.get_xyz_dict()) == 126
+        # Retrieve 4 random maps
+        random_basemaps = [
+            "Esri.OceanBasemap",
+            "HikeBike.HikeBike",
+            "HikeBike.HillShading",
+            "BasemapAT.orthofoto",
+        ]
+        basemaps = sm.basemaps.get_xyz_dict()
+        assert all([m in basemaps for m in random_basemaps])
 
         return
 
     def test_xyz_to_leaflet(self):
 
-        assert len(sm.basemaps.xyz_to_leaflet()) == 131
-        for tile in sm.basemaps.xyz_to_leaflet().values():
+        # Retrieve 1 random maps + the five manually added
+        random_basemaps = [
+            "Esri.OceanBasemap",
+            "OpenStreetMap",
+            "ROADMAP",
+            "SATELLITE",
+            "TERRAIN",
+            "HYBRID",
+        ]
+        basemaps = sm.basemaps.xyz_to_leaflet()
+        assert all([m in basemaps for m in random_basemaps])
+
+        for tile in basemaps.values():
             assert isinstance(tile, TileLayer)
 
         return
