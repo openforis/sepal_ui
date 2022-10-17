@@ -6,6 +6,7 @@ import ee
 import geopandas as gpd
 import ipyvuetify as v
 import pandas as pd
+from deprecated.sphinx import versionadded
 from ipywidgets import jslink
 from natsort import humansorted
 from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
@@ -30,6 +31,10 @@ __all__ = [
 ]
 
 
+@versionadded(
+    version="2.13.0",
+    reason="Empty v_model will be treated as empty string: :code:`v_model=''`.",
+)
 class DatePicker(sw.Layout):
     """
     Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
