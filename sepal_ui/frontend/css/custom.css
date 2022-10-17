@@ -5,4 +5,5 @@ main.v-content {padding-top: 0px !important;}
 .leaflet-control-container .vuetify-styles .v-application {background: rgb(0,0,0,0);}
 .v-alert__wrapper .progress {background-color: transparent;}
 header.v-app-bar {z-index: 800 !important}
+.v-menu__content {z-index: 801 !important}
 nav.v-navigation-drawer {z-index: 900 !important}
