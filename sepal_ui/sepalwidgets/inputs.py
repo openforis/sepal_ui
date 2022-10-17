@@ -11,7 +11,6 @@ from ipywidgets import jslink
 from natsort import humansorted
 from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
 
-import sepal_ui.sepalwidgets as sw
 from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
@@ -35,13 +34,14 @@ __all__ = [
     version="2.13.0",
     reason="Empty v_model will be treated as empty string: :code:`v_model=''`.",
 )
-class DatePicker(sw.Layout):
+class DatePicker(v.Layout, SepalWidget):
     """
     Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
 
     Args:
         label (str, optional): the label of the datepicker field
-        kwargs (optional): any parameter from a v.Layout abject. If set, 'children' will be overwritten.
+        layout_kwargs (dict, optional): any parameter for the wrapper layout
+        kwargs (optional): any parameter from a v.DatePicker abject.
 
     """
 
@@ -54,7 +54,7 @@ class DatePicker(sw.Layout):
     disabled = Bool(False).tag(sync=True)
     "traitlets.Bool: the disabled status of the Datepicker object"
 
-    def __init__(self, label="Date", **kwargs):
+    def __init__(self, label="Date", layout_kwargs={}, **kwargs):
 
         kwargs["v_model"] = kwargs.get("v_model", "")
 
@@ -87,13 +87,12 @@ class DatePicker(sw.Layout):
         )
 
         # set the default parameter
-        layout_kwargs = {
-            "v_model": None,
-            "row": True,
-            "class_": "pa-5",
-            "align_center": True,
-            "children": [v.Flex(xs10=True, children=[self.menu])],
-        }
+        layout_kwargs["row"] = layout_kwargs.get("row", True)
+        layout_kwargs["class_"] = layout_kwargs.get("class_", "pa-5")
+        layout_kwargs["align_center"] = layout_kwargs.get("align_center", True)
+        layout_kwargs["children"] = layout_kwargs.pop(
+            "children", [v.Flex(xs10=True, children=[self.menu])]
+        )
 
         # call the constructor
         super().__init__(**layout_kwargs)
