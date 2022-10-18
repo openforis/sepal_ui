@@ -6,6 +6,7 @@ import ee
 import geopandas as gpd
 import ipyvuetify as v
 import pandas as pd
+from deprecated.sphinx import versionadded
 from ipywidgets import jslink
 from natsort import humansorted
 from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
@@ -29,13 +30,18 @@ __all__ = [
 ]
 
 
+@versionadded(
+    version="2.13.0",
+    reason="Empty v_model will be treated as empty string: :code:`v_model=''`.",
+)
 class DatePicker(v.Layout, SepalWidget):
     """
     Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
 
     Args:
         label (str, optional): the label of the datepicker field
-        kwargs (optional): any parameter from a v.Layout abject. If set, 'children' will be overwritten.
+        layout_kwargs (dict, optional): any parameter for the wrapper layout
+        kwargs (optional): any parameter from a v.DatePicker abject.
 
     """
 
@@ -48,13 +54,14 @@ class DatePicker(v.Layout, SepalWidget):
     disabled = Bool(False).tag(sync=True)
     "traitlets.Bool: the disabled status of the Datepicker object"
 
-    def __init__(self, label="Date", **kwargs):
+    def __init__(self, label="Date", layout_kwargs={}, **kwargs):
+
+        kwargs["v_model"] = kwargs.get("v_model", "")
 
         # create the widgets
-        date_picker = v.DatePicker(no_title=True, v_model=None, scrollable=True)
+        self.date_picker = v.DatePicker(no_title=True, scrollable=True, **kwargs)
 
         self.date_text = v.TextField(
-            v_model=None,
             label=label,
             hint="YYYY-MM-DD format",
             persistent_hint=True,
@@ -69,7 +76,7 @@ class DatePicker(v.Layout, SepalWidget):
             offset_y=True,
             v_model=False,
             close_on_content_click=False,
-            children=[date_picker],
+            children=[self.date_picker],
             v_slots=[
                 {
                     "name": "activator",
@@ -80,17 +87,18 @@ class DatePicker(v.Layout, SepalWidget):
         )
 
         # set the default parameter
-        kwargs["v_model"] = kwargs.pop("v_model", None)
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["class_"] = kwargs.pop("class_", "pa-5")
-        kwargs["align_center"] = kwargs.pop("align_center", True)
-        kwargs["children"] = [v.Flex(xs10=True, children=[self.menu])]
+        layout_kwargs["row"] = layout_kwargs.get("row", True)
+        layout_kwargs["class_"] = layout_kwargs.get("class_", "pa-5")
+        layout_kwargs["align_center"] = layout_kwargs.get("align_center", True)
+        layout_kwargs["children"] = layout_kwargs.pop(
+            "children", [v.Flex(xs10=True, children=[self.menu])]
+        )
 
         # call the constructor
-        super().__init__(**kwargs)
+        super().__init__(**layout_kwargs)
 
-        jslink((date_picker, "v_model"), (self.date_text, "v_model"))
-        jslink((self, "v_model"), (date_picker, "v_model"))
+        link((self.date_picker, "v_model"), (self.date_text, "v_model"))
+        link((self.date_picker, "v_model"), (self, "v_model"))
 
     @observe("v_model")
     def check_date(self, change):
@@ -102,7 +110,7 @@ class DatePicker(v.Layout, SepalWidget):
         self.date_text.error_messages = None
 
         # exit immediately if nothing is set
-        if change["new"] is None:
+        if not change["new"]:
             return
 
         # change the error status
