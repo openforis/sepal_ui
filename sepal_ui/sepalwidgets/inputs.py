@@ -739,8 +739,6 @@ class AssetSelect(v.Combobox, SepalWidget):
         # init the item list
         items = []
 
-        print(self.default_asset)
-
         # add the default values if needed
         if self.default_asset:
 
@@ -752,8 +750,6 @@ class AssetSelect(v.Combobox, SepalWidget):
             header = ms.widgets.asset_select.custom
             items += [{"divider": True}, {"header": header}]
             items += [default for default in self.default_asset]
-        else:
-            print("bite")
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
