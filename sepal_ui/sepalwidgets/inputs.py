@@ -668,6 +668,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         label=ms.widgets.asset_select.label,
         folder=None,
         types=["IMAGE", "TABLE"],
+        default_asset=[],
         **kwargs,
     ):
         self.valid = False
@@ -677,11 +678,11 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
         self.types = types
 
+        # load the default assets
+        self.default_asset = default_asset
+
         # Validate the input as soon as the object is instantiated
         self.observe(self._validate, "v_model")
-
-        # load the assets in the combobox
-        self._get_items()
 
         # set the default parameters
         kwargs["v_model"] = kwargs.pop("v_model", None)
@@ -696,48 +697,17 @@ class AssetSelect(v.Combobox, SepalWidget):
         # create the widget
         super().__init__(**kwargs)
 
+        # load the assets in the combobox
+        self._get_items()
+
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
-
-    @observe("default_asset")
-    def _add_default(self, change=None):
-        """Add default element(s) to item list"""
-
-        new_val = change["new"]
-
-        if new_val:
-
-            new_items = self.items.copy()
-
-            if isinstance(new_val, str):
-                new_val = [new_val]
-
-            self.v_model = new_val[0]
-
-            default_items = [
-                {"divider": True},
-                {"header": ms.widgets.asset_select.custom},
-            ] + [default for default in new_val]
-
-            # Check if there are previously custom items and replace them, instead
-            # of append them
-
-            if {"header": ms.widgets.asset_select.custom} in self.items:
-
-                next_div_index = new_items.index({"divider": True}, 1)
-                new_items[0:next_div_index] = default_items
-
-            else:
-                new_items = default_items + self.items
-
-            self.items = new_items
-
-        return
+        self.observe(self._get_items, "default_asset")
 
     @su.switch("loading")
     def _validate(self, change):
         """
-        Validate the selected access. Throw an error message if is not accesible or not in the type list.
+        Validate the selected asset. Throw an error message if is not accesible or not in the type list.
         """
 
         self.error_messages = None
@@ -766,15 +736,29 @@ class AssetSelect(v.Combobox, SepalWidget):
     @su.switch("loading", "disabled")
     def _get_items(self, *args):
 
+        # init the item list
+        items = []
+
+        # add the default values if needed
+        if self.default_asset:
+
+            if isinstance(self.default_asset, str):
+                self.default_asset = [self.default_asset]
+
+            self.v_model = self.default_asset[0]
+
+            header = ms.widgets.asset_select.custom
+            items += [{"divider": True}, {"header": header}]
+            items += [default for default in self.default_asset]
+
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
-
         assets = {
             k: sorted([e["id"] for e in raw_assets if e["type"] == k])
             for k in self.types
         }
 
-        items = []
+        # sort the assets by types
         for k in self.types:
             if len(assets[k]):
                 items += [
