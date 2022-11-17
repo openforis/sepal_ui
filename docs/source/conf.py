@@ -90,7 +90,7 @@ if not version_match or version_match.isdigit():
     # For local development, infer the version to latest
     release = "dev"
     version_match = "latest"
-    json_url = "/_static/switcher.json"
+    json_url = "_static/switcher.json"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
