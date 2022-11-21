@@ -50,18 +50,18 @@ class ClassTable(sw.DataTable):
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
             ms.rec.table.btn.edit,
-            icon="fas fa-pencil-alt",
+            gliph="fas fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
-            ms.rec.table.btn.delete, icon="fas fa-trash-alt", color="error", small=True
+            ms.rec.table.btn.delete, gliph="fas fa-trash-alt", color="error", small=True
         )
         self.add_btn = sw.Btn(
-            ms.rec.table.btn.add, icon="fas fa-plus", color="success", small=True
+            ms.rec.table.btn.add, gliph="fas fa-plus", color="success", small=True
         )
-        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon="far fa-save", small=True)
+        self.save_btn = sw.Btn(ms.rec.table.btn.save, gliph="far fa-save", small=True)
 
         slot = v.Toolbar(
             class_="d-flex mb-6",
@@ -601,7 +601,7 @@ class TableView(sw.Card):
         )
         self.btn = sw.Btn(
             ms.rec.table.classif.btn,
-            icon="far fa-table",
+            gliph="far fa-table",
             color="success",
             outlined=True,
         )
