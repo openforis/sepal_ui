@@ -64,6 +64,15 @@ class TestBtn:
         btn.gliph = gliph
         assert btn.v_icon.children[0] == gliph
 
+        # remove all gliph
+        gliph = ""
+        btn.gliph = gliph
+        assert "d-none" in btn.v_icon.class_
+
+        # assert deprecation
+        with pytest.deprecated_call():
+            sw.Btn(icon="fas fa-folder")
+
         return
 
     def test_test_msg(self, btn):
@@ -75,6 +84,10 @@ class TestBtn:
         msg = "New message"
         btn.msg = msg
         assert btn.children[1] == msg
+
+        # test deprecation notice
+        with pytest.deprecated_call():
+            sw.Btn(text="Deprecation")
 
         return
 
