@@ -50,6 +50,34 @@ class TestBtn:
 
         return
 
+    def test_set_gliph(self, btn):
+
+        # new gliph
+        gliph = "fas fa-folder"
+        btn.gliph = gliph
+
+        assert isinstance(btn.v_icon, v.Icon)
+        assert btn.v_icon.children[0] == gliph
+
+        # change existing icon
+        gliph = "fas fa-file"
+        btn.gliph = gliph
+        assert btn.v_icon.children[0] == gliph
+
+        return
+
+    def test_test_msg(self, btn):
+
+        # test the initial text
+        assert btn.children[1] == "Click"
+
+        # update msg
+        msg = "New message"
+        btn.msg = msg
+        assert btn.children[1] == msg
+
+        return
+
     @pytest.fixture
     def btn(self):
         """Create a simple btn"""

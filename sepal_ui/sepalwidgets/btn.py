@@ -36,7 +36,7 @@ class Btn(v.Btn, SepalWidget):
     msg = Unicode("").tag(sync=True)
     "traitlet.Unicode: the text of the btn"
 
-    def __init__(self, msg="click", gliph="", **kwargs):
+    def __init__(self, msg="Click", gliph="", **kwargs):
 
         # deprecation in 2.13 of text and icon
         # as they already exist in the ipyvuetify Btn traits (as booleans)
@@ -63,15 +63,15 @@ class Btn(v.Btn, SepalWidget):
         self.msg = msg
 
     @observe("gliph")
-    def _set_icon(self, change):
+    def _set_gliph(self, change):
         """
         Set a new icon. If the icon is set to "", then it's hidden
         """
-        new_icon = change["new"]
-        self.v_icon.children = [new_icon]
+        new_gliph = change["new"]
+        self.v_icon.children = [new_gliph]
 
         # hide the component to avoid the right padding
-        if not new_icon:
+        if not new_gliph:
             su.hide_component(self.v_icon)
         else:
             su.show_component(self.v_icon)
@@ -88,7 +88,7 @@ class Btn(v.Btn, SepalWidget):
 
         return self
 
-    @deprecated(version="2.14", reason="Replace by the private _set_icon")
+    @deprecated(version="2.14", reason="Replace by the private _set_gliph")
     def set_icon(self, icon=""):
         """
         set a new icon. If the icon is set to "", then it's hidden.
@@ -99,7 +99,7 @@ class Btn(v.Btn, SepalWidget):
         Return:
             self
         """
-        self.icon = icon
+        self.gliph = icon
         return self
 
     def toggle_loading(self):
