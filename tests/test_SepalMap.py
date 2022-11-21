@@ -16,6 +16,16 @@ from sepal_ui.mapping.legend_control import LegendControl
 # create a seed so that we can check values
 random.seed(42)
 
+# as using localtileserver is still in beta version it is not yet installed by
+# default. Using this lazy import we can skip some tests when in github CD/CI
+# will be removed when https://github.com/girder/large_image/pull/927 is ready
+try:
+    from localtileserver import TileClient  # noqa: F401
+
+    is_set_localtileserver = True
+except ModuleNotFoundError:
+    is_set_localtileserver = False
+
 
 class TestSepalMap:
     def test_init(self):
@@ -119,6 +129,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(reason=is_set_localtileserver is False)
     def test_add_raster(self, rgb, byte):
 
         m = sm.SepalMap()
@@ -429,6 +440,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(reason=is_set_localtileserver is False)
     def test_zoom_raster(self, byte):
 
         m = sm.SepalMap()
