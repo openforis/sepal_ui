@@ -129,7 +129,10 @@ class TestSepalMap:
 
         return
 
-    @pytest.mark.skipif(reason=is_set_localtileserver is False)
+    @pytest.mark.skipif(
+        is_set_localtileserver is False,
+        reason="localtileserver implementation is still in beta",
+    )
     def test_add_raster(self, rgb, byte):
 
         m = sm.SepalMap()
@@ -440,7 +443,10 @@ class TestSepalMap:
 
         return
 
-    @pytest.mark.skipif(reason=is_set_localtileserver is False)
+    @pytest.mark.skipif(
+        is_set_localtileserver is False,
+        reason="localtileserver implementation is still in beta",
+    )
     def test_zoom_raster(self, byte):
 
         m = sm.SepalMap()
