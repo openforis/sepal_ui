@@ -10,6 +10,16 @@ env:
   PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
 
 jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - uses: pre-commit/action@v3.0.0
+      
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -36,16 +46,6 @@ jobs:
           
       - name: Install dependencies
         run: pip install .[test]
-        
-      - name: Test formatting
-        uses: psf/black@stable
-        with:
-            version: "22.3.0"
-            
-      - name: PEP8 rules
-        uses: tonybajan/flake8-check-action@v1.0.0
-        with:
-            repotoken: ${{ secrets.GITHUB_TOKEN }}
             
       - name: build the documentation
         if: matrix.python-version == '3.8'
