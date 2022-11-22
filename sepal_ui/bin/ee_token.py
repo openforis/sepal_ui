@@ -27,15 +27,12 @@ def set_credentials(ee_token: str) -> None:
         ee_token: the str representation of existing GEE credentials
     """
 
-    # get the credentials
-    credential = f'{{"refresh_token":"{ee_token}"}}'
-
     # write them in the appropriate file
     credential_folder_path = Path.home() / ".config" / "earthengine"
     credential_folder_path.mkdir(parents=True, exist_ok=True)
     credential_file_path = credential_folder_path / "credentials"
     with credential_file_path.open("w") as f:
-        f.write(credential)
+        f.write(ee_token)
 
     return
 
