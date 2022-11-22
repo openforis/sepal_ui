@@ -256,7 +256,7 @@ class FileInput(v.Flex, SepalWidget):
                     "name": "activator",
                     "variable": "x",
                     "children": Btn(
-                        icon="fas fa-search", v_model=False, v_on="x.on", text=label
+                        gliph="fas fa-search", v_model=False, v_on="x.on", msg=label
                     ),
                 }
             ],

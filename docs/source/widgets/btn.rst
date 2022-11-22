@@ -20,8 +20,8 @@ The default color is set to "primary".
     v.theme.dark = False
     
     btn = sw.Btn(
-        text = "The One btn",
-        icon = "fas fa-cogs"
+        msg = "The One btn",
+        gliph = "fas fa-cogs"
     )
     btn
     
@@ -42,8 +42,8 @@ Btn can be used to launch function on any Javascript event such as "click".
     v.theme.dark = False
     
     btn = sw.Btn(
-        text = "The One btn",
-        icon = "fas fa-cogs"
+        msg = "The One btn",
+        gliph = "fas fa-cogs"
     )
     btn.on_event('click', lambda *args: print('Hello world!'))
     

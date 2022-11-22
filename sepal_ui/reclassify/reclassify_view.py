@@ -33,8 +33,8 @@ class ImportMatrixDialog(v.Dialog):
         # create the 3 widgets
         title = v.CardTitle(children=["Load reclassification matrix"])
         self.w_file = sw.FileInput(label="filename", folder=folder)
-        self.load_btn = sw.Btn("Load")
-        cancel = sw.Btn("Cancel", outlined=True)
+        self.load_btn = sw.Btn(msg="Load")
+        cancel = sw.Btn(msg="Cancel", outlined=True)
         actions = v.CardActions(children=[cancel, self.load_btn])
 
         # default params
@@ -81,8 +81,8 @@ class SaveMatrixDialog(v.Dialog):
         # create the widgets
         title = v.CardTitle(children=["Save matrix"])
         self.w_file = v.TextField(label="filename", v_model=None)
-        btn = sw.Btn("Save matrix")
-        cancel = sw.Btn("Cancel", outlined=True)
+        btn = sw.Btn(msg="Save matrix")
+        cancel = sw.Btn(msg="Cancel", outlined=True)
         actions = v.CardActions(children=[cancel, btn])
         self.alert = sw.Alert(children=["Choose a name for the output"]).show()
 
@@ -464,7 +464,7 @@ class ReclassifyView(sw.Card):
 
         self.btn_list = [
             sw.Btn(
-                "Custom",
+                msg="Custom",
                 _metadata={"path": "custom"},
                 small=True,
                 class_="mr-2",
@@ -472,7 +472,7 @@ class ReclassifyView(sw.Card):
             )
         ] + [
             sw.Btn(
-                f"use {name}",
+                msg=f"use {name}",
                 _metadata={"path": path},
                 small=True,
                 class_="mr-2",
@@ -490,18 +490,20 @@ class ReclassifyView(sw.Card):
         self.save_dialog = SaveMatrixDialog(folder=out_path)
         self.import_dialog = ImportMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(
-            ms.rec.rec.input.btn, "far fa-table", color="success", small=True
+            msg=ms.rec.rec.input.btn, gliph="far fa-table", color="success", small=True
         )
         self.import_table = sw.Btn(
-            "import",
-            "fas fa-download",
+            msg="import",
+            gliph="fas fa-download",
             color="secondary",
             small=True,
             class_="ml-2 mr-2",
         )
-        self.save_table = sw.Btn("save", "fas fa-save", color="secondary", small=True)
+        self.save_table = sw.Btn(
+            msg="save", gliph="fas fa-save", color="secondary", small=True
+        )
         self.reclassify_btn = sw.Btn(
-            ms.rec.rec.btn, "fas fa-chess-board", small=True, disabled=True
+            msg=ms.rec.rec.btn, gliph="fas fa-chess-board", small=True, disabled=True
         )
 
         self.toolbar = v.Toolbar(
