@@ -111,12 +111,12 @@ html_theme_options = {
         {
             "name": "GitHub",
             "url": "https://github.com/12rambau/sepal_ui",
-            "icon": "fab fa-github",
+            "icon": "fa-brands fa-github",
         },
         {
             "name": "Pypi",
             "url": "https://pypi.org/project/sepal-ui/",
-            "icon": "fab fa-python",
+            "icon": "fa-brands fa-python",
         },
     ],
 }
