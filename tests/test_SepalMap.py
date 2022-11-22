@@ -7,7 +7,6 @@ from urllib.request import urlretrieve
 import ee
 import pytest
 from ipyleaflet import GeoJSON
-
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss

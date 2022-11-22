@@ -2,9 +2,8 @@ from copy import deepcopy
 
 import geopandas as gpd
 from ipyleaflet import DrawControl
-from shapely import geometry as sg
-
 from sepal_ui import color
+from shapely import geometry as sg
 
 
 class DrawControl(DrawControl):

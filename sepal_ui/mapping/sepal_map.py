@@ -26,7 +26,6 @@ from haversine import haversine
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
-
 from sepal_ui import color as scolors
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.basemaps import basemap_tiles

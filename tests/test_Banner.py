@@ -1,5 +1,4 @@
 import pytest
-
 import sepal_ui.sepalwidgets as sw
 
 

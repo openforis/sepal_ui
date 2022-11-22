@@ -3,7 +3,6 @@ import os
 
 import planet
 import pytest
-
 from sepal_ui.planetapi import PlanetModel
 
 

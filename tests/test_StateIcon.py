@@ -1,9 +1,8 @@
 import pytest
-from traitlets import Unicode
-
 import sepal_ui.sepalwidgets as sw
 from sepal_ui import color
 from sepal_ui.model import Model
+from traitlets import Unicode
 
 
 class TestStateIcon:

@@ -3,7 +3,6 @@ from zipfile import ZipFile
 
 import geopandas as gpd
 import pytest
-
 from sepal_ui import aoi
 from sepal_ui.reclassify import ReclassifyModel, ReclassifyView
 

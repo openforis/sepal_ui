@@ -1,5 +1,4 @@
 from ipyleaflet import TileLayer
-
 from sepal_ui import mapping as sm
 
 

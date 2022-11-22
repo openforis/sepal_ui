@@ -1,9 +1,8 @@
 import json
 
 import pytest
-from traitlets import Any
-
 from sepal_ui import model
+from traitlets import Any
 
 
 class TestModel:

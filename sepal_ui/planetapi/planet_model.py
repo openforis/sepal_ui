@@ -8,10 +8,9 @@ from planet.auth import Auth
 from planet.exceptions import NoPermission
 from planet.http import Session
 from planet.models import Request
-from traitlets import Bool, Dict
-
 from sepal_ui.message import ms
 from sepal_ui.model import Model
+from traitlets import Bool, Dict
 
 # known problem https://github.com/jupyter/notebook/issues/3397
 nest_asyncio.apply()

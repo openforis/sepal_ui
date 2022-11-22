@@ -1,5 +1,4 @@
 import ee
-
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
 

@@ -8,14 +8,13 @@ import geopandas as gpd
 import pandas as pd
 from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON
-from traitlets import Any
-
 from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from traitlets import Any
 
 __all__ = ["AoiModel"]
 

@@ -7,13 +7,12 @@ import ee
 import geopandas as gpd
 import ipyvuetify as v
 import pytest
-from shapely import geometry as sg
-
 from sepal_ui import config_file
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend.styles import TYPES
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
+from shapely import geometry as sg
 
 
 class TestUtils:

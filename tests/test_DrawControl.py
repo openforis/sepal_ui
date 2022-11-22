@@ -1,8 +1,7 @@
 import math
 
-from shapely import geometry as sg
-
 from sepal_ui import mapping as sm
+from shapely import geometry as sg
 
 
 class TestDrawControl:

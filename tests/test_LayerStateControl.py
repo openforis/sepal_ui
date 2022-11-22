@@ -1,10 +1,9 @@
 import ee
 import pytest
 from ipyleaflet import RasterLayer
-from traitlets import Bool
-
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
+from traitlets import Bool
 
 
 class TestLayerStateControl:

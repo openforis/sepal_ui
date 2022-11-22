@@ -4,12 +4,11 @@ from pathlib import Path
 import ipyvuetify as v
 import pandas as pd
 from matplotlib.colors import to_rgb
-from traitlets import Int
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.reclassify import parameters as param
 from sepal_ui.scripts import utils as su
+from traitlets import Int
 
 __all__ = ["TableView"]
 

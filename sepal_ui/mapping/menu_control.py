@@ -1,5 +1,4 @@
 from ipyleaflet import WidgetControl
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.map_btn import MapBtn
 

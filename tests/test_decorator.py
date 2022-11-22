@@ -2,7 +2,6 @@ import warnings
 
 import ipyvuetify as v
 import pytest
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning

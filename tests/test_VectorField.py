@@ -2,7 +2,6 @@ from urllib.request import urlretrieve
 from zipfile import ZipFile
 
 import pytest
-
 from sepal_ui import sepalwidgets as sw
 
 
