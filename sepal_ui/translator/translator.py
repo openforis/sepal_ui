@@ -6,7 +6,6 @@ from pathlib import Path
 import pandas as pd
 from box import Box
 from deprecated.sphinx import deprecated, versionadded
-
 from sepal_ui import config_file
 
 

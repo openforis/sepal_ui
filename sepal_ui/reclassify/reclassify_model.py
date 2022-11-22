@@ -8,12 +8,11 @@ import rasterio as rio
 from matplotlib.colors import to_rgba
 from natsort import natsorted
 from rasterio.windows import from_bounds
-from traitlets import Any, Bool, Dict, Int
-
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from traitlets import Any, Bool, Dict, Int
 
 from .parameters import NO_VALUE
 

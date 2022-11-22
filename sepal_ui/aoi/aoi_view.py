@@ -1,13 +1,12 @@
 from datetime import datetime as dt
 
 import pandas as pd
-from deprecated.sphinx import versionadded
-from traitlets import Int
-
 import sepal_ui.sepalwidgets as sw
+from deprecated.sphinx import versionadded
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
+from traitlets import Int
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN

@@ -1,5 +1,4 @@
 import ipyvuetify as v
-
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.planetapi.planet_model import PlanetModel

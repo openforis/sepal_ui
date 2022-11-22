@@ -1,9 +1,8 @@
 import ee
-from shapely import geometry as sg
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.scripts import utils as su
+from shapely import geometry as sg
 
 
 class AoiControl(MenuControl):

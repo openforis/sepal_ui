@@ -2,7 +2,6 @@ import json
 import os
 
 import pytest
-
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.planetapi import PlanetView
 

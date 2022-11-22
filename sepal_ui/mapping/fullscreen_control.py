@@ -3,7 +3,6 @@ from pathlib import Path
 import ipyvuetify as v
 from ipyleaflet import WidgetControl
 from IPython.display import Javascript, display
-
 from sepal_ui.mapping.map_btn import MapBtn
 
 

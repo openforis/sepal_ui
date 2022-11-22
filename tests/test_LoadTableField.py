@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-
 from sepal_ui import sepalwidgets as sw
 
 

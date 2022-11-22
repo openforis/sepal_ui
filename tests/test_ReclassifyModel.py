@@ -6,7 +6,6 @@ from zipfile import ZipFile
 import ee
 import geopandas as gpd
 import pytest
-
 from sepal_ui import aoi
 from sepal_ui.reclassify import ReclassifyModel
 from sepal_ui.scripts import gee

@@ -12,7 +12,6 @@ from pathlib import Path
 
 import pandas as pd
 from colorama import Fore, init
-
 from sepal_ui.scripts import utils as su
 
 # init colors for all plateforms

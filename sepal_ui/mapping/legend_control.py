@@ -1,10 +1,9 @@
+import sepal_ui.sepalwidgets as sw
 from ipyleaflet import WidgetControl
 from ipywidgets import HTML
-from traitlets import Bool, Dict, Unicode, observe
-
-import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
+from traitlets import Bool, Dict, Unicode, observe
 
 
 class LegendControl(WidgetControl):

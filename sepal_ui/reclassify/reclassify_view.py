@@ -2,12 +2,11 @@ from pathlib import Path
 
 import ipyvuetify as v
 import pandas as pd
-from traitlets import Unicode
-
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.utils import loading_button
+from traitlets import Unicode
 
 from .parameters import MATRIX_NAMES, NO_VALUE
 from .reclassify_model import ReclassifyModel

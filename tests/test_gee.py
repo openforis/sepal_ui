@@ -3,7 +3,6 @@ import time
 
 import ee
 import pytest
-
 from sepal_ui.message import ms
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su

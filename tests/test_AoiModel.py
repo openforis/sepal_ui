@@ -3,7 +3,6 @@ from zipfile import ZipFile
 
 import ee
 import pytest
-
 from sepal_ui import aoi
 
 

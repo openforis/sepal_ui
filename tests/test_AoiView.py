@@ -1,5 +1,4 @@
 import pytest
-
 from sepal_ui import aoi
 from sepal_ui.mapping import SepalMap
 from sepal_ui.message import ms

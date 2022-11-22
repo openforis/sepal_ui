@@ -1,10 +1,9 @@
 import ee
 import pytest
 from box import Box
-from shapely import geometry as sg
-
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
+from shapely import geometry as sg
 
 
 class TestAoiControl:

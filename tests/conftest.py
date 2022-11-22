@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 import sepal_ui.sepalwidgets as sw
 
 

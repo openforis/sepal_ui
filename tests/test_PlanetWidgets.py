@@ -1,5 +1,4 @@
 import pytest
-
 from sepal_ui.planetapi import PlanetModel
 from sepal_ui.planetapi.planet_widgets import InfoView
 
