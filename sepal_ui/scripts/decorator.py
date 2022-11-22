@@ -13,7 +13,7 @@ from deprecated.sphinx import versionadded
 from sepal_ui.scripts.warning import SepalWarning
 
 ################################################################################
-# This method is a copy of the ne from utils. It should stay there
+# This method is a copy of the one from utils. It should stay there
 # as long as there is deprecation warning in utils, we cannot import it due to a circular
 # import. This method should then be removed in v3.0 when sd won't be imported by utils
 #
