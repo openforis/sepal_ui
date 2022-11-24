@@ -1,10 +1,11 @@
 import ipyvuetify as v
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 
 
 class TestBtn:
-    def test_init(self):
+    def test_init(self, gee_dir):
 
         # minimal btn
         btn = sw.Btn()
