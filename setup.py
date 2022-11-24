@@ -80,6 +80,7 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "pytest-sugar",
             "nbmake ",
         ],
         "doc": [
