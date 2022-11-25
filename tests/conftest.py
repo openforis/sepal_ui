@@ -116,34 +116,6 @@ def gee_dir():
 
 
 @pytest.fixture(scope="session")
-def asset_france(gee_dir):
-    """return the france asset available in our test account"""
-
-    return f"{gee_dir}/france"
-
-
-@pytest.fixture(scope="session")
-def asset_italy(gee_dir):
-    """return the italy asset available in our test account"""
-
-    return f"{gee_dir}/italy"
-
-
-@pytest.fixture(scope="session")
-def asset_table_aoi(gee_dir):
-    """return the aoi for the reclassify tests available in our test account"""
-
-    return f"{gee_dir}/reclassify_table_aoi"
-
-
-@pytest.fixture(scope="session")
-def asset_image_aoi(gee_dir):
-    """return the aoi for the reclassify tests available in our test account"""
-
-    return f"{gee_dir}/reclassify_image_aoi"
-
-
-@pytest.fixture(scope="session")
 def no_name():
     """return a no-name tuple"""
 
@@ -162,24 +134,3 @@ def readme(root_dir):
     """return the readme file path"""
 
     return root_dir / "README.rst"
-
-
-@pytest.fixture(scope="session")
-def asset_description():
-    """return a test asset name"""
-
-    return "test_travis"
-
-
-@pytest.fixture(scope="session")
-def asset_id(asset_description):
-    """return a test asset id"""
-
-    return f"users/bornToBeAlive/sepal_ui_test/{asset_description}"
-
-
-@pytest.fixture(scope="session")
-def asset_image_viz():
-    """return a test asset id"""
-
-    return "users/bornToBeAlive/sepal_ui_test/imageViZExample"

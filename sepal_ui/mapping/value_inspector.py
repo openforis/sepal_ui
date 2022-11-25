@@ -7,14 +7,15 @@ import rasterio as rio
 import rioxarray
 from ipyleaflet import GeoJSON
 from rasterio.crs import CRS
+from shapely import geometry as sg
+
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from shapely import geometry as sg
+from sepal_ui.scripts import decorator as sd
 
 
 class ValueInspector(MenuControl):
@@ -141,7 +142,7 @@ class ValueInspector(MenuControl):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def _from_eelayer(self, ee_obj, coords):
         """
         extract the values of the ee_object for the considered point

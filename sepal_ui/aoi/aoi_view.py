@@ -1,12 +1,14 @@
 from datetime import datetime as dt
 
 import pandas as pd
-import sepal_ui.sepalwidgets as sw
 from deprecated.sphinx import versionadded
+from traitlets import Int
+
+import sepal_ui.sepalwidgets as sw
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
-from traitlets import Int
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN
@@ -137,7 +139,7 @@ class AdminField(sw.Select):
         update the item list based on the given filter
 
         Params:
-            filter\_ (str): The code of the parent v_model to filter the current results
+            filter\\_ (str): The code of the parent v_model to filter the current results
 
         Return:
             self
@@ -186,7 +188,7 @@ class AoiView(sw.Card):
 
     Args:
         methods (list, optional): the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
-        map\_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        map\\_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
         admin (int, optional): the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
@@ -333,7 +335,7 @@ class AoiView(sw.Card):
         # reset te aoi_model
         self.model.clear_attributes()
 
-    @su.loading_button(debug=True)
+    @sd.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
 
@@ -373,7 +375,7 @@ class AoiView(sw.Card):
 
         return self
 
-    @su.switch("loading", on_widgets=["w_method"])
+    @sd.switch("loading", on_widgets=["w_method"])
     def _activate(self, change):
         """activate the adapted widgets"""
 

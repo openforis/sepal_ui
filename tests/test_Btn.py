@@ -5,7 +5,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 class TestBtn:
-    def test_init(self, gee_dir):
+    def test_init(self):
 
         # minimal btn
         btn = sw.Btn()

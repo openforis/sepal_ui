@@ -1,8 +1,9 @@
 import ee
+from shapely import geometry as sg
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.menu_control import MenuControl
-from sepal_ui.scripts import utils as su
-from shapely import geometry as sg
+from sepal_ui.scripts import decorator as sd
 
 
 class AoiControl(MenuControl):
@@ -69,7 +70,7 @@ class AoiControl(MenuControl):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def add_aoi(self, name, item):
         """
         Add an AOI to the list and refresh the list displayed. the AOI will be composed of a name and the bounds of the provided item.
