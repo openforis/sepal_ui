@@ -2,8 +2,9 @@ from copy import deepcopy
 
 import geopandas as gpd
 from ipyleaflet import DrawControl
-from sepal_ui import color
 from shapely import geometry as sg
+
+from sepal_ui import color
 
 
 class DrawControl(DrawControl):
@@ -29,7 +30,7 @@ class DrawControl(DrawControl):
         kwargs["circle"] = kwargs.pop("circle", options)
         kwargs["polygon"] = kwargs.pop("polygon", options)
 
-        # save the map in the memeber of the objects
+        # save the map in the member of the objects
         self.m = m
 
         super().__init__(**kwargs)
