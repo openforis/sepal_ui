@@ -5,9 +5,10 @@ on:
   - workflow_dispatch
   
 env:
-  EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
-  PLANET_API_CREDENTIALS: '${{ secrets.PLANET_API_CREDENTIALS }}'
+  #EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
+  PLANET_API_CREDENTIALS: ${{ secrets.PLANET_API_CREDENTIALS }}
   PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
+  EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
 
 jobs:
 
@@ -24,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
@@ -46,6 +48,9 @@ jobs:
           
       - name: Install dependencies
         run: pip install .[test]
+        
+      - name: Set up GEE credentials
+        run: ee_token
             
       - name: build the documentation
         if: matrix.python-version == '3.8'

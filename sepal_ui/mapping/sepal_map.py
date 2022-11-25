@@ -26,6 +26,7 @@ from haversine import haversine
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
+
 from sepal_ui import color as scolors
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.basemaps import basemap_tiles
@@ -35,6 +36,7 @@ from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 
@@ -185,7 +187,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def zoom_ee_object(self, item, zoom_out=1):
         """
         Get the proper zoom to the given ee geometry.

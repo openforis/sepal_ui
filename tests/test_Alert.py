@@ -1,6 +1,8 @@
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend.styles import TYPES
+from sepal_ui.scripts.warning import SepalWarning
 
 
 class TestAlert:
@@ -17,14 +19,14 @@ class TestAlert:
             assert alert.type == type_
 
         # wrong type
-        alert = sw.Alert("random")
-        assert alert.type == "info"
+        with pytest.warns(SepalWarning):
+            alert = sw.Alert("random")
+            assert alert.type == "info"
 
         return
 
-    def test_add_msg(self):
+    def test_add_msg(self, alert):
 
-        alert = sw.Alert()
         msg = "toto"
 
         # single msg
@@ -40,15 +42,15 @@ class TestAlert:
             assert alert.children[0].children[0] == msg
 
         # single msg with rdm type
-        alert.add_msg(msg, "random")
-        assert alert.type == "info"
-        assert alert.children[0].children[0] == msg
+        with pytest.warns(SepalWarning):
+            alert.add_msg(msg, "random")
+            assert alert.type == "info"
+            assert alert.children[0].children[0] == msg
 
         return
 
-    def test_add_live_msg(self):
+    def test_add_live_msg(self, alert):
 
-        alert = sw.Alert()
         msg = "toto"
 
         # single msg
@@ -64,9 +66,10 @@ class TestAlert:
             assert alert.children[1].children[0] == msg
 
         # single msg with rdm type
-        alert.add_live_msg(msg, "random")
-        assert alert.type == "info"
-        assert alert.children[1].children[0] == msg
+        with pytest.warns(SepalWarning):
+            alert.add_live_msg(msg, "random")
+            assert alert.type == "info"
+            assert alert.children[1].children[0] == msg
 
         return
 
@@ -106,32 +109,9 @@ class TestAlert:
         alert.type = "success"
         assert alert.children[1].type_ == "success"
 
-    def test_check_input(self):
+    def test_reset(self, alert):
 
-        alert = sw.Alert()
-
-        with pytest.raises(ValueError, match="The value has not been initialized"):
-            alert.check_input(None)
-
-        with pytest.raises(ValueError, match="toto"):
-            alert.check_input(None, "toto")
-
-        res = alert.check_input(1)
-        assert res is True
-
-        # test lists
-        res = alert.check_input([range(2)])
-        assert res is True
-
-        # test empty list
-        with pytest.raises(ValueError):
-            alert.check_input([])
-
-        return
-
-    def test_reset(self):
-
-        alert = sw.Alert().add_msg("toto").reset()
+        alert.add_msg("toto").reset()
 
         assert alert.viz is False
         assert len(alert.children) == 1
@@ -169,10 +149,7 @@ class TestAlert:
 
         return
 
-    def test_update_progress(self):
-
-        # create an alert
-        alert = sw.Alert()
+    def test_update_progress(self, alert):
 
         # test a random update
         alert.update_progress(0.5)
@@ -182,3 +159,5 @@ class TestAlert:
         # show that a value > 1 raise an error
         with pytest.raises(ValueError):
             alert.update_progress(1.5)
+
+        return

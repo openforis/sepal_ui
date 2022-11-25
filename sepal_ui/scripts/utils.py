@@ -10,15 +10,16 @@ from urllib.parse import urlparse
 
 import ee
 import httplib2
-import sepal_ui
 from cryptography.fernet import Fernet
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
+from unidecode import unidecode
+
+import sepal_ui
 from sepal_ui.conf import config, config_file
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning
-from unidecode import unidecode
 
 
 def hide_component(widget):

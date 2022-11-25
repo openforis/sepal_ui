@@ -3,11 +3,32 @@ from zipfile import ZipFile
 
 import ee
 import pytest
+
 from sepal_ui import aoi
 
 
 class TestAoiModel:
-    def test_init(self, alert, gee_dir, asset_italy, fake_vector):
+    def test_init_no_ee(self, alert, fake_vector):
+
+        # default init
+        aoi_model = aoi.AoiModel(alert, gee=False)
+        assert isinstance(aoi_model, aoi.AoiModel)
+        assert aoi_model.ee is False
+
+        # with a default vector
+        aoi_model = aoi.AoiModel(alert, vector=fake_vector, gee=False)
+        assert aoi_model.name == "gadm36_VAT_0"
+
+        # test with a non ee admin
+        admin = "VAT"  # GADM Vatican city
+        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin)
+
+        assert aoi_model.name == "VAT"
+
+        return
+
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_init_ee(alert, gee_dir):
 
         # default init
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
@@ -15,50 +36,40 @@ class TestAoiModel:
         assert aoi_model.ee is True
 
         # with default assetId
-        aoi_model = aoi.AoiModel(alert, asset=asset_italy, folder=gee_dir)
+        asset_id = str(gee_dir / "feature_collection")
+        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=gee_dir)
 
-        assert aoi_model.asset_name["pathname"] == asset_italy
-        assert aoi_model.default_asset["pathname"] == asset_italy
+        assert aoi_model.asset_name["pathname"] == asset_id
+        assert aoi_model.default_asset["pathname"] == asset_id
         assert all(aoi_model.gdf) is not None
         assert aoi_model.feature_collection is not None
-        assert aoi_model.name == "italy"
+        assert aoi_model.name == "feature_collection"
 
-        # chack that wrongly defined asset_name raise errors
+        # check that wrongly defined asset_name raise errors
         with pytest.raises(Exception):
             aoi_model = aoi.AoiModel(alert, folder=gee_dir)
             aoi_model._from_asset({"pathname": None})
 
         with pytest.raises(Exception):
             aoi_model = aoi.AoiModel(alert, folder=gee_dir)
-            aoi_model._from_asset(
-                {"pathname": asset_italy, "column": "ADM0_CODE", "value": None}
-            )
+            asset = {"pathname": asset_id, "column": "data", "value": None}
+            aoi_model._from_asset(asset)
 
-            # it should be the same with a different name
-            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
-            aoi_model._from_asset(
-                {"pathname": asset_italy, "column": "ADM0_CODE", "value": 122}
-            )
-            assert aoi_model.name == "italy_ADM0_CODE_122"
+        # it should be the same with a different name
+        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        asset = {"pathname": asset_id, "column": "data", "value": 0}
+        aoi_model._from_asset(asset)
+        assert aoi_model.name == "feature_collection_data_0"
 
         # with a default admin
-        admin = 85  # GAUL France
+        admin = 110  # GAUL Vatican city
         aoi_model = aoi.AoiModel(alert, admin=admin, folder=gee_dir)
-        assert aoi_model.name == "FRA"
-
-        # with a default vector
-        aoi_model = aoi.AoiModel(alert, vector=fake_vector, gee=False)
-        assert aoi_model.name == "gadm36_VAT_0"
-
-        # test with a non ee definition
-        admin = "FRA"  # GADM France
-        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin)
-
-        assert aoi_model.name == "FRA"
+        assert aoi_model.name == "VAT"
 
         return
 
-    def test_get_columns(self, aoi_model_france):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_columns(self, test_model, test_columns):
 
         # test that before any data is set the method raise an error
         with pytest.raises(Exception):
@@ -66,23 +77,13 @@ class TestAoiModel:
             aoi_model.get_columns()
 
         # test data
-        test_data = [
-            "ADM0_CODE",
-            "ADM0_NAME",
-            "DISP_AREA",
-            "EXP0_YEAR",
-            "STATUS",
-            "STR0_YEAR",
-            "Shape_Leng",
-        ]
-
-        res = aoi_model_france.get_columns()
-
-        assert res == test_data
+        res = test_model.get_columns()
+        assert res == test_columns
 
         return
 
-    def test_get_fields(self, aoi_model_france):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_fields(self, test_model):
 
         # test that before any data is set the method raise an error
         with pytest.raises(Exception):
@@ -91,105 +92,98 @@ class TestAoiModel:
 
         # init
         column = "ADM0_CODE"
-
-        res = aoi_model_france.get_fields(column)
-
-        assert res == [85]
+        res = test_model.get_fields(column)
+        assert res == [110]
 
         return
 
-    def test_get_selected(self, aoi_model_france, asset_france):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_selected(self, test_model):
 
         # test that before any data is set the method raise an error
         with pytest.raises(Exception):
             aoi_model = aoi.AoiModel()
             aoi_model.get_fields("toto", "toto")
 
-        # init
-        ee_france = ee.FeatureCollection(asset_france)
+        # select the vatican feature in GAUL 2015
+        ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(
+            ee.Filter.eq("ADM0_CODE", 110)
+        )
 
-        # select the geometry associated with france (all of it)
-        column = "ADM0_CODE"
-        field = 85
+        # select the geometry associated with Vatican city (all of it)
+        column, field = ("ADM0_CODE", 110)
+        feature = test_model.get_selected(column, field)
 
-        feature = aoi_model_france.get_selected(column, field)
-
-        feature_geom = feature.geometry().getInfo()
-        france_geom = ee_france.geometry().getInfo()
-
-        assert feature_geom == france_geom
+        # assert they are the same
+        dif = feature.geometry().difference(ee_vat.geometry()).coordinates().length()
+        assert dif.getInfo() == 0
 
         return
 
-    def test_clear_attributes(
-        self, alert, gee_dir, aoi_model_outputs, aoi_model_traits
-    ):
+    def test_clear_attributes(self, alert, aoi_model_outputs, aoi_model_traits):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
-
-        dum = "dum"
+        aoi_model = aoi.AoiModel(alert, gee=False)
 
         # insert dum parameter everywhere
+        dum = "dum"
         [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
         [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
 
-        # clear them
+        # clear all the parameters
         aoi_model.clear_attributes()
 
-        assert all([getattr(aoi_model, trait) is None for trait in aoi_model_traits])
-        assert all([getattr(aoi_model, out) is None for out in aoi_model_outputs])
+        # create a function for readability
+        def is_none(member):
+            return getattr(aoi_model, member) is None
+
+        assert all([is_none(trait) for trait in aoi_model_traits])
+        assert all([is_none(out) for out in aoi_model_outputs])
 
         # check that default are saved
-        aoi_model = aoi.AoiModel(alert, admin=85, folder=gee_dir)  # GAUL for France
+        aoi_model = aoi.AoiModel(alert, admin="VAT", gee=False)  # GADM for Vatican
 
-        # insert dummy args
+        # insert dummy parameter
         [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
         [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
 
         # clear
         aoi_model.clear_attributes()
 
-        # assert that it's still france
-        assert aoi_model.name == "FRA"
+        # assert that it's still Vatican
+        assert aoi_model.name == "VAT"
 
         return
 
-    def test_total_bounds(self, aoi_model_france):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_total_bounds(self, test_model, test_bounds):
 
-        # test data
-        expected_bounds = (
-            -5.142230921252722,
-            41.33878298628808,
-            9.561552263332496,
-            51.09281241936492,
-        )
-
-        bounds = aoi_model_france.total_bounds()
-
-        assert bounds == expected_bounds
+        bounds = test_model.total_bounds()
+        assert bounds == test_bounds
 
         return
 
-    def test_clear_output(self, aoi_model_france, aoi_model_outputs):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_clear_output(self, test_model, aoi_model_outputs):
+
+        # create functions for readability
+        def is_not_none(member):
+            return getattr(test_model, member) is not None
+
+        def is_none(member):
+            return getattr(test_model, member) is None
 
         # test that the data are not all empty
-        assert any(
-            [getattr(aoi_model_france, out) is not None for out in aoi_model_outputs]
-        )
+        assert any([is_not_none(out) for out in aoi_model_outputs])
 
         # clear the aoi outputs
-        aoi_model_france.clear_output()
-        assert all(
-            [getattr(aoi_model_france, out) is None for out in aoi_model_outputs]
-        )
+        test_model.clear_output()
+        assert all([is_none(out) for out in aoi_model_outputs])
 
         return
 
-    def test_set_object(
-        self, alert, gee_dir, fake_vector, asset_france, fake_points, square
-    ):
+    def test_set_object(self, alert):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(alert, gee=False)
 
         # test that no method returns an error
         with pytest.raises(Exception):
@@ -206,11 +200,12 @@ class TestAoiModel:
             aoi_model._from_admin(0)
 
         # test france
-        aoi_model._from_admin(85)
-        assert aoi_model.name == "FRA"
+        aoi_model._from_admin(110)
+        assert aoi_model.name == "VAT"
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_from_point(self, alert, fake_points, gee_dir):
 
         aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
@@ -237,6 +232,7 @@ class TestAoiModel:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_from_vector(self, alert, gee_dir, fake_vector):
 
         aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
@@ -262,6 +258,7 @@ class TestAoiModel:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_from_geo_json(self, alert, gee_dir, square):
 
         aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
@@ -277,32 +274,36 @@ class TestAoiModel:
 
         return
 
-    def test_from_asset(self, alert, gee_dir, asset_france):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_from_asset(self, alert, gee_dir):
 
+        # init parameters
+        asset_id = str(gee_dir / "feature_collection")
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
 
         # no asset name
         with pytest.raises(Exception):
-            aoi_model._from_asset(asset_france)
+            aoi_model._from_asset(asset_id)
 
         # only pathname and all
-        asset = {"pathname": asset_france, "column": "ALL", "value": None}
+        asset = {"pathname": asset_id, "column": "ALL", "value": None}
         aoi_model._from_asset(asset)
-        assert aoi_model.name == "france"
+        assert aoi_model.name == "feature_collection"
 
         # all params
-        asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": 85}
+        asset = {"pathname": asset_id, "column": "data", "value": 0}
         aoi_model._from_asset(asset)
-        assert aoi_model.name == "france_ADM0_CODE_85"
+        assert aoi_model.name == "feature_collection_data_0"
 
         # missing value
-        asset = {"pathname": asset_france, "column": "ADM0_CODE", "value": None}
+        asset = {"pathname": asset_id, "column": "data", "value": None}
+
         with pytest.raises(Exception):
             aoi_model._from_asset(asset)
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def square(self):
         """a geojson square around the vatican city"""
 
@@ -328,7 +329,7 @@ class TestAoiModel:
             ],
         }
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fake_points(self, tmp_dir):
         """create a fake point file the tmp file will be destroyed after the tests"""
 
@@ -344,7 +345,7 @@ class TestAoiModel:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fake_vector(self, tmp_dir):
         """create a fake vector file from the GADM definition of vatican city and save it in the tmp dir. the tmp files will be destroyed after the test."""
 
@@ -369,12 +370,14 @@ class TestAoiModel:
         return
 
     @pytest.fixture
-    def aoi_model_france(self, alert, gee_dir, asset_france):
-        """create a dummy alert and a test aoi model based on GEE that use the france asset available on the test account"""
+    def test_model(self, alert, gee_dir):
+        """
+        Create a test AoiModel based on GEE using Vatican
+        """
+        admin = 110  # vatican city (smalest adm0 feature)
+        return aoi.AoiModel(alert, admin=admin, folder=gee_dir)
 
-        return aoi.AoiModel(alert, asset=asset_france, folder=gee_dir)
-
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def aoi_model_traits(self):
         """return the list of an aoi model traits"""
 
@@ -388,7 +391,7 @@ class TestAoiModel:
             "name",
         ]
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def aoi_model_outputs(self):
         """return the list of an aoi model outputs"""
 
@@ -399,3 +402,27 @@ class TestAoiModel:
             "selected_feature",
             "dst_asset_id",
         ]
+
+    @pytest.fixture(scope="class")
+    def test_columns(self):
+        """return the column of the test vatican aoi"""
+        return [
+            "ADM0_CODE",
+            "ADM0_NAME",
+            "DISP_AREA",
+            "EXP0_YEAR",
+            "STATUS",
+            "STR0_YEAR",
+            "Shape_Leng",
+        ]
+
+    @pytest.fixture(scope="class")
+    def test_bounds(self):
+        """return the bounds of the vatican asset"""
+
+        return (
+            12.445770205631668,
+            41.90021953934405,
+            12.457671530175347,
+            41.90667181034752,
+        )
