@@ -5,6 +5,7 @@ from deprecated.sphinx import versionadded
 from traitlets import Int
 
 import sepal_ui.sepalwidgets as sw
+from sepal_ui import mapping as sm
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd

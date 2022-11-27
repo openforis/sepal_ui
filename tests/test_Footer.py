@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import ipyvuetify as v
+
 from sepal_ui import sepalwidgets as sw
 
 

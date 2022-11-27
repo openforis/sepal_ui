@@ -3,22 +3,12 @@ import os
 
 import planet
 import pytest
+
 from sepal_ui.planetapi import PlanetModel
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetModel:
-    @pytest.fixture
-    def planet_key(self):
-        return os.getenv("PLANET_API_KEY")
-
-    @pytest.fixture
-    def cred(self):
-
-        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
-
-        return list(credentials.values())
-
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init(self, credentials, request):
 
@@ -33,6 +23,8 @@ class TestPlanetModel:
         with pytest.raises(Exception):
             planet_model = PlanetModel("not valid")
 
+        return
+
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init_client(self, credentials, request):
 
@@ -43,6 +35,8 @@ class TestPlanetModel:
 
         with pytest.raises(Exception):
             planet_model.init_session("wrongkey")
+
+        return
 
     def test_init_session_from_event(self):
 
@@ -60,6 +54,8 @@ class TestPlanetModel:
         with pytest.raises(planet.exceptions.APIError):
             planet_model.init_session(["valid@email.format", "not_exists"])
 
+        return
+
     def test_is_active(self, planet_key):
 
         # We only need to test with a key.
@@ -71,6 +67,8 @@ class TestPlanetModel:
         with pytest.raises(Exception):
             planet_model = PlanetModel("wrongkey")
 
+        return
+
     def test_get_subscriptions(self, planet_key):
 
         planet_model = PlanetModel(planet_key)
@@ -78,14 +76,16 @@ class TestPlanetModel:
 
         # Check object has length, because there is no way to check a value
         # that might change over the time.
-        assert len(subs)
+        assert len(subs) != 0
+
+        return
 
     def test_get_planet_items(self, planet_key):
 
         # Arrange
         planet_model = PlanetModel(planet_key)
 
-        aoi = {
+        aoi = {  # Yasuni national park in Ecuador
             "type": "Polygon",
             "coordinates": (
                 (
@@ -104,8 +104,18 @@ class TestPlanetModel:
 
         expected_first_id = "20201118_144642_48_2262"
 
-        # Act
+        # Get the items
         items = planet_model.get_items(aoi, start, end, cloud_cover)
-
-        # Assert
         assert items[0].get("id") == expected_first_id
+
+    @pytest.fixture
+    def planet_key(self):
+
+        return os.getenv("PLANET_API_KEY")
+
+    @pytest.fixture
+    def cred(self):
+
+        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+
+        return list(credentials.values())

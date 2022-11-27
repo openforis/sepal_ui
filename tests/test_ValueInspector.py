@@ -5,6 +5,7 @@ from urllib.request import urlretrieve
 import ee
 import geopandas as gpd
 import pytest
+
 from sepal_ui import mapping as sm
 from sepal_ui.scripts import utils as su
 
@@ -14,7 +15,7 @@ class TestValueInspector:
 
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         assert isinstance(value_inspector, sm.ValueInspector)
 
@@ -22,7 +23,7 @@ class TestValueInspector:
 
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         # activate the window
         value_inspector.menu.v_model = True
@@ -39,7 +40,7 @@ class TestValueInspector:
         # not testing the display of anything here just the interaction
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         # click anywhere without activation
         value_inspector.read_data(type="click", coordinates=[0, 0])

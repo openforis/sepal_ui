@@ -1,7 +1,9 @@
 import warnings
 
+import ee
 import ipyvuetify as v
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning
@@ -24,9 +26,14 @@ class TestDecorator:
 
         obj = Obj()
 
+        # debug==False is only displaying the error message
         obj.func1()
         assert obj.alert.type == "error"
+
+        # debug==True will display both the message and the error traceback in
+        # the console
         with pytest.raises(Exception):
+            assert obj.alert.type == "error"
             obj.func2()
 
         return
@@ -159,10 +166,13 @@ class TestDecorator:
 
         return
 
-    @sd.need_ee
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_init_ee(self):
 
         # check that no error is raised
-        sd.init_ee()
+        try:
+            sd.init_ee()
+        except Exception as e:
+            assert False, f"'init_ee' raised an exception {e}"
 
         return

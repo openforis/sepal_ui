@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 
 
@@ -62,7 +63,7 @@ class TestLoadTableField:
 
         return sw.LoadTableField()
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fake_table(self, tmp_dir):
         """create a fake table"""
 
@@ -84,7 +85,7 @@ class TestLoadTableField:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def wrong_table(self, tmp_dir):
         """create a wrongly defined table (with 2 columns instead of the minimal 3"""
 

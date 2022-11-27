@@ -1,7 +1,8 @@
 import math
 
-from sepal_ui import mapping as sm
 from shapely import geometry as sg
+
+from sepal_ui import mapping as sm
 
 
 class TestDrawControl:
@@ -32,7 +33,7 @@ class TestDrawControl:
 
         m = sm.SepalMap()
         draw_control = sm.DrawControl(m)
-        m.add_control(draw_control)
+        m.add(draw_control)
 
         # remove it
         draw_control.hide()

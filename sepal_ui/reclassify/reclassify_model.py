@@ -8,11 +8,13 @@ import rasterio as rio
 from matplotlib.colors import to_rgba
 from natsort import natsorted
 from rasterio.windows import from_bounds
+from traitlets import Any, Bool, Dict, Int
+
 from sepal_ui.message import ms
 from sepal_ui.model import Model
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
-from traitlets import Any, Bool, Dict, Int
 
 from .parameters import NO_VALUE
 
@@ -216,12 +218,12 @@ class ReclassifyModel(Model):
             integer or str
         """
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_image():
 
             return ee.Image(self.src_gee).bandNames().getInfo()
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_vector():
 
             columns = ee.FeatureCollection(self.src_gee).first().getInfo()["properties"]
@@ -288,7 +290,7 @@ class ReclassifyModel(Model):
         if not self.band:
             raise Exception("You need to provide a band/property to reclassify.")
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_image():
 
             # reduce the image
@@ -308,7 +310,7 @@ class ReclassifyModel(Model):
 
             return values
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_vector():
 
             collection = ee.FeatureCollection(self.src_gee)
@@ -370,7 +372,7 @@ class ReclassifyModel(Model):
         if not self.band:
             raise Exception("You need to provide a band/property to reclassify.")
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_image():
 
             if not self.src_gee:
@@ -437,7 +439,7 @@ class ReclassifyModel(Model):
 
             return self.dst_gee
 
-        @su.need_ee
+        @sd.need_ee
         def _ee_vector():
 
             if not self.src_gee:

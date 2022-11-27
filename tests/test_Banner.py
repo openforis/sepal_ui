@@ -1,4 +1,5 @@
 import pytest
+
 import sepal_ui.sepalwidgets as sw
 
 
@@ -56,8 +57,6 @@ class TestBanner:
     def banner(self):
         """Return a default dummy Banner"""
 
-        msg = "dummy message"
-        type_ = "warning"
-        id_ = "test_banner"
-
-        return sw.Banner(msg=msg, type_=type_, id_=id_, persistent=False)
+        return sw.Banner(
+            msg="dummy message", type_="warning", id_="test_banner", persistent=False
+        )

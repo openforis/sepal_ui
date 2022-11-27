@@ -21,22 +21,6 @@ class TestBtn:
 
         return
 
-    def test_set_icon(self, btn):
-
-        # new icon
-        icon = "fas fa-folder"
-        btn = btn.set_icon(icon)
-
-        assert isinstance(btn.v_icon, v.Icon)
-        assert btn.v_icon.children[0] == icon
-
-        # change existing icon
-        icon = "fas fa-file"
-        btn.set_icon(icon)
-        assert btn.v_icon.children[0] == icon
-
-        return
-
     def test_toggle_loading(self, btn):
 
         btn = btn.toggle_loading()
@@ -75,7 +59,7 @@ class TestBtn:
 
         return
 
-    def test_test_msg(self, btn):
+    def test_set_msg(self, btn):
 
         # test the initial text
         assert btn.children[1] == "Click"

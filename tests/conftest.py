@@ -40,16 +40,25 @@ def tmp_dir():
 
 
 @pytest.fixture(scope="session")
-def gee_dir():
+def _hash():
+    """
+    Create a hash for each test instance
+    """
+
+    return uuid.uuid4().hex
+
+
+@pytest.fixture(scope="session")
+def gee_dir(_hash):
     """
     Create a test dir based on earthengine initialization
     populate it with fake super small assets:
 
     sepal-ui-<hash>/
-    ├── folder1/
-    │   └── point-featureCollection
-    ├── point-featureCollection
-    └── 4pixel-Image
+    ├── subfolder/
+    │   └── subfolder_feature_collection
+    ├── feature_collection
+    └── image
 
     remove everything on teardown
     """
@@ -57,7 +66,6 @@ def gee_dir():
         pytest.skip("Eathengine is not connected")
 
     # create a test folder with a hash name
-    _hash = uuid.uuid4().hex
     root = ee.data.getAssetRoots()[0]["id"]
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
@@ -127,10 +135,3 @@ def alert():
     """return a dummy alert that can be used everywhere to display informations"""
 
     return sw.Alert()
-
-
-@pytest.fixture(scope="session")
-def readme(root_dir):
-    """return the readme file path"""
-
-    return root_dir / "README.rst"

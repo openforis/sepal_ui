@@ -1,4 +1,5 @@
 from ipyleaflet import WidgetControl
+
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
@@ -22,7 +23,7 @@ class MapTile(sw.Tile):
 
         btn = sm.MapBtn("fas fa-code", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
-        self.m.add_control(control)
+        self.m.add(control)
 
         return
 
@@ -31,7 +32,7 @@ class MapTile(sw.Tile):
 
         btn = sm.MapBtn("fas fa-book-open", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
-        self.m.add_control(control)
+        self.m.add(control)
 
         return
 
@@ -40,6 +41,6 @@ class MapTile(sw.Tile):
 
         btn = sm.MapBtn("fas fa-bug", href=link, target="_blank")
         control = WidgetControl(widget=btn, position="bottomleft")
-        self.m.add_control(control)
+        self.m.add(control)
 
         return

@@ -72,7 +72,7 @@ jobs:
           assert len(unexpected) == 0
       
       - name: test with pytest
-        run: coverage run -m pytest --color=yes tests
+        run: coverage run -m pytest --color=yes --instafail tests
         
       - name: build the template panel application 
         if: matrix.python-version == '3.8'

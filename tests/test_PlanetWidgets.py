@@ -1,43 +1,39 @@
 import pytest
+
 from sepal_ui.planetapi import PlanetModel
 from sepal_ui.planetapi.planet_widgets import InfoView
 
 
 class TestPlanetWidgets:
-    def test_init(self):
+    def test_init(self, info_view):
 
         model = PlanetModel()
         info_view = InfoView(model=model)
 
         assert isinstance(info_view, InfoView)
 
-    def test_open_info(self, no_subs, only_others, only_nicfi, all_subs):
+        return
 
-        model = PlanetModel()
-        info_view = InfoView(model=model)
+    def test_open_info(self, no_subs, only_others, only_nicfi, all_subs, info_view):
 
         # Trigger event to check subscriptions
-        model.subscriptions = {}
-        model.subscriptions = no_subs
-
+        info_view.model.subscriptions = {}
+        info_view.model.subscriptions = no_subs
         assert info_view.get_children("nicfi").disabled
         assert info_view.get_children("others").disabled
 
-        model.subscriptions = {}
-        model.subscriptions = only_others
-
+        info_view.model.subscriptions = {}
+        info_view.model.subscriptions = only_others
         assert info_view.get_children("nicfi").disabled
         assert not info_view.get_children("others").disabled
 
-        model.subscriptions = {}
-        model.subscriptions = only_nicfi
-
+        info_view.model.subscriptions = {}
+        info_view.model.subscriptions = only_nicfi
         assert not info_view.get_children("nicfi").disabled
         assert info_view.get_children("others").disabled
 
-        model.subscriptions = {}
-        model.subscriptions = all_subs
-
+        info_view.model.subscriptions = {}
+        info_view.model.subscriptions = all_subs
         assert not info_view.get_children("nicfi").disabled
         assert not info_view.get_children("others").disabled
 
@@ -55,12 +51,14 @@ class TestPlanetWidgets:
         info_view.get_children("nicfi").fire_event("click", None)
         assert info_view.v_model == 1
 
-    @pytest.fixture
+        return
+
+    @pytest.fixture(scope="class")
     def no_subs(self):
 
         return {"nicfi": [], "others": []}
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def only_others(self):
 
         return {
@@ -77,7 +75,7 @@ class TestPlanetWidgets:
             ],
         }
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def only_nicfi(self):
 
         return {
@@ -102,7 +100,7 @@ class TestPlanetWidgets:
             "others": [],
         }
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def all_subs(self):
 
         return {
@@ -135,3 +133,9 @@ class TestPlanetWidgets:
                 }
             ],
         }
+
+    @pytest.fixture
+    def info_view():
+        """InfoView widget"""
+
+        return InfoView(model=PlanetModel())
