@@ -135,7 +135,7 @@ class TestPlanetWidgets:
         }
 
     @pytest.fixture
-    def info_view():
+    def info_view(self):
         """InfoView widget"""
 
         return InfoView(model=PlanetModel())

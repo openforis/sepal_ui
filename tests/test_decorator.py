@@ -10,6 +10,14 @@ from sepal_ui.scripts.warning import SepalWarning
 
 
 class TestDecorator:
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_init_ee(self):
+
+        # check that no error is raised
+        sd.init_ee()
+
+        return
+
     def test_catch_errors(self):
 
         # create a fake object that uses the decorator
@@ -26,14 +34,9 @@ class TestDecorator:
 
         obj = Obj()
 
-        # debug==False is only displaying the error message
         obj.func1()
         assert obj.alert.type == "error"
-
-        # debug==True will display both the message and the error traceback in
-        # the console
         with pytest.raises(Exception):
-            assert obj.alert.type == "error"
             obj.func2()
 
         return
@@ -163,16 +166,5 @@ class TestDecorator:
 
         with pytest.raises(IndexError):
             obj.func6()
-
-        return
-
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_init_ee(self):
-
-        # check that no error is raised
-        try:
-            sd.init_ee()
-        except Exception as e:
-            assert False, f"'init_ee' raised an exception {e}"
 
         return

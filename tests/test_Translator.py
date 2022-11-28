@@ -4,6 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 
 import pytest
+
 from sepal_ui import config_file
 from sepal_ui.message import ms
 from sepal_ui.translator import Translator
@@ -176,7 +177,7 @@ class TestTranslator:
 
         return
 
-    @pytest.fixture(scope="function")
+    @pytest.fixture
     def tmp_config_file(self):
         """
         Erase any existing config file and replace it with one specifically

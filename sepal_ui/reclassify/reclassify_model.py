@@ -257,6 +257,9 @@ class ReclassifyModel(Model):
     def get_aoi(self):
         """Validate and get feature collection from aoi_model"""
 
+        # by default it's none
+        aoi = None
+
         # return None if no aoi_model is selected
         if not self.aoi_model:
             return
@@ -266,8 +269,6 @@ class ReclassifyModel(Model):
         if self.aoi_model.gdf is None:
             if self.enforce_aoi:
                 raise Exception("You have to select an area of interest before")
-            else:
-                aoi = None
 
         else:  # return the aoi as a vector
             if self.gee:

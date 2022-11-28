@@ -1,5 +1,4 @@
 import random
-import warnings
 from configparser import ConfigParser
 from unittest.mock import patch
 
@@ -7,12 +6,13 @@ import ee
 import geopandas as gpd
 import ipyvuetify as v
 import pytest
+from shapely import geometry as sg
+
 from sepal_ui import config_file
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend.styles import TYPES
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
-from shapely import geometry as sg
 
 
 class TestUtils:
@@ -99,97 +99,11 @@ class TestUtils:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_init_ee(self):
 
         # check that no error is raised
         su.init_ee()
-
-        return
-
-    def test_catch_errors(self):
-
-        # create a fake object that uses the decorator
-        class Obj:
-            def __init__(self):
-                self.alert = sw.Alert()
-                self.btn = sw.Btn()
-
-                self.func1 = su.catch_errors(alert=self.alert)(self.func)
-                self.func2 = su.catch_errors(alert=self.alert, debug=True)(self.func)
-
-            def func(self, *args):
-                return 1 / 0
-
-        obj = Obj()
-
-        obj.func1()
-        assert obj.alert.type == "error"
-        with pytest.raises(Exception):
-            obj.func2()
-
-        return
-
-    def test_loading_button(self):
-
-        # create a fake object that uses the decorator
-        class Obj:
-            def __init__(self):
-                self.alert = sw.Alert()
-                self.btn = sw.Btn()
-
-            @su.loading_button(debug=False)
-            def func1(self, *args):
-                return 1 / 0
-
-            @su.loading_button(debug=True)
-            def func2(self, *args):
-                return 1 / 0
-
-            @su.loading_button(debug=False)
-            def func3(self, *args):
-                warnings.warn("toto")
-                warnings.warn("sepal", SepalWarning)
-                return 1
-
-            @su.loading_button(debug=True)
-            def func4(self, *args):
-                warnings.warn("toto")
-                warnings.warn("sepal", SepalWarning)
-                return 1
-
-        obj = Obj()
-
-        # should only display error in the alert
-        obj.func1(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "error"
-
-        # should raise an error
-        obj.alert.reset()
-        with pytest.raises(Exception):
-            obj.fun2(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "error"
-
-        # should only display the sepal warning
-        obj.alert.reset()
-        obj.func3(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "warning"
-        assert "sepal" in obj.alert.children[1].children[0]
-        assert "toto" not in obj.alert.children[1].children[0]
-
-        # should raise warnings
-        obj.alert.reset()
-        with warnings.catch_warnings(record=True) as w_list:
-            obj.func4(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "warning"
-        assert "sepal" in obj.alert.children[1].children[0]
-        assert "toto" not in obj.alert.children[1].children[0]
-        msg_list = [w.message.args[0] for w in w_list]
-        assert any("sepal" in s for s in msg_list)
-        assert any("toto" in s for s in msg_list)
 
         return
 
@@ -214,70 +128,6 @@ class TestUtils:
 
         return
 
-    def test_switch(self, capsys):
-
-        # create a fake object that uses the decorator
-        class Obj:
-            def __init__(self):
-                self.valid = True
-                self.select = v.Select(disabled=False)
-                self.select2 = v.Select(disabled=False)
-
-                # apply on non string
-                self.func4 = su.switch("disabled", on_widgets=[self.select])(self.func4)
-
-            # apply the widget on the object itself
-            @su.switch("valid")
-            def func1(self, *args):
-                return True
-
-            # apply the widget on members of the object
-            @su.switch("disabled", on_widgets=["select", "select2"])
-            def func2(self, *args):
-                return True
-
-            # apply it on a non existent widget
-            @su.switch("niet", on_widgets=["fake_widget"])
-            def func3(self, *args):
-                return True
-
-            def func4(self, *args):
-                return True
-
-            # apply on a error func with debug = True
-            @su.switch("valid", debug=True)
-            def func5(self, *args):
-                return 1 / 0
-
-            # apply the switch with a non matching number of targets
-            @su.switch("disabled", on_widgets=["select", "select2"], targets=[True])
-            def func6(self, *args):
-                return True
-
-        obj = Obj()
-
-        # assert
-        obj.func1()
-        assert obj.valid is True
-
-        obj.func2()
-        assert obj.select.disabled is False
-        assert obj.select2.disabled is False
-
-        with pytest.raises(Exception):
-            obj.func3()
-
-        with pytest.raises(Exception):
-            obj.func4()
-
-        with pytest.raises(Exception):
-            obj.func5()
-
-        with pytest.raises(IndexError):
-            obj.func6()
-
-        return
-
     def test_next_string(self):
 
         # Arrange
@@ -299,7 +149,7 @@ class TestUtils:
 
         # create a config_file with a set language
         locale = "fr-FR"
-        su.set_config_locale(locale)
+        su.set_config("locale", locale)
 
         config = ConfigParser()
         config.read(config_file)
@@ -308,7 +158,7 @@ class TestUtils:
 
         # change an existing locale
         locale = "es-CO"
-        su.set_config_locale(locale)
+        su.set_config("locale", locale)
         config.read(config_file)
         assert config["sepal-ui"]["locale"] == locale
 
@@ -325,7 +175,7 @@ class TestUtils:
 
         # create a config_file with a set language
         theme = "dark"
-        su.set_config_theme(theme)
+        su.set_config("theme", theme)
 
         config = ConfigParser()
         config.read(config_file)
@@ -334,7 +184,7 @@ class TestUtils:
 
         # change an existing locale
         theme = "light"
-        su.set_config_theme(theme)
+        su.set_config("theme", theme)
         config.read(config_file)
         assert config["sepal-ui"]["theme"] == theme
 
@@ -356,15 +206,15 @@ class TestUtils:
 
         return
 
-    @su.need_ee
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_geojson_to_ee(self):
 
         # create a point list
         points = [sg.Point(i, i + 1) for i in range(4)]
         d = {"col1": [str(i) for i in range(len(points))], "geometry": points}
-        gdf = gpd.GeoDataFrame(d, crs="EPSG:4326")
-        gdf_buffer = gdf.copy()
-        gdf_buffer.geometry = gdf_buffer.buffer(0.5)
+        gdf = gpd.GeoDataFrame(d, crs=4326)
+        gdf_buffer = gdf.copy().to_crs(3857)
+        gdf_buffer.geometry = gdf_buffer.buffer(500)
 
         # test a featurecollection
         ee_feature_collection = su.geojson_to_ee(gdf_buffer.__geo_interface__)

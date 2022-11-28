@@ -8,7 +8,6 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.utils import loading_button
 
 from .parameters import MATRIX_NAMES, NO_VALUE
 from .reclassify_model import ReclassifyModel
@@ -557,13 +556,13 @@ class ReclassifyView(sw.Card):
         ]
 
         # Decorate functions
-        self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(
-            self.reclassify
-        )
-        self.get_reclassify_table = loading_button(
+        self.reclassify = sd.loading_button(
+            self.alert, self.reclassify_btn, debug=True
+        )(self.reclassify)
+        self.get_reclassify_table = sd.loading_button(
             self.alert, self.get_table, debug=True
         )(self.get_reclassify_table)
-        self.load_matrix_content = loading_button(
+        self.load_matrix_content = sd.loading_button(
             self.alert, self.import_table, debug=True
         )(self.load_matrix_content)
 
