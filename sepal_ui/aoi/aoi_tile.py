@@ -1,4 +1,5 @@
 import ipyvuetify as v
+
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.aoi.aoi_view import AoiView
