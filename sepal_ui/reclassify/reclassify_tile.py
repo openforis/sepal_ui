@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import ipyvuetify as v
+from traitlets import link
+
 from sepal_ui import reclassify as rec
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
-from traitlets import link
 
 __all__ = ["ReclassifyTile"]
 
@@ -41,7 +42,7 @@ class ReclassifyTile(sw.Tile):
         dst_class=None,
         default_class={},
         aoi_model=None,
-        folder=None,
+        folder="",
         **kwargs
     ):
 

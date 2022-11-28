@@ -18,7 +18,7 @@ class TestReclassifyView:
 
         # aoi_model has to be local when using local view.
         with pytest.raises(Exception):
-            ReclassifyView(aoi_model=aoi_model, gee=True, folder=str(gee_dir))
+            ReclassifyView(aoi_model=aoi_model, gee=True, folder=gee_dir)
 
         return
 

@@ -103,7 +103,7 @@ class ReclassifyModel(Model):
         gee=False,
         dst_dir=Path.home(),
         aoi_model=None,
-        folder=None,
+        folder="",
         save=True,
         enforce_aoi=False,
         **kwargs,
@@ -123,7 +123,7 @@ class ReclassifyModel(Model):
             su.init_ee()
 
         if self.gee:
-            self.folder = folder or ee.data.getAssetRoots()[0]["id"]
+            self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
         else:
             self.folder = None
 

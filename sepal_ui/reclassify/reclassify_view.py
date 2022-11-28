@@ -365,7 +365,7 @@ class ReclassifyView(sw.Card):
         default_class={},
         aoi_model=None,
         save=True,
-        folder=None,
+        folder="",
         enforce_aoi=False,
         **kwargs,
     ):

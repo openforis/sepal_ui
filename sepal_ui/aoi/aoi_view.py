@@ -260,7 +260,7 @@ class AoiView(sw.Card):
         reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
     )
     def __init__(
-        self, methods="ALL", map_=None, gee=True, folder=None, model=None, **kwargs
+        self, methods="ALL", map_=None, gee=True, folder="", model=None, **kwargs
     ):
 
         # set ee dependencie

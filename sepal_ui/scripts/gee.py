@@ -97,7 +97,7 @@ def get_assets(folder="", asset_list=[]):
     """
 
     # set the folder
-    folder = str(folder) if folder else ee.data.getAssetRoots()[0]["id"]
+    folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # loop in the assets
     for asset in ee.data.listAssets({"parent": folder})["assets"]:
