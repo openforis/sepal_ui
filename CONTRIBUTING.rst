@@ -83,7 +83,7 @@ Our branching system embed some rules to avoid crash of the production environme
 
 -   the modification you offer is solving a critical bug in prod : **PR in main**
 -   the modification you propose solve the following issues : test, documentation, typo, quality, refactoring, translation **PR in main**
--   the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to main*
+-   the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to main**
 
 the maintainers will try their best to use PR for new features, to help the community follow the development, for other modification they will simply push to the appropriate branch.
 
