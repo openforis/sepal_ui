@@ -1,4 +1,5 @@
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts.utils import create_download_link
 

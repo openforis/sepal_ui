@@ -8,13 +8,14 @@ import geopandas as gpd
 import pandas as pd
 from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON
+from traitlets import Any
+
 from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
-from traitlets import Any
 
 __all__ = ["AoiModel"]
 
@@ -619,8 +620,8 @@ class AoiModel(Model):
         style.update(color=color.success, fillColor=color.success)
 
         # create a GeoJSON object
-        self.ipygeojson = GeoJSON(
-            data=data, style=style, name="aoi", attribution="SEPAL(c)"
-        )
+        # attribution="SEPAL(c)" is not recognized yet
+        # https://github.com/jupyter-widgets/ipyleaflet/issues/847
+        self.ipygeojson = GeoJSON(data=data, style=style, name="aoi")
 
         return self.ipygeojson

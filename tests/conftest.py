@@ -1,4 +1,5 @@
 import uuid
+from itertools import product
 from pathlib import Path
 
 import ee
@@ -40,16 +41,25 @@ def tmp_dir():
 
 
 @pytest.fixture(scope="session")
-def gee_dir():
+def _hash():
+    """
+    Create a hash for each test instance
+    """
+
+    return uuid.uuid4().hex
+
+
+@pytest.fixture(scope="session")
+def gee_dir(_hash):
     """
     Create a test dir based on earthengine initialization
     populate it with fake super small assets:
 
     sepal-ui-<hash>/
-    ├── folder1/
-    │   └── point-featureCollection
-    ├── point-featureCollection
-    └── 4pixel-Image
+    ├── subfolder/
+    │   └── subfolder_feature_collection
+    ├── feature_collection
+    └── image
 
     remove everything on teardown
     """
@@ -57,7 +67,6 @@ def gee_dir():
         pytest.skip("Eathengine is not connected")
 
     # create a test folder with a hash name
-    _hash = uuid.uuid4().hex
     root = ee.data.getAssetRoots()[0]["id"]
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
@@ -67,14 +76,23 @@ def gee_dir():
     ee.data.createAsset({"type": "FOLDER"}, str(subfolder))
 
     # create test material
-
-    center = sg.Point(0, 0)
-    gdf = gpd.GeoDataFrame({"data": [0, 1], "geometry": [center, center]}, crs=4326)
+    centers = [sg.Point(i, j) for i, j in product([-50, 50], repeat=2)]
+    data = list(range(len(centers)))
+    gdf = gpd.GeoDataFrame({"data": data, "geometry": centers}, crs=3857).to_crs(4326)
     ee_gdf = ee.FeatureCollection(gdf.__geo_interface__)
 
     image = ee.Image.random().multiply(4).byte()
-    ee_buffer = ee_gdf.first().geometry().buffer(200)
-    image = image.clipToBoundsAndScale(ee_buffer, scale=100)
+
+    lon = ee.Image.pixelLonLat().select("longitude")
+    lat = ee.Image.pixelLonLat().select("latitude")
+    image = (
+        ee.Image(1)
+        .where(lon.gt(0).And(lat.gt(0)), 2)
+        .where(lon.lte(0).And(lat.lte(0)), 3)
+        .where(lon.gt(0).And(lat.lte(0)), 4)
+    )
+    ee_buffer = ee.Geometry.Point(0, 0).buffer(200).bounds()
+    image = image.clipToBoundsAndScale(ee_buffer, scale=30)
 
     # exports It should take less than 2 minutes unless there are concurent tasks
     fc = "feature_collection"
@@ -115,22 +133,8 @@ def gee_dir():
     return
 
 
-@pytest.fixture(scope="session")
-def no_name():
-    """return a no-name tuple"""
-
-    return ("no_name", "#000000")
-
-
 @pytest.fixture
 def alert():
     """return a dummy alert that can be used everywhere to display informations"""
 
     return sw.Alert()
-
-
-@pytest.fixture(scope="session")
-def readme(root_dir):
-    """return the readme file path"""
-
-    return root_dir / "README.rst"

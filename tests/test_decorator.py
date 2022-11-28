@@ -1,13 +1,23 @@
 import warnings
 
+import ee
 import ipyvuetify as v
 import pytest
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning
 
 
 class TestDecorator:
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_init_ee(self):
+
+        # check that no error is raised
+        sd.init_ee()
+
+        return
+
     def test_catch_errors(self):
 
         # create a fake object that uses the decorator
@@ -156,13 +166,5 @@ class TestDecorator:
 
         with pytest.raises(IndexError):
             obj.func6()
-
-        return
-
-    @sd.need_ee
-    def test_init_ee(self):
-
-        # check that no error is raised
-        sd.init_ee()
 
         return

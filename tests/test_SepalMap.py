@@ -7,6 +7,7 @@ from urllib.request import urlretrieve
 import ee
 import pytest
 from ipyleaflet import GeoJSON
+
 from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
@@ -86,6 +87,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def zoom_ee_object(self):
 
         # init objects
@@ -129,8 +131,7 @@ class TestSepalMap:
         return
 
     @pytest.mark.skipif(
-        is_set_localtileserver is False,
-        reason="localtileserver implementation is still in beta",
+        is_set_localtileserver is False, reason="localtileserver in beta"
     )
     def test_add_raster(self, rgb, byte):
 
@@ -157,6 +158,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_add_ee_layer_exceptions(self):
 
         map_ = sm.SepalMap()
@@ -182,10 +184,13 @@ class TestSepalMap:
         with pytest.raises(AttributeError):
             map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
 
-    def test_add_ee_layer(self, asset_image_viz):
+        return
+
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_add_ee_layer(self, image_id):
 
         # create map and image
-        image = ee.Image(asset_image_viz)
+        image = ee.Image(image_id)
         m = sm.SepalMap()
 
         # display all the viz available in the image
@@ -242,10 +247,10 @@ class TestSepalMap:
 
         return
 
-    def test_get_viz_params(self, asset_image_viz):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_viz_params(self, image_id):
 
-        image = ee.Image(asset_image_viz)
-
+        image = ee.Image(image_id)
         res = sm.SepalMap.get_viz_params(image)
 
         expected = {
@@ -295,6 +300,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_remove_layer(self, ee_map_with_layers):
 
         m = ee_map_with_layers
@@ -311,6 +317,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_remove_all(self, ee_map_with_layers):
 
         m = ee_map_with_layers
@@ -378,6 +385,8 @@ class TestSepalMap:
         assert new_layer.style == layer_style
         assert new_layer.hover_style == layer_hover_style
 
+        return
+
     def test_add_basemap(self):
 
         m = sm.SepalMap()
@@ -402,6 +411,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_find_layer(self, ee_map_with_layers):
 
         m = ee_map_with_layers
@@ -443,8 +453,7 @@ class TestSepalMap:
         return
 
     @pytest.mark.skipif(
-        is_set_localtileserver is False,
-        reason="localtileserver implementation is still in beta",
+        is_set_localtileserver is False, reason="localtileserver is in beta"
     )
     def test_zoom_raster(self, byte):
 
@@ -458,6 +467,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_add_legend(self, ee_map_with_layers):
 
         legend_dict = {
@@ -477,7 +487,7 @@ class TestSepalMap:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def rgb(self):
         """add a raster file of the bahamas coming from rasterio test suit"""
 
@@ -493,7 +503,7 @@ class TestSepalMap:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def byte(self):
         """add a raster file of the bahamas coming from rasterio test suit"""
 
@@ -510,9 +520,9 @@ class TestSepalMap:
         return
 
     @pytest.fixture
-    def ee_map_with_layers(self, asset_image_viz):
+    def ee_map_with_layers(self, image_id):
 
-        image = ee.Image(asset_image_viz)
+        image = ee.Image(image_id)
         m = sm.SepalMap()
 
         # display all the viz available in the image
@@ -520,3 +530,10 @@ class TestSepalMap:
             m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
         return m
+
+    @pytest.fixture(scope="class")
+    def image_id(self):
+
+        # testing asset from Daniel Wiell
+        # may not live forever
+        return "users/wiell/forum/visualization_example"

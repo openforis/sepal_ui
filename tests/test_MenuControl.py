@@ -13,7 +13,7 @@ class TestMenuControl:
         # create the menu_control
         m = sm.SepalMap()
         tile_control = sm.MenuControl("tutu", tile)
-        m.add_control(tile_control)
+        m.add(tile_control)
 
         # set some object in variables for easy access
         btn = tile_control.widget.v_slots[0]["children"]
@@ -59,9 +59,9 @@ class TestMenuControl:
         control_1 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
         control_2 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
         control_3 = sm.MenuControl("fas fa-folder", sw.Card())
-        m.add_control(control_1)
-        m.add_control(control_2)
-        m.add_control(control_3)
+        m.add(control_1)
+        m.add(control_2)
+        m.add(control_3)
 
         # open the first one and then the second one
         control_1.menu.v_model = True

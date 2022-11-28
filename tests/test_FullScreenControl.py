@@ -9,7 +9,7 @@ class TestFullScreenControl:
 
         # add a fullscreenControl
         control = sm.FullScreenControl(map_)
-        map_.add_control(control)
+        map_.add(control)
 
         assert isinstance(control, sm.FullScreenControl)
         assert control in map_.controls
@@ -22,7 +22,7 @@ class TestFullScreenControl:
 
         map_ = sm.SepalMap()
         control = sm.FullScreenControl(map_)
-        map_.add_control(control)
+        map_.add(control)
 
         # trigger the click
         # I cannot test the javascript but i can test everything else

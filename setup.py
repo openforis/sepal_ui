@@ -81,6 +81,8 @@ setup_params = {
             "coverage",
             "pytest",
             "pytest-sugar",
+            "pytest-icdiff",
+            "pytest-instafail",
             "nbmake ",
         ],
         "doc": [

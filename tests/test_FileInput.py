@@ -1,7 +1,8 @@
 import pytest
+from traitlets import Any
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.model import Model
-from traitlets import Any
 
 
 class TestFileInput:
@@ -31,17 +32,22 @@ class TestFileInput:
         return
 
     def test_bind(self, file_input):
-        class Test_io(Model):
+
+        # init a model
+        class TestModel(Model):
             out = Any(None).tag(sync=True)
 
-        test_io = Test_io()
+        model = TestModel()
 
-        test_io.bind(file_input, "out")
+        # bind the model to the fileinput
+        model.bind(file_input, "out")
 
+        # edit the widget
         path = "toto.ici.shp"
         file_input.v_model = path
 
-        assert test_io.out == path
+        # check that the bind worked as expected
+        assert model.out == path
         assert file_input.file_menu.v_model is False
 
         return
@@ -90,6 +96,7 @@ class TestFileInput:
         # move into sepal_ui folders
         file_input.select_file(readme)
 
+        # reset to default
         file_input.reset()
 
         # assert that the folder has been reset
@@ -118,12 +125,19 @@ class TestFileInput:
 
         return sw.FileInput(folder=root_dir)
 
+    @pytest.fixture
+    def readme(self, root_dir):
+        """return the readme file path"""
+
+        return root_dir / "README.rst"
+
     @staticmethod
     def get_names(widget):
         """get the list name of a fileinput object"""
 
-        name_list = []
-        for item_list in widget.file_list.children[0].children:
-            name_list.append(item_list.children[1].children[0].children[0])
+        item_list = widget.file_list.children[0].children
 
-        return name_list
+        def get_name(item):
+            return item.children[1].children[0].children[0]
+
+        return [get_name(i) for i in item_list]
