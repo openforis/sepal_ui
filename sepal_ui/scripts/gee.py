@@ -1,6 +1,7 @@
 import time
 
 import ee
+
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 
@@ -83,19 +84,20 @@ def is_running(task_descripsion):
 
 
 @su.need_ee
-def get_assets(folder=None, asset_list=[]):
+def get_assets(folder="", asset_list=[]):
     """
     Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
-        folder (str): the initial GEE folder
+        folder (str|optional): the initial GEE folder
         asset_list ([assets]| optional): extra element that you would like to add to the asset list
 
     Return:
         ([asset]): the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
+
     # set the folder
-    folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+    folder = str(folder) if folder else ee.data.getAssetRoots()[0]["id"]
 
     # loop in the assets
     for asset in ee.data.listAssets({"parent": folder})["assets"]:
@@ -109,20 +111,20 @@ def get_assets(folder=None, asset_list=[]):
 
 
 @su.need_ee
-def is_asset(asset_name, folder=None):
+def is_asset(asset_name, folder=""):
     """
     Check if the asset already exist in the user asset folder
 
     Args:
         asset_descripsion (str) : the descripsion of the asset
-        folder (str): the folder of the glad assets
+        folder (str|optional): the folder of the glad assets
 
     Return:
         (bool): true if already in folder
     """
 
     # get the folder
-    folder = folder or ee.data.getAssetRoots()[0]["id"]
+    folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # get all the assets
     asset_list = get_assets(folder)
