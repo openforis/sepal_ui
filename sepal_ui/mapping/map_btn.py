@@ -1,6 +1,7 @@
 import json
 
 import ipyvuetify as v
+
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss

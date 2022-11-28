@@ -2,10 +2,11 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import ipyvuetify as v
-import sepal_ui.scripts.utils as su
 from IPython.display import display
-from sepal_ui import config
 from traitlets import Bool, HasTraits, Unicode, observe
+
+import sepal_ui.scripts.utils as su
+from sepal_ui import config
 
 ################################################################################
 # access the folders where style information is stored (layers, widgets)

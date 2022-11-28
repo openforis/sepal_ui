@@ -1,7 +1,8 @@
 from ipyleaflet import WidgetControl
+from traitlets import Int, observe
+
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
-from traitlets import Int, observe
 
 
 class LayerStateControl(WidgetControl):

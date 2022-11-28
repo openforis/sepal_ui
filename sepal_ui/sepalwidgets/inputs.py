@@ -9,6 +9,8 @@ import pandas as pd
 from deprecated.sphinx import versionadded
 from ipywidgets import jslink
 from natsort import humansorted
+from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
+
 from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
@@ -16,7 +18,6 @@ from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from traitlets import Any, Bool, Dict, Int, List, Unicode, link, observe
 
 __all__ = [
     "DatePicker",

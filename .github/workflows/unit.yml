@@ -9,6 +9,7 @@ env:
   PLANET_API_CREDENTIALS: ${{ secrets.PLANET_API_CREDENTIALS }}
   PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
   EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+  #SKIP: isort
 
 jobs:
 

@@ -3,9 +3,10 @@ from pathlib import Path
 
 import ipyvuetify as v
 from deprecated.sphinx import deprecated
+from traitlets import Unicode, observe
+
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from traitlets import Unicode, observe
 
 __all__ = ["Btn", "DownloadBtn"]
 
