@@ -3,14 +3,15 @@ from datetime import datetime
 import ipyvuetify as v
 from deprecated.sphinx import deprecated
 from ipywidgets import Output, jslink
+from tqdm.notebook import tqdm
+from traitlets import Bool, Unicode, directional_link, observe
+
 from sepal_ui import color
 from sepal_ui.frontend.styles import TYPES
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.utils import set_type
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from tqdm.notebook import tqdm
-from traitlets import Bool, Unicode, directional_link, observe
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 

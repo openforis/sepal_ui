@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 import ipyvuetify as v
+
 import sepal_ui.sepalwidgets as sw
 
 # key_name: [label, [non_active_coloor, active_color]]

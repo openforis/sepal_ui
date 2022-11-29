@@ -18,8 +18,9 @@ import argparse
 import subprocess
 from pathlib import Path
 
-import sepal_ui
 from colorama import Fore, Style, init
+
+import sepal_ui
 
 # init colors for all plateforms
 init()

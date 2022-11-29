@@ -10,6 +10,7 @@ The "theme" parameter will be changed to the selected one. Any running applicati
 import argparse
 
 from colorama import Fore, init
+
 from sepal_ui.scripts import utils as su
 
 # init colors for all plateforms

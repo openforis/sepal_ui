@@ -5,16 +5,17 @@ from pathlib import Path
 
 import ipyvuetify as v
 import pandas as pd
-import sepal_ui
 from deprecated.sphinx import versionadded, versionchanged
 from ipywidgets import jsdlink
+from traitlets import Bool, link, observe
+
+import sepal_ui
 from sepal_ui import color
 from sepal_ui.frontend.resize_trigger import rt
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from traitlets import Bool, link, observe
 
 __all__ = [
     "AppBar",

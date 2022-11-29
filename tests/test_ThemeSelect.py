@@ -1,6 +1,7 @@
 from configparser import ConfigParser
 
 import pytest
+
 from sepal_ui import config_file, get_theme
 from sepal_ui import sepalwidgets as sw
 
