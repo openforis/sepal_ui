@@ -153,11 +153,18 @@ class TestAlert:
 
         # test a random update
         alert.update_progress(0.5)
-        assert alert.progress_bar.n == 50
+        assert alert.progress_bar.n == 0.5
         assert alert.viz is True
 
         # show that a value > 1 raise an error
         with pytest.raises(ValueError):
+            alert.reset()
             alert.update_progress(1.5)
+
+        # check that if total is set value can be more than 1
+        alert.reset()
+        alert.update_progress(50, total=100)
+        assert alert.progress_bar.n == 50
+        assert alert.viz is True
 
         return
