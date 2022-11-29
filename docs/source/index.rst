@@ -25,7 +25,7 @@ Demo apps can be launched on Heroku following these links:
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_demo.gif
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/sepal_ui_demo.gif
 
 Contribute
 ----------

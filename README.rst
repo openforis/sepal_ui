@@ -73,7 +73,11 @@ The full documentation is available `here <https://sepal-ui.readthedocs.io/en/la
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_screenshot.png
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/links/docs/source/_image/demo-map-app.png
+    :width: 49%
+
+.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/links/docs/source/_image/demo-panel-app.png
+    :width: 49%
 
 Contribute
 ----------
