@@ -35,7 +35,7 @@ class TestMenuControl:
     def test_update_position(self):
 
         # create the widget
-        menu_control = sm.MenuControl("fas fa-folder", sw.Card())
+        menu_control = sm.MenuControl("fa-solid fa-folder", sw.Card())
 
         assert menu_control.menu.top is True
         assert menu_control.menu.bottom is False
@@ -56,9 +56,9 @@ class TestMenuControl:
 
         # add controls on the map
         m = sm.SepalMap()
-        control_1 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
-        control_2 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
-        control_3 = sm.MenuControl("fas fa-folder", sw.Card())
+        control_1 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
+        control_2 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
+        control_3 = sm.MenuControl("fa-solid fa-folder", sw.Card())
         m.add(control_1)
         m.add(control_2)
         m.add(control_3)

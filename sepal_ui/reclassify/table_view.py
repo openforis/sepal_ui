@@ -51,22 +51,25 @@ class ClassTable(sw.DataTable):
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
             msg=ms.rec.table.btn.edit,
-            gliph="fas fa-pencil-alt",
+            gliph="fa-solid fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
             msg=ms.rec.table.btn.delete,
-            gliph="fas fa-trash-alt",
+            gliph="fa-solid fa-trash-alt",
             color="error",
             small=True,
         )
         self.add_btn = sw.Btn(
-            msg=ms.rec.table.btn.add, gliph="fas fa-plus", color="success", small=True
+            msg=ms.rec.table.btn.add,
+            gliph="fa-solid fa-plus",
+            color="success",
+            small=True,
         )
         self.save_btn = sw.Btn(
-            msg=ms.rec.table.btn.save, gliph="far fa-save", small=True
+            msg=ms.rec.table.btn.save, gliph="fa-regular fa-save", small=True
         )
 
         slot = v.Toolbar(

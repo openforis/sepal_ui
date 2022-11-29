@@ -256,18 +256,25 @@ class FileInput(v.Flex, SepalWidget):
                     "name": "activator",
                     "variable": "x",
                     "children": Btn(
-                        gliph="fas fa-search", v_model=False, v_on="x.on", msg=label
+                        gliph="fa-solid fa-search",
+                        v_model=False,
+                        v_on="x.on",
+                        msg=label,
                     ),
                 }
             ],
         )
 
         self.reload = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["fas fa-sync-alt"])]
+            icon=True,
+            color="primary",
+            children=[v.Icon(children=["fa-solid fa-sync-alt"])],
         )
 
         self.clear = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["fas fa-times"])]
+            icon=True,
+            color="primary",
+            children=[v.Icon(children=["fa-solid fa-times"])],
         )
         if not clearable:
             su.hide_component(self.clear)

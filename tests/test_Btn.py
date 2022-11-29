@@ -14,10 +14,10 @@ class TestBtn:
         assert btn.children[1] == "Click"
 
         # extensive btn
-        btn = sw.Btn("toto", "fas fa-folder")
+        btn = sw.Btn("toto", "fa-solid fa-folder")
         assert btn.children[1] == "toto"
         assert isinstance(btn.v_icon, v.Icon)
-        assert btn.v_icon.children[0] == "fas fa-folder"
+        assert btn.v_icon.children[0] == "fa-solid fa-folder"
 
         return
 
@@ -37,14 +37,14 @@ class TestBtn:
     def test_set_gliph(self, btn):
 
         # new gliph
-        gliph = "fas fa-folder"
+        gliph = "fa-solid fa-folder"
         btn.gliph = gliph
 
         assert isinstance(btn.v_icon, v.Icon)
         assert btn.v_icon.children[0] == gliph
 
         # change existing icon
-        gliph = "fas fa-file"
+        gliph = "fa-solid fa-file"
         btn.gliph = gliph
         assert btn.v_icon.children[0] == gliph
 
@@ -55,7 +55,7 @@ class TestBtn:
 
         # assert deprecation
         with pytest.deprecated_call():
-            sw.Btn(icon="fas fa-folder")
+            sw.Btn(icon="fa-solid fa-folder")
 
         return
 

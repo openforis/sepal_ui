@@ -36,7 +36,7 @@ class AoiControl(MenuControl):
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
 
         # create the widget
-        super().__init__("fas fa-search-location", self.aoi_list, **kwargs)
+        super().__init__("fa-solid fa-search-location", self.aoi_list, **kwargs)
 
         # change a bit the behavior of the control
         self.menu.open_on_hover = True
