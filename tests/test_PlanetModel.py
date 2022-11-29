@@ -9,11 +9,17 @@ from sepal_ui.planetapi import PlanetModel
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetModel:
-    @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
-    def test_init(self, credentials, request):
+    def test_init(self, planet_key, cred, request):
 
-        # Test with a valid api key and login credentials
-        planet_model = PlanetModel(request.getfixturevalue(credentials))
+        # Test with a valid api key
+        planet_model = PlanetModel(planet_key)
+
+        assert isinstance(planet_model, PlanetModel)
+        assert isinstance(planet_model.session, planet.http.Session)
+        assert planet_model.active is True
+
+        # Test with a valid login credentials
+        planet_model = PlanetModel(cred)
 
         assert isinstance(planet_model, PlanetModel)
         assert isinstance(planet_model.session, planet.http.Session)
@@ -56,10 +62,7 @@ class TestPlanetModel:
 
         return
 
-    def test_is_active(self, planet_key):
-
-        # We only need to test with a key.
-        planet_model = PlanetModel(planet_key)
+    def test_is_active(self, planet_model):
 
         planet_model._is_active()
         assert planet_model.active is True
@@ -69,9 +72,8 @@ class TestPlanetModel:
 
         return
 
-    def test_get_subscriptions(self, planet_key):
+    def test_get_subscriptions(self, planet_model):
 
-        planet_model = PlanetModel(planet_key)
         subs = planet_model.get_subscriptions()
 
         # Check object has length, because there is no way to check a value
@@ -80,10 +82,7 @@ class TestPlanetModel:
 
         return
 
-    def test_get_planet_items(self, planet_key):
-
-        # Arrange
-        planet_model = PlanetModel(planet_key)
+    def test_get_planet_items(self, planet_model):
 
         aoi = {  # Yasuni national park in Ecuador
             "type": "Polygon",
@@ -119,3 +118,11 @@ class TestPlanetModel:
         credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
 
         return list(credentials.values())
+
+    @pytest.fixture
+    def planet_model(self):
+        """Start a planet model using the API key"""
+
+        key = os.getenv("PLANET_API_KEY")
+
+        return PlanetModel(key)
