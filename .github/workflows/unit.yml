@@ -72,7 +72,7 @@ jobs:
           assert len(unexpected) == 0
       
       - name: test with pytest
-        run: coverage run -m pytest --color=yes --instafail tests
+        run: pytest --color=yes --cov --cov-report=xml --instafail tests
         
       - name: assess dead fixtures
         if: matrix.python-version == '3.8'

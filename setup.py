@@ -84,6 +84,7 @@ setup_params = {
             "pytest-icdiff",
             "pytest-instafail",
             "pytest-deadfixtures",
+            "pytest-cov",
             "nbmake ",
         ],
         "doc": [
