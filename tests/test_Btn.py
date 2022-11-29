@@ -11,6 +11,7 @@ class TestBtn:
         btn = sw.Btn()
         assert btn.color == "primary"
         assert btn.v_icon.children[0] == ""
+        assert btn.children[1] == ""
 
         # extensive btn
         btn = sw.Btn("toto", "fas fa-folder")
@@ -50,7 +51,7 @@ class TestBtn:
 
         # display only the gliph
         btn.msg = ""
-        assert len(btn.children) == 1
+        assert btn.children[1] == ""
         assert btn.v_icon.left is False
 
         # remove all gliph

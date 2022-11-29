@@ -91,12 +91,9 @@ class Btn(v.Btn, SepalWidget):
         """
         Set the text of the btn
         """
-        if change["new"]:
-            self.v_icon.left = True
-            self.children = [self.v_icon, change["new"]]
-        else:
-            self.v_icon.left = False
-            self.children = [self.v_icon]
+
+        self.v_icon.left = bool(change["new"])
+        self.children = [self.v_icon, change["new"]]
 
         return self
 
