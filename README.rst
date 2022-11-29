@@ -68,7 +68,7 @@ By using this libraries, you'll ensure a robust and unified interface for your s
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links: 
 
--   `Map style application <https://sepal-map-app.herokuapp.com>`___
+-   `Map style application <https://sepal-map-app.herokuapp.com>`__
 -   `Panel style application <https://sepal-panel-app.herokuapp.com>`__
 
 We are happy to receive feedback and we welcome any kind of contribution.

@@ -20,7 +20,7 @@ By using this libraries, you'll ensure a robust and unified interface for your s
 
 Demo apps can be launched on Heroku following these links: 
 
--   `Map style app <https://sepal-map-app.herokuapp.com>`___
+-   `Map style app <https://sepal-map-app.herokuapp.com>`__
 -   `Panel style app <https://sepal-panel-app.herokuapp.com>`__
 
 We are happy to receive feedback and we welcome any kind of contribution.
