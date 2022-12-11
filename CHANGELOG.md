@@ -1,3 +1,50 @@
+## v_2.13.0 (2022-12-11)
+
+### Fix
+
+- drop use of Request from planet
+- drop use of Request from planet The method was removed from the lib between 2.0.a2 and 2.0.a6
+- update_progress accept values >1
+- remove left when only icon is set
+- update_progress accept values >1
+- replace all deprecated fas and far
+- remove left when only icon is set
+- change map application title Fix #642
+- update all relaining gee widgets
+- support pathlib path Fix #628 Fix #629
+- create a specific aoi_dc on the map
+- adapt to most recent gee token
+- create a specific aoi_dc on the map Fix #595
+- set icon and text as traits in btn
+- set icon and text as traits in btn
+- keep default asset when reloading
+- fixswitcher path for local build
+- keep default asset when reloading
+- set z-index to select content. closes #602
+- legacy print
+
+### Feat
+
+- use fontawesome V6
+- use the credential from the context to GEE oAuth
+- add a method to set-up GEE credentials
+- improve date picker widget customization
+- add layout kwargs
+- improve date picker widget customization. closes #600
+
+### Refactor
+
+- always keep msg and v_icon children
+- use the cred fixture
+- isort
+- isort
+- isort
+- run latest isort
+- run latest isort
+- fileInput was using icon and text
+- rename parameters in the reclassify module
+- remove legacy prints
+
 ## v_2.12.0 (2022-09-13)
 
 ### Fix
