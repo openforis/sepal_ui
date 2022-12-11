@@ -27,7 +27,7 @@ The tool is currently tranlated in the following languages:
 
     English, Français, Español
 
-You can contribute to the translation effort on our `pontoon project <https://sepal-ui-translation.herokuapp.com/projects/sepal-ui/>`__. Contributors can suggest new languages and new translation. The admin will review this modification as fast as possible. If nobody in the core team master the suggested language, we'll be force to trust you !
+You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui/>`__. Contributors can suggest new languages and new translation. The admin will review this modification as fast as possible. If nobody in the core team master the suggested language, we'll be force to trust you !
 
 
 Develop within the project
@@ -35,17 +35,16 @@ Develop within the project
 
 Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
-.. figure:: https://nvie.com/img/git-model@2x.png
-    :alt: the Git branching model 
-    :width: 70%
+.. figure:: https://raw.githubusercontent.com/12rambau/sepal_ui/links/docs/source/_image/branching_system.png
+    :alt: the Git branching model
     
     The git branching model
 
 Please consider using the :code:`--no-ff` option when merging to keep the repository consistent with PR. 
 
-In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the `return` statement for every function.
+In the project to adapt to :code:`JupyterLab` IntelSense, we decided to explicitly write the ``return`` statement for every function.
 
-As we are holding a single documentation page, we need to provide the users with version informations. When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>`__ lib to specify that the feature is new in the documentation. 
+When a new function or class is created please use the `Deprecated <https://pypi.org/project/Deprecated/>`__ lib to specify that the feature is new in the documentation. 
 
 .. code-block:: python
 
@@ -79,13 +78,13 @@ You can learn more about Conventional Commits following this `link <https://www.
 What can I push and where
 -------------------------
 
-Our branching system embed some rules to avoid crash of the production environment. If you want to contribute to this framework, here are some basic rules that we try our best to follow :
+Our branching system embed some rules to avoid crash of the production environment. If you want to contribute to this framework, here are some basic rules that we try our best to follow:
 
--   the modification you offer is solving a critical bug in prod : **PR in hotfix**
--   the modification you propose solve the following issues : test, documentation, typo, quality, refactoring, translation **PR in master**
--   the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to develop**
+-   the modification you offer is solving a critical bug in prod : **PR in main**
+-   the modification you propose solve the following issues : test, documentation, typo, quality, refactoring, translation **PR in main**
+-   the modification you propose is a new feature : open an issue to discuss with the maintainers and then **PR to main**
 
-the maintainers will try their best to use PR for new features, to help the community follow the development, for other modification they will simply push to the appropriate branch
+the maintainers will try their best to use PR for new features, to help the community follow the development, for other modification they will simply push to the appropriate branch.
 
 Create a new release
 --------------------
@@ -108,23 +107,22 @@ It should modify for you the version number in :code:`sepal_ui/__init__.py`, :co
 
 It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories if you run the following code, using the version bumped in the previous commit.
 
-.. code-block:: console 
+.. danger::
 
-    cz changelog --unreleased-version="v_x.x.x"
+    As long as https://github.com/commitizen-tools/commitizen/issues/463 remains open, the version names of this repository won't work with the commitizen lib and the changelog won't be updated. As a maintainer you need to clone the project and follow the instruction from https://github.com/commitizen-tools/commitizen/issues/463#issuecomment-1191653690.
 
-Then push the current :code:`master` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`.cz.yaml`: :code:`v_$minor.$major.$patch$prerelease`.
+Then push the current :code:`main` branch to the :code:`release` branch. You can now create a new tag with your new version number. use the same convention as the one found in :code:`.cz.yaml`: :code:`v_$minor.$major.$patch$prerelease`.
 
 .. warning::
 
-    The target branch of the new release is :code:`release` not :code:`master`. 
+    The target branch of the new release is :code:`release` not :code:`main`. 
     
-The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://badge.fury.io/py/sepal-ui>`_.
+The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://pypi.org/project/sepal-ui/>`_.
     
 Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically. 
 
-
-Setting ENV variables
----------------------
+ENV for Planet components
+-------------------------
 
 Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though they are also skippable.
 
@@ -134,17 +132,39 @@ To store a variable in your local session, just type :code:`export=` followed by
 
     $ export PLANET_API_KEY="neverending_resourcesapi"
     
-However, this variable will expire everytime you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
+.. tip::
     
-.. code-block:: console 
+    In SEPAL this variable will expire everytime you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
+    
+    .. code-block:: console 
 
-    $ vim .bash_profile
+        $ vim .bash_profile
 
-.. note::
-    The current enviromental keys and its structure is the following:
+The current enviromental keys and its structure is the following:
 
-    - PLANET_API_CREDENTIALS: '{"username": "user@neim.com", "password": "secure"}'
-    - PLANET_API_KEY: "string_planet_api_key"
+-   ``PLANET_API_CREDENTIALS='{"username": "user@neim.com", "password": "secure"}'``
+-   ``PLANET_API_KEY="string_planet_api_key"``
+
+ENV for GEE component
+---------------------
+
+To test/use the Google EarthEngine components, you need to run the `ìnit__ee`` script.
+
+In a local development environment you can fully rely on your own GEE account. simply make sure to run at least once the authentification process from a terminal: 
+
+.. code-block:: console
+
+    $ earthengine authenticate
+    
+In a distant environment (such as GitHub Actions) it is compulsory to use a environment variable to link your earthengine account. First, find the Earth Engine credentials file on your computer.
+
+.. code-block::
+
+    Windows: C:\Users\USERNAME\.config\earthengine\credentials
+    Linux: /home/USERNAME/.config/earthengine/credentials
+    MacOS: /Users/USERNAME/.config/earthengine/credentials
+    
+Open the credentials file and copy its content. On the **GitHub Actions** page, create a new **secret** with the name ``EARTHENGINE_TOKE``, and the value of the copied content.
     
 Build the API documentation files
 ---------------------------------

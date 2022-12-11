@@ -94,9 +94,10 @@ class Alert(v.Alert, SepalWidget):
         self.show()
 
         # cast the progress to float
+        total = tqdm_args.get("total", 1)
         progress = float(progress)
-        if not (0 <= progress <= 1):
-            raise ValueError(f"progress should be in [0, 1], {progress} given")
+        if not (0 <= progress <= total):
+            raise ValueError(f"progress should be in [0, {total}], {progress} given")
 
         # Prevent adding multiple times
         if self.progress_output not in self.children:
@@ -107,7 +108,7 @@ class Alert(v.Alert, SepalWidget):
                 "bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}"
             )
             tqdm_args["dynamic_ncols"] = tqdm_args.pop("dynamic_ncols", tqdm_args)
-            tqdm_args["total"] = tqdm_args.pop("total", 100)
+            tqdm_args["total"] = tqdm_args.pop("total", 1)
             tqdm_args["desc"] = tqdm_args.pop("desc", msg)
             tqdm_args["colour"] = tqdm_args.pop("tqdm_args", getattr(color, self.type))
 
@@ -120,7 +121,7 @@ class Alert(v.Alert, SepalWidget):
                 # Initialize bar
                 self.progress_bar.update(0)
 
-        self.progress_bar.update(progress * 100 - self.progress_bar.n)
+        self.progress_bar.update(progress - self.progress_bar.n)
 
         if progress == 1:
             self.progress_bar.close()

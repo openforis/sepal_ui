@@ -5,8 +5,10 @@ from deprecated.sphinx import versionadded
 from traitlets import Int
 
 import sepal_ui.sepalwidgets as sw
+from sepal_ui import mapping as sm
 from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 
 CUSTOM = AoiModel.CUSTOM
@@ -138,7 +140,7 @@ class AdminField(sw.Select):
         update the item list based on the given filter
 
         Params:
-            filter\_ (str): The code of the parent v_model to filter the current results
+            filter\\_ (str): The code of the parent v_model to filter the current results
 
         Return:
             self
@@ -187,7 +189,7 @@ class AoiView(sw.Card):
 
     Args:
         methods (list, optional): the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
-        map\_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
+        map\\_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
         gee (bool, optional): wether to bind to ee or not
         vector (str|pathlib.Path, optional): the path to the default vector object
         admin (int, optional): the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
@@ -216,6 +218,9 @@ class AoiView(sw.Card):
 
     map_ = None
     "sepal_ui.mapping.SepalMap: the map to draw the AOI"
+
+    aoi_dc = None
+    "sepal_ui.mapping.DrawControl: the drawing control associated with DRAW method"
 
     w_method = None
     "widget: the widget to select the method"
@@ -255,7 +260,7 @@ class AoiView(sw.Card):
         reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
     )
     def __init__(
-        self, methods="ALL", map_=None, gee=True, folder=None, model=None, **kwargs
+        self, methods="ALL", map_=None, gee=True, folder="", model=None, **kwargs
     ):
 
         # set ee dependencie
@@ -278,7 +283,6 @@ class AoiView(sw.Card):
         self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
         self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
-        self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name)
 
         # group them together with the same key as the select_method object
         self.components = {
@@ -287,7 +291,6 @@ class AoiView(sw.Card):
             "ADMIN2": self.w_admin_2,
             "SHAPE": self.w_vector,
             "POINTS": self.w_points,
-            "DRAW": self.w_draw,
         }
 
         # hide them all
@@ -304,7 +307,6 @@ class AoiView(sw.Card):
             .bind(self.w_vector, "vector_json")
             .bind(self.w_points, "point_json")
             .bind(self.w_method, "method")
-            .bind(self.w_draw, "name")
         )
 
         # defint the asset select separately. If no gee is set up we don't want any
@@ -313,9 +315,18 @@ class AoiView(sw.Card):
         if self.ee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
-            ).hide()
+            )
+            self.w_asset.hide()
             self.components["ASSET"] = self.w_asset
             self.model.bind(self.w_asset, "asset_name")
+
+        # define DRAW option separately as it will only work if the map is set
+        if self.map_:
+            self.w_draw = sw.TextField(label=ms.aoi_sel.aoi_name).hide()
+            self.components["DRAW"] = self.w_draw
+            self.model.bind(self.w_draw, "name")
+            self.aoi_dc = sm.DrawControl(self.map_)
+            self.aoi_dc.hide()
 
         # add a validation btn
         self.btn = sw.Btn(ms.aoi_sel.btn)
@@ -334,13 +345,13 @@ class AoiView(sw.Card):
         # reset te aoi_model
         self.model.clear_attributes()
 
-    @su.loading_button(debug=True)
+    @sd.loading_button(debug=True)
     def _update_aoi(self, widget, event, data):
         """load the object in the model & update the map (if possible)"""
 
         # read the information from the geojson datas
         if self.map_:
-            self.model.geo_json = self.map_.dc.to_json()
+            self.model.geo_json = self.aoi_dc.to_json()
 
         # update the model
         self.model.set_object()
@@ -356,7 +367,7 @@ class AoiView(sw.Card):
             else:
                 self.map_.add_layer(self.model.get_ipygeojson())
 
-            self.map_.hide_dc()
+            self.aoi_dc.hide()
 
         # tell the rest of the apps that the aoi have been updated
         self.updated += 1
@@ -374,7 +385,7 @@ class AoiView(sw.Card):
 
         return self
 
-    @su.switch("loading", on_widgets=["w_method"])
+    @sd.switch("loading", on_widgets=["w_method"])
     def _activate(self, change):
         """activate the adapted widgets"""
 
@@ -391,9 +402,9 @@ class AoiView(sw.Card):
         # clear the geo_json saved features to start from scratch
         if self.map_:
             if change["new"] == "DRAW":
-                self.map_.dc.show()
+                self.aoi_dc.show()
             else:
-                self.map_.dc.hide()
+                self.aoi_dc.hide()
 
         # activate the correct widget
         w = next((w for k, w in self.components.items() if k == change["new"]), None)

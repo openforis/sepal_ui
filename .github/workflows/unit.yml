@@ -5,11 +5,23 @@ on:
   - workflow_dispatch
   
 env:
-  EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
-  PLANET_API_CREDENTIALS: '${{ secrets.PLANET_API_CREDENTIALS }}'
+  #EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
+  PLANET_API_CREDENTIALS: ${{ secrets.PLANET_API_CREDENTIALS }}
   PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
+  EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+  #SKIP: isort
 
 jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - uses: pre-commit/action@v3.0.0
+      
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -18,10 +30,10 @@ jobs:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           
@@ -37,15 +49,8 @@ jobs:
       - name: Install dependencies
         run: pip install .[test]
         
-      - name: Test formatting
-        uses: psf/black@stable
-        with:
-            version: "22.3.0"
-            
-      - name: PEP8 rules
-        uses: tonybajan/flake8-check-action@v1.0.0
-        with:
-            repotoken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up GEE credentials
+        run: ee_token
             
       - name: build the documentation
         if: matrix.python-version == '3.8'
@@ -67,23 +72,25 @@ jobs:
           assert len(unexpected) == 0
       
       - name: test with pytest
-        run: coverage run -m pytest --color=yes tests
+        run: pytest --color=yes --cov --cov-report=xml --instafail tests
+        
+      - name: assess dead fixtures
+        if: matrix.python-version == '3.8'
+        run: pytest --dead-fixtures
         
       - name: build the template panel application 
         if: matrix.python-version == '3.8'
-        run: |
-          pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+        run: pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
           
       - name: build the template map application 
         if: matrix.python-version == '3.8'
-        run: |
-          pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
+        run: pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
         
       - name: coverage
         run: coverage xml
         
       - name: codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
             token: ${{ secrets.CODECOV_TOKEN }}
             verbose: true

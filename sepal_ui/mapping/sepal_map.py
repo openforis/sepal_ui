@@ -36,6 +36,7 @@ from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 
@@ -108,7 +109,7 @@ class SepalMap(ipl.Map):
         not gee or su.init_ee()
 
         # add the basemaps
-        self.clear_layers()
+        self.clear()
         default_basemap = (
             "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
         )
@@ -116,22 +117,22 @@ class SepalMap(ipl.Map):
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
-        self.add_control(ipl.ZoomControl(position="topright"))
-        self.add_control(ipl.LayersControl(position="topright"))
-        self.add_control(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
-        self.add_control(ipl.ScaleControl(position="bottomleft", imperial=False))
+        self.add(ipl.ZoomControl(position="topright"))
+        self.add(ipl.LayersControl(position="topright"))
+        self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
+        self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
 
         # specific drawing control
         self.dc = DrawControl(self)
-        not dc or self.add_control(self.dc)
+        not dc or self.add(self.dc)
 
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
-        not vinspector or self.add_control(self.v_inspector)
+        not vinspector or self.add(self.v_inspector)
 
         # specific statebar
         self.state = LayerStateControl(self)
-        not statebar or self.add_control(self.state)
+        not statebar or self.add(self.state)
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
@@ -186,7 +187,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def zoom_ee_object(self, item, zoom_out=1):
         """
         Get the proper zoom to the given ee geometry.
@@ -465,7 +466,7 @@ class SepalMap(ipl.Map):
             output.clear_output()
             plt.show()
 
-        self.add_control(colormap_ctrl)
+        self.add(colormap_ctrl)
 
         return
 
@@ -763,7 +764,7 @@ class SepalMap(ipl.Map):
 
         # the error is catched in find_layer
         if layer is not None:
-            super().remove_layer(layer)
+            super().remove(layer)
 
         return
 
@@ -814,7 +815,7 @@ class SepalMap(ipl.Map):
             hover_style = default_hover_style if hover else layer.hover_style
             layer.hover_style = layer.hover_style or hover_style
 
-        super().add_layer(layer)
+        super().add(layer)
 
         return
 
@@ -896,7 +897,7 @@ class SepalMap(ipl.Map):
             legend_dict, title=title, vertical=vertical, position=position
         )
 
-        return self.add_control(self.legend)
+        return self.add(self.legend)
 
     # ##########################################################################
     # ###                overwrite geemap calls                              ###

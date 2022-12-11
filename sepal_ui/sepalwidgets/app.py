@@ -54,7 +54,9 @@ class AppBar(v.AppBar, SepalWidget):
 
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["fas fa-ellipsis-v"])],
+            children=[
+                v.Icon(class_="white--text", children=["fa-solid fa-ellipsis-v"])
+            ],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -132,7 +134,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         # set the resizetrigger
         self.rt = rt
 
-        icon = icon if icon else "far fa-folder"
+        icon = icon if icon else "fa-regular fa-folder"
 
         children = [
             v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
@@ -160,7 +162,9 @@ class DrawerItem(v.ListItem, SepalWidget):
         # cannot be set as a class member because it will be shared with all
         # the other draweritems.
         self.alert_badge = v.ListItemAction(
-            children=[v.Icon(children=["fas fa-circle"], x_small=True, color="red")]
+            children=[
+                v.Icon(children=["fa-solid fa-circle"], x_small=True, color="red")
+            ]
         )
 
         if model:
@@ -255,17 +259,17 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         code_link = []
         if code:
             item_code = DrawerItem(
-                ms.widgets.navdrawer.code, icon="far fa-file-code", href=code
+                ms.widgets.navdrawer.code, icon="fa-regular fa-file-code", href=code
             )
             code_link.append(item_code)
         if wiki:
             item_wiki = DrawerItem(
-                ms.widgets.navdrawer.wiki, icon="fas fa-book-open", href=wiki
+                ms.widgets.navdrawer.wiki, icon="fa-solid fa-book-open", href=wiki
             )
             code_link.append(item_wiki)
         if issue:
             item_bug = DrawerItem(
-                ms.widgets.navdrawer.bug, icon="fas fa-bug", href=issue
+                ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue
             )
             code_link.append(item_bug)
 
@@ -699,7 +703,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
     """
 
-    THEME_ICONS = {"dark": "fas fa-moon", "light": "fas fa-sun"}
+    THEME_ICONS = {"dark": "fa-solid fa-moon", "light": "fa-solid fa-sun"}
     "dict: the dictionnry of icons to use for each theme (used as keys)"
 
     theme = "dark"

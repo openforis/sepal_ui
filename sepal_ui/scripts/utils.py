@@ -4,7 +4,6 @@ import random
 import re
 import string
 import warnings
-from configparser import ConfigParser
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -287,23 +286,7 @@ def set_config_locale(locale):
         locale (str): a locale name in IETF BCP 47 (no verifications are performed)
     """
 
-    config = ConfigParser()
-
-    # read the existing file if available
-    if config_file.is_file():
-        config.read(config_file)
-
-    # set the section if needed
-    if "sepal-ui" not in config.sections():
-        config.add_section("sepal-ui")
-
-    # set the value
-    config.set("sepal-ui", "locale", locale)
-
-    # save back the file
-    config.write(config_file.open("w"))
-
-    return
+    return set_config("locale", locale)
 
 
 @deprecated(
@@ -317,23 +300,7 @@ def set_config_theme(theme):
         theme (str): a theme name (currently supporting "dark" and "light")
     """
 
-    config = ConfigParser()
-
-    # read the existing file if available
-    if config_file.is_file():
-        config.read(config_file)
-
-    # set the section if needed
-    if "sepal-ui" not in config.sections():
-        config.add_section("sepal-ui")
-
-    # set the value
-    config.set("sepal-ui", "theme", theme)
-
-    # save back the file
-    config.write(config_file.open("w"))
-
-    return
+    return set_config("theme", theme)
 
 
 @versionadded(version="2.7.1")

@@ -6,8 +6,8 @@ from traitlets import Unicode
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.utils import loading_button
 
 from .parameters import MATRIX_NAMES, NO_VALUE
 from .reclassify_model import ReclassifyModel
@@ -33,8 +33,8 @@ class ImportMatrixDialog(v.Dialog):
         # create the 3 widgets
         title = v.CardTitle(children=["Load reclassification matrix"])
         self.w_file = sw.FileInput(label="filename", folder=folder)
-        self.load_btn = sw.Btn("Load")
-        cancel = sw.Btn("Cancel", outlined=True)
+        self.load_btn = sw.Btn(msg="Load")
+        cancel = sw.Btn(msg="Cancel", outlined=True)
         actions = v.CardActions(children=[cancel, self.load_btn])
 
         # default params
@@ -81,8 +81,8 @@ class SaveMatrixDialog(v.Dialog):
         # create the widgets
         title = v.CardTitle(children=["Save matrix"])
         self.w_file = v.TextField(label="filename", v_model=None)
-        btn = sw.Btn("Save matrix")
-        cancel = sw.Btn("Cancel", outlined=True)
+        btn = sw.Btn(msg="Save matrix")
+        cancel = sw.Btn(msg="Cancel", outlined=True)
         actions = v.CardActions(children=[cancel, btn])
         self.alert = sw.Alert(children=["Choose a name for the output"]).show()
 
@@ -299,7 +299,7 @@ class ReclassifyTable(sw.SimpleTable):
 class ReclassifyView(sw.Card):
     """
     Stand-alone Card object allowing the user to reclassify a input file. the input can be of any type (vector or raster) and from any source (local or GEE).
-    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "reclassify_tile"
+    The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\\_ of the tile is set to "reclassify_tile"
 
     Args:
         model (ReclassifyModel): the reclassify model to manipulate the
@@ -365,7 +365,7 @@ class ReclassifyView(sw.Card):
         default_class={},
         aoi_model=None,
         save=True,
-        folder=None,
+        folder="",
         enforce_aoi=False,
         **kwargs,
     ):
@@ -464,7 +464,7 @@ class ReclassifyView(sw.Card):
 
         self.btn_list = [
             sw.Btn(
-                "Custom",
+                msg="Custom",
                 _metadata={"path": "custom"},
                 small=True,
                 class_="mr-2",
@@ -472,7 +472,7 @@ class ReclassifyView(sw.Card):
             )
         ] + [
             sw.Btn(
-                f"use {name}",
+                msg=f"use {name}",
                 _metadata={"path": path},
                 small=True,
                 class_="mr-2",
@@ -490,18 +490,26 @@ class ReclassifyView(sw.Card):
         self.save_dialog = SaveMatrixDialog(folder=out_path)
         self.import_dialog = ImportMatrixDialog(folder=out_path)
         self.get_table = sw.Btn(
-            ms.rec.rec.input.btn, "far fa-table", color="success", small=True
+            msg=ms.rec.rec.input.btn,
+            gliph="fa-solid fa-table",
+            color="success",
+            small=True,
         )
         self.import_table = sw.Btn(
-            "import",
-            "fas fa-download",
+            msg="import",
+            gliph="fa-solid fa-download",
             color="secondary",
             small=True,
             class_="ml-2 mr-2",
         )
-        self.save_table = sw.Btn("save", "fas fa-save", color="secondary", small=True)
+        self.save_table = sw.Btn(
+            msg="save", gliph="fa-solid fa-save", color="secondary", small=True
+        )
         self.reclassify_btn = sw.Btn(
-            ms.rec.rec.btn, "fas fa-chess-board", small=True, disabled=True
+            msg=ms.rec.rec.btn,
+            gliph="fa-solid fa-chess-board",
+            small=True,
+            disabled=True,
         )
 
         self.toolbar = v.Toolbar(
@@ -554,13 +562,13 @@ class ReclassifyView(sw.Card):
         ]
 
         # Decorate functions
-        self.reclassify = loading_button(self.alert, self.reclassify_btn, debug=True)(
-            self.reclassify
-        )
-        self.get_reclassify_table = loading_button(
+        self.reclassify = sd.loading_button(
+            self.alert, self.reclassify_btn, debug=True
+        )(self.reclassify)
+        self.get_reclassify_table = sd.loading_button(
             self.alert, self.get_table, debug=True
         )(self.get_reclassify_table)
-        self.load_matrix_content = loading_button(
+        self.load_matrix_content = sd.loading_button(
             self.alert, self.import_table, debug=True
         )(self.load_matrix_content)
 
@@ -667,7 +675,7 @@ class ReclassifyView(sw.Card):
 
         return self
 
-    @su.switch("loading", "disabled", on_widgets=["w_code"])
+    @sd.switch("loading", "disabled", on_widgets=["w_code"])
     def _update_band(self, change):
         """Update the band possibility to the available bands/properties of the input"""
 
@@ -679,8 +687,8 @@ class ReclassifyView(sw.Card):
 
         return self
 
-    @su.switch("disabled", on_widgets=["reclassify_btn"], targets=[False])
-    @su.switch("table_created", on_widgets=["model"], targets=[True])
+    @sd.switch("disabled", on_widgets=["reclassify_btn"], targets=[False])
+    @sd.switch("table_created", on_widgets=["model"], targets=[True])
     def get_reclassify_table(self, widget, event, data):
         """
         Display a reclassify table which will lead the user to select

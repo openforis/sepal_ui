@@ -7,7 +7,6 @@ import geopandas as gpd
 import pytest
 
 from sepal_ui import mapping as sm
-from sepal_ui.scripts import utils as su
 
 
 class TestValueInspector:
@@ -15,7 +14,7 @@ class TestValueInspector:
 
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         assert isinstance(value_inspector, sm.ValueInspector)
 
@@ -23,7 +22,7 @@ class TestValueInspector:
 
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         # activate the window
         value_inspector.menu.v_model = True
@@ -40,7 +39,7 @@ class TestValueInspector:
         # not testing the display of anything here just the interaction
         m = sm.SepalMap()
         value_inspector = sm.ValueInspector(m)
-        m.add_control(value_inspector)
+        m.add(value_inspector)
 
         # click anywhere without activation
         value_inspector.read_data(type="click", coordinates=[0, 0])
@@ -53,7 +52,7 @@ class TestValueInspector:
 
         return
 
-    @su.need_ee
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_free_eelayer(self, world_temp, ee_adm2):
 
         # create a map with a value inspector
@@ -112,7 +111,7 @@ class TestValueInspector:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def world_temp(self):
         """get the world temperature dataset from GEE"""
 
@@ -122,13 +121,13 @@ class TestValueInspector:
             .select("temperature_2m")
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def ee_adm2(self):
         """get a featurecollection with only adm2code values"""
 
         return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def raster_bahamas(self):
         """add a raster file of the bahamas coming from rasterio test suit"""
 
@@ -144,7 +143,7 @@ class TestValueInspector:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def adm0_vatican(self):
         """create a geojson of vatican city"""
 

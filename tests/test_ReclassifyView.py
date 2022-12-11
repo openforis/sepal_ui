@@ -1,6 +1,7 @@
 from pathlib import Path
 from zipfile import ZipFile
 
+import ee
 import geopandas as gpd
 import pytest
 
@@ -9,10 +10,11 @@ from sepal_ui.reclassify import ReclassifyModel, ReclassifyView
 
 
 class TestReclassifyView:
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_init_exception(alert, gee_dir):
         """Test exceptions"""
 
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
 
         # aoi_model has to be local when using local view.
         with pytest.raises(Exception):
@@ -161,18 +163,18 @@ class TestReclassifyView:
     def view_gee(self, tmp_dir, class_file, gee_dir, alert):
         """return a gee reclassify view"""
 
-        aoi_model = aoi.AoiModel(alert, gee=True, folder=gee_dir)
+        aoi_model = aoi.AoiModel(alert, gee=True, folder=str(gee_dir))
 
         return ReclassifyView(
             aoi_model=aoi_model,
             gee=True,
-            folder=gee_dir,
+            folder=str(gee_dir),
             out_path=tmp_dir,
             class_path=tmp_dir,
             default_class={"IPCC": str(class_file)},
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def class_file(self, tmp_dir):
 
         file = tmp_dir / "dum_default_classes.csv"
@@ -191,7 +193,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file_bad_char(self, tmp_dir):
 
         bad_file = tmp_dir / "map_file_bad_char.csv"
@@ -203,7 +205,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file_bad_header(self, tmp_dir):
 
         bad_file = tmp_dir / "map_file_bad_header.csv"
@@ -215,7 +217,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file(self, tmp_dir):
 
         file = tmp_dir / "map_file.csv"
@@ -233,10 +235,10 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
-    def model_local_vector(self, tmp_dir, alert):
+    @pytest.fixture(scope="class")
+    def model_local_vector(self, tmp_dir):
 
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
 
         # create the vector file
         file = Path(gpd.datasets.get_path("nybb").replace("zip:", ""))

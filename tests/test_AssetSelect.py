@@ -1,24 +1,27 @@
+from pathlib import Path
+
+import ee
 import pytest
 
 from sepal_ui import sepalwidgets as sw
 
 
 class TestAssetSelect:
-    def test_init(self, gee_dir):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_init(self, gee_dir, gee_user_dir):
 
         # create an asset select that points to the folder I created for testing
-        asset_select = sw.AssetSelect(folder=gee_dir)
-
+        asset_select = sw.AssetSelect(folder=str(gee_dir))
         assert isinstance(asset_select, sw.AssetSelect)
-        assert "users/bornToBeAlive/sepal_ui_test/france" in asset_select.items
+        assert str(gee_user_dir / "image") in asset_select.items
 
         # create an asset select with an undefined type
-        asset_select = sw.AssetSelect(folder=gee_dir, types=["toto"])
-
+        asset_select = sw.AssetSelect(folder=str(gee_dir), types=["toto"])
         assert asset_select.items == []
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_add_default(self, asset_select, default_items):
 
         # add a partial list of asset
@@ -35,6 +38,7 @@ class TestAssetSelect:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_validate(self, asset_select, default_items):
 
         # set a legit asset
@@ -58,17 +62,25 @@ class TestAssetSelect:
 
         return
 
-    def test_check_types(self, asset_select, asset_france):
-
-        # remove the project from asset name
-        asset_france = asset_france.replace("projects/earthengine-legacy/assets/", "")
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_check_types(self, asset_select, gee_user_dir):
 
         # check that the list of asset is complete
-        assert asset_france in asset_select.items
+        assert str(gee_user_dir / "image") in asset_select.items
+        assert str(gee_user_dir / "feature_collection") in asset_select.items
+        assert (
+            str(gee_user_dir / "subfolder/subfolder_feature_collection")
+            in asset_select.items
+        )
 
         # set an IMAGE type
         asset_select.types = ["IMAGE"]
-        assert asset_france not in asset_select.items
+        assert str(gee_user_dir / "image") in asset_select.items
+        assert str(gee_user_dir / "feature_collection") not in asset_select.items
+        assert (
+            str(gee_user_dir / "subfolder/subfolder_feature_collection")
+            not in asset_select.items
+        )
 
         # set a type list with a non legit asset type
         asset_select.types = ["IMAGE", "toto"]
@@ -76,26 +88,22 @@ class TestAssetSelect:
 
         return
 
-    def test_get_items(self, asset_select):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_items(self, asset_select, gee_user_dir):
 
-        # Arrange: assume this asset will be always in the GSA
-        test_asset = "users/bornToBeAlive/sepal_ui_test/italy"
-
-        # Act: test function itself
+        # test function itself
         asset_select.items = []
         asset_select._get_items()
 
-        # Assert
-        assert test_asset in asset_select.items
+        assert str(gee_user_dir / "image") in asset_select.items
 
         # Test button event
-
-        # Act
+        # we shoud export an extra asset and check if the new one is here but
+        # that is 30 extra seconds so we cannot afford yet
         asset_select.items = []
         asset_select.fire_event("click:prepend", None)
 
-        # Assert
-        assert test_asset in asset_select.items
+        assert str(gee_user_dir / "image") in asset_select.items
 
     @pytest.fixture
     def default_items(self):
@@ -111,4 +119,12 @@ class TestAssetSelect:
     def asset_select(self, gee_dir):
         """create a default assetSelect"""
 
-        return sw.AssetSelect(folder=gee_dir)
+        return sw.AssetSelect(folder=str(gee_dir))
+
+    @pytest.fixture(scope="class")
+    def gee_user_dir(self, gee_dir):
+        """return the path to the gee_dir assets without the project elements"""
+
+        legacy_project = Path("projects/earthengine-legacy/assets")
+
+        return gee_dir.relative_to(legacy_project)

@@ -30,7 +30,7 @@ class DrawControl(DrawControl):
         kwargs["circle"] = kwargs.pop("circle", options)
         kwargs["polygon"] = kwargs.pop("polygon", options)
 
-        # save the map in the memeber of the objects
+        # save the map in the member of the objects
         self.m = m
 
         super().__init__(**kwargs)
@@ -41,7 +41,7 @@ class DrawControl(DrawControl):
         """
 
         self.clear()
-        self in self.m.controls or self.m.add_control(self)
+        self in self.m.controls or self.m.add(self)
 
         return
 
@@ -51,7 +51,7 @@ class DrawControl(DrawControl):
         """
 
         self.clear()
-        self not in self.m.controls or self.m.remove_control(self)
+        self not in self.m.controls or self.m.remove(self)
 
         return
 
