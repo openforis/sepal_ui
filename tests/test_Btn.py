@@ -11,7 +11,7 @@ class TestBtn:
         btn = sw.Btn()
         assert btn.color == "primary"
         assert btn.v_icon.children[0] == ""
-        assert btn.children[1] == "Click"
+        assert btn.children[1] == ""
 
         # extensive btn
         btn = sw.Btn("toto", "fas fa-folder")
@@ -42,11 +42,17 @@ class TestBtn:
 
         assert isinstance(btn.v_icon, v.Icon)
         assert btn.v_icon.children[0] == gliph
+        assert btn.v_icon.left is True
 
         # change existing icon
         gliph = "fas fa-file"
         btn.gliph = gliph
         assert btn.v_icon.children[0] == gliph
+
+        # display only the gliph
+        btn.msg = ""
+        assert btn.children[1] == ""
+        assert btn.v_icon.left is False
 
         # remove all gliph
         gliph = ""
@@ -79,4 +85,4 @@ class TestBtn:
     def btn(self):
         """Create a simple btn"""
 
-        return sw.Btn()
+        return sw.Btn("Click")

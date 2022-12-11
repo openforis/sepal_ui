@@ -25,6 +25,9 @@ class Btn(v.Btn, SepalWidget):
 
     .. deprecated:: 2.13
         ``text`` and ``icon`` will be replaced by ``msg`` and ``gliph`` to avoid duplicating ipyvuetify trait.
+
+    .. deprecated:: 2.14
+        Btn is not using a default ``msg`` anymor`.
     """
 
     v_icon = None
@@ -36,7 +39,7 @@ class Btn(v.Btn, SepalWidget):
     msg = Unicode("").tag(sync=True)
     "traitlet.Unicode: the text of the btn"
 
-    def __init__(self, msg="Click", gliph="", **kwargs):
+    def __init__(self, msg="", gliph="", **kwargs):
 
         # deprecation in 2.13 of text and icon
         # as they already exist in the ipyvuetify Btn traits (as booleans)
@@ -55,7 +58,7 @@ class Btn(v.Btn, SepalWidget):
                 )
 
         # create the default v_icon
-        self.v_icon = v.Icon(left=True, children=[""])
+        self.v_icon = v.Icon(children=[""])
 
         # set the default parameters
         kwargs["color"] = kwargs.pop("color", "primary")
@@ -89,6 +92,7 @@ class Btn(v.Btn, SepalWidget):
         Set the text of the btn
         """
 
+        self.v_icon.left = bool(change["new"])
         self.children = [self.v_icon, change["new"]]
 
         return self
