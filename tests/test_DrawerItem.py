@@ -10,13 +10,13 @@ class TestDrawerItem:
     def test_init_cards(self):
         title = "toto"
         id_ = "toto_id"
-        icon = "fas fa-folder"
+        icon = "fa-solid fa-folder"
 
         # default init
         drawerItem = sw.DrawerItem(title)
         assert isinstance(drawerItem, v.ListItem)
         assert isinstance(drawerItem.children[0].children[0], v.Icon)
-        assert drawerItem.children[0].children[0].children[0] == "far fa-folder"
+        assert drawerItem.children[0].children[0].children[0] == "fa-regular fa-folder"
         assert isinstance(drawerItem.children[1].children[0], v.ListItemTitle)
         assert drawerItem.children[1].children[0].children[0] == title
 

@@ -139,7 +139,7 @@ class DownloadBtn(v.Btn, SepalWidget):
     def __init__(self, text, path="#", **kwargs):
 
         # create a download icon
-        v_icon = v.Icon(left=True, children=["fas fa-download"])
+        v_icon = v.Icon(left=True, children=["fa-solid fa-download"])
 
         # set default parameters
         kwargs["class_"] = kwargs.pop("class_", "ma-2")

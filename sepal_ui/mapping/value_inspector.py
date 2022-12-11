@@ -58,7 +58,7 @@ class ValueInspector(MenuControl):
         self.text = sw.CardText(children=[ms.v_inspector.landing])
 
         # create the menu widget
-        super().__init__("fas fa-crosshairs", self.text, title, **kwargs)
+        super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
 
         # adapt the size
         self.set_size(min_height=0)

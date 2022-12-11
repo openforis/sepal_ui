@@ -153,9 +153,11 @@ class Styles(v.VuetifyTemplate):
     """
 
     css = (CSS_DIR / "custom.css").read_text()
-    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
     template = Unicode(
-        f'<style>{css}</style><link rel="stylesheet" href="{cdn}"/>'
+        f"<style>{css}</style>"
+        f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous", refferpolicy="no-referrer"/>'
     ).tag(sync=True)
     "Unicode: the trait embeding the maps style"
 

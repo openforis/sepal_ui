@@ -14,7 +14,7 @@ class TestFullScreenControl:
         assert isinstance(control, sm.FullScreenControl)
         assert control in map_.controls
         assert control.zoomed is False
-        assert "fas fa-expand" in control.w_btn.children[0].children
+        assert "fa-solid fa-expand" in control.w_btn.children[0].children
 
         return
 
@@ -29,12 +29,12 @@ class TestFullScreenControl:
         control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is True
-        assert "fas fa-compress" in control.w_btn.children[0].children
+        assert "fa-solid fa-compress" in control.w_btn.children[0].children
 
         # click again to reset to initial state
         control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is False
-        assert "fas fa-expand" in control.w_btn.children[0].children
+        assert "fa-solid fa-expand" in control.w_btn.children[0].children
 
         return

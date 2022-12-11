@@ -5,11 +5,11 @@ from sepal_ui import sepalwidgets as sw
 class TestMapBtn:
     def test_init(self):
 
-        # fas icon
-        map_btn = sm.MapBtn("fas fa-folder")
+        # fa-solid icon
+        map_btn = sm.MapBtn("fa-solid fa-folder")
         assert isinstance(map_btn, sm.MapBtn)
         assert isinstance(map_btn.children[0], sw.Icon)
-        assert map_btn.children[0].children[0] == "fas fa-folder"
+        assert map_btn.children[0].children[0] == "fa-solid fa-folder"
 
         # mdi icon
         map_btn = sm.MapBtn("mdi-folder")
