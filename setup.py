@@ -65,7 +65,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet>=2.0",
+        "planet==2.0a6",
         "pyyaml",
         "dask",
         "tqdm",
