@@ -7,7 +7,6 @@ from planet import DataClient
 from planet.auth import Auth
 from planet.exceptions import NoPermission
 from planet.http import Session
-from planet.models import Request
 from traitlets import Bool, Dict
 
 from sepal_ui.message import ms
@@ -112,10 +111,10 @@ class PlanetModel(Model):
     def get_subscriptions(self):
         """load the user subscriptions and return empty list if nothing found"""
 
-        req = Request(self.SUBS_URL, method="GET")
+        req = self.session.request("GET", self.SUBS_URL)
 
         try:
-            response = asyncio.run(self.session.request(req))
+            response = asyncio.run(req)
             if response.status_code == 200:
                 return response.json()
 
