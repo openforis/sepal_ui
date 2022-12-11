@@ -56,11 +56,11 @@ class TestAoiView:
     def test_init_ee(self, gee_dir):
 
         # default init
-        view = aoi.AoiView(folder=str(gee_dir))
+        view = aoi.AoiView(folder=gee_dir)
         assert isinstance(view, aoi.AoiView)
 
         # test model name when using view
-        view = aoi.AoiView(admin=110, folder=str(gee_dir))
+        view = aoi.AoiView(admin=110, folder=gee_dir)
         assert view.model.name == "VAT"
 
         return
@@ -69,7 +69,7 @@ class TestAoiView:
     def test_admin_ee(self, gee_dir):
 
         # test if admin0 is in Gaul
-        view = aoi.AoiView(folder=str(gee_dir))
+        view = aoi.AoiView(folder=gee_dir)
         first_gaul_item = {"text": "Abyei", "value": 102}
         assert first_gaul_item == view.w_admin_0.items[0]
 
@@ -173,7 +173,7 @@ class TestAoiView:
         """create an AoiView based on GEE with a silent sepalMap"""
 
         m = SepalMap(dc=True)
-        return aoi.AoiView(map_=m, folder=str(gee_dir))
+        return aoi.AoiView(map_=m, folder=gee_dir)
 
     @pytest.fixture
     def aoi_local_view(self):

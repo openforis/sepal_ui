@@ -155,7 +155,7 @@ class TestVectorField:
     def vector_field_gee(self, gee_dir):
         """Instance of VectorField using GEE"""
 
-        return sw.VectorField(gee=True, folder=str(gee_dir))
+        return sw.VectorField(gee=True, folder=gee_dir)
 
     @pytest.fixture(scope="class")
     def fake_vector(self, tmp_dir):

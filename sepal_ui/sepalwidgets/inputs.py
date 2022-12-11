@@ -673,7 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     def __init__(
         self,
         label=ms.widgets.asset_select.label,
-        folder=None,
+        folder="",
         types=["IMAGE", "TABLE"],
         default_asset=[],
         **kwargs,
@@ -682,7 +682,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.asset_info = None
 
         # if folder is not set use the root one
-        self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+        self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
         self.types = types
 
         # load the default assets

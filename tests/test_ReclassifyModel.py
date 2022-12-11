@@ -306,7 +306,7 @@ class TestReclassifyModel:
     def model_gee(self, tmp_dir, alert, gee_dir):
         """Reclassify model using Google Earth Engine assets"""
 
-        aoi_model = aoi.AoiModel(gee=True, folder=str(gee_dir))
+        aoi_model = aoi.AoiModel(gee=True, folder=gee_dir)
 
         return ReclassifyModel(
             enforce_aoi=False,
@@ -314,7 +314,7 @@ class TestReclassifyModel:
             dst_dir=tmp_dir,
             aoi_model=aoi_model,
             save=False,
-            folder=str(gee_dir),
+            folder=gee_dir,
         )
 
     @pytest.fixture
@@ -402,7 +402,7 @@ class TestReclassifyModel:
         aoi_gdf = gpd.GeoDataFrame.from_features(aoi_ee.getInfo())
 
         # add it to a aoi_model
-        aoi_model = aoi.AoiModel(gee=True, folder=str(gee_dir))
+        aoi_model = aoi.AoiModel(gee=True, folder=gee_dir)
         aoi_model.feature_collection = aoi_ee
         aoi_model.gdf = aoi_gdf
         aoi_model.name = f"test_{_hash}"

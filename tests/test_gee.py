@@ -48,7 +48,7 @@ class TestGee:
     def test_get_assets(self, gee_dir):
 
         # get the assets from the test repository
-        list_ = gee.get_assets(str(gee_dir))
+        list_ = gee.get_assets(gee_dir)
 
         # check that they are all there
         names = [
@@ -64,14 +64,14 @@ class TestGee:
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_isAsset(self, gee_dir):
+    def test_is_asset(self, gee_dir):
 
         # real asset
-        res = gee.is_asset(str(gee_dir / "image"), str(gee_dir))
+        res = gee.is_asset(str(gee_dir / "image"), gee_dir)
         assert res is True
 
         # fake asset
-        res = gee.is_asset(str(gee_dir / "toto"), str(gee_dir))
+        res = gee.is_asset(str(gee_dir / "toto"), gee_dir)
         assert res is False
 
         return

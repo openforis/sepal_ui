@@ -157,7 +157,7 @@ class AoiModel(Model):
         reason=":code:`alert` positional argument will be removed. Successfull output messages has to be created in AoiView.",
     )
     def __init__(
-        self, alert=None, gee=True, vector=None, admin=None, asset=None, folder=None
+        self, alert=None, gee=True, vector=None, admin=None, asset=None, folder=""
     ):
 
         super().__init__()
@@ -166,7 +166,7 @@ class AoiModel(Model):
         self.ee = gee
         if gee:
             su.init_ee()
-            self.folder = folder or ee.data.getAssetRoots()[0]["id"]
+            self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
         # set default values
         self.set_default(vector, admin, asset)
