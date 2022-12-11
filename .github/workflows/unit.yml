@@ -72,17 +72,19 @@ jobs:
           assert len(unexpected) == 0
       
       - name: test with pytest
-        run: coverage run -m pytest --color=yes --instafail tests
+        run: pytest --color=yes --cov --cov-report=xml --instafail tests
+        
+      - name: assess dead fixtures
+        if: matrix.python-version == '3.8'
+        run: pytest --dead-fixtures
         
       - name: build the template panel application 
         if: matrix.python-version == '3.8'
-        run: |
-          pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+        run: pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
           
       - name: build the template map application 
         if: matrix.python-version == '3.8'
-        run: |
-          pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
+        run: pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
         
       - name: coverage
         run: coverage xml

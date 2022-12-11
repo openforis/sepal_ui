@@ -83,6 +83,8 @@ setup_params = {
             "pytest-sugar",
             "pytest-icdiff",
             "pytest-instafail",
+            "pytest-deadfixtures",
+            "pytest-cov",
             "nbmake ",
         ],
         "doc": [
