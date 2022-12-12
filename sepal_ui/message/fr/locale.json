@@ -1,215 +1,215 @@
 {
-	"test_key": "Clef de test",
-	"status": "Status : {}",
-	"widgets": {
-		"fileinput": {
-			"label": "chercher un fichier",
-			"placeholder": "Fichier sélectionné"
-		},
-		"table": {
-			"label": "Fichier de tableau",
-			"column": {
-				"id": "Id",
-				"lat": "latitude",
-				"lng": "longitude"
-			}
-		},
-		"vector": {
-			"label": "Fichier de vecteur",
-			"column": "colonne",
-			"value": "valeur",
-			"all": "Utiliser toutes les features"
-		},
-		"navdrawer": {
-			"code": "Code source",
-			"wiki": "Wiki",
-			"bug": "Signaler un Bug"
-		},
-		"asset_select": {
-			"types": {
-				"0": "Raster",
-				"1": "Table",
-				"2": "Collection d'images",
-				"3": "Algorithme",
-				"4": "Dossier"
-			},
-			"label": "Selectionner un Asset",
-			"custom": "Personnaliser",
-			"no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
-			"wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
-			"placeholder": "users/utilisateur/asset_id"
-		},
-		"load_table": {
-			"too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
-		},
-		"banner": {
-			"close": "fermer",
-			"next": "suivant ({} de plus)"
-		}
-	},
-	"aoi_sel": {
-		"title": "Selectionner la zone d'interêt (AOI)",
-		"administrative": "Définition administrative",
-		"custom": "Géometries personnalisées",
-		"method": "Methode de selection d'AOI",
-		"adm": {
-			"0": "Pays/Province",
-			"1": "Niveau administratif 1",
-			"2": "Niveau administratif 2"
-		},
-		"vector": "Fichier de vecteur",
-		"draw": "Dessiner une forme",
-		"points": "Fichier de point",
-		"aoi_name": "Selectionner un nom d'AOI",
-		"asset": "Nom de l'Asset",
-		"btn": "Selectionner cet AOI",
-		"complete": "L'AOI a été selectionnée",
-		"exception": {
-			"no_inputs": "Merci de fournir des entrées entièrement définies avant de valider votre AOI",
-			"no_asset": "Veuillez sélectionner un asset Earthengine.",
-			"no_value": "Veuillez sélectionner une valeur.",
-			"uncomplete": "Tous les champs sont obligatoires, merci de les remplir.",
-			"no_file": "Veuillez sélectionner un fichier.",
-			"duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'id",
-			"no_draw": "Veuillez dessiner une forme sur la carte",
-			"no_admlyr": "Sélectionnez une couche administrative",
-			"invalid_code": "Le code administratif n'est pas dans la base de données.",
-			"no_gdf": "Vous devez définir le gdf avant d'interagir avec celui-ci"
-		}
-	},
-	"mapping": {
-		"no_image": "Le fichier image n'existe pas.",
-		"legend": "Légende"
-	},
-	"planet": {
-		"exception": {
-			"empty": "Veuillez renseigner tous les champs obligatoires.",
-			"invalid": "Email ou mot de passe invalide",
-			"nosubs": "Vos identifiants n'ont pas d'abonnement PlanetLab valide."
-		},
-		"widget": {
-			"username": "Nom d'utilisateur PlanetLab",
-			"password": "Mot de passe PlanetLab",
-			"apikey": "Clé API PlanetLab",
-			"method": {
-				"label": "Méthode d'accès",
-				"credentials": "Identifiants",
-				"api_key": "Clé API PlanetLab"
-			}
-		},
-		"status": {
-			"offilne": "Non connecté",
-			"online": "Connecté"
-		}
-	},
-	"rec": {
-		"table": {
-			"title": "Editeur de classification",
-			"classif": {
-				"title": "Selectionnez une classification existante",
-				"file_select": "fichier de classes",
-				"btn": "Récuperer table"
-			},
-			"table": "Table de classification",
-			"schema": {
-				"id": "Id",
-				"code": "code",
-				"description": "description",
-				"color": "couleur"
-			},
-			"btn": {
-				"edit": "editer",
-				"save": "sauver",
-				"add": "ajouter",
-				"delete": "supprimer"
-			},
-			"edit_dialog": {
-				"titles": {
-					"0": "Nouvel élément",
-					"1": "Modifier un élément"
-				},
-				"btn": {
-					"save": {
-						"name": "sauver",
-						"tooltip": "creer une nouvelle classe"
-					},
-					"modify": {
-						"name": "modifier",
-						"tooltip": "modifier une classe existante"
-					},
-					"cancel": {
-						"name": "annuler",
-						"tooltip": "annuler l'opération"
-					}
-				}
-			},
-			"save_dialog": {
-				"filename": "Inserer un nom de fichier de sortie",
-				"placeholder": "nouvelle_table",
-				"btn": {
-					"save": {
-						"name": "sauver",
-						"tooltip": "sauver la table"
-					},
-					"cancel": {
-						"name": "annuler",
-						"tooltip": "annuler l'opération"
-					}
-				},
-				"title": "sauver la table de classification",
-				"info": "la table sera sauvegardé dans {}"
-			}
-		},
-		"rec": {
-			"title": "Reclassificateur d'image",
-			"headers": {
-				"0": "Classe initiale",
-				"1": "Classe de destination"
-			},
-			"input": {
-				"optional": "Optionnel",
-				"title": "Selectionner les entrées de classification",
-				"asset": "Asset",
-				"file": "fichier",
-				"band": {
-					"label": "selectionner bande/propriétée",
-					"hint": "la bande/propriété à utiliser pour les classes de référence"
-				},
-				"classif": {
-					"title": "Selectionner la classification de destination",
-					"label": "fichier de classif"
-				},
-				"btn": "Récupérer la table"
-			},
-			"table": "Table de reclassification",
-			"btn": "Reclassifer",
-			"export": {
-				"0": {
-					"0": "Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
-					"1": "L'Image a été créé et ajouté à votre dossier SEPAL: {}"
-				},
-				"1": {
-					"0": "La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
-					"1": "La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
-				}
-			}
-		},
-		"tile": {
-			"title": "Reclassification"
-		}
-	},
-	"locale": {
-		"change": "La locale \"{0}\" sera maintenant utilisée comme langue par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour tenir compte de cette modification. Notez que si «{0}» n'est pas disponible dans une autre application, SEPAL se repliera sur la langue la plus proche possible",
-		"fallback": "La locale \"{0}\" n'est pas disponible pour cette application. Nous allons utiliser \"{1}\" sera utiliser à la place. Veuillez le signaler au developeurs si vous voulez ajouter \"{0}\" aux langues suportées."
-	},
-	"theme": {
-		"change": "Le thème \"{0}\" sera utilisé comme thème par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour prendre en compte ce changement."
-	},
-	"disclaimer": {
-		"p": {
-			"0": "La FAO décline toute responsabilité pour les erreurs dans la base de données ou le logiciel, la documentation l'accompagnant pour la maintenance, la mise à niveau des logiciels ainsi que pour tout dommage qui pourrait en résulter.",
-			"1": "La FAO décline également toute responsabilité quant à la mise à jour des données et n'assume aucune responsabilité pour les erreurs et les omissions dans les données fournies.",
-			"2": "Les utilisateurs sont toutefois priés de signaler toute erreur ou carence de ce produit à la FAO."
-		}
-	}
+  "test_key": "Clef de test",
+  "status": "Status : {}",
+  "widgets": {
+    "fileinput": {
+      "label": "chercher un fichier",
+      "placeholder": "Fichier sélectionné"
+    },
+    "table": {
+      "label": "Fichier de tableau",
+      "column": {
+        "id": "Id",
+        "lat": "latitude",
+        "lng": "longitude"
+      }
+    },
+    "vector": {
+      "label": "Fichier de vecteur",
+      "column": "colonne",
+      "value": "valeur",
+      "all": "Utiliser toutes les features"
+    },
+    "navdrawer": {
+      "code": "Code source",
+      "wiki": "Wiki",
+      "bug": "Signaler un Bug"
+    },
+    "asset_select": {
+      "types": {
+        "0": "Raster",
+        "1": "Table",
+        "2": "Collection d'images",
+        "3": "Algorithme",
+        "4": "Dossier"
+      },
+      "label": "Selectionner un Asset",
+      "custom": "Personnaliser",
+      "no_access": "Il semble que vous n'ayez pas accès à l'Asset selectionné ou qu'il n'existe pas.",
+      "wrong_type": "Le type de l'asset selectioné ({}) ne correspond pas aux type autorisés par le widget ({}).",
+      "placeholder": "users/utilisateur/asset_id"
+    },
+    "load_table": {
+      "too_small": "Le fichier fourni comporte moins de 3 colonnes. Veuillez fournir un fichier de points complet avec au moins les colonnes ID, lattitude et longitude."
+    },
+    "banner": {
+      "close": "fermer",
+      "next": "suivant ({} de plus)"
+    }
+  },
+  "aoi_sel": {
+    "title": "Selectionner la zone d'interêt (AOI)",
+    "administrative": "Définition administrative",
+    "custom": "Géometries personnalisées",
+    "method": "Methode de selection d'AOI",
+    "adm": {
+      "0": "Pays/Province",
+      "1": "Niveau administratif 1",
+      "2": "Niveau administratif 2"
+    },
+    "vector": "Fichier de vecteur",
+    "draw": "Dessiner une forme",
+    "points": "Fichier de point",
+    "aoi_name": "Selectionner un nom d'AOI",
+    "asset": "Nom de l'Asset",
+    "btn": "Selectionner cet AOI",
+    "complete": "L'AOI a été selectionnée",
+    "exception": {
+      "no_inputs": "Merci de fournir des entrées entièrement définies avant de valider votre AOI",
+      "no_asset": "Veuillez sélectionner un asset Earthengine.",
+      "no_value": "Veuillez sélectionner une valeur.",
+      "uncomplete": "Tous les champs sont obligatoires, merci de les remplir.",
+      "no_file": "Veuillez sélectionner un fichier.",
+      "duplicate_key": "Une clef est dupliquée dans votre selection. Veuillez selectionner des colonnes différentes pour la latitude, la longitude et l'id",
+      "no_draw": "Veuillez dessiner une forme sur la carte",
+      "no_admlyr": "Sélectionnez une couche administrative",
+      "invalid_code": "Le code administratif n'est pas dans la base de données.",
+      "no_gdf": "Vous devez définir le gdf avant d'interagir avec celui-ci"
+    }
+  },
+  "mapping": {
+    "no_image": "Le fichier image n'existe pas.",
+    "legend": "Légende"
+  },
+  "planet": {
+    "exception": {
+      "empty": "Veuillez renseigner tous les champs obligatoires.",
+      "invalid": "Email ou mot de passe invalide",
+      "nosubs": "Vos identifiants n'ont pas d'abonnement PlanetLab valide."
+    },
+    "widget": {
+      "username": "Nom d'utilisateur PlanetLab",
+      "password": "Mot de passe PlanetLab",
+      "apikey": "Clé API PlanetLab",
+      "method": {
+        "label": "Méthode d'accès",
+        "credentials": "Identifiants",
+        "api_key": "Clé API PlanetLab"
+      }
+    },
+    "status": {
+      "offilne": "Non connecté",
+      "online": "Connecté"
+    }
+  },
+  "rec": {
+    "table": {
+      "title": "Editeur de classification",
+      "classif": {
+        "title": "Selectionnez une classification existante",
+        "file_select": "fichier de classes",
+        "btn": "Récuperer table"
+      },
+      "table": "Table de classification",
+      "schema": {
+        "id": "Id",
+        "code": "code",
+        "description": "description",
+        "color": "couleur"
+      },
+      "btn": {
+        "edit": "editer",
+        "save": "sauver",
+        "add": "ajouter",
+        "delete": "supprimer"
+      },
+      "edit_dialog": {
+        "titles": {
+          "0": "Nouvel élément",
+          "1": "Modifier un élément"
+        },
+        "btn": {
+          "save": {
+            "name": "sauver",
+            "tooltip": "creer une nouvelle classe"
+          },
+          "modify": {
+            "name": "modifier",
+            "tooltip": "modifier une classe existante"
+          },
+          "cancel": {
+            "name": "annuler",
+            "tooltip": "annuler l'opération"
+          }
+        }
+      },
+      "save_dialog": {
+        "filename": "Inserer un nom de fichier de sortie",
+        "placeholder": "nouvelle_table",
+        "btn": {
+          "save": {
+            "name": "sauver",
+            "tooltip": "sauver la table"
+          },
+          "cancel": {
+            "name": "annuler",
+            "tooltip": "annuler l'opération"
+          }
+        },
+        "title": "sauver la table de classification",
+        "info": "la table sera sauvegardé dans {}"
+      }
+    },
+    "rec": {
+      "title": "Reclassificateur d'image",
+      "headers": {
+        "0": "Classe initiale",
+        "1": "Classe de destination"
+      },
+      "input": {
+        "optional": "Optionnel",
+        "title": "Selectionner les entrées de classification",
+        "asset": "Asset",
+        "file": "fichier",
+        "band": {
+          "label": "selectionner bande/propriétée",
+          "hint": "la bande/propriété à utiliser pour les classes de référence"
+        },
+        "classif": {
+          "title": "Selectionner la classification de destination",
+          "label": "fichier de classif"
+        },
+        "btn": "Récupérer la table"
+      },
+      "table": "Table de reclassification",
+      "btn": "Reclassifer",
+      "export": {
+        "0": {
+          "0": "Le Vecteur a été créé et ajouté à votre dossier SEPAL: {}",
+          "1": "L'Image a été créé et ajouté à votre dossier SEPAL: {}"
+        },
+        "1": {
+          "0": "La ee.FeatureCollection a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation.",
+          "1": "La ee.Image a été exportée vers GEE comme {}. Utilisez l'interface de l'éditeur de code pour suivre le processus d'exportation."
+        }
+      }
+    },
+    "tile": {
+      "title": "Reclassification"
+    }
+  },
+  "locale": {
+    "change": "La locale \"{0}\" sera maintenant utilisée comme langue par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour tenir compte de cette modification. Notez que si «{0}» n'est pas disponible dans une autre application, SEPAL se repliera sur la langue la plus proche possible",
+    "fallback": "La locale \"{0}\" n'est pas disponible pour cette application. Nous allons utiliser \"{1}\" sera utiliser à la place. Veuillez le signaler au developeurs si vous voulez ajouter \"{0}\" aux langues suportées."
+  },
+  "theme": {
+    "change": "Le thème \"{0}\" sera utilisé comme thème par défaut dans les applications SEPAL. Veuillez redémarrer l'application actuelle pour prendre en compte ce changement."
+  },
+  "disclaimer": {
+    "p": {
+      "0": "La FAO décline toute responsabilité pour les erreurs dans la base de données ou le logiciel, la documentation l'accompagnant pour la maintenance, la mise à niveau des logiciels ainsi que pour tout dommage qui pourrait en résulter.",
+      "1": "La FAO décline également toute responsabilité quant à la mise à jour des données et n'assume aucune responsabilité pour les erreurs et les omissions dans les données fournies.",
+      "2": "Les utilisateurs sont toutefois priés de signaler toute erreur ou carence de ce produit à la FAO."
+    }
+  }
 }

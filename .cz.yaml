@@ -5,5 +5,5 @@ commitizen:
   update_changelog_on_bump: true
   version: 2.13.0
   version_files:
-  - setup.py:version
-  - sepal_ui/__init__.py:__version__
+    - setup.py:version
+    - sepal_ui/__init__.py:__version__
