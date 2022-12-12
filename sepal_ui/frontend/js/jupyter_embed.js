@@ -1,3 +1,4 @@
+// set a selected map to embed mode (i.e. default display)
 var i = 0;
 const wait_unitl_element_appear = setInterval(() => {
     var element = document.querySelector(".%s .leaflet-container");
