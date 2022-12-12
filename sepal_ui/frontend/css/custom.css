@@ -3,8 +3,10 @@
  */
 
 /* replace the panel elements on top */
-.leaflet-pane, .leaflet-top, .leaflet-bottom {
-  z-index : 2 !important;
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 2 !important;
 }
 
 /* remove the shadow from the widgets on the maps */
@@ -19,7 +21,7 @@ main.v-content {
 
 /* remove all the backgrounds from the controls and widget to be colored naturelly by the map */
 .leaflet-control-container .vuetify-styles .v-application {
-  background: rgb(0,0,0,0);
+  background: rgb(0, 0, 0, 0);
 }
 .v-alert__wrapper .progress {
   background-color: transparent;
@@ -27,15 +29,15 @@ main.v-content {
 
 /* set the bar on top of the map (800) when set to fullscreen */
 header.v-app-bar {
-  z-index: 800 !important
+  z-index: 800 !important;
 }
 
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
-  z-index: 801 !important
+  z-index: 801 !important;
 }
 
 /* make sure navigation drawers are always visibles when they exist */
 nav.v-navigation-drawer {
-  z-index: 900 !important
+  z-index: 900 !important;
 }

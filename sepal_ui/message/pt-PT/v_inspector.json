@@ -1,12 +1,12 @@
 {
-    "v_inspector": {
-        "title": "",
-        "landing": "",
-        "info": {
-            "header": "",
-            "text": ""
-        },
-        "band": "",
-        "coords": ""
-    }
+  "v_inspector": {
+    "title": "",
+    "landing": "",
+    "info": {
+      "header": "",
+      "text": ""
+    },
+    "band": "",
+    "coords": ""
+  }
 }

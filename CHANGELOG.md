@@ -366,12 +366,12 @@
 
 - new set and get children to sepalwidget. Aims to close #443
 - create Banner widget to display important message to end-user
-- override ipyleaflet Map  add_layer method to use default style
+- override ipyleaflet Map add_layer method to use default style
 
 ### Refactor
 
-- rename _tmp class name with the actual new sepalwidget name
-- deal with type_ the same way we do it in Alert
+- rename \_tmp class name with the actual new sepalwidget name
+- deal with type\_ the same way we do it in Alert
 - use a persistent parameter instead of timeout
 - simplify add_banner method by calling Banner widget
 - return map when new layer added + make more clear param name
@@ -453,7 +453,7 @@
 
 - add the message file in the distrib
 - make readme copatible with pypi release
-- make readme compatible with pypi release  has syntax errors in markup and would not be rendered on PyPI.     line 6: Error: Document or section may not begin with a transition.
+- make readme compatible with pypi release has syntax errors in markup and would not be rendered on PyPI. line 6: Error: Document or section may not begin with a transition.
 
 ## v_2.6.0 (2022-02-16)
 
@@ -461,9 +461,9 @@
 
 - ignore untitled files
 - ignore untitled files
-- remove __setattr__ magic method.
+- remove **setattr** magic method.
 - typo in class name
-- remove __setattr__ magic method.
+- remove **setattr** magic method.
 - reshape messages to fit the translator requirements
 - replace every occurence of mdi icons
 - use `/` in Path
@@ -539,14 +539,14 @@
 - use class management methods Fix #119
 - use kwargs pop
 - fix some of the parameters
-- remove __init__ in model
+- remove **init** in model
 - use kwargs pop Avoid the duplication of parameter using an elegant and python method called dict poping
 - add black basge Fix #326
 - black typo
 - remove legacy print
 - typo in package name
 - change lib name Change the lib name to meet the name used in PiPy Some change will need to be done in the documentation to reflect this change
-- use * instead of list comprehension
+- use \* instead of list comprehension
 
 ### Fix
 
@@ -621,7 +621,7 @@
 
 - create destination gee unique name before export
 - move exceptions from view to model
-- remove _chk_dst_file method, its process was duplicated in the _set_dst_class file method
+- remove \_chk_dst_file method, its process was duplicated in the \_set_dst_class file method
 
 ### Feat
 
@@ -709,14 +709,14 @@
 - remove unused file
 - change the image visualization function (black-formatter).
 - extend the behavior of switch decorator with the last comments. closes #263
-- adapt table view widget to the parameter SCHEME. Remove ambiguity when handling widgets values by adding _metadata attribute
+- adapt table view widget to the parameter SCHEME. Remove ambiguity when handling widgets values by adding \_metadata attribute
 - move SCHEMA variable from translation key to parameters to avoid ambiguity
 - drop pre-commit autoupdate
 - typo
 - reintroduce type attribute
 - fix french typos
-- create __all__ variable to fix imports
-- place __all__ at the file start
+- create **all** variable to fix imports
+- place **all** at the file start
 
 ### Feat
 
