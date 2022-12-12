@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
-from haversine import haversine
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -242,23 +241,13 @@ class SepalMap(ipl.Map):
             self
         """
 
+        # center the map
         minx, miny, maxx, maxy = bounds
+        self.fit_bounds([[miny, minx], [maxy, maxx]])
 
-        # Center map to the centroid of the layer(s)
-        self.center = [(maxy - miny) / 2 + miny, (maxx - minx) / 2 + minx]
-
-        # create the tuples for each corner in (lat/lng) convention
-        tl, br, bl, tr = (maxy, minx), (miny, maxx), (miny, minx), (maxy, maxx)
-
-        # find zoom level to display the biggest diagonal (in km)
-        lg, zoom = 40075, 1  # number of displayed km at zoom 1
-        maxsize = max(haversine(tl, br), haversine(bl, tr))
-        while lg > maxsize:
-            (zoom, lg) = (zoom + 1, lg / 2)
-
-        zoom_out = (zoom - 1) if zoom_out > zoom else zoom_out
-
-        self.zoom = zoom - zoom_out
+        # adapt the zoom level
+        zoom_out = (self.zoom - 1) if zoom_out > self.zoom else zoom_out
+        self.zoom -= zoom_out
 
         return self
 

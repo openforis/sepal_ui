@@ -58,15 +58,15 @@ class AoiControl(MenuControl):
 
         # set the bounds to the world if the list is empty
         if len(self.aoi_bounds) == 0:
-            bounds = (-180, -90, 180, 90)
+            self.m.center = [0, 0]
+            self.m.zoom = 2.0
         else:
             minx = min([i[0] for i in self.aoi_bounds.values()])
             miny = min([i[1] for i in self.aoi_bounds.values()])
             maxx = max([i[2] for i in self.aoi_bounds.values()])
             maxy = max([i[3] for i in self.aoi_bounds.values()])
             bounds = (minx, miny, maxx, maxy)
-
-        self.m.zoom_bounds(bounds)
+            self.m.zoom_bounds(bounds)
 
         return
 
