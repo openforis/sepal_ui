@@ -19,6 +19,10 @@ Sepal_ui
     :target: https://pypi.org/project/sepal-ui/
     :alt: PyPI - Downloads
     
+.. image:: https://img.shields.io/conda/vn/conda-forge/sepal-ui.svg?color=orange
+    :target: https://anaconda.org/conda-forge/sepal-ui
+    :alt: Conda Version
+    
 .. image:: https://img.shields.io/pypi/pyversions/sepal-ui
    :target: https://pypi.org/project/sepal-ui/
    :alt: supported Python version
@@ -66,11 +70,22 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 :code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
-The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and a demo app can be launched on Heroku following this link: `<https://sepal-ui.herokuapp.com>`__.
+The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links: 
+
+-   `Map style application <https://sepal-map-app.herokuapp.com>`__
+-   `Panel style application <https://sepal-panel-app.herokuapp.com>`__
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_screenshot.png
++-----------+-------------+
+| |map-app| | |panel-app| |
++-----------+-------------+
+
+.. |map-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-map-app.png
+    :width: 100%
+
+.. |panel-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-panel-app.png
+    :width: 100%
 
 Contribute
 ----------

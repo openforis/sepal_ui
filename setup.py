@@ -4,7 +4,7 @@ from subprocess import check_call
 from setuptools import setup
 from setuptools.command.develop import develop
 
-version = "2.12.0"
+version = "2.13.0"
 
 DESCRIPTION = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 LONG_DESCRIPTION = open("README.rst").read()
@@ -47,7 +47,6 @@ setup_params = {
     "python_requires": ">=3.6.9",
     "install_requires": [
         "werkzeug<2.2.0",  # https://github.com/python-restx/flask-restx/issues/460
-        "haversine",
         "ipyvue>=1.7.0",  # this is the version with the class manager
         "ipyvuetify",  # it will work anyway as the widgets are build on the fly
         "earthengine-api",
@@ -65,7 +64,7 @@ setup_params = {
         "cryptography",
         "python-box",
         "xyzservices",
-        "planet==2.0a2",  # this is a prerelease
+        "planet==2.0a6",
         "pyyaml",
         "dask",
         "tqdm",
@@ -80,6 +79,11 @@ setup_params = {
         "test": [
             "coverage",
             "pytest",
+            "pytest-sugar",
+            "pytest-icdiff",
+            "pytest-instafail",
+            "pytest-deadfixtures",
+            "pytest-cov",
             "nbmake ",
         ],
         "doc": [
@@ -131,6 +135,7 @@ setup_params = {
             "module_theme = sepal_ui.bin.module_theme:main",
             "module_venv = sepal_ui.bin.module_venv:main",
             "activate_venv = sepal_ui.bin.activate_venv:main",
+            "ee_token = sepal_ui.bin.ee_token:main",
         ]
     },
     "classifiers": [

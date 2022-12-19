@@ -9,6 +9,7 @@ from traitlets import Int
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.reclassify import parameters as param
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 
 __all__ = ["TableView"]
@@ -49,19 +50,27 @@ class ClassTable(sw.DataTable):
         # create the 4 CRUD btn
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
-            ms.rec.table.btn.edit,
-            icon="fas fa-pencil-alt",
+            msg=ms.rec.table.btn.edit,
+            gliph="fa-solid fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
-            ms.rec.table.btn.delete, icon="fas fa-trash-alt", color="error", small=True
+            msg=ms.rec.table.btn.delete,
+            gliph="fa-solid fa-trash-alt",
+            color="error",
+            small=True,
         )
         self.add_btn = sw.Btn(
-            ms.rec.table.btn.add, icon="fas fa-plus", color="success", small=True
+            msg=ms.rec.table.btn.add,
+            gliph="fa-solid fa-plus",
+            color="success",
+            small=True,
         )
-        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon="far fa-save", small=True)
+        self.save_btn = sw.Btn(
+            msg=ms.rec.table.btn.save, gliph="fa-regular fa-save", small=True
+        )
 
         slot = v.Toolbar(
             class_="d-flex mb-6",
@@ -212,20 +221,19 @@ class EditDialog(v.Dialog):
         self.title = v.CardTitle(children=[self.TITLES[0]])
 
         # Action buttons
-        self.save = sw.Btn(ms.rec.table.edit_dialog.btn.save.name)
+        self.save = sw.Btn(msg=ms.rec.table.edit_dialog.btn.save.name)
         save_tool = sw.Tooltip(
             self.save, ms.rec.table.edit_dialog.btn.save.tooltip, bottom=True
         )
 
-        self.modify = sw.Btn(
-            ms.rec.table.edit_dialog.btn.modify.name
-        ).hide()  # by default modify is hidden
+        self.modify = sw.Btn(msg=ms.rec.table.edit_dialog.btn.modify.name)
+        self.modify.hide()  # by default modify is hidden
         modify_tool = sw.Tooltip(
             self.modify, ms.rec.table.edit_dialog.btn.modify.tooltip, bottom=True
         )
 
         self.cancel = sw.Btn(
-            ms.rec.table.edit_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+            msg=ms.rec.table.edit_dialog.btn.cancel.name, outlined=True, class_="ml-2"
         )
         cancel_tool = sw.Tooltip(
             self.cancel, ms.rec.table.edit_dialog.btn.cancel.tooltip, bottom=True
@@ -437,7 +445,7 @@ class SaveDialog(v.Dialog):
             v_model=ms.rec.table.save_dialog.placeholder,
         )
 
-        self.save = sw.Btn(ms.rec.table.save_dialog.btn.save.name)
+        self.save = sw.Btn(msg=ms.rec.table.save_dialog.btn.save.name)
         save = sw.Tooltip(
             self.save,
             ms.rec.table.save_dialog.btn.save.tooltip,
@@ -446,7 +454,7 @@ class SaveDialog(v.Dialog):
         )
 
         self.cancel = sw.Btn(
-            ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+            msg=ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
         )
         cancel = sw.Tooltip(
             self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True
@@ -540,7 +548,7 @@ class SaveDialog(v.Dialog):
 
 class TableView(sw.Card):
     """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile"
+    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\\_ of the tile is set to "classification_tile"
 
     Args:
         class_path (str|optional): Folder path containing already existing classes. Default to ~/
@@ -600,8 +608,8 @@ class TableView(sw.Card):
             folder=self.class_path,
         )
         self.btn = sw.Btn(
-            ms.rec.table.classif.btn,
-            icon="far fa-table",
+            msg=ms.rec.table.classif.btn,
+            gliph="far fa-table",
             color="success",
             outlined=True,
         )
@@ -634,7 +642,7 @@ class TableView(sw.Card):
         # Events
         self.btn.on_event("click", self.get_class_table)
 
-    @su.loading_button(debug=True)
+    @sd.loading_button(debug=True)
     def get_class_table(self, widget, event, data):
         """
         Display class table widget in view

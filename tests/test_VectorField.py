@@ -1,6 +1,7 @@
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
+import ee
 import pytest
 
 from sepal_ui import sepalwidgets as sw
@@ -32,17 +33,18 @@ class TestVectorField:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_update_file_gee(self, vector_field_gee, default_v_model, fake_asset):
 
         # Arrange
         test_data = {
-            "pathname": fake_asset,
+            "pathname": str(fake_asset),
             "column": "ALL",
             "value": None,
         }
 
         # Act
-        vector_field_gee._update_file({"new": fake_asset})
+        vector_field_gee._update_file({"new": str(fake_asset)})
 
         # Assert
         assert vector_field_gee.v_model == test_data
@@ -65,10 +67,11 @@ class TestVectorField:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_reset_gee(self, vector_field_gee, default_v_model, fake_asset):
 
-        # It will trigger the
-        vector_field_gee.w_file.v_model = fake_asset
+        # It will trigger the event
+        vector_field_gee.w_file.v_model = str(fake_asset)
 
         # reset the loadtable
         vector_field_gee.reset()
@@ -91,16 +94,17 @@ class TestVectorField:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_update_column_gee(self, vector_field_gee, fake_asset):
 
         # change the value of the file
-        vector_field_gee._update_file({"new": fake_asset})
+        vector_field_gee._update_file({"new": str(fake_asset)})
 
         # read a column
-        vector_field_gee.w_column.v_model = "CAMBIO"
-        assert vector_field_gee.v_model["column"] == "CAMBIO"
+        vector_field_gee.w_column.v_model = "data"
+        assert vector_field_gee.v_model["column"] == "data"
         assert "d-none" not in vector_field_gee.w_value.class_
-        assert vector_field_gee.w_value.items == [0, 1, 2, 3, 4, 5, 6, 7]
+        assert vector_field_gee.w_value.items == [0, 1, 2, 3]
 
         return
 
@@ -117,22 +121,23 @@ class TestVectorField:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_update_value_gee(self, vector_field_gee, fake_asset):
 
         # change the value of the file
-        vector_field_gee._update_file({"new": fake_asset})
+        vector_field_gee._update_file({"new": str(fake_asset)})
 
         # read a column
-        vector_field_gee.w_column.v_model = "CAMBIO"
+        vector_field_gee.w_column.v_model = "data"
         vector_field_gee.w_value.v_model = 1
 
         assert vector_field_gee.v_model["value"] == 1
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def default_v_model(self):
-        """Returns default v_model"""
+        """Returns the default v_model"""
 
         return {
             "pathname": None,
@@ -152,7 +157,7 @@ class TestVectorField:
 
         return sw.VectorField(gee=True, folder=gee_dir)
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fake_vector(self, tmp_dir):
         """return a fake vector based on the vatican file"""
 
@@ -176,8 +181,8 @@ class TestVectorField:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fake_asset(self, gee_dir):
-        """Returns a fake asset"""
+        """return the path to a fake asset"""
 
-        return f"{gee_dir}/reclassify_table"
+        return gee_dir / "feature_collection"

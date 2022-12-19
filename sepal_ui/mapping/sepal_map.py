@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
-from haversine import haversine
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -36,6 +35,7 @@ from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 
@@ -108,7 +108,7 @@ class SepalMap(ipl.Map):
         not gee or su.init_ee()
 
         # add the basemaps
-        self.clear_layers()
+        self.clear()
         default_basemap = (
             "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
         )
@@ -116,22 +116,22 @@ class SepalMap(ipl.Map):
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
         # add the base controls
-        self.add_control(ipl.ZoomControl(position="topright"))
-        self.add_control(ipl.LayersControl(position="topright"))
-        self.add_control(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
-        self.add_control(ipl.ScaleControl(position="bottomleft", imperial=False))
+        self.add(ipl.ZoomControl(position="topright"))
+        self.add(ipl.LayersControl(position="topright"))
+        self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
+        self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
 
         # specific drawing control
         self.dc = DrawControl(self)
-        not dc or self.add_control(self.dc)
+        not dc or self.add(self.dc)
 
         # specific v_inspector
         self.v_inspector = ValueInspector(self)
-        not vinspector or self.add_control(self.v_inspector)
+        not vinspector or self.add(self.v_inspector)
 
         # specific statebar
         self.state = LayerStateControl(self)
-        not statebar or self.add_control(self.state)
+        not statebar or self.add(self.state)
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
@@ -186,7 +186,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def zoom_ee_object(self, item, zoom_out=1):
         """
         Get the proper zoom to the given ee geometry.
@@ -241,23 +241,13 @@ class SepalMap(ipl.Map):
             self
         """
 
+        # center the map
         minx, miny, maxx, maxy = bounds
+        self.fit_bounds([[miny, minx], [maxy, maxx]])
 
-        # Center map to the centroid of the layer(s)
-        self.center = [(maxy - miny) / 2 + miny, (maxx - minx) / 2 + minx]
-
-        # create the tuples for each corner in (lat/lng) convention
-        tl, br, bl, tr = (maxy, minx), (miny, maxx), (miny, minx), (maxy, maxx)
-
-        # find zoom level to display the biggest diagonal (in km)
-        lg, zoom = 40075, 1  # number of displayed km at zoom 1
-        maxsize = max(haversine(tl, br), haversine(bl, tr))
-        while lg > maxsize:
-            (zoom, lg) = (zoom + 1, lg / 2)
-
-        zoom_out = (zoom - 1) if zoom_out > zoom else zoom_out
-
-        self.zoom = zoom - zoom_out
+        # adapt the zoom level
+        zoom_out = (self.zoom - 1) if zoom_out > self.zoom else zoom_out
+        self.zoom -= zoom_out
 
         return self
 
@@ -465,7 +455,7 @@ class SepalMap(ipl.Map):
             output.clear_output()
             plt.show()
 
-        self.add_control(colormap_ctrl)
+        self.add(colormap_ctrl)
 
         return
 
@@ -763,7 +753,7 @@ class SepalMap(ipl.Map):
 
         # the error is catched in find_layer
         if layer is not None:
-            super().remove_layer(layer)
+            super().remove(layer)
 
         return
 
@@ -814,7 +804,7 @@ class SepalMap(ipl.Map):
             hover_style = default_hover_style if hover else layer.hover_style
             layer.hover_style = layer.hover_style or hover_style
 
-        super().add_layer(layer)
+        super().add(layer)
 
         return
 
@@ -896,7 +886,7 @@ class SepalMap(ipl.Map):
             legend_dict, title=title, vertical=vertical, position=position
         )
 
-        return self.add_control(self.legend)
+        return self.add(self.legend)
 
     # ##########################################################################
     # ###                overwrite geemap calls                              ###

@@ -3,7 +3,7 @@ from shapely import geometry as sg
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.menu_control import MenuControl
-from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import decorator as sd
 
 
 class AoiControl(MenuControl):
@@ -36,7 +36,7 @@ class AoiControl(MenuControl):
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
 
         # create the widget
-        super().__init__("fas fa-search-location", self.aoi_list, **kwargs)
+        super().__init__("fa-solid fa-search-location", self.aoi_list, **kwargs)
 
         # change a bit the behavior of the control
         self.menu.open_on_hover = True
@@ -58,19 +58,19 @@ class AoiControl(MenuControl):
 
         # set the bounds to the world if the list is empty
         if len(self.aoi_bounds) == 0:
-            bounds = (-180, -90, 180, 90)
+            self.m.center = [0, 0]
+            self.m.zoom = 2.0
         else:
             minx = min([i[0] for i in self.aoi_bounds.values()])
             miny = min([i[1] for i in self.aoi_bounds.values()])
             maxx = max([i[2] for i in self.aoi_bounds.values()])
             maxy = max([i[3] for i in self.aoi_bounds.values()])
             bounds = (minx, miny, maxx, maxy)
-
-        self.m.zoom_bounds(bounds)
+            self.m.zoom_bounds(bounds)
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def add_aoi(self, name, item):
         """
         Add an AOI to the list and refresh the list displayed. the AOI will be composed of a name and the bounds of the provided item.

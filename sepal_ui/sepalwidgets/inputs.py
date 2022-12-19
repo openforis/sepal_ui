@@ -256,18 +256,25 @@ class FileInput(v.Flex, SepalWidget):
                     "name": "activator",
                     "variable": "x",
                     "children": Btn(
-                        icon="fas fa-search", v_model=False, v_on="x.on", text=label
+                        gliph="fa-solid fa-search",
+                        v_model=False,
+                        v_on="x.on",
+                        msg=label,
                     ),
                 }
             ],
         )
 
         self.reload = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["fas fa-sync-alt"])]
+            icon=True,
+            color="primary",
+            children=[v.Icon(children=["fa-solid fa-sync-alt"])],
         )
 
         self.clear = v.Btn(
-            icon=True, color="primary", children=[v.Icon(children=["fas fa-times"])]
+            icon=True,
+            color="primary",
+            children=[v.Icon(children=["fa-solid fa-times"])],
         )
         if not clearable:
             su.hide_component(self.clear)
@@ -666,7 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     def __init__(
         self,
         label=ms.widgets.asset_select.label,
-        folder=None,
+        folder="",
         types=["IMAGE", "TABLE"],
         default_asset=[],
         **kwargs,
@@ -675,7 +682,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.asset_info = None
 
         # if folder is not set use the root one
-        self.folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+        self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
         self.types = types
 
         # load the default assets

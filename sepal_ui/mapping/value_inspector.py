@@ -15,7 +15,7 @@ from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import decorator as sd
 
 
 class ValueInspector(MenuControl):
@@ -58,7 +58,7 @@ class ValueInspector(MenuControl):
         self.text = sw.CardText(children=[ms.v_inspector.landing])
 
         # create the menu widget
-        super().__init__("fas fa-crosshairs", self.text, title, **kwargs)
+        super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
 
         # adapt the size
         self.set_size(min_height=0)
@@ -142,7 +142,7 @@ class ValueInspector(MenuControl):
 
         return
 
-    @su.need_ee
+    @sd.need_ee
     def _from_eelayer(self, ee_obj, coords):
         """
         extract the values of the ee_object for the considered point

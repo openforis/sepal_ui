@@ -42,7 +42,7 @@ class ReclassifyTile(sw.Tile):
         dst_class=None,
         default_class={},
         aoi_model=None,
-        folder=None,
+        folder="",
         **kwargs
     ):
 

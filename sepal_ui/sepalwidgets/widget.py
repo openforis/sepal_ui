@@ -66,7 +66,7 @@ class CopyToClip(v.VuetifyTemplate):
         kwargs["outlined"] = kwargs.pop("outlined", True)
         kwargs["label"] = kwargs.pop("label", "Copy To clipboard")
         kwargs["readonly"] = kwargs.pop("readonly", True)
-        kwargs["append_icon"] = kwargs.pop("append_icon", "fas fa-clipboard")
+        kwargs["append_icon"] = kwargs.pop("append_icon", "fa-solid fa-clipboard")
         kwargs["v_model"] = kwargs.pop("v_model", None)
         kwargs["class_"] = kwargs.pop("class_", "ma-5")
 
@@ -102,7 +102,7 @@ class CopyToClip(v.VuetifyTemplate):
 
     def _clip(self, widget, event, data):
         self.send({"method": "clip", "args": [self.tf.v_model]})
-        self.tf.append_icon = "fas fa-clipboard-check"
+        self.tf.append_icon = "fa-solid fa-clipboard-check"
 
         return
 
@@ -142,7 +142,9 @@ class StateIcon(Tooltip):
         # Get the first value (states first key) to use as default one
         init_value = self.states[next(iter(self.states))]
 
-        self.icon = v.Icon(children=["fas fa-circle"], color=init_value[1], small=True)
+        self.icon = v.Icon(
+            children=["fa-solid fa-circle"], color=init_value[1], small=True
+        )
 
         super().__init__(self.icon, init_value[0], **kwargs)
 

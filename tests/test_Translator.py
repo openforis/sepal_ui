@@ -177,7 +177,7 @@ class TestTranslator:
 
         return
 
-    @pytest.fixture(scope="function")
+    @pytest.fixture
     def tmp_config_file(self):
         """
         Erase any existing config file and replace it with one specifically
