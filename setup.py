@@ -99,6 +99,7 @@ setup_params = {
             "m2r2",
             "sphinxcontrib-autoprogram",
             "sphinx-favicon",
+            "nox",
         ],
     },
     "packages": [
