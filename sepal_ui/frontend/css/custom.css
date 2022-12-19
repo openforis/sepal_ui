@@ -2,7 +2,7 @@
  * Customization of the provided css from the different libs used by sepal_ui 
  */
 
-/* replace the panel elements on top */
+/* replace the map panel elements on top */
 .leaflet-pane,
 .leaflet-top,
 .leaflet-bottom {
@@ -37,7 +37,30 @@ header.v-app-bar {
   z-index: 801 !important;
 }
 
+/* make sure the dialog remain on top of the bars (header and footer) */
+.v-dialog__content {
+  z-index: 802 !important;
+}
+
 /* make sure navigation drawers are always visibles when they exist */
 nav.v-navigation-drawer {
   z-index: 900 !important;
+}
+
+/* create extra position for the leaflet map controls */
+.leaflet-center {
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
+.leaflet-middle {
+  top: 50%;
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translate(0%, -50%);
+}
+
+.leaflet-center.leaflet-middle {
+  transform: translate(-50%, -50%);
 }

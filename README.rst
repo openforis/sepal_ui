@@ -19,6 +19,10 @@ Sepal_ui
     :target: https://pypi.org/project/sepal-ui/
     :alt: PyPI - Downloads
     
+.. image:: https://img.shields.io/conda/vn/conda-forge/sepal-ui.svg?color=orange
+    :target: https://anaconda.org/conda-forge/sepal-ui
+    :alt: Conda Version
+    
 .. image:: https://img.shields.io/pypi/pyversions/sepal-ui
    :target: https://pypi.org/project/sepal-ui/
    :alt: supported Python version

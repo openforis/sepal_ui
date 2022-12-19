@@ -35,7 +35,7 @@ Develop within the project
 
 Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
-.. figure:: https://raw.githubusercontent.com/12rambau/sepal_ui/links/docs/source/_image/branching_system.png
+.. figure:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/branching_system.png
     :alt: the Git branching model
     
     The git branching model
