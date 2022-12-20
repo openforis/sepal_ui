@@ -5,10 +5,11 @@ repos:
       - id: black
         stages: [commit]
   - repo: "https://github.com/pycqa/flake8"
-    rev: "3.9.2"
+    rev: "5.0.4"
     hooks:
       - id: flake8
         stages: [commit]
+        additional_dependencies: [Flake8-pyproject]
   - repo: "https://github.com/commitizen-tools/commitizen"
     rev: "v2.18.0"
     hooks:
