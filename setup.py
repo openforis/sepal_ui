@@ -100,6 +100,7 @@ setup_params = {
             "sphinxcontrib-autoprogram",
             "sphinx-favicon",
             # "sphinx-autodoc-typehints",
+            "nox",
         ],
     },
     "packages": [

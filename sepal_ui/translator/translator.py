@@ -1,5 +1,4 @@
 import json
-from collections import abc
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -175,7 +174,7 @@ class Translator(Box):
         for k, v in gen:
             if isinstance(v, dict):
                 tmp = v
-                if all([k.isnumeric() for k in tmp]):
+                if len(tmp) and all([k.isnumeric() for k in tmp]):
                     tmp = list(tmp.values())
                 ms[k] = cls.sanitize(tmp)
             else:
@@ -197,11 +196,11 @@ class Translator(Box):
 
         ms = d.copy()
 
-        for k, v in u.items():
-            if isinstance(v, abc.Mapping):
-                ms[k] = self._update(d.get(k, {}), v)
+        for k, v in d.items():
+            if isinstance(v, dict):
+                ms[k] = self._update(v, u.get(k, {}))
             else:
-                ms[k] = v
+                ms[k] = u.get(k, v)
 
         return ms
 
@@ -261,7 +260,7 @@ class Translator(Box):
             if isinstance(v, dict):
                 cls.delete_empty(v)
             elif v == "":
-                del d[k]
+                d.pop(k)
 
         return d
 
@@ -292,7 +291,8 @@ class Translator(Box):
 
         # get all the python files recursively
         py_files = []
-        for f in folder.glob(r"**/*.[py][ipynb]"):
+        all_files = [f for f in folder.glob("**/*") if f.suffix in [".py", ".ipynb"]]
+        for f in all_files:
             generated_files = [".ipynb_checkpoints", "__pycache__"]
             if all([err not in str(f) for err in generated_files]):
                 py_files.append(f)
