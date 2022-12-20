@@ -163,7 +163,7 @@ skip_glob = ["**/.ipynb_checkpoints/*", "**__pycache__/*"]
 src_paths = "sepal_ui"
 
 [tool.coverage.run] 
-source = "sepal_ui"
+source = ["sepal_ui"]
 omit = [
     "sepal_ui/*/__init__.py",
     "sepal_ui/scripts/messages.py",
