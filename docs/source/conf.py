@@ -59,6 +59,7 @@ extensions = [
     "sphinxcontrib.autoprogram",
     "_extentions.video",
     "_extentions.line_break",
+    # "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
