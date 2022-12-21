@@ -20,31 +20,29 @@ classifiers = [
 ]
 requires-python = ">=3.6.9"
 dependencies = [
-    "werkzeug<2.2.0",  # https://github.com/python-restx/flask-restx/issues/460
-    "ipyvue>=1.7.0",  # this is the version with the class manager
-    "ipyvuetify",  # it will work anyway as the widgets are build on the fly
-    "earthengine-api",
+    # building widgets
+    "ipyvuetify",
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
-    "shapely",
-    "geopandas",
-    "pandas",
-    "deepdiff",
-    "colorama",
-    "Deprecated",
-    "Unidecode",
-    "natsort",
-    "pipreqs",
+    # earthengine management
+    "earthengine-api",
     "cryptography",
-    "python-box",
-    "xyzservices",
-    "planet==2.0a6",
-    "pyyaml",
-    "dask",
-    "tqdm",
-    "jupyter-server-proxy",
-    "matplotlib",
+    # to create a module 
+    "colorama",
+    "pipreqs",
+    # read local data 
     "rioxarray",
+    "dask",  # used by rioxarray in the inspector
+    "geopandas",
+    "matplotlib",
+    "jupyter-server-proxy", # required for localtileserver
+    "planet==2.0a6",
+    # miscellaneous
+    "python-box",
+    "tqdm",
+    "Deprecated",
+    "Unidecode",  # to decode international names with non latin characters
+    "natsort",
 ]
 
 [[project.authors]]
@@ -78,16 +76,13 @@ test = [
     "nbmake ",
 ]
 doc = [
-    "docutils<0.19",  # remove once m2r2 0.3.3 is released
-    "sphinx",
+    "Sphinx",
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
-    "Sphinx",
     "sphinxcontrib-spelling",
     "sphinx-copybutton",
-    "pandoc",
-    "m2r2",
+    "m2r2>=0.3.3",
     "sphinxcontrib-autoprogram",
     "sphinx-favicon",
     # "sphinx-autodoc-typehints",
