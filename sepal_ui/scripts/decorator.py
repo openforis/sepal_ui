@@ -6,7 +6,8 @@ from pathlib import Path
 
 import ee
 import httplib2
-from cryptography.fernet import Fernet
+
+# from cryptography.fernet import Fernet
 from deprecated.sphinx import versionadded
 
 # from sepal_ui.scripts.utils import init_ee
@@ -22,41 +23,26 @@ from sepal_ui.scripts.warning import SepalWarning
 def init_ee():
     """
     Initialize earth engine according to the environment.
-    It will use the creddential file if the EE_PRIVATE_KEY env variable exist.
+    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
     Otherwise it use the simple Initialize command (asking the user to register if necessary)
     """
 
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
 
-        # if the decrypt key is available use the decript key
-        if "EE_DECRYPT_KEY" in os.environ:
+        # if the credentials token is asved in the environment use it
+        if "EARTHENGINE_TOKEN" in os.environ:
 
-            # read the key as byte
-            key = os.environ["EE_DECRYPT_KEY"].encode()
+            # write the token to the appropriate folder
+            ee_token = os.environ["EARTHENGINE_TOKEN"]
+            credential_folder_path = Path.home() / ".config" / "earthengine"
+            credential_folder_path.mkdir(parents=True, exist_ok=True)
+            credential_file_path = credential_folder_path / "credentials"
+            credential_file_path.write_text(ee_token)
 
-            # create the fernet object
-            fernet = Fernet(key)
-
-            # decrypt the key
-            json_encrypted = Path(__file__).parent / "encrypted_key.json"
-            with json_encrypted.open("rb") as f:
-                json_decripted = fernet.decrypt(f.read()).decode()
-
-            # write it to a file
-            with open("ee_private_key.json", "w") as f:
-                f.write(json_decripted)
-
-            # connection to the service account
-            service_account = "test-sepal-ui@sepal-ui.iam.gserviceaccount.com"
-            credentials = ee.ServiceAccountCredentials(
-                service_account, "ee_private_key.json"
-            )
-            ee.Initialize(credentials, http_transport=httplib2.Http())
-
-        # if in local env use the local user credential
-        else:
-            ee.Initialize(http_transport=httplib2.Http())
+        # if the user is in local development the authentication should
+        # already be available
+        ee.Initialize(http_transport=httplib2.Http())
 
     return
 
