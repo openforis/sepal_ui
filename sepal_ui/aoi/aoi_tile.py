@@ -20,10 +20,10 @@ class AoiTile(sw.Tile):
         asset (str, optional): the default asset. Can only work if :code:`ee==True`.
     """
 
-    map = None
+    map: sm.SepalMap = None
     "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
 
-    view = None
+    view: AoiView = None
     "widget: an AoiView object to handle the aoi method selection"
 
     def __init__(self, methods="ALL", gee=True, **kwargs):

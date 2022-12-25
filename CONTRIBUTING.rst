@@ -86,6 +86,40 @@ Our branching system embed some rules to avoid crash of the production environme
 
 the maintainers will try their best to use PR for new features, to help the community follow the development, for other modification they will simply push to the appropriate branch.
 
+Setup :code:`nox`
+-----------------
+
+To start, install :code:`nox`:
+
+.. code-block:: console
+
+    $ pip install nox
+
+You can call :code:`nox` from the command line in order to perform common actions that are needed in building. :code:`nox` operates with isolated environments, so each action has its own packages installed in a local directory (*.nox*). For common development actions, you’ll simply need to use nox and won’t need to set up any other packages.
+
+Setup :code:`pre-commit`
+------------------------
+
+pre-commit allows us to run several checks on the codebase every time a new Git commit is made. This ensures standards and basic quality control for our code.
+
+Install pre-commit with the following command:
+
+.. code-block:: console
+
+    $ pip install pre-commit
+
+then navigate to this repository’s folder and activate it like so:
+
+.. code-block:: console
+
+    $ pre-commit install
+
+This will install the necessary dependencies to run :code:`pre-commit` every time you make a commit with Git.
+
+.. note::
+
+    Your pre-commit dependencies will be installed in the environment from which you’re calling :code:`pre-commit`, :code:`nox`, etc. They will not be installed in the isolated environments used by :code:`nox`.
+
 Create a new release
 --------------------
 
