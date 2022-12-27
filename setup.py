@@ -72,6 +72,7 @@ setup_params = {
         "matplotlib",
         "rioxarray",
         "typing-extensions",
+        "traitlets==5.3.0",
     ],
     "extras_require": {
         "dev": [

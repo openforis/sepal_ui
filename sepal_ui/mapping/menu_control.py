@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ipyleaflet import Map, WidgetControl
 from typing_extensions import Self
 
@@ -17,18 +19,18 @@ class MenuControl(WidgetControl):
         m: The map associated with the Menu
     """
 
-    menu = None
-    "sw.Menu: the menu displayed on the map as a widget"
+    menu: sw.Menu
+    "the menu displayed on the map as a widget"
 
-    m = None
-    "sm.SepalMap: the map used to display the control"
+    m: Optional[Map]
+    "the map used to display the control"
 
     def __init__(
         self,
         icon_content: str,
         card_content: sw.Tile,
         card_title: str = "",
-        m=Map,
+        m: Optional[Map] = None,
         **kwargs
     ) -> None:
 
@@ -135,7 +137,6 @@ class MenuControl(WidgetControl):
 
         # avoid infinite loop by exiting the method when it's closed
         if self.menu.v_model is True:
-
             [
                 setattr(c.menu, "v_model", False)
                 for c in self.m.controls
