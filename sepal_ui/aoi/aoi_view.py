@@ -1,6 +1,6 @@
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import ipyvuetify as v
 import pandas as pd
@@ -41,7 +41,7 @@ class MethodSelect(sw.Select):
         self,
         methods: Union[str, List[str]] = "ALL",
         gee: bool = True,
-        map_: sm.SepalMap = None,
+        map_: Optional[sm.SepalMap] = None,
     ) -> None:
 
         # create the method list
@@ -281,7 +281,8 @@ class AoiView(sw.Card):
         # set ee dependencie
         self.gee = gee
         self.folder = folder
-        gee is False or su.init_ee()
+        if gee is True:
+            su.init_ee()
 
         # get the model
         self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
@@ -396,7 +397,8 @@ class AoiView(sw.Card):
         self.w_method.v_model = None
 
         # clear the map
-        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
+        if self.map_ is not None:
+            self.map_.remove_layer("aoi", none_ok=True)
 
         return self
 

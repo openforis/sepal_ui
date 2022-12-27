@@ -42,3 +42,16 @@ def docs_live(session):
         "./sepal_ui",
     )
     session.run("sphinx-autobuild", "-b", "html", "docs/source", "build")
+
+
+@nox.session(name="mypy", reuse_venv=True)
+def mypy(session):
+    session.install(".[dev]")
+    session.run(
+        "mypy",
+        "--scripts-are-modules",
+        "--ignore-missing-imports",
+        "--install-types",
+        "--non-interactive",
+        "sepal_ui",
+    )
