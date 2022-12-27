@@ -26,7 +26,7 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_venv")
 
 
-def main():
+def main() -> None:
 
     # read arguments (there should be none)
     parser.parse_args()
@@ -116,6 +116,8 @@ def main():
     print(
         f'{Fore.GREEN}The test venv have been created, it can be found in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
     )
+
+    return
 
 
 if __name__ == "__main__":

@@ -1,7 +1,10 @@
 import json
+from typing import Union
 
+import ipyvuetify as v
 from ipywidgets import dlink
 from traitlets import HasTraits
+from typing_extensions import Self
 
 __all__ = ["Model"]
 
@@ -14,43 +17,43 @@ class Model(HasTraits):
 
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Method to represent the Model objects as a string"""
 
-        args = ", ".join([f"{k}={v}" for k, v in self.export_data().items()]).strip()
+        data = [f"{k}={val}" for k, val in self.export_data().items()]
+        args = ", ".join(data).strip()
 
         return f"{self.__class__.__name__}({args})"
 
-    def export_data(self):
+    def export_data(self) -> dict:
         """
         Export a json description of all the object traitlets
         Note that the members will be ignored
 
-        Return:
-            (dict): the serialized traitlets
+        Returns:
+            the serialized traitlets
         """
 
         return self.__dict__["_trait_values"]
 
-    def import_data(self, data):
+    def import_data(self, data: Union[dict, str]) -> None:
         """
         Import the model (i.e. the traitlets) from a json file
 
-        Params:
-            json (dict): the json ditionary of the model
-
-        Return:
-            self
+        args:
+            data: the json ditionary of the model
         """
 
         if type(data) == str:
             data = json.loads(data)
 
-        for k, v in data.items():
+        for k, val in data.items():
             getattr(self, k)  # to raise an error if the json is malformed
-            setattr(self, k, v)
+            setattr(self, k, val)
 
-    def bind(self, widget, trait):
+        return
+
+    def bind(self, widget: v.VuetifyWidget, trait: str) -> Self:
         """
         Binding a widget input 'v_model' trait to a trait of the model.
         The binding will be unidirectionnal for the sake of some custom widget that does not support it.
@@ -58,11 +61,8 @@ class Model(HasTraits):
         Some existence check are also performed and will throw an error if the trait doesn't exist
 
         Params:
-            widget (v.widget): any input widget with a v_model trait
-            trait (str): the name of a trait of the current model
-
-        Return:
-            self
+            widget: any input widget with a v_model trait
+            trait: the name of a trait of the current model
         """
 
         # check trait existence

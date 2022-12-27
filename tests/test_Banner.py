@@ -13,7 +13,7 @@ class TestBanner:
         assert banner.v_model is True
         assert banner.children[0] == ""
         assert banner.color == "info"
-        assert banner.attributes["id"] is None
+        assert banner.attributes["id"] == ""
         assert banner.timeout == 0
 
         # exaustive definition

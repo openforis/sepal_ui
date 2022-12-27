@@ -1,4 +1,8 @@
+from typing import List, Union
+
 import ee
+import ipyvuetify as v
+from ipyleaflet import Map
 from shapely import geometry as sg
 
 from sepal_ui import sepalwidgets as sw
@@ -11,19 +15,19 @@ class AoiControl(MenuControl):
     Widget control providing zoom options for the end user. The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
 
     Args:
-        m (ipyleaflet.Map): the map on which he AoiControl is displayed to interact with itszoom and center
+        m: the map on which he AoiControl is displayed to interact with itszoom and center
     """
 
-    m = None
-    "(ipyleaflet.Map): the map on which he AoiControl is displayed to interact with itszoom and center"
+    m: Map
+    "the map on which he AoiControl is displayed to interact with itszoom and center"
 
-    aoi_list = None
-    "(list): the list of ListItem used in the menu. each one as the name provided by the user and the value of the bounds"
+    aoi_list: List[v.ListItem]
+    "the list of ListItem used in the menu. each one as the name provided by the user and the value of the bounds"
 
-    aoi_bounds = None
-    "(dict): the list of bounds to fit on. using the aoi names as keys"
+    aoi_bounds: dict
+    "the list of bounds to fit on. using the aoi names as keys"
 
-    def __init__(self, m, **kwargs):
+    def __init__(self, m: Map, **kwargs) -> None:
 
         # init the aoi data list
         self.aoi_bounds = {}
@@ -51,7 +55,7 @@ class AoiControl(MenuControl):
         # add js behaviours
         self.menu.v_slots[0]["children"].on_event("click", self.click_btn)
 
-    def click_btn(self, widget, event, data):
+    def click_btn(self, *args) -> None:
         """
         Zoom to the total area of all AOIs in :code:`self.aoi_bounds`. Use the whole world if empty
         """
@@ -71,13 +75,15 @@ class AoiControl(MenuControl):
         return
 
     @sd.need_ee
-    def add_aoi(self, name, item):
+    def add_aoi(
+        self, name: str, item: Union[sg.base.BaseGeometry, ee.ComputedObject]
+    ) -> None:
         """
         Add an AOI to the list and refresh the list displayed. the AOI will be composed of a name and the bounds of the provided item.
 
         Args:
-            name (str): the name of the AOI
-            item (Geometry|ee.ComputedObject): the item to use to compute the bounds. It need to be a shapely geometry or an ee object.
+            name: the name of the AOI
+            item: the item to use to compute the bounds. It need to be a shapely geometry or an ee object.
         """
 
         if isinstance(item, ee.ComputedObject):
@@ -99,12 +105,12 @@ class AoiControl(MenuControl):
 
         return
 
-    def remove_aoi(self, name):
+    def remove_aoi(self, name: str) -> None:
         """
         Remove an item from the :code:`self.aoi_bounds` dict and from the ListItem. It will raise a KeyError if the name cannot be found
 
         Args:
-            name (str): the name of the aoi to remove
+            name: the name of the aoi to remove
         """
 
         # remove the value from the list
@@ -115,9 +121,12 @@ class AoiControl(MenuControl):
 
         return
 
-    def zoom(self, widget, event, data):
+    def zoom(self, widget: v.VuetifyWidget, *args) -> None:
         """
         Zoom on the specified bounds
+
+        Args:
+            widget: the clicked widget containing the bounds
         """
 
         # the widget store the bounding box in value
@@ -126,7 +135,7 @@ class AoiControl(MenuControl):
 
         return
 
-    def update_list(self):
+    def update_list(self) -> None:
         """
         Update the ListItem children of the object based on the content of :code:`self.aoi_bounds`
         """

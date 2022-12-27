@@ -1,3 +1,4 @@
+import ee
 from ipyleaflet import TileLayer
 
 
@@ -10,10 +11,10 @@ class EELayer(TileLayer):
         ee_object (ee.object): the ee.object displayed on the map
     """
 
-    ee_object = None
+    ee_object: ee.ComputedObject
     "ee.object: the ee.object displayed on the map"
 
-    def __init__(self, ee_object, **kwargs):
+    def __init__(self, ee_object: ee.ComputedObject, **kwargs) -> None:
 
         self.ee_object = ee_object
 

@@ -1,10 +1,13 @@
 from datetime import datetime
+from typing import Any
 
 import ipyvuetify as v
+import traitlets as t
 from deprecated.sphinx import deprecated
 from ipywidgets import Output, jslink
 from tqdm.notebook import tqdm
-from traitlets import Bool, Unicode, directional_link, observe
+from traitlets import directional_link, observe
+from typing_extensions import Self
 
 from sepal_ui import color
 from sepal_ui.frontend.styles import TYPES
@@ -22,28 +25,25 @@ class Divider(v.Divider, SepalWidget):
     Whenever the type\_ trait is modified, the divider class will change accordingly
 
     Args:
-        class\_ (str, optional): the initial color of the divider
+        class\_: the initial color of the divider
         kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
     """
 
-    type_ = Unicode("").tag(sync=True)
-    "str: Added type\_ trait to specify the current color of the divider"
+    type_: t.Unicode = t.Unicode("").tag(sync=True)
+    "Added type\_ trait to specify the current color of the divider"
 
-    def __init__(self, class_="", **kwargs):
+    def __init__(self, class_: str = "", **kwargs) -> None:
         kwargs["class_"] = class_
         super().__init__(**kwargs)
 
     @observe("type_")
-    def add_class_type(self, change):
+    def add_class_type(self, change: dict) -> Self:
         """
         Change the color of the divider according to the type\_
         It is binded to the type\_ traitlet but can also be called manually
 
         Args:
             change (dict): the only useful key is 'new' which is the new required color
-
-        Return:
-            self
         """
 
         self.class_list.remove(*TYPES)
@@ -60,11 +60,11 @@ class Alert(v.Alert, SepalWidget):
     It's hidden by default.
 
     Args:
-        type\_ (str, optional): The color of the Alert
+        type\_: The color of the Alert
         kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
-    def __init__(self, type_="info", **kwargs):
+    def __init__(self, type_: str = "info", **kwargs) -> None:
 
         # set default parameters
         kwargs["text"] = kwargs.pop("text", True)
@@ -78,16 +78,20 @@ class Alert(v.Alert, SepalWidget):
         self.progress_output = Output()
         self.progress_bar = None
 
-    def update_progress(self, progress, msg="Progress", **tqdm_args):
+    def update_progress(
+        self, progress: float, msg: str = "Progress", **tqdm_args
+    ) -> None:
         """
         Update the Alert message with a tqdm progress bar.
 
-        Args:
-            progress (float): the progress status in float [0, 1]
-            msg (str, optionnal): The message to use before the progress bar
+        .. note::
 
-        Return:
-            self
+            set the ``total`` argumentent of tqdm to use differnet values than [0, 1]
+
+        Args:
+            progress: the progress status in float
+            msg: The message to use before the progress bar
+            tqdm_args (optional): any arguments supported by a tqdm progress bar
         """
 
         # show the alert
@@ -128,17 +132,14 @@ class Alert(v.Alert, SepalWidget):
 
         return
 
-    def add_msg(self, msg, type_="info"):
+    def add_msg(self, msg: str, type_: str = "info") -> Self:
         """
         Add a message in the alert by replacing all the existing one.
         The color can also be changed dynamically
 
         Args:
-            msg (str): the message to display
-            type\_ (str, optional): the color to use in the widget
-
-        Return:
-            self
+            msg: the message to display
+            type\_: the color to use in the widget
         """
         self.show()
         self.type = set_type(type_)
@@ -146,18 +147,15 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
-    def add_live_msg(self, msg, type_="info"):
+    def add_live_msg(self, msg: str, type_: str = "info") -> Self:
         """
         Add a message in the alert by replacing all the existing one.
         Also add the timestamp of the display.
         The color can also be changed dynamically
 
         Args:
-            msg (str): the message to display
-            type\_ (str, optional): the color to use in the widget
-
-        Return:
-            self
+            msg: the message to display
+            type\_: the color to use in the widget
         """
 
         current_time = datetime.now().strftime("%Y/%m/%d, %H:%M:%S")
@@ -171,16 +169,14 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
-    def append_msg(self, msg, section=False, type_="info"):
+    def append_msg(self, msg: str, section: bool = False, type_: str = "info") -> Self:
         """
         Append a message in a new parragraph, with or without divider
 
         Args:
-            msg (str): the message to display
-            section (bool, optional): add a Divider before the added message
-
-        Return:
-            self
+            msg: the message to display
+            section: add a Divider before the added message
+            type\_: the color to use in the widget
         """
 
         self.show()
@@ -206,12 +202,9 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
-    def remove_last_msg(self):
+    def remove_last_msg(self) -> Self:
         """
         Remove the last msg printed in the Alert widget
-
-        Return:
-            self
         """
 
         if len(self.children) > 1:
@@ -222,12 +215,9 @@ class Alert(v.Alert, SepalWidget):
 
         return self
 
-    def reset(self):
+    def reset(self) -> Self:
         """
         Empty the messages and hide it
-
-        Return:
-            self
         """
 
         self.children = [""]
@@ -236,17 +226,17 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     @deprecated(version="3.0", reason="This method is now part of the utils module")
-    def check_input(self, input_, msg=None):
+    def check_input(self, input_: Any, msg: str = "") -> bool:
         """
         Check if the inpupt value is initialized.
         If not return false and display an error message else return True
 
         Args:
-            input\_ (any): the input to check
-            msg (str, optionnal): the message to display if the input is not set
+            input\_: the input to check
+            msg: the message to display if the input is not set
 
-        Return:
-            (bool): check if the value is initialized
+        Returns:
+            check if the value is initialized
         """
         msg = msg or ms.utils.check_input.error
 
@@ -261,16 +251,16 @@ class StateBar(v.SystemBar, SepalWidget):
        kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
     """
 
-    msg = Unicode("").tag(sync=True)
-    "str: the displayed message"
+    msg: t.Unicode = t.Unicode("").tag(sync=True)
+    "the displayed message"
 
-    loading = Bool(False).tag(sync=True)
-    "bool: either or not the circular progress is spinning"
+    loading: t.Bool = t.Bool(False).tag(sync=True)
+    "either or not the circular progress is spinning"
 
-    progress = None
-    "widget: The ProgressCircular widget that will be displayed in the statebar"
+    progress: v.ProgressCircular
+    "The ProgressCircular widget that will be displayed in the statebar"
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
 
         self.progress = v.ProgressCircular(
             indeterminate=self.loading,
@@ -290,17 +280,30 @@ class StateBar(v.SystemBar, SepalWidget):
         jslink((self, "loading"), (self.progress, "indeterminate"))
 
     @observe("loading")
-    def _change_loading(self, change):
+    def _change_loading(self, *args) -> None:
         """Change progress wheel state"""
+
         self.progress.indeterminate = self.loading
 
+        return
+
     @observe("msg")
-    def _change_msg(self, change):
+    def _change_msg(self, *args) -> None:
         """Change state bar message"""
+
         self.children = [self.progress, self.msg]
 
-    def add_msg(self, msg, loading=False):
-        """Change current status message"""
+        return
+
+    def add_msg(self, msg: str, loading: bool = False) -> Self:
+        """
+        Change current status message
+
+        Args:
+            msg: the message to display
+            loading: the loading status of the progress circular
+        """
+
         self.msg = msg
         self.loading = loading
 
@@ -312,17 +315,24 @@ class Banner(v.Snackbar, SepalWidget):
     Custom Snackbar widget to display messages as a banner in module App.
 
     Args:
-       msg (str, optional): Message to display in application banner. default to nothing
-       type\_ (str, optional): Used to display an appropiate banner color. fallback to "info".
-       id_ (str, optional): unique banner identificator.
-       persistent (bool, optional): Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+       msg: Message to display in application banner. default to nothing
+       type\_: Used to display an appropiate banner color. fallback to "info".
+       id_: unique banner identificator.
+       persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
        kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
     """
 
     btn_close = None
     "v.Btn: the closing btn of the banner"
 
-    def __init__(self, msg="", type_="info", id_=None, persistent=True, **kwargs):
+    def __init__(
+        self,
+        msg: str = "",
+        type_: str = "info",
+        id_: str = "",
+        persistent: bool = True,
+        **kwargs,
+    ) -> None:
 
         # compute the type and default to "info" if it's not existing
         type_ = set_type(type_)
@@ -349,21 +359,22 @@ class Banner(v.Snackbar, SepalWidget):
 
         self.btn_close.on_event("click", self.close)
 
-    def close(self, *args):
+    def close(self, *args) -> None:
         """Close button event to close snackbar alert"""
+
         self.v_model = False
 
         return
 
-    def get_timeout(self, text):
+    def get_timeout(self, text: str) -> int:
         """
         Calculate timeout in miliseconds to read the message
 
         Args:
-            text (str): the text displayed in the banner to adapt the duration of the timeout
+            text: the text displayed in the banner to adapt the duration of the timeout
 
         Returns
-            (int): the duration of the timeout in milliseconds
+            the duration of the timeout in milliseconds
         """
 
         wpm = 180  # readable words per minute
@@ -376,12 +387,12 @@ class Banner(v.Snackbar, SepalWidget):
 
         return delay + words_time + bonus
 
-    def set_btn(self, nb_banner):
+    def set_btn(self, nb_banner: int) -> None:
         """
         Change the btn display to inform the user on the number of banners in the queue
 
         Args:
-            nb_banner (int): the number of banners in the queue
+            nb_banner: the number of banners in the queue
         """
         # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator
         if nb_banner == 0:

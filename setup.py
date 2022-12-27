@@ -71,6 +71,7 @@ setup_params = {
         "jupyter-server-proxy",
         "matplotlib",
         "rioxarray",
+        "typing-extensions",
     ],
     "extras_require": {
         "dev": [

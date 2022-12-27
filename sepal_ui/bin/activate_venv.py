@@ -18,7 +18,7 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
 
 
-def main():
+def main() -> None:
 
     # parse agruments
     parser.parse_args()
@@ -90,6 +90,8 @@ def main():
     )
 
     print(f"The current env is: {result.stdout}")
+
+    return
 
 
 if __name__ == "__main__":

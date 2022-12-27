@@ -1,13 +1,14 @@
 import asyncio
 from datetime import datetime
+from typing import Dict, List, Union
 
 import nest_asyncio
 import planet.data_filter as filters
+import traitlets as t
 from planet import DataClient
 from planet.auth import Auth
 from planet.exceptions import NoPermission
 from planet.http import Session
-from traitlets import Bool, Dict
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
@@ -23,26 +24,28 @@ class PlanetModel(Model):
     are aimed to be used without the need of a view.
 
     Args:
-        credentials ([tuple, str], optional): planet API key or tuple of username and password of planet explorer.
+        credentials: planet API key or tuple of username and password of planet explorer.
 
     """
 
-    SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
-    "str: the url of the planet API subscription"
+    SUBS_URL: str = (
+        "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
+    )
+    "The url of the planet API subscription"
 
-    credentials = None
-    "list: list containing [api_key] or pair of [username, password] to log in"
+    credentials: List[str] = []
+    "list containing [api_key] or pair of [username, password] to log in"
 
-    session = None
+    session: Session
     "planet.http.session: planet session."
 
-    subscriptions = Dict().tag(sync=True)
-    "list[(dict)]: list containing all the dictionary info from the available subscriptions"
+    subscriptions: t.Dict = t.Dict({}).tag(sync=True)
+    "All the dictionary info from the available subscriptions"
 
-    active = Bool(False).tag(sync=True)
-    "Bool: value to determine if at least one subscription has the active true state"
+    active = t.Bool(False).tag(sync=True)
+    "Value to determine if at least one subscription has the active true state"
 
-    def __init__(self, credentials=None):
+    def __init__(self, credentials: Union[str, List[str]] = "") -> None:
 
         self.subscriptions = {}
         self.session = None
@@ -51,11 +54,11 @@ class PlanetModel(Model):
         if credentials:
             self.init_session(credentials)
 
-    def init_session(self, credentials):
+    def init_session(self, credentials: Union[str, List[str]]) -> None:
         """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
-            credentials (list): planet API key of username and password pair of planet explorer.
+            credentials: planet API key or username and password pair of planet explorer.
         """
 
         if not isinstance(credentials, list):
@@ -74,8 +77,10 @@ class PlanetModel(Model):
 
         return
 
-    def _is_active(self):
-        """check if the key has an associated active subscription"""
+    def _is_active(self) -> None:
+        """
+        check if the key has an associated active subscription and change the state button accordingly
+        """
 
         self.subscriptions = {}
 
@@ -108,8 +113,13 @@ class PlanetModel(Model):
 
         return
 
-    def get_subscriptions(self):
-        """load the user subscriptions and return empty list if nothing found"""
+    def get_subscriptions(self) -> dict:
+        """
+        load the user subscriptions
+
+        Returns:
+            the dictionnary of user subscription or empty list if nothing found
+        """
 
         req = self.session.request("GET", self.SUBS_URL)
 
@@ -128,19 +138,26 @@ class PlanetModel(Model):
             self.subscriptions = {}
             raise e
 
-    def get_items(self, aoi, start, end, cloud_cover, limit_to_x_pages=None):
+    def get_items(
+        self,
+        aoi: dict,
+        start: str,
+        end: str,
+        cloud_cover: float,
+        limit_to_x_pages: int = -1,
+    ) -> list:
         """
         Request imagery items from the planet API for the requested dates.
 
         Args:
-            aoi(geojson, polygon): clipping geometry
-            start(str, YYYY-mm-dd): the start of the request
-            end (str, YYYY-mm-dd): the end of the request
-            cloud_cover (float): maximum cloud coverage.
-            limit_to_x_pages (int): number of pages to constrain the search.
-                Defaults None to use all of them.
-        Return:
-            items (list): items found using the search query
+            aoi: geojson clipping geometry
+            start: the start of the request (YYYY-mm-dd))
+            end: the end of the request (YYYY-mm-dd))
+            cloud_cover: maximum cloud coverage.
+            limit_to_x_pages: number of pages to constrain the search. Defaults to -1 to use all of them.
+
+        Returns:
+            items found using the search query
 
         """
 
@@ -181,11 +198,11 @@ class PlanetModel(Model):
         return asyncio.run(main())
 
     @staticmethod
-    def search_status(d):
+    def search_status(d: dict) -> List[Dict[str, bool]]:
 
         states = []
 
-        for k, v in d.items():
+        for v in d.values():
             for subs in v:
                 if "plan" in subs:
                     plan = subs.get("plan")

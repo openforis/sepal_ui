@@ -11,7 +11,7 @@ class TestClip:
         assert clip.tf.outlined is True
         assert isinstance(clip.tf.label, str)
         assert clip.tf.append_icon == "fa-solid fa-clipboard"
-        assert clip.tf.v_model is None
+        assert clip.tf.v_model == ""
 
         # clip with extra options
         clip = sw.CopyToClip(outlined=False, dense=True)

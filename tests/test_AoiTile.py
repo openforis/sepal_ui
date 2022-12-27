@@ -9,7 +9,8 @@ class TestAoiTile:
 
         # init without ee
         tile = aoi.AoiTile(gee=False)
-        assert tile.view.model.ee is False
+        assert isinstance(tile, aoi.AoiTile)
+        assert tile.view.model.gee is False
 
         return
 
@@ -19,5 +20,6 @@ class TestAoiTile:
         # default init
         tile = aoi.AoiTile(folder=str(gee_dir))
         assert isinstance(tile, aoi.AoiTile)
+        assert tile.view.model.gee is True
 
         return
