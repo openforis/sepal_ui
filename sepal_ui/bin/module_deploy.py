@@ -79,6 +79,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
     # already available libs
     libs = ["wheel", "Cython", "pybind11", "GDAL", "pyproj", "sepal_ui"]
 
+    file = Path(file)
     text = file.read_text().split("\n")
 
     # search for the custom line index
@@ -95,7 +96,6 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
         final_text.append(line)
 
     # write to file
-    file = Path(file)
     file.write_text("\n".join(final_text))
 
     return

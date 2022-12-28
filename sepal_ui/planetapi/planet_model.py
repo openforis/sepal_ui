@@ -55,7 +55,8 @@ class PlanetModel(Model):
             self.init_session(credentials)
 
     def init_session(self, credentials: Union[str, List[str]]) -> None:
-        """Initialize planet client with api key or credentials. It will handle errors.
+        """
+        Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
             credentials: planet API key or username and password pair of planet explorer.
@@ -82,31 +83,22 @@ class PlanetModel(Model):
         check if the key has an associated active subscription and change the state button accordingly
         """
 
-        self.subscriptions = {}
+        # As there is not any key that identify the nicfi contract,
+        # let's find though all the subscriptions a representative name
+        wildcards = ["Level_0", "Level_1", "Level2"]
 
         # get the subs from the api key and save them in the model. It will be useful
         # to avoid doing more calls.
-        subs = self.get_subscriptions()
-
-        # As there is not any key that identify the nicfi contract,
-        # let's find though all the subscriptions a representative name
-        wildcards = [
-            "Level_0",
-            "Level_1",
-            "Level2",
-        ]
-
-        subscriptions = {"nicfi": [], "others": []}
-
-        for sub in subs:
+        tmp_subscriptions: dict[str, list] = {"nicfi": [], "others": []}
+        for sub in self.get_subscriptions():
             for w in wildcards:
                 if w in str(sub):
-                    subscriptions["nicfi"].append(sub)
+                    tmp_subscriptions["nicfi"].append(sub)
                     break
-            if sub not in subscriptions["nicfi"]:
-                subscriptions["others"].append(sub)
+            if sub not in tmp_subscriptions["nicfi"]:
+                tmp_subscriptions["others"].append(sub)
 
-        self.subscriptions = subscriptions
+        self.subscriptions = tmp_subscriptions
 
         states = self.search_status(self.subscriptions)
         self.active = any([next(iter(d.values())) for d in states])
@@ -125,24 +117,22 @@ class PlanetModel(Model):
 
         try:
             response = asyncio.run(req)
-            if response.status_code == 200:
-                return response.json()
 
         except NoPermission:
-            self.subscriptions = {}
             raise Exception(
                 "You don't have permission to access to this resource. Check your input data."
             )
 
         except Exception as e:
-            self.subscriptions = {}
             raise e
+
+        return response.json() if response.status_code == 200 else {}
 
     def get_items(
         self,
         aoi: dict,
-        start: str,
-        end: str,
+        start: Union[str, datetime],
+        end: Union[str, datetime],
         cloud_cover: float,
         limit_to_x_pages: int = -1,
     ) -> list:
@@ -161,11 +151,9 @@ class PlanetModel(Model):
 
         """
 
-        start, end = [
-            date.strftime("%Y-%m-%d")
-            for date in [start, end]
-            if isinstance(date, datetime)
-        ] or [start, end]
+        # cast start and end to str
+        start = start.strftime("%Y-%m-%d") if isinstance(start, datetime) else start
+        end = end.strftime("%Y-%m-%d") if isinstance(end, datetime) else end
 
         and_filter = filters.and_filter(
             [

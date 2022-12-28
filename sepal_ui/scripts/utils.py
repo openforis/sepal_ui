@@ -5,7 +5,7 @@ import re
 import string
 import warnings
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Sequence, Union
 from urllib.parse import urlparse
 
 import ee
@@ -192,7 +192,9 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     return re.sub(regex, "_", unidecode(msg))
 
 
-def to_colors(in_color: Union[str, tuple], out_type: str = "hex") -> Union[str, tuple]:
+def to_colors(
+    in_color: Union[str, Sequence], out_type: str = "hex"
+) -> Union[str, tuple]:
     """
     Transform any color type into a color in the specified output format
     avalable format: hex
@@ -205,7 +207,7 @@ def to_colors(in_color: Union[str, tuple], out_type: str = "hex") -> Union[str, 
         The color in the specified format. default to black.
     """
 
-    # list of the color function used for the translatio
+    # list of the color function used for the translation
     c_func = {"hex": c.to_hex}
     transform = c_func[out_type]
 

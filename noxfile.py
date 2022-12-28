@@ -47,11 +47,14 @@ def docs_live(session):
 @nox.session(name="mypy", reuse_venv=True)
 def mypy(session):
     session.install(".[dev]")
+    test_files = session.posargs or ["sepal_ui"]
     session.run(
         "mypy",
         "--scripts-are-modules",
         "--ignore-missing-imports",
         "--install-types",
         "--non-interactive",
-        "sepal_ui",
+        "--disable-error-code",
+        "func-returns-value",
+        *test_files,
     )

@@ -13,7 +13,7 @@ import string
 import warnings
 from distutils.util import strtobool
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Sequence, Union, cast
 
 import ee
 import ipyleaflet as ipl
@@ -217,7 +217,7 @@ class SepalMap(ipl.Map):
 
         return self.zoom_bounds(da.rio.bounds(), zoom_out)
 
-    def zoom_bounds(self, bounds: List[float], zoom_out: int = 1) -> Self:
+    def zoom_bounds(self, bounds: Sequence[float], zoom_out: int = 1) -> Self:
         """
         Adapt the zoom to the given bounds. and center the image.
 
@@ -239,9 +239,9 @@ class SepalMap(ipl.Map):
     def add_raster(
         self,
         image: Union[str, Path],
-        bands: Union[None, list, int] = None,
+        bands: Optional[Union[list, int]] = None,
         layer_name: str = "Layer_" + su.random_string(),
-        colormap: str = "inferno",
+        colormap: Union[str, plt.Colormap] = "inferno",
         opacity: float = 1.0,
         client_host: str = "/api/sandbox/jupyter/proxy/{port}",
         fit_bounds: bool = True,
@@ -291,8 +291,8 @@ class SepalMap(ipl.Map):
 
         # set the colors as independant colors
         if isinstance(colormap, str):
-            colormap = plt.cm.get_cmap(name=colormap)
-        color_list = [mpc.rgb2hex(colormap(i)) for i in range(colormap.N)]
+            cmap = plt.get_cmap(name=colormap)
+        color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
 
         da = rioxarray.open_rasterio(image, masked=True)
         da = da.chunk((1000, 1000))
@@ -300,12 +300,12 @@ class SepalMap(ipl.Map):
         multi_band = False
         if len(da.band) > 1 and not isinstance(bands, int):
             multi_band = True
-            if not bands:
-                bands = [3, 2, 1]
+            bands = bands if bands else [3, 2, 1]
         elif len(da.band) == 1:
             bands = 1
 
         if multi_band:
+            cast(bands, list)
             style = {
                 "bands": [
                     {"band": bands[0], "palette": "#f00"},
@@ -365,7 +365,6 @@ class SepalMap(ipl.Map):
         index: list = [],
         categorical: bool = False,
         step: int = 0,
-        height: str = "45px",
         transparent_bg: bool = False,
         position: str = "bottomright",
         layer_name: str = "",
@@ -382,7 +381,6 @@ class SepalMap(ipl.Map):
             index: The values corresponding to each color. It has to be sorted, and have the same length as colors. If None, a regular grid between vmin and vmax is created. Defaults to None.
             categorical (bool, optional): Whether or not to create a categorical colormap. Defaults to False.
             step: The step to split the LinearColormap into a StepColormap. Defaults to None.
-            height: The height of the colormap widget. Defaults to "45px".
             position: The position for the colormap widget. Defaults to "bottomright".
             layer_name: Layer name of the colorbar to be associated with. Defaults to None.
             kwargs: any other argument of the colorbar object from matplotlib
@@ -397,17 +395,19 @@ class SepalMap(ipl.Map):
             hexcodes = [su.to_colors(c) for c in colors]
 
             if categorical:
-                cmap = mpc.ListedColormap(hexcodes)
-                vals = np.linspace(vmin, vmax, cmap.N + 1)
-                norm = mpc.BoundaryNorm(vals, cmap.N)
+                plot_color = mpc.ListedColormap(hexcodes)
+                vals = np.linspace(vmin, vmax, plot_color.N + 1)
+                norm = mpc.BoundaryNorm(vals, plot_color.N)
 
             else:
-                cmap = mpc.LinearSegmentedColormap.from_list("custom", hexcodes, N=256)
+                plot_color = mpc.LinearSegmentedColormap.from_list(
+                    "custom", hexcodes, N=256
+                )
                 norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         elif cmap is not None:
 
-            cmap = plt.get_cmap(cmap)
+            plot_color = plt.get_cmap(cmap)
             norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         else:
@@ -422,7 +422,7 @@ class SepalMap(ipl.Map):
                 ax,
                 norm=norm,
                 alpha=alpha,
-                cmap=cmap,
+                cmap=plot_color,
                 orientation="horizontal",
                 **kwargs,
             )
@@ -453,7 +453,7 @@ class SepalMap(ipl.Map):
         self,
         ee_object: ee.ComputedObject,
         vis_params: dict = {},
-        name: str = None,
+        name: str = "",
         shown: bool = True,
         opacity: float = 1.0,
         viz_name: str = "",
@@ -575,9 +575,7 @@ class SepalMap(ipl.Map):
                 vis_params["bands"] = ["red", "green", "blue"]
 
         # create the layer based on these new values
-        image = None
-
-        if name is None:
+        if not name:
             layer_count = len(self.layers)
             name = "Layer " + str(layer_count + 1)
 

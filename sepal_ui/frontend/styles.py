@@ -59,7 +59,7 @@ LIGHT_THEME: Dict[str, str] = {
 }
 "colors used for the light theme"
 
-TYPES: Tuple[str] = (
+TYPES: Tuple[str, ...] = (
     "info",
     "primary",
     "secondary",

@@ -77,7 +77,7 @@ setup_params = {
     "extras_require": {
         "dev": [
             "pre-commit",
-            "mypy",
+            "mypy @ git+ssh://git@github.com/python/mypy.git#egg=mypy",
         ],
         "test": [
             "coverage",

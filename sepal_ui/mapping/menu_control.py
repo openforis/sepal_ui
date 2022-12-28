@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from ipyleaflet import Map, WidgetControl
 from typing_extensions import Self
@@ -101,10 +101,10 @@ class MenuControl(WidgetControl):
 
     def set_size(
         self,
-        min_width: str = "400px",
-        max_width: str = "400px",
-        min_height: str = "40vh",
-        max_height: str = "40vh",
+        min_width: Optional[Union[str, int]] = "400px",
+        max_width: Optional[Union[str, int]] = "400px",
+        min_height: Optional[Union[str, int]] = "40vh",
+        max_height: Optional[Union[str, int]] = "40vh",
     ) -> Self:
         """
         Set the size of the card using all the sizing parameters from a v.Card

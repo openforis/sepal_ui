@@ -215,7 +215,7 @@ class AoiView(sw.Card):
     gee: bool = True
     "Either or not he aoi_view is connected to gee"
 
-    folder: Union[str, Path] = None
+    folder: Union[str, Path]
     "The folder name used in GEE related component, mainly used for debugging"
 
     model: AoiModel
@@ -225,7 +225,7 @@ class AoiView(sw.Card):
     # ###                            the embeded widgets                     ###
     # ##########################################################################
 
-    map_: sm.SepalMap
+    map_: Optional[sm.SepalMap]
     "The map to draw the AOI"
 
     aoi_dc: sm.DrawControl
@@ -271,10 +271,10 @@ class AoiView(sw.Card):
     def __init__(
         self,
         methods: Union[str, List[str]] = "ALL",
-        map_: sm.SepalMap = None,
+        map_: Optional[sm.SepalMap] = None,
         gee: bool = True,
         folder: Union[str, Path] = "",
-        model: Union[AoiModel, None] = None,
+        model: Optional[AoiModel] = None,
         **kwargs,
     ) -> None:
 

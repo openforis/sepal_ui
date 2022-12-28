@@ -64,6 +64,12 @@ class Alert(v.Alert, SepalWidget):
         kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
+    progress_bar: tqdm
+    "the progress bar of the alert"
+
+    progress_output: Output
+    "the output object where the progress bar is stored"
+
     def __init__(self, type_: str = "info", **kwargs) -> None:
 
         # set default parameters
@@ -76,7 +82,7 @@ class Alert(v.Alert, SepalWidget):
 
         self.hide()
         self.progress_output = Output()
-        self.progress_bar = None
+        # self.progress_bar = None
 
     def update_progress(
         self, progress: float, msg: str = "Progress", **tqdm_args
@@ -322,7 +328,7 @@ class Banner(v.Snackbar, SepalWidget):
        kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
     """
 
-    btn_close = None
+    btn_close: v.Btn
     "v.Btn: the closing btn of the banner"
 
     def __init__(
@@ -380,7 +386,7 @@ class Banner(v.Snackbar, SepalWidget):
         wpm = 180  # readable words per minute
         word_length = 5  # standardized number of chars in calculable word
         words = len(text) / word_length
-        words_time = ((words / wpm) * 60) * 1000
+        words_time = ((words // wpm) * 60) * 1000
 
         delay = 1500  # milliseconds before user starts reading the notification
         bonus = 1000  # extra time

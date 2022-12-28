@@ -89,7 +89,7 @@ def main() -> None:
         ["echo", "$VIRTUAL_ENV"], shell=True, stdout=subprocess.PIPE
     )
 
-    print(f"The current env is: {result.stdout}")
+    print(f"The current env is: {result.stdout!r}")
 
     return
 

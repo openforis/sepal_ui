@@ -44,10 +44,10 @@ class Model(HasTraits):
             data: the json ditionary of the model
         """
 
-        if type(data) == str:
-            data = json.loads(data)
+        # cast to a json dict
+        json_data = json.loads(data) if isinstance(data, str) else data
 
-        for k, val in data.items():
+        for k, val in json_data.items():
             getattr(self, k)  # to raise an error if the json is malformed
             setattr(self, k, val)
 

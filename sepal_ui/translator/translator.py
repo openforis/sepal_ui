@@ -88,7 +88,7 @@ class Translator(Box):
 
     @versionadded(version="2.7.0")
     @staticmethod
-    def find_target(folder: Path, target: str = "") -> Tuple[bool, str]:
+    def find_target(folder: Path, target: str = "") -> Tuple[str, str]:
         """
         find the target language in the available language folder
 
@@ -100,11 +100,11 @@ class Translator(Box):
             target: the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
 
         Returns:
-            a bool to tell if the exact requested lan were available and the closest lang in IETF BCP 47
+            the targeted language code, the closest lang in IETF BCP 47
         """
 
         # init lang
-        lang = None
+        lang = ""
 
         # if target is not set try to find one in the config file
         # exit with none if the config file is not yet existing
@@ -114,7 +114,7 @@ class Translator(Box):
                 config.read(config_file)
                 target = config.get("sepal-ui", "locale", fallback="en")
             else:
-                return ("en", None)
+                return ("", "en")
 
         # first scenario the target is available
         if (folder / target).is_dir():
@@ -150,7 +150,7 @@ class Translator(Box):
                 return self.search_key(v, key)
 
     @classmethod
-    def sanitize(cls, d: dict) -> dict:
+    def sanitize(cls, d: Union[dict, list]) -> dict:
         """
         Identify numbered dictionnaries embeded in the dict and transform them into lists
 
@@ -249,8 +249,7 @@ class Translator(Box):
     @classmethod
     def delete_empty(cls, d: dict) -> dict:
         """
-        Remove empty strings ("") recursively from the dictionaries. This is to prevent untranslated strings from
-        Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
+        Remove empty strings ("") recursively from the dictionaries. This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
 
         Args:
             d: the dictionnary to sanitize

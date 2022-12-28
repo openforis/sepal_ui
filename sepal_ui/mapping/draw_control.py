@@ -1,13 +1,13 @@
 from copy import deepcopy
 
 import geopandas as gpd
-from ipyleaflet import DrawControl, Map
+import ipyleaflet as ipl
 from shapely import geometry as sg
 
 from sepal_ui import color
 
 
-class DrawControl(DrawControl):
+class DrawControl(ipl.DrawControl):
     """
     A custom DrawingControl object to handle edition of features
 
@@ -16,10 +16,10 @@ class DrawControl(DrawControl):
         kwargs: any available arguments from a ipyleaflet.DrawingControl
     """
 
-    m: Map
+    m: ipl.Map
     "the map on which he drawControl is displayed. It will help control the visibility"
 
-    def __init__(self, m: Map, **kwargs) -> None:
+    def __init__(self, m: ipl.Map, **kwargs) -> None:
 
         # set some default parameters
         options = {"shapeOptions": {"color": color.info}}
