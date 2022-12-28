@@ -141,6 +141,7 @@ setup_params = {
             "module_venv = sepal_ui.bin.module_venv:main",
             "activate_venv = sepal_ui.bin.activate_venv:main",
             "ee_token = sepal_ui.bin.ee_token:main",
+            "sepal_ipyvuetify = sepal_ui.bin.ipyvuetify:main",
         ]
     },
     "classifiers": [
