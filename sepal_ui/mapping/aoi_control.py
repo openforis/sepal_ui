@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Union
 
 import ee
 import ipyvuetify as v
@@ -21,7 +21,7 @@ class AoiControl(MenuControl):
     m: Map
     "the map on which he AoiControl is displayed to interact with itszoom and center"
 
-    aoi_list: List[v.ListItem]
+    aoi_list: sw.ListItemGroup
     "the list of ListItem used in the menu. each one as the name provided by the user and the value of the bounds"
 
     aoi_bounds: dict

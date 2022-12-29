@@ -241,7 +241,7 @@ class SepalMap(ipl.Map):
         image: Union[str, Path],
         bands: Optional[Union[list, int]] = None,
         layer_name: str = "Layer_" + su.random_string(),
-        colormap: Union[str, plt.Colormap] = "inferno",
+        colormap: Union[str, mpc.Colormap] = "inferno",
         opacity: float = 1.0,
         client_host: str = "/api/sandbox/jupyter/proxy/{port}",
         fit_bounds: bool = True,
@@ -305,7 +305,7 @@ class SepalMap(ipl.Map):
             bands = 1
 
         if multi_band:
-            cast(bands, list)
+            cast(list, bands)
             style = {
                 "bands": [
                     {"band": bands[0], "palette": "#f00"},

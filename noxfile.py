@@ -7,7 +7,7 @@ def lint(session):
     session.run("pre-commit", "run", "--a", *session.posargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
+@nox.session(python=["3.7", "3.8", "3.9", "3.10"])  # , reuse_venv=True)
 def test(session):
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
@@ -56,5 +56,6 @@ def mypy(session):
         "--non-interactive",
         "--disable-error-code",
         "func-returns-value",
+        "--warn-redundant-casts",
         *test_files,
     )

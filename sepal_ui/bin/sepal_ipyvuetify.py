@@ -31,13 +31,13 @@ def imports() -> str:
 
     return (
         "import ipyvuetify as v\n"
-        "from sepal_ui.sepalwidgets.sepalwidget import Sepalwidget\n"
+        "from sepal_ui.sepalwidgets.sepalwidget import SepalWidget\n"
         "\n"
     )
 
 
 def klass(klass: str) -> str:
-    return f"class {klass}(v.{klass}, Sepalwidget):\n" "    pass\n" "\n"
+    return f"class {klass}(v.{klass}, SepalWidget):\n" "    pass\n" "\n"
 
 
 def is_widget(klass: str) -> bool:

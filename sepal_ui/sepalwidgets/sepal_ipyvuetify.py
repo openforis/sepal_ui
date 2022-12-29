@@ -2,649 +2,649 @@
 This file overwrite all the widgets generating by ipyvuetify to add the SepalWidget class as a parent.
 It should not be modified from here as it's automatically generated.
 
-last update: 2022-12-28
+last update: 2022-12-29
 """
 
 import ipyvuetify as v
 
-from sepal_ui.sepalwidgets.sepalwidget import Sepalwidget
+from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
 
-class Html(v.Html, Sepalwidget):
+class Html(v.Html, SepalWidget):
     pass
 
 
-class Alert(v.Alert, Sepalwidget):
+class Alert(v.Alert, SepalWidget):
     pass
 
 
-class App(v.App, Sepalwidget):
+class App(v.App, SepalWidget):
     pass
 
 
-class AppBar(v.AppBar, Sepalwidget):
+class AppBar(v.AppBar, SepalWidget):
     pass
 
 
-class AppBarNavIcon(v.AppBarNavIcon, Sepalwidget):
+class AppBarNavIcon(v.AppBarNavIcon, SepalWidget):
     pass
 
 
-class Autocomplete(v.Autocomplete, Sepalwidget):
+class Autocomplete(v.Autocomplete, SepalWidget):
     pass
 
 
-class Avatar(v.Avatar, Sepalwidget):
+class Avatar(v.Avatar, SepalWidget):
     pass
 
 
-class Badge(v.Badge, Sepalwidget):
+class Badge(v.Badge, SepalWidget):
     pass
 
 
-class Banner(v.Banner, Sepalwidget):
+class Banner(v.Banner, SepalWidget):
     pass
 
 
-class BottomNavigation(v.BottomNavigation, Sepalwidget):
+class BottomNavigation(v.BottomNavigation, SepalWidget):
     pass
 
 
-class BottomSheet(v.BottomSheet, Sepalwidget):
+class BottomSheet(v.BottomSheet, SepalWidget):
     pass
 
 
-class Breadcrumbs(v.Breadcrumbs, Sepalwidget):
+class Breadcrumbs(v.Breadcrumbs, SepalWidget):
     pass
 
 
-class BreadcrumbsDivider(v.BreadcrumbsDivider, Sepalwidget):
+class BreadcrumbsDivider(v.BreadcrumbsDivider, SepalWidget):
     pass
 
 
-class BreadcrumbsItem(v.BreadcrumbsItem, Sepalwidget):
+class BreadcrumbsItem(v.BreadcrumbsItem, SepalWidget):
     pass
 
 
-class Btn(v.Btn, Sepalwidget):
+class Btn(v.Btn, SepalWidget):
     pass
 
 
-class BtnToggle(v.BtnToggle, Sepalwidget):
+class BtnToggle(v.BtnToggle, SepalWidget):
     pass
 
 
-class Calendar(v.Calendar, Sepalwidget):
+class Calendar(v.Calendar, SepalWidget):
     pass
 
 
-class CalendarDaily(v.CalendarDaily, Sepalwidget):
+class CalendarDaily(v.CalendarDaily, SepalWidget):
     pass
 
 
-class CalendarMonthly(v.CalendarMonthly, Sepalwidget):
+class CalendarMonthly(v.CalendarMonthly, SepalWidget):
     pass
 
 
-class CalendarWeekly(v.CalendarWeekly, Sepalwidget):
+class CalendarWeekly(v.CalendarWeekly, SepalWidget):
     pass
 
 
-class Card(v.Card, Sepalwidget):
+class Card(v.Card, SepalWidget):
     pass
 
 
-class CardActions(v.CardActions, Sepalwidget):
+class CardActions(v.CardActions, SepalWidget):
     pass
 
 
-class CardSubtitle(v.CardSubtitle, Sepalwidget):
+class CardSubtitle(v.CardSubtitle, SepalWidget):
     pass
 
 
-class CardText(v.CardText, Sepalwidget):
+class CardText(v.CardText, SepalWidget):
     pass
 
 
-class CardTitle(v.CardTitle, Sepalwidget):
+class CardTitle(v.CardTitle, SepalWidget):
     pass
 
 
-class Carousel(v.Carousel, Sepalwidget):
+class Carousel(v.Carousel, SepalWidget):
     pass
 
 
-class CarouselItem(v.CarouselItem, Sepalwidget):
+class CarouselItem(v.CarouselItem, SepalWidget):
     pass
 
 
-class CarouselReverseTransition(v.CarouselReverseTransition, Sepalwidget):
+class CarouselReverseTransition(v.CarouselReverseTransition, SepalWidget):
     pass
 
 
-class CarouselTransition(v.CarouselTransition, Sepalwidget):
+class CarouselTransition(v.CarouselTransition, SepalWidget):
     pass
 
 
-class Checkbox(v.Checkbox, Sepalwidget):
+class Checkbox(v.Checkbox, SepalWidget):
     pass
 
 
-class Chip(v.Chip, Sepalwidget):
+class Chip(v.Chip, SepalWidget):
     pass
 
 
-class ChipGroup(v.ChipGroup, Sepalwidget):
+class ChipGroup(v.ChipGroup, SepalWidget):
     pass
 
 
-class Col(v.Col, Sepalwidget):
+class Col(v.Col, SepalWidget):
     pass
 
 
-class ColorPicker(v.ColorPicker, Sepalwidget):
+class ColorPicker(v.ColorPicker, SepalWidget):
     pass
 
 
-class ColorPickerCanvas(v.ColorPickerCanvas, Sepalwidget):
+class ColorPickerCanvas(v.ColorPickerCanvas, SepalWidget):
     pass
 
 
-class ColorPickerSwatches(v.ColorPickerSwatches, Sepalwidget):
+class ColorPickerSwatches(v.ColorPickerSwatches, SepalWidget):
     pass
 
 
-class Combobox(v.Combobox, Sepalwidget):
+class Combobox(v.Combobox, SepalWidget):
     pass
 
 
-class Container(v.Container, Sepalwidget):
+class Container(v.Container, SepalWidget):
     pass
 
 
-class Content(v.Content, Sepalwidget):
+class Content(v.Content, SepalWidget):
     pass
 
 
-class Counter(v.Counter, Sepalwidget):
+class Counter(v.Counter, SepalWidget):
     pass
 
 
-class Data(v.Data, Sepalwidget):
+class Data(v.Data, SepalWidget):
     pass
 
 
-class DataFooter(v.DataFooter, Sepalwidget):
+class DataFooter(v.DataFooter, SepalWidget):
     pass
 
 
-class DataIterator(v.DataIterator, Sepalwidget):
+class DataIterator(v.DataIterator, SepalWidget):
     pass
 
 
-class DataTable(v.DataTable, Sepalwidget):
+class DataTable(v.DataTable, SepalWidget):
     pass
 
 
-class DataTableHeader(v.DataTableHeader, Sepalwidget):
+class DataTableHeader(v.DataTableHeader, SepalWidget):
     pass
 
 
-class DatePicker(v.DatePicker, Sepalwidget):
+class DatePicker(v.DatePicker, SepalWidget):
     pass
 
 
-class DatePickerDateTable(v.DatePickerDateTable, Sepalwidget):
+class DatePickerDateTable(v.DatePickerDateTable, SepalWidget):
     pass
 
 
-class DatePickerHeader(v.DatePickerHeader, Sepalwidget):
+class DatePickerHeader(v.DatePickerHeader, SepalWidget):
     pass
 
 
-class DatePickerMonthTable(v.DatePickerMonthTable, Sepalwidget):
+class DatePickerMonthTable(v.DatePickerMonthTable, SepalWidget):
     pass
 
 
-class DatePickerTitle(v.DatePickerTitle, Sepalwidget):
+class DatePickerTitle(v.DatePickerTitle, SepalWidget):
     pass
 
 
-class DatePickerYears(v.DatePickerYears, Sepalwidget):
+class DatePickerYears(v.DatePickerYears, SepalWidget):
     pass
 
 
-class Dialog(v.Dialog, Sepalwidget):
+class Dialog(v.Dialog, SepalWidget):
     pass
 
 
-class DialogBottomTransition(v.DialogBottomTransition, Sepalwidget):
+class DialogBottomTransition(v.DialogBottomTransition, SepalWidget):
     pass
 
 
-class DialogTransition(v.DialogTransition, Sepalwidget):
+class DialogTransition(v.DialogTransition, SepalWidget):
     pass
 
 
-class Divider(v.Divider, Sepalwidget):
+class Divider(v.Divider, SepalWidget):
     pass
 
 
-class EditDialog(v.EditDialog, Sepalwidget):
+class EditDialog(v.EditDialog, SepalWidget):
     pass
 
 
-class ExpandTransition(v.ExpandTransition, Sepalwidget):
+class ExpandTransition(v.ExpandTransition, SepalWidget):
     pass
 
 
-class ExpandXTransition(v.ExpandXTransition, Sepalwidget):
+class ExpandXTransition(v.ExpandXTransition, SepalWidget):
     pass
 
 
-class ExpansionPanel(v.ExpansionPanel, Sepalwidget):
+class ExpansionPanel(v.ExpansionPanel, SepalWidget):
     pass
 
 
-class ExpansionPanelContent(v.ExpansionPanelContent, Sepalwidget):
+class ExpansionPanelContent(v.ExpansionPanelContent, SepalWidget):
     pass
 
 
-class ExpansionPanelHeader(v.ExpansionPanelHeader, Sepalwidget):
+class ExpansionPanelHeader(v.ExpansionPanelHeader, SepalWidget):
     pass
 
 
-class ExpansionPanels(v.ExpansionPanels, Sepalwidget):
+class ExpansionPanels(v.ExpansionPanels, SepalWidget):
     pass
 
 
-class FabTransition(v.FabTransition, Sepalwidget):
+class FabTransition(v.FabTransition, SepalWidget):
     pass
 
 
-class FadeTransition(v.FadeTransition, Sepalwidget):
+class FadeTransition(v.FadeTransition, SepalWidget):
     pass
 
 
-class FileInput(v.FileInput, Sepalwidget):
+class FileInput(v.FileInput, SepalWidget):
     pass
 
 
-class Flex(v.Flex, Sepalwidget):
+class Flex(v.Flex, SepalWidget):
     pass
 
 
-class Footer(v.Footer, Sepalwidget):
+class Footer(v.Footer, SepalWidget):
     pass
 
 
-class Form(v.Form, Sepalwidget):
+class Form(v.Form, SepalWidget):
     pass
 
 
-class Hover(v.Hover, Sepalwidget):
+class Hover(v.Hover, SepalWidget):
     pass
 
 
-class Icon(v.Icon, Sepalwidget):
+class Icon(v.Icon, SepalWidget):
     pass
 
 
-class Img(v.Img, Sepalwidget):
+class Img(v.Img, SepalWidget):
     pass
 
 
-class Input(v.Input, Sepalwidget):
+class Input(v.Input, SepalWidget):
     pass
 
 
-class Item(v.Item, Sepalwidget):
+class Item(v.Item, SepalWidget):
     pass
 
 
-class ItemGroup(v.ItemGroup, Sepalwidget):
+class ItemGroup(v.ItemGroup, SepalWidget):
     pass
 
 
-class Label(v.Label, Sepalwidget):
+class Label(v.Label, SepalWidget):
     pass
 
 
-class Layout(v.Layout, Sepalwidget):
+class Layout(v.Layout, SepalWidget):
     pass
 
 
-class Lazy(v.Lazy, Sepalwidget):
+class Lazy(v.Lazy, SepalWidget):
     pass
 
 
-class List(v.List, Sepalwidget):
+class List(v.List, SepalWidget):
     pass
 
 
-class ListGroup(v.ListGroup, Sepalwidget):
+class ListGroup(v.ListGroup, SepalWidget):
     pass
 
 
-class ListItem(v.ListItem, Sepalwidget):
+class ListItem(v.ListItem, SepalWidget):
     pass
 
 
-class ListItemAction(v.ListItemAction, Sepalwidget):
+class ListItemAction(v.ListItemAction, SepalWidget):
     pass
 
 
-class ListItemActionText(v.ListItemActionText, Sepalwidget):
+class ListItemActionText(v.ListItemActionText, SepalWidget):
     pass
 
 
-class ListItemAvatar(v.ListItemAvatar, Sepalwidget):
+class ListItemAvatar(v.ListItemAvatar, SepalWidget):
     pass
 
 
-class ListItemContent(v.ListItemContent, Sepalwidget):
+class ListItemContent(v.ListItemContent, SepalWidget):
     pass
 
 
-class ListItemGroup(v.ListItemGroup, Sepalwidget):
+class ListItemGroup(v.ListItemGroup, SepalWidget):
     pass
 
 
-class ListItemIcon(v.ListItemIcon, Sepalwidget):
+class ListItemIcon(v.ListItemIcon, SepalWidget):
     pass
 
 
-class ListItemSubtitle(v.ListItemSubtitle, Sepalwidget):
+class ListItemSubtitle(v.ListItemSubtitle, SepalWidget):
     pass
 
 
-class ListItemTitle(v.ListItemTitle, Sepalwidget):
+class ListItemTitle(v.ListItemTitle, SepalWidget):
     pass
 
 
-class Menu(v.Menu, Sepalwidget):
+class Menu(v.Menu, SepalWidget):
     pass
 
 
-class MenuTransition(v.MenuTransition, Sepalwidget):
+class MenuTransition(v.MenuTransition, SepalWidget):
     pass
 
 
-class Messages(v.Messages, Sepalwidget):
+class Messages(v.Messages, SepalWidget):
     pass
 
 
-class NavigationDrawer(v.NavigationDrawer, Sepalwidget):
+class NavigationDrawer(v.NavigationDrawer, SepalWidget):
     pass
 
 
-class OverflowBtn(v.OverflowBtn, Sepalwidget):
+class OverflowBtn(v.OverflowBtn, SepalWidget):
     pass
 
 
-class Overlay(v.Overlay, Sepalwidget):
+class Overlay(v.Overlay, SepalWidget):
     pass
 
 
-class Pagination(v.Pagination, Sepalwidget):
+class Pagination(v.Pagination, SepalWidget):
     pass
 
 
-class Parallax(v.Parallax, Sepalwidget):
+class Parallax(v.Parallax, SepalWidget):
     pass
 
 
-class Picker(v.Picker, Sepalwidget):
+class Picker(v.Picker, SepalWidget):
     pass
 
 
-class ProgressCircular(v.ProgressCircular, Sepalwidget):
+class ProgressCircular(v.ProgressCircular, SepalWidget):
     pass
 
 
-class ProgressLinear(v.ProgressLinear, Sepalwidget):
+class ProgressLinear(v.ProgressLinear, SepalWidget):
     pass
 
 
-class Radio(v.Radio, Sepalwidget):
+class Radio(v.Radio, SepalWidget):
     pass
 
 
-class RadioGroup(v.RadioGroup, Sepalwidget):
+class RadioGroup(v.RadioGroup, SepalWidget):
     pass
 
 
-class RangeSlider(v.RangeSlider, Sepalwidget):
+class RangeSlider(v.RangeSlider, SepalWidget):
     pass
 
 
-class Rating(v.Rating, Sepalwidget):
+class Rating(v.Rating, SepalWidget):
     pass
 
 
-class Responsive(v.Responsive, Sepalwidget):
+class Responsive(v.Responsive, SepalWidget):
     pass
 
 
-class Row(v.Row, Sepalwidget):
+class Row(v.Row, SepalWidget):
     pass
 
 
-class ScaleTransition(v.ScaleTransition, Sepalwidget):
+class ScaleTransition(v.ScaleTransition, SepalWidget):
     pass
 
 
-class ScrollXReverseTransition(v.ScrollXReverseTransition, Sepalwidget):
+class ScrollXReverseTransition(v.ScrollXReverseTransition, SepalWidget):
     pass
 
 
-class ScrollXTransition(v.ScrollXTransition, Sepalwidget):
+class ScrollXTransition(v.ScrollXTransition, SepalWidget):
     pass
 
 
-class ScrollYReverseTransition(v.ScrollYReverseTransition, Sepalwidget):
+class ScrollYReverseTransition(v.ScrollYReverseTransition, SepalWidget):
     pass
 
 
-class ScrollYTransition(v.ScrollYTransition, Sepalwidget):
+class ScrollYTransition(v.ScrollYTransition, SepalWidget):
     pass
 
 
-class Select(v.Select, Sepalwidget):
+class Select(v.Select, SepalWidget):
     pass
 
 
-class Sheet(v.Sheet, Sepalwidget):
+class Sheet(v.Sheet, SepalWidget):
     pass
 
 
-class SimpleCheckbox(v.SimpleCheckbox, Sepalwidget):
+class SimpleCheckbox(v.SimpleCheckbox, SepalWidget):
     pass
 
 
-class SimpleTable(v.SimpleTable, Sepalwidget):
+class SimpleTable(v.SimpleTable, SepalWidget):
     pass
 
 
-class SkeletonLoader(v.SkeletonLoader, Sepalwidget):
+class SkeletonLoader(v.SkeletonLoader, SepalWidget):
     pass
 
 
-class SlideGroup(v.SlideGroup, Sepalwidget):
+class SlideGroup(v.SlideGroup, SepalWidget):
     pass
 
 
-class SlideItem(v.SlideItem, Sepalwidget):
+class SlideItem(v.SlideItem, SepalWidget):
     pass
 
 
-class SlideXReverseTransition(v.SlideXReverseTransition, Sepalwidget):
+class SlideXReverseTransition(v.SlideXReverseTransition, SepalWidget):
     pass
 
 
-class SlideXTransition(v.SlideXTransition, Sepalwidget):
+class SlideXTransition(v.SlideXTransition, SepalWidget):
     pass
 
 
-class SlideYReverseTransition(v.SlideYReverseTransition, Sepalwidget):
+class SlideYReverseTransition(v.SlideYReverseTransition, SepalWidget):
     pass
 
 
-class SlideYTransition(v.SlideYTransition, Sepalwidget):
+class SlideYTransition(v.SlideYTransition, SepalWidget):
     pass
 
 
-class Slider(v.Slider, Sepalwidget):
+class Slider(v.Slider, SepalWidget):
     pass
 
 
-class Snackbar(v.Snackbar, Sepalwidget):
+class Snackbar(v.Snackbar, SepalWidget):
     pass
 
 
-class Spacer(v.Spacer, Sepalwidget):
+class Spacer(v.Spacer, SepalWidget):
     pass
 
 
-class Sparkline(v.Sparkline, Sepalwidget):
+class Sparkline(v.Sparkline, SepalWidget):
     pass
 
 
-class SpeedDial(v.SpeedDial, Sepalwidget):
+class SpeedDial(v.SpeedDial, SepalWidget):
     pass
 
 
-class Stepper(v.Stepper, Sepalwidget):
+class Stepper(v.Stepper, SepalWidget):
     pass
 
 
-class StepperContent(v.StepperContent, Sepalwidget):
+class StepperContent(v.StepperContent, SepalWidget):
     pass
 
 
-class StepperHeader(v.StepperHeader, Sepalwidget):
+class StepperHeader(v.StepperHeader, SepalWidget):
     pass
 
 
-class StepperItems(v.StepperItems, Sepalwidget):
+class StepperItems(v.StepperItems, SepalWidget):
     pass
 
 
-class StepperStep(v.StepperStep, Sepalwidget):
+class StepperStep(v.StepperStep, SepalWidget):
     pass
 
 
-class Subheader(v.Subheader, Sepalwidget):
+class Subheader(v.Subheader, SepalWidget):
     pass
 
 
-class Switch(v.Switch, Sepalwidget):
+class Switch(v.Switch, SepalWidget):
     pass
 
 
-class SystemBar(v.SystemBar, Sepalwidget):
+class SystemBar(v.SystemBar, SepalWidget):
     pass
 
 
-class Tab(v.Tab, Sepalwidget):
+class Tab(v.Tab, SepalWidget):
     pass
 
 
-class TabItem(v.TabItem, Sepalwidget):
+class TabItem(v.TabItem, SepalWidget):
     pass
 
 
-class TabReverseTransition(v.TabReverseTransition, Sepalwidget):
+class TabReverseTransition(v.TabReverseTransition, SepalWidget):
     pass
 
 
-class TabTransition(v.TabTransition, Sepalwidget):
+class TabTransition(v.TabTransition, SepalWidget):
     pass
 
 
-class TableOverflow(v.TableOverflow, Sepalwidget):
+class TableOverflow(v.TableOverflow, SepalWidget):
     pass
 
 
-class Tabs(v.Tabs, Sepalwidget):
+class Tabs(v.Tabs, SepalWidget):
     pass
 
 
-class TabsItems(v.TabsItems, Sepalwidget):
+class TabsItems(v.TabsItems, SepalWidget):
     pass
 
 
-class TabsSlider(v.TabsSlider, Sepalwidget):
+class TabsSlider(v.TabsSlider, SepalWidget):
     pass
 
 
-class Text(v.Text, Sepalwidget):
+class Text(v.Text, SepalWidget):
     pass
 
 
-class TextField(v.TextField, Sepalwidget):
+class TextField(v.TextField, SepalWidget):
     pass
 
 
-class Textarea(v.Textarea, Sepalwidget):
+class Textarea(v.Textarea, SepalWidget):
     pass
 
 
-class ThemeProvider(v.ThemeProvider, Sepalwidget):
+class ThemeProvider(v.ThemeProvider, SepalWidget):
     pass
 
 
-class TimePicker(v.TimePicker, Sepalwidget):
+class TimePicker(v.TimePicker, SepalWidget):
     pass
 
 
-class TimePickerClock(v.TimePickerClock, Sepalwidget):
+class TimePickerClock(v.TimePickerClock, SepalWidget):
     pass
 
 
-class TimePickerTitle(v.TimePickerTitle, Sepalwidget):
+class TimePickerTitle(v.TimePickerTitle, SepalWidget):
     pass
 
 
-class Timeline(v.Timeline, Sepalwidget):
+class Timeline(v.Timeline, SepalWidget):
     pass
 
 
-class TimelineItem(v.TimelineItem, Sepalwidget):
+class TimelineItem(v.TimelineItem, SepalWidget):
     pass
 
 
-class Toolbar(v.Toolbar, Sepalwidget):
+class Toolbar(v.Toolbar, SepalWidget):
     pass
 
 
-class ToolbarItems(v.ToolbarItems, Sepalwidget):
+class ToolbarItems(v.ToolbarItems, SepalWidget):
     pass
 
 
-class ToolbarTitle(v.ToolbarTitle, Sepalwidget):
+class ToolbarTitle(v.ToolbarTitle, SepalWidget):
     pass
 
 
-class Tooltip(v.Tooltip, Sepalwidget):
+class Tooltip(v.Tooltip, SepalWidget):
     pass
 
 
-class Treeview(v.Treeview, Sepalwidget):
+class Treeview(v.Treeview, SepalWidget):
     pass
 
 
-class TreeviewNode(v.TreeviewNode, Sepalwidget):
+class TreeviewNode(v.TreeviewNode, SepalWidget):
     pass
 
 
-class VirtualTable(v.VirtualTable, Sepalwidget):
+class VirtualTable(v.VirtualTable, SepalWidget):
     pass
 
 
-class Window(v.Window, Sepalwidget):
+class Window(v.Window, SepalWidget):
     pass
 
 
-class WindowItem(v.WindowItem, Sepalwidget):
+class WindowItem(v.WindowItem, SepalWidget):
     pass

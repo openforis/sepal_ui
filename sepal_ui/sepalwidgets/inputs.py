@@ -153,7 +153,7 @@ class DatePicker(v.Layout, SepalWidget):
         """
 
         try:
-            date = datetime.strptime(date, "%Y-%m-%d")
+            datetime.strptime(date, "%Y-%m-%d")
             valid = True
 
         except Exception:
@@ -218,11 +218,8 @@ class FileInput(v.Flex, SepalWidget):
         **kwargs,
     ) -> None:
 
-        if type(folder) == str:
-            folder = Path(folder)
-
         self.extentions = extentions
-        self.folder = folder
+        self.folder = Path(folder)
 
         self.selected_file = v.TextField(
             readonly=True,

@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Sequence, Union
 
 import ee
 import geopandas as gpd
@@ -145,7 +145,7 @@ class ValueInspector(MenuControl):
         return
 
     @sd.need_ee
-    def _from_eelayer(self, ee_obj: ee.ComputedObject, coords: Tuple[float]) -> dict:
+    def _from_eelayer(self, ee_obj: ee.ComputedObject, coords: Sequence[float]) -> dict:
         """
         extract the values of the ee_object for the considered point
 
@@ -190,7 +190,7 @@ class ValueInspector(MenuControl):
 
         return pixel_values
 
-    def _from_geojson(self, data: dict, coords: Tuple[float]) -> dict:
+    def _from_geojson(self, data: dict, coords: Sequence[float]) -> dict:
         """
         extract the values of the data for the considered point
 
@@ -219,7 +219,7 @@ class ValueInspector(MenuControl):
         else:
             return gdf_filtered.iloc[0, ~gdf.columns.isin(skip_cols)].to_dict()
 
-    def _from_raster(self, raster: Union[str, Path], coords: Tuple[float]) -> dict:
+    def _from_raster(self, raster: Union[str, Path], coords: Sequence[float]) -> dict:
         """
         extract the values of the data-array for the considered point
 

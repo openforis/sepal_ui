@@ -132,13 +132,13 @@ class AoiModel(Model):
     folder: Union[str, Path] = ""
     "The folder name used in GEE related component, mainly used for debugging"
 
-    default_vector: Union[str, Path] = ""
+    default_vector: Optional[Union[str, Path]] = None
     "The default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR"
 
-    default_admin: str = ""
+    default_admin: Optional[str] = None
     "The default administrative area in GADM or GAUL norm"
 
-    default_asset: str = ""
+    default_asset: Optional[str] = None
     "The default asset name, need to point to a readable FeatureCollection"
 
     # ###########################################################################
@@ -169,8 +169,8 @@ class AoiModel(Model):
         alert: Optional[sw.Alert] = None,
         gee: bool = True,
         vector: Optional[Union[str, Path]] = None,
-        admin: Optional[Union[str, Path]] = None,
-        asset: Optional[str] = None,
+        asset: Optional[Union[str, Path]] = None,
+        admin: Optional[str] = None,
         folder: Union[str, Path] = "",
     ) -> None:
 

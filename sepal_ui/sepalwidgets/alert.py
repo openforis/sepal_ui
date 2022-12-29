@@ -368,7 +368,7 @@ class Banner(v.Snackbar, SepalWidget):
     def close(self, *args) -> None:
         """Close button event to close snackbar alert"""
 
-        self.v_model = False
+        self.v_model = False  # mypy: ignore-errors
 
         return
 
@@ -386,12 +386,12 @@ class Banner(v.Snackbar, SepalWidget):
         wpm = 180  # readable words per minute
         word_length = 5  # standardized number of chars in calculable word
         words = len(text) / word_length
-        words_time = ((words // wpm) * 60) * 1000
+        words_time = ((words / wpm) * 60) * 1000
 
         delay = 1500  # milliseconds before user starts reading the notification
         bonus = 1000  # extra time
 
-        return delay + words_time + bonus
+        return int(delay + words_time + bonus)
 
     def set_btn(self, nb_banner: int) -> None:
         """
