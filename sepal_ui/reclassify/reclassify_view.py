@@ -16,19 +16,17 @@ __all__ = ["ReclassifyView"]
 
 
 class ImportMatrixDialog(v.Dialog):
-    """
-    Dialog to select the file to use and fill the matrix
-
-    Args:
-        folder (pathlike object): the path to the saved classifications
-
-    Attributes:
-        file (str): the file to use
-    """
 
     file = Unicode("").tag(sync=True)
+    "the file to use"
 
     def __init__(self, folder, **kwargs):
+        """
+        Dialog to select the file to use and fill the matrix
+
+        Args:
+            folder (pathlike object): the path to the saved classifications
+        """
 
         # create the 3 widgets
         title = v.CardTitle(children=["Load reclassification matrix"])

@@ -88,10 +88,6 @@ def get_theme() -> str:
 
 
 class SepalColor(HasTraits, SimpleNamespace):
-    """
-    Custom simple name space to store and access to the sepal_ui colors and
-    with a magic method to display theme.
-    """
 
     _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
     "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
@@ -101,6 +97,13 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     @observe("_dark_theme")
     def __init__(self, *_, **new_colors) -> None:
+
+        """
+        Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
+
+        Args:
+            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
+        """
 
         # set vuetify theme
         v.theme.dark = self._dark_theme

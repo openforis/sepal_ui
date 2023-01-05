@@ -38,15 +38,6 @@ __all__ = [
     reason="Empty v_model will be treated as empty string: :code:`v_model=''`.",
 )
 class DatePicker(v.Layout, SepalWidget):
-    """
-    Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
-
-    Args:
-        label: the label of the datepicker field
-        layout_kwargs: any parameter for the wrapper v.Layout
-        kwargs: any parameter from a v.DatePicker object.
-
-    """
 
     menu: Optional[v.Menu] = None
     "the menu widget to display the datepicker"
@@ -58,6 +49,14 @@ class DatePicker(v.Layout, SepalWidget):
     "the disabled status of the Datepicker object"
 
     def __init__(self, label: str = "Date", layout_kwargs: dict = {}, **kwargs) -> None:
+        """
+        Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
+
+        Args:
+            label: the label of the datepicker field
+            layout_kwargs: any parameter for the wrapper v.Layout
+            kwargs: any parameter from a v.DatePicker object.
+        """
 
         kwargs["v_model"] = kwargs.get("v_model", "")
 
@@ -163,17 +162,6 @@ class DatePicker(v.Layout, SepalWidget):
 
 
 class FileInput(v.Flex, SepalWidget):
-    """
-    Custom input field to select a file in the sepal folders.
-
-    Args:
-        extentions: the list of the allowed extentions. the FileInput will only display these extention and folders
-        folder: the starting folder of the file input
-        label: the label of the input
-        v_model: the default value
-        clearable: wether or not to make the widget clearable. default to False
-        kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
-    """
 
     extentions: List[str] = []
     "list: the extention list"
@@ -217,6 +205,17 @@ class FileInput(v.Flex, SepalWidget):
         clearable: bool = False,
         **kwargs,
     ) -> None:
+        """
+        Custom input field to select a file in the sepal folders.
+
+        Args:
+            extentions: the list of the allowed extentions. the FileInput will only display these extention and folders
+            folder: the starting folder of the file input
+            label: the label of the input
+            v_model: the default value
+            clearable: wether or not to make the widget clearable. default to False
+            kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
+        """
 
         self.extentions = extentions
         self.folder = Path(folder)
@@ -476,15 +475,6 @@ class FileInput(v.Flex, SepalWidget):
 
 
 class LoadTableField(v.Col, SepalWidget):
-    """
-    A custom input widget to load points data. The user will provide a csv or txt file containing labeled dataset.
-    The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
-    {pathname, id_column, lat_column,lng_column}
-
-    Args:
-        label (str, optional): the label of the widget
-        kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
-    """
 
     fileInput: Optional[FileInput] = None
     "The file input to select the .csv or .txt file"
@@ -507,6 +497,15 @@ class LoadTableField(v.Col, SepalWidget):
     "The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
     def __init__(self, label: str = ms.widgets.table.label, **kwargs) -> None:
+        """
+        A custom input widget to load points data. The user will provide a csv or txt file containing labeled dataset.
+        The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
+        {pathname, id_column, lat_column,lng_column}
+
+        Args:
+            label (str, optional): the label of the widget
+            kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
+        """
 
         self.fileInput = FileInput([".csv", ".txt"], label=label)
 
@@ -647,16 +646,6 @@ class LoadTableField(v.Col, SepalWidget):
 
 
 class AssetSelect(v.Combobox, SepalWidget):
-    """
-    Custom widget input to select an asset inside the asset folder of the user
-
-    Args:
-        label: the label of the input
-        folder: the folder of the user assets
-        default_asset: the id of a default asset or a list of defaults
-        types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
-        kwargs (optional): any parameter from a v.ComboBox.
-    """
 
     TYPES: dict = {
         "IMAGE": ms.widgets.asset_select.types[0],
@@ -691,6 +680,16 @@ class AssetSelect(v.Combobox, SepalWidget):
         default_asset: Union[str, List[str]] = [],
         **kwargs,
     ) -> None:
+        """
+        Custom widget input to select an asset inside the asset folder of the user
+
+        Args:
+            label: the label of the input
+            folder: the folder of the user assets
+            default_asset: the id of a default asset or a list of defaults
+            types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
+            kwargs (optional): any parameter from a v.ComboBox.
+        """
 
         self.valid = False
         self.asset_info = None
@@ -811,15 +810,13 @@ class AssetSelect(v.Combobox, SepalWidget):
 
 
 class PasswordField(v.TextField, SepalWidget):
-    """
-    Custom widget to input passwords in text area and
-    toggle its visibility.
+    def __init__(self, **kwargs) -> None:
+        """
+        Custom widget to input passwords in text area and toggle its visibility.
 
-    Args:
-        kwargs: any parameter from a v.TextField. If set, 'type' will be overwritten.
-    """
-
-    def __init__(self, **kwargs):
+        Args:
+            kwargs: any parameter from a v.TextField. If set, 'type' will be overwritten.
+        """
 
         # default behavior
         kwargs["label"] = kwargs.pop("label", "Password")
@@ -850,15 +847,6 @@ class PasswordField(v.TextField, SepalWidget):
 
 
 class NumberField(v.TextField, SepalWidget):
-    """
-    Custom widget to input numbers in text area and add/substract with single increment.
-
-    Args:
-        max\_: Maximum selectable number. Defaults to 10.
-        min\_: Minimum selectable number. Defaults to 0.
-        increm: incremental value added at each step. default to 1
-        kwargs: Any parameter from a v.TextField. If set, 'type' will be overwritten.
-    """
 
     max_: t.Int = t.Int(10).tag(sync=True)
     "Maximum selectable number."
@@ -870,6 +858,15 @@ class NumberField(v.TextField, SepalWidget):
     "Incremental value added at each step."
 
     def __init__(self, max_: int = 10, min_: int = 0, increm: int = 1, **kwargs):
+        """
+        Custom widget to input numbers in text area and add/substract with single increment.
+
+        Args:
+            max\_: Maximum selectable number. Defaults to 10.
+            min\_: Minimum selectable number. Defaults to 0.
+            increm: incremental value added at each step. default to 1
+            kwargs: Any parameter from a v.TextField. If set, 'type' will be overwritten.
+        """
 
         # set the traits
         self.max_ = max_
@@ -909,16 +906,6 @@ class NumberField(v.TextField, SepalWidget):
 
 
 class VectorField(v.Col, SepalWidget):
-    """
-    A custom input widget to load vector data. The user will provide a vector file compatible with fiona or a GEE feature collection.
-    The user can then select a specific shape by setting column and value fields.
-
-    Args:
-        label: the label of the file input field, default to 'vector file'.
-        gee: whether to use GEE assets or local vectors.
-        folder: When gee=True, extra args will be used for AssetSelect
-        kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
-    """
 
     original_gdf: Optional[gpd.GeoDataFrame] = None
     "The originally selected dataframe"
@@ -959,6 +946,16 @@ class VectorField(v.Col, SepalWidget):
     def __init__(
         self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs
     ) -> None:
+        """
+        A custom input widget to load vector data. The user will provide a vector file compatible with fiona or a GEE feature collection.
+        The user can then select a specific shape by setting column and value fields.
+
+        Args:
+            label: the label of the file input field, default to 'vector file'.
+            gee: whether to use GEE assets or local vectors.
+            folder: When gee=True, extra args will be used for AssetSelect
+            kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
+        """
 
         # set the 3 wigets
         if not gee:

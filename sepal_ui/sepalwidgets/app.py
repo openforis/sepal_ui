@@ -34,21 +34,6 @@ __all__ = [
 
 
 class LocaleSelect(v.Menu, SepalWidget):
-    """
-    An language selector for sepal-ui based application.
-
-    It displays the currently requested language (not the one used by the translator).
-    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
-
-    .. warning:: as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
-
-    .. versionadded:: 2.7.0
-
-
-    Args:
-        translator (sw.Translator, optional): the translator of the app, to match the used language
-        kwargs (dict, optional): any arguments for a Btn object, children will be override
-    """
 
     COUNTRIES: pd.DataFrame = pd.read_csv(
         Path(__file__).parents[1] / "scripts" / "locale.csv"
@@ -72,6 +57,20 @@ class LocaleSelect(v.Menu, SepalWidget):
     "the list of countries with their flag,name in english, and ISO code"
 
     def __init__(self, translator: Optional[Translator] = None, **kwargs) -> None:
+        """
+        An language selector for sepal-ui based application.
+
+        It displays the currently requested language (not the one used by the translator).
+        When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+        .. warning:: as the component is a v.Menu to get the selected value you need to lisen to "value" instead of "v_model".
+
+        .. versionadded:: 2.7.0
+
+        Args:
+            translator: the translator of the app, to match the used language
+            kwargs (optional): any arguments for a Btn object, children will be override
+        """
 
         # extract the available language from the translator
         # default to only en-US if no translator is set
@@ -170,17 +169,6 @@ class LocaleSelect(v.Menu, SepalWidget):
 
 
 class ThemeSelect(v.Btn, SepalWidget):
-    """
-    A theme selector for sepal-ui based application.
-
-    It displays the currently requested theme (default to dark).
-    When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
-
-    .. versionadded:: 2.7.0
-
-    Args:
-        kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
-    """
 
     THEME_ICONS: dict = {"dark": "fa-solid fa-moon", "light": "fa-solid fa-sun"}
     "the dictionnry of icons to use for each theme (used as keys)"
@@ -189,6 +177,17 @@ class ThemeSelect(v.Btn, SepalWidget):
     "the current theme of the widget (default to dark)"
 
     def __init__(self, **kwargs) -> None:
+        """
+        A theme selector for sepal-ui based application.
+
+        It displays the currently requested theme (default to dark).
+        When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+
+        .. versionadded:: 2.7.0
+
+        Args:
+            kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
+        """
 
         # get the current theme name
         self.theme = sepal_ui.get_theme()
@@ -229,14 +228,6 @@ class ThemeSelect(v.Btn, SepalWidget):
 
 
 class AppBar(v.AppBar, SepalWidget):
-    """
-    Custom AppBar widget with the provided title using the sepal color framework
-
-    Args:
-        title: the title of the app
-        translator: the app translator to pass to the locale selector object
-        kwargs (optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
-    """
 
     toogle_button: Optional[v.Btn]
     "The btn to display or hide the drawer to the user"
@@ -256,6 +247,14 @@ class AppBar(v.AppBar, SepalWidget):
         translator: Union[None, Translator] = None,
         **kwargs,
     ) -> None:
+        """
+        Custom AppBar widget with the provided title using the sepal color framework
+
+        Args:
+            title: the title of the app
+            translator: the app translator to pass to the locale selector object
+            kwargs (optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
+        """
 
         self.toggle_button = v.Btn(
             icon=True,
@@ -298,20 +297,6 @@ class AppBar(v.AppBar, SepalWidget):
 
 
 class DrawerItem(v.ListItem, SepalWidget):
-    """
-    Custom DrawerItem using the user input.
-    If a card is set the drawerItem will trigger the display of all the Tiles in the app that have the same mount_id.
-    If an href is set, the drawer will open the link in a new tab
-
-    Args:
-        title: the title of the drawer item
-        icon: the full name of a mdi/fa icon
-        card: the mount_id of tiles in the app
-        href: the absolute link to an external web page
-        model: sepalwidget model where is defined the bin_var trait
-        bind_var: required when model is selected. Trait to link with 'alert' self trait parameter
-        kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
-    """
 
     rt: Optional[ResizeTrigger] = None
     "The trigger to resize maps and other javascript object when jumping from a tile to another"
@@ -332,6 +317,20 @@ class DrawerItem(v.ListItem, SepalWidget):
         bind_var: str = "",
         **kwargs,
     ) -> None:
+        """
+        Custom DrawerItem using the user input.
+        If a card is set the drawerItem will trigger the display of all the Tiles in the app that have the same mount_id.
+        If an href is set, the drawer will open the link in a new tab
+
+        Args:
+            title: the title of the drawer item
+            icon: the full name of a mdi/fa icon
+            card: the mount_id of tiles in the app
+            href: the absolute link to an external web page
+            model: sepalwidget model where is defined the bin_var trait
+            bind_var: required when model is selected. Trait to link with 'alert' self trait parameter
+            kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
+        """
 
         # set the resizetrigger
         self.rt = rt
@@ -436,17 +435,6 @@ class DrawerItem(v.ListItem, SepalWidget):
 
 
 class NavDrawer(v.NavigationDrawer, SepalWidget):
-    """
-    Custom NavDrawer using the different DrawerItems of the user and the sepal color framework.
-    The drawer can include links to the github page of the project for wiki, bugs and repository.
-
-    Args:
-        items: the list of all the drawerItem to display in the drawer. This items should pilote the different tile visibility
-        code: the absolute link to the source code
-        wiki: the absolute link the the wiki page
-        issue: the absolute link to the issue tracker
-        kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
-    """
 
     items: List[DrawerItem] = []
     "the list of all the drawerItem to display in the drawer"
@@ -459,6 +447,18 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         issue: str = "",
         **kwargs,
     ) -> None:
+
+        """
+        Custom NavDrawer using the different DrawerItems of the user and the sepal color framework.
+        The drawer can include links to the github page of the project for wiki, bugs and repository.
+
+        Args:
+            items: the list of all the drawerItem to display in the drawer. This items should pilote the different tile visibility
+            code: the absolute link to the source code
+            wiki: the absolute link the the wiki page
+            issue: the absolute link to the issue tracker
+            kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
+        """
 
         self.items = items
 
@@ -536,16 +536,15 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
 
 class Footer(v.Footer, SepalWidget):
-    """
-    Custom Footer with cuzomizable text.
-    Not yet capable of displaying logos
-
-    Args:
-        text: the text to display in the future
-        kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
-    """
-
     def __init__(self, text: str = "", **kwargs) -> None:
+        """
+        Custom Footer with cuzomizable text.
+        Not yet capable of displaying logos
+
+        Args:
+            text: the text to display in the future
+            kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
+        """
 
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
@@ -560,20 +559,6 @@ class Footer(v.Footer, SepalWidget):
 
 
 class App(v.App, SepalWidget):
-    """
-    Custom App display with the tiles created by the user using the sepal color framework.
-    Display false appBar if not filled. Navdrawer is fully optionnal.
-    The drawerItem will be linked to the app tile and they will be able to control their display
-    If the navdrawer exist, it will be linked to the appbar togglebtn
-
-    Args:
-        tiles ([sw.Tile]): the tiles of the app
-        appBar (sw.AppBar, optional): the appBar of the application
-        footer (sw.Footer, optional): the footer of the application
-        navDrawer (sw.NavDrawer, optional): the navdrawer of the application
-        translator (sw.Translator, optional): the translator of the app to display language informations
-        kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
-    """
 
     tiles: List[v.Card] = []
     "the tiles of the app"
@@ -593,12 +578,26 @@ class App(v.App, SepalWidget):
     def __init__(
         self,
         tiles: List[v.Card] = [],
-        appBar: Union[AppBar, None] = None,
-        footer: Union[Footer, None] = None,
-        navDrawer: Union[NavDrawer, None] = None,
-        translator: Union[Translator, None] = None,
+        appBar: Optional[AppBar] = None,
+        footer: Optional[Footer] = None,
+        navDrawer: Optional[NavDrawer] = None,
+        translator: Optional[Translator] = None,
         **kwargs,
     ) -> None:
+        """
+        Custom App display with the tiles created by the user using the sepal color framework.
+        Display false appBar if not filled. Navdrawer is fully optionnal.
+        The drawerItem will be linked to the app tile and they will be able to control their display
+        If the navdrawer exist, it will be linked to the appbar togglebtn
+
+        Args:
+            tiles: the tiles of the app
+            appBar: the appBar of the application
+            footer: the footer of the application
+            navDrawer: the navdrawer of the application
+            translator: the translator of the app to display language informations
+            kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
+        """
 
         self.tiles = tiles
 

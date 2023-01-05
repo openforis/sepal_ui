@@ -20,19 +20,20 @@ __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 
 
 class Divider(v.Divider, SepalWidget):
-    """
-    A custom Divider with the ability to dynamically change color
-    Whenever the type\_ trait is modified, the divider class will change accordingly
-
-    Args:
-        class\_: the initial color of the divider
-        kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
-    """
 
     type_: t.Unicode = t.Unicode("").tag(sync=True)
     "Added type\_ trait to specify the current color of the divider"
 
     def __init__(self, class_: str = "", **kwargs) -> None:
+        """
+        A custom Divider with the ability to dynamically change color
+        Whenever the type\_ trait is modified, the divider class will change accordingly
+
+        Args:
+            class\_: the initial color of the divider
+            kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
+        """
+
         kwargs["class_"] = class_
         super().__init__(**kwargs)
 
@@ -53,16 +54,6 @@ class Divider(v.Divider, SepalWidget):
 
 
 class Alert(v.Alert, SepalWidget):
-    """
-    A custom Alert widget. It is used as the output of all processes in the framework.
-    In the voila interfaces, print statement will not be displayed.
-    Instead use the sw.Alert method to provide information to the user.
-    It's hidden by default.
-
-    Args:
-        type\_: The color of the Alert
-        kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
-    """
 
     progress_bar: Optional[tqdm] = None
     "the progress bar of the alert"
@@ -71,6 +62,16 @@ class Alert(v.Alert, SepalWidget):
     "the output object where the progress bar is stored"
 
     def __init__(self, type_: str = "info", **kwargs) -> None:
+        """
+        A custom Alert widget. It is used as the output of all processes in the framework.
+        In the voila interfaces, print statement will not be displayed.
+        Instead use the sw.Alert method to provide information to the user.
+        It's hidden by default.
+
+        Args:
+            type\_: The color of the Alert
+            kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
+        """
 
         # set default parameters
         kwargs["text"] = kwargs.pop("text", True)
@@ -251,12 +252,6 @@ class Alert(v.Alert, SepalWidget):
 
 class StateBar(v.SystemBar, SepalWidget):
 
-    """Widget to display quick messages on simple inline status bar
-
-    Args:
-       kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
-    """
-
     msg: t.Unicode = t.Unicode("").tag(sync=True)
     "the displayed message"
 
@@ -267,6 +262,12 @@ class StateBar(v.SystemBar, SepalWidget):
     "The ProgressCircular widget that will be displayed in the statebar"
 
     def __init__(self, **kwargs) -> None:
+        """
+        Widget to display quick messages on simple inline status bar
+
+        Args:
+            kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
+        """
 
         self.progress = v.ProgressCircular(
             indeterminate=self.loading,
@@ -317,16 +318,6 @@ class StateBar(v.SystemBar, SepalWidget):
 
 
 class Banner(v.Snackbar, SepalWidget):
-    """
-    Custom Snackbar widget to display messages as a banner in module App.
-
-    Args:
-       msg: Message to display in application banner. default to nothing
-       type\_: Used to display an appropiate banner color. fallback to "info".
-       id_: unique banner identificator.
-       persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
-       kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
-    """
 
     btn_close: Optional[v.Btn] = None
     "v.Btn: the closing btn of the banner"
@@ -339,6 +330,16 @@ class Banner(v.Snackbar, SepalWidget):
         persistent: bool = True,
         **kwargs,
     ) -> None:
+        """
+        Custom Snackbar widget to display messages as a banner in module App.
+
+        Args:
+            msg: Message to display in application banner. default to nothing
+            type\_: Used to display an appropiate banner color. fallback to "info".
+            id_: unique banner identificator.
+            persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+            kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
+        """
 
         # compute the type and default to "info" if it's not existing
         type_ = set_type(type_)

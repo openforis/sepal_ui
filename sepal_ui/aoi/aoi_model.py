@@ -24,24 +24,6 @@ __all__ = ["AoiModel"]
 
 
 class AoiModel(Model):
-    """
-    an Model object dedicated to the sorage and the manipulation of aoi.
-    It is meant to be used with the AoiView object (embeded in the AoiTile).
-    By using this you will be able to provide your application with aoi as an ee_object
-    or a gdf, depending if you activated the ee binding or not.
-    The class also provide insight on your aoi geometry.
-
-    Args:
-        gee: wether or not the aoi selector should be using the EarthEngine binding
-        vector: the path to the default vector object
-        admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset: the default asset. Can only work if ee==True
-        folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
-
-    .. deprecated:: 2.3.2
-        'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
-
-    """
 
     # ###########################################################################
     # ###                      dataset const                                  ###
@@ -173,6 +155,25 @@ class AoiModel(Model):
         admin: Optional[str] = None,
         folder: Union[str, Path] = "",
     ) -> None:
+
+        """
+        an Model object dedicated to the sorage and the manipulation of aoi.
+        It is meant to be used with the AoiView object (embeded in the AoiTile).
+        By using this you will be able to provide your application with aoi as an ee_object
+        or a gdf, depending if you activated the ee binding or not.
+        The class also provide insight on your aoi geometry.
+
+        Args:
+            gee: wether or not the aoi selector should be using the EarthEngine binding
+            vector: the path to the default vector object
+            admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+            asset: the default asset. Can only work if ee==True
+            folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
+
+        .. deprecated:: 2.3.2
+            'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
+
+        """
 
         super().__init__()
 

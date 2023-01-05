@@ -11,12 +11,6 @@ from sepal_ui.scripts import decorator as sd
 
 
 class AoiControl(MenuControl):
-    """
-    Widget control providing zoom options for the end user. The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
-
-    Args:
-        m: the map on which he AoiControl is displayed to interact with itszoom and center
-    """
 
     m: Optional[Map] = None
     "the map on which he AoiControl is displayed to interact with itszoom and center"
@@ -28,6 +22,13 @@ class AoiControl(MenuControl):
     "the list of bounds to fit on. using the aoi names as keys"
 
     def __init__(self, m: Map, **kwargs) -> None:
+
+        """
+        Widget control providing zoom options for the end user. The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
+
+        Args:
+            m: the map on which he AoiControl is displayed to interact with itszoom and center
+        """
 
         # init the aoi data list
         self.aoi_bounds = {}

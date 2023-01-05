@@ -11,18 +11,6 @@ from sepal_ui.scripts import utils as su
 
 
 class LegendControl(WidgetControl):
-    """
-    A custom Legend widget ready to be embed in a map
-
-    This Legend can be control though it's different attributes, changin it's position of course but also the orientation ,the keys and their colors.
-
-    .. versionadded:: 2.10.4
-
-    Args:
-        legend_dict: the dictionnary to fill the legend values. cannot be empty.
-        title: title of the legend, if not set a default value in the current language will be used
-        vertical: the orientation of the legend. default to True
-    """
 
     title: t.Unicode = t.Unicode(None).tag(sync=True)
     "Title of the legend."
@@ -46,6 +34,19 @@ class LegendControl(WidgetControl):
         vertical: bool = True,
         **kwargs,
     ) -> None:
+
+        """
+        A custom Legend widget ready to be embed in a map
+
+        This Legend can be control though it's different attributes, changin it's position of course but also the orientation ,the keys and their colors.
+
+        .. versionadded:: 2.10.4
+
+        Args:
+            legend_dict: the dictionnary to fill the legend values. cannot be empty.
+            title: title of the legend, if not set a default value in the current language will be used
+            vertical: the orientation of the legend. default to True
+        """
 
         # init traits
         self.title = title

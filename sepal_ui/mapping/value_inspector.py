@@ -21,12 +21,6 @@ from sepal_ui.scripts import decorator as sd
 
 
 class ValueInspector(MenuControl):
-    """
-    Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
-
-    Args:
-        m: the map on which he vinspector is displayed to interact with it's layers
-    """
 
     m: Optional[Map] = None
     "the map on which he vinspector is displayed to interact with it's layers"
@@ -41,6 +35,12 @@ class ValueInspector(MenuControl):
     "The text element from the card that is edited when the user click on the map"
 
     def __init__(self, m: Map, **kwargs) -> None:
+        """
+        Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
+
+        Args:
+            m: the map on which he vinspector is displayed to interact with it's layers
+        """
 
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "topleft")

@@ -12,16 +12,6 @@ __all__ = ["AoiTile"]
 
 
 class AoiTile(sw.Tile):
-    """
-    sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation
-
-    Args:
-        methods: the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {‘ADMIN0’, ‘ADMIN1’, ‘ADMIN2’, ‘SHAPE’, ‘DRAW’, ‘POINTS’, ‘ASSET’, ‘ALL’}
-        gee: wether or not to use the python EartEngine API. default to True
-        vector: the path to the default vector object
-        admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset: the default asset. Can only work if :code:`ee==True`.
-    """
 
     map: Optional[sm.SepalMap] = None
     "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
@@ -40,6 +30,17 @@ class AoiTile(sw.Tile):
         **kwargs
     ) -> None:
 
+        """
+        sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation
+
+        Args:
+            methods: the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {‘ADMIN0’, ‘ADMIN1’, ‘ADMIN2’, ‘SHAPE’, ‘DRAW’, ‘POINTS’, ‘ASSET’, ‘ALL’}
+            gee: wether or not to use the python EartEngine API. default to True
+            vector: the path to the default vector object
+            admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+            asset: the default asset. Can only work if :code:`ee==True`.
+        """
+
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
         self.map.dc.hide()
@@ -52,6 +53,7 @@ class AoiTile(sw.Tile):
             gee=gee,
             vector=vector,
             admin=admin,
+            asset=asset,
             folder=folder,
             **kwargs
         )

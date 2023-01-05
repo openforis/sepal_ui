@@ -15,17 +15,19 @@ BTNS: dict = {
 
 
 class InfoView(sw.ExpansionPanels):
-    """
-    Custom optinal card to be displayed within the planet view to validate the available
-    subscriptions from the log-in credentials and show the info related with them, such
-    as the quotas and remaining time of activation.
-
-    """
 
     model: Optional[PlanetModel] = None
     "Backend model to manipulate interface actions"
 
     def __init__(self, model: PlanetModel, **kwargs) -> None:
+        """
+        Custom optinal card to be displayed within the planet view to validate the available
+        subscriptions from the log-in credentials and show the info related with them, such
+        as the quotas and remaining time of activation.
+
+        Args:
+            model: the planetModel associated with the display
+        """
 
         self.model = model
         self.v_model = 1
@@ -121,9 +123,11 @@ class InfoView(sw.ExpansionPanels):
 
 
 class InfoCard(sw.Layout):
-    """Information card that will display the subscription data"""
-
     def __init__(self) -> None:
+        """
+        Information card that will display the subscription data
+        """
+
         self.style_ = "max-height: 240px; overflow: auto"
         self.class_ = "d-block"
 

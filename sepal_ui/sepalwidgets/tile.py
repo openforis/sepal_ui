@@ -13,19 +13,6 @@ __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
 
 
 class Tile(v.Layout, SepalWidget):
-    """
-    Custom Layout widget for the sepal UI framework.
-    It an helper to build a consistent tiling system.
-    Tile objects are indeed compatible with the other classes from sepal_ui.
-
-    Args:
-        id_: the tile id that will be written in its mount_id _metadata attribute
-        title: the title of the Tile
-        inputs: the list of widget to display inside the tile
-        btn: the process btn
-        alert: the alert to display process informations to the end user
-        kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
-    """
 
     btn: Optional[v.Btn] = None
     "the process btn"
@@ -45,6 +32,19 @@ class Tile(v.Layout, SepalWidget):
         alert: Union[v.Alert, None] = None,
         **kwargs,
     ) -> None:
+        """
+        Custom Layout widget for the sepal UI framework.
+        It an helper to build a consistent tiling system.
+        Tile objects are indeed compatible with the other classes from sepal_ui.
+
+        Args:
+            id_: the tile id that will be written in its mount_id _metadata attribute
+            title: the title of the Tile
+            inputs: the list of widget to display inside the tile
+            btn: the process btn
+            alert: the alert to display process informations to the end user
+            kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
+        """
 
         self.btn = btn
         inputs += [btn] if btn else []
@@ -177,15 +177,14 @@ class Tile(v.Layout, SepalWidget):
 
 
 class TileAbout(Tile):
-    """
-    Create an about tile using a .md file.
-    This tile will have the "about_widget" id and "About" title.
-
-    Args:
-        the path to the .md file
-    """
-
     def __init__(self, pathname: Union[str, Path], **kwargs) -> None:
+        """
+        Create an about tile using a .md file.
+        This tile will have the "about_widget" id and "About" title.
+
+        Args:
+            the path to the .md file
+        """
 
         if type(pathname) == str:
             pathname = Path(pathname)
@@ -200,12 +199,11 @@ class TileAbout(Tile):
 
 
 class TileDisclaimer(Tile):
-    """
-    Create a about tile.
-    This tile will have the "about_widget" id and "Disclaimer" title.
-    """
-
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Create a about tile.
+        This tile will have the "about_widget" id and "Disclaimer" title.
+        """
 
         # create the tile content on the fly
         disclaimer = "  \n".join(ms.disclaimer.p)
