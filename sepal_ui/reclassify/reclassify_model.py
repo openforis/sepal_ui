@@ -131,7 +131,7 @@ class ReclassifyModel(Model):
 
         # aoi_model and reclassify model must be aligned when it comes to gee
         if self.aoi_model:
-            if self.aoi_model.ee != self.gee:
+            if self.aoi_model.gee != self.gee:
                 raise Exception(
                     "Both aoi_model.gee and self.gee parameters has to be equals."
                     + f"Received {self.aoi_model.ee} for aoi_model and {self.gee} for reclassify_model."

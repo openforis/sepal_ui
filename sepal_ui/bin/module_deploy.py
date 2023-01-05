@@ -17,6 +17,7 @@ so taht they can be added to the troubleshoot function.
 import argparse
 import subprocess
 from pathlib import Path
+from typing import Union
 
 from colorama import Fore, Style, init
 
@@ -29,13 +30,16 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
 
 
-def write_reqs(file):
+def write_reqs(file: Union[str, Path]) -> None:
     """
     write the requirements in the requirements file
 
     Args:
-        file (pathlib.Path): the requirements file
+        file: the requirements file
     """
+
+    # force cast to pathlib.Path
+    file = Path(file)
 
     with file.open("a") as f:
         f.write("\n")
@@ -58,17 +62,18 @@ def write_reqs(file):
     return
 
 
-def clean_dulpicate(file):
+def clean_dulpicate(file: Union[str, Path]) -> None:
     """
     remove the requirements that are already part of the default installation
 
     Args:
-        file (pathlib.Path): the requirements file
+        file: the requirements file
     """
 
     # already available libs
     libs = ["wheel", "Cython", "pybind11", "GDAL", "pyproj", "sepal_ui"]
 
+    file = Path(file)
     text = file.read_text().split("\n")
 
     # search for the custom line index
@@ -84,20 +89,22 @@ def clean_dulpicate(file):
             continue
         final_text.append(line)
 
+    # write to file
     file.write_text("\n".join(final_text))
 
     return
 
 
-def clean_troubleshouting(file):
+def clean_troubleshouting(file: Union[str, Path]) -> None:
     """
     the pipreqs is creating the file based on the import statements in .py files
     some libs doesn't have the same name as the pip command we are replacing/deleting the known one
 
     Args:
-        file (pathlib.Path): the requirements file
+        file: the requirements file
     """
 
+    file = Path(file)
     text = file.read_text().split("\n")
 
     # search for the custom line index
@@ -133,14 +140,15 @@ def clean_troubleshouting(file):
     return
 
 
-def freeze_sepal_ui(file):
+def freeze_sepal_ui(file: Union[str, Path]) -> None:
     """
     set the sepal version to the currently used sepal-ui version
 
     Args:
-        file (pathlib.Path): the requirements file
+        file: the requirements file
     """
 
+    file = Path(file)
     text = file.read_text().split("\n")
 
     # search for the sepal_ui line
@@ -159,15 +167,16 @@ def freeze_sepal_ui(file):
     return
 
 
-def clean_custom(file):
+def clean_custom(file: Union[str, Path]) -> None:
     """
     remove the previous custom installation and requirements
     to start the process from a blank page
 
     Args:
-        file (pathlib.Path): the requirements file
+        file: the requirements file
     """
 
+    file = Path(file)
     text = file.read_text().split("\n")
 
     # search for the custom line index
@@ -185,7 +194,7 @@ def clean_custom(file):
     return
 
 
-def main():
+def main() -> None:
 
     # parse agruments
     parser.parse_args()

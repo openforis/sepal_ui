@@ -1,5 +1,8 @@
-from ipyleaflet import WidgetControl
-from traitlets import Int, observe
+from typing import Optional
+
+import traitlets as t
+from ipyleaflet import Map, WidgetControl
+from traitlets import observe
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
@@ -12,19 +15,19 @@ class LayerStateControl(WidgetControl):
     every time a map is added to the map the counter will be raised by one. same behaviour with removed.
     """
 
-    m = None
-    "SepalMap: the map connected to the control"
+    m: Optional[Map] = None
+    "the map connected to the control"
 
-    w_state = None
+    w_state: Optional[sw.StateBar] = None
     "sw.StateBar: the stateBar displaying the number of layer loading on the map"
 
-    nb_layer = Int(0).tag(sync=True)
-    "Int: the number of layers in the map"
+    nb_layer: t.Int = t.Int(0).tag(sync=True)
+    "the number of layers in the map"
 
-    nb_loading_layer = Int(0).tag(sync=True)
-    "Int: the number of loading layer in the map"
+    nb_loading_layer: t.Int = t.Int(0).tag(sync=True)
+    "the number of loading layer in the map"
 
-    def __init__(self, m, **kwargs):
+    def __init__(self, m: Map, **kwargs) -> None:
 
         # save the map as a member of the widget
         self.m = m
@@ -44,7 +47,7 @@ class LayerStateControl(WidgetControl):
         # add js behaviour
         self.m.observe(self.update_nb_layer, "layers")
 
-    def update_nb_layer(self, change):
+    def update_nb_layer(self, change: dict) -> None:
         """
         Update the number of layer monitored by the statebar
         """
@@ -74,7 +77,7 @@ class LayerStateControl(WidgetControl):
 
         return
 
-    def update_loading(self, change):
+    def update_loading(self, change: dict) -> None:
         """update the nb_loading_layer value according to the number of tile loading on the map"""
 
         increment = [-1, 1]
@@ -83,7 +86,7 @@ class LayerStateControl(WidgetControl):
         return
 
     @observe("nb_loading_layer", "nb_layer")
-    def _update_state(self, change):
+    def _update_state(self, *args) -> None:
 
         # check if anything is loading
         self.loading = bool(self.nb_loading_layer)

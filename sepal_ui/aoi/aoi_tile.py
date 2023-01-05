@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import List, Optional, Union
+
 import ipyvuetify as v
 
 from sepal_ui import mapping as sm
@@ -13,20 +16,29 @@ class AoiTile(sw.Tile):
     sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation
 
     Args:
-        methods (list, optional): the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {‘ADMIN0’, ‘ADMIN1’, ‘ADMIN2’, ‘SHAPE’, ‘DRAW’, ‘POINTS’, ‘ASSET’, ‘ALL’}
-        ee (bool, optional): wether or not to use the python EartEngine API. default to True
-        vector (str|pathlib.Path, optional): the path to the default vector object
-        admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset (str, optional): the default asset. Can only work if :code:`ee==True`.
+        methods: the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {‘ADMIN0’, ‘ADMIN1’, ‘ADMIN2’, ‘SHAPE’, ‘DRAW’, ‘POINTS’, ‘ASSET’, ‘ALL’}
+        gee: wether or not to use the python EartEngine API. default to True
+        vector: the path to the default vector object
+        admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+        asset: the default asset. Can only work if :code:`ee==True`.
     """
 
-    map: sm.SepalMap = None
+    map: Optional[sm.SepalMap] = None
     "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
 
-    view: AoiView = None
+    view: Optional[AoiView] = None
     "widget: an AoiView object to handle the aoi method selection"
 
-    def __init__(self, methods="ALL", gee=True, **kwargs):
+    def __init__(
+        self,
+        methods: Union[str, List[str]] = "ALL",
+        gee: bool = True,
+        vector: Union[str, Path] = "",
+        admin: Union[int, str] = "",
+        asset: Union[str, Path] = "",
+        folder: Union[str, Path] = "",
+        **kwargs
+    ) -> None:
 
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
@@ -34,7 +46,15 @@ class AoiTile(sw.Tile):
 
         # create the view
         # the view include the model
-        self.view = AoiView(methods=methods, map_=self.map, gee=gee, **kwargs)
+        self.view = AoiView(
+            methods=methods,
+            map_=self.map,
+            gee=gee,
+            vector=vector,
+            admin=admin,
+            folder=folder,
+            **kwargs
+        )
         self.view.elevation = 0
 
         # organise them in a layout

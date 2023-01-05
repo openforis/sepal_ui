@@ -1,6 +1,9 @@
+from typing import Optional, Union
+
+import traitlets as t
 from ipyleaflet import WidgetControl
 from ipywidgets import HTML
-from traitlets import Bool, Dict, Unicode, observe
+from traitlets import observe
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.message import ms
@@ -16,27 +19,33 @@ class LegendControl(WidgetControl):
     .. versionadded:: 2.10.4
 
     Args:
-        legend_dict (dict): the dictionnary to fill the legend values. cannot be empty.
-        title (str) title of the legend, if not set a default value in the current language will be used
-        vertical (bool): the orientation of the legend. default to True
+        legend_dict: the dictionnary to fill the legend values. cannot be empty.
+        title: title of the legend, if not set a default value in the current language will be used
+        vertical: the orientation of the legend. default to True
     """
 
-    title = Unicode(None).tag(sync=True)
-    "Unicode: title of the legend."
+    title: t.Unicode = t.Unicode(None).tag(sync=True)
+    "Title of the legend."
 
-    legend_dict = Dict(None).tag(sync=True)
-    "Dict: dictionary with key as label name and value as color"
+    legend_dict: t.Dict = t.Dict(None).tag(sync=True)
+    "Dictionary with key as label name and value as color"
 
-    vertical = Bool(None).tag(sync=True)
-    "Bool: whether to display the legend in a vertical or horizontal way"
+    vertical: t.Bool = t.Bool(None).tag(sync=True)
+    "Whether to display the legend in a vertical or horizontal way"
 
-    _html_table = None
+    _html_table: Optional[sw.Html] = None
+    "The table containing the legend display"
 
-    _html_title = None
+    _html_title: Optional[sw.Html] = None
+    "The tilte of the legend"
 
     def __init__(
-        self, legend_dict={}, title=ms.mapping.legend, vertical=True, **kwargs
-    ):
+        self,
+        legend_dict: dict = {},
+        title: str = ms.mapping.legend,
+        vertical: bool = True,
+        **kwargs,
+    ) -> None:
 
         # init traits
         self.title = title
@@ -65,21 +74,27 @@ class LegendControl(WidgetControl):
 
         self._set_legend(legend_dict)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """returns the number of elements in the legend"""
 
         return len(self.legend_dict)
 
-    def hide(self):
+    def hide(self) -> None:
         """Hide control by hiding its content"""
+
         self.legend_card.hide()
 
-    def show(self):
+        return
+
+    def show(self) -> None:
         """Show control by displaying its content"""
+
         self.legend_card.show()
 
+        return
+
     @observe("legend_dict", "vertical")
-    def _set_legend(self, _):
+    def _set_legend(self, *args) -> None:
         """Creates/update a legend based on the class legend_dict member"""
 
         # Do this to avoid crash when called by trait for the first time
@@ -125,7 +140,7 @@ class LegendControl(WidgetControl):
         return
 
     @observe("title")
-    def _update_title(self, change):
+    def _update_title(self, change: dict) -> None:
         """Trait method to update the title of the legend"""
 
         # Do this to avoid crash when called by trait
@@ -137,8 +152,17 @@ class LegendControl(WidgetControl):
         return
 
     @staticmethod
-    def color_box(color, size=35):
-        """Returns an rectangular SVG html element with the provided color"""
+    def color_box(color: Union[str, tuple], size: int = 35) -> HTML:
+        """
+        Returns an rectangular SVG html element with the provided color
+
+        Args:
+            color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0))
+            size: the size of the legend square
+
+        Returns:
+            The HTML rendered color box
+        """
 
         # Define height and width based on the size
         w = size

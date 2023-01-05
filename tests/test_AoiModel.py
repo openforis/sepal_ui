@@ -3,6 +3,7 @@ from zipfile import ZipFile
 
 import ee
 import pytest
+from traitlets import Dict, Unicode
 
 from sepal_ui import aoi
 
@@ -13,7 +14,7 @@ class TestAoiModel:
         # default init
         aoi_model = aoi.AoiModel(alert, gee=False)
         assert isinstance(aoi_model, aoi.AoiModel)
-        assert aoi_model.ee is False
+        assert aoi_model.gee is False
 
         # with a default vector
         aoi_model = aoi.AoiModel(alert, vector=fake_vector, gee=False)
@@ -33,14 +34,14 @@ class TestAoiModel:
         # default init
         aoi_model = aoi.AoiModel(alert, folder=gee_dir)
         assert isinstance(aoi_model, aoi.AoiModel)
-        assert aoi_model.ee is True
+        assert aoi_model.gee is True
 
         # with default assetId
         asset_id = str(gee_dir / "feature_collection")
         aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=gee_dir)
 
-        assert aoi_model.asset_name["pathname"] == asset_id
-        assert aoi_model.default_asset["pathname"] == asset_id
+        assert aoi_model.asset_name == asset_id
+        assert aoi_model.default_asset == asset_id
         assert all(aoi_model.gdf) is not None
         assert aoi_model.feature_collection is not None
         assert aoi_model.name == "feature_collection"
@@ -62,7 +63,7 @@ class TestAoiModel:
         assert aoi_model.name == "feature_collection_data_0"
 
         # with a default admin
-        admin = 110  # GAUL Vatican city
+        admin = "110"  # GAUL Vatican city
         aoi_model = aoi.AoiModel(alert, admin=admin, folder=gee_dir)
         assert aoi_model.name == "VAT"
 
@@ -107,11 +108,11 @@ class TestAoiModel:
 
         # select the vatican feature in GAUL 2015
         ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(
-            ee.Filter.eq("ADM0_CODE", 110)
+            ee.Filter.eq("ADM0_CODE", "110")
         )
 
         # select the geometry associated with Vatican city (all of it)
-        column, field = ("ADM0_CODE", 110)
+        column, field = ("ADM0_CODE", "110")
         feature = test_model.get_selected(column, field)
 
         # assert they are the same
@@ -122,18 +123,28 @@ class TestAoiModel:
 
     def test_clear_attributes(self, alert, aoi_model_outputs, aoi_model_traits):
 
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
 
         # insert dum parameter everywhere
-        dum = "dum"
-        [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
-        [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
+        def set_trait(trait_id: str) -> None:
+            trait_type = aoi_model.traits()[trait_id]
+            if isinstance(trait_type, Unicode):
+                dum = "dum"
+            elif isinstance(trait_type, Dict):
+                dum = {"dum": "dum"}
+            return setattr(aoi_model, trait_id, dum)
+
+        def set_out(out_id: str) -> None:
+            return setattr(aoi_model, out_id, "dum")
+
+        [set_trait(trait) for trait in aoi_model_traits]
+        [set_out(out) for out in aoi_model_outputs]
 
         # clear all the parameters
         aoi_model.clear_attributes()
 
         # create a function for readability
-        def is_none(member):
+        def is_none(member: str) -> None:
             return getattr(aoi_model, member) is None
 
         assert all([is_none(trait) for trait in aoi_model_traits])
@@ -143,8 +154,8 @@ class TestAoiModel:
         aoi_model = aoi.AoiModel(alert, admin="VAT", gee=False)  # GADM for Vatican
 
         # insert dummy parameter
-        [setattr(aoi_model, trait, dum) for trait in aoi_model_traits]
-        [setattr(aoi_model, out, dum) for out in aoi_model_outputs]
+        [set_trait(trait) for trait in aoi_model_traits]
+        [set_out(out) for out in aoi_model_outputs]
 
         # clear
         aoi_model.clear_attributes()
@@ -200,7 +211,7 @@ class TestAoiModel:
             aoi_model._from_admin(0)
 
         # test france
-        aoi_model._from_admin(110)
+        aoi_model._from_admin("110")
         assert aoi_model.name == "VAT"
 
         return
@@ -374,7 +385,7 @@ class TestAoiModel:
         """
         Create a test AoiModel based on GEE using Vatican
         """
-        admin = 110  # vatican city (smalest adm0 feature)
+        admin = "110"  # vatican city (smalest adm0 feature)
         return aoi.AoiModel(alert, admin=admin, folder=gee_dir)
 
     @pytest.fixture(scope="class")
@@ -387,6 +398,7 @@ class TestAoiModel:
             "vector_json",
             "geo_json",
             "admin",
+            "asset_json",
             "asset_name",
             "name",
         ]

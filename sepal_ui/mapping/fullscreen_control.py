@@ -1,7 +1,8 @@
 from pathlib import Path
+from typing import List, Optional
 
 import ipyvuetify as v
-from ipyleaflet import WidgetControl
+from ipyleaflet import Map, WidgetControl
 from IPython.display import Javascript, display
 
 from sepal_ui.mapping.map_btn import MapBtn
@@ -17,28 +18,30 @@ class FullScreenControl(WidgetControl):
     .. versionadded:: 2.7.0
 
     Args:
-        m (SepalMap): the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
-        fullscreen (bool, optional): either the map should be displayed in fullscreen by default. default to false.
-        fullapp (bool, optional): either or not the map will be used as the sole widget/tile of an application
-        kwargs (optional): any available arguments from a ipyleaflet WidgetControl
+        m: the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
+        fullscreen: either the map should be displayed in fullscreen by default. default to false.
+        fullapp: either or not the map will be used as the sole widget/tile of an application
+        kwargs: any available arguments from a ipyleaflet WidgetControl
     """
 
-    ICONS = ["fa-solid fa-expand", "fa-solid fa-compress"]
+    ICONS: List[str] = ["fa-solid fa-expand", "fa-solid fa-compress"]
     "list: The icons that will be used to toggle between expand and compressed mode"
 
-    METHODS = ["embed", "fullscreen"]
+    METHODS: List[str] = ["embed", "fullscreen"]
     "list: The javascript methods name to be used to switch from expand to compress mode"
 
-    zoomed = None
+    zoomed: bool = False
     "bool: the current zoomed level: ``True`` for expanded and ``False`` for compressed"
 
-    w_btn = None
-    "ipywidget.Button: the btn to display on the map"
+    w_btn: Optional[v.Btn] = None
+    "the btn to display on the map"
 
-    template = None
-    "ipyvuetify.VuetifyTemplate: embeds the 2 javascripts methods to change the rendering of the map"
+    template: Optional[v.VuetifyTemplate] = None
+    "Embeds the 2 javascripts methods to change the rendering of the map"
 
-    def __init__(self, m, fullscreen=False, fullapp=False, **kwargs):
+    def __init__(
+        self, m: Map, fullscreen: bool = False, fullapp: bool = False, **kwargs
+    ) -> None:
 
         # set the offset
         offset = "48px" if fullapp else "0px"
@@ -82,7 +85,7 @@ class FullScreenControl(WidgetControl):
         js = full if self.zoomed else embed
         display(Javascript(js))
 
-    def toggle_fullscreen(self, widget, event, data):
+    def toggle_fullscreen(self, *args) -> None:
         """
         Toggle the fullscreen state of the map by sending the required javascript method,
         changing the w_btn icons and the zoomed state of the control.

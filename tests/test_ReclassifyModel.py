@@ -126,7 +126,7 @@ class TestReclassifyModel:
         assert model_gee.get_aoi() is None
 
         # set the aoi to france
-        model_gee.aoi_model._from_admin(110)  # Vatican city
+        model_gee.aoi_model._from_admin("110")  # Vatican city
         assert model_gee.get_aoi() is not None
 
         return

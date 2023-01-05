@@ -1,8 +1,12 @@
 from datetime import datetime as dt
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 
+import ipyvuetify as v
 import pandas as pd
+import traitlets as t
 from deprecated.sphinx import versionadded
-from traitlets import Int
+from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
 from sepal_ui import mapping as sm
@@ -28,12 +32,17 @@ class MethodSelect(sw.Select):
     You cannot mix adding and removing behaviours.
 
     Args:
-        methods (str|[str]): a list of methods from the available list ({', '.join(select_methods.keys())})
-        map_ (SepalMap, optional): link the aoi_view to a custom SepalMap to display the output, default to None
-        gee (bool, optional): wether to bind to ee or not
+        methods: a list of methods from the available list ({', '.join(select_methods.keys())})
+        map_: link the aoi_view to a custom SepalMap to display the output, default to None
+        gee: wether to bind to ee or not
     """
 
-    def __init__(self, methods="ALL", gee=True, map_=None):
+    def __init__(
+        self,
+        methods: Union[str, List[str]] = "ALL",
+        gee: bool = True,
+        map_: Optional[sm.SepalMap] = None,
+    ) -> None:
 
         # create the method list
         if methods == "ALL":
@@ -100,15 +109,21 @@ class AdminField(sw.Select):
         parent (AdminField): the field parent object
     """
 
-    # the file location of the database
-    FILE = AoiModel.FILE
-    CODE = AoiModel.CODE
-    NAME = AoiModel.NAME
+    gee: bool = True
+    "wether or not to depend on earthengine"
 
-    def __init__(self, level, parent=None, gee=True):
+    level: int = -1
+    "The admin level of the current field"
+
+    parent: Optional[sw.Select] = None
+    "The parent adminfield object"
+
+    def __init__(
+        self, level: int, parent: Optional[sw.Select] = None, gee: bool = True
+    ) -> None:
 
         # save ee state
-        self.ee = gee
+        self.gee = gee
 
         # get the level info
         self.level = level
@@ -122,12 +137,9 @@ class AdminField(sw.Select):
         # add js behaviour
         self.parent is None or self.parent.observe(self._update, "v_model")
 
-    def show(self):
+    def show(self) -> Self:
         """
         when an admin field is shown, show its parent as well
-
-        Return:
-            self
         """
 
         super().show()
@@ -135,42 +147,39 @@ class AdminField(sw.Select):
 
         return self
 
-    def get_items(self, filter_=None):
+    def get_items(self, filter_: str = "") -> Self:
         """
         update the item list based on the given filter
 
-        Params:
+        Args:
             filter\\_ (str): The code of the parent v_model to filter the current results
-
-        Return:
-            self
         """
 
         # extract the level list
         df = (
-            pd.read_csv(self.FILE[self.ee])
-            .drop_duplicates(subset=self.CODE[self.ee].format(self.level))
-            .sort_values(self.NAME[self.ee].format(self.level))
+            pd.read_csv(AoiModel.FILE[self.gee], dtype=str)
+            .drop_duplicates(subset=AoiModel.CODE[self.gee].format(self.level))
+            .sort_values(AoiModel.NAME[self.gee].format(self.level))
         )
 
         # filter it
         if filter_:
-            df = df[df[self.CODE[self.ee].format(self.level - 1)] == filter_]
+            df = df[df[AoiModel.CODE[self.gee].format(self.level - 1)] == filter_]
 
         # formatted as a item list for a select component
         self.items = [
             {
                 "text": su.normalize_str(
-                    r[self.NAME[self.ee].format(self.level)], folder=False
+                    r[AoiModel.NAME[self.gee].format(self.level)], folder=False
                 ),
-                "value": r[self.CODE[self.ee].format(self.level)],
+                "value": r[AoiModel.CODE[self.gee].format(self.level)],
             }
             for _, r in df.iterrows()
         ]
 
         return self
 
-    def _update(self, change):
+    def _update(self, change: dict) -> Self:
         """update the item list of the admin select"""
 
         # reset v_model
@@ -200,73 +209,80 @@ class AoiView(sw.Card):
     # ###                             widget parameters                      ###
     # ##########################################################################
 
-    updated = Int(0).tag(sync=True)
-    "int: traitlets triggered every time a AOI is selected"
+    updated: t.Int = t.Int(0).tag(sync=True)
+    "Traitlets triggered every time a AOI is selected"
 
-    ee = True
-    "bool: either or not he aoi_view is connected to gee"
+    gee: bool = True
+    "Either or not he aoi_view is connected to gee"
 
-    folder = None
-    "str: the folder name used in GEE related component, mainly used for debugging"
+    folder: Union[str, Path] = ""
+    "The folder name used in GEE related component, mainly used for debugging"
 
-    model = None
-    "sepal_ui.aoi.AoiModel: the model to create the AOI from the selected parameters"
+    model: Optional[AoiModel] = None
+    "The model to create the AOI from the selected parameters"
 
     # ##########################################################################
     # ###                            the embeded widgets                     ###
     # ##########################################################################
 
-    map_ = None
-    "sepal_ui.mapping.SepalMap: the map to draw the AOI"
+    map_: Optional[sm.SepalMap] = None
+    "The map to draw the AOI"
 
-    aoi_dc = None
-    "sepal_ui.mapping.DrawControl: the drawing control associated with DRAW method"
+    aoi_dc: Optional[sm.DrawControl] = None
+    "the drawing control associated with DRAW method"
 
-    w_method = None
-    "widget: the widget to select the method"
+    w_method: Optional[MethodSelect] = None
+    "The widget to select the method"
 
-    components = None
-    "dict: the followingwidgets used to define AOI"
+    components: Dict[str, v.VuetifyWidget] = {}
+    "The followingwidgets used to define AOI"
 
-    w_admin_0 = None
-    "widget: the widget used to select admin level 0"
+    w_admin_0: Optional[AdminField] = None
+    "The widget used to select admin level 0"
 
-    w_admin_1 = None
-    "widget: the widget used to select admin level 1"
+    w_admin_1: Optional[AdminField] = None
+    "The widget used to select admin level 1"
 
-    w_admin_2 = None
-    "widget: the widget used to select admin level 2"
+    w_admin_2: Optional[AdminField] = None
+    "The widget used to select admin level 2"
 
-    w_vector = None
-    "widget: the widget used to select vector shapes"
+    w_vector: Optional[sw.VectorField] = None
+    "The widget used to select vector shapes"
 
-    w_points = None
-    "widget: the widget used to select points files"
+    w_points: Optional[sw.LoadTableField] = None
+    "The widget used to select points files"
 
-    w_draw = None
-    "widget: the widget used to select the name of a drawn shape (only if :code:`map_ != None`)"
+    w_draw: Optional[sw.TextField] = None
+    "The widget used to select the name of a drawn shape (only if :code:`map_ != None`)"
 
-    w_asset = None
-    "widget: the widget used to select asset name of a featureCollection (only if :code:`gee == True`)"
+    w_asset: Optional[sw.AssetSelect] = None
+    "The widget used to select asset name of a featureCollection (only if :code:`gee == True`)"
 
-    btn = None
-    "sw.Btn: a default btn"
+    btn: Optional[sw.Btn] = None
+    "A default btn"
 
-    alert = None
-    "sw.Alert: a alert to display message to the end user"
+    alert: Optional[sw.Alert] = None
+    "A alert to display message to the end user"
 
     @versionadded(
         version="2.11.3",
         reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
     )
     def __init__(
-        self, methods="ALL", map_=None, gee=True, folder="", model=None, **kwargs
-    ):
+        self,
+        methods: Union[str, List[str]] = "ALL",
+        map_: Optional[sm.SepalMap] = None,
+        gee: bool = True,
+        folder: Union[str, Path] = "",
+        model: Optional[AoiModel] = None,
+        **kwargs,
+    ) -> None:
 
         # set ee dependencie
-        self.ee = gee
+        self.gee = gee
         self.folder = folder
-        gee is False or su.init_ee()
+        if gee is True:
+            su.init_ee()
 
         # get the model
         self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
@@ -312,13 +328,13 @@ class AoiView(sw.Card):
         # defint the asset select separately. If no gee is set up we don't want any
         # gee based widget to be requested. If it's the case, application that does not support GEE
         # will crash if the user didn't authenticate
-        if self.ee:
+        if self.gee:
             self.w_asset = sw.VectorField(
                 label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
             )
             self.w_asset.hide()
             self.components["ASSET"] = self.w_asset
-            self.model.bind(self.w_asset, "asset_name")
+            self.model.bind(self.w_asset, "asset_json")
 
         # define DRAW option separately as it will only work if the map is set
         if self.map_:
@@ -346,7 +362,7 @@ class AoiView(sw.Card):
         self.model.clear_attributes()
 
     @sd.loading_button(debug=True)
-    def _update_aoi(self, widget, event, data):
+    def _update_aoi(self, *args) -> Self:
         """load the object in the model & update the map (if possible)"""
 
         # read the information from the geojson datas
@@ -362,7 +378,7 @@ class AoiView(sw.Card):
             self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
 
-            if self.ee:
+            if self.gee:
                 self.map_.add_ee_layer(self.model.feature_collection, {}, name="aoi")
             else:
                 self.map_.add_layer(self.model.get_ipygeojson())
@@ -374,19 +390,20 @@ class AoiView(sw.Card):
 
         return self
 
-    def reset(self):
+    def reset(self) -> Self:
         """clear the aoi_model from input and remove the layer from the map (if existing)"""
 
         # reset the view of the widgets
         self.w_method.v_model = None
 
         # clear the map
-        self.map_ is None or self.map_.remove_layer("aoi", none_ok=True)
+        if self.map_ is not None:
+            self.map_.remove_layer("aoi", none_ok=True)
 
         return self
 
     @sd.switch("loading", on_widgets=["w_method"])
-    def _activate(self, change):
+    def _activate(self, change: dict) -> None:
         """activate the adapted widgets"""
 
         # clear and hide the alert

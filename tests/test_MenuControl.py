@@ -27,7 +27,7 @@ class TestMenuControl:
         assert "ma-0" in tile.class_
         assert "pa-2" in tile.children[0].class_
         assert tile.children[0].raised is False
-        assert tile.get_title() == "None"
+        assert tile.get_title() == ""
         assert tile.children[0].elevation == 0
 
         return

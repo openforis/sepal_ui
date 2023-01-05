@@ -1,3 +1,5 @@
+from typing import Optional
+
 import ipyvuetify as v
 
 import sepal_ui.sepalwidgets as sw
@@ -18,37 +20,42 @@ class PlanetView(sw.Layout):
 
     """
 
-    planet_model = None
-    "sepal_ui.planetlab.PlanetModel: backend model to manipulate interface actions"
+    planet_model: Optional[PlanetModel] = None
+    "Backend model to manipulate interface actions"
 
-    btn = None
-    "sw.Btn: Button to trigger the validation process in the associated model"
+    btn: Optional[sw.Btn] = None
+    "Button to trigger the validation process in the associated model"
 
-    alert = None
-    "sw.Alert: Alert component to display end-user action results"
+    alert: Optional[sw.Alert] = None
+    "Alert component to display end-user action results"
 
-    info = False
-    "bool: either to display or not a detailed description about the planet subscriptions"
+    info: bool = False
+    "either to display or not a detailed description about the planet subscriptions"
 
-    w_username = None
-    "sw.TextField: widget to set credential username"
+    w_username: Optional[sw.TextField] = None
+    "Widget to set credential username"
 
-    w_password = None
-    "sw.PasswordField: widget to set credential password"
+    w_password: Optional[sw.PasswordField] = None
+    "Widget to set credential password"
 
-    w_key = None
-    "sw.PasswordField: widget to set credential API key"
+    w_key: Optional[sw.PasswordField] = None
+    "Widget to set credential API key"
 
-    w_method = None
-    "sw.Select: dropdown widget to select connection method"
+    w_method: Optional[sw.Select] = None
+    "Dropdown widget to select connection method"
 
     def __init__(
-        self, *args, btn=None, alert=None, planet_model=None, info=False, **kwargs
+        self,
+        btn: Optional[sw.Btn] = None,
+        alert: Optional[sw.Alert] = None,
+        planet_model: Optional[PlanetModel] = None,
+        info: bool = False,
+        **kwargs,
     ):
 
         self.class_ = "d-block flex-wrap"
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         self.planet_model = planet_model if planet_model else PlanetModel()
         self.btn = btn if btn else sw.Btn("Validate", small=True, class_="mr-1")
@@ -100,7 +107,7 @@ class PlanetView(sw.Layout):
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
 
-    def reset(self):
+    def reset(self) -> None:
         """Empty credentials fields and restart activation mode"""
 
         self.w_username.v_model = None
@@ -110,7 +117,7 @@ class PlanetView(sw.Layout):
 
         return
 
-    def _swap_inputs(self, change):
+    def _swap_inputs(self, change: dict) -> None:
         """Swap between credentials and api key inputs"""
 
         self.alert.reset()
@@ -123,7 +130,7 @@ class PlanetView(sw.Layout):
         return
 
     @loading_button(debug=True)
-    def validate(self, *args):
+    def validate(self, *args) -> None:
         """Initialize planet client and validate if is active"""
 
         self.planet_model.__init__()
