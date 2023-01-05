@@ -42,13 +42,7 @@ def write_reqs(file):
         f.write("\n# custom libs")
         f.write("\n")
 
-    # ################## not working for no reason #############################
     # add the custom libs
-    # command = ["pipreqs", '--print', str(Path.cwd()), '>>', str(req_file)]
-    # res = subprocess.run(command, cwd=Path.cwd())
-    # ##########################################################################
-
-    # until I understand use a proxy tmp file
     tmp_file = Path.cwd() / "req_tmp.txt"
     subprocess.run(
         ["pipreqs", "--savepath", str(tmp_file), str(Path.cwd())], cwd=Path.cwd()
