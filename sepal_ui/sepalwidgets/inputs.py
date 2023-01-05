@@ -858,8 +858,8 @@ class NumberField(v.TextField, SepalWidget):
 
         # set default params
         kwargs["type"] = "number"
-        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "mdi-plus")
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-minus")
+        kwargs["append_outer_icon"] = kwargs.pop("append_outer_icon", "fa-solid fa-plus")
+        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fa-solid fa-minus")
         kwargs["v_model"] = kwargs.pop("v_model", 0)
         kwargs["readonly"] = kwargs.pop("readonly", True)
 
