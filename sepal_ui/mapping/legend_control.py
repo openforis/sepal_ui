@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 import traitlets as t
 from ipyleaflet import WidgetControl
@@ -33,10 +33,10 @@ class LegendControl(WidgetControl):
     vertical: t.Bool = t.Bool(None).tag(sync=True)
     "Whether to display the legend in a vertical or horizontal way"
 
-    _html_table: sw.Html
+    _html_table: Optional[sw.Html] = None
     "The table containing the legend display"
 
-    _html_title: sw.Html
+    _html_title: Optional[sw.Html] = None
     "The tilte of the legend"
 
     def __init__(
@@ -98,7 +98,7 @@ class LegendControl(WidgetControl):
         """Creates/update a legend based on the class legend_dict member"""
 
         # Do this to avoid crash when called by trait for the first time
-        if not hasattr(self, "_html_table"):
+        if self._html_table is None:
             return
 
         if not self.legend_dict:
@@ -144,7 +144,7 @@ class LegendControl(WidgetControl):
         """Trait method to update the title of the legend"""
 
         # Do this to avoid crash when called by trait
-        if not hasattr(self, "_html_title"):
+        if self._html_title is None:
             return
 
         self._html_title.children = change["new"]

@@ -7,7 +7,7 @@ def lint(session):
     session.run("pre-commit", "run", "--a", *session.posargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10"])  # , reuse_venv=True)
+@nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
 def test(session):
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
@@ -17,6 +17,7 @@ def test(session):
 @nox.session(reuse_venv=True)
 def docs(session):
     session.install(".[doc]")
+    session.run("rm", "-rf", "docs/build/", external=True)
     session.run(
         "sphinx-apidoc",
         "--force",
@@ -26,7 +27,7 @@ def docs(session):
         "docs/source/modules",
         "./sepal_ui",
     )
-    session.run("sphinx-build", "-b", "html", "docs/source", "build")
+    session.run("sphinx-build", "-v", "-b", "html", "docs/source", "build")
 
 
 @nox.session(name="docs-live", reuse_venv=False)

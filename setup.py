@@ -102,7 +102,7 @@ setup_params = {
             "m2r2",
             "sphinxcontrib-autoprogram",
             "sphinx-favicon",
-            # "sphinx-autodoc-typehints",
+            "sphinx-autodoc-typehints",
             "nox",
         ],
     },

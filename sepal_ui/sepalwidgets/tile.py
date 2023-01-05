@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 import ipyvuetify as v
 from typing_extensions import Self
@@ -27,13 +27,13 @@ class Tile(v.Layout, SepalWidget):
         kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
     """
 
-    btn: v.Btn
+    btn: Optional[v.Btn] = None
     "the process btn"
 
-    alert: v.Alert
+    alert: Optional[v.Alert] = None
     "the alert to display process informations to the end user"
 
-    title: v.Html
+    title: Optional[v.Html] = None
     "the title of the Tile"
 
     def __init__(

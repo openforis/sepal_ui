@@ -20,28 +20,28 @@ class PlanetView(sw.Layout):
 
     """
 
-    planet_model: PlanetModel
+    planet_model: Optional[PlanetModel] = None
     "Backend model to manipulate interface actions"
 
-    btn: sw.Btn
+    btn: Optional[sw.Btn] = None
     "Button to trigger the validation process in the associated model"
 
-    alert: sw.Alert
+    alert: Optional[sw.Alert] = None
     "Alert component to display end-user action results"
 
     info: bool = False
     "either to display or not a detailed description about the planet subscriptions"
 
-    w_username: sw.TextField
+    w_username: Optional[sw.TextField] = None
     "Widget to set credential username"
 
-    w_password: sw.PasswordField
+    w_password: Optional[sw.PasswordField] = None
     "Widget to set credential password"
 
-    w_key: sw.PasswordField
+    w_key: Optional[sw.PasswordField] = None
     "Widget to set credential API key"
 
-    w_method: sw.Select
+    w_method: Optional[sw.Select] = None
     "Dropdown widget to select connection method"
 
     def __init__(

@@ -69,16 +69,16 @@ class SepalMap(ipl.Map):
     gee: bool = True
     "Either the map will use ee binding or not"
 
-    v_inspector: ValueInspector
+    v_inspector: Optional[ValueInspector] = None
     "The value inspector of the map"
 
-    dc: DrawControl
+    dc: Optional[DrawControl] = None
     "The drawing control of the map"
 
     _id: str = ""
     "A unique 6 letters str to identify the map in the DOM"
 
-    state: sw.StateBar
+    state: Optional[sw.StateBar] = None
     "The statebar to inform the user about tile loading"
 
     def __init__(

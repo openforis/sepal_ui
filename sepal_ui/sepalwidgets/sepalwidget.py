@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
@@ -25,7 +25,7 @@ class SepalWidget(v.VuetifyWidget):
     old_class: t.Unicode = t.Unicode("").tag(sync=True)
     "a saving attribute of the widget class"
 
-    with_tooltip: Union[v.Tooltip, None] = None
+    with_tooltip: Optional[v.Tooltip] = None
     "the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
 
     def __init__(self, viz: bool = True, tooltip: str = "", **kwargs) -> None:

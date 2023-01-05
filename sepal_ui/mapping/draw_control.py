@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Optional
 
 import geopandas as gpd
 import ipyleaflet as ipl
@@ -16,7 +17,7 @@ class DrawControl(ipl.DrawControl):
         kwargs: any available arguments from a ipyleaflet.DrawingControl
     """
 
-    m: ipl.Map
+    m: Optional[ipl.Map] = None
     "the map on which he drawControl is displayed. It will help control the visibility"
 
     def __init__(self, m: ipl.Map, **kwargs) -> None:

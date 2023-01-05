@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 import ee
 import geopandas as gpd
@@ -28,16 +28,16 @@ class ValueInspector(MenuControl):
         m: the map on which he vinspector is displayed to interact with it's layers
     """
 
-    m: Map
+    m: Optional[Map] = None
     "the map on which he vinspector is displayed to interact with it's layers"
 
-    w_loading: v.ProgressLinear
+    w_loading: Optional[v.ProgressLinear] = None
     "The progress bar on top of the Card"
 
-    menu: v.Menu
+    menu: Optional[v.Menu] = None
     "The menu displayed when the map btn is clicked"
 
-    text: v.CardText
+    text: Optional[v.CardText] = None
     "The text element from the card that is edited when the user click on the map"
 
     def __init__(self, m: Map, **kwargs) -> None:

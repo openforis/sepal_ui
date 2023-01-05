@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
@@ -58,7 +58,7 @@ class CopyToClip(v.VuetifyTemplate):
         kwargs: any argument that can be used with a v.TextField
     """
 
-    tf: v.TextField
+    tf: Optional[v.TextField] = None
     "v.TextField: the textfield widget that holds the v_model to copy"
 
     v_model: t.Unicode = t.Unicode("").tag(sync=True)
@@ -133,7 +133,7 @@ class StateIcon(Tooltip):
     states: dict = {}
     'Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
 
-    icon: v.Icon
+    icon: Optional[v.Icon]
     "The colored Icon of the tooltip"
 
     def __init__(

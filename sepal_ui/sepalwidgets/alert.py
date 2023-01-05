@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 import ipyvuetify as v
 import traitlets as t
@@ -64,10 +64,10 @@ class Alert(v.Alert, SepalWidget):
         kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
     """
 
-    progress_bar: tqdm
+    progress_bar: Optional[tqdm] = None
     "the progress bar of the alert"
 
-    progress_output: Output
+    progress_output: Optional[Output] = None
     "the output object where the progress bar is stored"
 
     def __init__(self, type_: str = "info", **kwargs) -> None:
@@ -263,7 +263,7 @@ class StateBar(v.SystemBar, SepalWidget):
     loading: t.Bool = t.Bool(False).tag(sync=True)
     "either or not the circular progress is spinning"
 
-    progress: v.ProgressCircular
+    progress: Optional[v.ProgressCircular] = None
     "The ProgressCircular widget that will be displayed in the statebar"
 
     def __init__(self, **kwargs) -> None:
@@ -328,7 +328,7 @@ class Banner(v.Snackbar, SepalWidget):
        kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
     """
 
-    btn_close: v.Btn
+    btn_close: Optional[v.Btn] = None
     "v.Btn: the closing btn of the banner"
 
     def __init__(

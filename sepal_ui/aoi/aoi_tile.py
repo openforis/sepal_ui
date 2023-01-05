@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 import ipyvuetify as v
 
@@ -23,10 +23,10 @@ class AoiTile(sw.Tile):
         asset: the default asset. Can only work if :code:`ee==True`.
     """
 
-    map: sm.SepalMap
+    map: Optional[sm.SepalMap] = None
     "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
 
-    view: AoiView
+    view: Optional[AoiView] = None
     "widget: an AoiView object to handle the aoi method selection"
 
     def __init__(

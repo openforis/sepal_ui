@@ -42,7 +42,9 @@ xyz_tiles: dict = {
 "Custom XYZ tile services."
 
 
-def get_xyz_dict(free_only: bool = True, _collection: dict = xyz, _output={}) -> dict:
+def get_xyz_dict(
+    free_only: bool = True, _collection: dict = xyz, _output: dict = {}
+) -> dict:
     """
     Returns a dictionary of xyz services.
 

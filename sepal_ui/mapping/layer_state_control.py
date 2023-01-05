@@ -1,3 +1,5 @@
+from typing import Optional
+
 import traitlets as t
 from ipyleaflet import Map, WidgetControl
 from traitlets import observe
@@ -13,10 +15,10 @@ class LayerStateControl(WidgetControl):
     every time a map is added to the map the counter will be raised by one. same behaviour with removed.
     """
 
-    m: Map
+    m: Optional[Map] = None
     "the map connected to the control"
 
-    w_state: sw.StateBar
+    w_state: Optional[sw.StateBar] = None
     "sw.StateBar: the stateBar displaying the number of layer loading on the map"
 
     nb_layer: t.Int = t.Int(0).tag(sync=True)

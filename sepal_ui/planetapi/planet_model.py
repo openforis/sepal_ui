@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import nest_asyncio
 import planet.data_filter as filters
@@ -36,7 +36,7 @@ class PlanetModel(Model):
     credentials: List[str] = []
     "list containing [api_key] or pair of [username, password] to log in"
 
-    session: Session
+    session: Optional[Session] = None
     "planet.http.session: planet session."
 
     subscriptions: t.Dict = t.Dict({}).tag(sync=True)

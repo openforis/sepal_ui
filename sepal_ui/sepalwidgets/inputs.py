@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 import ee
 import geopandas as gpd
@@ -48,10 +48,10 @@ class DatePicker(v.Layout, SepalWidget):
 
     """
 
-    menu: v.Menu
+    menu: Optional[v.Menu] = None
     "the menu widget to display the datepicker"
 
-    date_text: v.TextField
+    date_text: Optional[v.TextField] = None
     "the text field of the datepicker widget"
 
     disabled: t.Bool = t.Bool(False).tag(sync=True)
@@ -184,22 +184,22 @@ class FileInput(v.Flex, SepalWidget):
     file: t.Unicode = t.Unicode("").tag(sync=True)
     "the current file"
 
-    selected_file: v.TextField
+    selected_file: Optional[v.TextField] = None
     "the textfield where the file pathname is stored"
 
-    loading: v.ProgressLinear
+    loading: Optional[v.ProgressLinear] = None
     "loading top bar of the menu component"
 
-    file_list: v.List
+    file_list: Optional[v.List] = None
     "the list of files and folder that are available in the current folder"
 
-    file_menu: v.Menu
+    file_menu: Optional[v.Menu] = None
     "the menu that hide and show the file_list"
 
-    reload: v.Btn
+    reload: Optional[v.Btn] = None
     "reload btn to reload the file list on the current folder"
 
-    clear: v.Btn
+    clear: Optional[v.Btn] = None
     "clear btn to remove everything and set back to the ini folder"
 
     v_model: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
@@ -486,16 +486,16 @@ class LoadTableField(v.Col, SepalWidget):
         kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
     """
 
-    fileInput: FileInput
+    fileInput: Optional[FileInput] = None
     "The file input to select the .csv or .txt file"
 
-    IdSelect: v.Select
+    IdSelect: Optional[v.Select] = None
     "input to select the id column"
 
-    LngSelect: v.Select
+    LngSelect: Optional[v.Select] = None
     "input to select the lng column"
 
-    LatSelect: v.Select
+    LatSelect: Optional[v.Select] = None
     "input to select the lat column"
 
     default_v_model: dict = {
@@ -668,7 +668,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     }
     "Valid ypes of asset"
 
-    folder: str
+    folder: str = ""
     "the folder of the user assets, mainly for debug"
 
     valid: bool = True
@@ -920,22 +920,22 @@ class VectorField(v.Col, SepalWidget):
         kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
     """
 
-    original_gdf: gpd.GeoDataFrame
+    original_gdf: Optional[gpd.GeoDataFrame] = None
     "The originally selected dataframe"
 
-    df: pd.DataFrame
+    df: Optional[pd.DataFrame] = None
     "the orginal dataframe without the geometry (for column naming)"
 
-    gdf: gpd.GeoDataFrame
+    gdf: Optional[gpd.GeoDataFrame] = None
     "The selected dataframe"
 
-    w_file: FileInput
+    w_file: Optional[FileInput] = None
     "The file selector widget"
 
-    w_column: v.Select
+    w_column: Optional[v.Select] = None
     "The Select widget to select the column"
 
-    w_value = v.Select
+    w_value: Optional[v.Select] = None
     "The Select widget to select the value in the selected column"
 
     v_model: t.Dict = t.Dict(
@@ -953,7 +953,7 @@ class VectorField(v.Col, SepalWidget):
     ]
     "the column compulsory selector (ALL)"
 
-    feature_collection: ee.FeatureCollection
+    feature_collection: Optional[ee.FeatureCollection] = None
     "ee.FeatureCollection: the selected featureCollection"
 
     def __init__(

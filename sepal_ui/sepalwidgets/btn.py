@@ -1,6 +1,6 @@
 import warnings
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
@@ -33,7 +33,7 @@ class Btn(v.Btn, SepalWidget):
         Btn is not using a default ``msg`` anymor`.
     """
 
-    v_icon: v.Icon
+    v_icon: Optional[v.Icon] = None
     "the icon in the btn"
 
     gliph: t.Unicode = t.Unicode("").tag(sync=True)

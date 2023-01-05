@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
@@ -30,13 +30,13 @@ class FullScreenControl(WidgetControl):
     METHODS: List[str] = ["embed", "fullscreen"]
     "list: The javascript methods name to be used to switch from expand to compress mode"
 
-    zoomed: bool
+    zoomed: bool = False
     "bool: the current zoomed level: ``True`` for expanded and ``False`` for compressed"
 
-    w_btn: v.Btn
+    w_btn: Optional[v.Btn] = None
     "the btn to display on the map"
 
-    template: v.VuetifyTemplate
+    template: Optional[v.VuetifyTemplate] = None
     "Embeds the 2 javascripts methods to change the rendering of the map"
 
     def __init__(

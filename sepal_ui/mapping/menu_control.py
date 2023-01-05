@@ -19,10 +19,10 @@ class MenuControl(WidgetControl):
         m: The map associated with the Menu
     """
 
-    menu: sw.Menu
+    menu: Optional[sw.Menu] = None
     "the menu displayed on the map as a widget"
 
-    m: Optional[Map]
+    m: Optional[Map] = None
     "the map used to display the control"
 
     def __init__(

@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
 import ipyvuetify as v
 from typing_extensions import Self
@@ -22,7 +22,7 @@ class InfoView(sw.ExpansionPanels):
 
     """
 
-    model: PlanetModel
+    model: Optional[PlanetModel] = None
     "Backend model to manipulate interface actions"
 
     def __init__(self, model: PlanetModel, **kwargs) -> None:

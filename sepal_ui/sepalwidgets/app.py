@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import partial
 from itertools import cycle
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import ipyvuetify as v
 import pandas as pd
@@ -65,13 +65,13 @@ class LocaleSelect(v.Menu, SepalWidget):
     }
     "the default flag parameter, default to english"
 
-    btn: v.Btn
+    btn: Optional[v.Btn] = None
     "the btn to click when changing language"
 
-    language_list: v.List
+    language_list: Optional[v.List] = None
     "the list of countries with their flag,name in english, and ISO code"
 
-    def __init__(self, translator: Union[Translator, None] = None, **kwargs) -> None:
+    def __init__(self, translator: Optional[Translator] = None, **kwargs) -> None:
 
         # extract the available language from the translator
         # default to only en-US if no translator is set
@@ -238,16 +238,16 @@ class AppBar(v.AppBar, SepalWidget):
         kwargs (optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
     """
 
-    toogle_button: v.Btn
+    toogle_button: Optional[v.Btn]
     "The btn to display or hide the drawer to the user"
 
-    title: v.ToolbarTitle
+    title: Optional[v.ToolbarTitle]
     "The widget containing the app title"
 
-    locale: LocaleSelect
+    locale: Optional[LocaleSelect]
     "The locale selector of all apps"
 
-    theme = ThemeSelect
+    theme = Optional[ThemeSelect]
     "The theme selector of all apps"
 
     def __init__(
@@ -313,13 +313,13 @@ class DrawerItem(v.ListItem, SepalWidget):
         kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
     """
 
-    rt: ResizeTrigger
+    rt: Optional[ResizeTrigger] = None
     "The trigger to resize maps and other javascript object when jumping from a tile to another"
 
     alert: t.Bool = t.Bool(False).tag(sync=True)
     "Trait to control visibility of an alert in the drawer item"
 
-    alert_badge: v.ListItemAction
+    alert_badge: Optional[v.ListItemAction]
     "red circle to display in the drawer"
 
     def __init__(
@@ -578,16 +578,16 @@ class App(v.App, SepalWidget):
     tiles: List[v.Card] = []
     "the tiles of the app"
 
-    appBar: AppBar
+    appBar: Optional[AppBar] = None
     "the AppBar of the application"
 
-    footer: Footer
+    footer: Optional[Footer] = None
     "the footer of the application"
 
-    navDrawer: NavDrawer
+    navDrawer: Optional[NavDrawer] = None
     "the navdrawer of the application"
 
-    content: v.Content
+    content: Optional[v.Content] = None
     "the tiles organized in a fluid container"
 
     def __init__(

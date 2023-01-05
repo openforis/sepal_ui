@@ -109,17 +109,17 @@ class AdminField(sw.Select):
         parent (AdminField): the field parent object
     """
 
-    gee: bool
+    gee: bool = True
     "wether or not to depend on earthengine"
 
-    level: int
+    level: int = -1
     "The admin level of the current field"
 
-    parent: sw.Select
+    parent: Optional[sw.Select] = None
     "The parent adminfield object"
 
     def __init__(
-        self, level: int, parent: Union[sw.Select, None] = None, gee: bool = True
+        self, level: int, parent: Optional[sw.Select] = None, gee: bool = True
     ) -> None:
 
         # save ee state
@@ -215,53 +215,53 @@ class AoiView(sw.Card):
     gee: bool = True
     "Either or not he aoi_view is connected to gee"
 
-    folder: Union[str, Path]
+    folder: Union[str, Path] = ""
     "The folder name used in GEE related component, mainly used for debugging"
 
-    model: AoiModel
+    model: Optional[AoiModel] = None
     "The model to create the AOI from the selected parameters"
 
     # ##########################################################################
     # ###                            the embeded widgets                     ###
     # ##########################################################################
 
-    map_: Optional[sm.SepalMap]
+    map_: Optional[sm.SepalMap] = None
     "The map to draw the AOI"
 
-    aoi_dc: sm.DrawControl
+    aoi_dc: Optional[sm.DrawControl] = None
     "the drawing control associated with DRAW method"
 
-    w_method: MethodSelect
+    w_method: Optional[MethodSelect] = None
     "The widget to select the method"
 
     components: Dict[str, v.VuetifyWidget] = {}
     "The followingwidgets used to define AOI"
 
-    w_admin_0: AdminField
+    w_admin_0: Optional[AdminField] = None
     "The widget used to select admin level 0"
 
-    w_admin_1: AdminField
+    w_admin_1: Optional[AdminField] = None
     "The widget used to select admin level 1"
 
-    w_admin_2: AdminField
+    w_admin_2: Optional[AdminField] = None
     "The widget used to select admin level 2"
 
-    w_vector: sw.VectorField
+    w_vector: Optional[sw.VectorField] = None
     "The widget used to select vector shapes"
 
-    w_points: sw.LoadTableField
+    w_points: Optional[sw.LoadTableField] = None
     "The widget used to select points files"
 
-    w_draw: sw.TextField
+    w_draw: Optional[sw.TextField] = None
     "The widget used to select the name of a drawn shape (only if :code:`map_ != None`)"
 
-    w_asset: sw.AssetSelect
+    w_asset: Optional[sw.AssetSelect] = None
     "The widget used to select asset name of a featureCollection (only if :code:`gee == True`)"
 
-    btn: sw.Btn
+    btn: Optional[sw.Btn] = None
     "A default btn"
 
-    alert: sw.Alert
+    alert: Optional[sw.Alert] = None
     "A alert to display message to the end user"
 
     @versionadded(
