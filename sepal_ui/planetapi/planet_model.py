@@ -134,7 +134,7 @@ class PlanetModel(Model):
         start: Union[str, datetime],
         end: Union[str, datetime],
         cloud_cover: float,
-        limit_to_x_pages: int = -1,
+        limit_to_x_pages: Optional[int] = None,
     ) -> list:
         """
         Request imagery items from the planet API for the requested dates.
@@ -152,19 +152,17 @@ class PlanetModel(Model):
         """
 
         # cast start and end to str
-        start = start.strftime("%Y-%m-%d") if isinstance(start, datetime) else start
-        end = end.strftime("%Y-%m-%d") if isinstance(end, datetime) else end
+        start = (
+            datetime.strptime(start, "%Y-%m-%d") if isinstance(start, str) else start
+        )
+        end = datetime.strptime(end, "%Y-%m-%d") if isinstance(end, str) else end
 
         and_filter = filters.and_filter(
             [
                 filters.geometry_filter(aoi),
                 filters.range_filter("cloud_cover", lte=cloud_cover),
-                filters.date_range_filter(
-                    "acquired", gt=datetime.strptime(start, "%Y-%m-%d")
-                ),
-                filters.date_range_filter(
-                    "acquired", lt=datetime.strptime(end, "%Y-%m-%d")
-                ),
+                filters.date_range_filter("acquired", gt=start),
+                filters.date_range_filter("acquired", lt=end),
             ]
         )
 
