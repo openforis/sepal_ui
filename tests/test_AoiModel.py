@@ -9,36 +9,36 @@ from sepal_ui import aoi
 
 
 class TestAoiModel:
-    def test_init_no_ee(self, alert, fake_vector):
+    def test_init_no_ee(self, fake_vector):
 
         # default init
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
         assert isinstance(aoi_model, aoi.AoiModel)
         assert aoi_model.gee is False
 
         # with a default vector
-        aoi_model = aoi.AoiModel(alert, vector=fake_vector, gee=False)
+        aoi_model = aoi.AoiModel(vector=fake_vector, gee=False)
         assert aoi_model.name == "gadm36_VAT_0"
 
         # test with a non ee admin
         admin = "VAT"  # GADM Vatican city
-        aoi_model = aoi.AoiModel(alert, gee=False, admin=admin)
+        aoi_model = aoi.AoiModel(gee=False, admin=admin)
 
         assert aoi_model.name == "VAT"
 
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_init_ee(alert, gee_dir):
+    def test_init_ee(self, gee_dir):
 
         # default init
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(folder=gee_dir)
         assert isinstance(aoi_model, aoi.AoiModel)
         assert aoi_model.gee is True
 
         # with default assetId
         asset_id = str(gee_dir / "feature_collection")
-        aoi_model = aoi.AoiModel(alert, asset=asset_id, folder=gee_dir)
+        aoi_model = aoi.AoiModel(asset=asset_id, folder=gee_dir)
 
         assert aoi_model.asset_name == asset_id
         assert aoi_model.default_asset == asset_id
@@ -48,23 +48,23 @@ class TestAoiModel:
 
         # check that wrongly defined asset_name raise errors
         with pytest.raises(Exception):
-            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+            aoi_model = aoi.AoiModel(folder=gee_dir)
             aoi_model._from_asset({"pathname": None})
 
         with pytest.raises(Exception):
-            aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+            aoi_model = aoi.AoiModel(folder=gee_dir)
             asset = {"pathname": asset_id, "column": "data", "value": None}
             aoi_model._from_asset(asset)
 
         # it should be the same with a different name
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(folder=gee_dir)
         asset = {"pathname": asset_id, "column": "data", "value": 0}
         aoi_model._from_asset(asset)
         assert aoi_model.name == "feature_collection_data_0"
 
         # with a default admin
         admin = "110"  # GAUL Vatican city
-        aoi_model = aoi.AoiModel(alert, admin=admin, folder=gee_dir)
+        aoi_model = aoi.AoiModel(admin=admin, folder=gee_dir)
         assert aoi_model.name == "VAT"
 
         return
@@ -121,7 +121,7 @@ class TestAoiModel:
 
         return
 
-    def test_clear_attributes(self, alert, aoi_model_outputs, aoi_model_traits):
+    def test_clear_attributes(self, aoi_model_outputs, aoi_model_traits):
 
         aoi_model = aoi.AoiModel(gee=False)
 
@@ -151,7 +151,7 @@ class TestAoiModel:
         assert all([is_none(out) for out in aoi_model_outputs])
 
         # check that default are saved
-        aoi_model = aoi.AoiModel(alert, admin="VAT", gee=False)  # GADM for Vatican
+        aoi_model = aoi.AoiModel(admin="VAT", gee=False)  # GADM for Vatican
 
         # insert dummy parameter
         [set_trait(trait) for trait in aoi_model_traits]
@@ -192,9 +192,9 @@ class TestAoiModel:
 
         return
 
-    def test_set_object(self, alert):
+    def test_set_object(self):
 
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
 
         # test that no method returns an error
         with pytest.raises(Exception):
@@ -202,9 +202,9 @@ class TestAoiModel:
 
         return
 
-    def test_from_admin(self, alert, gee_dir):
+    def test_from_admin(self, gee_dir):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(folder=gee_dir)
 
         # with fake number
         with pytest.raises(Exception):
@@ -217,9 +217,9 @@ class TestAoiModel:
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_from_point(self, alert, fake_points, gee_dir):
+    def test_from_point(self, fake_points, gee_dir):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
+        aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
         # uncomplete json
         points = {
@@ -244,9 +244,9 @@ class TestAoiModel:
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_from_vector(self, alert, gee_dir, fake_vector):
+    def test_from_vector(self, gee_dir, fake_vector):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
+        aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
         # with no pathname
         with pytest.raises(Exception):
@@ -270,9 +270,9 @@ class TestAoiModel:
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_from_geo_json(self, alert, gee_dir, square):
+    def test_from_geo_json(self, gee_dir, square):
 
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir, gee=False)
+        aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
         # no points
         with pytest.raises(Exception):
@@ -286,11 +286,11 @@ class TestAoiModel:
         return
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_from_asset(self, alert, gee_dir):
+    def test_from_asset(self, gee_dir):
 
         # init parameters
         asset_id = str(gee_dir / "feature_collection")
-        aoi_model = aoi.AoiModel(alert, folder=gee_dir)
+        aoi_model = aoi.AoiModel(folder=gee_dir)
 
         # no asset name
         with pytest.raises(Exception):
@@ -381,12 +381,12 @@ class TestAoiModel:
         return
 
     @pytest.fixture
-    def test_model(self, alert, gee_dir):
+    def test_model(self, gee_dir):
         """
         Create a test AoiModel based on GEE using Vatican
         """
         admin = "110"  # vatican city (smalest adm0 feature)
-        return aoi.AoiModel(alert, admin=admin, folder=gee_dir)
+        return aoi.AoiModel(admin=admin, folder=gee_dir)
 
     @pytest.fixture(scope="class")
     def aoi_model_traits(self):
