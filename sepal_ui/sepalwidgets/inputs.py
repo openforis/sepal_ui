@@ -17,6 +17,7 @@ from typing_extensions import Self
 from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.btn import Btn
@@ -364,7 +365,7 @@ class FileInput(v.Flex, SepalWidget):
 
         return self
 
-    @su.switch("indeterminate", on_widgets=["loading"])
+    @sd.switch("indeterminate", on_widgets=["loading"])
     def _change_folder(self) -> None:
         """
         Change the target folder
@@ -563,7 +564,7 @@ class LoadTableField(v.Col, SepalWidget):
 
         return
 
-    @su.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
+    @sd.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change: dict) -> Self:
         """
         Update the select content when the fileinput v_model is changing
@@ -672,7 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     types: t.List = t.List().tag(sync=True)
     "The list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items."
 
-    @su.need_ee
+    @sd.need_ee
     def __init__(
         self,
         folder: Union[str, Path] = "",
@@ -725,7 +726,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.on_event("click:prepend", self._get_items)
         self.observe(self._get_items, "default_asset")
 
-    @su.switch("loading")
+    @sd.switch("loading")
     def _validate(self, change: dict) -> None:
         """
         Validate the selected asset. Throw an error message if is not accesible or not in the type list.
@@ -754,7 +755,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return
 
-    @su.switch("loading", "disabled")
+    @sd.switch("loading", "disabled")
     def _get_items(self, *args) -> Self:
 
         # init the item list
@@ -1000,7 +1001,7 @@ class VectorField(v.Col, SepalWidget):
 
         return self
 
-    @su.switch("loading", on_widgets=["w_column", "w_value"])
+    @sd.switch("loading", on_widgets=["w_column", "w_value"])
     def _update_file(self, change: dict) -> Self:
         """update the file name, the v_model and reset the other widgets"""
 
@@ -1036,7 +1037,7 @@ class VectorField(v.Col, SepalWidget):
 
         return self
 
-    @su.switch("loading", on_widgets=["w_value"])
+    @sd.switch("loading", on_widgets=["w_value"])
     def _update_column(self, change: dict) -> Self:
         """Update the column name and empty the value list"""
 

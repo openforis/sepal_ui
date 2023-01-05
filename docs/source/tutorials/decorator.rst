@@ -82,6 +82,7 @@ Let's import the required modules. All the decorators are stored in the utils mo
     import ipyvuetify as v
     import sepal_ui.sepalwidgets as sw
     import sepal_ui.scripts.utils as su
+    import sepal_ui.scripts.decorator as sd
     
 
 Now, create a custom tile with all the elements that we will require to be displayed in our interface, as well as the events that we want to trigger.
@@ -125,19 +126,19 @@ It's time to use the decorators in the class methods. For this example, we will 
 
 .. code-block:: python
 
-        @su.loading_button()
-        @su.switch('loading', 'disabled', on_widgets=['w_select'])
+        @sd.loading_button()
+        @sd.switch('loading', 'disabled', on_widgets=['w_select'])
         def get_items_event(self):
             """request GEE items"""
     
             self.children = self.request_items()
         
-        @su.switch('loading', 'disabled')
+        @sd.switch('loading', 'disabled')
         def on_card_event(self):
             
             sleep(2)
         
-        @su.need_ee
+        @sd.need_ee
         def request_items(self):
             """Connect to gee and request the root assets id's"""
             

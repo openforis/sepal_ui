@@ -6,10 +6,10 @@ import ee
 import ipyvuetify as v
 
 from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import decorator as sd
 
 
-@su.need_ee
+@sd.need_ee
 def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> str:
     """
     Wait until the selected process is finished. Display some output information
@@ -45,7 +45,7 @@ def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> 
     return state
 
 
-@su.need_ee
+@sd.need_ee
 def is_task(task_descripsion: str) -> ee.batch.Task:
     """
     Search for the described task in the user Task list return None if nothing is found
@@ -66,7 +66,7 @@ def is_task(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-@su.need_ee
+@sd.need_ee
 def is_running(task_descripsion: str) -> ee.batch.Task:
     """
     Search for the described task in the user Task list return None if nothing is currently running
@@ -86,7 +86,7 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-@su.need_ee
+@sd.need_ee
 def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[str]:
     """
     Get all the assets from the parameter folder. every nested asset will be displayed.
@@ -113,7 +113,7 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
     return asset_list
 
 
-@su.need_ee
+@sd.need_ee
 def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
     """
     Check if the asset already exist in the user asset folder
