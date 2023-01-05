@@ -819,7 +819,7 @@ class PasswordField(v.TextField, SepalWidget):
         """
 
         # default behavior
-        kwargs["label"] = kwargs.pop("label", "Password")
+        kwargs["label"] = kwargs.pop("label", ms.password_field.label)
         kwargs["class_"] = kwargs.pop("class_", "mr-2")
         kwargs["v_model"] = kwargs.pop("v_model", "")
         kwargs["type"] = "password"
