@@ -1,0 +1,167 @@
+[build-system]
+requires = ["setuptools>=61.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sepal-ui"
+version = "2.13.0"
+description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
+keywords = ["UI", "Python", "widget", "sepal"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+requires-python = ">=3.6.9"
+dependencies = [
+    # building widgets
+    "ipyvuetify",
+    "markdown",
+    "ipyleaflet>=0.14.0",  # to have access to data member in edition
+    # earthengine management
+    "earthengine-api",
+    "cryptography",
+    # to create a module 
+    "colorama",
+    "pipreqs",
+    # read local data 
+    "rioxarray",
+    "dask",  # used by rioxarray in the inspector
+    "geopandas",
+    "matplotlib",
+    "jupyter-server-proxy", # required for localtileserver
+    "planet==2.0a6",
+    # miscellaneous
+    "python-box",
+    "tqdm",
+    "Deprecated",
+    "Unidecode",  # to decode international names with non latin characters
+    "natsort",
+    "typing-extensions",
+]
+
+[[project.authors]]
+name = "Pierrick Rambaud"
+email = "pierrick.rambaud49@gmail.com"
+
+[project.license]
+text = "MIT"
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[project.urls]
+Homepage = "https://github.com/12rambau/sepal_ui"
+Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.tar.gz"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit", 
+    "commitizen",
+]
+test = [
+    "pytest", 
+    "pytest-sugar", 
+    "pytest-icdiff", 
+    "pytest-cov", 
+    "pytest-deadfixtures",
+    "Flake8-pyproject",
+    "nox",
+    "nbmake",
+]
+doc = [
+    "Sphinx",
+    "jupyter-sphinx",
+    "pydata-sphinx-theme",
+    "sphinx-notfound-page",
+    "sphinxcontrib-spelling",
+    "sphinx-copybutton",
+    "m2r2>=0.3.3",
+    "sphinxcontrib-autoprogram",
+    "sphinx-favicon",
+    "nox",
+]
+
+[project.scripts]
+module_deploy = "sepal_ui.bin.module_deploy:main"
+module_factory = "sepal_ui.bin.module_factory:main"
+module_l10n = "sepal_ui.bin.module_l10n:main"
+module_theme = "sepal_ui.bin.module_theme:main"
+module_venv = "sepal_ui.bin.module_venv:main"
+activate_venv = "sepal_ui.bin.activate_venv:main"
+ee_token = "sepal_ui.bin.ee_token:main"
+sepal_ipyvuetify = "sepal_ui.bin.ipyvuetify:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = [
+    "sepal_ui",
+    "sepal_ui.scripts",
+    "sepal_ui.frontend",
+    "sepal_ui.sepalwidgets",
+    "sepal_ui.aoi",
+    "sepal_ui.message",
+    "sepal_ui.mapping",
+    "sepal_ui.translator",
+    "sepal_ui.model",
+    "sepal_ui.reclassify",
+    "sepal_ui.planetapi",
+]
+license-files = ["LICENSE.txt"]
+
+[tool.setuptools.package-data]
+sepal_ui = [
+    "scripts/*.csv",
+    "scripts/*.md",
+    "scripts/*.json",
+    "message/**/*.json",
+    "bin/*",
+    "frontend/css/*.css",
+    "frontend/json/*.json",
+    "frontend/js/*.js",
+    "templates/**/*",
+]
+
+[tool.commitizen]
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+tag_format = "v_$major.$minor.$patch$prerelease"
+update_changelog_on_bump = true
+version = "2.13.0"
+version_files = [
+    "pyproject.toml:version", 
+    "sepal_ui/__init__.py:__version__"
+]
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+
+[tool.flake8]
+ignore = [
+    "E501",  # line too long | Black take care of it
+    "W605",  # invalid escape sequence | we escape specific characters for sphinx
+    "W503",  # line break before binary operator | Black takes care of it
+]
+
+# init file are here to hide the internal structure to the user of the lib
+exclude = ["*/__init__.py", "docs/source/conf.py"]
+
+[tool.isort]
+profile = "black"
+skip = "sepal_ui/sepalwidgets/__init__.py"
+skip_glob = ["**/.ipynb_checkpoints/*", "**__pycache__/*"]
+src_paths = "sepal_ui"
+
+[tool.coverage.run] 
+source = ["sepal_ui"]
+omit = [
+    "sepal_ui/*/__init__.py",
+    "sepal_ui/scripts/messages.py",
+    "sepal_ui/reclassify/parameters.py",
+]

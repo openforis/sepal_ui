@@ -1,9 +1,12 @@
 import warnings
 from pathlib import Path
+from typing import Optional, Union
 
 import ipyvuetify as v
+import traitlets as t
 from deprecated.sphinx import deprecated
-from traitlets import Unicode, observe
+from traitlets import observe
+from typing_extensions import Self
 
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
@@ -12,34 +15,34 @@ __all__ = ["Btn", "DownloadBtn"]
 
 
 class Btn(v.Btn, SepalWidget):
-    """
-    Custom process Btn filled with the provided text.
-    the color will be defaulted to 'primary' and can be changed afterward according to your need
 
-    Args:
-        msg (str, optional): the text to display in the btn
-        gliph (str, optional): the full name of any mdi/fa icon
-        text (str, optional): the text to display in the btn
-        icon (str, optional): the full name of any mdi/fa icon
-        kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
+    v_icon: Optional[v.Icon] = None
+    "the icon in the btn"
 
-    .. deprecated:: 2.13
-        ``text`` and ``icon`` will be replaced by ``msg`` and ``gliph`` to avoid duplicating ipyvuetify trait.
+    gliph: t.Unicode = t.Unicode("").tag(sync=True)
+    "the name of the icon"
 
-    .. deprecated:: 2.14
-        Btn is not using a default ``msg`` anymor`.
-    """
+    msg: t.Unicode = t.Unicode("").tag(sync=True)
+    "the text of the btn"
 
-    v_icon = None
-    "v.Icon: the icon in the btn"
+    def __init__(self, msg: str = "", gliph: str = "", **kwargs) -> None:
+        """
+        Custom process Btn filled with the provided text.
+        the color will be defaulted to 'primary' and can be changed afterward according to your need
 
-    gliph = Unicode("").tag(sync=True)
-    "traitlet.Unicode: the name of the icon"
+        Args:
+            msg: the text to display in the btn
+            gliph: the full name of any mdi/fa icon
+            text: the text to display in the btn
+            icon: the full name of any mdi/fa icon
+            kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
 
-    msg = Unicode("").tag(sync=True)
-    "traitlet.Unicode: the text of the btn"
+        .. deprecated:: 2.13
+            ``text`` and ``icon`` will be replaced by ``msg`` and ``gliph`` to avoid duplicating ipyvuetify trait.
 
-    def __init__(self, msg="", gliph="", **kwargs):
+        .. deprecated:: 2.14
+            Btn is not using a default ``msg`` anymor`.
+        """
 
         # deprecation in 2.13 of text and icon
         # as they already exist in the ipyvuetify Btn traits (as booleans)
@@ -71,7 +74,7 @@ class Btn(v.Btn, SepalWidget):
         self.msg = msg
 
     @observe("gliph")
-    def _set_gliph(self, change):
+    def _set_gliph(self, change: dict) -> Self:
         """
         Set a new icon. If the icon is set to "", then it's hidden
         """
@@ -87,7 +90,7 @@ class Btn(v.Btn, SepalWidget):
         return self
 
     @observe("msg")
-    def _set_text(self, change):
+    def _set_text(self, change: dict) -> Self:
         """
         Set the text of the btn
         """
@@ -98,25 +101,19 @@ class Btn(v.Btn, SepalWidget):
         return self
 
     @deprecated(version="2.14", reason="Replace by the private _set_gliph")
-    def set_icon(self, icon=""):
+    def set_icon(self, icon: str = "") -> Self:
         """
         set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
             icon (str, optional): the full name of a mdi/fa icon
-
-        Return:
-            self
         """
         self.gliph = icon
         return self
 
-    def toggle_loading(self):
+    def toggle_loading(self) -> Self:
         """
         Jump between two states : disabled and loading - enabled and not loading
-
-        Return:
-            self
         """
         self.loading = not self.loading
         self.disabled = self.loading
@@ -125,18 +122,17 @@ class Btn(v.Btn, SepalWidget):
 
 
 class DownloadBtn(v.Btn, SepalWidget):
-    """
-    Custom download Btn filled with the provided text.
-    the download icon is automatically embeded and green.
-    The btn only accepts absolute links. if non is provided then the btn stays disabled
+    def __init__(self, text: str, path: Union[str, Path] = "#", **kwargs) -> None:
+        """
+        Custom download Btn filled with the provided text.
+        the download icon is automatically embeded and green.
+        The btn only accepts absolute links. if non is provided then the btn stays disabled
 
-    Args:
-        text (str): the message inside the btn
-        path (str|pathlib.Path, optional): the absoluteor relative path to a downloadable content
-        args (dict, optional): any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
-    """
-
-    def __init__(self, text, path="#", **kwargs):
+        Args:
+            text: the message inside the btn
+            path: the absoluteor relative path to a downloadable content
+            kwargs: any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
+        """
 
         # create a download icon
         v_icon = v.Icon(left=True, children=["fa-solid fa-download"])
@@ -155,7 +151,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         # create the URL
         self.set_url(path)
 
-    def set_url(self, path="#"):
+    def set_url(self, path: Union[str, Path] = "#") -> Self:
         """
         Set the URL of the download btn. and unable it.
         If nothing is provided the btn is disabled

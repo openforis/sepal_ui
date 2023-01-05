@@ -24,7 +24,7 @@ class TestReclassifyView:
 
     def test_init_local(self, view_local, class_file):
 
-        assert view_local.model.aoi_model.ee is False
+        assert view_local.model.aoi_model.gee is False
         assert view_local.gee is False
 
         # Check that all the classes buttons were created
@@ -37,7 +37,7 @@ class TestReclassifyView:
 
     def test_init_gee(self, view_gee):
 
-        assert view_gee.model.aoi_model.ee is True
+        assert view_gee.model.aoi_model.gee is True
         assert view_gee.gee is True
 
         return

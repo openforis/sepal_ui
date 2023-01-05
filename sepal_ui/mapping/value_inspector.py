@@ -1,11 +1,13 @@
 import json
+from pathlib import Path
+from typing import Optional, Sequence, Union
 
 import ee
 import geopandas as gpd
 import ipyvuetify as v
 import rasterio as rio
 import rioxarray
-from ipyleaflet import GeoJSON
+from ipyleaflet import GeoJSON, Map
 from rasterio.crs import CRS
 from shapely import geometry as sg
 
@@ -19,26 +21,26 @@ from sepal_ui.scripts import decorator as sd
 
 
 class ValueInspector(MenuControl):
-    """
-    Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
-    Args:
-        m (ipyleaflet.Map): the map on which he vinspector is displayed to interact with it's layers
-    """
+    m: Optional[Map] = None
+    "the map on which he vinspector is displayed to interact with it's layers"
 
-    m = None
-    "(ipyleaflet.Map): the map on which he vinspector is displayed to interact with it's layers"
+    w_loading: Optional[v.ProgressLinear] = None
+    "The progress bar on top of the Card"
 
-    w_loading = None
-    "(vuetify.ProgressLinear): the progress bar on top of the Card"
+    menu: Optional[v.Menu] = None
+    "The menu displayed when the map btn is clicked"
 
-    menu = None
-    "(vuetify.Menu): the menu displayed when the map btn is clicked"
+    text: Optional[v.CardText] = None
+    "The text element from the card that is edited when the user click on the map"
 
-    text = None
-    "(vuetify.CardText): the text element from the card that is edited when the user click on the map"
+    def __init__(self, m: Map, **kwargs) -> None:
+        """
+        Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
-    def __init__(self, m, **kwargs):
+        Args:
+            m: the map on which he vinspector is displayed to interact with it's layers
+        """
 
         # set some default parameters
         kwargs["position"] = kwargs.pop("position", "topleft")
@@ -67,7 +69,7 @@ class ValueInspector(MenuControl):
         self.menu.observe(self.toggle_cursor, "v_model")
         self.m.on_interaction(self.read_data)
 
-    def toggle_cursor(self, change):
+    def toggle_cursor(self, *args) -> None:
         """
         Toggle the cursor display on the map to notify to the user that the inspector
         mode is activated
@@ -78,7 +80,7 @@ class ValueInspector(MenuControl):
 
         return
 
-    def read_data(self, **kwargs):
+    def read_data(self, **kwargs) -> None:
         """
         Read the data when the map is clicked with the vinspector activated
 
@@ -143,16 +145,16 @@ class ValueInspector(MenuControl):
         return
 
     @sd.need_ee
-    def _from_eelayer(self, ee_obj, coords):
+    def _from_eelayer(self, ee_obj: ee.ComputedObject, coords: Sequence[float]) -> dict:
         """
         extract the values of the ee_object for the considered point
 
         Args:
-            ee_obj (ee.object): the ee object to reduce to a single point
-            coords (tuple): the coordinates of the point (lng, lat).
+            ee_obj: the ee object to reduce to a single point
+            coords: the coordinates of the point (lng, lat).
 
-        Return:
-            (dict): tke value associated to the image/feature names
+        Returns:
+            tke value associated to the image/feature names
         """
 
         # create a gee point
@@ -188,16 +190,16 @@ class ValueInspector(MenuControl):
 
         return pixel_values
 
-    def _from_geojson(self, data, coords):
+    def _from_geojson(self, data: dict, coords: Sequence[float]) -> dict:
         """
         extract the values of the data for the considered point
 
         Args:
-            data (GeoJSON): the shape to reduce to a single point
-            coords (tuple): the coordinates of the point (lng, lat).
+            data: the shape to reduce to a single point
+            coords: the coordinates of the point (lng, lat).
 
-        Return:
-            (dict): tke value associated to the feature names
+        Returns:
+            The value associated to the feature names
         """
 
         # extract the coordinates as a poin
@@ -217,16 +219,16 @@ class ValueInspector(MenuControl):
         else:
             return gdf_filtered.iloc[0, ~gdf.columns.isin(skip_cols)].to_dict()
 
-    def _from_raster(self, raster, coords):
+    def _from_raster(self, raster: Union[str, Path], coords: Sequence[float]) -> dict:
         """
         extract the values of the data-array for the considered point
 
         Args:
-            raster (str): the path to the image to reduce to a single point
-            coords (tuple): the coordinates of the point (lng, lat).
+            raster: the path to the image to reduce to a single point
+            coords: the coordinates of the point (lng, lat).
 
-        Return:
-            (dict): tke value associated to the feature names
+        Returns:
+            The value associated to the feature names
         """
 
         # extract the coordinates as a point

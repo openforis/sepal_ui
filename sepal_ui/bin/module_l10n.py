@@ -22,12 +22,15 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_l10n")
 
 
-def check_locale(locale):
+def check_locale(locale: str) -> bool:
     """
     Check if the locale exist in the country list
 
+    Args:
+        locale: the locale name in iso code
+
     Return:
-        (bool)
+        True if the language is a well defined
     """
 
     countries = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
@@ -35,7 +38,7 @@ def check_locale(locale):
     return locale in countries.code.values
 
 
-def main():
+def main() -> None:
 
     # parse agruments
     parser.parse_args()
@@ -63,6 +66,8 @@ def main():
     print(
         f'{Fore.GREEN} The provided language code ("{locale}") has been set as default language for all SEPAL applications.{Fore.RESET}'
     )
+
+    return
 
 
 if __name__ == "__main__":

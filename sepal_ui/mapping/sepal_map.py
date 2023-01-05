@@ -13,6 +13,7 @@ import string
 import warnings
 from distutils.util import strtobool
 from pathlib import Path
+from typing import List, Optional, Sequence, Union, cast
 
 import ee
 import ipyleaflet as ipl
@@ -25,8 +26,10 @@ from deprecated.sphinx import deprecated
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
+from typing_extensions import Self
 
 from sepal_ui import color as scolors
+from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
@@ -43,53 +46,50 @@ __all__ = ["SepalMap"]
 
 
 class SepalMap(ipl.Map):
-    """
-    The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all
-    its parameter.
-    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of
-    the sepal_ui layout.
-    Numerous methods have been added in the class to help you deal with your workflow
-    implementation.
-    It can natively display raster from .tif files and files and ee objects using methods
-    that have the same signature as the GEE JavaScripts console.
-
-    Args:
-        basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
-        dc (bool, optional): wether or not the drawing control should be displayed. default to false
-        vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
-        gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-        statebar (bool): wether or not to display the Statebar in the map
-        kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
-    """
 
     # ##########################################################################
     # ###                              Map parameters                        ###
     # ##########################################################################
 
-    ee = True
-    "bool: either the map will use ee binding or not"
+    gee: bool = True
+    "Either the map will use ee binding or not"
 
-    v_inspector = None
-    "mapping.ValueInspector: the value inspector of the map"
+    v_inspector: Optional[ValueInspector] = None
+    "The value inspector of the map"
 
-    dc = None
-    "ipyleaflet.DrawingControl: the drawing control of the map"
+    dc: Optional[DrawControl] = None
+    "The drawing control of the map"
 
-    _id = None
-    "str: a unique 6 letters str to identify the map in the DOM"
+    _id: str = ""
+    "A unique 6 letters str to identify the map in the DOM"
 
-    state = None
-    "sw.StateBar: the statebar to inform the user about tile loading"
+    state: Optional[sw.StateBar] = None
+    "The statebar to inform the user about tile loading"
 
     def __init__(
         self,
-        basemaps=[],
-        dc=False,
-        vinspector=False,
-        gee=True,
-        statebar=False,
+        basemaps: List[str] = [],
+        dc: bool = False,
+        vinspector: bool = False,
+        gee: bool = True,
+        statebar: bool = False,
         **kwargs,
-    ):
+    ) -> None:
+        """
+        The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
+        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        Numerous methods have been added in the class to help you deal with your workflow implementation.
+        It can natively display raster from .tif files and files and ee objects using methods
+        that have the same signature as the GEE JavaScripts console.
+
+        Args:
+            basemaps: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
+            dc: wether or not the drawing control should be displayed. default to false
+            vinspector: Add value inspector to map, useful to inspect pixel values. default to false
+            gee: wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+            statebar: wether or not to display the Statebar in the map
+            kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
+        """
 
         # set the default parameters
         kwargs["center"] = kwargs.pop("center", [0, 0])
@@ -104,7 +104,7 @@ class SepalMap(ipl.Map):
         super().__init__(**kwargs)
 
         # init ee
-        self.ee = gee
+        self.gee = gee
         not gee or su.init_ee()
 
         # add the basemaps
@@ -139,7 +139,7 @@ class SepalMap(ipl.Map):
         self.add_class(self._id)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
-    def _remove_local_raster(self, local_layer):
+    def _remove_local_raster(self, local_layer: str) -> Self:
         """
         Remove local layer from memory.
 
@@ -149,54 +149,45 @@ class SepalMap(ipl.Map):
 
         Args:
             local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
-
-        Return:
-            self
         """
 
         return self
 
     @deprecated(version="2.8.0", reason="use remove_layer(-1) instead")
-    def remove_last_layer(self, local=False):
+    def remove_last_layer(self, local: bool = False) -> Self:
         """
         Remove last added layer from Map
 
         Args:
-            local (boolean): Specify True to only remove local last layers, otherwise will remove every last layer.
-
-        Return:
-            self
+            local: Specify True to only remove local last layers, otherwise will remove every last layer.
         """
         self.remove_layer(-1)
 
         return self
 
-    def set_center(self, lon, lat, zoom=None):
+    def set_center(self, lon: float, lat: float, zoom: int = -1) -> None:
         """
         Centers the map view at a given coordinates with the given zoom level.
 
         Args:
-            lon (float): The longitude of the center, in degrees.
-            lat	(float): The latitude of the center, in degrees.
-            zoom (int|optional): The zoom level, from 1 to 24. Defaults to None.
+            lon: The longitude of the center, in degrees.
+            lat: The latitude of the center, in degrees.
+            zoom: The zoom level, from 1 to 24. Defaults to None.
         """
 
         self.center = [lat, lon]
-        self.zoom = self.zoom if zoom is None else zoom
+        self.zoom = self.zoom if zoom == -1 else zoom
 
         return
 
     @sd.need_ee
-    def zoom_ee_object(self, item, zoom_out=1):
+    def zoom_ee_object(self, item: ee.ComputedObject, zoom_out: int = 1) -> Self:
         """
         Get the proper zoom to the given ee geometry.
 
         Args:
-            item (ee.ComputedObject): the geometry to zoom on
-            zoom_out (int) (optional): Zoom out the bounding zoom
-
-        Return:
-            self
+            item: the geometry to zoom on
+            zoom_out: Zoom out the bounding zoom
         """
 
         # type check the given object
@@ -208,16 +199,13 @@ class SepalMap(ipl.Map):
         # zoom on these bounds
         return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
 
-    def zoom_raster(self, layer, zoom_out=1):
+    def zoom_raster(self, layer: ipl.LocalTileLayer, zoom_out: int = 1) -> Self:
         """
         Adapt the zoom to the given LocalLayer. The localLayer need to come from the add_raster method to embed the image name
 
         Args:
-            layer (LocalTileLayer): the localTile layer to zoom on. it needs to embed the "raster" member
-            zoom_out (int) (optional): Zoom out the bounding zoom
-
-        Return:
-            self
+            layer: the localTile layer to zoom on. it needs to embed the "raster" member
+            zoom_out: Zoom out the bounding zoom
         """
 
         da = rioxarray.open_rasterio(layer.raster, masked=True)
@@ -229,16 +217,13 @@ class SepalMap(ipl.Map):
 
         return self.zoom_bounds(da.rio.bounds(), zoom_out)
 
-    def zoom_bounds(self, bounds, zoom_out=1):
+    def zoom_bounds(self, bounds: Sequence[float], zoom_out: int = 1) -> Self:
         """
         Adapt the zoom to the given bounds. and center the image.
 
         Args:
-            bounds ([coordinates]): coordinates corners as minx, miny, maxx, maxy in EPSG:4326
-            zoom_out (int) (optional): Zoom out the bounding zoom
-
-        Return:
-            self
+            bounds: coordinates corners as minx, miny, maxx, maxy in EPSG:4326
+            zoom_out: Zoom out the bounding zoom
         """
 
         # center the map
@@ -253,28 +238,28 @@ class SepalMap(ipl.Map):
 
     def add_raster(
         self,
-        image,
-        bands=None,
-        layer_name="Layer_" + su.random_string(),
-        colormap="inferno",
-        opacity=1.0,
-        client_host="/api/sandbox/jupyter/proxy/{port}",
-        fit_bounds=True,
-    ):
+        image: Union[str, Path],
+        bands: Optional[Union[list, int]] = None,
+        layer_name: str = "Layer_" + su.random_string(),
+        colormap: Union[str, mpc.Colormap] = "inferno",
+        opacity: float = 1.0,
+        client_host: str = "/api/sandbox/jupyter/proxy/{port}",
+        fit_bounds: bool = True,
+    ) -> ipl.TileLayer:
         """
         Adds a local raster dataset to the map.
 
         Args:
-            image (str | pathlib.Path): The image file path.
-            bands (int or list, optional): The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
-            layer_name (str, optional): The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
-            colormap (str, optional): The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
-            opacity (float, optional): the opacity of the layer, default 1.0.
-            client_host (str, optional): the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
-            fit_bounds (bool, optional): Wether or not we should fit the map to the image bounds. Default to True.
+            image: The image file path.
+            bands: The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
+            layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
+            colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
+            opacity: the opacity of the layer, default 1.0.
+            client_host: the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
+            fit_bounds: Wether or not we should fit the map to the image bounds. Default to True.
 
-        Return:
-            (BoundTileLayer) the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
+        Returns:
+            the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
 
         # lazy import of localtileserver to avoid conflicts with GDAL
@@ -306,8 +291,8 @@ class SepalMap(ipl.Map):
 
         # set the colors as independant colors
         if isinstance(colormap, str):
-            colormap = plt.cm.get_cmap(name=colormap)
-        color_list = [mpc.rgb2hex(colormap(i)) for i in range(colormap.N)]
+            cmap = plt.get_cmap(name=colormap)
+        color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
 
         da = rioxarray.open_rasterio(image, masked=True)
         da = da.chunk((1000, 1000))
@@ -315,12 +300,12 @@ class SepalMap(ipl.Map):
         multi_band = False
         if len(da.band) > 1 and not isinstance(bands, int):
             multi_band = True
-            if not bands:
-                bands = [3, 2, 1]
+            bands = bands if bands else [3, 2, 1]
         elif len(da.band) == 1:
             bands = 1
 
         if multi_band:
+            cast(list, bands)
             style = {
                 "bands": [
                     {"band": bands[0], "palette": "#f00"},
@@ -352,50 +337,53 @@ class SepalMap(ipl.Map):
         return layer
 
     @deprecated(version="2.8.0", reason="use dc methods instead")
-    def show_dc(self):
+    def show_dc(self) -> Self:
         """
         show the drawing control on the map
         """
+
         self.dc.show()
+
         return self
 
     @deprecated(version="2.8.0", reason="use dc methods instead")
-    def hide_dc(self):
+    def hide_dc(self) -> Self:
         """
         hide the drawing control of the map
         """
+
         self.dc.hide()
+
         return self
 
     def add_colorbar(
         self,
-        colors,
-        cmap="viridis",
-        vmin=0,
-        vmax=1.0,
-        index=None,
-        categorical=False,
-        step=None,
-        height="45px",
-        transparent_bg=False,
-        position="bottomright",
-        layer_name=None,
+        colors: list,
+        cmap: str = "viridis",
+        vmin: float = 0.0,
+        vmax: float = 1.0,
+        index: list = [],
+        categorical: bool = False,
+        step: int = 0,
+        transparent_bg: bool = False,
+        position: str = "bottomright",
+        layer_name: str = "",
         **kwargs,
-    ):
-        """Add a colorbar to the map.
+    ) -> None:
+        """
+        Add a colorbar to the map.
 
         Args:
-            colors (list, optional): The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
-            cmap (str): a matplotlib colormap default to viridis
-            vmin (int, optional): The minimal value for the colormap. Values lower than vmin will be bound directly to colors[0].. Defaults to 0.
-            vmax (float, optional): The maximal value for the colormap. Values higher than vmax will be bound directly to colors[-1]. Defaults to 1.0.
-            index (list, optional):The values corresponding to each color. It has to be sorted, and have the same length as colors. If None, a regular grid between vmin and vmax is created.. Defaults to None.
+            colors: The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
+            cmap: a matplotlib colormap default to viridis
+            vmin: The minimal value for the colormap. Values lower than vmin will be bound directly to colors[0].. Defaults to 0.
+            vmax: The maximal value for the colormap. Values higher than vmax will be bound directly to colors[-1]. Defaults to 1.0.
+            index: The values corresponding to each color. It has to be sorted, and have the same length as colors. If None, a regular grid between vmin and vmax is created. Defaults to None.
             categorical (bool, optional): Whether or not to create a categorical colormap. Defaults to False.
-            step (int, optional): The step to split the LinearColormap into a StepColormap. Defaults to None.
-            height (str, optional): The height of the colormap widget. Defaults to "45px".
-            position (str, optional): The position for the colormap widget. Defaults to "bottomright".
-            layer_name (str, optional): Layer name of the colorbar to be associated with. Defaults to None.
-            kwargs (any): any other argument of the colorbar object from matplotlib
+            step: The step to split the LinearColormap into a StepColormap. Defaults to None.
+            position: The position for the colormap widget. Defaults to "bottomright".
+            layer_name: Layer name of the colorbar to be associated with. Defaults to None.
+            kwargs: any other argument of the colorbar object from matplotlib
         """
 
         width, height = 6.0, 0.4
@@ -407,17 +395,19 @@ class SepalMap(ipl.Map):
             hexcodes = [su.to_colors(c) for c in colors]
 
             if categorical:
-                cmap = mpc.ListedColormap(hexcodes)
-                vals = np.linspace(vmin, vmax, cmap.N + 1)
-                norm = mpc.BoundaryNorm(vals, cmap.N)
+                plot_color = mpc.ListedColormap(hexcodes)
+                vals = np.linspace(vmin, vmax, plot_color.N + 1)
+                norm = mpc.BoundaryNorm(vals, plot_color.N)
 
             else:
-                cmap = mpc.LinearSegmentedColormap.from_list("custom", hexcodes, N=256)
+                plot_color = mpc.LinearSegmentedColormap.from_list(
+                    "custom", hexcodes, N=256
+                )
                 norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         elif cmap is not None:
 
-            cmap = plt.get_cmap(cmap)
+            plot_color = plt.get_cmap(cmap)
             norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         else:
@@ -432,7 +422,7 @@ class SepalMap(ipl.Map):
                 ax,
                 norm=norm,
                 alpha=alpha,
-                cmap=cmap,
+                cmap=plot_color,
                 orientation="horizontal",
                 **kwargs,
             )
@@ -461,13 +451,13 @@ class SepalMap(ipl.Map):
 
     def add_ee_layer(
         self,
-        ee_object,
-        vis_params={},
-        name=None,
-        shown=True,
-        opacity=1.0,
-        viz_name=False,
-    ):
+        ee_object: ee.ComputedObject,
+        vis_params: dict = {},
+        name: str = "",
+        shown: bool = True,
+        opacity: float = 1.0,
+        viz_name: str = "",
+    ) -> None:
         """
         Copy the addLayer method from geemap to read and guess the vizaulization
         parameters the same way as in SEPAL recipes.
@@ -475,12 +465,12 @@ class SepalMap(ipl.Map):
         them automatically.
 
         Args:
-            ee_object (ee.Object): the ee OBject to draw on the map
-            vis_params (dict, optional): the visualization parameters set as in GEE
-            name (str, optional): the name of the layer
-            shown (bool, optional): either to show the layer or not, default to true (it is bugged in ipyleaflet)
-            opacity (float, optional): the opcity of the layer from 0 to 1, default to 1.
-            viz_name (str, optional): the name of the vizaulization you want ot use. default to the first one if existing
+            ee_object: the ee OBject to draw on the map
+            vis_params: the visualization parameters set as in GEE
+            name: the name of the layer
+            shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity: the opcity of the layer from 0 to 1, default to 1.
+            viz_name: the name of the vizaulization you want ot use. default to the first one if existing
         """
 
         # check the type of the ee object and raise an error if it's not recognized
@@ -585,9 +575,7 @@ class SepalMap(ipl.Map):
                 vis_params["bands"] = ["red", "green", "blue"]
 
         # create the layer based on these new values
-        image = None
-
-        if name is None:
+        if not name:
             layer_count = len(self.layers)
             name = "Layer " + str(layer_count + 1)
 
@@ -654,26 +642,27 @@ class SepalMap(ipl.Map):
         return
 
     @staticmethod
-    def get_basemap_list():
+    def get_basemap_list() -> List[str]:
         """
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object
-        Return:
-            ([str]): the list of the basemap names
+
+        Returns:
+            The list of the basemap names
         """
 
         return [k for k in basemap_tiles.keys()]
 
     @staticmethod
-    def get_viz_params(image):
+    def get_viz_params(image: ee.Image) -> dict:
         """
         Return the vizual parameters that are set in the metadata of the image
 
         Args:
-            image (ee.Image): the image to analyse
+            image: the image to analyse
 
-        Return:
-            (dict): the dictionnary of the find properties
+        Returns:
+            The dictionnary of the find properties
         """
 
         # the constant prefix for SEPAL visualization parameters
@@ -738,15 +727,17 @@ class SepalMap(ipl.Map):
 
         return props
 
-    def remove_layer(self, key, base=False, none_ok=False):
+    def remove_layer(
+        self, key: Union[ipl.Layer, int, str], base: bool = False, none_ok: bool = False
+    ) -> None:
         """
         Remove a layer based on a key. The key can be, a Layer object, the name of a
         layer or the index in the layer list
 
         Args:
-            key (Layer, int, str): the key to find the layer to delete
-            base (bool, optional): either the basemaps should be included in the search or not. default t false
-            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
+            key: the key to find the layer to delete
+            base: either the basemaps should be included in the search or not. default t false
+            none_ok: if True the function will not raise error if no layer is found. Default to False
         """
 
         layer = self.find_layer(key, base, none_ok)
@@ -757,13 +748,13 @@ class SepalMap(ipl.Map):
 
         return
 
-    def remove_all(self, base=False):
+    def remove_all(self, base: bool = False) -> None:
         """
         Remove all the layers from the maps.
         If base is set to True, the basemaps are removed as well
 
         Args:
-            base (bool, optional): wether or not the basemaps should be removed, default to False
+            base: wether or not the basemaps should be removed, default to False
         """
         # filter out the basemaps if base == False
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
@@ -773,13 +764,13 @@ class SepalMap(ipl.Map):
 
         return
 
-    def add_layer(self, layer, hover=False):
+    def add_layer(self, layer: ipl.Layer, hover: bool = False) -> None:
         """
         Add layer and use a default style for the GeoJSON inputs.
         Remove existing layer if already on the map.
 
-        layer (ipyleaflet.Layer): any layer type from ipyleaflet
-        hover (bool): whether to use the default hover style or not.
+        layer: any layer type from ipyleaflet
+        hover: whether to use the default hover style or not.
         """
 
         # remove existing layer before addition
@@ -808,12 +799,12 @@ class SepalMap(ipl.Map):
 
         return
 
-    def add_basemap(self, basemap="HYBRID"):
+    def add_basemap(self, basemap: str = "HYBRID") -> None:
         """
         Adds a basemap to the map.
 
         Args:
-            basemap (str, optional): Can be one of string from basemaps. Defaults to 'HYBRID'.
+            basemap: Can be one of string from basemaps. Defaults to 'HYBRID'.
         """
         if basemap not in basemap_tiles.keys():
             keys = "\n".join(basemap_tiles.keys())
@@ -824,28 +815,30 @@ class SepalMap(ipl.Map):
 
         return
 
-    def get_scale(self):
+    def get_scale(self) -> float:
         """
         Returns the approximate pixel scale of the current map view, in meters.
         Reference: https://blogs.bing.com/maps/2006/02/25/map-control-zoom-levels-gt-resolution
 
         Returns:
-            (float): Map resolution in meters.
+            Map resolution in meters.
         """
 
         return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
 
-    def find_layer(self, key, base=False, none_ok=False):
+    def find_layer(
+        self, key: Union[ipl.Layer, str, int], base: bool = False, none_ok: bool = False
+    ) -> ipl.TileLayer:
         """
         Search a layer by name or index
 
         Args:
-            key (Layer, str, int): the layer name, index or directly the layer
-            base (bool, optional): either the basemaps should be included in the search or not. default to false
-            none_ok (bool, optional): if True the function will not raise error if no layer is found. Default to False
+            key: the layer name, index or directly the layer
+            base: either the basemaps should be included in the search or not. default to false
+            none_ok: if True the function will not raise error if no layer is found. Default to False
 
-        Return:
-            (TileLLayerayer): the first layer using the same name or index else None
+        Returns:
+            The first layer using the same name or index else None
         """
 
         # filter the layers
@@ -868,17 +861,19 @@ class SepalMap(ipl.Map):
 
     def add_legend(
         self,
-        title=ms.mapping.legend,
-        legend_dict={},
-        position="bottomright",
-        vertical=True,
-    ):
+        title: str = ms.mapping.legend,
+        legend_dict: dict = {},
+        position: str = "bottomright",
+        vertical: bool = True,
+    ) -> None:
         """
         Creates and adds a custom legend as widget control to the map
 
         Args:
-            title (str, optional): Title of the legend. Defaults to 'Legend'.
-            legend_dict (dict): dictionary with key as label name and value as color
+            title: Title of the legend. Defaults to 'Legend'.
+            legend_dict: dictionary with key as label name and value as color
+            position: the position (corners) of the legend on the map
+            vertical: vertical or horizoal position of the legend
         """
 
         # Define as class member so it can be accessed from outside.
