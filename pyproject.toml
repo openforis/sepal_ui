@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sepal-ui"
 version = "2.13.0"
-#licence-file = "LICENSE.txt"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -113,6 +112,7 @@ packages = [
     "sepal_ui.reclassify",
     "sepal_ui.planetapi",
 ]
+license-files = ["LICENSE.txt"]
 
 [tool.setuptools.package-data]
 sepal_ui = [
