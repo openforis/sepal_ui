@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional, Union
 
 import ipyvuetify as v
@@ -81,22 +82,11 @@ class CopyToClip(v.VuetifyTemplate):
         self.components = {"mytf": self.tf}
 
         # template with js behaviour
-        self.template = """
-        <mytf/>
-        <script>
-            {methods: {
-                jupyter_clip(_txt) {
-                    var tempInput = document.createElement("input");
-                    tempInput.value = _txt;
-                    document.body.appendChild(tempInput);
-                    tempInput.focus();
-                    tempInput.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(tempInput);
-                }
-            }}
-        </script>
-        """
+        js_dir = Path(__file__).parents[1] / "frontend/js"
+        clip = (js_dir / "jupyter_clip.js").read_text()
+        self.template = (
+            "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
+        )
 
         super().__init__()
 
