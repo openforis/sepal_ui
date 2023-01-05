@@ -9,11 +9,6 @@ from sepal_ui.message import ms
 
 
 class LayerStateControl(WidgetControl):
-    """
-    A specific statebar dedicated to the the counting of loading tiles in the map
-
-    every time a map is added to the map the counter will be raised by one. same behaviour with removed.
-    """
 
     m: Optional[Map] = None
     "the map connected to the control"
@@ -28,6 +23,14 @@ class LayerStateControl(WidgetControl):
     "the number of loading layer in the map"
 
     def __init__(self, m: Map, **kwargs) -> None:
+        """
+        A specific statebar dedicated to the the counting of loading tiles in the map
+
+        every time a map is added to the map the counter will be raised by one. same behaviour with removed.
+
+        Args:
+            m: The map the component is listening to
+        """
 
         # save the map as a member of the widget
         self.m = m

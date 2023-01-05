@@ -11,13 +11,6 @@ __all__ = ["SepalWidget", "Tooltip"]
 
 
 class SepalWidget(v.VuetifyWidget):
-    """
-    Custom vuetifyWidget to add specific methods
-
-    Args:
-        viz (bool, optional): define if the widget should be visible or not
-        tooltip (str, optional): tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
-    """
 
     viz: t.Bool = t.Bool(True).tag(sync=True)
     "whether the widget is displayed or not"
@@ -29,6 +22,13 @@ class SepalWidget(v.VuetifyWidget):
     "the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
 
     def __init__(self, viz: bool = True, tooltip: str = "", **kwargs) -> None:
+        """
+        Custom vuetifyWidget to add specific methods
+
+        Args:
+            viz: define if the widget should be visible or not
+            tooltip: tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
+        """
 
         # init the widget
         super().__init__(**kwargs)
@@ -192,15 +192,14 @@ class SepalWidget(v.VuetifyWidget):
 
 
 class Tooltip(v.Tooltip):
-    """
-    Custom widget to display tooltip when mouse is over widget
-
-    Args:
-        widget: widget used to display tooltip
-        tooltip: the text to display in the tooltip
-    """
-
     def __init__(self, widget: v.VuetifyWidget, tooltip: str, **kwargs) -> None:
+        """
+        Custom widget to display tooltip when mouse is over widget
+
+        Args:
+            widget: widget used to display tooltip
+            tooltip: the text to display in the tooltip
+        """
 
         # set some default parameters
         kwargs["close_delay"] = kwargs.pop("close_delay", 200)

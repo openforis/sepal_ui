@@ -10,15 +10,6 @@ from sepal_ui.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):
-    """Stand-alone interface to capture planet lab credentials, validate its  subscription and
-    connect to the client stored in the model.
-
-    Args:
-        btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
-        alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
-        planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
-
-    """
 
     planet_model: Optional[PlanetModel] = None
     "Backend model to manipulate interface actions"
@@ -52,6 +43,15 @@ class PlanetView(sw.Layout):
         info: bool = False,
         **kwargs,
     ):
+        """
+        Stand-alone interface to capture planet lab credentials, validate its  subscription and
+        connect to the client stored in the model.
+
+        Args:
+            btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
+            alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
+            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+        """
 
         self.class_ = "d-block flex-wrap"
 

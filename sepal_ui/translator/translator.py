@@ -11,23 +11,6 @@ from sepal_ui import config_file
 
 
 class Translator(Box):
-    """
-    The translator is a Python Box of boxes. It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
-    It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
-    To access the dictionary keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key.
-    There are no depth limits, just respect the snake_case convention when naming your keys in the .json files.
-    5 internal keys are created upon initialization (there name cannot be used as keys in the translation message):
-    -   (str) _default : the default locale of the translator
-    -   (str) _targeted : the initially requested language. Use to display debug information to the user agent
-    -   (str) _target : the target locale of the translator
-    -   (bool) _match : if the target language match the one requested one by user, used to trigger information in appBar
-    -   (str) _folder : the path to the l10n folder
-
-    Args:
-        json_folder: The folder where the dictionaries are stored
-        target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
-        default: The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
-    """
 
     _protected_keys = [
         "find_target",
@@ -44,6 +27,24 @@ class Translator(Box):
     def __init__(
         self, json_folder: Union[str, Path], target: str = "", default: str = "en"
     ) -> None:
+        """
+        The translator is a Python Box of boxes. It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
+        It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
+        To access the dictionary keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key.
+        There are no depth limits, just respect the snake_case convention when naming your keys in the .json files.
+        5 internal keys are created upon initialization (there name cannot be used as keys in the translation message):
+
+        -   (str) _default : the default locale of the translator
+        -   (str) _targeted : the initially requested language. Use to display debug information to the user agent
+        -   (str) _target : the target locale of the translator
+        -   (bool) _match : if the target language match the one requested one by user, used to trigger information in appBar
+        -   (str) _folder : the path to the l10n folder
+
+        Args:
+            json_folder: The folder where the dictionaries are stored
+            target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
+            default: The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
+        """
 
         # the name of the 5 variables that cannot be used as init keys
         FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]

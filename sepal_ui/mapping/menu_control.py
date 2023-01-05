@@ -8,16 +8,6 @@ from sepal_ui.mapping.map_btn import MapBtn
 
 
 class MenuControl(WidgetControl):
-    """
-    Widget control displaying a btn on the map. When clicked the menu expand to show the content set by the user and all the others are closed.
-    It's used to display interactive tiles directly in the map. If the card_content is a Tile it will be automatically nested.
-
-    Args:
-        icon_content: the icon content as specified in the sm.MapBtn object (i.e. a 3 letter name or an icon name)
-        card_content: any container from sw. The sw.Tile is specifically design to fit in this component
-        card_title: the card title. THe tile title will override this parameter if existing
-        m: The map associated with the Menu
-    """
 
     menu: Optional[sw.Menu] = None
     "the menu displayed on the map as a widget"
@@ -33,6 +23,16 @@ class MenuControl(WidgetControl):
         m: Optional[Map] = None,
         **kwargs
     ) -> None:
+        """
+        Widget control displaying a btn on the map. When clicked the menu expand to show the content set by the user and all the others are closed.
+        It's used to display interactive tiles directly in the map. If the card_content is a Tile it will be automatically nested.
+
+        Args:
+            icon_content: the icon content as specified in the sm.MapBtn object (i.e. a 3 letter name or an icon name)
+            card_content: any container from sw. The sw.Tile is specifically design to fit in this component
+            card_title: the card title. THe tile title will override this parameter if existing
+            m: The map associated with the Menu
+        """
 
         # save the map in the members
         self.m = m

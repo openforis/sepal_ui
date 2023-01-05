@@ -9,18 +9,18 @@ from sepal_ui import color
 
 
 class DrawControl(ipl.DrawControl):
-    """
-    A custom DrawingControl object to handle edition of features
-
-    Args:
-        m: the map on which he drawControl is displayed
-        kwargs: any available arguments from a ipyleaflet.DrawingControl
-    """
 
     m: Optional[ipl.Map] = None
     "the map on which he drawControl is displayed. It will help control the visibility"
 
     def __init__(self, m: ipl.Map, **kwargs) -> None:
+        """
+        A custom DrawingControl object to handle edition of features
+
+        Args:
+            m: the map on which he drawControl is displayed
+            kwargs: any available arguments from a ipyleaflet.DrawingControl
+        """
 
         # set some default parameters
         options = {"shapeOptions": {"color": color.info}}

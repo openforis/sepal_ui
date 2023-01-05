@@ -14,15 +14,14 @@ __all__ = ["Markdown", "CopyToClip", "StateIcon"]
 
 
 class Markdown(v.Layout, SepalWidget):
-    """
-    Custom Layout based on the markdown text given
-
-    Args:
-        mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
-        kwargs: Any parameter from a v.Layout. If set, 'children' will be overwritten
-    """
-
     def __init__(self, mkd_str: str = "", **kwargs) -> None:
+        """
+        Custom Layout based on the markdown text given
+
+        Args:
+            mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
+            kwargs: Any parameter from a v.Layout. If set, 'children' will be overwritten
+        """
 
         mkd = markdown(mkd_str, extensions=["fenced_code", "sane_lists"])
 
@@ -50,13 +49,6 @@ class Markdown(v.Layout, SepalWidget):
 
 @versionadded(version="2.2.0", reason="New clipping widget")
 class CopyToClip(v.VuetifyTemplate):
-    """
-    Custom textField that provides a handy copy-to-clipboard javascript behaviour.
-    When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
-
-    Args:
-        kwargs: any argument that can be used with a v.TextField
-    """
 
     tf: Optional[v.TextField] = None
     "v.TextField: the textfield widget that holds the v_model to copy"
@@ -65,6 +57,13 @@ class CopyToClip(v.VuetifyTemplate):
     "a v_model trait that embed the string to copy"
 
     def __init__(self, **kwargs) -> None:
+        """
+        Custom textField that provides a handy copy-to-clipboard javascript behaviour.
+        When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
+
+        Args:
+            kwargs: any argument that can be used with a v.TextField
+        """
 
         # add the default params to kwargs
         kwargs["outlined"] = kwargs.pop("outlined", True)
@@ -117,15 +116,6 @@ class CopyToClip(v.VuetifyTemplate):
 
 
 class StateIcon(Tooltip):
-    """
-    Custom icon with multiple state colors.
-
-    Args:
-        model: Model to manage StateIcon behaviour from outside.
-        model_trait: Name of trait to be linked with state icon. Must exists in model.
-        states: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
-        kwargs: Any arguments from a v.Tooltip
-    """
 
     values: t.Any = t.Any().tag(sync=True)
     "bool, str, int: key name of the current state of component. Values must be same as states_dict keys."
@@ -143,6 +133,15 @@ class StateIcon(Tooltip):
         states: dict = {},
         **kwargs,
     ):
+        """
+        Custom icon with multiple state colors.
+
+        Args:
+            model: Model to manage StateIcon behaviour from outside.
+            model_trait: Name of trait to be linked with state icon. Must exists in model.
+            states: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
+            kwargs: Any arguments from a v.Tooltip
+        """
 
         # set the default parameter of the tooltip
         kwargs["right"] = kwargs.pop("right", True)

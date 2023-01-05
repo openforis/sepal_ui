@@ -11,17 +11,6 @@ __all__ = ["ReclassifyTile"]
 
 
 class ReclassifyTile(sw.Tile):
-    """
-
-    All in one tile to reclassify GEE assets or local raster and create custom classifications
-
-    Args:
-        results_dir (str|pathlike object): Directory to store the outputs (rasters, and csv_files). default to ~/downloads
-        gee (bool): Use GEE variant, to reclassify assets or local input. default True
-        dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
-        default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
-        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
-    """
 
     result_dir = None
     "pathlib.Path: Directory to store the outputs (rasters, and csv_files)."
@@ -45,6 +34,16 @@ class ReclassifyTile(sw.Tile):
         folder="",
         **kwargs
     ):
+        """
+        All in one tile to reclassify GEE assets or local raster and create custom classifications
+
+        Args:
+            results_dir (str|pathlike object): Directory to store the outputs (rasters, and csv_files). default to ~/downloads
+            gee (bool): Use GEE variant, to reclassify assets or local input. default True
+            dst_class (str|pathlib.Path, optional): the file to be used as destination classification. for app that require specific code system the file can be set prior and the user won't have the oportunity to change it
+            default_class (dict|optional): the default classification system to use, need to point to existing sytem: {name: absolute_path}
+            folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+        """
 
         # output directory
         self.results_dir = Path(results_dir)

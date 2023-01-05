@@ -22,16 +22,6 @@ __all__ = ["ReclassifyModel"]
 
 
 class ReclassifyModel(Model):
-    """
-    Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
-
-    Args:
-        gee (bool): either or not to set :code:`gee` to True
-        dst_dir (str): the destination forlder for outputs
-        folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
-        aoi_model (aoi.AoiModel, optional): the aoi model to link to the reclassify workflow
-        enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
-    """
 
     # inputs
     # should be unicode but we need to handle when nothing is set (None)
@@ -108,6 +98,17 @@ class ReclassifyModel(Model):
         enforce_aoi=False,
         **kwargs,
     ):
+
+        """
+        Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
+
+        Args:
+            gee (bool): either or not to set :code:`gee` to True
+            dst_dir (str): the destination forlder for outputs
+            folder(str, optional): the init GEE asset folder where the asset selector should start looking (debugging purpose)
+            aoi_model (aoi.AoiModel, optional): the aoi model to link to the reclassify workflow
+            enforce_aoi (bool, optional): either or not an aoi should be set to allow the reclassification
+        """
 
         # init the model
         super().__init__(**kwargs)

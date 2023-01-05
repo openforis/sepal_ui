@@ -18,15 +18,6 @@ nest_asyncio.apply()
 
 
 class PlanetModel(Model):
-    """
-    Planet model helper to connect planet API client and perform requests. It can be
-    instantiated whether itself or linked with a PlanetView input helper. All the methods
-    are aimed to be used without the need of a view.
-
-    Args:
-        credentials: planet API key or tuple of username and password of planet explorer.
-
-    """
 
     SUBS_URL: str = (
         "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
@@ -46,6 +37,14 @@ class PlanetModel(Model):
     "Value to determine if at least one subscription has the active true state"
 
     def __init__(self, credentials: Union[str, List[str]] = "") -> None:
+        """
+        Planet model helper to connect planet API client and perform requests. It can be
+        instantiated whether itself or linked with a PlanetView input helper. All the methods
+        are aimed to be used without the need of a view.
+
+        Args:
+            credentials: planet API key or tuple of username and password of planet explorer.
+        """
 
         self.subscriptions = {}
         self.session = None

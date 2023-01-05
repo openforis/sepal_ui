@@ -9,20 +9,6 @@ from sepal_ui.mapping.map_btn import MapBtn
 
 
 class FullScreenControl(WidgetControl):
-    """
-    A custom Fullscreen Button ready to be embed in a map object.
-
-    This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embeding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
-    simply click on it and the map will automatically expand
-
-    .. versionadded:: 2.7.0
-
-    Args:
-        m: the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
-        fullscreen: either the map should be displayed in fullscreen by default. default to false.
-        fullapp: either or not the map will be used as the sole widget/tile of an application
-        kwargs: any available arguments from a ipyleaflet WidgetControl
-    """
 
     ICONS: List[str] = ["fa-solid fa-expand", "fa-solid fa-compress"]
     "list: The icons that will be used to toggle between expand and compressed mode"
@@ -42,6 +28,20 @@ class FullScreenControl(WidgetControl):
     def __init__(
         self, m: Map, fullscreen: bool = False, fullapp: bool = False, **kwargs
     ) -> None:
+        """
+        A custom Fullscreen Button ready to be embed in a map object.
+
+        This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embeding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
+        simply click on it and the map will automatically expand
+
+        .. versionadded:: 2.7.0
+
+        Args:
+            m: the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
+            fullscreen: either the map should be displayed in fullscreen by default. default to false.
+            fullapp: either or not the map will be used as the sole widget/tile of an application
+            kwargs: any available arguments from a ipyleaflet WidgetControl
+        """
 
         # set the offset
         offset = "48px" if fullapp else "0px"

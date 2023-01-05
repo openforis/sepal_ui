@@ -46,21 +46,6 @@ __all__ = ["SepalMap"]
 
 
 class SepalMap(ipl.Map):
-    """
-    The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-    The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
-    Numerous methods have been added in the class to help you deal with your workflow implementation.
-    It can natively display raster from .tif files and files and ee objects using methods
-    that have the same signature as the GEE JavaScripts console.
-
-    Args:
-        basemaps ['str']: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
-        dc (bool, optional): wether or not the drawing control should be displayed. default to false
-        vinspector (bool, optional): Add value inspector to map, useful to inspect pixel values. default to false
-        gee (bool, optional): wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-        statebar (bool): wether or not to display the Statebar in the map
-        kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
-    """
 
     # ##########################################################################
     # ###                              Map parameters                        ###
@@ -90,6 +75,21 @@ class SepalMap(ipl.Map):
         statebar: bool = False,
         **kwargs,
     ) -> None:
+        """
+        The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
+        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        Numerous methods have been added in the class to help you deal with your workflow implementation.
+        It can natively display raster from .tif files and files and ee objects using methods
+        that have the same signature as the GEE JavaScripts console.
+
+        Args:
+            basemaps: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
+            dc: wether or not the drawing control should be displayed. default to false
+            vinspector: Add value inspector to map, useful to inspect pixel values. default to false
+            gee: wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
+            statebar: wether or not to display the Statebar in the map
+            kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
+        """
 
         # set the default parameters
         kwargs["center"] = kwargs.pop("center", [0, 0])

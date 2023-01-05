@@ -15,23 +15,6 @@ __all__ = ["Btn", "DownloadBtn"]
 
 
 class Btn(v.Btn, SepalWidget):
-    """
-    Custom process Btn filled with the provided text.
-    the color will be defaulted to 'primary' and can be changed afterward according to your need
-
-    Args:
-        msg: the text to display in the btn
-        gliph: the full name of any mdi/fa icon
-        text: the text to display in the btn
-        icon: the full name of any mdi/fa icon
-        kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
-
-    .. deprecated:: 2.13
-        ``text`` and ``icon`` will be replaced by ``msg`` and ``gliph`` to avoid duplicating ipyvuetify trait.
-
-    .. deprecated:: 2.14
-        Btn is not using a default ``msg`` anymor`.
-    """
 
     v_icon: Optional[v.Icon] = None
     "the icon in the btn"
@@ -43,6 +26,23 @@ class Btn(v.Btn, SepalWidget):
     "the text of the btn"
 
     def __init__(self, msg: str = "", gliph: str = "", **kwargs) -> None:
+        """
+        Custom process Btn filled with the provided text.
+        the color will be defaulted to 'primary' and can be changed afterward according to your need
+
+        Args:
+            msg: the text to display in the btn
+            gliph: the full name of any mdi/fa icon
+            text: the text to display in the btn
+            icon: the full name of any mdi/fa icon
+            kwargs (dict, optional): any parameters from v.Btn. if set, 'children' will be overwritten.
+
+        .. deprecated:: 2.13
+            ``text`` and ``icon`` will be replaced by ``msg`` and ``gliph`` to avoid duplicating ipyvuetify trait.
+
+        .. deprecated:: 2.14
+            Btn is not using a default ``msg`` anymor`.
+        """
 
         # deprecation in 2.13 of text and icon
         # as they already exist in the ipyvuetify Btn traits (as booleans)
@@ -122,18 +122,17 @@ class Btn(v.Btn, SepalWidget):
 
 
 class DownloadBtn(v.Btn, SepalWidget):
-    """
-    Custom download Btn filled with the provided text.
-    the download icon is automatically embeded and green.
-    The btn only accepts absolute links. if non is provided then the btn stays disabled
-
-    Args:
-        text: the message inside the btn
-        path: the absoluteor relative path to a downloadable content
-        kwargs: any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
-    """
-
     def __init__(self, text: str, path: Union[str, Path] = "#", **kwargs) -> None:
+        """
+        Custom download Btn filled with the provided text.
+        the download icon is automatically embeded and green.
+        The btn only accepts absolute links. if non is provided then the btn stays disabled
+
+        Args:
+            text: the message inside the btn
+            path: the absoluteor relative path to a downloadable content
+            kwargs: any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
+        """
 
         # create a download icon
         v_icon = v.Icon(left=True, children=["fa-solid fa-download"])
