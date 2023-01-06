@@ -1,3 +1,4 @@
+import math
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -169,7 +170,11 @@ class TestAoiModel:
     def test_total_bounds(self, test_model, test_bounds):
 
         bounds = test_model.total_bounds()
-        assert bounds == test_bounds
+        assert all([math.isclose(b, t) for b, t in zip(bounds, test_bounds)])
+
+        with pytest.raises(ValueError):
+            test_model.clear_output()
+            test_model.total_bounds()
 
         return
 

@@ -588,15 +588,10 @@ class AoiModel(Model):
             minxx, miny, maxx, maxy
         """
 
-        if self.gee:
-            ee_bounds = self.feature_collection.geometry().bounds().coordinates()
-            coords = ee_bounds.get(0).getInfo()
-            ll, ur = coords[0], coords[2]
-            bounds = ll[0], ll[1], ur[0], ur[1]
-        else:
-            bounds = self.gdf.total_bounds
+        if self.gdf is None:
+            raise ValueError(ms.aoi_sel.exception.no_gdf)
 
-        return bounds
+        return self.gdf.total_bounds.tolist()
 
     def export_to_asset(self) -> Self:
         """
