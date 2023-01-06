@@ -26,19 +26,19 @@ __all__ = ["ReclassifyModel"]
 
 class ReclassifyModel(Model):
 
-    band: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
+    band: t.Any = t.Any(None).tag(sync=True)
     "the band name or number to use for the reclassification if raster type. Use property name if vector type"
 
-    src_local: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
+    src_local: t.Any = t.Any(None).tag(sync=True)
     "the source file to reclassify (from a local path) only used if :code:`gee=False`"
 
     src_gee: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
     "AssetId of the used input asset for reclassification. Only used if :code:`gee=True`"
 
-    dst_class_file: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
+    dst_class_file: t.Any = t.Any(None).tag(sync=True)
     "the destination file for reclassify matrix"
 
-    dst_dir: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
+    dst_dir: Union[Path, str] = ""
     "the dir used to store the output"
 
     gee: t.Bool = t.Bool(False).tag(sync=True)
