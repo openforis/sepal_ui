@@ -60,7 +60,6 @@ jobs:
 
       - name: Check that there are no unexpected Sphinx warnings
         if: matrix.python-version == '3.8'
-        shell: python
         run: python tests/check_warnings.py
 
       - name: test with pytest
