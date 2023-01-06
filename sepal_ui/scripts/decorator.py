@@ -7,6 +7,7 @@ from typing import Any, Callable, List, Union
 
 import ee
 import httplib2
+import ipyvuetify as v
 from deprecated.sphinx import versionadded
 
 # from sepal_ui.scripts.utils import init_ee
