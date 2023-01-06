@@ -1,25 +1,26 @@
 from copy import deepcopy
+from typing import Optional
 
 import geopandas as gpd
-from ipyleaflet import DrawControl
+import ipyleaflet as ipl
 from shapely import geometry as sg
 
 from sepal_ui import color
 
 
-class DrawControl(DrawControl):
-    """
-    A custom DrawingControl object to handle edition of features
+class DrawControl(ipl.DrawControl):
 
-    Args:
-        m (ipyleaflet.Map): the map on which he drawControl is displayed
-        kwargs (optional): any available arguments from a ipyleaflet.DrawingControl
-    """
+    m: Optional[ipl.Map] = None
+    "the map on which he drawControl is displayed. It will help control the visibility"
 
-    m = None
-    "(ipyleaflet.Map) the map on which he drawControl is displayed. It will help control the visibility"
+    def __init__(self, m: ipl.Map, **kwargs) -> None:
+        """
+        A custom DrawingControl object to handle edition of features
 
-    def __init__(self, m, **kwargs):
+        Args:
+            m: the map on which he drawControl is displayed
+            kwargs: any available arguments from a ipyleaflet.DrawingControl
+        """
 
         # set some default parameters
         options = {"shapeOptions": {"color": color.info}}
@@ -35,7 +36,7 @@ class DrawControl(DrawControl):
 
         super().__init__(**kwargs)
 
-    def show(self):
+    def show(self) -> None:
         """
         show the drawing control on the map. and clear it's content.
         """
@@ -45,7 +46,7 @@ class DrawControl(DrawControl):
 
         return
 
-    def hide(self):
+    def hide(self) -> None:
         """
         hide the drawing control from the map, and clear it's content.
         """
@@ -55,13 +56,13 @@ class DrawControl(DrawControl):
 
         return
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """
         Return the content of the DrawCOntrol data without the styling properties and using a polygonized representation of circles.
         The output is fully compatible with __geo_interface__.
 
-        Return:
-            (dict): the json representation of all the geometries draw on the map
+        Returns:
+            the json representation of all the geometries draw on the map
         """
 
         features = [self.polygonize(feat) for feat in deepcopy(self.data)]
@@ -70,17 +71,17 @@ class DrawControl(DrawControl):
         return {"type": "FeatureCollection", "features": features}
 
     @staticmethod
-    def polygonize(geo_json):
+    def polygonize(geo_json: dict) -> dict:
         """
         Transform a ipyleaflet circle (a point with a radius) into a GeoJson polygon.
         The methods preserves all the geo_json other attributes.
         If the geometry is not a circle (don't require polygonisation), do nothing.
 
         Params:
-            geo_json (json): the circle geojson
+            geo_json: the circle geojson
 
         Return:
-            (dict): the polygonised feature
+            the polygonised feature
         """
 
         if "Point" not in geo_json["geometry"]["type"]:

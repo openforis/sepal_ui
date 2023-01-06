@@ -18,7 +18,7 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
 
 
-def main():
+def main() -> None:
 
     # parse agruments
     parser.parse_args()
@@ -89,7 +89,9 @@ def main():
         ["echo", "$VIRTUAL_ENV"], shell=True, stdout=subprocess.PIPE
     )
 
-    print(f"The current env is: {result.stdout}")
+    print(f"The current env is: {result.stdout!r}")
+
+    return
 
 
 if __name__ == "__main__":

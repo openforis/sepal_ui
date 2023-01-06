@@ -53,7 +53,7 @@ class TestDrawerItem:
         drawer_item = sw.DrawerItem(title, card=id_).display_tile(tiles)
 
         # fake the click
-        drawer_item._on_click(None, None, None, tiles)
+        drawer_item._on_click(tiles)
 
         # check the viz parameter of each tiles
         for tile in tiles:

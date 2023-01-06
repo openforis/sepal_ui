@@ -106,7 +106,7 @@ class TestTranslator:
             "fr-FR": ("fr-FR", "fr-FR"),
             "fr-CA": ("fr-CA", "fr"),
             "fr": ("fr", "fr"),
-            "da": ("da", None),
+            "da": ("da", ""),
         }
 
         # loop in the test grid to check multiple language combinations

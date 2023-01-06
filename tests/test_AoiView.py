@@ -11,7 +11,7 @@ class TestAoiView:
 
         # init without ee
         view = aoi.AoiView(gee=False)
-        assert view.model.ee is False
+        assert view.model.gee is False
 
         # init with ADMIN
         view = aoi.AoiView("ADMIN", gee=False)
@@ -60,7 +60,7 @@ class TestAoiView:
         assert isinstance(view, aoi.AoiView)
 
         # test model name when using view
-        view = aoi.AoiView(admin=110, folder=gee_dir)
+        view = aoi.AoiView(admin="110", folder=gee_dir)
         assert view.model.name == "VAT"
 
         return
@@ -70,7 +70,7 @@ class TestAoiView:
 
         # test if admin0 is in Gaul
         view = aoi.AoiView(folder=gee_dir)
-        first_gaul_item = {"text": "Abyei", "value": 102}
+        first_gaul_item = {"text": "Abyei", "value": "102"}
         assert first_gaul_item == view.w_admin_0.items[0]
 
         return

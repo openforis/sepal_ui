@@ -1,5 +1,6 @@
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Dict, Tuple
 
 import ipyvuetify as v
 from IPython.display import display
@@ -15,20 +16,20 @@ from sepal_ui import config
 # the colors are set using tables as follow.
 # 1 (True): dark theme
 # 0 (false): light theme
-JSON_DIR = Path(__file__).parent / "json"
-"pathlib.Path: the path to the json style folder"
+JSON_DIR: Path = Path(__file__).parent / "json"
+"The path to the json style folder"
 
-CSS_DIR = Path(__file__).parent / "css"
-"pathlib.Path: the path to the css style folder"
+CSS_DIR: Path = Path(__file__).parent / "css"
+"The path to the css style folder"
 
-JS_DIR = Path(__file__).parent / "js"
-"pathlib.Path: the path to the js style folder"
+JS_DIR: Path = Path(__file__).parent / "js"
+"The path to the js style folder"
 
 ################################################################################
 # define all the colors taht we want to use in the theme
 #
 
-DARK_THEME = {
+DARK_THEME: Dict[str, str] = {
     "primary": "#b3842e",
     "accent": "#a1458e",
     "secondary": "#324a88",
@@ -41,9 +42,9 @@ DARK_THEME = {
     "bg": "#121212",  # Are not traits
     "menu": "#424242",  # Are not traits
 }
-"dict: colors used for the dark theme"
+"colors used for the dark theme"
 
-LIGHT_THEME = {
+LIGHT_THEME: Dict[str, str] = {
     "primary": v.theme.themes.light.primary,
     "accent": v.theme.themes.light.accent,
     "secondary": v.theme.themes.light.secondary,
@@ -56,39 +57,53 @@ LIGHT_THEME = {
     "bg": "#FFFFFF",
     "menu": "#FFFFFF",
 }
-"dict: colors used for the light theme"
-TYPES = ("info", "primary", "secondary", "accent", "error", "success", "warning", "anchor")  # fmt: skip
-"tuple: the different types defined by ipyvuetify"
+"colors used for the light theme"
+
+TYPES: Tuple[str, ...] = (
+    "info",
+    "primary",
+    "secondary",
+    "accent",
+    "error",
+    "success",
+    "warning",
+    "anchor",
+)
+"The different types defined by ipyvuetify"
 
 ################################################################################
 # define classes and method to make the application resonsive
 #
 
 
-def get_theme():
+def get_theme() -> str:
     """
-    get theme name from the config file (default to dark)
+    Get theme name from the config file (default to dark)
 
-    Return:
-        (str): the theme to use
+    Returns:
+        The theme to use
     """
+
     return config.get("sepal-ui", "theme", fallback="dark")
 
 
 class SepalColor(HasTraits, SimpleNamespace):
-    """
-    Custom simple name space to store and access to the sepal_ui colors and
-    with a magic method to display theme.
-    """
 
-    _dark_theme = Bool(True if get_theme() == "dark" else False).tag(sync=True)
-    "bool: whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
+    _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
+    "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
-    new_colors = None
-    "dict: (optional) dictionary with name:color structure."
+    new_colors: dict = {}
+    "Dictionary with name:color structure."
 
     @observe("_dark_theme")
-    def __init__(self, *_, **new_colors):
+    def __init__(self, *_, **new_colors) -> None:
+
+        """
+        Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
+
+        Args:
+            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
+        """
 
         # set vuetify theme
         v.theme.dark = self._dark_theme
@@ -112,11 +127,11 @@ class SepalColor(HasTraits, SimpleNamespace):
 
         # Now instantiate the namespace
         SimpleNamespace.__init__(self, **self.kwargs)
-        HasTraits.__init__(
-            self,
-        )
+        HasTraits.__init__(self)
 
-    def _repr_html_(self, *_):
+        return
+
+    def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
 
         s = 60
@@ -150,16 +165,17 @@ class Styles(v.VuetifyTemplate):
     - remove padding of the main content
     - load fontawsome as a resource
     - ensure that tqdm bars are using a transparent background when displayed in an alert
+    - correct items z-index
     """
 
     css = (CSS_DIR / "custom.css").read_text()
     cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
     key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-    template = Unicode(
+    template: Unicode = Unicode(
         f"<style>{css}</style>"
         f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous", refferpolicy="no-referrer"/>'
     ).tag(sync=True)
-    "Unicode: the trait embeding the maps style"
+    "The trait embeding the maps style"
 
 
 styles = Styles()

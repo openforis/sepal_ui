@@ -5,14 +5,14 @@ from xyzservices import TileProvider
 
 
 class BasemapBox(Box):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return ",\n".join(list(self.keys()))
 
 
-xyz_tiles = {
+xyz_tiles: dict = {
     "OpenStreetMap": {
         "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         "attribution": "OpenStreetMap",
@@ -39,22 +39,23 @@ xyz_tiles = {
         "name": "Google Satellite",
     },
 }
-"(dict): Custom XYZ tile services."
+"Custom XYZ tile services."
 
 
-def get_xyz_dict(free_only=True, _collection=None, _output=None):
+def get_xyz_dict(
+    free_only: bool = True, _collection: dict = xyz, _output: dict = {}
+) -> dict:
     """
     Returns a dictionary of xyz services.
 
     Args:
-        free_only (bool, optional): Whether to return only free xyz tile services that do not require an access token. Defaults to True.
+        free_only: Whether to return only free xyz tile services that do not require an access token.
+        _collection: the collection to anylize (subset of :code:`xyz`
+        _output: the dict to use as an output (mutable object)
 
     Returns:
         dict: A dictionary of xyz services.
     """
-
-    _collection = xyz if _collection is None else _collection
-    _output = {} if _output is None else _output
 
     for v in _collection.values():
         if isinstance(v, TileProvider):
@@ -66,7 +67,7 @@ def get_xyz_dict(free_only=True, _collection=None, _output=None):
     return _output
 
 
-def xyz_to_leaflet():
+def xyz_to_leaflet() -> dict:
     """
     Convert all available xyz tile services to ipyleaflet tile layers.
     Adapted from https://github.com/giswqs/geemap
@@ -96,5 +97,5 @@ def xyz_to_leaflet():
     return leaflet_dict
 
 
-basemap_tiles = BasemapBox(xyz_to_leaflet(), frozen_box=True)
-"(Box.box): the basemaps list as a box"
+basemap_tiles: BasemapBox = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+"the basemaps list as a box"

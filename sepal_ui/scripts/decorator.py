@@ -3,11 +3,10 @@ import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
+from typing import Any, Callable, List, Union
 
 import ee
 import httplib2
-
-# from cryptography.fernet import Fernet
 from deprecated.sphinx import versionadded
 
 # from sepal_ui.scripts.utils import init_ee
@@ -20,7 +19,7 @@ from sepal_ui.scripts.warning import SepalWarning
 #
 
 
-def init_ee():
+def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
     It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
@@ -51,15 +50,18 @@ def init_ee():
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert, debug=False):
+def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
     """
     Decorator to execute try/except sentence
     and catch errors in the alert message.
     If debug is True then the error is raised anyway
 
-    Params:
+    Args:
         alert (sw.Alert): Alert to display errors
         debug (bool): Wether to raise the error or not, default to false
+
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_alert_error(func):
@@ -80,13 +82,16 @@ def catch_errors(alert, debug=False):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def need_ee(func):
+def need_ee(func: Callable) -> Any:
     """
     Decorator to execute check if the object require EE binding.
     Trigger an exception if the connection is not possible.
 
-    Params:
-        func (obj): the object on which the decorator is applied
+    Args:
+        func: the object on which the decorator is applied
+
+    Returns:
+        The return statement of the decorated method
     """
 
     @wraps(func)
@@ -104,15 +109,22 @@ def need_ee(func):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def loading_button(alert=None, button=None, debug=False):
+def loading_button(
+    alert: Union[v.Alert, None] = None,
+    button: Union[v.Btn, None] = None,
+    debug: bool = False,
+) -> Any:
     """
     Decorator to execute try/except sentence and toggle loading button object.
     Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
 
-    Params:
-        button (sw.Btn, optional): Toggled button
-        alert (sw.Alert, optional): the alert to display the error message
-        debug (bool, optional): wether or not the exception should stop the execution. default to False
+    Args:
+        button: Toggled button
+        alert: the alert to display the error message
+        debug: wether or not the exception should stop the execution. default to False
+
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_loading(func):
@@ -180,7 +192,9 @@ def loading_button(alert=None, button=None, debug=False):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def switch(*params, debug=True, on_widgets=[], targets=[]):
+def switch(
+    *params, debug: bool = True, on_widgets: List[str] = [], targets: List[bool] = []
+) -> Any:
     """
     Decorator to switch the state of input boolean parameters on class widgets or the
     class itself. If on_widgets is defined, it will switch the state of every widget
@@ -188,11 +202,13 @@ def switch(*params, debug=True, on_widgets=[], targets=[]):
     two decorators on the same function, one could affect the class and other the widgets.
 
     Args:
-        *params (str): any boolean parameter of a SepalWidget.
-        debug (bool): Whether trigger or not an Exception if the decorated function fails.
-        on_widgets (list(widget_names,)|optional): List of widget names into the class
-        targets (list(bool,)|optional); list of the target value (value taht will be set on switch. default to the inverse of the current state.
+        *params: any boolean parameter of a SepalWidget.
+        debug: Whether trigger or not an Exception if the decorated function fails.
+        on_widgets: List of widget names into the class
+        targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.
 
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_switch(func):
