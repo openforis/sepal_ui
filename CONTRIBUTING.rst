@@ -198,7 +198,7 @@ In a distant environment (such as GitHub Actions) it is compulsory to use a envi
     Linux: /home/USERNAME/.config/earthengine/credentials
     MacOS: /Users/USERNAME/.config/earthengine/credentials
     
-Open the credentials file and copy its content. On the **GitHub Actions** page, create a new **secret** with the name ``EARTHENGINE_TOKE``, and the value of the copied content.
+Open the credentials file and copy its content. On the **GitHub Actions** page, create a new **secret** with the name ``EARTHENGINE_TOKEN``, and the value of the copied content.
     
 Build the API documentation files
 ---------------------------------
