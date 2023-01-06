@@ -27,7 +27,10 @@ def docs(session):
         "docs/source/modules",
         "./sepal_ui",
     )
-    session.run("sphinx-build", "-v", "-b", "html", "docs/source", "build")
+    session.run(
+        "sphinx-build", "-v", "-b", "html", "docs/source", "build", "-w", "warnings.txt"
+    )
+    session.run("python", "tests/check_warnings.py")
 
 
 @nox.session(name="docs-live", reuse_venv=False)

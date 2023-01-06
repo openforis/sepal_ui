@@ -8,12 +8,10 @@ import ee
 import geopandas as gpd
 import pandas as pd
 import traitlets as t
-from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON
 from typing_extensions import Self
 
 from sepal_ui import color
-from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.model import Model
@@ -142,13 +140,8 @@ class AoiModel(Model):
     ipygeojson: Optional[GeoJSON] = None
     "The representation of the AOI as a ipyleaflet layer"
 
-    @deprecated(
-        version="2.11.3",
-        reason=":code:`alert` positional argument will be removed. Successfull output messages has to be created in AoiView.",
-    )
     def __init__(
         self,
-        alert: Optional[sw.Alert] = None,
         gee: bool = True,
         vector: Optional[Union[str, Path]] = None,
         asset: Optional[Union[str, Path]] = None,

@@ -15,6 +15,7 @@ the tile cod is the following :
     import ipyvuetify as v
     from component.message import ms
     from sepal_ui.scripts import utils as su
+    from sepal_ui.scripts import decorator as sd
 
     class MyTile(sw.Tile):
     
@@ -45,7 +46,7 @@ the tile cod is the following :
         # now that the Tile is created we can link it to a specific function
         self.btn.on_event('click', self._on_run)
     
-    @su.loading_button(debug=False)
+    @sd.loading_button(debug=False)
     def _on_run(self, widget, data, event): 
 
         time.sleep(5)
