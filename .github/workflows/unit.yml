@@ -46,9 +46,6 @@ jobs:
       - name: Install dependencies
         run: pip install .[test]
 
-      - name: Set up GEE credentials
-        run: ee_token
-
       - name: build the documentation
         if: matrix.python-version == '3.8'
         run: |
