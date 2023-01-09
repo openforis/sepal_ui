@@ -62,9 +62,9 @@ class Tile(v.Layout, SepalWidget):
 
         # set some default parameters
         kwargs["_metadata"] = {"mount_id": id_}
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["align_center"] = kwargs.pop("align_center", True)
-        kwargs["class_"] = kwargs.pop("class_", "ma-5 d-inline")
+        kwargs.setdefault("row", True)
+        kwargs.setdefault("align_center", True)
+        kwargs.setdefault("class_", "ma-5 d-inline")
         kwargs["children"] = [card]
 
         # call the constructor

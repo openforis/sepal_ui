@@ -43,7 +43,7 @@ class ValueInspector(MenuControl):
         """
 
         # set some default parameters
-        kwargs["position"] = kwargs.pop("position", "topleft")
+        kwargs.setdefault("position", "topleft")
         kwargs["m"] = m
 
         # create a loading to place it on top of the card. It will always be visible

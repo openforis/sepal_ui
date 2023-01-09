@@ -39,9 +39,9 @@ class Markdown(v.Layout, SepalWidget):
         content = MyHTML()
 
         # set default parameters
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["class_"] = kwargs.pop("class_", "pa-5")
-        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs.setdefault("row", True)
+        kwargs.setdefault("class_", "pa-5")
+        kwargs.setdefault("align_center", True)
         kwargs["children"] = [v.Flex(xs12=True, children=[content])]
 
         # call the constructor
@@ -67,12 +67,12 @@ class CopyToClip(v.VuetifyTemplate):
         """
 
         # add the default params to kwargs
-        kwargs["outlined"] = kwargs.pop("outlined", True)
-        kwargs["label"] = kwargs.pop("label", "Copy To clipboard")
-        kwargs["readonly"] = kwargs.pop("readonly", True)
-        kwargs["append_icon"] = kwargs.pop("append_icon", "fa-solid fa-clipboard")
-        kwargs["v_model"] = kwargs.pop("v_model", "")
-        kwargs["class_"] = kwargs.pop("class_", "ma-5")
+        kwargs.setdefault("outlined", True)
+        kwargs.setdefault("label", "Copy To clipboard")
+        kwargs.setdefault("readonly", True)
+        kwargs.setdefault("append_icon", "fa-solid fa-clipboard")
+        kwargs.setdefault("v_model", "")
+        kwargs.setdefault("class_", "ma-5")
 
         # set the default v_model
         self.v_model = kwargs["v_model"]
@@ -134,7 +134,7 @@ class StateIcon(Tooltip):
         """
 
         # set the default parameter of the tooltip
-        kwargs["right"] = kwargs.pop("right", True)
+        kwargs.setdefault("right", True)
 
         # init the states
         default_states = {

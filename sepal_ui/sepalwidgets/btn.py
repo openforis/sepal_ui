@@ -64,7 +64,7 @@ class Btn(v.Btn, SepalWidget):
         self.v_icon = v.Icon(children=[""])
 
         # set the default parameters
-        kwargs["color"] = kwargs.pop("color", "primary")
+        kwargs.setdefault("color", "primary")
         kwargs["children"] = [self.v_icon, self.msg]
 
         # call the constructor
@@ -138,9 +138,9 @@ class DownloadBtn(v.Btn, SepalWidget):
         v_icon = v.Icon(left=True, children=["fa-solid fa-download"])
 
         # set default parameters
-        kwargs["class_"] = kwargs.pop("class_", "ma-2")
-        kwargs["xs5"] = kwargs.pop("xs5", True)
-        kwargs["color"] = kwargs.pop("color", "success")
+        kwargs.setdefault("class_", "ma-2")
+        kwargs.setdefault("xs5", True)
+        kwargs.setdefault("color", "success")
         kwargs["children"] = [v_icon, text]
         kwargs["target"] = "_blank"
         kwargs["attributes"] = {"download": None}

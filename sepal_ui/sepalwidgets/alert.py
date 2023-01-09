@@ -74,9 +74,9 @@ class Alert(v.Alert, SepalWidget):
         """
 
         # set default parameters
-        kwargs["text"] = kwargs.pop("text", True)
+        kwargs.setdefault("text", True)
         kwargs["type"] = set_type(type_)
-        kwargs["class_"] = kwargs.pop("class_", "mt-5")
+        kwargs.setdefault("class_", "mt-5")
 
         # call the constructor
         super().__init__(**kwargs)
@@ -115,13 +115,11 @@ class Alert(v.Alert, SepalWidget):
 
             self.children = [self.progress_output]
 
-            tqdm_args["bar_format"] = tqdm_args.pop(
-                "bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}"
-            )
-            tqdm_args["dynamic_ncols"] = tqdm_args.pop("dynamic_ncols", tqdm_args)
-            tqdm_args["total"] = tqdm_args.pop("total", 1)
-            tqdm_args["desc"] = tqdm_args.pop("desc", msg)
-            tqdm_args["colour"] = tqdm_args.pop("tqdm_args", getattr(color, self.type))
+            tqdm_args.setdefault("bar_format", "{l_bar}{bar}{n_fmt}/{total_fmt}")
+            tqdm_args.setdefault("dynamic_ncols", False)
+            tqdm_args.setdefault("total", 1)
+            tqdm_args.setdefault("desc", msg)
+            tqdm_args.setdefault("colour", getattr(color, self.type))
 
             with self.progress_output:
                 self.progress_output.clear_output()
@@ -352,11 +350,11 @@ class Banner(v.Snackbar, SepalWidget):
         # compute timeout based on the persistent and timeout parameter
         computed_timeout = 0 if persistent is True else self.get_timeout(msg)
 
-        kwargs["color"] = kwargs.pop("color", type_)
-        kwargs["transition"] = kwargs.pop("transition", "scroll-x-transition")
+        kwargs.setdefault("color", type_)
+        kwargs.setdefault("transition", "scroll-x-transition")
         kwargs["attributes"] = {"id": id_}
-        kwargs["v_model"] = kwargs.pop("v_model", True)
-        kwargs["timeout"] = kwargs.pop("timeout", False) or computed_timeout
+        kwargs.setdefault("v_model", True)
+        kwargs.setdefault("timeout", computed_timeout)
         kwargs["top"] = True
         kwargs["vertical"] = True
         kwargs["children"] = [msg] + [self.btn_close]
