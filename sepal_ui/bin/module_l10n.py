@@ -33,7 +33,8 @@ def check_locale(locale: str) -> bool:
         True if the language is a well defined
     """
 
-    countries = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
+    file = Path(__file__).parents[1] / "data" / "locale.parquet"
+    countries = pd.read_parquet(file).astype(str)
 
     return locale in countries.code.values
 

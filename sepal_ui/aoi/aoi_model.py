@@ -28,8 +28,8 @@ class AoiModel(Model):
     # ###########################################################################
 
     FILE: List[Path] = [
-        Path(__file__).parents[1] / "scripts" / "gadm_database.csv",
-        Path(__file__).parents[1] / "scripts" / "gaul_database.csv",
+        Path(__file__).parents[1] / "data" / "gadm_database.parquet",
+        Path(__file__).parents[1] / "data" / "gaul_database.parquet",
     ]
     "Paths to the GADM(0) and GAUL(1) database"
 
@@ -414,7 +414,7 @@ class AoiModel(Model):
             raise Exception(ms.aoi_sel.exception.no_admlyr)
 
         # get the admin level corresponding to the given admin code
-        df = pd.read_csv(self.FILE[self.gee], dtype=str)
+        df = pd.read_parquet(self.FILE[self.gee]).astype(str)
 
         # extract the first element that include this administrative code and set the level accordingly
         is_in = df.filter([self.CODE[self.gee].format(i) for i in range(3)]).isin(
@@ -423,11 +423,9 @@ class AoiModel(Model):
 
         if not is_in.any().any():
             raise Exception(ms.aoi_sel.exception.invalid_code)
-        else:
-            index = 3 if self.gee else -1
-            level = (
-                is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
-            )  # the character that contains the index
+
+        index = 3 if self.gee else -1
+        level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
 
         if self.gee:
 
