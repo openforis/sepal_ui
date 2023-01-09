@@ -1,5 +1,5 @@
-How to deploy on the web
-========================
+Deploy on the web
+=================
 
 .. image:: https://pythonforundergradengineers.com/posts/voila/images/jupyter_voila_heroku.png
     :alt: setup image
