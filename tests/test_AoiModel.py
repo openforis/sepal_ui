@@ -321,8 +321,7 @@ class TestAoiModel:
 
     @pytest.fixture(scope="class")
     def square(self):
-        """a geojson square around the vatican city"""
-
+        """a geojson square around the vatican city."""
         return {
             "type": "FeatureCollection",
             "features": [
@@ -347,8 +346,7 @@ class TestAoiModel:
 
     @pytest.fixture(scope="class")
     def fake_points(self, tmp_dir):
-        """create a fake point file the tmp file will be destroyed after the tests"""
-
+        """create a fake point file the tmp file will be destroyed after the tests."""
         file = tmp_dir / "point.csv"
         with file.open("w") as f:
             f.write("lat,lon,id\n")
@@ -364,7 +362,6 @@ class TestAoiModel:
     @pytest.fixture(scope="class")
     def fake_vector(self, tmp_dir):
         """create a fake vector file from the GADM definition of vatican city and save it in the tmp dir. the tmp files will be destroyed after the test."""
-
         # download vatican city from GADM
         file = tmp_dir / "test.zip"
 
@@ -388,15 +385,14 @@ class TestAoiModel:
     @pytest.fixture
     def test_model(self, gee_dir):
         """
-        Create a test AoiModel based on GEE using Vatican
+        Create a test AoiModel based on GEE using Vatican.
         """
         admin = "110"  # vatican city (smalest adm0 feature)
         return aoi.AoiModel(admin=admin, folder=gee_dir)
 
     @pytest.fixture(scope="class")
     def aoi_model_traits(self):
-        """return the list of an aoi model traits"""
-
+        """return the list of an aoi model traits."""
         return [
             "method",
             "point_json",
@@ -410,8 +406,7 @@ class TestAoiModel:
 
     @pytest.fixture(scope="class")
     def aoi_model_outputs(self):
-        """return the list of an aoi model outputs"""
-
+        """return the list of an aoi model outputs."""
         return [
             "gdf",
             "feature_collection",
@@ -422,7 +417,7 @@ class TestAoiModel:
 
     @pytest.fixture(scope="class")
     def test_columns(self):
-        """return the column of the test vatican aoi"""
+        """return the column of the test vatican aoi."""
         return [
             "ADM0_CODE",
             "ADM0_NAME",
@@ -435,8 +430,7 @@ class TestAoiModel:
 
     @pytest.fixture(scope="class")
     def test_bounds(self):
-        """return the bounds of the vatican asset"""
-
+        """return the bounds of the vatican asset."""
         return (
             12.445770205631668,
             41.90021953934405,

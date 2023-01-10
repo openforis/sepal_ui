@@ -8,7 +8,7 @@ from traitlets import Unicode
 class ResizeTrigger(v.VuetifyTemplate):
     """
     A trigger to resize maps when a change of display is done.
-    Every time resize is called, the javascript resize event is trigger of the application
+    Every time resize is called, the javascript resize event is trigger of the application.
     """
 
     # load the js file
@@ -19,8 +19,7 @@ class ResizeTrigger(v.VuetifyTemplate):
     "Unicode: the javascript script to manually trigger the resize event"
 
     def resize(self):
-        """trigger the template method i.e. the resize event"""
-
+        """trigger the template method i.e. the resize event."""
         return self.send({"method": "resize"})
 
 

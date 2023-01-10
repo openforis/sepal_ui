@@ -53,10 +53,10 @@ def get_xyz_dict(
         _collection: the collection to anylize (subset of :code:`xyz`
         _output: the dict to use as an output (mutable object)
 
-    Returns:
+    Returns
+    -------
         dict: A dictionary of xyz services.
     """
-
     for v in _collection.values():
         if isinstance(v, TileProvider):
             if not (v.requires_token() and free_only):
@@ -70,9 +70,10 @@ def get_xyz_dict(
 def xyz_to_leaflet() -> dict:
     """
     Convert all available xyz tile services to ipyleaflet tile layers.
-    Adapted from https://github.com/giswqs/geemap
+    Adapted from https://github.com/giswqs/geemap.
 
-    Returns:
+    Returns
+    -------
         dict: A dictionary of ipyleaflet tile layers.
     """
     leaflet_dict = {}

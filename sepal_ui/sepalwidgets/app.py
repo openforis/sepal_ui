@@ -1,3 +1,9 @@
+"""
+Custom widgets relative to the applications frame
+
+Gather the customized ``ipyvuetifyWidgets`` used to build the application frame
+"""
+
 from datetime import datetime
 from functools import partial
 from itertools import cycle
@@ -68,10 +74,10 @@ class LocaleSelect(v.Menu, SepalWidget):
         .. versionadded:: 2.7.0
 
         Args:
+        ----
             translator: the translator of the app, to match the used language
             kwargs (optional): any arguments for a Btn object, children will be override
         """
-
         # extract the available language from the translator
         # default to only en-US if no translator is set
         available_locales = (
@@ -118,15 +124,17 @@ class LocaleSelect(v.Menu, SepalWidget):
 
     def _get_country_items(self, locales: list) -> List[str]:
         """
-        Get the list of countries as a list of listItem. reduce the list to the available language of the module
+        Get the list of countries as a list of listItem.
+
+        Reduce the list to the available language of the module.
 
         Args:
             locales: list of the locales to display
 
-        Returns:
+        Returns
+        -------
             the list of contry widget to display in the app
         """
-
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
         for r in filtered_countries.itertuples(index=False):
@@ -145,12 +153,11 @@ class LocaleSelect(v.Menu, SepalWidget):
 
     def _on_locale_select(self, change: dict) -> None:
         """
-        adapt the application to the newly selected language
+        adapt the application to the newly selected language.
 
         Display the new flag and country code on the widget btn
         change the value in the config file
         """
-
         # get the line in the locale dataframe
         loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
 
@@ -186,9 +193,9 @@ class ThemeSelect(v.Btn, SepalWidget):
         .. versionadded:: 2.7.0
 
         Args:
+        ----
             kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
         """
-
         # get the current theme name
         self.theme = sepal_ui.get_theme()
 
@@ -207,7 +214,7 @@ class ThemeSelect(v.Btn, SepalWidget):
 
     def toggle_theme(self, *args) -> None:
         """
-        Toggle the btn icon from dark to light and adapt the configuration file at the same time
+        Toggle the btn icon from dark to light and adapt the configuration file.
         """
         # use a cycle to go through the themes
         theme_cycle = cycle(self.THEME_ICONS.keys())
@@ -248,14 +255,14 @@ class AppBar(v.AppBar, SepalWidget):
         **kwargs,
     ) -> None:
         """
-        Custom AppBar widget with the provided title using the sepal color framework
+        Custom AppBar widget with the provided title using the sepal color framework.
 
         Args:
+        ----
             title: the title of the app
             translator: the app translator to pass to the locale selector object
             kwargs (optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
         """
-
         self.toggle_button = v.Btn(
             icon=True,
             children=[
@@ -285,12 +292,12 @@ class AppBar(v.AppBar, SepalWidget):
 
     def set_title(self, title: str) -> Self:
         """
-        Set the title of the appBar
+        Set the title of the appBar.
 
         Args:
-            title (str): the new app title
+        ----
+            title: the new app title
         """
-
         self.title.children = [title]
 
         return self
@@ -319,10 +326,12 @@ class DrawerItem(v.ListItem, SepalWidget):
     ) -> None:
         """
         Custom DrawerItem using the user input.
+
         If a card is set the drawerItem will trigger the display of all the Tiles in the app that have the same mount_id.
-        If an href is set, the drawer will open the link in a new tab
+        If an href is set, the drawer will open the link in a new tab.
 
         Args:
+        ----
             title: the title of the drawer item
             icon: the full name of a mdi/fa icon
             card: the mount_id of tiles in the app
@@ -331,7 +340,6 @@ class DrawerItem(v.ListItem, SepalWidget):
             bind_var: required when model is selected. Trait to link with 'alert' self trait parameter
             kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
         """
-
         # set the resizetrigger
         self.rt = rt
 
@@ -378,8 +386,7 @@ class DrawerItem(v.ListItem, SepalWidget):
 
     @observe("alert")
     def add_notif(self, change: dict) -> None:
-        """Add a notification alert to drawer"""
-
+        """Add a notification alert to drawer."""
         if change["new"]:
             if self.alert_badge not in self.children:
                 new_children = self.children[:]
@@ -391,8 +398,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         return
 
     def remove_notif(self) -> None:
-        """Remove notification alert"""
-
+        """Remove notification alert."""
         if self.alert_badge in self.children:
             new_children = self.children[:]
             new_children.remove(self.alert_badge)
@@ -404,12 +410,13 @@ class DrawerItem(v.ListItem, SepalWidget):
     def display_tile(self, tiles: List[v.Card]) -> Self:
         """
         Display the apropriate tiles when the item is clicked.
-        The tile to display will be all tile in the list with the mount_id as the current object
+
+        The tile to display will be all tile in the list with the mount_id as the current object.
 
         Args:
+        ----
             tiles: the list of all the available tiles in the app
         """
-
         self.on_event("click", partial(self._on_click, tiles=tiles))
 
         return self
@@ -447,19 +454,19 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         issue: str = "",
         **kwargs,
     ) -> None:
-
         """
-        Custom NavDrawer using the different DrawerItems of the user and the sepal color framework.
+        Custom NavDrawer using the different DrawerItems of the user.
+
         The drawer can include links to the github page of the project for wiki, bugs and repository.
 
         Args:
+        ----
             items: the list of all the drawerItem to display in the drawer. This items should pilote the different tile visibility
             code: the absolute link to the source code
             wiki: the absolute link the the wiki page
             issue: the absolute link to the issue tracker
             kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
         """
-
         self.items = items
 
         code_link = []
@@ -500,30 +507,28 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
     def display_drawer(self, toggleButton: v.Btn) -> Self:
         """
-        Bind the drawer to the app toggleButton
+        Bind the drawer to the app toggleButton.
 
         Args:
+        ----
             toggleButton: the button that activate the drawer
         """
-
         toggleButton.on_event("click", self._on_drawer_click)
 
         return self
 
     def _on_drawer_click(self, *args) -> Self:
         """
-        Toggle the drawer visibility
+        Toggle the drawer visibility.
         """
-
         self.v_model = not self.v_model
 
         return self
 
     def _on_item_click(self, change: dict) -> Self:
         """
-        Deactivate all the other items when on of the is activated
+        Deactivate all the other items when on of the is activated.
         """
-
         if change["new"] is False:
             return self
 
@@ -539,13 +544,14 @@ class Footer(v.Footer, SepalWidget):
     def __init__(self, text: str = "", **kwargs) -> None:
         """
         Custom Footer with cuzomizable text.
-        Not yet capable of displaying logos
+
+        Not yet capable of displaying logos.
 
         Args:
+        ----
             text: the text to display in the future
             kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
         """
-
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
@@ -586,11 +592,13 @@ class App(v.App, SepalWidget):
     ) -> None:
         """
         Custom App display with the tiles created by the user using the sepal color framework.
+
         Display false appBar if not filled. Navdrawer is fully optionnal.
         The drawerItem will be linked to the app tile and they will be able to control their display
-        If the navdrawer exist, it will be linked to the appbar togglebtn
+        If the navdrawer exist, it will be linked to the appbar togglebtn.
 
         Args:
+        ----
             tiles: the tiles of the app
             appBar: the appBar of the application
             footer: the footer of the application
@@ -598,7 +606,6 @@ class App(v.App, SepalWidget):
             translator: the translator of the app to display language informations
             kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
         """
-
         self.tiles = tiles
 
         app_children = []
@@ -659,9 +666,10 @@ class App(v.App, SepalWidget):
 
     def show_tile(self, name: str) -> Self:
         """
-        Select the tile to display when the app is launched
+        Select the tile to display when the app is launched.
 
         Args:
+        ----
             name: the mount-id of the tile(s) to display
         """
         # show the tile
@@ -690,17 +698,19 @@ class App(v.App, SepalWidget):
         persistent: bool = True,
         **kwargs,
     ) -> Self:
-        """
-        Display an snackbar object on top of the app to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
+        r"""
+        Display a snackbar object on top of the app.
+
+        Used to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
+        ----
             msg: Message to display in application banner. default to nothing
             type\_: Used to display an appropiate banner color. fallback to "info".
             id_: unique banner identificator.
             persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
             **kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
         """
-
         # the Banner was previously an Alert. for compatibility we accept the type parameter
         type_ = kwargs.pop("type", type_)
 
@@ -733,8 +743,7 @@ class App(v.App, SepalWidget):
         return self
 
     def _locale_info(self, change: dict) -> None:
-        """display information about the locale change"""
-
+        """display information about the locale change."""
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
             self.add_banner(msg)
@@ -742,8 +751,7 @@ class App(v.App, SepalWidget):
         return
 
     def _theme_info(self, change: dict) -> None:
-        """display information about the theme change"""
-
+        """display information about the theme change."""
         if change["new"] != "":
             msg = ms.theme.change.format(change["new"])
             self.add_banner(msg)
@@ -752,8 +760,9 @@ class App(v.App, SepalWidget):
 
     def _remove_banner(self, change: dict) -> None:
         """
-        Adapt the banner display so that the first one is the oly one shown displaying the number of other banner in the queue
-        I'm force to create a function as lambda method cannot do assignments before python 3.9.
+        remove banner and adapt display of the others.
+
+        Adapt the banner display so that the first one is the only one shown displaying the number of other banner in the queue
         """
         if change["new"] is False:
 

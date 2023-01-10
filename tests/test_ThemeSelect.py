@@ -33,8 +33,7 @@ class TestThemeSelect:
 
     @pytest.fixture
     def theme_select(self):
-        """Create a simple theme_select"""
-
+        """Create a simple theme_select."""
         # destroy any existing config file
         if config_file.is_file():
             config_file.unlink()

@@ -23,10 +23,10 @@ from sepal_ui.scripts.warning import SepalWarning
 def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
-    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary)
-    """
 
+    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
+    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
 
@@ -53,15 +53,17 @@ def init_ee() -> None:
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
     """
-    Decorator to execute try/except sentence
-    and catch errors in the alert message.
-    If debug is True then the error is raised anyway
+    Decorator to execute try/except sentence and catch errors in the alert message.
 
-    Args:
+    If debug is True then the error is raised anyway.
+
+    Args
+    ----
         alert (sw.Alert): Alert to display errors
         debug (bool): Wether to raise the error or not, default to false
 
-    Returns:
+    Returns
+    -------
         The return statement of the decorated method
     """
 
@@ -86,12 +88,15 @@ def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
 def need_ee(func: Callable) -> Any:
     """
     Decorator to execute check if the object require EE binding.
+
     Trigger an exception if the connection is not possible.
 
     Args:
+    -----
         func: the object on which the decorator is applied
 
-    Returns:
+    Returns
+    -------
         The return statement of the decorated method
     """
 
@@ -119,12 +124,14 @@ def loading_button(
     Decorator to execute try/except sentence and toggle loading button object.
     Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
 
-    Args:
+    Args
+    ----
         button: Toggled button
         alert: the alert to display the error message
         debug: wether or not the exception should stop the execution. default to False
 
-    Returns:
+    Returns
+    -------
         The return statement of the decorated method
     """
 
@@ -198,17 +205,21 @@ def switch(
 ) -> Any:
     """
     Decorator to switch the state of input boolean parameters on class widgets or the
-    class itself. If on_widgets is defined, it will switch the state of every widget
+    class itself.
+
+    If on_widgets is defined, it will switch the state of every widget
     parameter, otherwise it will change the state of the class (self). You can also set
     two decorators on the same function, one could affect the class and other the widgets.
 
-    Args:
+    Args
+    ----
         *params: any boolean parameter of a SepalWidget.
         debug: Whether trigger or not an Exception if the decorated function fails.
         on_widgets: List of widget names into the class
         targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.
 
-    Returns:
+    Returns
+    -------
         The return statement of the decorated method
     """
 

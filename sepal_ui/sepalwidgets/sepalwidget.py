@@ -23,13 +23,13 @@ class SepalWidget(v.VuetifyWidget):
 
     def __init__(self, viz: bool = True, tooltip: str = "", **kwargs) -> None:
         """
-        Custom vuetifyWidget to add specific methods
+        Custom vuetifyWidget to add specific methods.
 
         Args:
+        ----
             viz: define if the widget should be visible or not
             tooltip: tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
         """
-
         # init the widget
         super().__init__(**kwargs)
 
@@ -48,7 +48,6 @@ class SepalWidget(v.VuetifyWidget):
         Show the widget by removing the :code:`d-none` html class.
         Save the previous class
         """
-
         # will be replaced byt direct calls to built-in hide
         # once the previous custom implementation will be fully removed
 
@@ -71,7 +70,6 @@ class SepalWidget(v.VuetifyWidget):
         """
         toogle the visibility of the widget.
         """
-
         self.viz = not self.viz
 
         return self
@@ -81,7 +79,6 @@ class SepalWidget(v.VuetifyWidget):
         Hide the widget by reducing the html class to :code:`d-none`.
         Save the previous class and set viz attribute to False.
         """
-
         # update viz state
         self.viz = False
 
@@ -92,7 +89,6 @@ class SepalWidget(v.VuetifyWidget):
         Show the widget by removing the d-none html class.
         Save the previous class and set viz attribute to True.
         """
-
         # update viz state
         self.viz = True
 
@@ -102,7 +98,6 @@ class SepalWidget(v.VuetifyWidget):
         """
         Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input.
         """
-
         self.v_model = None
 
         return self
@@ -113,11 +108,11 @@ class SepalWidget(v.VuetifyWidget):
         Args:
             id\_ (str, optional): attribute id to compare with.
 
-        Returns:
+        Returns
+        -------
             list with all mathing elements if there are more than one, otherwise will return the matching element.
 
         """
-
         elements = []
 
         def search_children(parent):
@@ -138,13 +133,13 @@ class SepalWidget(v.VuetifyWidget):
     def set_children(
         self, children: Union[str, v.VuetifyWidget, list], position: str = "first"
     ) -> Self:
-        """Insert input children in self children within given position
+        """Insert input children in self children within given position.
 
         Args:
+        ----
             children: the list of children to add to the widget. It can also be a list (str and DOMWidgets are accepted)
             position: whether to insert as first or last element. ["first", "last"]
         """
-
         if not isinstance(children, list):
             children = [children]
 
@@ -177,7 +172,8 @@ class SepalWidget(v.VuetifyWidget):
             txt: anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
             kwargs: any options available in a Tooltip widget
 
-        Returns:
+        Returns
+        -------
             the tooltip associated with the object
         """
         if isinstance(self.with_tooltip, Tooltip):
@@ -194,13 +190,13 @@ class SepalWidget(v.VuetifyWidget):
 class Tooltip(v.Tooltip):
     def __init__(self, widget: v.VuetifyWidget, tooltip: str, **kwargs) -> None:
         """
-        Custom widget to display tooltip when mouse is over widget
+        Custom widget to display tooltip when mouse is over widget.
 
         Args:
+        ----
             widget: widget used to display tooltip
             tooltip: the text to display in the tooltip
         """
-
         # set some default parameters
         kwargs["close_delay"] = kwargs.pop("close_delay", 200)
 

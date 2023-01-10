@@ -4,22 +4,13 @@ repos:
     hooks:
       - id: black
         stages: [commit]
-  - repo: "https://github.com/pycqa/flake8"
-    rev: "5.0.4"
-    hooks:
-      - id: flake8
-        stages: [commit]
-        additional_dependencies: [Flake8-pyproject]
+
   - repo: "https://github.com/commitizen-tools/commitizen"
     rev: "v2.18.0"
     hooks:
       - id: commitizen
         stages: [commit-msg]
-  - repo: "https://github.com/pycqa/isort"
-    rev: "5.10.1"
-    hooks:
-      - id: isort
-        stages: [commit]
+
   - repo: "https://github.com/kynan/nbstripout"
     rev: "0.5.0"
     hooks:
@@ -32,3 +23,9 @@ repos:
       - id: prettier
         stages: [commit]
         exclude: "sepal_ui/scripts/encrypted_key.json"
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.215"
+    hooks:
+      - id: ruff
+        stages: [commit]

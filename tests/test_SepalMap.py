@@ -495,8 +495,7 @@ class TestSepalMap:
 
     @pytest.fixture(scope="class")
     def rgb(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "rgb.tif"
 
         if not rgb.is_file():
@@ -511,8 +510,7 @@ class TestSepalMap:
 
     @pytest.fixture(scope="class")
     def byte(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "byte.tif"
 
         if not rgb.is_file():

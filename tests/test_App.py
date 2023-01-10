@@ -100,8 +100,7 @@ class TestApp:
         return
 
     def test_close_banner(self, app):
-        """Test closing banner event"""
-
+        """Test closing banner event."""
         msg = "test"
         app.add_banner(msg, id_="test_close")
 
@@ -120,8 +119,7 @@ class TestApp:
 
     @pytest.fixture
     def app(self):
-        """create a default App"""
-
+        """create a default App."""
         # create default widgets
         tiles = [sw.Tile(f"id_{i}", f"title_{i}") for i in range(5)]
         drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]

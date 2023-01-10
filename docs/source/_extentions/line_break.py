@@ -7,10 +7,14 @@ from docutils.parsers.rst import Directive, directives
 
 class LineBreak(Directive):
     """
-    ReST directive for creating line break in your documentation when needed. The directive does note require any argument.
+    ReST directive for creating line break in your documentation when needed.
+
+    The directive does note require any argument.
 
     Example:
-        .. line-break::"""
+    -------
+    .. line-break::
+    """
 
     has_content: bool = False
     "directive have no content"

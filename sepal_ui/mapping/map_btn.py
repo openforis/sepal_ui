@@ -15,9 +15,9 @@ class MapBtn(v.Btn, sw.SepalWidget):
         The MapBtn is responsive to theme changes. It only accept icon or 3 letters as children as the space is very limited.
 
         Args:
+        ----
             content: a fa-solid/mdi fully qualified name or a string name. If a string name is used, only the 3 first letters will be displayed.
         """
-
         # create the icon
         if content.startswith("mdi-") or content.startswith("fa-solid fa-"):
             content = sw.Icon(small=True, children=[content])

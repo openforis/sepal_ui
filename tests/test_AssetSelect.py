@@ -107,8 +107,7 @@ class TestAssetSelect:
 
     @pytest.fixture
     def default_items(self):
-        """some default public data from GEE"""
-
+        """some default public data from GEE."""
         return [
             "OSU/GIMP/DEM",
             "ASTER/AST_L1T_003",
@@ -117,14 +116,12 @@ class TestAssetSelect:
 
     @pytest.fixture
     def asset_select(self, gee_dir):
-        """create a default assetSelect"""
-
+        """create a default assetSelect."""
         return sw.AssetSelect(folder=str(gee_dir))
 
     @pytest.fixture(scope="class")
     def gee_user_dir(self, gee_dir):
-        """return the path to the gee_dir assets without the project elements"""
-
+        """return the path to the gee_dir assets without the project elements."""
         legacy_project = Path("projects/earthengine-legacy/assets")
 
         return gee_dir.relative_to(legacy_project)

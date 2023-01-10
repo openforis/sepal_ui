@@ -121,20 +121,17 @@ class TestFileInput:
 
     @pytest.fixture
     def file_input(self, root_dir):
-        """create a default file_input in the root_dir"""
-
+        """create a default file_input in the root_dir."""
         return sw.FileInput(folder=root_dir)
 
     @pytest.fixture
     def readme(self, root_dir):
-        """return the readme file path"""
-
+        """return the readme file path."""
         return root_dir / "README.rst"
 
     @staticmethod
     def get_names(widget):
-        """get the list name of a fileinput object"""
-
+        """get the list name of a fileinput object."""
         item_list = widget.file_list.children[0].children
 
         def get_name(item):

@@ -83,6 +83,5 @@ class TestBtn:
 
     @pytest.fixture
     def btn(self):
-        """Create a simple btn"""
-
+        """Create a simple btn."""
         return sw.Btn("Click")

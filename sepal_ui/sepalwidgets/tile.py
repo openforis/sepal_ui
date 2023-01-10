@@ -38,6 +38,7 @@ class Tile(v.Layout, SepalWidget):
         Tile objects are indeed compatible with the other classes from sepal_ui.
 
         Args:
+        ----
             id_: the tile id that will be written in its mount_id _metadata attribute
             title: the title of the Tile
             inputs: the list of widget to display inside the tile
@@ -45,7 +46,6 @@ class Tile(v.Layout, SepalWidget):
             alert: the alert to display process informations to the end user
             kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
         """
-
         self.btn = btn
         inputs += [btn] if btn else []
 
@@ -74,9 +74,8 @@ class Tile(v.Layout, SepalWidget):
         """
         Prepare the tile to be used as a nested component in a tile.
         the elevation will be set to 0 and the title remove from children.
-        The mount_id will also be changed to nested
+        The mount_id will also be changed to nested.
         """
-
         # remove id
         self._metadata["mount_id"] = "nested_tile"
 
@@ -93,9 +92,9 @@ class Tile(v.Layout, SepalWidget):
         Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
 
         Args:
+        ----
             the list of widget to display inside the tile
         """
-
         # create the widgets
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
 
@@ -116,12 +115,12 @@ class Tile(v.Layout, SepalWidget):
     def set_title(self, title: str = "") -> Self:
         """
         Replace the current title and activate it.
-        If no title is provided, the title is removed from the tile content
+        If no title is provided, the title is removed from the tile content.
 
         Args:
+        ----
             title: the new title of the object
         """
-
         # set the title text
         self.title.children = [title]
 
@@ -138,12 +137,12 @@ class Tile(v.Layout, SepalWidget):
 
     def get_title(self) -> str:
         """
-        Return the current title of the tile
+        Return the current title of the tile.
 
-        Returns:
+        Returns
+        -------
             the title
         """
-
         return self.title.children[0]
 
     def toggle_inputs(
@@ -153,10 +152,10 @@ class Tile(v.Layout, SepalWidget):
         Display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
 
         Args:
+        ----
             fields_2_show ([v.widget]) : the list of input to be display
             fields ([v.widget]) : the list of the tile widget
         """
-
         for field in fields:
             if field in fields_2_show:
                 su.show_component(field)
@@ -167,12 +166,12 @@ class Tile(v.Layout, SepalWidget):
 
     def get_id(self) -> str:
         """
-        Get the mount_id value
+        Get the mount_id value.
 
-        Returns:
+        Returns
+        -------
             the moun_id value from _metadata dict
         """
-
         return self._metadata["mount_id"]
 
 
@@ -183,9 +182,9 @@ class TileAbout(Tile):
         This tile will have the "about_widget" id and "About" title.
 
         Args:
+        ----
             the path to the .md file
         """
-
         if type(pathname) == str:
             pathname = Path(pathname)
 
@@ -204,7 +203,6 @@ class TileDisclaimer(Tile):
         Create a about tile.
         This tile will have the "about_widget" id and "Disclaimer" title.
         """
-
         # create the tile content on the fly
         disclaimer = "  \n".join(ms.disclaimer.p)
         disclaimer += "  \n"

@@ -55,8 +55,7 @@ class TestLayerStateControl:
 
     @pytest.fixture
     def map_with_layers(self):
-        """create a map with 2 layers and a stateBar"""
-
+        """create a map with 2 layers and a stateBar."""
         # create the map and controls
         m = sm.SepalMap()
         state = sm.LayerStateControl(m)
@@ -76,7 +75,7 @@ class TestLayerStateControl:
 
     class FakeLayer(RasterLayer):
         """
-        layer class that have only one parameter: the laoding trait
+        layer class that have only one parameter: the laoding trait.
         """
 
         loading = Bool(False).tag(sync=True)

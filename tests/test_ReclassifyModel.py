@@ -28,8 +28,7 @@ class TestReclassifyModel:
         return
 
     def test_get_classes(self, model_local, reclass_file):
-        """Test if the matrix is saved and corresponds with the the output"""
-
+        """Test if the matrix is saved and corresponds with the the output."""
         with pytest.raises(Exception):
             model_local.dst_class_file = "I/dont/exist.nothing"
             model_local.get_classes()
@@ -53,8 +52,7 @@ class TestReclassifyModel:
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_get_type_gee(self, model_gee, model_gee_vector, model_gee_image):
-        """Tests the asset type with gee"""
-
+        """Tests the asset type with gee."""
         # Test without source
         with pytest.raises(Exception):
             model_gee.get_type()
@@ -72,8 +70,7 @@ class TestReclassifyModel:
         return
 
     def test_get_type_local(self, model_local, model_local_vector, model_local_image):
-        """Tests the asset type without gee"""
-
+        """Tests the asset type without gee."""
         # Test no input
         with pytest.raises(Exception):
             model_local.get_type()
@@ -88,8 +85,7 @@ class TestReclassifyModel:
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_get_bands_gee(self, model_gee_vector, model_gee_image):
-        """check if the bands are correctly retreived"""
-
+        """check if the bands are correctly retreived."""
         # Arrange
         table_bands = ["data"]
         image_bands = ["constant"]
@@ -214,8 +210,7 @@ class TestReclassifyModel:
 
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_reclassify_gee_vector(self, model_gee_vector, gee_dir, alert):
-        """Test reclassification of vectors when using an area of interest"""
-
+        """Test reclassification of vectors when using an area of interest."""
         unique_value = [0, 1, 2, 3]
         matrix = {v: 2 * i // len(unique_value) for i, v in enumerate(unique_value)}
 
@@ -228,8 +223,7 @@ class TestReclassifyModel:
         return
 
     def test_reclassify_gee_image(self, model_gee_image, alert):
-        """Test reclassification of vectors when using an area of interest"""
-
+        """Test reclassification of vectors when using an area of interest."""
         unique_value = [1, 2, 3, 4]
         matrix = {v: 2 * i // len(unique_value) for i, v in enumerate(unique_value)}
 
@@ -281,8 +275,7 @@ class TestReclassifyModel:
 
     @pytest.fixture(scope="class")
     def reclass_file(self, tmp_dir):
-        """create a fake classification file"""
-
+        """create a fake classification file."""
         reclass_file = tmp_dir / "dum_map_matrix.csv"
         reclass_file.write_text(
             """
@@ -304,8 +297,7 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_gee(self, tmp_dir, alert, gee_dir):
-        """Reclassify model using Google Earth Engine assets"""
-
+        """Reclassify model using Google Earth Engine assets."""
         aoi_model = aoi.AoiModel(gee=True, folder=gee_dir)
 
         return ReclassifyModel(
@@ -319,8 +311,7 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_gee_vector(self, model_gee, gee_dir):
-        """Creates a reclassify model with a gee vector"""
-
+        """Creates a reclassify model with a gee vector."""
         model_gee = deepcopy(model_gee)
         model_gee.src_gee = str(gee_dir / "feature_collection")
         model_gee.get_type()
@@ -329,8 +320,7 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_gee_image(self, model_gee, gee_dir):
-        """Creates a reclassify model with a gee image"""
-
+        """Creates a reclassify model with a gee image."""
         model_gee = deepcopy(model_gee)
         model_gee.src_gee = str(gee_dir / "image")
         model_gee.get_type()
@@ -339,16 +329,14 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_local(self, tmp_dir, alert):
-        """Reclassify model using local raster assets"""
-
+        """Reclassify model using local raster assets."""
         aoi_model = aoi.AoiModel(gee=False)
 
         return ReclassifyModel(gee=False, dst_dir=tmp_dir, aoi_model=aoi_model)
 
     @pytest.fixture
     def model_local_vector(self, model_local, tmp_dir):
-        """Create a reclassify model with a local vector"""
-
+        """Create a reclassify model with a local vector."""
         # create the vector file
         file = Path(gpd.datasets.get_path("nybb").replace("zip:", ""))
 
@@ -368,8 +356,7 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_local_image(self, model_local, tmp_dir):
-        """create a reclassify model with a tif image"""
-
+        """create a reclassify model with a tif image."""
         # retreive the image
         url = "https://raw.githubusercontent.com/12rambau/gwb/master/utils/backup/clc3class.tif"
         filename = tmp_dir / "clc3class.tif"
@@ -388,14 +375,12 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def no_name(self):
-        """return a no-name tuple"""
-
+        """return a no-name tuple."""
         return ("no_name", "#000000")
 
     @pytest.fixture(scope="class")
     def aoi_model(self, _hash, gee_dir):
-        """create an aoi_model with a 100m square geometry centered in 50, 50"""
-
+        """create an aoi_model with a 100m square geometry centered in 50, 50."""
         # create the geoemtry as featurecollection
         point = ee.Geometry.Point([50, 50], "EPSG:3857")
         aoi_ee = ee.FeatureCollection(point.buffer(50).bounds())

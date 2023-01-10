@@ -7,7 +7,7 @@ from IPython.display import display
 from traitlets import Bool, HasTraits, Unicode, observe
 
 import sepal_ui.scripts.utils as su
-from sepal_ui import config
+from sepal_ui.conf import config
 
 ################################################################################
 # access the folders where style information is stored (layers, widgets)
@@ -78,12 +78,12 @@ TYPES: Tuple[str, ...] = (
 
 def get_theme() -> str:
     """
-    Get theme name from the config file (default to dark)
+    Get theme name from the config file (default to dark).
 
-    Returns:
+    Returns
+    -------
         The theme to use
     """
-
     return config.get("sepal-ui", "theme", fallback="dark")
 
 
@@ -97,14 +97,13 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     @observe("_dark_theme")
     def __init__(self, *_, **new_colors) -> None:
-
         """
         Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
         Args:
+        ----
             **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
         """
-
         # set vuetify theme
         v.theme.dark = self._dark_theme
 
@@ -133,7 +132,6 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
-
         s = 60
         html = f"<h3>Current theme: {self.theme_name}</h3><table>"
         items = {k: v for k, v in self.kwargs.items()}.items()

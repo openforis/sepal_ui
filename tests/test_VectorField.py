@@ -137,8 +137,7 @@ class TestVectorField:
 
     @pytest.fixture(scope="class")
     def default_v_model(self):
-        """Returns the default v_model"""
-
+        """Returns the default v_model."""
         return {
             "pathname": None,
             "column": None,
@@ -147,20 +146,17 @@ class TestVectorField:
 
     @pytest.fixture
     def vector_field(self):
-        """return a VectorField"""
-
+        """return a VectorField."""
         return sw.VectorField()
 
     @pytest.fixture
     def vector_field_gee(self, gee_dir):
-        """Instance of VectorField using GEE"""
-
+        """Instance of VectorField using GEE."""
         return sw.VectorField(gee=True, folder=gee_dir)
 
     @pytest.fixture(scope="class")
     def fake_vector(self, tmp_dir):
-        """return a fake vector based on the vatican file"""
-
+        """return a fake vector based on the vatican file."""
         file = tmp_dir / "test.zip"
 
         gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
@@ -183,6 +179,5 @@ class TestVectorField:
 
     @pytest.fixture(scope="class")
     def fake_asset(self, gee_dir):
-        """return the path to a fake asset"""
-
+        """return the path to a fake asset."""
         return gee_dir / "feature_collection"

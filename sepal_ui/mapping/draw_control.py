@@ -15,13 +15,13 @@ class DrawControl(ipl.DrawControl):
 
     def __init__(self, m: ipl.Map, **kwargs) -> None:
         """
-        A custom DrawingControl object to handle edition of features
+        A custom DrawingControl object to handle edition of features.
 
         Args:
+        ----
             m: the map on which he drawControl is displayed
             kwargs: any available arguments from a ipyleaflet.DrawingControl
         """
-
         # set some default parameters
         options = {"shapeOptions": {"color": color.info}}
         kwargs["marker"] = kwargs.pop("marker", {})
@@ -40,7 +40,6 @@ class DrawControl(ipl.DrawControl):
         """
         show the drawing control on the map. and clear it's content.
         """
-
         self.clear()
         self in self.m.controls or self.m.add(self)
 
@@ -50,7 +49,6 @@ class DrawControl(ipl.DrawControl):
         """
         hide the drawing control from the map, and clear it's content.
         """
-
         self.clear()
         self not in self.m.controls or self.m.remove(self)
 
@@ -61,10 +59,10 @@ class DrawControl(ipl.DrawControl):
         Return the content of the DrawCOntrol data without the styling properties and using a polygonized representation of circles.
         The output is fully compatible with __geo_interface__.
 
-        Returns:
+        Returns
+        -------
             the json representation of all the geometries draw on the map
         """
-
         features = [self.polygonize(feat) for feat in deepcopy(self.data)]
         [feat["properties"].pop("style") for feat in features]
 
@@ -81,9 +79,9 @@ class DrawControl(ipl.DrawControl):
             geo_json: the circle geojson
 
         Return:
+        ------
             the polygonised feature
         """
-
         if "Point" not in geo_json["geometry"]["type"]:
             return geo_json
 

@@ -43,9 +43,9 @@ class PlanetModel(Model):
         are aimed to be used without the need of a view.
 
         Args:
+        ----
             credentials: planet API key or tuple of username and password of planet explorer.
         """
-
         self.subscriptions = {}
         self.session = None
         self.active = False
@@ -58,9 +58,9 @@ class PlanetModel(Model):
         Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
+        ----
             credentials: planet API key or username and password pair of planet explorer.
         """
-
         if not isinstance(credentials, list):
             credentials = [credentials]
 
@@ -79,9 +79,8 @@ class PlanetModel(Model):
 
     def _is_active(self) -> None:
         """
-        check if the key has an associated active subscription and change the state button accordingly
+        check if the key has an associated active subscription and change the state button accordingly.
         """
-
         # As there is not any key that identify the nicfi contract,
         # let's find though all the subscriptions a representative name
         wildcards = ["Level_0", "Level_1", "Level2"]
@@ -106,12 +105,12 @@ class PlanetModel(Model):
 
     def get_subscriptions(self) -> dict:
         """
-        load the user subscriptions
+        load the user subscriptions.
 
-        Returns:
+        Returns
+        -------
             the dictionnary of user subscription or empty list if nothing found
         """
-
         req = self.session.request("GET", self.SUBS_URL)
 
         try:
@@ -145,11 +144,11 @@ class PlanetModel(Model):
             cloud_cover: maximum cloud coverage.
             limit_to_x_pages: number of pages to constrain the search. Defaults to -1 to use all of them.
 
-        Returns:
+        Returns
+        -------
             items found using the search query
 
         """
-
         # cast start and end to str
         start = (
             datetime.strptime(start, "%Y-%m-%d") if isinstance(start, str) else start
@@ -173,7 +172,8 @@ class PlanetModel(Model):
 
         async def main():
             """Create an asyncrhonous function here to avoid making the main get_items
-            as async. So we can keep calling get_items without any change."""
+            as async. So we can keep calling get_items without any change.
+            """
             client = DataClient(self.session)
             items = await client.search(item_types, and_filter, name="quick_search")
             items.limit = limit_to_x_pages

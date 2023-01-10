@@ -73,6 +73,5 @@ class TestDownloadBtn:
 
     @pytest.fixture
     def file_start(self):
-        """the start of any link to the sepal platform"""
-
+        """the start of any link to the sepal platform."""
         return "https://sepal.io/api/sandbox/jupyter/files/"

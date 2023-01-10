@@ -59,6 +59,5 @@ class TestNumberField:
 
     @pytest.fixture
     def number(self):
-        """return a default NumberField"""
-
+        """return a default NumberField."""
         return sw.NumberField()

@@ -27,6 +27,5 @@ class TestPasswordField:
 
     @pytest.fixture
     def password(self):
-        """return a passwordfield"""
-
+        """return a passwordfield."""
         return sw.PasswordField()

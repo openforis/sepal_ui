@@ -30,20 +30,21 @@ class MethodSelect(sw.Select):
         gee: bool = True,
         map_: Optional[sm.SepalMap] = None,
     ) -> None:
+        """
+        A method selector.
 
-        f"""
-        A method selector. It will list the available methods for this very AoiView.
+        It will list the available methods for this very AoiView.
         'ALL' will select all the available methods (default)
         'ADMIN' only the admin one, 'CUSTOM' only the custom one.
         'XXX' will add the selected method to the list when '-XXX' will discard it.
         You cannot mix adding and removing behaviours.
 
         Args:
-            methods: a list of methods from the available list ({', '.join(select_methods.keys())})
+        ----
+            methods: a list of methods from the available list (ADMIN0, ADMIN1, ADMIN2, SHAPE, DRAW, POINTS, ASSET)
             map_: link the aoi_view to a custom SepalMap to display the output, default to None
             gee: wether to bind to ee or not
         """
-
         # create the method list
         if methods == "ALL":
             self.methods = select_methods
@@ -108,16 +109,17 @@ class AdminField(sw.Select):
     def __init__(
         self, level: int, parent: Optional[sw.Select] = None, gee: bool = True
     ) -> None:
-
         """
-        An admin level selector. It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+        An admin level selector.
+
+        It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
+        ----
             level (int): The administrative level of the field
             parent (AdminField): the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
             ee (bool, optional): wether to use ee or not (default to True)
         """
-
         # save ee state
         self.gee = gee
 
@@ -135,22 +137,21 @@ class AdminField(sw.Select):
 
     def show(self) -> Self:
         """
-        when an admin field is shown, show its parent as well
+        when an admin field is shown, show its parent as well.
         """
-
         super().show()
         self.parent is None or self.parent.show()
 
         return self
 
     def get_items(self, filter_: str = "") -> Self:
-        """
-        update the item list based on the given filter
+        r"""
+        Update the item list based on the given filter.
 
         Args:
-            filter\\_ (str): The code of the parent v_model to filter the current results
+        ----
+            filter\_ (str): The code of the parent v_model to filter the current results
         """
-
         # extract the level list
         df = (
             pd.read_csv(AoiModel.FILE[self.gee], dtype=str)
@@ -176,8 +177,7 @@ class AdminField(sw.Select):
         return self
 
     def _update(self, change: dict) -> Self:
-        """update the item list of the admin select"""
-
+        """update the item list of the admin select."""
         # reset v_model
         self.v_model = None
 
@@ -262,19 +262,18 @@ class AoiView(sw.Card):
         model: Optional[AoiModel] = None,
         **kwargs,
     ) -> None:
-
-        """
-        Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False)
+        r"""
+        Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
 
         Args:
+        ----
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
-            map\\_: link the aoi_view to a custom SepalMap to display the output, default to None
+            map\_: link the aoi_view to a custom SepalMap to display the output, default to None
             gee: wether to bind to ee or not
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
         """
-
         # set ee dependencie
         self.gee = gee
         self.folder = folder
@@ -360,8 +359,7 @@ class AoiView(sw.Card):
 
     @sd.loading_button(debug=True)
     def _update_aoi(self, *args) -> Self:
-        """load the object in the model & update the map (if possible)"""
-
+        """load the object in the model & update the map (if possible)."""
         # read the information from the geojson datas
         if self.map_:
             self.model.geo_json = self.aoi_dc.to_json()
@@ -388,8 +386,7 @@ class AoiView(sw.Card):
         return self
 
     def reset(self) -> Self:
-        """clear the aoi_model from input and remove the layer from the map (if existing)"""
-
+        """clear the aoi_model from input and remove the layer from the map (if existing)."""
         # reset the view of the widgets
         self.w_method.v_model = None
 
@@ -401,8 +398,7 @@ class AoiView(sw.Card):
 
     @sd.switch("loading", on_widgets=["w_method"])
     def _activate(self, change: dict) -> None:
-        """activate the adapted widgets"""
-
+        """activate the adapted widgets."""
         # clear and hide the alert
         self.alert.reset()
 

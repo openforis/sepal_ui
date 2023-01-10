@@ -33,6 +33,5 @@ class TestLocalSelect:
 
     @pytest.fixture
     def locale_select(self):
-        """Create a simple locale_select"""
-
+        """Create a simple locale_select."""
         return sw.LocaleSelect()

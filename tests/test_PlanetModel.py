@@ -121,8 +121,7 @@ class TestPlanetModel:
 
     @pytest.fixture
     def planet_model(self):
-        """Start a planet model using the API key"""
-
+        """Start a planet model using the API key."""
         key = os.getenv("PLANET_API_KEY")
 
         return PlanetModel(key)

@@ -24,8 +24,7 @@ class TestDatePicker:
         return
 
     def test_kwargs(self):
-        """test kwargs to both datepicker and layout"""
-
+        """test kwargs to both datepicker and layout."""
         date_picker_kwargs = {
             "min": "2018-02-14",
             "max": "2021-03-14",
@@ -99,6 +98,5 @@ class TestDatePicker:
 
     @pytest.fixture
     def datepicker(self):
-        """create a default datepicker"""
-
+        """create a default datepicker."""
         return sw.DatePicker()

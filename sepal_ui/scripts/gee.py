@@ -12,13 +12,14 @@ from sepal_ui.scripts import decorator as sd
 @sd.need_ee
 def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> str:
     """
-    Wait until the selected process is finished. Display some output information
+    Wait until the selected process is finished. Display some output information.
 
     Args:
         task_descripsion: name of the running task
         widget_alert: alert to display the output messages
 
-    Returns:
+    Returns
+    -------
         the final state of the task
     """
     state = "UNSUBMITTED"
@@ -48,15 +49,15 @@ def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> 
 @sd.need_ee
 def is_task(task_descripsion: str) -> ee.batch.Task:
     """
-    Search for the described task in the user Task list return None if nothing is found
+    Search for the described task in the user Task list return None if nothing is found.
 
     Args:
         task_descripsion: the task description
 
-    Returns:
+    Returns
+    -------
         return the found task else None
     """
-
     current_task = None
     for task in ee.batch.Task.list():
         if task.config["description"] == task_descripsion:
@@ -69,15 +70,15 @@ def is_task(task_descripsion: str) -> ee.batch.Task:
 @sd.need_ee
 def is_running(task_descripsion: str) -> ee.batch.Task:
     """
-    Search for the described task in the user Task list return None if nothing is currently running
+    Search for the described task in the user Task list return None if nothing is currently running.
 
     Args:
         task_descripsion: the task description
 
-    Returns:
+    Returns
+    -------
         return the found task else None
     """
-
     current_task = is_task(task_descripsion)
     if current_task:
         if current_task.state not in ["RUNNING", "READY"]:
@@ -95,10 +96,10 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
         folder: the initial GEE folder
         asset_list: extra element that you would like to add to the asset list
 
-    Returns:
+    Returns
+    -------
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
-
     # set the folder
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
@@ -116,16 +117,16 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
 @sd.need_ee
 def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
     """
-    Check if the asset already exist in the user asset folder
+    Check if the asset already exist in the user asset folder.
 
     Args:
         asset_descripsion: the descripsion of the asset
         folder: the folder of the glad assets
 
-    Returns:
+    Returns
+    -------
         true if already in folder
     """
-
     # get the folder
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 

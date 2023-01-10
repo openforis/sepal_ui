@@ -170,14 +170,12 @@ class TestAoiView:
 
     @pytest.fixture
     def aoi_gee_view(self, gee_dir):
-        """create an AoiView based on GEE with a silent sepalMap"""
-
+        """create an AoiView based on GEE with a silent sepalMap."""
         m = SepalMap(dc=True)
         return aoi.AoiView(map_=m, folder=gee_dir)
 
     @pytest.fixture
     def aoi_local_view(self):
-        """create an AoiView based on GADM with a silent sepalMap"""
-
+        """create an AoiView based on GADM with a silent sepalMap."""
         m = SepalMap(dc=True)
         return aoi.AoiView(map_=m, gee=False)

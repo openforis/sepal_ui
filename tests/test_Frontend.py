@@ -15,8 +15,7 @@ class TestFrontend:
         return
 
     def test_conf(self):
-        """Check configuration file theme after changing theme"""
-
+        """Check configuration file theme after changing theme."""
         # Specify light theme
         su.set_config("theme", "light")
         dark_theme = False

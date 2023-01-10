@@ -1,8 +1,10 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
+Configuration file for the Sphinx documentation builder.
+
+This file only contains a selection of the most common options. For a full
+list see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 # -- Path setup ----------------------------------------------------------------
 
@@ -16,13 +18,11 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
 
-import ipyvuetify as v
-
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
-from sepal_ui import __author__, __version__
+from sepal_ui import __author__, __version__  # noqa: E402
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))

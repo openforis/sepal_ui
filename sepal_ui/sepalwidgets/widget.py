@@ -17,13 +17,13 @@ __all__ = ["Markdown", "CopyToClip", "StateIcon"]
 class Markdown(v.Layout, SepalWidget):
     def __init__(self, mkd_str: str = "", **kwargs) -> None:
         """
-        Custom Layout based on the markdown text given
+        Custom Layout based on the markdown text given.
 
         Args:
+        ----
             mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
             kwargs: Any parameter from a v.Layout. If set, 'children' will be overwritten
         """
-
         mkd = markdown(mkd_str, extensions=["fenced_code", "sane_lists"])
 
         # need to be nested in a div to be displayed
@@ -63,9 +63,9 @@ class CopyToClip(v.VuetifyTemplate):
         When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
 
         Args:
+        ----
             kwargs: any argument that can be used with a v.TextField
         """
-
         # add the default params to kwargs
         kwargs["outlined"] = kwargs.pop("outlined", True)
         kwargs["label"] = kwargs.pop("label", "Copy To clipboard")
@@ -96,9 +96,8 @@ class CopyToClip(v.VuetifyTemplate):
 
     def _clip(self, *args) -> None:
         """
-        Launch the javascript clipping process
+        Launch the javascript clipping process.
         """
-
         self.send({"method": "clip", "args": [self.tf.v_model]})
         self.tf.append_icon = "fa-solid fa-clipboard-check"
 
@@ -127,12 +126,12 @@ class StateIcon(Tooltip):
         Custom icon with multiple state colors.
 
         Args:
+        ----
             model: Model to manage StateIcon behaviour from outside.
             model_trait: Name of trait to be linked with state icon. Must exists in model.
             states: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
             kwargs: Any arguments from a v.Tooltip
         """
-
         # set the default parameter of the tooltip
         kwargs["right"] = kwargs.pop("right", True)
 
@@ -158,8 +157,7 @@ class StateIcon(Tooltip):
 
     @observe("values")
     def _swap(self, change: dict) -> None:
-        """Swap between states"""
-
+        """Swap between states."""
         new_val = change["new"]
 
         # Use the first value when there is not initial value.
