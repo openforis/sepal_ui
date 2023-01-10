@@ -41,8 +41,8 @@ __all__ = [
 
 class LocaleSelect(v.Menu, SepalWidget):
 
-    COUNTRIES: pd.DataFrame = pd.read_csv(
-        Path(__file__).parents[1] / "scripts" / "locale.csv"
+    COUNTRIES: pd.DataFrame = pd.read_parquet(
+        Path(__file__).parents[1] / "data" / "locale.parquet"
     )
     "the country list as a df. columns [code, name, flag]"
 
@@ -90,7 +90,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
         attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
 
-        kwargs["small"] = kwargs.pop("small", True)
+        kwargs.setdefault("small", True)
         kwargs["v_model"] = False
         kwargs["v_on"] = "x.on"
         kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
@@ -200,9 +200,9 @@ class ThemeSelect(v.Btn, SepalWidget):
         self.theme = sepal_ui.get_theme()
 
         # set the btn parameters
-        kwargs["x_small"] = kwargs.pop("x_small", True)
-        kwargs["fab"] = kwargs.pop("fab", True)
-        kwargs["class_"] = kwargs.pop("class_", "ml-2")
+        kwargs.setdefault("x_small", True)
+        kwargs.setdefault("fab", True)
+        kwargs.setdefault("class_", "ml-2")
         kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
         kwargs["v_model"] = self.theme
 
@@ -276,9 +276,9 @@ class AppBar(v.AppBar, SepalWidget):
         self.theme = ThemeSelect()
 
         # set the default parameters
-        kwargs["color"] = kwargs.pop("color", color.main)
-        kwargs["class_"] = kwargs.pop("class_", "white--text")
-        kwargs["dense"] = kwargs.pop("dense", True)
+        kwargs.setdefault("color", color.main)
+        kwargs.setdefault("class_", "white--text")
+        kwargs.setdefault("dense", True)
         kwargs["app"] = True
         kwargs["children"] = [
             self.toggle_button,
@@ -355,15 +355,15 @@ class DrawerItem(v.ListItem, SepalWidget):
         # set default parameters
         kwargs["link"] = True
         kwargs["children"] = children
-        kwargs["input_value"] = kwargs.pop("input_value", False)
+        kwargs.setdefault("input_value", False)
         if href:
             kwargs["href"] = href  # cannot be set twice anyway
             kwargs["target"] = "_blank"
-            kwargs["_metadata"] = kwargs.pop("_metadata", None)
+            kwargs.setdefault("_metadata", None)
         elif card:
             kwargs["_metadata"] = {"card_id": card}
-            kwargs["href"] = kwargs.pop("href", None)
-            kwargs["target"] = kwargs.pop("target", None)
+            kwargs.setdefault("href", None)
+            kwargs.setdefault("target", None)
 
         # call the constructor
         super().__init__(**kwargs)
@@ -493,9 +493,9 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         ]
 
         # set default parameters
-        kwargs["v_model"] = kwargs.pop("v_model", True)
+        kwargs.setdefault("v_model", True)
         kwargs["app"] = True
-        kwargs["color"] = kwargs.pop("color", color.darker)
+        kwargs.setdefault("color", color.darker)
         kwargs["children"] = children
 
         # call the constructor
@@ -555,8 +555,8 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs["color"] = kwargs.pop("color", color.main)
-        kwargs["class_"] = kwargs.pop("class_", "white--text")
+        kwargs.setdefault("color", color.main)
+        kwargs.setdefault("class_", "white--text")
         kwargs["app"] = True
         kwargs["children"] = [text]
 
@@ -646,7 +646,7 @@ class App(v.App, SepalWidget):
         bg = v.Overlay(color=color.bg, opacity=1, style_="transition:unset", z_index=-1)
 
         # set default parameters
-        kwargs["v_model"] = kwargs.pop("v_model", None)
+        kwargs.setdefault("v_model", None)
         kwargs["children"] = [bg, *app_children]
 
         # call the constructor

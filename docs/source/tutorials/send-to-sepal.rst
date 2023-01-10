@@ -1,7 +1,9 @@
-How to upload your module on the SEPAL dashboard? 
-=================================================
+Deploy on SEPAL
+===============
 
 Your module is now completely ready and functional and you want to let everyone use your workflow, here are the few tips to send your repository to the SEPAL dashboard. 
+
+All the modules in `<https://github.com/sepal-contrib>`__ are deployed on SEPAL. The complete list of their documentation can be found in `SEPAL docs <https://docs.sepal.io/en/latest/modules/index.html>`__.
 
 Check your dependencies 
 -----------------------

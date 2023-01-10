@@ -24,12 +24,12 @@ class DrawControl(ipl.DrawControl):
         """
         # set some default parameters
         options = {"shapeOptions": {"color": color.info}}
-        kwargs["marker"] = kwargs.pop("marker", {})
-        kwargs["circlemarker"] = kwargs.pop("circlemarker", {})
-        kwargs["polyline"] = kwargs.pop("polyline", {})
-        kwargs["rectangle"] = kwargs.pop("rectangle", options)
-        kwargs["circle"] = kwargs.pop("circle", options)
-        kwargs["polygon"] = kwargs.pop("polygon", options)
+        kwargs.setdefault("marker", {})
+        kwargs.setdefault("circlemarker", {})
+        kwargs.setdefault("polyline", {})
+        kwargs.setdefault("rectangle", options)
+        kwargs.setdefault("circle", options)
+        kwargs.setdefault("polygon", options)
 
         # save the map in the member of the objects
         self.m = m

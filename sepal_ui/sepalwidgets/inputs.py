@@ -90,12 +90,10 @@ class DatePicker(v.Layout, SepalWidget):
         )
 
         # set the default parameter
-        layout_kwargs["row"] = layout_kwargs.get("row", True)
-        layout_kwargs["class_"] = layout_kwargs.get("class_", "pa-5")
-        layout_kwargs["align_center"] = layout_kwargs.get("align_center", True)
-        layout_kwargs["children"] = layout_kwargs.pop(
-            "children", [v.Flex(xs10=True, children=[self.menu])]
-        )
+        layout_kwargs.setdefault("row", True)
+        layout_kwargs.setdefault("class_", "pa-5")
+        layout_kwargs.setdefault("align_center", True)
+        layout_kwargs.setdefault("children", [v.Flex(xs10=True, children=[self.menu])])
 
         # call the constructor
         super().__init__(**layout_kwargs)
@@ -277,9 +275,9 @@ class FileInput(v.Flex, SepalWidget):
             su.hide_component(self.clear)
 
         # set default parameters
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["class_"] = kwargs.pop("class_", "d-flex align-center mb-2")
-        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs.setdefault("row", True)
+        kwargs.setdefault("class_", "d-flex align-center mb-2")
+        kwargs.setdefault("align_center", True)
         kwargs["children"] = [
             self.clear,
             self.reload,
@@ -696,15 +694,13 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.observe(self._validate, "v_model")
 
         # set the default parameters
-        kwargs["v_model"] = kwargs.pop("v_model", None)
-        kwargs["clearable"] = kwargs.pop("clearable", True)
-        kwargs["dense"] = kwargs.pop("dense", True)
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "mdi-sync")
-        kwargs["class_"] = kwargs.pop("class_", "my-5")
-        kwargs["placeholder"] = kwargs.pop(
-            "placeholder", ms.widgets.asset_select.placeholder
-        )
-        kwargs["label"] = kwargs.pop("label", ms.widgets.asset_select.label)
+        kwargs.setdefault("v_model", None)
+        kwargs.setdefault("clearable", True)
+        kwargs.setdefault("dense", True)
+        kwargs.setdefault("prepend_icon", "mdi-sync")
+        kwargs.setdefault("class_", "my-5")
+        kwargs.setdefault("placeholder", ms.widgets.asset_select.placeholder)
+        kwargs.setdefault("label", ms.widgets.asset_select.label)
 
         # create the widget
         super().__init__(**kwargs)
@@ -808,11 +804,11 @@ class PasswordField(v.TextField, SepalWidget):
             kwargs: any parameter from a v.TextField. If set, 'type' will be overwritten.
         """
         # default behavior
-        kwargs["label"] = kwargs.pop("label", ms.password_field.label)
-        kwargs["class_"] = kwargs.pop("class_", "mr-2")
-        kwargs["v_model"] = kwargs.pop("v_model", "")
+        kwargs.setdefault("label", ms.password_field.label)
+        kwargs.setdefault("class_", "mr-2")
+        kwargs.setdefault("v_model", "")
         kwargs["type"] = "password"
-        kwargs["append_icon"] = kwargs.pop("append_icon", "fa-solid fa-eye-slash")
+        kwargs.setdefault("append_icon", "fa-solid fa-eye-slash")
 
         # init the widget with the remaining kwargs
         super().__init__(**kwargs)
@@ -863,12 +859,10 @@ class NumberField(v.TextField, SepalWidget):
 
         # set default params
         kwargs["type"] = "number"
-        kwargs["append_outer_icon"] = kwargs.pop(
-            "append_outer_icon", "fa-solid fa-plus"
-        )
-        kwargs["prepend_icon"] = kwargs.pop("prepend_icon", "fa-solid fa-minus")
-        kwargs["v_model"] = kwargs.pop("v_model", 0)
-        kwargs["readonly"] = kwargs.pop("readonly", True)
+        kwargs.setdefault("append_outer_icon", "fa-solid fa-plus")
+        kwargs.setdefault("prepend_icon", "fa-solid fa-minus")
+        kwargs.setdefault("v_model", 0)
+        kwargs.setdefault("readonly", True)
 
         # call the constructor
         super().__init__(**kwargs)

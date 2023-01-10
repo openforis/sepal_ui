@@ -317,7 +317,7 @@ class TestSepalMap:
         # remove when authorizing selection of bases
         m.remove_layer(0, base=True)
         assert len(m.layers) == 3
-        assert m.layers[0].name == "Classification"
+        assert m.layers[0].name == "NDWI harmonics"
 
         return
 
@@ -432,10 +432,10 @@ class TestSepalMap:
 
         # search by index
         res = m.find_layer(0)
-        assert res.name == "NDWI harmonics"
+        assert res.name == "Classification"
 
         res = m.find_layer(-1)
-        assert res.name == "RGB"
+        assert res.name == "NDWI"
 
         # out of bounds
         with pytest.raises(ValueError):
@@ -443,7 +443,7 @@ class TestSepalMap:
 
         # search by layer
         res = m.find_layer(m.layers[2])
-        assert res.name == "Classification"
+        assert res.name == "NDWI harmonics"
 
         # search including the basemap
         res = m.find_layer(0, base=True)

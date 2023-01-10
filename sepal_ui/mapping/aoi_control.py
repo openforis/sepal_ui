@@ -33,7 +33,7 @@ class AoiControl(MenuControl):
         self.aoi_bounds = {}
 
         # set some default parameters
-        kwargs["position"] = kwargs.pop("position", "topright")
+        kwargs.setdefault("position", "topright")
         kwargs["m"] = m
 
         # create a list

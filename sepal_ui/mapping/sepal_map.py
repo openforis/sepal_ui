@@ -92,13 +92,13 @@ class SepalMap(ipl.Map):
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
-        kwargs["center"] = kwargs.pop("center", [0, 0])
-        kwargs["zoom"] = kwargs.pop("zoom", 2)
+        kwargs.setdefault("center", [0, 0])
+        kwargs.setdefault("zoom", 2)
         kwargs["basemap"] = {}
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
         kwargs["scroll_wheel_zoom"] = True
-        kwargs["world_copy_jump"] = kwargs.pop("world_copy_jump", True)
+        kwargs.setdefault("world_copy_jump", True)
 
         # Init the map
         super().__init__(**kwargs)
@@ -691,7 +691,7 @@ class SepalMap(ipl.Map):
 
             # extract the number and create the sub-dict
             _, number, name = p.split("_")
-            props[number] = props.pop(number, {})
+            props.setdefault(number, {})
 
             # modify the values according to prop key
             if isinstance(val, str):

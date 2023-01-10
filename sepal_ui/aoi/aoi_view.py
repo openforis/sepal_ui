@@ -154,7 +154,8 @@ class AdminField(sw.Select):
         """
         # extract the level list
         df = (
-            pd.read_csv(AoiModel.FILE[self.gee], dtype=str)
+            pd.read_parquet(AoiModel.FILE[self.gee])
+            .astype(str)
             .drop_duplicates(subset=AoiModel.CODE[self.gee].format(self.level))
             .sort_values(AoiModel.NAME[self.gee].format(self.level))
         )
