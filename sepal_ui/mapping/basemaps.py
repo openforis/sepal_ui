@@ -1,7 +1,9 @@
-import xyzservices.providers as xyz
+from typing import Optional
+
 from box import Box
 from ipyleaflet import TileLayer
 from xyzservices import TileProvider
+from xyzservices import providers as xyz
 
 
 class BasemapBox(Box):
@@ -43,19 +45,26 @@ xyz_tiles: dict = {
 
 
 def get_xyz_dict(
-    free_only: bool = True, _collection: dict = xyz, _output: dict = {}
+    free_only: bool = True,
+    _collection: Optional[dict] = None,
+    _output: Optional[dict] = None,
 ) -> dict:
     """
     Returns a dictionary of xyz services.
 
     Args:
         free_only: Whether to return only free xyz tile services that do not require an access token.
-        _collection: the collection to anylize (subset of :code:`xyz`
+        _collection: the collection to anylize (subset of :code:`xyz`)
         _output: the dict to use as an output (mutable object)
 
     Returns:
-        dict: A dictionary of xyz services.
+        A dictionary of xyz services.
     """
+
+    # the 2 following lies avoid to display xyz descriptor in the method documentation
+    # do not replace in the prototype default values
+    _collection = xyz if _collection is None else _collection
+    _output = {} if _output is None else _output
 
     for v in _collection.values():
         if isinstance(v, TileProvider):
@@ -73,7 +82,7 @@ def xyz_to_leaflet() -> dict:
     Adapted from https://github.com/giswqs/geemap
 
     Returns:
-        dict: A dictionary of ipyleaflet tile layers.
+        A dictionary of ipyleaflet tile layers.
     """
     leaflet_dict = {}
 
@@ -97,5 +106,5 @@ def xyz_to_leaflet() -> dict:
     return leaflet_dict
 
 
-basemap_tiles: BasemapBox = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+basemap_tiles = BasemapBox(xyz_to_leaflet(), frozen_box=True)
 "the basemaps list as a box"
