@@ -8,9 +8,9 @@ import ee
 import pytest
 from ipyleaflet import GeoJSON
 
-from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
+from sepal_ui.frontend.styles import get_theme
 from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values

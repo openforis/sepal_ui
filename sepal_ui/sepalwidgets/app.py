@@ -1,5 +1,5 @@
 """
-Custom widgets relative to the applications frame
+Custom widgets relative to the applications frame.
 
 Gather the customized ``ipyvuetifyWidgets`` used to build the application frame
 """
@@ -18,9 +18,9 @@ from ipywidgets import jsdlink
 from traitlets import link, observe
 from typing_extensions import Self
 
-import sepal_ui
 from sepal_ui import color
 from sepal_ui.frontend.resize_trigger import ResizeTrigger, rt
+from sepal_ui.frontend.styles import get_theme
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import utils as su
@@ -197,7 +197,7 @@ class ThemeSelect(v.Btn, SepalWidget):
             kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
         """
         # get the current theme name
-        self.theme = sepal_ui.get_theme()
+        self.theme = get_theme()
 
         # set the btn parameters
         kwargs.setdefault("x_small", True)

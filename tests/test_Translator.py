@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from sepal_ui import config_file
+from sepal_ui.conf import config_file
 from sepal_ui.message import ms
 from sepal_ui.translator import Translator
 

@@ -140,6 +140,7 @@ version_files = [
 testpaths = "tests"
 
 [tool.ruff]
+ignore-init-module-imports = true
 fix = true
 select = ["E", "F", "W", "I", "D", "RUF"]
 ignore = [
