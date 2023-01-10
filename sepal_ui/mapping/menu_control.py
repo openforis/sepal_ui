@@ -74,7 +74,7 @@ class MenuControl(WidgetControl):
         )
 
         # by default MenuControls will be displayed in the bottomright corner
-        kwargs["position"] = kwargs.pop("position", "bottomright")
+        kwargs.setdefault("position", "bottomright")
         kwargs["widget"] = self.menu
 
         super().__init__(**kwargs)

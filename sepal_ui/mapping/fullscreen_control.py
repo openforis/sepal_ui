@@ -54,7 +54,7 @@ class FullScreenControl(WidgetControl):
 
         # overwrite the widget set in the kwargs (if any)
         kwargs["widget"] = self.w_btn
-        kwargs["position"] = kwargs.pop("position", "topleft")
+        kwargs.setdefault("position", "topleft")
         kwargs["transparent_bg"] = True
 
         # create the widget

@@ -69,7 +69,7 @@ class LegendControl(WidgetControl):
 
         # set some parameters for the actual widget
         kwargs["widget"] = self.legend_card
-        kwargs["position"] = kwargs.pop("position", "bottomright")
+        kwargs.setdefault("position", "bottomright")
 
         super().__init__(**kwargs)
 

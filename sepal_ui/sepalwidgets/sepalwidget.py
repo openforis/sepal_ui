@@ -202,7 +202,7 @@ class Tooltip(v.Tooltip):
         """
 
         # set some default parameters
-        kwargs["close_delay"] = kwargs.pop("close_delay", 200)
+        kwargs.setdefault("close_delay", 200)
 
         self.v_slots = [
             {"name": "activator", "variable": "tooltip", "children": widget}
