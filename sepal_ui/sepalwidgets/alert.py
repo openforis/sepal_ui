@@ -1,10 +1,10 @@
 """
-Custom widgets relative to user outputs
+Custom widgets relative to user outputs.
 
 Gather the customized ``ipyvuetifyWidgets`` used to communicate with the end user.
 All the content of this modules is loaded in the parent ``sepal_ui.sepalwidgets`` package. So it can be loaded directly from there.
 
-Example
+Example:
 -------
     .. code-block::
         from sepal_ui import sepalwidgets as sw

@@ -1,4 +1,5 @@
-from sepal_ui.frontend.styles import SepalColor
+from sepal_ui.conf import config, config_file
+from sepal_ui.frontend.styles import SepalColor, get_theme
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"

@@ -34,7 +34,6 @@ def check_locale(locale: str) -> bool:
     ------
         True if the language is a well defined
     """
-
     file = Path(__file__).parents[1] / "data" / "locale.parquet"
     countries = pd.read_parquet(file).astype(str)
 

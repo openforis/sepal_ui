@@ -1,5 +1,5 @@
 """
-Custom button widgets
+Custom button widgets.
 
 Gather the customized ``ipyvuetifyWidgets`` used to build the application frame
 """
