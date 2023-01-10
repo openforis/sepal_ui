@@ -1,8 +1,6 @@
 import json
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
-from urllib.request import urlretrieve
 
 import ee
 import geopandas as gpd
@@ -28,8 +26,8 @@ class AoiModel(Model):
     # ###########################################################################
 
     FILE: List[Path] = [
-        Path(__file__).parents[1] / "scripts" / "gadm_database.csv",
-        Path(__file__).parents[1] / "scripts" / "gaul_database.csv",
+        Path(__file__).parents[1] / "data" / "gadm_database.parquet",
+        Path(__file__).parents[1] / "data" / "gaul_database.parquet",
     ]
     "Paths to the GADM(0) and GAUL(1) database"
 
@@ -43,7 +41,7 @@ class AoiModel(Model):
     "GADM(0) and GAUL(1) iso codes key"
 
     GADM_BASE_URL: str = (
-        "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_{}_gpkg.zip"
+        "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_{}_{}.json"
     )
     "The base url to download gadm maps"
 
@@ -414,7 +412,7 @@ class AoiModel(Model):
             raise Exception(ms.aoi_sel.exception.no_admlyr)
 
         # get the admin level corresponding to the given admin code
-        df = pd.read_csv(self.FILE[self.gee], dtype=str)
+        df = pd.read_parquet(self.FILE[self.gee]).astype(str)
 
         # extract the first element that include this administrative code and set the level accordingly
         is_in = df.filter([self.CODE[self.gee].format(i) for i in range(3)]).isin(
@@ -423,11 +421,9 @@ class AoiModel(Model):
 
         if not is_in.any().any():
             raise Exception(ms.aoi_sel.exception.invalid_code)
-        else:
-            index = 3 if self.gee else -1
-            level = (
-                is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
-            )  # the character that contains the index
+
+        index = 3 if self.gee else -1
+        level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
 
         if self.gee:
 
@@ -444,21 +440,9 @@ class AoiModel(Model):
             # save the country iso_code
             iso_3 = admin[:3]
 
-            # download the geopackage in a tmp directory
-            with tempfile.TemporaryDirectory() as tmp_dir:
-
-                zip_file = Path(tmp_dir) / f"{iso_3}.zip"
-
-                # get the zip from GADM server only the ISO_3 code need to be used
-                urlretrieve(self.GADM_BASE_URL.format(iso_3), zip_file)
-
-                # read the geopackage
-                layer_name = f"gadm36_{iso_3}_{level}"
-                level_gdf = gpd.read_file(
-                    f"{zip_file}!gadm36_{iso_3}.gpkg", layer=layer_name
-                )
-
-            # get the exact admin from this layer
+            # read the data from server
+            level_gdf = gpd.read_file(self.GADM_BASE_URL.format(iso_3, level))
+            level_gdf.rename(columns={"COUNTRY": "NAME_0"}, inplace=True)
             self.gdf = level_gdf[level_gdf[self.CODE[self.gee].format(level)] == admin]
 
         # set the name using the layer

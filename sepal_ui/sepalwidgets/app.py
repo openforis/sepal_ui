@@ -35,8 +35,8 @@ __all__ = [
 
 class LocaleSelect(v.Menu, SepalWidget):
 
-    COUNTRIES: pd.DataFrame = pd.read_csv(
-        Path(__file__).parents[1] / "scripts" / "locale.csv"
+    COUNTRIES: pd.DataFrame = pd.read_parquet(
+        Path(__file__).parents[1] / "data" / "locale.parquet"
     )
     "the country list as a df. columns [code, name, flag]"
 
