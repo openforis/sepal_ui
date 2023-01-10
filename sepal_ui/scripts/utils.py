@@ -1,3 +1,7 @@
+"""
+All the helper function of sepal-ui. 
+"""
+
 import math
 import os
 import random
@@ -29,8 +33,7 @@ def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Args:
         widget: the widget to hide
 
-    Returns
-    -------
+    Returns:
         the widget
     """
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
@@ -49,8 +52,7 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Args:
         widget: the widget to hide
 
-    Returns
-    -------
+    Returns:
         the widget
     """
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
@@ -67,11 +69,9 @@ def create_download_link(pathname: Union[str, Path]) -> str:
     Create a clickable link to download the pathname target.
 
     Args:
-    ----
         pathname: the pathname th download
 
-    Return:
-    ------
+    Returns:
         the download link
     """
     # return the link if it's an absolute url
@@ -100,8 +100,7 @@ def random_string(string_length: int = 3) -> str:
     Args:
         string_length: Fixed length. Defaults to 3.
 
-    Returns
-    -------
+    Returns:
         A random string
     """
     letters = string.ascii_lowercase
@@ -114,11 +113,9 @@ def get_file_size(filename: Union[str, Path]) -> str:
     Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
-    ----
         filename: the path to the file to mesure
 
-    Return:
-    ------
+    Returns:
         the file size in a readable humanly readable
     """
     file_size = Path(filename).stat().st_size
@@ -137,6 +134,7 @@ def get_file_size(filename: Union[str, Path]) -> str:
 def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
+
     It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
     Otherwise it use the simple Initialize command (asking the user to register if necessary).
     """
@@ -168,8 +166,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
         msg: the string to sanitise
         folder: if the name will be used for folder naming or for display. if display, <'> and < > characters will be kept
 
-    Return:
-    ------
+    Returns:
         the modified str
     """
     regex = "[^a-zA-Z\d\-\_]" if folder else "[^a-zA-Z\d\-\_\ ']"
@@ -181,15 +178,15 @@ def to_colors(
     in_color: Union[str, Sequence], out_type: str = "hex"
 ) -> Union[str, tuple]:
     """
-    Transform any color type into a color in the specified output format
-    avalable format: hex.
+    Transform any color type into a color in the specified output format.
+
+    Avalable format: [hex]
 
     Args:
         in_color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0)).
         out_type: the type of the output color from ['hex']. default to 'hex'
 
-    Returns
-    -------
+    Returns:
         The color in the specified format. default to black.
     """
     # list of the color function used for the translation
@@ -230,8 +227,7 @@ def next_string(string: str) -> str:
     Args:
         string: the initial string
 
-    Returns
-    -------
+    Returns:
         the incremented string
     """
     # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
@@ -248,11 +244,12 @@ def next_string(string: str) -> str:
 
 def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     """
+    Set a config variable.
+
     Set the provided value to the given key for the given section in the sepal-ui config
     file.
 
     Args:
-    ----
         key: key configuration name
         value: value to be referenced by the configuration key
         section: configuration section, defaults to sepal-ui.
@@ -278,8 +275,7 @@ def set_config_locale(locale: str) -> None:
     Set the provided local in the sepal-ui config file.
 
     Args:
-    ----
-        locale (str): a locale name in IETF BCP 47 (no verifications are performed)
+        locale: a locale name in IETF BCP 47 (no verifications are performed)
     """
     return set_config("locale", locale)
 
@@ -292,23 +288,22 @@ def set_config_theme(theme: str) -> None:
     Set the provided theme in the sepal-ui config file.
 
     Args:
-    ----
-        theme (str): a theme name (currently supporting "dark" and "light")
+        theme: a theme name (currently supporting "dark" and "light")
     """
     return set_config("theme", theme)
 
 
 @versionadded(version="2.7.1")
 def set_type(color: str) -> str:
-    """
-    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
-    fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
+    r"""
+    Return a pre-defined material colors based on the requested type\_ parameter.
+
+    If the parameter is not a predifined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
 
     Args:
         color: the requested color
 
-    Returns
-    -------
+    Returns:
         a pre-defined material color
 
     """
@@ -329,7 +324,8 @@ def geojson_to_ee(
     geo_json: dict, geodesic: bool = False, encoding: str = "utf-8"
 ) -> ee.FeatureCollection:
     """
-    Transform a geojson object into a featureCollection or a Geometry
+    Transform a geojson object into a featureCollection or a Geometry.
+
     No sanity check is performed on the initial geo_json. It must respect the
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
 
@@ -338,8 +334,7 @@ def geojson_to_ee(
         geodesic: Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
         encoding: The encoding of characters. Defaults to "utf-8".
 
-    Returns
-    -------
+    Returns:
         the created featurecollection
     """
     # from a featureCollection
@@ -373,17 +368,16 @@ def geojson_to_ee(
 
 
 def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
-    """
+    r"""
     Check if the inpupt value is initialized.
+
     If not raise an error, else return True.
 
     Args:
-    ----
         input\_: the input to check
         msg: the message to display if the input is not set
 
     Return:
-    ------
         check if the value is initialized
     """
     # by the default the variable is considered valid

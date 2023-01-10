@@ -1,3 +1,7 @@
+"""
+Customized ``Control`` to display the value of all available layers on a specific pixel.
+"""
+
 import json
 from pathlib import Path
 from typing import Optional, Sequence, Union
@@ -41,7 +45,6 @@ class ValueInspector(MenuControl):
         When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
         Args:
-        ----
             m: the map on which he vinspector is displayed to interact with it's layers
         """
         # set some default parameters
@@ -88,7 +91,6 @@ class ValueInspector(MenuControl):
         Read the data when the map is clicked with the vinspector activated.
 
         Args:
-        ----
             kwargs: any arguments from the map interaction
         """
         # check if the v_inspector is active
@@ -157,8 +159,7 @@ class ValueInspector(MenuControl):
             ee_obj: the ee object to reduce to a single point
             coords: the coordinates of the point (lng, lat).
 
-        Returns
-        -------
+        Returns:
             tke value associated to the image/feature names
         """
         # create a gee point
@@ -202,8 +203,7 @@ class ValueInspector(MenuControl):
             data: the shape to reduce to a single point
             coords: the coordinates of the point (lng, lat).
 
-        Returns
-        -------
+        Returns:
             The value associated to the feature names
         """
         # extract the coordinates as a poin
@@ -231,8 +231,7 @@ class ValueInspector(MenuControl):
             raster: the path to the image to reduce to a single point
             coords: the coordinates of the point (lng, lat).
 
-        Returns
-        -------
+        Returns:
             The value associated to the feature names
         """
         # extract the coordinates as a point

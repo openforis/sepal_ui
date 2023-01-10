@@ -1,3 +1,9 @@
+"""
+Abstract object to store information in your application. 
+
+Helper methods can be used to share information between tiles and/or save them
+"""
+
 import json
 from typing import Union
 
@@ -29,8 +35,7 @@ class Model(HasTraits):
 
         Note that the members will be ignored.
 
-        Returns
-        -------
+        Returns:
             the serialized traitlets
         """
         return self.__dict__["_trait_values"]
@@ -40,7 +45,6 @@ class Model(HasTraits):
         Import the model (i.e. the traitlets) from a json file.
 
         Args:
-        ----
             data: the json ditionary of the model
         """
         # cast to a json dict
@@ -60,8 +64,7 @@ class Model(HasTraits):
         This wrapper avoid to import the ipywidgets lib everywhere and reduce the number of parameters
         Some existence check are also performed and will throw an error if the trait doesn't exist.
 
-        Parameters
-        ----------
+        Args:
             widget: any input widget with a v_model trait
             trait: the name of a trait of the current model
         """

@@ -159,9 +159,13 @@ exclude = ["*/__init__.py", "docs/source/conf.py"]
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
 
+[tool.ruff.pydocstyle]
+convention = "google"
+
 [tool.ruff.per-file-ignores]
 "*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal strcuture
 "tests/*.py" = ["D"] # no docstring for the tests
+"setup.py" = ["D100"] # nothing to see there
 
 [tool.isort]
 profile = "black"

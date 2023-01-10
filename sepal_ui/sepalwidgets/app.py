@@ -1,7 +1,15 @@
 """
-Custom widgets relative to the applications frame.
+Custom widgets relative to user application framework.
 
-Gather the customized ``ipyvuetifyWidgets`` used to build the application frame
+Gather the customized ``ipyvuetifyWidgets`` used to create the application framework.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.LocaleSelect()
 """
 
 from datetime import datetime
@@ -64,7 +72,7 @@ class LocaleSelect(v.Menu, SepalWidget):
 
     def __init__(self, translator: Optional[Translator] = None, **kwargs) -> None:
         """
-        An language selector for sepal-ui based application.
+        A language selector for sepal-ui based application.
 
         It displays the currently requested language (not the one used by the translator).
         When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
@@ -74,7 +82,6 @@ class LocaleSelect(v.Menu, SepalWidget):
         .. versionadded:: 2.7.0
 
         Args:
-        ----
             translator: the translator of the app, to match the used language
             kwargs (optional): any arguments for a Btn object, children will be override
         """
@@ -131,8 +138,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         Args:
             locales: list of the locales to display
 
-        Returns
-        -------
+        Returns:
             the list of contry widget to display in the app
         """
         country_list = []
@@ -193,8 +199,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         .. versionadded:: 2.7.0
 
         Args:
-        ----
-            kwargs (dict, optional): any arguments for a Btn object, children and v_model will be override
+            kwargs: any arguments for a Btn object, children and v_model will be override
         """
         # get the current theme name
         self.theme = get_theme()
@@ -258,7 +263,6 @@ class AppBar(v.AppBar, SepalWidget):
         Custom AppBar widget with the provided title using the sepal color framework.
 
         Args:
-        ----
             title: the title of the app
             translator: the app translator to pass to the locale selector object
             kwargs (optional): any parameters from a v.AppBar. If set, 'children' and 'app' will be overwritten.
@@ -295,7 +299,6 @@ class AppBar(v.AppBar, SepalWidget):
         Set the title of the appBar.
 
         Args:
-        ----
             title: the new app title
         """
         self.title.children = [title]
@@ -331,7 +334,6 @@ class DrawerItem(v.ListItem, SepalWidget):
         If an href is set, the drawer will open the link in a new tab.
 
         Args:
-        ----
             title: the title of the drawer item
             icon: the full name of a mdi/fa icon
             card: the mount_id of tiles in the app
@@ -414,7 +416,6 @@ class DrawerItem(v.ListItem, SepalWidget):
         The tile to display will be all tile in the list with the mount_id as the current object.
 
         Args:
-        ----
             tiles: the list of all the available tiles in the app
         """
         self.on_event("click", partial(self._on_click, tiles=tiles))
@@ -460,7 +461,6 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         The drawer can include links to the github page of the project for wiki, bugs and repository.
 
         Args:
-        ----
             items: the list of all the drawerItem to display in the drawer. This items should pilote the different tile visibility
             code: the absolute link to the source code
             wiki: the absolute link the the wiki page
@@ -510,7 +510,6 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         Bind the drawer to the app toggleButton.
 
         Args:
-        ----
             toggleButton: the button that activate the drawer
         """
         toggleButton.on_event("click", self._on_drawer_click)
@@ -548,7 +547,6 @@ class Footer(v.Footer, SepalWidget):
         Not yet capable of displaying logos.
 
         Args:
-        ----
             text: the text to display in the future
             kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
         """
@@ -598,7 +596,6 @@ class App(v.App, SepalWidget):
         If the navdrawer exist, it will be linked to the appbar togglebtn.
 
         Args:
-        ----
             tiles: the tiles of the app
             appBar: the appBar of the application
             footer: the footer of the application
@@ -669,7 +666,6 @@ class App(v.App, SepalWidget):
         Select the tile to display when the app is launched.
 
         Args:
-        ----
             name: the mount-id of the tile(s) to display
         """
         # show the tile
@@ -704,7 +700,6 @@ class App(v.App, SepalWidget):
         Used to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
         Args:
-        ----
             msg: Message to display in application banner. default to nothing
             type\_: Used to display an appropiate banner color. fallback to "info".
             id_: unique banner identificator.

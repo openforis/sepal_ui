@@ -1,3 +1,7 @@
+"""
+Parameters of the reclassification interface.
+"""
+
 from sepal_ui.message import ms
 
 __all__ = ["MATRIX_NAMES", "TABLE_NAMES", "NO_VALUE", "SCHEMA"]

@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
 
 
 def main() -> None:
-
+    """Activate the selected venv."""
     # parse agruments
     parser.parse_args()
 

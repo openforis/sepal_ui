@@ -1,3 +1,7 @@
+"""
+Custom widgets dedicated to the reclassification interface.
+"""
+
 from pathlib import Path
 from typing import Optional, Union
 
@@ -28,7 +32,6 @@ class ImportMatrixDialog(v.Dialog):
         Dialog to select the file to use and fill the matrix.
 
         Args:
-        ----
             folder: the path to the saved classifications
         """
         # create the 3 widgets
@@ -70,7 +73,6 @@ class SaveMatrixDialog(v.Dialog):
         Dialog to setup the name of the output matrix file.
 
         Args:
-        ----
             folder: the path to the save folder. default to ~/
         """
         # save the matrix
@@ -174,7 +176,6 @@ class ClassSelect(sw.Select):
         Custom widget to pick the value of a original class in the new classification system.
 
         Args:
-        ----
             new_codes: the dict of the new codes to use as items {code: (name, color)}
             code: the orginal code of the class
         """
@@ -215,7 +216,6 @@ class ReclassifyTable(sw.SimpleTable):
         2 columns are integrated, the new class value and the values in the original input. One can select multiple class to be reclassify in the new classification.
 
         Args:
-        ----
             model: model embeding the traitlet dict to store the reclassifying matrix. keys: class value in dst, values: list of values in src.
             dst_classes: a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
             src_classes: the list of existing values within the input file {class_code: (class_name, class_color)}
@@ -243,7 +243,6 @@ class ReclassifyTable(sw.SimpleTable):
         Rebuild the table content based on the new_classes and codes provided.
 
         Args:
-        ----
             dst_classes: a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
             src_classes: the list of existing values within the input file {class_code: (class_name, class_color)}
         """
@@ -366,7 +365,6 @@ class ReclassifyView(sw.Card):
         The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "reclassify_tile".
 
         Args:
-        ----
             model: the reclassify model to manipulate the classification dataset. default to a new one
             class_path: Folder path containing already existing classes. Default to ~/
             out_path: the folder to save the created classifications. default to ~/downloads

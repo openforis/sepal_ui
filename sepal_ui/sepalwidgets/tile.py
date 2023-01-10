@@ -1,3 +1,17 @@
+"""
+Custom Card widget to create Tiles in application.
+
+Gather the customized ``ipyvuetifyWidgets`` used to create Tiles in the application panel framework.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.TileDisclaimer()
+"""
+
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -34,11 +48,10 @@ class Tile(v.Layout, SepalWidget):
     ) -> None:
         """
         Custom Layout widget for the sepal UI framework.
-        It an helper to build a consistent tiling system.
-        Tile objects are indeed compatible with the other classes from sepal_ui.
+
+        It is an helper to build a consistent tiling system. Tile objects are indeed compatible with the other classes from sepal_ui.
 
         Args:
-        ----
             id_: the tile id that will be written in its mount_id _metadata attribute
             title: the title of the Tile
             inputs: the list of widget to display inside the tile
@@ -73,6 +86,7 @@ class Tile(v.Layout, SepalWidget):
     def nest(self) -> Self:
         """
         Prepare the tile to be used as a nested component in a tile.
+
         the elevation will be set to 0 and the title remove from children.
         The mount_id will also be changed to nested.
         """
@@ -89,10 +103,11 @@ class Tile(v.Layout, SepalWidget):
 
     def set_content(self, inputs: list) -> Self:
         """
-        Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
+        Replace the current content of the tile with the provided inputs.
+
+        It will keep the output and btn widget if existing.
 
         Args:
-        ----
             the list of widget to display inside the tile
         """
         # create the widgets
@@ -115,10 +130,10 @@ class Tile(v.Layout, SepalWidget):
     def set_title(self, title: str = "") -> Self:
         """
         Replace the current title and activate it.
+
         If no title is provided, the title is removed from the tile content.
 
         Args:
-        ----
             title: the new title of the object
         """
         # set the title text
@@ -139,8 +154,7 @@ class Tile(v.Layout, SepalWidget):
         """
         Return the current title of the tile.
 
-        Returns
-        -------
+        Returns:
             the title
         """
         return self.title.children[0]
@@ -149,12 +163,13 @@ class Tile(v.Layout, SepalWidget):
         self, fields_2_show: List[v.VuetifyWidget], fields: List[v.VuetifyWidget]
     ) -> Self:
         """
-        Display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
+        Display only the widgets that are part of the input_list.
+
+        The widget_list is the list of all the widgets of the tile.
 
         Args:
-        ----
-            fields_2_show ([v.widget]) : the list of input to be display
-            fields ([v.widget]) : the list of the tile widget
+            fields_2_show: the list of input to be display
+            fields: the list of the tile widget
         """
         for field in fields:
             if field in fields_2_show:
@@ -168,8 +183,7 @@ class Tile(v.Layout, SepalWidget):
         """
         Get the mount_id value.
 
-        Returns
-        -------
+        Returns:
             the moun_id value from _metadata dict
         """
         return self._metadata["mount_id"]
@@ -179,11 +193,11 @@ class TileAbout(Tile):
     def __init__(self, pathname: Union[str, Path], **kwargs) -> None:
         """
         Create an about tile using a .md file.
+
         This tile will have the "about_widget" id and "About" title.
 
         Args:
-        ----
-            the path to the .md file
+            pathname: the path to the .md file
         """
         if type(pathname) == str:
             pathname = Path(pathname)
@@ -200,7 +214,8 @@ class TileAbout(Tile):
 class TileDisclaimer(Tile):
     def __init__(self) -> None:
         """
-        Create a about tile.
+        Create an about tile.
+
         This tile will have the "about_widget" id and "Disclaimer" title.
         """
         # create the tile content on the fly

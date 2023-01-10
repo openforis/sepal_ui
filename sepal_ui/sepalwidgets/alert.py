@@ -2,14 +2,14 @@
 Custom widgets relative to user outputs.
 
 Gather the customized ``ipyvuetifyWidgets`` used to communicate with the end user.
-All the content of this modules is loaded in the parent ``sepal_ui.sepalwidgets`` package. So it can be loaded directly from there.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
--------
-    .. code-block::
+    .. jupyter-execute::
+    
         from sepal_ui import sepalwidgets as sw
         
-        sw.Alert()
+        sw.Alert().show()
 """
 
 from datetime import datetime
@@ -45,7 +45,6 @@ class Divider(v.Divider, SepalWidget):
         Whenever the type\_ trait is modified, the divider class will change accordingly.
 
         Args:
-        ----
             class\_: the initial color of the divider
             kwargs (optional): any parameter from a v.Divider. if set, 'class\_' will be overwritten.
         """
@@ -60,8 +59,7 @@ class Divider(v.Divider, SepalWidget):
         It is binded to the type\_ traitlet but can also be called manually.
 
         Args:
-        ----
-            change (dict): the only useful key is 'new' which is the new required color
+            change: the only useful key is 'new' which is the new required color
         """
         self.class_list.remove(*TYPES)
         self.class_list.add(change["new"])
@@ -87,7 +85,6 @@ class Alert(v.Alert, SepalWidget):
         It's hidden by default.
 
         Args:
-        ----
             type\_: The color of the Alert
             kwargs (optional): any parameter from a v.Alert. If set, 'type' will be overwritten.
         """
@@ -114,7 +111,6 @@ class Alert(v.Alert, SepalWidget):
             set the ``total`` argumentent of tqdm to use differnet values than [0, 1]
 
         Args:
-        ----
             progress: the progress status in float
             msg: The message to use before the progress bar
             tqdm_args (optional): any arguments supported by a tqdm progress bar
@@ -162,7 +158,6 @@ class Alert(v.Alert, SepalWidget):
         The color can also be changed dynamically.
 
         Args:
-        ----
             msg: the message to display
             type\_: the color to use in the widget
         """
@@ -179,7 +174,6 @@ class Alert(v.Alert, SepalWidget):
         Also add the timestamp of the display. The color can also be changed dynamically.
 
         Args:
-        ----
             msg: the message to display
             type\_: the color to use in the widget
         """
@@ -199,7 +193,6 @@ class Alert(v.Alert, SepalWidget):
         Append a message in a new parragraph, with or without divider.
 
         Args:
-        ----
             msg: the message to display
             section: add a Divider before the added message
             type\_: the color to use in the widget
@@ -259,8 +252,7 @@ class Alert(v.Alert, SepalWidget):
             input\_: the input to check
             msg: the message to display if the input is not set
 
-        Returns
-        -------
+        Returns:
             check if the value is initialized
         """
         msg = msg or ms.utils.check_input.error
@@ -284,7 +276,6 @@ class StateBar(v.SystemBar, SepalWidget):
         Widget to display quick messages on simple inline status bar.
 
         Args:
-        ----
             kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
         """
         self.progress = v.ProgressCircular(
@@ -323,7 +314,6 @@ class StateBar(v.SystemBar, SepalWidget):
         Change current status message.
 
         Args:
-        ----
             msg: the message to display
             loading: the loading status of the progress circular
         """
@@ -350,7 +340,6 @@ class Banner(v.Snackbar, SepalWidget):
         Custom Snackbar widget to display messages as a banner in module App.
 
         Args:
-        ----
             msg: Message to display in application banner. default to nothing
             type\_: Used to display an appropiate banner color. fallback to "info".
             id_: unique banner identificator.
@@ -395,8 +384,7 @@ class Banner(v.Snackbar, SepalWidget):
         Args:
             text: the text displayed in the banner to adapt the duration of the timeout
 
-        Returns
-        -------
+        Returns:
             the duration of the timeout in milliseconds
         """
         wpm = 180  # readable words per minute
@@ -414,7 +402,6 @@ class Banner(v.Snackbar, SepalWidget):
         Change the btn display to inform the user on the number of banners in the queue.
 
         Args:
-        ----
             nb_banner: the number of banners in the queue
         """
         # do not wrap ms.widget.banner. If you do it won't be recognized by the key-checker of the Translator

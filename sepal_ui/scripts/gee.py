@@ -1,3 +1,7 @@
+"""
+All the heleper methods to interface Google Earthengine with sepal-ui.
+"""
+
 import time
 from pathlib import Path
 from typing import List, Union
@@ -18,8 +22,7 @@ def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> 
         task_descripsion: name of the running task
         widget_alert: alert to display the output messages
 
-    Returns
-    -------
+    Returns:
         the final state of the task
     """
     state = "UNSUBMITTED"
@@ -54,8 +57,7 @@ def is_task(task_descripsion: str) -> ee.batch.Task:
     Args:
         task_descripsion: the task description
 
-    Returns
-    -------
+    Returns:
         return the found task else None
     """
     current_task = None
@@ -75,8 +77,7 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
     Args:
         task_descripsion: the task description
 
-    Returns
-    -------
+    Returns:
         return the found task else None
     """
     current_task = is_task(task_descripsion)
@@ -96,8 +97,7 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
         folder: the initial GEE folder
         asset_list: extra element that you would like to add to the asset list
 
-    Returns
-    -------
+    Returns:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
     # set the folder
@@ -123,8 +123,7 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
         asset_descripsion: the descripsion of the asset
         folder: the folder of the glad assets
 
-    Returns
-    -------
+    Returns:
         true if already in folder
     """
     # get the folder

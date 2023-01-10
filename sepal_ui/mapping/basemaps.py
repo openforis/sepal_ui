@@ -1,18 +1,13 @@
+"""
+Module to load basemaps from different providers.
+"""
+
 from typing import Optional
 
 from box import Box
 from ipyleaflet import TileLayer
 from xyzservices import TileProvider
 from xyzservices import providers as xyz
-
-
-class BasemapBox(Box):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return ",\n".join(list(self.keys()))
-
 
 xyz_tiles: dict = {
     "OpenStreetMap": {
@@ -57,8 +52,7 @@ def get_xyz_dict(
         _collection: the collection to anylize (subset of :code:`xyz`)
         _output: the dict to use as an output (mutable object)
 
-    Returns
-    -------
+    Returns:
         A dictionary of xyz services.
     """
     # the 2 following lies avoid to display xyz descriptor in the method documentation
@@ -78,17 +72,12 @@ def get_xyz_dict(
 
 def xyz_to_leaflet() -> dict:
     """
-        Convert all available xyz tile services to ipyleaflet tile layers.
-        Adapted from https://github.com/giswqs/geemap.
+    Convert all available xyz tile services to ipyleaflet tile layers.
 
-    <<<<<<< HEAD
-        Returns
-        -------
-            dict: A dictionary of ipyleaflet tile layers.
-    =======
-        Returns:
-            A dictionary of ipyleaflet tile layers.
-    >>>>>>> e95325cd7a25d0bf50e3fd5c7c8f6bff568f6032
+    Adapted from https://github.com/giswqs/geemap.
+
+    Returns:
+        A dictionary of ipyleaflet tile layers.
     """
     leaflet_dict = {}
 
@@ -100,7 +89,7 @@ def xyz_to_leaflet() -> dict:
             url=url, name=name, attribution=attribution, max_zoom=22, base=True
         )
 
-    for i, item in get_xyz_dict().items():
+    for item in get_xyz_dict().values():
         leaflet_dict[item.name] = TileLayer(
             url=item.build_url(),
             name=item.name,
@@ -112,5 +101,5 @@ def xyz_to_leaflet() -> dict:
     return leaflet_dict
 
 
-basemap_tiles = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+basemap_tiles: Box = Box(xyz_to_leaflet(), frozen_box=True)
 "the basemaps list as a box"

@@ -1,3 +1,16 @@
+"""
+Custom widgets that are nor input nor UI interface.
+
+Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.CopyToClip()
+"""
+
 from pathlib import Path
 from typing import Optional, Union
 
@@ -20,7 +33,6 @@ class Markdown(v.Layout, SepalWidget):
         Custom Layout based on the markdown text given.
 
         Args:
-        ----
             mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
             kwargs: Any parameter from a v.Layout. If set, 'children' will be overwritten
         """
@@ -60,10 +72,10 @@ class CopyToClip(v.VuetifyTemplate):
     def __init__(self, **kwargs) -> None:
         """
         Custom textField that provides a handy copy-to-clipboard javascript behaviour.
+
         When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
 
         Args:
-        ----
             kwargs: any argument that can be used with a v.TextField
         """
         # add the default params to kwargs
@@ -126,7 +138,6 @@ class StateIcon(Tooltip):
         Custom icon with multiple state colors.
 
         Args:
-        ----
             model: Model to manage StateIcon behaviour from outside.
             model_trait: Name of trait to be linked with state icon. Must exists in model.
             states: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.

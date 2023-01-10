@@ -27,11 +27,9 @@ def check_locale(locale: str) -> bool:
     Check if the locale exist in the country list.
 
     Args:
-    ----
         locale: the locale name in iso code
 
-    Return:
-    ------
+    Returns:
         True if the language is a well defined
     """
     file = Path(__file__).parents[1] / "data" / "locale.parquet"
@@ -41,7 +39,7 @@ def check_locale(locale: str) -> bool:
 
 
 def main() -> None:
-    """launch the process."""
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 

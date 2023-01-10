@@ -1,3 +1,7 @@
+"""
+Widgets used to build the ``PLanetView`` interface.
+"""
+
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -21,12 +25,13 @@ class InfoView(sw.ExpansionPanels):
 
     def __init__(self, model: PlanetModel, **kwargs) -> None:
         """
+        Card to validate subscription.
+
         Custom optinal card to be displayed within the planet view to validate the available
         subscriptions from the log-in credentials and show the info related with them, such
         as the quotas and remaining time of activation.
 
         Args:
-        ----
             model: the planetModel associated with the display
         """
         self.model = model
@@ -69,10 +74,11 @@ class InfoView(sw.ExpansionPanels):
 
     def open_info(self, widget: v.VuetifyWidget, *args) -> None:
         """
-        Shrink or srhunk the content of the expansion panel, sending a request to build the data.
+        Shrink or srhunk the content of the expansion panel.
+
+        It automatically sends a request to build the data.
 
         Args:
-        ----
             widget: the widget to expand
         """
         is_current = self.current == widget.attributes["id"]
@@ -90,7 +96,6 @@ class InfoView(sw.ExpansionPanels):
         Update the status of the given button.
 
         Args:
-        ----
             btn_id: the id of the btn object
             state: the state to apply to the btn
         """
@@ -140,8 +145,7 @@ class InfoCard(sw.Layout):
         Args:
             sub: the subscriptions plan from a defined category (e.g. "nicfi")
 
-        Returns
-        -------
+        Returns:
             the children content of a category
         """
         title = sub["plan"]["name"].replace("_", " ")
@@ -199,7 +203,6 @@ class InfoCard(sw.Layout):
         Extract the info from the subscription and set it in the card.
 
         Args:
-        ----
             subs_group: list of subscriptions belonging to the same category ('nicfi', 'others')
         """
         content = [

@@ -1,3 +1,7 @@
+"""
+The customized ``Map`` object.
+"""
+
 # knwon bug of rasterio
 import os
 
@@ -76,6 +80,8 @@ class SepalMap(ipl.Map):
         **kwargs,
     ) -> None:
         """
+        Custom Map object design to build application.
+
         The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
         The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
         Numerous methods have been added in the class to help you deal with your workflow implementation.
@@ -83,7 +89,6 @@ class SepalMap(ipl.Map):
         that have the same signature as the GEE JavaScripts console.
 
         Args:
-        ----
             basemaps: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
             dc: wether or not the drawing control should be displayed. default to false
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
@@ -148,7 +153,6 @@ class SepalMap(ipl.Map):
             Does nothing now.
 
         Args:
-        ----
             local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
         """
         return self
@@ -159,7 +163,6 @@ class SepalMap(ipl.Map):
         Remove last added layer from Map.
 
         Args:
-        ----
             local: Specify True to only remove local last layers, otherwise will remove every last layer.
         """
         self.remove_layer(-1)
@@ -171,7 +174,6 @@ class SepalMap(ipl.Map):
         Centers the map view at a given coordinates with the given zoom level.
 
         Args:
-        ----
             lon: The longitude of the center, in degrees.
             lat: The latitude of the center, in degrees.
             zoom: The zoom level, from 1 to 24. Defaults to None.
@@ -187,7 +189,6 @@ class SepalMap(ipl.Map):
         Get the proper zoom to the given ee geometry.
 
         Args:
-        ----
             item: the geometry to zoom on
             zoom_out: Zoom out the bounding zoom
         """
@@ -202,10 +203,11 @@ class SepalMap(ipl.Map):
 
     def zoom_raster(self, layer: ipl.LocalTileLayer, zoom_out: int = 1) -> Self:
         """
-        Adapt the zoom to the given LocalLayer. The localLayer need to come from the add_raster method to embed the image name.
+        Adapt the zoom to the given LocalLayer.
+
+        The localLayer need to come from the add_raster method to embed the image name.
 
         Args:
-        ----
             layer: the localTile layer to zoom on. it needs to embed the "raster" member
             zoom_out: Zoom out the bounding zoom
         """
@@ -223,7 +225,6 @@ class SepalMap(ipl.Map):
         Adapt the zoom to the given bounds. and center the image.
 
         Args:
-        ----
             bounds: coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out: Zoom out the bounding zoom
         """
@@ -259,8 +260,7 @@ class SepalMap(ipl.Map):
             client_host: the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
             fit_bounds: Wether or not we should fit the map to the image bounds. Default to True.
 
-        Returns
-        -------
+        Returns:
             the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
         """
         # lazy import of localtileserver to avoid conflicts with GDAL
@@ -339,18 +339,14 @@ class SepalMap(ipl.Map):
 
     @deprecated(version="2.8.0", reason="use dc methods instead")
     def show_dc(self) -> Self:
-        """
-        show the drawing control on the map.
-        """
+        """Show the drawing control on the map."""
         self.dc.show()
 
         return self
 
     @deprecated(version="2.8.0", reason="use dc methods instead")
     def hide_dc(self) -> Self:
-        """
-        hide the drawing control of the map.
-        """
+        """Hide the drawing control of the map."""
         self.dc.hide()
 
         return self
@@ -373,7 +369,6 @@ class SepalMap(ipl.Map):
         Add a colorbar to the map.
 
         Args:
-        ----
             colors: The set of colors to be used for interpolation. Colors can be provided in the form: * tuples of RGBA ints between 0 and 255 (e.g: (255, 255, 0) or (255, 255, 0, 255)) * tuples of RGBA floats between 0. and 1. (e.g: (1.,1.,0.) or (1., 1., 0., 1.)) * HTML-like string (e.g: “#ffff00) * a color name or shortcut (e.g: “y” or “yellow”)
             cmap: a matplotlib colormap default to viridis
             vmin: The minimal value for the colormap. Values lower than vmin will be bound directly to colors[0].. Defaults to 0.
@@ -458,13 +453,14 @@ class SepalMap(ipl.Map):
         viz_name: str = "",
     ) -> None:
         """
+        Customized add_layer method designed for EE objects.
+
         Copy the addLayer method from geemap to read and guess the vizaulization
         parameters the same way as in SEPAL recipes.
         If the vizparams are empty and vizualization metadata exist, SepalMap will use
         them automatically.
 
         Args:
-        ----
             ee_object: the ee OBject to draw on the map
             vis_params: the visualization parameters set as in GEE
             name: the name of the layer
@@ -643,11 +639,12 @@ class SepalMap(ipl.Map):
     @staticmethod
     def get_basemap_list() -> List[str]:
         """
+        Get the complete list of avaialble basemaps.
+
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object.
 
-        Returns
-        -------
+        Returns:
             The list of the basemap names
         """
         return [k for k in basemap_tiles.keys()]
@@ -660,8 +657,7 @@ class SepalMap(ipl.Map):
         Args:
             image: the image to analyse
 
-        Returns
-        -------
+        Returns:
             The dictionnary of the find properties
         """
         # the constant prefix for SEPAL visualization parameters
@@ -730,11 +726,11 @@ class SepalMap(ipl.Map):
         self, key: Union[ipl.Layer, int, str], base: bool = False, none_ok: bool = False
     ) -> None:
         """
-        Remove a layer based on a key. The key can be, a Layer object, the name of a
-        layer or the index in the layer list.
+        Remove a layer based on a key.
+
+        The key can be, a Layer object, the name of a layer or the index in the layer list.
 
         Args:
-        ----
             key: the key to find the layer to delete
             base: either the basemaps should be included in the search or not. default t false
             none_ok: if True the function will not raise error if no layer is found. Default to False
@@ -750,10 +746,10 @@ class SepalMap(ipl.Map):
     def remove_all(self, base: bool = False) -> None:
         """
         Remove all the layers from the maps.
+
         If base is set to True, the basemaps are removed as well.
 
         Args:
-        ----
             base: wether or not the basemaps should be removed, default to False
         """
         # filter out the basemaps if base == False
@@ -767,10 +763,12 @@ class SepalMap(ipl.Map):
     def add_layer(self, layer: ipl.Layer, hover: bool = False) -> None:
         """
         Add layer and use a default style for the GeoJSON inputs.
+
         Remove existing layer if already on the map.
 
-        layer: any layer type from ipyleaflet
-        hover: whether to use the default hover style or not.
+        Args:
+            layer: any layer type from ipyleaflet
+            hover: whether to use the default hover style or not.
         """
         # remove existing layer before addition
         existing_layer = self.find_layer(layer.name, none_ok=True)
@@ -803,7 +801,6 @@ class SepalMap(ipl.Map):
         Adds a basemap to the map.
 
         Args:
-        ----
             basemap: Can be one of string from basemaps. Defaults to 'HYBRID'.
         """
         if basemap not in basemap_tiles.keys():
@@ -818,10 +815,10 @@ class SepalMap(ipl.Map):
     def get_scale(self) -> float:
         """
         Returns the approximate pixel scale of the current map view, in meters.
+
         Reference: https://blogs.bing.com/maps/2006/02/25/map-control-zoom-levels-gt-resolution.
 
-        Returns
-        -------
+        Returns:
             Map resolution in meters.
         """
         return 156543.04 * math.cos(0) / math.pow(2, self.zoom)
@@ -837,8 +834,7 @@ class SepalMap(ipl.Map):
             base: either the basemaps should be included in the search or not. default to false
             none_ok: if True the function will not raise error if no layer is found. Default to False
 
-        Returns
-        -------
+        Returns:
             The first layer using the same name or index else None
         """
         # filter the layers
@@ -870,7 +866,6 @@ class SepalMap(ipl.Map):
         Creates and adds a custom legend as widget control to the map.
 
         Args:
-        ----
             title: Title of the legend. Defaults to 'Legend'.
             legend_dict: dictionary with key as label name and value as color
             position: the position (corners) of the legend on the map

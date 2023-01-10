@@ -1,3 +1,17 @@
+"""
+Custom sepalwidgets to add extra members to normal ``IpyvuetfiWidget``.
+
+Gather the customized ``ipyvuetifyWidgets`` used toadd extra members to the exisiting one.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.Tooltip(widget=sw.Btn(), tooltip="tooltip")
+"""
+
 from typing import Optional, Union
 
 import ipyvuetify as v
@@ -26,7 +40,6 @@ class SepalWidget(v.VuetifyWidget):
         Custom vuetifyWidget to add specific methods.
 
         Args:
-        ----
             viz: define if the widget should be visible or not
             tooltip: tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
         """
@@ -42,7 +55,7 @@ class SepalWidget(v.VuetifyWidget):
     @observe("viz")
     def _set_viz(self, *args) -> None:
         """
-        hide or show the component according to its viz param value.
+        Hide or show the component according to its viz param value.
 
         Hide the widget by reducing the html class to :code:`d-none`.
         Show the widget by removing the :code:`d-none` html class.
@@ -67,9 +80,7 @@ class SepalWidget(v.VuetifyWidget):
         return
 
     def toggle_viz(self) -> Self:
-        """
-        toogle the visibility of the widget.
-        """
+        """Toogle the visibility of the widget."""
         self.viz = not self.viz
 
         return self
@@ -77,6 +88,7 @@ class SepalWidget(v.VuetifyWidget):
     def hide(self) -> Self:
         """
         Hide the widget by reducing the html class to :code:`d-none`.
+
         Save the previous class and set viz attribute to False.
         """
         # update viz state
@@ -87,6 +99,7 @@ class SepalWidget(v.VuetifyWidget):
     def show(self) -> Self:
         """
         Show the widget by removing the d-none html class.
+
         Save the previous class and set viz attribute to True.
         """
         # update viz state
@@ -96,20 +109,22 @@ class SepalWidget(v.VuetifyWidget):
 
     def reset(self) -> Self:
         """
-        Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input.
+        Clear the widget v_model.
+
+        Need to be extented in custom widgets to fit the structure of the actual input.
         """
         self.v_model = None
 
         return self
 
     def get_children(self, id_: str = "") -> Union[str, list]:
-        """Retrieve all children elements that matches with the given id\_.
+        r"""
+        Retrieve all children elements that matches with the given id\_.
 
         Args:
             id\_ (str, optional): attribute id to compare with.
 
-        Returns
-        -------
+        Returns:
             list with all mathing elements if there are more than one, otherwise will return the matching element.
 
         """
@@ -133,10 +148,10 @@ class SepalWidget(v.VuetifyWidget):
     def set_children(
         self, children: Union[str, v.VuetifyWidget, list], position: str = "first"
     ) -> Self:
-        """Insert input children in self children within given position.
+        """
+        Insert input children in self children within given position.
 
         Args:
-        ----
             children: the list of children to add to the widget. It can also be a list (str and DOMWidgets are accepted)
             position: whether to insert as first or last element. ["first", "last"]
         """
@@ -163,17 +178,15 @@ class SepalWidget(v.VuetifyWidget):
     @versionadded(version="2.9.0", reason="Tooltip are now integrated to widgets")
     def set_tooltip(self, txt: str = "", **kwargs) -> v.Tooltip:
         """
-        Create a tooltip associated with the widget. If the text is not set, the
-        tooltip will be automatically removed. Once the tooltip is set the object
-        variable can be accessed normally but to render the widget, one will need
-        to use :code:`self.with_tooltip` (irreversible).
+        Create a tooltip associated with the widget.
+
+        If the text is not set, the tooltip will be automatically removed. Once the tooltip is set the object variable can be accessed normally but to render the widget, one will need to use :code:`self.with_tooltip` (irreversible).
 
         Args:
             txt: anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
             kwargs: any options available in a Tooltip widget
 
-        Returns
-        -------
+        Returns:
             the tooltip associated with the object
         """
         if isinstance(self.with_tooltip, Tooltip):
@@ -193,7 +206,6 @@ class Tooltip(v.Tooltip):
         Custom widget to display tooltip when mouse is over widget.
 
         Args:
-        ----
             widget: widget used to display tooltip
             tooltip: the text to display in the tooltip
         """

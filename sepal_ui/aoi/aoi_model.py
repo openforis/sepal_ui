@@ -1,3 +1,7 @@
+"""
+Model object dedicated to AOI selection.
+"""
+
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -147,14 +151,14 @@ class AoiModel(Model):
         folder: Union[str, Path] = "",
     ) -> None:
         """
-        an Model object dedicated to the sorage and the manipulation of aoi.
+        An Model object dedicated to the sorage and the manipulation of aoi.
+
         It is meant to be used with the AoiView object (embeded in the AoiTile).
         By using this you will be able to provide your application with aoi as an ee_object
         or a gdf, depending if you activated the ee binding or not.
         The class also provide insight on your aoi geometry.
 
         Args:
-        ----
             gee: wether or not the aoi selector should be using the EarthEngine binding
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
@@ -186,7 +190,6 @@ class AoiModel(Model):
         Set the default value of the object and create a gdf/feature_collection out of it.
 
         Args:
-        ----
             vector: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
             admin: the default administrative area in GADM or GAUL norm
             asset: the default asset name, need to point to a readable FeatureCollection
@@ -223,11 +226,11 @@ class AoiModel(Model):
 
     def set_object(self, method: str = "") -> Self:
         """
-        set the object (gdf/featurecollection) based on the model inputs. The method can
-        be manually overwritten.
+        set the object (gdf/featurecollection) based on the model inputs.
+
+        The method can be manually overwritten by setting the ``method`` parameter.
 
         Args:
-        ----
             method: a model loading method
         """
         # clear the model output if existing
@@ -252,7 +255,7 @@ class AoiModel(Model):
         return self
 
     def _from_asset(self, asset_json: dict) -> Self:
-        """set the ee.FeatureCollection output from an existing asset."""
+        """Set the ee.FeatureCollection output from an existing asset."""
         if not (asset_json["pathname"]):
             raise Exception(ms.aoi_sel.exception.no_asset)
 
@@ -283,10 +286,9 @@ class AoiModel(Model):
 
     def _from_points(self, point_json: dict) -> Self:
         """
-        set the object output from a csv json.
+        Set the object output from a csv json.
 
         Args:
-        ----
             point_json: the geo_interface description of the points
         """
         if not all(point_json.values()):
@@ -327,7 +329,6 @@ class AoiModel(Model):
         Set the object output from a vector json.
 
         Args:
-        ----
             vector_json: the dict describing the vector file, and column filter
         """
         if not (vector_json["pathname"]):
@@ -365,7 +366,6 @@ class AoiModel(Model):
         Set the gdf output from a geo_json.
 
         Args:
-        ----
             geo_json: the __geo_interface__ dict of a geometry drawn on the map
         """
         if not geo_json:
@@ -403,7 +403,6 @@ class AoiModel(Model):
         Set the object according to given an administrative number in the GADM norm.
 
         Args:
-        ----
             admin: the admin code corresponding to FAO GAUl (if gee) or GADM
         """
         if not admin:
@@ -471,7 +470,9 @@ class AoiModel(Model):
     def clear_attributes(self) -> Self:
         """
         Return all attributes to their default state.
-        Set the default setting as current object.
+
+        Note:
+            Set the default setting as current object.
         """
         # keep the default
         admin = self.default_admin
@@ -493,8 +494,7 @@ class AoiModel(Model):
         """
         Retrieve the columns or variables from self excluding geometries and gee index.
 
-        Returns
-        -------
+        Returns:
             sorted list of column names
         """
         if self.gdf is None:
@@ -518,8 +518,7 @@ class AoiModel(Model):
         Args:
             A column name to query over the asset
 
-        Returns
-        -------
+        Returns:
             sorted list of fields value
 
         """
@@ -544,8 +543,7 @@ class AoiModel(Model):
             column: the selected column in the dataset
             field: the value to search in the selected column
 
-        Returns
-        -------
+        Returns:
             The Feature associated with the query
         """
         if self.gdf is None:
@@ -564,8 +562,7 @@ class AoiModel(Model):
         """
         Reproduce the behaviour of the total_bounds method from geopandas.
 
-        Returns
-        -------
+        Returns:
             minxx, miny, maxx, maxy
         """
         if self.gdf is None:
@@ -606,8 +603,7 @@ class AoiModel(Model):
         """
         Converts current geopandas object into ipyleaflet GeoJSON.
 
-        Return:
-        ------
+        Returns:
             The geojson layer of the aoi gdf, ready to use in a Map
         """
         if self.gdf is None:

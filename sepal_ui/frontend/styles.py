@@ -1,3 +1,7 @@
+"""
+Helpers to customize the display of sepal-ui widgets and maps.
+"""
+
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Dict, Tuple
@@ -72,7 +76,7 @@ TYPES: Tuple[str, ...] = (
 "The different types defined by ipyvuetify"
 
 ################################################################################
-# define classes and method to make the application resonsive
+# define classes and method to make the application responsive
 #
 
 
@@ -80,8 +84,7 @@ def get_theme() -> str:
     """
     Get theme name from the config file (default to dark).
 
-    Returns
-    -------
+    Returns:
         The theme to use
     """
     return config.get("sepal-ui", "theme", fallback="dark")
@@ -101,7 +104,6 @@ class SepalColor(HasTraits, SimpleNamespace):
         Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
         Args:
-        ----
             **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
         """
         # set vuetify theme
@@ -156,7 +158,7 @@ class SepalColor(HasTraits, SimpleNamespace):
 
 class Styles(v.VuetifyTemplate):
     """
-    Fixed styles to fix display issues in the lib:
+    Fixed styles to fix display issues in the lib.
 
     - avoid leaflet maps overlap sepal widgets
     - remove shadow of widget-control

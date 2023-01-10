@@ -25,11 +25,9 @@ def check_theme(theme: str) -> bool:
     Check if the theme is a legit name.
 
     Args:
-    ----
         theme: the theme name
 
-    Return:
-    ------
+    Returns:
         True if the theme is covered by sepal-ui
     """
     themes = ["dark", "light"]
@@ -38,7 +36,7 @@ def check_theme(theme: str) -> bool:
 
 
 def main() -> None:
-    """launch the process."""
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 

@@ -1,3 +1,9 @@
+"""
+ResizeTrigger is an essential object of sepal-ui.
+
+It guarantees that the maps displayed in the application are allways resized when you change the view. Without it moving from one panel to another would make some of the map tile invisible.
+"""
+
 from pathlib import Path
 
 import ipyvuetify as v
@@ -8,6 +14,7 @@ from traitlets import Unicode
 class ResizeTrigger(v.VuetifyTemplate):
     """
     A trigger to resize maps when a change of display is done.
+
     Every time resize is called, the javascript resize event is trigger of the application.
     """
 

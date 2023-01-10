@@ -1,3 +1,7 @@
+"""
+A specific statebar dedicated to the the counting of loading tiles in the map.
+"""
+
 from typing import Optional
 
 import traitlets as t
@@ -29,7 +33,6 @@ class LayerStateControl(WidgetControl):
         every time a map is added to the map the counter will be raised by one. same behaviour with removed.
 
         Args:
-        ----
             m: The map the component is listening to
         """
         # save the map as a member of the widget

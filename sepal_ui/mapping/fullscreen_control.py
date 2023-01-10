@@ -1,3 +1,7 @@
+"""
+Customized control to toogle the fullscreen state of the map.
+"""
+
 from pathlib import Path
 from typing import List, Optional
 
@@ -37,7 +41,6 @@ class FullScreenControl(WidgetControl):
         .. versionadded:: 2.7.0
 
         Args:
-        ----
             m: the map on which the mutated CSS will be applied (Only work with SepalMap as we are querying the _id)
             fullscreen: either the map should be displayed in fullscreen by default. default to false.
             fullapp: either or not the map will be used as the sole widget/tile of an application
@@ -87,6 +90,8 @@ class FullScreenControl(WidgetControl):
 
     def toggle_fullscreen(self, *args) -> None:
         """
+        Toogle fullscreen state.
+
         Toggle the fullscreen state of the map by sending the required javascript method,
         changing the w_btn icons and the zoomed state of the control.
         """

@@ -1,3 +1,7 @@
+"""
+Model object dedicated to the reclassification interface.
+"""
+
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -100,10 +104,11 @@ class ReclassifyModel(Model):
         **kwargs,
     ) -> None:
         """
-        Reclassification model to store information about the current reclassification and share them within your app. save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
+        Reclassification model to store information about the current reclassification and share them within your app.
+
+        Save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
 
         Args:
-        ----
             gee: either or not to set :code:`gee` to True
             dst_dir: the destination forlder for outputs
             folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
@@ -145,10 +150,11 @@ class ReclassifyModel(Model):
 
     def get_classes(self) -> dict:
         """
-        Extract the classes from the class file. The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
+        Extract the classes from the class file.
 
-        Return:
-        ------
+        The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
+
+        Returns:
             the dict of the classes using following format: {code: (name, color)}
         """
         file = self.dst_class_file
@@ -176,8 +182,7 @@ class ReclassifyModel(Model):
         """
         Guess the type of the input and set the input type attribute for the model (vector or raster).
 
-        Return:
-        ------
+        Returns:
             the type of input (1 for raster, 0 for vector)
         """
         if self.gee:
@@ -210,9 +215,8 @@ class ReclassifyModel(Model):
         """
         Use the input_type to extract all the bands/properties from the input.
 
-        Return:
-        ------
-            (list): sorted list of all the available bands/properties as
+        Returns:
+            sorted list of all the available bands/properties as
             integer or str
         """
 
@@ -256,8 +260,7 @@ class ReclassifyModel(Model):
         """
         Validate and get feature collection from aoi_model.
 
-        Returns
-        -------
+        Returns:
             the saved AOI in the appropriate format
         """
         # by default it's none
@@ -287,8 +290,7 @@ class ReclassifyModel(Model):
 
         Retreive all the existing class from the specified band/property according to the input_type. The data will be saved in self.src_class with no_name and black as a color.
 
-        Returns
-        -------
+        Returns:
             the unique class value found in the specified band/property and there color/name defaulted to none and black
         """
         if not self.band:
@@ -590,8 +592,7 @@ class ReclassifyModel(Model):
         """
         Creates a unique and consecutive asset name based on the source.
 
-        Returns
-        -------
+        Returns:
             the destination folder
         """
         # create the asset_id

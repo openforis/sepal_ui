@@ -12,7 +12,6 @@ class LineBreak(Directive):
     The directive does note require any argument.
 
     Example:
-    -------
     .. line-break::
     """
 

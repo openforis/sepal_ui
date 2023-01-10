@@ -1,3 +1,7 @@
+"""
+Customized control to display a legend on the map.
+"""
+
 from typing import Optional, Union
 
 import traitlets as t
@@ -42,7 +46,6 @@ class LegendControl(WidgetControl):
         .. versionadded:: 2.10.4
 
         Args:
-        ----
             legend_dict: the dictionnary to fill the legend values. cannot be empty.
             title: title of the legend, if not set a default value in the current language will be used
             vertical: the orientation of the legend. default to True
@@ -155,8 +158,7 @@ class LegendControl(WidgetControl):
             color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0))
             size: the size of the legend square
 
-        Returns
-        -------
+        Returns:
             The HTML rendered color box
         """
         # Define height and width based on the size

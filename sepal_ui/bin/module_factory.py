@@ -30,7 +30,6 @@ def set_default_readme(
     Write a default README.md file and overwrite the existing one.
 
     Args:
-    ----
         folder: the module directory
         module_name: the module name used as title everywhere
         description: the description of the module
@@ -64,7 +63,6 @@ def set_default_about(folder: Path, description: str) -> None:
     Write a default ABOUT_en.md file and overwrite the existing one.
 
     Args:
-    ----
         folder: the directory of the module
         description: the description of the module functions
     """
@@ -88,7 +86,6 @@ def set_module_name(folder: Path, module_name: str) -> None:
     Use the module name in the different translation dictionaries.
 
     Args:
-    ----
         folder: the directory of the module
         module_name: the module name
     """
@@ -113,7 +110,6 @@ def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
     Set the module name in each documentation file and set the appropriate repository in the link.
 
     Args:
-    ----
         folder: the directory of the module
         url: the url of the GitHub repository
         module_name: the module name
@@ -141,7 +137,6 @@ def set_drawer_link(folder: Path, url: str) -> None:
     Replace the reference to the default repository to the one provided by the user.
 
     Args:
-    ----
         folder: the directory of the module
         url: the url of the GitHub repository
     """

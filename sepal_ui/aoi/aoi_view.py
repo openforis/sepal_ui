@@ -1,3 +1,7 @@
+"""
+``Card`` object dedicated to AOI selection. It does not include maps.
+"""
+
 from datetime import datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -40,7 +44,6 @@ class MethodSelect(sw.Select):
         You cannot mix adding and removing behaviours.
 
         Args:
-        ----
             methods: a list of methods from the available list (ADMIN0, ADMIN1, ADMIN2, SHAPE, DRAW, POINTS, ASSET)
             map_: link the aoi_view to a custom SepalMap to display the output, default to None
             gee: wether to bind to ee or not
@@ -115,7 +118,6 @@ class AdminField(sw.Select):
         It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
-        ----
             level (int): The administrative level of the field
             parent (AdminField): the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
             ee (bool, optional): wether to use ee or not (default to True)
@@ -149,7 +151,6 @@ class AdminField(sw.Select):
         Update the item list based on the given filter.
 
         Args:
-        ----
             filter\_ (str): The code of the parent v_model to filter the current results
         """
         # extract the level list
@@ -267,7 +268,6 @@ class AoiView(sw.Card):
         Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
 
         Args:
-        ----
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
             map\_: link the aoi_view to a custom SepalMap to display the output, default to None
             gee: wether to bind to ee or not

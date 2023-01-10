@@ -1,3 +1,7 @@
+"""
+A specific arning object that is always displayed in the Alert.
+"""
+
 from deprecated.sphinx import versionadded
 
 
@@ -6,7 +10,6 @@ from deprecated.sphinx import versionadded
     reason="Added to avoid display of unrelevant warning to the end user",
 )
 class SepalWarning(Warning):
-
     """
     A custom warning class that will be the only one to be displayed in the Alert in voila.
 

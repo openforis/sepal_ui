@@ -35,7 +35,6 @@ def write_reqs(file: Union[str, Path]) -> None:
     write the requirements in the requirements file.
 
     Args:
-    ----
         file: the requirements file
     """
     # force cast to pathlib.Path
@@ -67,7 +66,6 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
     Remove the requirements that are already part of the default installation.
 
     Args:
-    ----
         file: the requirements file
     """
     # already available libs
@@ -103,7 +101,6 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
     some libs doesn't have the same name as the pip command we are replacing/deleting the known one.
 
     Args:
-    ----
         file: the requirements file
     """
     file = Path(file)
@@ -147,7 +144,6 @@ def freeze_sepal_ui(file: Union[str, Path]) -> None:
     Set the sepal version to the currently used sepal-ui version.
 
     Args:
-    ----
         file: the requirements file
     """
     file = Path(file)
@@ -176,7 +172,6 @@ def clean_custom(file: Union[str, Path]) -> None:
     To start the process from a blank page.
 
     Args:
-    ----
         file: the requirements file
     """
     file = Path(file)

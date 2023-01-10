@@ -1,3 +1,7 @@
+"""
+The map displayed in the map application.
+"""
+
 from ipyleaflet import WidgetControl
 
 from sepal_ui import mapping as sm

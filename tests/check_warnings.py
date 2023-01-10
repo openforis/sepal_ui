@@ -8,12 +8,10 @@ def check_warnings(file):
     raise errors if there are unexpected ones and/or if some are missing.
 
     Args:
-    ----
         file (pathlib.Path): the path to the generated warning.txt file from
             the CI build
 
-    Return:
-    ------
+    Returns:
         0 if the warnings are all there
         1 if some warning are not registered or unexpected
     """

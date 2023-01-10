@@ -1,3 +1,7 @@
+"""
+Customized drawing control.
+"""
+
 from copy import deepcopy
 from typing import Optional
 
@@ -18,7 +22,6 @@ class DrawControl(ipl.DrawControl):
         A custom DrawingControl object to handle edition of features.
 
         Args:
-        ----
             m: the map on which he drawControl is displayed
             kwargs: any available arguments from a ipyleaflet.DrawingControl
         """
@@ -56,11 +59,11 @@ class DrawControl(ipl.DrawControl):
 
     def to_json(self) -> dict:
         """
-        Return the content of the DrawCOntrol data without the styling properties and using a polygonized representation of circles.
-        The output is fully compatible with __geo_interface__.
+        Return the content of the DrawControl data.
 
-        Returns
-        -------
+        Returned without the styling properties and using a polygonized representation of circles. The output is fully compatible with __geo_interface__.
+
+        Returns:
             the json representation of all the geometries draw on the map
         """
         features = [self.polygonize(feat) for feat in deepcopy(self.data)]
@@ -72,14 +75,14 @@ class DrawControl(ipl.DrawControl):
     def polygonize(geo_json: dict) -> dict:
         """
         Transform a ipyleaflet circle (a point with a radius) into a GeoJson polygon.
+
         The methods preserves all the geo_json other attributes.
         If the geometry is not a circle (don't require polygonisation), do nothing.
 
         Params:
             geo_json: the circle geojson
 
-        Return:
-        ------
+        Returns:
             the polygonised feature
         """
         if "Point" not in geo_json["geometry"]["type"]:

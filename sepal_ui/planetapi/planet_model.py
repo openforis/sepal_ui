@@ -1,3 +1,7 @@
+"""
+Model object dedicated to Planet interface.
+"""
+
 import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional, Union
@@ -38,12 +42,13 @@ class PlanetModel(Model):
 
     def __init__(self, credentials: Union[str, List[str]] = "") -> None:
         """
-        Planet model helper to connect planet API client and perform requests. It can be
+        Planet model helper to connect planet API client and perform requests.
+
+        It can be
         instantiated whether itself or linked with a PlanetView input helper. All the methods
         are aimed to be used without the need of a view.
 
         Args:
-        ----
             credentials: planet API key or tuple of username and password of planet explorer.
         """
         self.subscriptions = {}
@@ -58,7 +63,6 @@ class PlanetModel(Model):
         Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
-        ----
             credentials: planet API key or username and password pair of planet explorer.
         """
         if not isinstance(credentials, list):
@@ -107,8 +111,7 @@ class PlanetModel(Model):
         """
         load the user subscriptions.
 
-        Returns
-        -------
+        Returns:
             the dictionnary of user subscription or empty list if nothing found
         """
         req = self.session.request("GET", self.SUBS_URL)
@@ -144,8 +147,7 @@ class PlanetModel(Model):
             cloud_cover: maximum cloud coverage.
             limit_to_x_pages: number of pages to constrain the search. Defaults to -1 to use all of them.
 
-        Returns
-        -------
+        Returns:
             items found using the search query
 
         """
@@ -170,9 +172,11 @@ class PlanetModel(Model):
 
         item_types = ["PSScene", "PSScene3Band", "PSScene4Band"]
 
-        async def main():
-            """Create an asyncrhonous function here to avoid making the main get_items
-            as async. So we can keep calling get_items without any change.
+        async def _main():
+            """
+            Create an asyncrhonous function here to avoid making the main get_items as async.
+
+            So we can keep calling get_items without any change.
             """
             client = DataClient(self.session)
             items = await client.search(item_types, and_filter, name="quick_search")
@@ -180,11 +184,19 @@ class PlanetModel(Model):
             items_list = [item async for item in items]
             return items_list
 
-        return asyncio.run(main())
+        return asyncio.run(_main())
 
     @staticmethod
     def search_status(d: dict) -> List[Dict[str, bool]]:
+        """
+        Get the status of a specific subscription.
 
+        Args:
+            d: dictionnary of subscription object
+
+        Returns:
+            the (sub.name: status) pairs
+        """
         states = []
 
         for v in d.values():

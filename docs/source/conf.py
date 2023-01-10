@@ -168,5 +168,5 @@ spelling_exclude_patterns = ["modules/*"]
 
 # -- Options for autosummary/autodoc output ------------------------------------
 autosummary_generate = True
-autoclass_content = "init"
+autoclass_content = "both"
 autodoc_typehints = "description"

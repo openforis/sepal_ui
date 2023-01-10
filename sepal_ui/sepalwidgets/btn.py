@@ -1,8 +1,17 @@
 """
-Custom button widgets.
+Custom Buttons.
 
-Gather the customized ``ipyvuetifyWidgets`` used to build the application frame
+Gather the customized ``ipyvuetifyWidgets`` used to create buttons.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.Btn()
 """
+
 import warnings
 from pathlib import Path
 from typing import Optional, Union
@@ -33,10 +42,10 @@ class Btn(v.Btn, SepalWidget):
     def __init__(self, msg: str = "", gliph: str = "", **kwargs) -> None:
         """
         Custom process Btn filled with the provided text.
-        the color will be defaulted to 'primary' and can be changed afterward according to your need.
+
+        The color will be defaulted to 'primary' and can be changed afterward according to your need.
 
         Args:
-        ----
             msg: the text to display in the btn
             gliph: the full name of any mdi/fa icon
             text: the text to display in the btn
@@ -107,11 +116,10 @@ class Btn(v.Btn, SepalWidget):
     @deprecated(version="2.14", reason="Replace by the private _set_gliph")
     def set_icon(self, icon: str = "") -> Self:
         """
-        set a new icon. If the icon is set to "", then it's hidden.
+        Set a new icon. If the icon is set to "", then it's hidden.
 
         Args:
-        ----
-            icon (str, optional): the full name of a mdi/fa icon
+            icon: the full name of a mdi/fa icon
         """
         self.gliph = icon
         return self
@@ -130,11 +138,10 @@ class DownloadBtn(v.Btn, SepalWidget):
     def __init__(self, text: str, path: Union[str, Path] = "#", **kwargs) -> None:
         """
         Custom download Btn filled with the provided text.
-        the download icon is automatically embeded and green.
-        The btn only accepts absolute links. if non is provided then the btn stays disabled.
+
+        The download icon is automatically embeded and green. The btn only accepts absolute links, if non is provided then the btn stays disabled.
 
         Args:
-        ----
             text: the message inside the btn
             path: the absoluteor relative path to a downloadable content
             kwargs: any parameter from a v.Btn. if set, 'children' and 'target' will be overwritten.
@@ -159,15 +166,11 @@ class DownloadBtn(v.Btn, SepalWidget):
     def set_url(self, path: Union[str, Path] = "#") -> Self:
         """
         Set the URL of the download btn. and unable it.
+
         If nothing is provided the btn is disabled.
 
         Args:
-        ----
-            path (str|pathlib.Path): the absolute path to a downloadable content
-
-        Return:
-        ------
-            self
+            path: the absolute path to a downloadable content
         """
         # set the url
         url = su.create_download_link(path)

@@ -16,7 +16,7 @@ def lint(session):
 
 @nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
 def test(session):
-    """run all the test using the environment varialbe of the running machine."""
+    """Run all the test using the environment varialbe of the running machine."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
     session.run("pytest", "--color=yes", *test_files)
@@ -24,7 +24,7 @@ def test(session):
 
 @nox.session(reuse_venv=True)
 def docs(session):
-    """build the documentation."""
+    """Build the documentation."""
     session.install(".[doc]")
     session.run("rm", "-rf", "docs/build/", external=True)
     session.run(
@@ -44,7 +44,7 @@ def docs(session):
 
 @nox.session(name="docs-live", reuse_venv=False)
 def docs_live(session):
-    """build a live-updating documentation."""
+    """Build a live-updating documentation."""
     session.install(".[doc]")
     session.run(
         "sphinx-apidoc",
@@ -60,6 +60,7 @@ def docs_live(session):
 
 @nox.session(name="mypy", reuse_venv=True)
 def mypy(session):
+    """Run a mypy check of the lib."""
     session.install(".[dev]")
     test_files = session.posargs or ["sepal_ui"]
     session.run(
