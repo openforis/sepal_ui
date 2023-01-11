@@ -1,3 +1,66 @@
+## v_2.14.0 (2023-01-11)
+
+### Refactor
+
+- apply all ruff rules
+- first draft of ruff refactoring
+- use setdefault
+- use setdefault
+- drop the gee reading to get the bounds
+- typo
+- drop the gee reading to get the bounds Fix #681
+- update imports
+- move js code away from copytoclip python file
+- remove video extention
+- remove video extention
+- translator package
+- remove typehint
+- improve the quality of frontend files
+- lint the frontend files
+
+### Fix
+
+- reduce the size of the lib
+- stop downloading geodataframe and use json instead
+- remove ee_token script
+- type hinting for reclassify module was wrong
+- error while building reclassify module
+- use sd instead of su decorator
+- remove alert parameter from AoiModel
+- translate password label
+- use fa6 icon in password
+- add type_extentions to toml file
+- setup license file
+- use build command
+- planet_api request
+- use fa6 instead of mdi
+- mypy errors
+- create a stub file for the overwritten widgets
+- solve typ hinting issues
+- typo in type hint
+- use github repository for flake8
+- stop relying on my service account for auth
+- drop instafail
+- source should be a list
+- autoreload the notebooks for prototype phase
+- autoreload the notebooks for prototype phase
+- add a modue.yaml file
+- translator issues
+- handle empty dict
+- test both python and notebook files
+- typo remove mypy
+- add a modue.yaml file Fix #563
+- do not rely on harversine
+- set dialog on top of everything
+- do not rely on harversine
+- set dialog on top of everything but the drawers Fix #649
+- base the linting on pre-commits
+- base the linting on pre-commits
+
+### Feat
+
+- use type hint on every function/method/class
+
 ## v_2.13.0 (2022-12-11)
 
 ### Fix
