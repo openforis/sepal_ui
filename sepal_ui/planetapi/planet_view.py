@@ -1,3 +1,7 @@
+"""
+The ``Card`` widget to use in application to interface with Planet.
+"""
+
 from typing import Optional
 
 import ipyvuetify as v
@@ -44,15 +48,15 @@ class PlanetView(sw.Layout):
         **kwargs,
     ):
         """
-        Stand-alone interface to capture planet lab credentials, validate its  subscription and
-        connect to the client stored in the model.
+        Stand-alone interface to capture planet lab credentials.
+
+        It also validate its  subscription and connect to the client stored in the model.
 
         Args:
             btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
             alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
             planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
         """
-
         self.class_ = "d-block flex-wrap"
 
         super().__init__(**kwargs)
@@ -108,8 +112,7 @@ class PlanetView(sw.Layout):
         self.btn.on_event("click", self.validate)
 
     def reset(self) -> None:
-        """Empty credentials fields and restart activation mode"""
-
+        """Empty credentials fields and restart activation mode."""
         self.w_username.v_model = None
         self.w_password.v_model = None
         self.w_key.v_model = None
@@ -118,8 +121,7 @@ class PlanetView(sw.Layout):
         return
 
     def _swap_inputs(self, change: dict) -> None:
-        """Swap between credentials and api key inputs"""
-
+        """Swap between credentials and api key inputs."""
         self.alert.reset()
         self.reset()
 
@@ -131,8 +133,7 @@ class PlanetView(sw.Layout):
 
     @loading_button(debug=True)
     def validate(self, *args) -> None:
-        """Initialize planet client and validate if is active"""
-
+        """Initialize planet client and validate if is active."""
         self.planet_model.__init__()
 
         if self.w_method.v_model == "credentials":

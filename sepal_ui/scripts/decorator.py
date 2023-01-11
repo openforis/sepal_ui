@@ -1,3 +1,14 @@
+"""
+Decorators used in sepal-ui.
+
+used for multiple use-case sucha as (but not limited):
+- catch errors in scripts to avoid Voila app freeze
+- redirect error to a specific Alert object 
+- Initialize EE
+- debug widgets 
+...
+"""
+
 import os
 import warnings
 from functools import wraps
@@ -23,10 +34,10 @@ from sepal_ui.scripts.warning import SepalWarning
 def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
-    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary)
-    """
 
+    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
+    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
 
@@ -53,9 +64,9 @@ def init_ee() -> None:
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
     """
-    Decorator to execute try/except sentence
-    and catch errors in the alert message.
-    If debug is True then the error is raised anyway
+    Decorator to execute try/except sentence and catch errors in the alert message.
+
+    If debug is True then the error is raised anyway.
 
     Args:
         alert (sw.Alert): Alert to display errors
@@ -86,6 +97,7 @@ def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
 def need_ee(func: Callable) -> Any:
     """
     Decorator to execute check if the object require EE binding.
+
     Trigger an exception if the connection is not possible.
 
     Args:
@@ -117,6 +129,7 @@ def loading_button(
 ) -> Any:
     """
     Decorator to execute try/except sentence and toggle loading button object.
+
     Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
 
     Args:
@@ -197,8 +210,9 @@ def switch(
     *params, debug: bool = True, on_widgets: List[str] = [], targets: List[bool] = []
 ) -> Any:
     """
-    Decorator to switch the state of input boolean parameters on class widgets or the
-    class itself. If on_widgets is defined, it will switch the state of every widget
+    Decorator to switch the state of input boolean parameters on class widgets or the class itself.
+
+    If on_widgets is defined, it will switch the state of every widget
     parameter, otherwise it will change the state of the class (self). You can also set
     two decorators on the same function, one could affect the class and other the widgets.
 

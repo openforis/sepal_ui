@@ -1,3 +1,7 @@
+"""
+Based menu ``Control`` to display widgets to your user.
+"""
+
 from typing import Optional, Union
 
 from ipyleaflet import Map, WidgetControl
@@ -24,7 +28,9 @@ class MenuControl(WidgetControl):
         **kwargs
     ) -> None:
         """
-        Widget control displaying a btn on the map. When clicked the menu expand to show the content set by the user and all the others are closed.
+        Widget control displaying a btn on the map.
+
+        When clicked the menu expand to show the content set by the user and all the others are closed.
         It's used to display interactive tiles directly in the map. If the card_content is a Tile it will be automatically nested.
 
         Args:
@@ -33,7 +39,6 @@ class MenuControl(WidgetControl):
             card_title: the card title. THe tile title will override this parameter if existing
             m: The map associated with the Menu
         """
-
         # save the map in the members
         self.m = m
 
@@ -89,9 +94,8 @@ class MenuControl(WidgetControl):
 
     def update_position(self, *args) -> None:
         """
-        update the position of the menu if the position of the widget is dynamically changed
+        Update the position of the menu if the position of the widget is dynamically changed.
         """
-
         self.menu.top = "bottom" in self.position
         self.menu.bottom = "top" in self.position
         self.menu.left = "right" in self.position
@@ -107,7 +111,7 @@ class MenuControl(WidgetControl):
         max_height: Optional[Union[str, int]] = "40vh",
     ) -> Self:
         """
-        Set the size of the card using all the sizing parameters from a v.Card
+        Set the size of the card using all the sizing parameters from a v.Card.
 
         Args:
           min_width: a fully qualified css description of the wanted min_width. default to 400px.
@@ -115,7 +119,6 @@ class MenuControl(WidgetControl):
           min_height: a fully qualified css description of the wanted min_height. default to 40vh.
           max_height: a fully qualified css description of the wanted max_height. default to 40vh.
         """
-
         card = self.menu.children[0]
 
         card.min_width = min_width
@@ -126,10 +129,7 @@ class MenuControl(WidgetControl):
         return self
 
     def close_others(self, *args) -> None:
-        """
-        Close all the other menus associated to the map to avoid overlapping
-        """
-
+        """Close all the other menus associated to the map to avoid overlapping."""
         # don't do anything if no map was set to avoid deprecation
         # remove when jumping to sepal-ui 3.0
         if self.m is None:

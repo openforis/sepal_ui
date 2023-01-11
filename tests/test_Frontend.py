@@ -2,7 +2,7 @@ import re
 from types import SimpleNamespace
 
 import sepal_ui.scripts.utils as su
-from sepal_ui import config
+from sepal_ui.conf import config
 from sepal_ui.frontend.styles import SepalColor
 
 
@@ -15,8 +15,7 @@ class TestFrontend:
         return
 
     def test_conf(self):
-        """Check configuration file theme after changing theme"""
-
+        """Check configuration file theme after changing theme."""
         # Specify light theme
         su.set_config("theme", "light")
         dark_theme = False

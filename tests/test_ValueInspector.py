@@ -113,8 +113,7 @@ class TestValueInspector:
 
     @pytest.fixture(scope="class")
     def world_temp(self):
-        """get the world temperature dataset from GEE"""
-
+        """get the world temperature dataset from GEE."""
         return (
             ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY")
             .filter(ee.Filter.date("2020-07-01", "2020-07-02"))
@@ -123,14 +122,12 @@ class TestValueInspector:
 
     @pytest.fixture(scope="class")
     def ee_adm2(self):
-        """get a featurecollection with only adm2code values"""
-
+        """get a featurecollection with only adm2code values."""
         return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
 
     @pytest.fixture(scope="class")
     def raster_bahamas(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "rgb.tif"
 
         if not rgb.is_file():
@@ -145,8 +142,7 @@ class TestValueInspector:
 
     @pytest.fixture(scope="class")
     def adm0_vatican(self):
-        """create a geojson of vatican city"""
-
+        """create a geojson of vatican city."""
         zip_file = Path.home() / "VAT.zip"
 
         if not zip_file.is_file():

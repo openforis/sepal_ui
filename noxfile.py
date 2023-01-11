@@ -1,14 +1,22 @@
+"""
+All the process that can be run using nox. 
+
+The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
+"""
+
 import nox
 
 
 @nox.session(reuse_venv=True)
 def lint(session):
+    """Apply the pre-commits."""
     session.install("pre-commit")
     session.run("pre-commit", "run", "--a", *session.posargs)
 
 
 @nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
 def test(session):
+    """Run all the test using the environment varialbe of the running machine."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
     session.run("pytest", "--color=yes", *test_files)
@@ -16,6 +24,7 @@ def test(session):
 
 @nox.session(reuse_venv=True)
 def docs(session):
+    """Build the documentation."""
     session.install(".[doc]")
     session.run("rm", "-rf", "docs/build/", external=True)
     session.run(
@@ -35,6 +44,7 @@ def docs(session):
 
 @nox.session(name="docs-live", reuse_venv=False)
 def docs_live(session):
+    """Build a live-updating documentation."""
     session.install(".[doc]")
     session.run(
         "sphinx-apidoc",
@@ -50,6 +60,7 @@ def docs_live(session):
 
 @nox.session(name="mypy", reuse_venv=True)
 def mypy(session):
+    """Run a mypy check of the lib."""
     session.install(".[dev]")
     test_files = session.posargs or ["sepal_ui"]
     session.run(

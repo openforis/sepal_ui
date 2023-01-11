@@ -5,6 +5,7 @@ Script to create an automatic overwrite of all the object in ipyvuetify. We want
 
 This script should be run only by maintainer when changes are made to ipyvuetify itself. Please report to the issue tracker if any class is not available.
 """
+
 import argparse
 from datetime import datetime
 from pathlib import Path
@@ -15,9 +16,11 @@ parser = argparse.ArgumentParser(description=__doc__, usage="override_ipyvuetify
 
 
 def disclaimer() -> str:
-
+    """Return the module docstring."""
     return (
         '"""\n'
+        "All the ipyvuetify class override as SepalWidgets\n"
+        "\n"
         "This file overwrite all the widgets generating by ipyvuetify to add the SepalWidget class as a parent.\n"
         "It should not be modified from here as it's automatically generated.\n"
         "\n"
@@ -28,7 +31,7 @@ def disclaimer() -> str:
 
 
 def imports() -> str:
-
+    """Return the import statements."""
     return (
         "import ipyvuetify as v\n"
         "from sepal_ui.sepalwidgets.sepalwidget import SepalWidget\n"
@@ -37,12 +40,12 @@ def imports() -> str:
 
 
 def klass(klass: str) -> str:
+    """Return the class line."""
     return f"class {klass}(v.{klass}, SepalWidget):\n" "    pass\n" "\n"
 
 
 def is_widget(klass: str) -> bool:
-    """return True i the class is a widget"""
-
+    """Return True i the class is a widget."""
     not_hidden = not klass.startswith("__")
     not_main = klass != "VuetifyWidget"
 
@@ -50,7 +53,7 @@ def is_widget(klass: str) -> bool:
 
 
 def main() -> None:
-
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 

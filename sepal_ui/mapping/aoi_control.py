@@ -1,3 +1,7 @@
+"""
+Widget control providing zoom options for the end user.
+"""
+
 from typing import Optional, Union
 
 import ee
@@ -22,14 +26,14 @@ class AoiControl(MenuControl):
     "the list of bounds to fit on. using the aoi names as keys"
 
     def __init__(self, m: Map, **kwargs) -> None:
-
         """
-        Widget control providing zoom options for the end user. The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
+        Widget control providing zoom options for the end user.
+
+        The developer can add as many gemetries to the widget and the user will simply have to click on them to move to the appropriate AOI.
 
         Args:
             m: the map on which he AoiControl is displayed to interact with itszoom and center
         """
-
         # init the aoi data list
         self.aoi_bounds = {}
 
@@ -58,9 +62,8 @@ class AoiControl(MenuControl):
 
     def click_btn(self, *args) -> None:
         """
-        Zoom to the total area of all AOIs in :code:`self.aoi_bounds`. Use the whole world if empty
+        Zoom to the total area of all AOIs in :code:`self.aoi_bounds`. Use the whole world if empty.
         """
-
         # set the bounds to the world if the list is empty
         if len(self.aoi_bounds) == 0:
             self.m.center = [0, 0]
@@ -86,7 +89,6 @@ class AoiControl(MenuControl):
             name: the name of the AOI
             item: the item to use to compute the bounds. It need to be a shapely geometry or an ee object.
         """
-
         if isinstance(item, ee.ComputedObject):
             # extract bounds from ee_object
             ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
@@ -108,12 +110,11 @@ class AoiControl(MenuControl):
 
     def remove_aoi(self, name: str) -> None:
         """
-        Remove an item from the :code:`self.aoi_bounds` dict and from the ListItem. It will raise a KeyError if the name cannot be found
+        Remove an item from the :code:`self.aoi_bounds` dict and from the ListItem. It will raise a KeyError if the name cannot be found.
 
         Args:
             name: the name of the aoi to remove
         """
-
         # remove the value from the list
         self.aoi_bounds.pop(name)
 
@@ -124,12 +125,11 @@ class AoiControl(MenuControl):
 
     def zoom(self, widget: v.VuetifyWidget, *args) -> None:
         """
-        Zoom on the specified bounds
+        Zoom on the specified bounds.
 
         Args:
             widget: the clicked widget containing the bounds
         """
-
         # the widget store the bounding box in value
         # a tuple of the bounds of the geometry (minx, miny, maxx, maxy)
         self.m.zoom_bounds(widget.value)
@@ -138,9 +138,8 @@ class AoiControl(MenuControl):
 
     def update_list(self) -> None:
         """
-        Update the ListItem children of the object based on the content of :code:`self.aoi_bounds`
+        Update the ListItem children of the object based on the content of :code:`self.aoi_bounds`.
         """
-
         children = []
 
         for name, bounds in self.aoi_bounds.items():

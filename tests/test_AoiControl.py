@@ -96,20 +96,17 @@ class TestAoiControl:
 
     @pytest.fixture(scope="class")
     def points(self):
-        """return a tuple of points"""
-
+        """return a tuple of points."""
         return (sg.Point(10, 20), sg.Point(20, 30))
 
     @pytest.fixture(scope="class")
     def ee_points(self):
-        """return a tuple of ee_point"""
-
+        """return a tuple of ee_point."""
         return (ee.Geometry.Point(10, 20), ee.Geometry.Point(20, 30))
 
     @pytest.fixture
     def aoi_control(self):
-        """an aoi_control and add it to a map"""
-
+        """an aoi_control and add it to a map."""
         m = sm.SepalMap()
         aoi_control = sm.AoiControl(m)
         m.add(aoi_control)

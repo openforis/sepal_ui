@@ -41,7 +41,7 @@ class TestStateIcon:
 
     @pytest.fixture
     def model(self):
-        """Dummy model with state value trait"""
+        """Dummy model with state value trait."""
 
         class TestModel(Model):
             state_value = Unicode().tag(sync=True)

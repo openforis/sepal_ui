@@ -1,3 +1,7 @@
+"""
+Widgets used to build the ``PLanetView`` interface.
+"""
+
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -21,6 +25,8 @@ class InfoView(sw.ExpansionPanels):
 
     def __init__(self, model: PlanetModel, **kwargs) -> None:
         """
+        Card to validate subscription.
+
         Custom optinal card to be displayed within the planet view to validate the available
         subscriptions from the log-in credentials and show the info related with them, such
         as the quotas and remaining time of activation.
@@ -28,7 +34,6 @@ class InfoView(sw.ExpansionPanels):
         Args:
             model: the planetModel associated with the display
         """
-
         self.model = model
         self.v_model = 1
         self.current = None
@@ -69,12 +74,13 @@ class InfoView(sw.ExpansionPanels):
 
     def open_info(self, widget: v.VuetifyWidget, *args) -> None:
         """
-        Shrink or srhunk the content of the expansion panel, sending a request to build the data
+        Shrink or srhunk the content of the expansion panel.
+
+        It automatically sends a request to build the data.
 
         Args:
             widget: the widget to expand
         """
-
         is_current = self.current == widget.attributes["id"]
         self.v_model = (not self.v_model) * 1 if is_current else 0
         self.current = widget.attributes["id"]
@@ -87,13 +93,12 @@ class InfoView(sw.ExpansionPanels):
 
     def _turn_btn(self, btn_id: str, state: bool) -> None:
         """
-        Update the status of the given button
+        Update the status of the given button.
 
         Args:
             btn_id: the id of the btn object
             state: the state to apply to the btn
         """
-
         btn = self.get_children(btn_id)
         btn.disabled = not state
         btn.color = BTNS[btn_id][1][state]
@@ -102,9 +107,8 @@ class InfoView(sw.ExpansionPanels):
 
     def _toggle_btns(self, change: dict) -> None:
         """
-        Toggle the status of the btns
+        Toggle the status of the btns.
         """
-
         if not change["new"]:
             self.v_model = 1
             [self._turn_btn(btn_id, False) for btn_id in BTNS.keys()]
@@ -125,9 +129,8 @@ class InfoView(sw.ExpansionPanels):
 class InfoCard(sw.Layout):
     def __init__(self) -> None:
         """
-        Information card that will display the subscription data
+        Information card that will display the subscription data.
         """
-
         self.style_ = "max-height: 240px; overflow: auto"
         self.class_ = "d-block"
 
@@ -137,7 +140,7 @@ class InfoCard(sw.Layout):
 
     def _make_content(self, sub: dict) -> List[v.VuetifyWidget]:
         """
-        Creates individual subscription card from a subscription list
+        Creates individual subscription card from a subscription list.
 
         Args:
             sub: the subscriptions plan from a defined category (e.g. "nicfi")
@@ -145,7 +148,6 @@ class InfoCard(sw.Layout):
         Returns:
             the children content of a category
         """
-
         title = sub["plan"]["name"].replace("_", " ")
         state = sub["plan"]["state"]
 
@@ -163,7 +165,7 @@ class InfoCard(sw.Layout):
         w_subtitle = v.CardSubtitle(children=[state.capitalize()])
 
         from_ = datetime.fromisoformat(sub["active_from"])
-        to = not sub["active_to"] is None and datetime.fromisoformat(sub["active_to"])
+        to = sub["active_to"] is not None and datetime.fromisoformat(sub["active_to"])
         now = datetime.now(timezone.utc)
         days_left = "∞" if not to else (to - now).days
 
@@ -203,7 +205,6 @@ class InfoCard(sw.Layout):
         Args:
             subs_group: list of subscriptions belonging to the same category ('nicfi', 'others')
         """
-
         content = [
             v.Card(class_="pa-2", children=self._make_content(sub))
             for sub in subs_group

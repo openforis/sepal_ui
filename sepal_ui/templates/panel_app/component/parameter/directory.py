@@ -1,3 +1,7 @@
+"""
+All directories used in the application. 
+"""
+
 from pathlib import Path
 
 # this directory is the root directory of all sepal dashboard app.

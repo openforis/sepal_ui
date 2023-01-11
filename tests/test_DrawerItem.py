@@ -87,6 +87,5 @@ class TestDrawerItem:
 
     @pytest.fixture
     def drawer_item(self, model):
-        """create dummy drawer item"""
-
+        """create dummy drawer item."""
         return sw.DrawerItem("title", model=model, bind_var="app_ready")

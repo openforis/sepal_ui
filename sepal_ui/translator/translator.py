@@ -1,3 +1,7 @@
+"""
+The translator object allow developer to suport translation for their application.
+"""
+
 import json
 from configparser import ConfigParser
 from pathlib import Path
@@ -7,7 +11,7 @@ import pandas as pd
 from box import Box
 from deprecated.sphinx import deprecated, versionadded
 
-from sepal_ui import config_file
+from sepal_ui.conf import config_file
 
 
 class Translator(Box):
@@ -28,7 +32,9 @@ class Translator(Box):
         self, json_folder: Union[str, Path], target: str = "", default: str = "en"
     ) -> None:
         """
-        The translator is a Python Box of boxes. It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
+        Python ``Box`` of ``Box`` representing all the nested translation key, value pairs.
+
+        It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
         It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
         To access the dictionary keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key.
         There are no depth limits, just respect the snake_case convention when naming your keys in the .json files.
@@ -45,7 +51,6 @@ class Translator(Box):
             target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
             default: The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
         """
-
         # the name of the 5 variables that cannot be used as init keys
         FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]
 
@@ -91,7 +96,7 @@ class Translator(Box):
     @staticmethod
     def find_target(folder: Path, target: str = "") -> Tuple[str, str]:
         """
-        find the target language in the available language folder
+        find the target language in the available language folder.
 
         given a folder and a target lang, this function returns the closest language available in the folder
         If nothing is found falling back to any working subvariety and return None if it doesn't exist
@@ -103,7 +108,6 @@ class Translator(Box):
         Returns:
             the targeted language code, the closest lang in IETF BCP 47
         """
-
         # init lang
         lang = ""
 
@@ -135,13 +139,12 @@ class Translator(Box):
 
     def search_key(self, d: dict, key: str) -> None:
         """
-        Search a specific key in the d dictionary and raise an error if found
+        Search a specific key in the d dictionary and raise an error if found.
 
         Args:
             d: the dictionary to study
             key: the key to look for
         """
-
         if key in d:
             msg = f"You cannot use the key {key} in your translation dictionary"
             raise Exception(msg)
@@ -153,7 +156,7 @@ class Translator(Box):
     @classmethod
     def sanitize(cls, d: Union[dict, list]) -> dict:
         """
-        Identify numbered dictionnaries embeded in the dict and transform them into lists
+        Identify numbered dictionnaries embeded in the dict and transform them into lists.
 
         This function is an helper to prevent deprecation after the introduction of pontoon for translation.
         The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing
@@ -165,7 +168,6 @@ class Translator(Box):
         Returns:
             the sanitized dictionnary
         """
-
         ms = d.copy()
 
         # create generator based on input type
@@ -188,7 +190,7 @@ class Translator(Box):
 
     def _update(self, d: dict, u: dict) -> dict:
         """
-        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire
+        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire.
 
         Args:
             d: The fallback dictionary
@@ -197,7 +199,6 @@ class Translator(Box):
         Returns:
             The updated dictionnay
         """
-
         ms = d.copy()
 
         for k, v in d.items():
@@ -210,25 +211,25 @@ class Translator(Box):
 
     @deprecated(version="2.9.0", reason="Not needed with automatic translators")
     def missing_keys(self):
+        """Nothing."""
         pass
 
     def available_locales(self) -> List[str]:
         """
-        Return the available locales in the l10n folder
+        Return the available locales in the l10n folder.
 
         Returns:
             the list of str codes
         """
-
         return [f.name for f in Path(self._folder).glob("[!^._]*") if f.is_dir()]
 
     @versionadded(version="2.7.0")
     @classmethod
     def merge_dict(cls, folder: Path) -> dict:
         """
-        gather all the .json file in the provided l10n folder as 1 single json dict
+        Gather all the .json file in the provided l10n folder as 1 single json dict.
 
-        the json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
+        The json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
         be careful with duplication. empty string keys will be removed.
 
         Args:
@@ -238,7 +239,6 @@ class Translator(Box):
             the json dict with all the keys
 
         """
-
         final_json = {}
         for f in folder.glob("*.json"):
             tmp_dict = cls.delete_empty(json.loads(f.read_text()))
@@ -250,7 +250,9 @@ class Translator(Box):
     @classmethod
     def delete_empty(cls, d: dict) -> dict:
         """
-        Remove empty strings ("") recursively from the dictionaries. This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
+        Remove empty strings ("") recursively from the dictionaries.
+
+        This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
 
         Args:
             d: the dictionnary to sanitize
@@ -271,6 +273,7 @@ class Translator(Box):
     def key_use(self, folder: Path, name: str) -> List[str]:
         """
         Parse all the files in the folder and check if keys are all used at least once.
+
         Return the unused key names.
 
         .. warning::
@@ -286,7 +289,6 @@ class Translator(Box):
         Returns:
             the list of unused keys
         """
-
         # cannot set FORBIDDEN_KEY in the Box as it would lock another key
         FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]
 

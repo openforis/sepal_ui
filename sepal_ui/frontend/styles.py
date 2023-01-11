@@ -1,3 +1,7 @@
+"""
+Helpers to customize the display of sepal-ui widgets and maps.
+"""
+
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Dict, Tuple
@@ -7,7 +11,7 @@ from IPython.display import display
 from traitlets import Bool, HasTraits, Unicode, observe
 
 import sepal_ui.scripts.utils as su
-from sepal_ui import config
+from sepal_ui.conf import config
 
 ################################################################################
 # access the folders where style information is stored (layers, widgets)
@@ -72,18 +76,17 @@ TYPES: Tuple[str, ...] = (
 "The different types defined by ipyvuetify"
 
 ################################################################################
-# define classes and method to make the application resonsive
+# define classes and method to make the application responsive
 #
 
 
 def get_theme() -> str:
     """
-    Get theme name from the config file (default to dark)
+    Get theme name from the config file (default to dark).
 
     Returns:
         The theme to use
     """
-
     return config.get("sepal-ui", "theme", fallback="dark")
 
 
@@ -97,14 +100,12 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     @observe("_dark_theme")
     def __init__(self, *_, **new_colors) -> None:
-
         """
         Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
         Args:
             **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
         """
-
         # set vuetify theme
         v.theme.dark = self._dark_theme
 
@@ -133,7 +134,6 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
-
         s = 60
         html = f"<h3>Current theme: {self.theme_name}</h3><table>"
         items = {k: v for k, v in self.kwargs.items()}.items()
@@ -158,7 +158,7 @@ class SepalColor(HasTraits, SimpleNamespace):
 
 class Styles(v.VuetifyTemplate):
     """
-    Fixed styles to fix display issues in the lib:
+    Fixed styles to fix display issues in the lib.
 
     - avoid leaflet maps overlap sepal widgets
     - remove shadow of widget-control

@@ -1,3 +1,7 @@
+"""
+All in one tile to reclassify GEE assets or local raster and create custom classifications.
+"""
+
 from pathlib import Path
 from typing import Optional, Union
 
@@ -40,7 +44,7 @@ class ReclassifyTile(sw.Tile):
         **kwargs
     ) -> None:
         """
-        All in one tile to reclassify GEE assets or local raster and create custom classifications
+        All in one tile to reclassify GEE assets or local raster and create custom classifications.
 
         Args:
             results_dir: Directory to store the outputs (rasters, and csv_files). default to ~/downloads
@@ -49,7 +53,6 @@ class ReclassifyTile(sw.Tile):
             default_class: the default classification system to use, need to point to existing sytem: {name: absolute_path}
             folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
         """
-
         # output directory
         self.results_dir = Path(results_dir)
 

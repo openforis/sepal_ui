@@ -12,8 +12,7 @@ from sepal_ui.reclassify import ReclassifyModel, ReclassifyView
 class TestReclassifyView:
     @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_init_exception(self, gee_dir):
-        """Test exceptions"""
-
+        """Test exceptions."""
         aoi_model = aoi.AoiModel(gee=False)
 
         # aoi_model has to be local when using local view.
@@ -147,8 +146,7 @@ class TestReclassifyView:
 
     @pytest.fixture
     def view_local(self, tmp_dir, class_file):
-        """return a local reclassify view"""
-
+        """return a local reclassify view."""
         aoi_model = aoi.AoiModel(gee=False)
 
         return ReclassifyView(
@@ -161,8 +159,7 @@ class TestReclassifyView:
 
     @pytest.fixture
     def view_gee(self, tmp_dir, class_file, gee_dir):
-        """return a gee reclassify view"""
-
+        """return a gee reclassify view."""
         aoi_model = aoi.AoiModel(gee=True, folder=str(gee_dir))
 
         return ReclassifyView(

@@ -91,8 +91,7 @@ class TestGee:
 
     @pytest.fixture
     def fake_task(self, gee_dir, _hash, alert):
-        """create a fake exportation task"""
-
+        """create a fake exportation task."""
         # init an asset
         point = ee.FeatureCollection(ee.Geometry.Point([1.5, 1.5]))
         name = f"fake_collection_{_hash}"

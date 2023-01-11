@@ -9,7 +9,6 @@ class TestTooltip:
         tooltip = sw.Tooltip(widget=btn, tooltip="tooltip")
 
         # Check tooltip is having the tooltip message
-
         assert tooltip.children == ["tooltip"]
 
         # Let's be sure that we can change the tooltip initial message

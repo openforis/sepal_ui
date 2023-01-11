@@ -1,18 +1,13 @@
+"""
+Module to load basemaps from different providers.
+"""
+
 from typing import Optional
 
 from box import Box
 from ipyleaflet import TileLayer
 from xyzservices import TileProvider
 from xyzservices import providers as xyz
-
-
-class BasemapBox(Box):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return ",\n".join(list(self.keys()))
-
 
 xyz_tiles: dict = {
     "OpenStreetMap": {
@@ -60,7 +55,6 @@ def get_xyz_dict(
     Returns:
         A dictionary of xyz services.
     """
-
     # the 2 following lies avoid to display xyz descriptor in the method documentation
     # do not replace in the prototype default values
     _collection = xyz if _collection is None else _collection
@@ -79,7 +73,8 @@ def get_xyz_dict(
 def xyz_to_leaflet() -> dict:
     """
     Convert all available xyz tile services to ipyleaflet tile layers.
-    Adapted from https://github.com/giswqs/geemap
+
+    Adapted from https://github.com/giswqs/geemap.
 
     Returns:
         A dictionary of ipyleaflet tile layers.
@@ -94,7 +89,7 @@ def xyz_to_leaflet() -> dict:
             url=url, name=name, attribution=attribution, max_zoom=22, base=True
         )
 
-    for i, item in get_xyz_dict().items():
+    for item in get_xyz_dict().values():
         leaflet_dict[item.name] = TileLayer(
             url=item.build_url(),
             name=item.name,
@@ -106,5 +101,5 @@ def xyz_to_leaflet() -> dict:
     return leaflet_dict
 
 
-basemap_tiles = BasemapBox(xyz_to_leaflet(), frozen_box=True)
+basemap_tiles: Box = Box(xyz_to_leaflet(), frozen_box=True)
 "the basemaps list as a box"

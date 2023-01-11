@@ -1,3 +1,7 @@
+"""
+Customized control to toogle the fullscreen state of the map.
+"""
+
 from pathlib import Path
 from typing import List, Optional
 
@@ -42,7 +46,6 @@ class FullScreenControl(WidgetControl):
             fullapp: either or not the map will be used as the sole widget/tile of an application
             kwargs: any available arguments from a ipyleaflet WidgetControl
         """
-
         # set the offset
         offset = "48px" if fullapp else "0px"
 
@@ -87,10 +90,11 @@ class FullScreenControl(WidgetControl):
 
     def toggle_fullscreen(self, *args) -> None:
         """
+        Toogle fullscreen state.
+
         Toggle the fullscreen state of the map by sending the required javascript method,
         changing the w_btn icons and the zoomed state of the control.
         """
-
         # change the zoom state
         self.zoomed = not self.zoomed
 

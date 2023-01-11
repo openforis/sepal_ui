@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from sepal_ui import config_file
+from sepal_ui.conf import config_file
 from sepal_ui.message import ms
 from sepal_ui.translator import Translator
 
@@ -149,9 +149,8 @@ class TestTranslator:
     def translation_folder(self):
         """
         Generate a fully qualified translation folder with limited keys in en, fr and es.
-        Cannot use the temfile lib as we need the directory to appear in the tree
+        Cannot use the temfile lib as we need the directory to appear in the tree.
         """
-
         # set up the appropriate keys for each language
         keys = {
             "en": {"a_key": "A key", "test_key": "Test key"},
@@ -181,9 +180,8 @@ class TestTranslator:
     def tmp_config_file(self):
         """
         Erase any existing config file and replace it with one specifically
-        design for thesting the translation
+        design for thesting the translation.
         """
-
         # erase anything that exists
         if config_file.is_file():
             config_file.unlink()

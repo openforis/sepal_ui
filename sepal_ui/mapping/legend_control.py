@@ -1,3 +1,7 @@
+"""
+Customized control to display a legend on the map.
+"""
+
 from typing import Optional, Union
 
 import traitlets as t
@@ -34,9 +38,8 @@ class LegendControl(WidgetControl):
         vertical: bool = True,
         **kwargs,
     ) -> None:
-
         """
-        A custom Legend widget ready to be embed in a map
+        A custom Legend widget ready to be embed in a map.
 
         This Legend can be control though it's different attributes, changin it's position of course but also the orientation ,the keys and their colors.
 
@@ -47,7 +50,6 @@ class LegendControl(WidgetControl):
             title: title of the legend, if not set a default value in the current language will be used
             vertical: the orientation of the legend. default to True
         """
-
         # init traits
         self.title = title
         self.legend_dict = legend_dict
@@ -76,28 +78,24 @@ class LegendControl(WidgetControl):
         self._set_legend(legend_dict)
 
     def __len__(self) -> int:
-        """returns the number of elements in the legend"""
-
+        """returns the number of elements in the legend."""
         return len(self.legend_dict)
 
     def hide(self) -> None:
-        """Hide control by hiding its content"""
-
+        """Hide control by hiding its content."""
         self.legend_card.hide()
 
         return
 
     def show(self) -> None:
-        """Show control by displaying its content"""
-
+        """Show control by displaying its content."""
         self.legend_card.show()
 
         return
 
     @observe("legend_dict", "vertical")
     def _set_legend(self, *args) -> None:
-        """Creates/update a legend based on the class legend_dict member"""
-
+        """Creates/update a legend based on the class legend_dict member."""
         # Do this to avoid crash when called by trait for the first time
         if self._html_table is None:
             return
@@ -142,8 +140,7 @@ class LegendControl(WidgetControl):
 
     @observe("title")
     def _update_title(self, change: dict) -> None:
-        """Trait method to update the title of the legend"""
-
+        """Trait method to update the title of the legend."""
         # Do this to avoid crash when called by trait
         if self._html_title is None:
             return
@@ -155,7 +152,7 @@ class LegendControl(WidgetControl):
     @staticmethod
     def color_box(color: Union[str, tuple], size: int = 35) -> HTML:
         """
-        Returns an rectangular SVG html element with the provided color
+        Returns an rectangular SVG html element with the provided color.
 
         Args:
             color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0))
@@ -164,7 +161,6 @@ class LegendControl(WidgetControl):
         Returns:
             The HTML rendered color box
         """
-
         # Define height and width based on the size
         w = size
         h = size / 2

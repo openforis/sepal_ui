@@ -75,6 +75,5 @@ class TestPlanetView:
 
     @pytest.fixture
     def planet_view(self):
-        """default PLanetView"""
-
+        """default PLanetView."""
         return PlanetView()

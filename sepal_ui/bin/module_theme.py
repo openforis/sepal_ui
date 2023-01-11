@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-Script to manually change the used theme
+Script to manually change the used theme.
 
 This script will update the parameters shared between all sepal-ui based modules.
 The "theme" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
@@ -22,22 +22,21 @@ parser = argparse.ArgumentParser(description=__doc__, usage="module_theme")
 
 def check_theme(theme: str) -> bool:
     """
-    Check if the theme is a legit name
+    Check if the theme is a legit name.
 
     Args:
         theme: the theme name
 
-    Return:
+    Returns:
         True if the theme is covered by sepal-ui
     """
-
     themes = ["dark", "light"]
 
     return theme in themes
 
 
 def main() -> None:
-
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 

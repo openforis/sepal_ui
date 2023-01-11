@@ -5,8 +5,7 @@ import sepal_ui.sepalwidgets as sw
 
 class TestBanner:
     def test_init(self):
-        """Test basic initialization"""
-
+        """Test basic initialization."""
         # check a default one
         banner = sw.Banner()
 
@@ -35,8 +34,7 @@ class TestBanner:
         return
 
     def test_close(self, banner):
-        """Test close button"""
-
+        """Test close button."""
         banner.children[1].fire_event("click", None)
 
         assert banner.v_model is False
@@ -44,8 +42,7 @@ class TestBanner:
         return
 
     def test_get_timeout(self, banner):
-        """Test timeout result based on known text"""
-
+        """Test timeout result based on known text."""
         timeout = banner.get_timeout(banner.children[0])
 
         assert timeout == 3366
@@ -55,8 +52,7 @@ class TestBanner:
 
     @pytest.fixture
     def banner(self):
-        """Return a default dummy Banner"""
-
+        """Return a default dummy Banner."""
         return sw.Banner(
             msg="dummy message", type_="warning", id_="test_banner", persistent=False
         )

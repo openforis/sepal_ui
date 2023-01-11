@@ -48,5 +48,4 @@ class TestClip:
     @pytest.fixture
     def clip(self):
         """create a simple clip-to-clipboard with a v_model set to "value"."""
-
         return sw.CopyToClip(v_model="value")

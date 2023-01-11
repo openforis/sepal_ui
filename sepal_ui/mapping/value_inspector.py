@@ -1,3 +1,7 @@
+"""
+Customized ``Control`` to display the value of all available layers on a specific pixel.
+"""
+
 import json
 from pathlib import Path
 from typing import Optional, Sequence, Union
@@ -36,12 +40,13 @@ class ValueInspector(MenuControl):
 
     def __init__(self, m: Map, **kwargs) -> None:
         """
-        Widget control displaying a btn on the map. When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
+        Widget control displaying a btn on the map.
+
+        When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
         Args:
             m: the map on which he vinspector is displayed to interact with it's layers
         """
-
         # set some default parameters
         kwargs.setdefault("position", "topleft")
         kwargs["m"] = m
@@ -71,10 +76,11 @@ class ValueInspector(MenuControl):
 
     def toggle_cursor(self, *args) -> None:
         """
-        Toggle the cursor display on the map to notify to the user that the inspector
-        mode is activated
-        """
+        Toggle the cursor display.
 
+        Toggle the cursor on the map to notify to the user that the inspector
+        mode is activated.
+        """
         cursors = [{"cursor": "grab"}, {"cursor": "crosshair"}]
         self.m.default_style = cursors[self.menu.v_model]
 
@@ -82,7 +88,7 @@ class ValueInspector(MenuControl):
 
     def read_data(self, **kwargs) -> None:
         """
-        Read the data when the map is clicked with the vinspector activated
+        Read the data when the map is clicked with the vinspector activated.
 
         Args:
             kwargs: any arguments from the map interaction
@@ -147,7 +153,7 @@ class ValueInspector(MenuControl):
     @sd.need_ee
     def _from_eelayer(self, ee_obj: ee.ComputedObject, coords: Sequence[float]) -> dict:
         """
-        extract the values of the ee_object for the considered point
+        extract the values of the ee_object for the considered point.
 
         Args:
             ee_obj: the ee object to reduce to a single point
@@ -156,7 +162,6 @@ class ValueInspector(MenuControl):
         Returns:
             tke value associated to the image/feature names
         """
-
         # create a gee point
         ee_point = ee.Geometry.Point(*coords)
 
@@ -192,7 +197,7 @@ class ValueInspector(MenuControl):
 
     def _from_geojson(self, data: dict, coords: Sequence[float]) -> dict:
         """
-        extract the values of the data for the considered point
+        extract the values of the data for the considered point.
 
         Args:
             data: the shape to reduce to a single point
@@ -201,7 +206,6 @@ class ValueInspector(MenuControl):
         Returns:
             The value associated to the feature names
         """
-
         # extract the coordinates as a poin
         point = sg.Point(*coords)
 
@@ -221,7 +225,7 @@ class ValueInspector(MenuControl):
 
     def _from_raster(self, raster: Union[str, Path], coords: Sequence[float]) -> dict:
         """
-        extract the values of the data-array for the considered point
+        extract the values of the data-array for the considered point.
 
         Args:
             raster: the path to the image to reduce to a single point
@@ -230,7 +234,6 @@ class ValueInspector(MenuControl):
         Returns:
             The value associated to the feature names
         """
-
         # extract the coordinates as a point
         point = sg.Point(*coords)
 

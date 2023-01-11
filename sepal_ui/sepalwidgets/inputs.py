@@ -1,3 +1,17 @@
+"""
+Custom input widgets to setup parameters in application.
+
+Gather the customized ``ipyvuetifyWidgets`` used to create input fields in applications.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.DatePicker()
+"""
+
 import json
 from datetime import datetime
 from pathlib import Path
@@ -51,14 +65,15 @@ class DatePicker(v.Layout, SepalWidget):
 
     def __init__(self, label: str = "Date", layout_kwargs: dict = {}, **kwargs) -> None:
         """
-        Custom input widget to provide a reusable DatePicker. It allows to choose date as a string in the following format YYYY-MM-DD
+        Custom input widget to provide a reusable DatePicker.
+
+        It allows to choose date as a string in the following format YYYY-MM-DD.
 
         Args:
             label: the label of the datepicker field
             layout_kwargs: any parameter for the wrapper v.Layout
             kwargs: any parameter from a v.DatePicker object.
         """
-
         kwargs["v_model"] = kwargs.get("v_model", "")
 
         # create the widgets
@@ -104,10 +119,11 @@ class DatePicker(v.Layout, SepalWidget):
     @observe("v_model")
     def check_date(self, change: dict) -> None:
         """
-        A method to check if the value of the set v_model is a correctly formated date
-        Reset the widget and display an error if it's not the case
-        """
+        Check if the data is formatted date.
 
+        A method to check if the value of the set v_model is a correctly formated date
+        Reset the widget and display an error if it's not the case.
+        """
         self.date_text.error_messages = None
 
         # exit immediately if nothing is set
@@ -123,8 +139,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     @observe("v_model")
     def close_menu(self, change: dict) -> None:
-        """A method to close the menu of the datepicker programatically"""
-
+        """A method to close the menu of the datepicker programatically."""
         # set the visibility
         self.menu.v_model = False
 
@@ -132,8 +147,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     @observe("disabled")
     def disable(self, change: dict) -> None:
-        """A method to disabled the appropriate components in the datipkcer object"""
-
+        """A method to disabled the appropriate components in the datipkcer object."""
         self.menu.v_slots[0]["children"].disabled = self.disabled
 
         return
@@ -141,7 +155,7 @@ class DatePicker(v.Layout, SepalWidget):
     @staticmethod
     def is_valid_date(date: str) -> bool:
         """
-        Check if the date is provided using the date format required for the widget
+        Check if the date is provided using the date format required for the widget.
 
         Args:
             date: the date to test in YYYY-MM-DD format
@@ -149,7 +163,6 @@ class DatePicker(v.Layout, SepalWidget):
         Returns:
             the date to test
         """
-
         try:
             datetime.strptime(date, "%Y-%m-%d")
             valid = True
@@ -215,7 +228,6 @@ class FileInput(v.Flex, SepalWidget):
             clearable: wether or not to make the widget clearable. default to False
             kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
         """
-
         self.extentions = extentions
         self.folder = Path(folder)
 
@@ -303,9 +315,8 @@ class FileInput(v.Flex, SepalWidget):
 
     def reset(self, *args) -> Self:
         """
-        Clear the File selection and move to the root folder
+        Clear the File selection and move to the root folder.
         """
-
         # note: The args arguments are useless here but need to be kept so that
         # the function is natively compatible with the clear btn
 
@@ -323,12 +334,11 @@ class FileInput(v.Flex, SepalWidget):
 
     def select_file(self, path: Union[str, Path]) -> Self:
         """
-        Manually select a file from it's path. No verification on the extension is performed
+        Manually select a file from it's path. No verification on the extension is performed.
 
         Args:
             path: the path to the file
         """
-
         # cast to Path
         path = Path(path)
 
@@ -346,9 +356,8 @@ class FileInput(v.Flex, SepalWidget):
 
     def _on_file_select(self, change: dict) -> Self:
         """
-        Dispatch the behavior between file selection and folder change
+        Dispatch the behavior between file selection and folder change.
         """
-
         if not change["new"]:
             return self
 
@@ -366,9 +375,8 @@ class FileInput(v.Flex, SepalWidget):
     @sd.switch("indeterminate", on_widgets=["loading"])
     def _change_folder(self) -> None:
         """
-        Change the target folder
+        Change the target folder.
         """
-
         # get the items
         items = self._get_items()
 
@@ -383,12 +391,11 @@ class FileInput(v.Flex, SepalWidget):
 
     def _get_items(self) -> List[v.ListItem]:
         """
-        Create the list of items inside the folder
+        Create the list of items inside the folder.
 
         Returns:
             list of items inside the selected folder
         """
-
         folder = self.folder
 
         list_dir = [el for el in folder.glob("*/") if not el.name.startswith(".")]
@@ -464,9 +471,8 @@ class FileInput(v.Flex, SepalWidget):
     @observe("v_model")
     def close_menu(self, change: dict) -> None:
         """
-        A method to close the menu of the Fileinput programatically
+        A method to close the menu of the Fileinput programatically.
         """
-
         # set the visibility
         self.file_menu.v_model = False
 
@@ -497,15 +503,16 @@ class LoadTableField(v.Col, SepalWidget):
 
     def __init__(self, label: str = ms.widgets.table.label, **kwargs) -> None:
         """
-        A custom input widget to load points data. The user will provide a csv or txt file containing labeled dataset.
+        A custom input widget to load points data.
+
+        The user will provide a csv or txt file containing labeled dataset.
         The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
-        {pathname, id_column, lat_column,lng_column}
+        {pathname, id_column, lat_column,lng_column}.
 
         Args:
-            label (str, optional): the label of the widget
-            kwargs (optional): any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
+            label: the label of the widget
+            kwargs: any parameter from a v.Col. If set, 'children' and 'v_model' will be overwritten.
         """
-
         self.fileInput = FileInput([".csv", ".txt"], label=label)
 
         self.IdSelect = v.Select(
@@ -551,12 +558,8 @@ class LoadTableField(v.Col, SepalWidget):
 
     def reset(self) -> Self:
         """
-        Clear the values and return to the empty default json
-
-        Return:
-            self
+        Clear the values and return to the empty default json.
         """
-
         # clear the fileInput
         self.fileInput.reset()
 
@@ -565,9 +568,8 @@ class LoadTableField(v.Col, SepalWidget):
     @sd.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change: dict) -> Self:
         """
-        Update the select content when the fileinput v_model is changing
+        Update the select content when the fileinput v_model is changing.
         """
-
         # clear the selects
         self._clear_select()
 
@@ -609,9 +611,8 @@ class LoadTableField(v.Col, SepalWidget):
 
     def _clear_select(self) -> Self:
         """
-        clear the selects components
+        clear the selects components.
         """
-
         self.fileInput.selected_file.error_messages = None
         self.IdSelect.items = []  # all the others are listening to this one
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
@@ -620,9 +621,8 @@ class LoadTableField(v.Col, SepalWidget):
 
     def _on_select_change(self, change: dict) -> Self:
         """
-        change the v_model value when a select is changed
+        change the v_model value when a select is changed.
         """
-
         name = change["owner"]._metadata["name"]
         self._set_v_model(name, change["new"])
 
@@ -630,13 +630,12 @@ class LoadTableField(v.Col, SepalWidget):
 
     def _set_v_model(self, key: str, value: Any) -> None:
         """
-        set the v_model from an external function to trigger the change event
+        set the v_model from an external function to trigger the change event.
 
         Args:
             key: the column name
             value: the new value to set
         """
-
         tmp = self.v_model.copy()
         tmp[key] = value
         self.v_model = tmp
@@ -680,7 +679,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         **kwargs,
     ) -> None:
         """
-        Custom widget input to select an asset inside the asset folder of the user
+        Custom widget input to select an asset inside the asset folder of the user.
 
         Args:
             label: the label of the input
@@ -689,7 +688,6 @@ class AssetSelect(v.Combobox, SepalWidget):
             types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
             kwargs (optional): any parameter from a v.ComboBox.
         """
-
         self.valid = False
         self.asset_info = None
 
@@ -727,7 +725,6 @@ class AssetSelect(v.Combobox, SepalWidget):
         """
         Validate the selected asset. Throw an error message if is not accesible or not in the type list.
         """
-
         self.error_messages = None
 
         if change["new"]:
@@ -737,7 +734,7 @@ class AssetSelect(v.Combobox, SepalWidget):
                 self.asset_info = ee.data.getAsset(change["new"])
 
                 # check that the asset has the correct type
-                if not self.asset_info["type"] in self.types:
+                if self.asset_info["type"] not in self.types:
                     self.error_messages = ms.widgets.asset_select.wrong_type.format(
                         self.asset_info["type"], ",".join(self.types)
                     )
@@ -792,9 +789,8 @@ class AssetSelect(v.Combobox, SepalWidget):
     @observe("types")
     def _check_types(self, change: dict) -> None:
         """
-        clean the type list, keeping only the valid one
+        clean the type list, keeping only the valid one.
         """
-
         self.v_model = None
 
         # check the type
@@ -814,7 +810,6 @@ class PasswordField(v.TextField, SepalWidget):
         Args:
             kwargs: any parameter from a v.TextField. If set, 'type' will be overwritten.
         """
-
         # default behavior
         kwargs.setdefault("label", ms.password_field.label)
         kwargs.setdefault("class_", "mr-2")
@@ -830,9 +825,8 @@ class PasswordField(v.TextField, SepalWidget):
 
     def _toggle_pwd(self, *args) -> None:
         """
-        Toggle password visibility when append button is clicked
+        Toggle password visibility when append button is clicked.
         """
-
         if self.type == "text":
             self.type = "password"
             self.append_icon = "fa-solid fa-eye-slash"
@@ -855,7 +849,7 @@ class NumberField(v.TextField, SepalWidget):
     "Incremental value added at each step."
 
     def __init__(self, max_: int = 10, min_: int = 0, increm: int = 1, **kwargs):
-        """
+        r"""
         Custom widget to input numbers in text area and add/substract with single increment.
 
         Args:
@@ -864,7 +858,6 @@ class NumberField(v.TextField, SepalWidget):
             increm: incremental value added at each step. default to 1
             kwargs: Any parameter from a v.TextField. If set, 'type' will be overwritten.
         """
-
         # set the traits
         self.max_ = max_
         self.min_ = min_
@@ -885,18 +878,16 @@ class NumberField(v.TextField, SepalWidget):
 
     def increment(self, *args) -> None:
         """
-        Adds increm to the current v_model number
+        Adds increm to the current v_model number.
         """
-
         self.v_model = min((self.v_model + self.increm), self.max_)
 
         return
 
     def decrement(self, *args) -> None:
         """
-        Substracts increm to the current v_model number
+        Substracts increm to the current v_model number.
         """
-
         self.v_model = max((self.v_model - self.increm), self.min_)
 
         return
@@ -944,7 +935,9 @@ class VectorField(v.Col, SepalWidget):
         self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs
     ) -> None:
         """
-        A custom input widget to load vector data. The user will provide a vector file compatible with fiona or a GEE feature collection.
+        A custom input widget to load vector data.
+
+        The user will provide a vector file compatible with fiona or a GEE feature collection.
         The user can then select a specific shape by setting column and value fields.
 
         Args:
@@ -953,7 +946,6 @@ class VectorField(v.Col, SepalWidget):
             folder: When gee=True, extra args will be used for AssetSelect
             kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
         """
-
         # set the 3 wigets
         if not gee:
             self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
@@ -988,17 +980,15 @@ class VectorField(v.Col, SepalWidget):
 
     def reset(self) -> Self:
         """
-        Return the field to its initial state
+        Return the field to its initial state.
         """
-
         self.w_file.reset()
 
         return self
 
     @sd.switch("loading", on_widgets=["w_column", "w_value"])
     def _update_file(self, change: dict) -> Self:
-        """update the file name, the v_model and reset the other widgets"""
-
+        """update the file name, the v_model and reset the other widgets."""
         # reset the widgets
         self.w_column.items, self.w_value.items = [], []
         self.w_column.v_model = self.w_value.v_model = None
@@ -1033,8 +1023,7 @@ class VectorField(v.Col, SepalWidget):
 
     @sd.switch("loading", on_widgets=["w_value"])
     def _update_column(self, change: dict) -> Self:
-        """Update the column name and empty the value list"""
-
+        """Update the column name and empty the value list."""
         # set the value
         self._set_v_model("column", change["new"])
 
@@ -1069,8 +1058,7 @@ class VectorField(v.Col, SepalWidget):
         return self
 
     def _update_value(self, change: dict) -> Self:
-        """Update the value name and reduce the gdf"""
-
+        """Update the value name and reduce the gdf."""
         # set the value
         self._set_v_model("value", change["new"])
 
@@ -1078,13 +1066,12 @@ class VectorField(v.Col, SepalWidget):
 
     def _set_v_model(self, key: str, value: Any) -> None:
         """
-        set the v_model from an external function to trigger the change event
+        Set the v_model from an external function to trigger the change event.
 
         Args:
             key: the column name
             value: the new value to set
         """
-
         tmp = self.v_model.copy()
         tmp[key] = value or None
         self.v_model = tmp

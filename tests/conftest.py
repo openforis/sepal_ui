@@ -22,18 +22,16 @@ except Exception:
 @pytest.fixture(scope="session")
 def root_dir():
     """
-    Path to the root dir of the librairy
+    Path to the root dir of the librairy.
     """
-
     return Path(__file__).parents[1].absolute()
 
 
 @pytest.fixture(scope="session")
 def tmp_dir():
     """
-    Creates a temporary local directory to store data
+    Creates a temporary local directory to store data.
     """
-
     tmp_dir = Path.home() / "tmp" / "sepal_ui_tests"
     tmp_dir.mkdir(exist_ok=True, parents=True)
 
@@ -43,9 +41,8 @@ def tmp_dir():
 @pytest.fixture(scope="session")
 def _hash():
     """
-    Create a hash for each test instance
+    Create a hash for each test instance.
     """
-
     return uuid.uuid4().hex
 
 
@@ -135,6 +132,5 @@ def gee_dir(_hash):
 
 @pytest.fixture
 def alert():
-    """return a dummy alert that can be used everywhere to display informations"""
-
+    """return a dummy alert that can be used everywhere to display informations."""
     return sw.Alert()

@@ -8,9 +8,9 @@ import ee
 import pytest
 from ipyleaflet import GeoJSON
 
-from sepal_ui import get_theme
 from sepal_ui import mapping as sm
 from sepal_ui.frontend import styles as ss
+from sepal_ui.frontend.styles import get_theme
 from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
@@ -495,8 +495,7 @@ class TestSepalMap:
 
     @pytest.fixture(scope="class")
     def rgb(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "rgb.tif"
 
         if not rgb.is_file():
@@ -511,8 +510,7 @@ class TestSepalMap:
 
     @pytest.fixture(scope="class")
     def byte(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "byte.tif"
 
         if not rgb.is_file():

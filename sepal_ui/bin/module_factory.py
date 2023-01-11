@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-This script will create the skeleton of a sepal-ui module
+Script to create the skeleton of a sepal-ui module.
 
 The script will extract the skeleton of a module from the sepal_ui_template GitHub repository. This template will be adapted based on the answsers to the questionnaire.
 Placeholdre from the template will be replaced and the directory will be synced with a GitHub freshly created repository. Note that the repository need to be fully empty when the command is launched.
@@ -35,7 +35,6 @@ def set_default_readme(
         description: the description of the module
         url: the url of the module repository in GitHub
     """
-
     print("Write a default README.md file")
 
     license = f"{url}/blob/master/LICENSE"
@@ -61,13 +60,12 @@ def set_default_readme(
 
 def set_default_about(folder: Path, description: str) -> None:
     """
-    Write a default ABOUT_en.md file and overwrite the existing one
+    Write a default ABOUT_en.md file and overwrite the existing one.
 
     Args:
         folder: the directory of the module
         description: the description of the module functions
     """
-
     print("Write a default ABOUT_en.md file")
 
     # creating the dir
@@ -85,13 +83,12 @@ def set_default_about(folder: Path, description: str) -> None:
 
 def set_module_name(folder: Path, module_name: str) -> None:
     """
-    Use the module name in the different translation dictionaries
+    Use the module name in the different translation dictionaries.
 
     Args:
         folder: the directory of the module
         module_name: the module name
     """
-
     print("Update the module name in the json translation dictionaries")
 
     # edit the en file
@@ -110,14 +107,13 @@ def set_module_name(folder: Path, module_name: str) -> None:
 
 def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
     """
-    Set the module name in each documentation file and set the appropriate repository in the link
+    Set the module name in each documentation file and set the appropriate repository in the link.
 
     Args:
         folder: the directory of the module
         url: the url of the GitHub repository
         module_name: the module name
     """
-
     # get the documentation folder
     doc_dir = folder / "doc"
 
@@ -138,13 +134,12 @@ def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
 
 def set_drawer_link(folder: Path, url: str) -> None:
     """
-    Replace the reference to the default repository to the one provided by the user
+    Replace the reference to the default repository to the one provided by the user.
 
     Args:
         folder: the directory of the module
         url: the url of the GitHub repository
     """
-
     print("Update the drawers link with the new repository one")
 
     # get the ui file
@@ -165,7 +160,7 @@ def set_drawer_link(folder: Path, url: str) -> None:
 
 
 def main() -> None:
-
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 

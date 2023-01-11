@@ -1,3 +1,7 @@
+"""
+Custom widgets dedicated to the reclassification  table interface.
+"""
+
 from colorsys import rgb_to_hls, rgb_to_hsv
 from pathlib import Path
 from typing import Optional, Union
@@ -25,12 +29,13 @@ class ClassTable(sw.DataTable):
         self, out_path: Union[str, Path] = Path.home() / "downloads", **kwargs
     ) -> None:
         """
-        Custom data table to modify, display and save classification. From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
+        Custom data table to modify, display and save classification.
+
+        From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
 
         Args:
             out_path: output path where table will be saved, default to ~/downloads/
         """
-
         # save the output path
         self.out_path = Path(out_path)
 
@@ -109,9 +114,8 @@ class ClassTable(sw.DataTable):
         Populate table. It will fill the table with the item contained in the items_file parameter. If no file is provided the table is reset.
 
         Args:
-            items (Path object|optional): file containing classes and description
+            items: file containing classes and description
         """
-
         # If there is not any file passed as an argument, populate and empy table
         if not items_file:
             self.items = []
@@ -124,7 +128,7 @@ class ClassTable(sw.DataTable):
         # corresponding values with the SCHEMA.
 
         # small sanity check
-        if not len(df.columns) in [2, 3]:
+        if len(df.columns) not in [2, 3]:
             raise AssertionError(
                 f"The file is not a valid classification file as it has {len(df.columns)} columns instead of 2 or 3"
             )
@@ -143,8 +147,7 @@ class ClassTable(sw.DataTable):
         return self
 
     def _save_event(self, *args) -> None:
-        """open the save dialog to save the current table in a specific formatted table"""
-
+        """open the save dialog to save the current table in a specific formatted table."""
         if not self.items:
             return
 
@@ -153,8 +156,7 @@ class ClassTable(sw.DataTable):
         return
 
     def _edit_event(self, *args) -> None:
-        """Open the edit dialog and fill it with current line information"""
-
+        """Open the edit dialog and fill it with current line information."""
         if not self.v_model:
             return
 
@@ -163,15 +165,13 @@ class ClassTable(sw.DataTable):
         return
 
     def _add_event(self, *args) -> None:
-        """Open the edit dialog to create a new line to the table"""
-
+        """Open the edit dialog to create a new line to the table."""
         self.edit_dialog.update()
 
         return
 
     def _remove_event(self, *args) -> None:
-        """Remove current selection (self.v_model) element from table"""
-
+        """Remove current selection (self.v_model) element from table."""
         if not self.v_model:
             return
 
@@ -189,12 +189,11 @@ class EditDialog(v.Dialog):
 
     def __init__(self, table: ClassTable, **kwargs) -> None:
         """
-        Dialog to modify/create new elements from the ClassTable data_table
+        Dialog to modify/create new elements from the ClassTable data_table.
 
         Args:
             table: Table linked with dialog
         """
-
         # custom attributes
         self.table = table
 
@@ -258,12 +257,11 @@ class EditDialog(v.Dialog):
 
     def update(self, data: list = [None, None, None, None]) -> Self:
         """
-        upadte the dialog with the provided information and activate it
+        Upadte the dialog with the provided information and activate it.
 
         Args:
             data: the text value of the selected line (id, code, description, color). default to 4 None (new line)
         """
-
         # change the title accodring to the presence of data
         self.title.children = [self.TITLES[not any(data)]]
 
@@ -321,8 +319,7 @@ class EditDialog(v.Dialog):
         return self
 
     def _modify(self, *args) -> None:
-        """Modify elements in the data_table and close the dialog"""
-
+        """Modify elements in the data_table and close the dialog."""
         # modify a local copy of the items
         # modifying does not trigger the display so a dummy element is also added
         # just to be removed afterward
@@ -355,8 +352,7 @@ class EditDialog(v.Dialog):
         return
 
     def _save(self, *args) -> None:
-        """Add elements to the table and close the dialog"""
-
+        """Add elements to the table and close the dialog."""
         # modify a local copy of the items
         current_items = self.table.items.copy()
 
@@ -377,8 +373,7 @@ class EditDialog(v.Dialog):
         return
 
     def _cancel(self, *args) -> None:
-        """Close dialog and do nothing"""
-
+        """Close dialog and do nothing."""
         self.v_model = False
 
         return
@@ -391,13 +386,12 @@ class SaveDialog(v.Dialog):
 
     def __init__(self, table: ClassTable, out_path: Union[str, Path], **kwargs) -> None:
         """
-        Dialog to save as .csv file the content of a ClassTable data table
+        Dialog to save as .csv file the content of a ClassTable data table.
 
         Args:
             table: Table linked with dialog
             out_path: Folder path to store table content
         """
-
         # gather the table and saving params
         self.table = table
         self.out_path = out_path
@@ -453,8 +447,7 @@ class SaveDialog(v.Dialog):
         self.w_file_name.observe(self._store_info, "v_model")
 
     def _store_info(self, change: dict) -> None:
-        """Display where will be the file written"""
-
+        """Display where will be the file written."""
         new_val = change["new"]
         out_file = self.out_path / f"{su.normalize_str(new_val)}.csv"
 
@@ -469,9 +462,8 @@ class SaveDialog(v.Dialog):
 
     def show(self) -> Self:
         """
-        display the dialog and write down the text in the alert
+        display the dialog and write down the text in the alert.
         """
-
         self.v_model = True
         self.w_file_name.v_model = ""
 
@@ -481,16 +473,14 @@ class SaveDialog(v.Dialog):
         return self
 
     def _normalize_name(self, widget: v.VuetifyWidget, *args) -> None:
-        """Replace the name with it's normalized version"""
-
+        """Replace the name with it's normalized version."""
         # normalized the name
         widget.v_model = su.normalize_str(widget.v_model)
 
         return
 
     def _save(self, *args) -> None:
-        """Write current table on a text file"""
-
+        """Write current table on a text file."""
         # set the file name
         out_file = self.out_path / su.normalize_str(self.w_file_name.v_model)
 
@@ -508,8 +498,7 @@ class SaveDialog(v.Dialog):
         return
 
     def _cancel(self, *args) -> None:
-        """hide the widget and do nothing"""
-
+        """hide the widget and do nothing."""
         self.v_model = False
 
         return
@@ -544,14 +533,15 @@ class TableView(sw.Card):
         out_path: Union[str, Path] = Path.home() / "downloads",
         **kwargs,
     ):
-        """
-        Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\\_ of the tile is set to "classification_tile"
+        r"""
+        Stand-alone Card object allowing the user to build custom class table.
+
+        The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile".
 
         Args:
             class_path: Folder path containing already existing classes. Default to ~/
             out_path: the folder to save the created classifications. default to ~/downloads
         """
-
         # create metadata to make it compatible with the framwork app system
         self._metadata = {"mount_id": "reclassify_tile"}
 
@@ -617,9 +607,8 @@ class TableView(sw.Card):
     @sd.loading_button(debug=True)
     def get_class_table(self, *args) -> Self:
         """
-        Display class table widget in view
+        Display class table widget in view.
         """
-
         # load the existing file into the table
         self.w_class_table.populate_table(self.w_class_file.v_model)
 
@@ -628,10 +617,10 @@ class TableView(sw.Card):
     def nest_tile(self) -> Self:
         """
         Prepare the view to be used as a nested component in a tile.
-        the elevation will be set to 0 and the title remove from children.
-        The mount_id will also be changed to nested
-        """
 
+        The elevation will be set to 0 and the title remove from children.
+        The mount_id will also be changed to nested.
+        """
         # remove id
         self._metadata["mount_id"] = "nested_tile"
 

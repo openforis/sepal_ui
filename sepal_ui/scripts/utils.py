@@ -1,3 +1,7 @@
+"""
+All the helper function of sepal-ui. 
+"""
+
 import math
 import os
 import random
@@ -24,7 +28,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     """
-    hide a vuetify based component
+    hide a vuetify based component.
 
     Args:
         widget: the widget to hide
@@ -32,7 +36,6 @@ def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Returns:
         the widget
     """
-
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
 
@@ -44,7 +47,7 @@ def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
 
 def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     """
-    show a vuetify based component
+    show a vuetify based component.
 
     Args:
         widget: the widget to hide
@@ -52,7 +55,6 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Returns:
         the widget
     """
-
     if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
 
@@ -64,15 +66,14 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
 
 def create_download_link(pathname: Union[str, Path]) -> str:
     """
-    Create a clickable link to download the pathname target
+    Create a clickable link to download the pathname target.
 
     Args:
         pathname: the pathname th download
 
-    Return:
+    Returns:
         the download link
     """
-
     # return the link if it's an absolute url
     if isinstance(pathname, str) and bool(urlparse(str(pathname)).netloc):
         return pathname
@@ -102,7 +103,6 @@ def random_string(string_length: int = 3) -> str:
     Returns:
         A random string
     """
-
     letters = string.ascii_lowercase
 
     return "".join(random.choice(letters) for i in range(string_length))
@@ -110,15 +110,14 @@ def random_string(string_length: int = 3) -> str:
 
 def get_file_size(filename: Union[str, Path]) -> str:
     """
-    Get the file size as string of 2 digit in the adapted scale (B, KB, MB....)
+    Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
         filename: the path to the file to mesure
 
-    Return:
+    Returns:
         the file size in a readable humanly readable
     """
-
     file_size = Path(filename).stat().st_size
 
     if file_size == 0:
@@ -135,10 +134,10 @@ def get_file_size(filename: Union[str, Path]) -> str:
 def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
-    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary)
-    """
 
+    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
+    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
 
@@ -161,16 +160,15 @@ def init_ee() -> None:
 
 def normalize_str(msg: str, folder: bool = True) -> str:
     """
-    Normalize an str to make it compatible with file naming (no spaces, special chars ...etc)
+    Normalize an str to make it compatible with file naming (no spaces, special chars ...etc).
 
     Params:
         msg: the string to sanitise
         folder: if the name will be used for folder naming or for display. if display, <'> and < > characters will be kept
 
-    Return:
+    Returns:
         the modified str
     """
-
     regex = "[^a-zA-Z\d\-\_]" if folder else "[^a-zA-Z\d\-\_\ ']"
 
     return re.sub(regex, "_", unidecode(msg))
@@ -180,8 +178,9 @@ def to_colors(
     in_color: Union[str, Sequence], out_type: str = "hex"
 ) -> Union[str, tuple]:
     """
-    Transform any color type into a color in the specified output format
-    avalable format: hex
+    Transform any color type into a color in the specified output format.
+
+    Avalable format: [hex]
 
     Args:
         in_color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0)).
@@ -190,7 +189,6 @@ def to_colors(
     Returns:
         The color in the specified format. default to black.
     """
-
     # list of the color function used for the translation
     c_func = {"hex": c.to_hex}
     transform = c_func[out_type]
@@ -224,7 +222,7 @@ def to_colors(
 
 def next_string(string: str) -> str:
     """
-    Create a string followed by an underscore and a consecutive number
+    Create a string followed by an underscore and a consecutive number.
 
     Args:
         string: the initial string
@@ -232,7 +230,6 @@ def next_string(string: str) -> str:
     Returns:
         the incremented string
     """
-
     # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
     split = string.split("_")
     end = split[-1]
@@ -247,15 +244,16 @@ def next_string(string: str) -> str:
 
 def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     """
+    Set a config variable.
+
     Set the provided value to the given key for the given section in the sepal-ui config
-    file
+    file.
 
     Args:
         key: key configuration name
         value: value to be referenced by the configuration key
         section: configuration section, defaults to sepal-ui.
     """
-
     # set the section if needed
     if "sepal-ui" not in config.sections():
         config.add_section(section)
@@ -274,12 +272,11 @@ def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
 )
 def set_config_locale(locale: str) -> None:
     """
-    Set the provided local in the sepal-ui config file
+    Set the provided local in the sepal-ui config file.
 
     Args:
-        locale (str): a locale name in IETF BCP 47 (no verifications are performed)
+        locale: a locale name in IETF BCP 47 (no verifications are performed)
     """
-
     return set_config("locale", locale)
 
 
@@ -288,20 +285,20 @@ def set_config_locale(locale: str) -> None:
 )
 def set_config_theme(theme: str) -> None:
     """
-    Set the provided theme in the sepal-ui config file
+    Set the provided theme in the sepal-ui config file.
 
     Args:
-        theme (str): a theme name (currently supporting "dark" and "light")
+        theme: a theme name (currently supporting "dark" and "light")
     """
-
     return set_config("theme", theme)
 
 
 @versionadded(version="2.7.1")
 def set_type(color: str) -> str:
-    """
-    Return a pre-defined material colors based on the requested type\_ parameter. If the parameter is not a predifined color,
-    fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"]
+    r"""
+    Return a pre-defined material colors based on the requested type\_ parameter.
+
+    If the parameter is not a predifined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
 
     Args:
         color: the requested color
@@ -327,7 +324,8 @@ def geojson_to_ee(
     geo_json: dict, geodesic: bool = False, encoding: str = "utf-8"
 ) -> ee.FeatureCollection:
     """
-    Transform a geojson object into a featureCollection or a Geometry
+    Transform a geojson object into a featureCollection or a Geometry.
+
     No sanity check is performed on the initial geo_json. It must respect the
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
 
@@ -339,7 +337,6 @@ def geojson_to_ee(
     Returns:
         the created featurecollection
     """
-
     # from a featureCollection
     if geo_json["type"] == "FeatureCollection":
         for feature in geo_json["features"]:
@@ -371,9 +368,10 @@ def geojson_to_ee(
 
 
 def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
-    """
+    r"""
     Check if the inpupt value is initialized.
-    If not raise an error, else return True
+
+    If not raise an error, else return True.
 
     Args:
         input\_: the input to check
@@ -382,7 +380,6 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
     Return:
         check if the value is initialized
     """
-
     # by the default the variable is considered valid
     init = True
 
