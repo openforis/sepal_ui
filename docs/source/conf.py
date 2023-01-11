@@ -100,8 +100,9 @@ html_last_updated_fmt = ""
 html_theme_options = {
     "header_links_before_dropdown": 6,
     "logo": {
-        "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_static/sepal_light.png",
-        "image_dark": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_static/sepal_dark.png",
+        "text": "sepal-ui",
+        "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",
+        "image_dark": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_dark.png",
     },
     "use_edit_page_button": True,
     "show_prev_next": False,
