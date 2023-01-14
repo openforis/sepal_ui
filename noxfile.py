@@ -23,6 +23,19 @@ def test(session):
 
 
 @nox.session(reuse_venv=True)
+def bin(session):
+    """Run all the bin methods to validate the conda recipe."""
+    session.install(".")
+    session.run("module_deploy", "--help")
+    session.run("module_factory", "--help")
+    session.run("module_l10n", "--help")
+    session.run("module_theme", "--help")
+    session.run("module_venv", "--help")
+    session.run("activate_venv", "--help")
+    session.run("sepal_ipyvuetify", "--help")
+
+
+@nox.session(reuse_venv=True)
 def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
