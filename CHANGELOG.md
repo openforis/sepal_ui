@@ -1,8 +1,12 @@
 ## v_2.14.1 (2023-01-14)
 
+### Refactor
+
+- don't prettify CHANGELOG.md
+
 ### Fix
 
-- add checks for bin content (#701)
+- add checks for bin content  (#701)
 
 ## v_2.14.0 (2023-01-11)
 
