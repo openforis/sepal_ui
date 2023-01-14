@@ -12,7 +12,7 @@ from pathlib import Path
 
 import ipyvuetify as v
 
-parser = argparse.ArgumentParser(description=__doc__, usage="override_ipyvuetify")
+parser = argparse.ArgumentParser(description=__doc__, usage="sepal_ipyvuetify")
 
 
 def disclaimer() -> str:
