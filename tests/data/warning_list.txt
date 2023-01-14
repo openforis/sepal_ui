@@ -1,0 +1,3 @@
+ERROR: Unknown target name: "type".
+ERROR: Document or section may not begin with a transition.
+WARNING: document isn't included in any toctree

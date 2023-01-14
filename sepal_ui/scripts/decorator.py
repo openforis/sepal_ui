@@ -1,62 +1,59 @@
+"""
+Decorators used in sepal-ui.
+
+used for multiple use-case sucha as (but not limited):
+- catch errors in scripts to avoid Voila app freeze
+- redirect error to a specific Alert object 
+- Initialize EE
+- debug widgets 
+...
+"""
+
 import os
 import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
+from typing import Any, Callable, List, Union
 
 import ee
 import httplib2
-from cryptography.fernet import Fernet
+import ipyvuetify as v
 from deprecated.sphinx import versionadded
 
 # from sepal_ui.scripts.utils import init_ee
 from sepal_ui.scripts.warning import SepalWarning
 
 ################################################################################
-# This method is a copy of the ne from utils. It should stay there
+# This method is a copy of the one from utils. It should stay there
 # as long as there is deprecation warning in utils, we cannot import it due to a circular
 # import. This method should then be removed in v3.0 when sd won't be imported by utils
 #
 
 
-def init_ee():
+def init_ee() -> None:
     """
     Initialize earth engine according to the environment.
-    It will use the creddential file if the EE_PRIVATE_KEY env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary)
-    """
 
+    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
+    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
 
-        # if the decrypt key is available use the decript key
-        if "EE_DECRYPT_KEY" in os.environ:
+        # if the credentials token is asved in the environment use it
+        if "EARTHENGINE_TOKEN" in os.environ:
 
-            # read the key as byte
-            key = os.environ["EE_DECRYPT_KEY"].encode()
+            # write the token to the appropriate folder
+            ee_token = os.environ["EARTHENGINE_TOKEN"]
+            credential_folder_path = Path.home() / ".config" / "earthengine"
+            credential_folder_path.mkdir(parents=True, exist_ok=True)
+            credential_file_path = credential_folder_path / "credentials"
+            credential_file_path.write_text(ee_token)
 
-            # create the fernet object
-            fernet = Fernet(key)
-
-            # decrypt the key
-            json_encrypted = Path(__file__).parent / "encrypted_key.json"
-            with json_encrypted.open("rb") as f:
-                json_decripted = fernet.decrypt(f.read()).decode()
-
-            # write it to a file
-            with open("ee_private_key.json", "w") as f:
-                f.write(json_decripted)
-
-            # connection to the service account
-            service_account = "test-sepal-ui@sepal-ui.iam.gserviceaccount.com"
-            credentials = ee.ServiceAccountCredentials(
-                service_account, "ee_private_key.json"
-            )
-            ee.Initialize(credentials, http_transport=httplib2.Http())
-
-        # if in local env use the local user credential
-        else:
-            ee.Initialize(http_transport=httplib2.Http())
+        # if the user is in local development the authentication should
+        # already be available
+        ee.Initialize(http_transport=httplib2.Http())
 
     return
 
@@ -65,15 +62,18 @@ def init_ee():
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert, debug=False):
+def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
     """
-    Decorator to execute try/except sentence
-    and catch errors in the alert message.
-    If debug is True then the error is raised anyway
+    Decorator to execute try/except sentence and catch errors in the alert message.
 
-    Params:
+    If debug is True then the error is raised anyway.
+
+    Args:
         alert (sw.Alert): Alert to display errors
         debug (bool): Wether to raise the error or not, default to false
+
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_alert_error(func):
@@ -94,13 +94,17 @@ def catch_errors(alert, debug=False):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def need_ee(func):
+def need_ee(func: Callable) -> Any:
     """
     Decorator to execute check if the object require EE binding.
+
     Trigger an exception if the connection is not possible.
 
-    Params:
-        func (obj): the object on which the decorator is applied
+    Args:
+        func: the object on which the decorator is applied
+
+    Returns:
+        The return statement of the decorated method
     """
 
     @wraps(func)
@@ -118,15 +122,23 @@ def need_ee(func):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def loading_button(alert=None, button=None, debug=False):
+def loading_button(
+    alert: Union[v.Alert, None] = None,
+    button: Union[v.Btn, None] = None,
+    debug: bool = False,
+) -> Any:
     """
     Decorator to execute try/except sentence and toggle loading button object.
+
     Designed to work within the Tile object, or any object that have a self.btn and self.alert set.
 
-    Params:
-        button (sw.Btn, optional): Toggled button
-        alert (sw.Alert, optional): the alert to display the error message
-        debug (bool, optional): wether or not the exception should stop the execution. default to False
+    Args:
+        button: Toggled button
+        alert: the alert to display the error message
+        debug: wether or not the exception should stop the execution. default to False
+
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_loading(func):
@@ -194,19 +206,24 @@ def loading_button(alert=None, button=None, debug=False):
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def switch(*params, debug=True, on_widgets=[], targets=[]):
+def switch(
+    *params, debug: bool = True, on_widgets: List[str] = [], targets: List[bool] = []
+) -> Any:
     """
-    Decorator to switch the state of input boolean parameters on class widgets or the
-    class itself. If on_widgets is defined, it will switch the state of every widget
+    Decorator to switch the state of input boolean parameters on class widgets or the class itself.
+
+    If on_widgets is defined, it will switch the state of every widget
     parameter, otherwise it will change the state of the class (self). You can also set
     two decorators on the same function, one could affect the class and other the widgets.
 
     Args:
-        *params (str): any boolean parameter of a SepalWidget.
-        debug (bool): Whether trigger or not an Exception if the decorated function fails.
-        on_widgets (list(widget_names,)|optional): List of widget names into the class
-        targets (list(bool,)|optional); list of the target value (value taht will be set on switch. default to the inverse of the current state.
+        *params: any boolean parameter of a SepalWidget.
+        debug: Whether trigger or not an Exception if the decorated function fails.
+        on_widgets: List of widget names into the class
+        targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.
 
+    Returns:
+        The return statement of the decorated method
     """
 
     def decorator_switch(func):

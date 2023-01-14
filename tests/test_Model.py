@@ -53,7 +53,7 @@ class TestModel:
 
     @pytest.fixture
     def dum_model(self):
-        """return a dummy model with 2 traits, dummy1 and dummy2"""
+        """return a dummy model with 2 traits, dummy1 and dummy2."""
 
         class DummyClass(model.Model):
 

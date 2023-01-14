@@ -84,8 +84,7 @@ class TestSepalWidget:
         assert test_card.children[: len(new_els)] == new_els
 
     def test_set_children_error(self):
-        """Test when set_children methods throws an error"""
-
+        """Test when set_children methods throws an error."""
         with pytest.raises(ValueError):
             sw.Card().set_children("asdf", "middle")
 
@@ -119,6 +118,5 @@ class TestSepalWidget:
 
     @pytest.fixture
     def widget(self):
-        """return a sepalwidget"""
-
+        """return a sepalwidget."""
         return sw.SepalWidget()

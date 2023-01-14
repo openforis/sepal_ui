@@ -1,25 +1,41 @@
+"""
+Custom widgets that are nor input nor UI interface.
+
+Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.CopyToClip()
+"""
+
+from pathlib import Path
+from typing import Optional, Union
+
 import ipyvuetify as v
+import traitlets as t
 from deprecated.sphinx import versionadded
 from markdown import markdown
-from traitlets import Any, Unicode, link, observe
+from traitlets import link, observe
 
 from sepal_ui import color
+from sepal_ui.model import Model
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 
 __all__ = ["Markdown", "CopyToClip", "StateIcon"]
 
 
 class Markdown(v.Layout, SepalWidget):
-    """
-    Custom Layout based on the markdown text given
+    def __init__(self, mkd_str: str = "", **kwargs) -> None:
+        """
+        Custom Layout based on the markdown text given.
 
-    Args:
-        mkd_str (str): the text to display using the markdown convention. multi-line string are also interpreted
-        kwargs (optional): Any parameter from a v.Layout. If set, 'children' will be overwritten
-    """
-
-    def __init__(self, mkd_str="", **kwargs):
-
+        Args:
+            mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
+            kwargs: Any parameter from a v.Layout. If set, 'children' will be overwritten
+        """
         mkd = markdown(mkd_str, extensions=["fenced_code", "sane_lists"])
 
         # need to be nested in a div to be displayed
@@ -30,14 +46,14 @@ class Markdown(v.Layout, SepalWidget):
 
         # create a Html widget
         class MyHTML(v.VuetifyTemplate):
-            template = Unicode(mkd).tag(sync=True)
+            template = t.Unicode(mkd).tag(sync=True)
 
         content = MyHTML()
 
         # set default parameters
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["class_"] = kwargs.pop("class_", "pa-5")
-        kwargs["align_center"] = kwargs.pop("align_center", True)
+        kwargs.setdefault("row", True)
+        kwargs.setdefault("class_", "pa-5")
+        kwargs.setdefault("align_center", True)
         kwargs["children"] = [v.Flex(xs12=True, children=[content])]
 
         # call the constructor
@@ -46,29 +62,29 @@ class Markdown(v.Layout, SepalWidget):
 
 @versionadded(version="2.2.0", reason="New clipping widget")
 class CopyToClip(v.VuetifyTemplate):
-    """
-    Custom textField that provides a handy copy-to-clipboard javascript behaviour.
-    When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
 
-    Args:
-        kwargs: any argument that can be used with a v.TextField
-    """
-
-    tf = None
+    tf: Optional[v.TextField] = None
     "v.TextField: the textfield widget that holds the v_model to copy"
 
-    v_model = Any(None).tag(sync=True)
-    "Any trait: a v_model trait that embed the string to copy"
+    v_model: t.Unicode = t.Unicode("").tag(sync=True)
+    "a v_model trait that embed the string to copy"
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
+        """
+        Custom textField that provides a handy copy-to-clipboard javascript behaviour.
 
+        When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
+
+        Args:
+            kwargs: any argument that can be used with a v.TextField
+        """
         # add the default params to kwargs
-        kwargs["outlined"] = kwargs.pop("outlined", True)
-        kwargs["label"] = kwargs.pop("label", "Copy To clipboard")
-        kwargs["readonly"] = kwargs.pop("readonly", True)
-        kwargs["append_icon"] = kwargs.pop("append_icon", "fas fa-clipboard")
-        kwargs["v_model"] = kwargs.pop("v_model", None)
-        kwargs["class_"] = kwargs.pop("class_", "ma-5")
+        kwargs.setdefault("outlined", True)
+        kwargs.setdefault("label", "Copy To clipboard")
+        kwargs.setdefault("readonly", True)
+        kwargs.setdefault("append_icon", "fa-solid fa-clipboard")
+        kwargs.setdefault("v_model", "")
+        kwargs.setdefault("class_", "ma-5")
 
         # set the default v_model
         self.v_model = kwargs["v_model"]
@@ -78,21 +94,11 @@ class CopyToClip(v.VuetifyTemplate):
         self.components = {"mytf": self.tf}
 
         # template with js behaviour
-        self.template = """
-        <mytf/>
-        <script>
-            {methods: {
-                jupyter_clip(_txt) {
-                    var tempInput = document.createElement("input");
-                    tempInput.value = _txt;
-                    document.body.appendChild(tempInput);
-                    tempInput.focus();
-                    tempInput.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(tempInput);
-                }
-            }}
-        </script>"""
+        js_dir = Path(__file__).parents[1] / "frontend/js"
+        clip = (js_dir / "jupyter_clip.js").read_text()
+        self.template = (
+            "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
+        )
 
         super().__init__()
 
@@ -100,37 +106,45 @@ class CopyToClip(v.VuetifyTemplate):
         self.tf.on_event("click:append", self._clip)
         link((self, "v_model"), (self.tf, "v_model"))
 
-    def _clip(self, widget, event, data):
+    def _clip(self, *args) -> None:
+        """
+        Launch the javascript clipping process.
+        """
         self.send({"method": "clip", "args": [self.tf.v_model]})
-        self.tf.append_icon = "fas fa-clipboard-check"
+        self.tf.append_icon = "fa-solid fa-clipboard-check"
 
         return
 
 
 class StateIcon(Tooltip):
-    """
-    Custom icon with multiple state colors.
 
-    Args:
-        model (sepal_ui.Model): Model to manage StateIcon behaviour from outside.
-        model_trait (str): Name of trait to be linked with state icon. Must exists in model.
-        states (dict): Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
-        kwargs: Any arguments from a v.Tooltip
-    """
-
-    values = Any().tag(sync=True)
+    values: t.Any = t.Any().tag(sync=True)
     "bool, str, int: key name of the current state of component. Values must be same as states_dict keys."
 
-    states = None
-    'dict: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
+    states: dict = {}
+    'Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.'
 
-    icon = None
-    "v.Icon: the colored Icon of the tooltip"
+    icon: Optional[v.Icon]
+    "The colored Icon of the tooltip"
 
-    def __init__(self, model=None, model_trait=None, states=None, **kwargs):
+    def __init__(
+        self,
+        model: Union[None, Model] = None,
+        model_trait: str = "",
+        states: dict = {},
+        **kwargs,
+    ):
+        """
+        Custom icon with multiple state colors.
 
+        Args:
+            model: Model to manage StateIcon behaviour from outside.
+            model_trait: Name of trait to be linked with state icon. Must exists in model.
+            states: Dictionary where keys are the state name to be linked with self value and value represented by a tuple of two elements. {"key":(tooltip_msg, color)}.
+            kwargs: Any arguments from a v.Tooltip
+        """
         # set the default parameter of the tooltip
-        kwargs["right"] = kwargs.pop("right", True)
+        kwargs.setdefault("right", True)
 
         # init the states
         default_states = {
@@ -142,7 +156,9 @@ class StateIcon(Tooltip):
         # Get the first value (states first key) to use as default one
         init_value = self.states[next(iter(self.states))]
 
-        self.icon = v.Icon(children=["fas fa-circle"], color=init_value[1], small=True)
+        self.icon = v.Icon(
+            children=["fa-solid fa-circle"], color=init_value[1], small=True
+        )
 
         super().__init__(self.icon, init_value[0], **kwargs)
 
@@ -151,13 +167,12 @@ class StateIcon(Tooltip):
             link((model, model_trait), (self, "values"))
 
     @observe("values")
-    def _swap(self, change):
-        """Swap between states"""
-
+    def _swap(self, change: dict) -> None:
+        """Swap between states."""
         new_val = change["new"]
 
+        # Use the first value when there is not initial value.
         if not new_val:
-            # Use the first value when there is not initial value.
             self.value = next(iter(self.states))
             return
 

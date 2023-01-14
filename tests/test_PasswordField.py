@@ -16,17 +16,16 @@ class TestPasswordField:
         # change the viz once
         password._toggle_pwd(None, None, None)
         assert password.type == "text"
-        assert password.append_icon == "mdi-eye"
+        assert password.append_icon == "fa-solid fa-eye"
 
         # change it a second time
         password._toggle_pwd(None, None, None)
         assert password.type == "password"
-        assert password.append_icon == "mdi-eye-off"
+        assert password.append_icon == "fa-solid fa-eye-slash"
 
         return
 
     @pytest.fixture
     def password(self):
-        """return a passwordfield"""
-
+        """return a passwordfield."""
         return sw.PasswordField()

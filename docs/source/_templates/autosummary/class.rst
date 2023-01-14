@@ -36,7 +36,7 @@
 {% block details %}
 {% if methods -%}
 {% for item in methods  if item not in inherited_members -%}
-.. autofunction:: {{ module }}.{{ objname }}.{{ item }}
+.. automethod:: {{ module }}.{{ objname }}.{{ item }}
 {% endfor -%}
 {% endif -%}
 {% endblock -%}

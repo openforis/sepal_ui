@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Assign to the kaban Project
     steps:
-    - name: Assign NEW issues and NEW pull requests to kaban project
-      uses: srggrs/assign-one-project-github-action@1.2.1
-      if: github.event.action == 'opened'
-      with:
-        project: 'https://github.com/12rambau/sepal_ui/projects/3'
+      - name: Assign NEW issues and NEW pull requests to kaban project
+        uses: srggrs/assign-one-project-github-action@1.2.1
+        if: github.event.action == 'opened'
+        with:
+          project: "https://github.com/12rambau/sepal_ui/projects/4"

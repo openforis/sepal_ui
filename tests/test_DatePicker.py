@@ -23,6 +23,27 @@ class TestDatePicker:
 
         return
 
+    def test_kwargs(self):
+        """test kwargs to both datepicker and layout."""
+        date_picker_kwargs = {
+            "min": "2018-02-14",
+            "max": "2021-03-14",
+        }
+
+        layout_kwargs = {
+            "class_": "pa-0",
+            "align_center": False,
+        }
+
+        datepicker = sw.DatePicker(
+            v_model="", layout_kwargs=layout_kwargs, **date_picker_kwargs
+        )
+
+        assert datepicker.date_picker.min == "2018-02-14"
+        assert datepicker.date_picker.max == "2021-03-14"
+        assert datepicker.class_ == "pa-0"
+        assert datepicker.align_center is False
+
     def test_bind(self, datepicker):
         class Test_io(Model):
             out = Any(None).tag(sync=True)
@@ -77,6 +98,5 @@ class TestDatePicker:
 
     @pytest.fixture
     def datepicker(self):
-        """create a default datepicker"""
-
+        """create a default datepicker."""
         return sw.DatePicker()

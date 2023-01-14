@@ -5,7 +5,7 @@ Overview
 --------
 
 :code:`Btn` is custom widget to provide easy to use button in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
-Any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The button icon needs to be searched in the `fontAwesome library <https://fontawesome.com/v5.15/icons>`__ or mdi library <https://materialdesignicons.com>`_, if none is set, a :code:`fas fa-check` will be used.
+Any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. The button icon needs to be searched in the `fontAwesome library <https://fontawesome.com/icons>`__ or mdi library <https://materialdesignicons.com>`_, if none is set, a :code:`fa-solid fa-check` will be used.
 The default color is set to "primary".  
 
 .. jupyter-execute:: 
@@ -20,8 +20,8 @@ The default color is set to "primary".
     v.theme.dark = False
     
     btn = sw.Btn(
-        text = "The One btn",
-        icon = "fas fa-cogs"
+        msg = "The One btn",
+        gliph = "fa-solid fa-cogs"
     )
     btn
     
@@ -42,8 +42,8 @@ Btn can be used to launch function on any Javascript event such as "click".
     v.theme.dark = False
     
     btn = sw.Btn(
-        text = "The One btn",
-        icon = "fas fa-cogs"
+        msg = "The One btn",
+        gliph = "fa-solid fa-cogs"
     )
     btn.on_event('click', lambda *args: print('Hello world!'))
     

@@ -2,8 +2,8 @@ from configparser import ConfigParser
 
 import pytest
 
-from sepal_ui import config_file
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.conf import config_file
 
 
 class TestLocalSelect:
@@ -33,6 +33,5 @@ class TestLocalSelect:
 
     @pytest.fixture
     def locale_select(self):
-        """Create a simple locale_select"""
-
+        """Create a simple locale_select."""
         return sw.LocaleSelect()

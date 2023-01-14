@@ -12,7 +12,7 @@ class TestDownloadBtn:
         btn = sw.DownloadBtn(txt)
 
         assert isinstance(btn, sw.DownloadBtn)
-        assert btn.children[0].children[0] == "fas fa-download"
+        assert btn.children[0].children[0] == "fa-solid fa-download"
         assert btn.children[1] == txt
         assert file_start in btn.href
         assert "#" in btn.href
@@ -73,6 +73,5 @@ class TestDownloadBtn:
 
     @pytest.fixture
     def file_start(self):
-        """the start of any link to the sepal platform"""
-
+        """the start of any link to the sepal platform."""
         return "https://sepal.io/api/sandbox/jupyter/files/"

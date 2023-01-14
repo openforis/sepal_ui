@@ -10,13 +10,13 @@ class TestDrawerItem:
     def test_init_cards(self):
         title = "toto"
         id_ = "toto_id"
-        icon = "fas fa-folder"
+        icon = "fa-solid fa-folder"
 
         # default init
         drawerItem = sw.DrawerItem(title)
         assert isinstance(drawerItem, v.ListItem)
         assert isinstance(drawerItem.children[0].children[0], v.Icon)
-        assert drawerItem.children[0].children[0].children[0] == "far fa-folder"
+        assert drawerItem.children[0].children[0].children[0] == "fa-regular fa-folder"
         assert isinstance(drawerItem.children[1].children[0], v.ListItemTitle)
         assert drawerItem.children[1].children[0].children[0] == title
 
@@ -53,7 +53,7 @@ class TestDrawerItem:
         drawer_item = sw.DrawerItem(title, card=id_).display_tile(tiles)
 
         # fake the click
-        drawer_item._on_click(None, None, None, tiles)
+        drawer_item._on_click(tiles)
 
         # check the viz parameter of each tiles
         for tile in tiles:
@@ -64,6 +64,20 @@ class TestDrawerItem:
 
         return
 
+    def test_add_notif(self, model, drawer_item):
+
+        model.app_ready = True
+        assert drawer_item.alert_badge in drawer_item.children
+
+        model.app_ready = False
+        assert drawer_item.alert_badge not in drawer_item.children
+
+    def test_remove_notif(self, model, drawer_item):
+
+        model.app_ready = True
+        drawer_item.remove_notif()
+        assert drawer_item.alert_badge not in drawer_item.children
+
     @pytest.fixture
     def model(self):
         class TestModel(Model):
@@ -71,24 +85,7 @@ class TestDrawerItem:
 
         return TestModel()
 
-    def test_add_notif(self, model):
-
-        drawer_item = sw.DrawerItem("title", model=model, bind_var="app_ready")
-
-        model.app_ready = True
-
-        assert drawer_item.alert_badge in drawer_item.children
-
-        model.app_ready = False
-
-        assert drawer_item.alert_badge not in drawer_item.children
-
-    def test_remove_notif(self, model):
-
-        drawer_item = sw.DrawerItem("title", model=model, bind_var="app_ready")
-
-        model.app_ready = True
-
-        drawer_item.remove_notif()
-
-        assert drawer_item.alert_badge not in drawer_item.children
+    @pytest.fixture
+    def drawer_item(self, model):
+        """create dummy drawer item."""
+        return sw.DrawerItem("title", model=model, bind_var="app_ready")

@@ -1,17 +1,17 @@
 [
-    {
-        "name": "main",
-        "version": "latest",
-        "url": "https://sepal-ui.readthedocs.io/en/latest/"
-    },
-    {
-        "name": "2.10.1 (stable)", 
-        "version": "v_2.10.1",
-        "url": "https://sepal-ui.readthedocs.io/en/v_2.10.1/"
-    },
-    {
-        "name": "2.9.4", 
-        "version": "v_2.9.4",
-        "url": "https://sepal-ui.readthedocs.io/en/v_2.9.4/"
-    }
+  {
+    "name": "main",
+    "version": "latest",
+    "url": "https://sepal-ui.readthedocs.io/en/latest/"
+  },
+  {
+    "name": "2.10.1 (stable)",
+    "version": "v_2.10.1",
+    "url": "https://sepal-ui.readthedocs.io/en/v_2.10.1/"
+  },
+  {
+    "name": "2.9.4",
+    "version": "v_2.9.4",
+    "url": "https://sepal-ui.readthedocs.io/en/v_2.9.4/"
+  }
 ]

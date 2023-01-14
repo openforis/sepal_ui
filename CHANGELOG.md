@@ -1,3 +1,123 @@
+## v_2.14.1 (2023-01-14)
+
+### Refactor
+
+- don't prettify CHANGELOG.md
+
+### Fix
+
+- add checks for bin content  (#701)
+
+## v_2.14.0 (2023-01-11)
+
+### Refactor
+
+- apply all ruff rules
+- first draft of ruff refactoring
+- use setdefault
+- use setdefault
+- drop the gee reading to get the bounds
+- typo
+- drop the gee reading to get the bounds Fix #681
+- update imports
+- move js code away from copytoclip python file
+- remove video extention
+- remove video extention
+- translator package
+- remove typehint
+- improve the quality of frontend files
+- lint the frontend files
+
+### Fix
+
+- reduce the size of the lib
+- stop downloading geodataframe and use json instead
+- remove ee_token script
+- type hinting for reclassify module was wrong
+- error while building reclassify module
+- use sd instead of su decorator
+- remove alert parameter from AoiModel
+- translate password label
+- use fa6 icon in password
+- add type_extentions to toml file
+- setup license file
+- use build command
+- planet_api request
+- use fa6 instead of mdi
+- mypy errors
+- create a stub file for the overwritten widgets
+- solve typ hinting issues
+- typo in type hint
+- use github repository for flake8
+- stop relying on my service account for auth
+- drop instafail
+- source should be a list
+- autoreload the notebooks for prototype phase
+- autoreload the notebooks for prototype phase
+- add a modue.yaml file
+- translator issues
+- handle empty dict
+- test both python and notebook files
+- typo remove mypy
+- add a modue.yaml file Fix #563
+- do not rely on harversine
+- set dialog on top of everything
+- do not rely on harversine
+- set dialog on top of everything but the drawers Fix #649
+- base the linting on pre-commits
+- base the linting on pre-commits
+
+### Feat
+
+- use type hint on every function/method/class
+
+## v_2.13.0 (2022-12-11)
+
+### Fix
+
+- drop use of Request from planet
+- drop use of Request from planet The method was removed from the lib between 2.0.a2 and 2.0.a6
+- update_progress accept values >1
+- remove left when only icon is set
+- update_progress accept values >1
+- replace all deprecated fas and far
+- remove left when only icon is set
+- change map application title Fix #642
+- update all relaining gee widgets
+- support pathlib path Fix #628 Fix #629
+- create a specific aoi_dc on the map
+- adapt to most recent gee token
+- create a specific aoi_dc on the map Fix #595
+- set icon and text as traits in btn
+- set icon and text as traits in btn
+- keep default asset when reloading
+- fixswitcher path for local build
+- keep default asset when reloading
+- set z-index to select content. closes #602
+- legacy print
+
+### Feat
+
+- use fontawesome V6
+- use the credential from the context to GEE oAuth
+- add a method to set-up GEE credentials
+- improve date picker widget customization
+- add layout kwargs
+- improve date picker widget customization. closes #600
+
+### Refactor
+
+- always keep msg and v_icon children
+- use the cred fixture
+- isort
+- isort
+- isort
+- run latest isort
+- run latest isort
+- fileInput was using icon and text
+- rename parameters in the reclassify module
+- remove legacy prints
+
 ## v_2.12.0 (2022-09-13)
 
 ### Fix
@@ -319,12 +439,12 @@
 
 - new set and get children to sepalwidget. Aims to close #443
 - create Banner widget to display important message to end-user
-- override ipyleaflet Map  add_layer method to use default style
+- override ipyleaflet Map add_layer method to use default style
 
 ### Refactor
 
-- rename _tmp class name with the actual new sepalwidget name
-- deal with type_ the same way we do it in Alert
+- rename \_tmp class name with the actual new sepalwidget name
+- deal with type\_ the same way we do it in Alert
 - use a persistent parameter instead of timeout
 - simplify add_banner method by calling Banner widget
 - return map when new layer added + make more clear param name
@@ -406,7 +526,7 @@
 
 - add the message file in the distrib
 - make readme copatible with pypi release
-- make readme compatible with pypi release  has syntax errors in markup and would not be rendered on PyPI.     line 6: Error: Document or section may not begin with a transition.
+- make readme compatible with pypi release has syntax errors in markup and would not be rendered on PyPI. line 6: Error: Document or section may not begin with a transition.
 
 ## v_2.6.0 (2022-02-16)
 
@@ -414,9 +534,9 @@
 
 - ignore untitled files
 - ignore untitled files
-- remove __setattr__ magic method.
+- remove **setattr** magic method.
 - typo in class name
-- remove __setattr__ magic method.
+- remove **setattr** magic method.
 - reshape messages to fit the translator requirements
 - replace every occurence of mdi icons
 - use `/` in Path
@@ -492,14 +612,14 @@
 - use class management methods Fix #119
 - use kwargs pop
 - fix some of the parameters
-- remove __init__ in model
+- remove **init** in model
 - use kwargs pop Avoid the duplication of parameter using an elegant and python method called dict poping
 - add black basge Fix #326
 - black typo
 - remove legacy print
 - typo in package name
 - change lib name Change the lib name to meet the name used in PiPy Some change will need to be done in the documentation to reflect this change
-- use * instead of list comprehension
+- use \* instead of list comprehension
 
 ### Fix
 
@@ -574,7 +694,7 @@
 
 - create destination gee unique name before export
 - move exceptions from view to model
-- remove _chk_dst_file method, its process was duplicated in the _set_dst_class file method
+- remove \_chk_dst_file method, its process was duplicated in the \_set_dst_class file method
 
 ### Feat
 
@@ -662,14 +782,14 @@
 - remove unused file
 - change the image visualization function (black-formatter).
 - extend the behavior of switch decorator with the last comments. closes #263
-- adapt table view widget to the parameter SCHEME. Remove ambiguity when handling widgets values by adding _metadata attribute
+- adapt table view widget to the parameter SCHEME. Remove ambiguity when handling widgets values by adding \_metadata attribute
 - move SCHEMA variable from translation key to parameters to avoid ambiguity
 - drop pre-commit autoupdate
 - typo
 - reintroduce type attribute
 - fix french typos
-- create __all__ variable to fix imports
-- place __all__ at the file start
+- create **all** variable to fix imports
+- place **all** at the file start
 
 ### Feat
 

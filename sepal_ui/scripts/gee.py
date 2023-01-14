@@ -1,22 +1,29 @@
+"""
+All the heleper methods to interface Google Earthengine with sepal-ui.
+"""
+
 import time
+from pathlib import Path
+from typing import List, Union
 
 import ee
+import ipyvuetify as v
 
 from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
+from sepal_ui.scripts import decorator as sd
 
 
-@su.need_ee
-def wait_for_completion(task_descripsion, widget_alert=None):
+@sd.need_ee
+def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> str:
     """
-    Wait until the selected process is finished. Display some output information
+    Wait until the selected process is finished. Display some output information.
 
     Args:
-        task_descripsion (str): name of the running task
-        widget_alert (v.Alert, optional): alert to display the output messages
+        task_descripsion: name of the running task
+        widget_alert: alert to display the output messages
 
-    Return:
-        (str): the final state of the task
+    Returns:
+        the final state of the task
     """
     state = "UNSUBMITTED"
     while state != "COMPLETED":
@@ -42,18 +49,17 @@ def wait_for_completion(task_descripsion, widget_alert=None):
     return state
 
 
-@su.need_ee
-def is_task(task_descripsion):
+@sd.need_ee
+def is_task(task_descripsion: str) -> ee.batch.Task:
     """
-    Search for the described task in the user Task list return None if nothing is found
+    Search for the described task in the user Task list return None if nothing is found.
 
     Args:
-        task_descripsion (str): the task description
+        task_descripsion: the task description
 
-    Return:
-        (ee.Task) : return the found task else None
+    Returns:
+        return the found task else None
     """
-
     current_task = None
     for task in ee.batch.Task.list():
         if task.config["description"] == task_descripsion:
@@ -63,18 +69,17 @@ def is_task(task_descripsion):
     return current_task
 
 
-@su.need_ee
-def is_running(task_descripsion):
+@sd.need_ee
+def is_running(task_descripsion: str) -> ee.batch.Task:
     """
-    Search for the described task in the user Task list return None if nothing is currently running
+    Search for the described task in the user Task list return None if nothing is currently running.
 
     Args:
-        task_descripsion (str): the task description
+        task_descripsion: the task description
 
-    Return:
-        (ee.Task) : return the found task else None
+    Returns:
+        return the found task else None
     """
-
     current_task = is_task(task_descripsion)
     if current_task:
         if current_task.state not in ["RUNNING", "READY"]:
@@ -83,20 +88,20 @@ def is_running(task_descripsion):
     return current_task
 
 
-@su.need_ee
-def get_assets(folder=None, asset_list=[]):
+@sd.need_ee
+def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[str]:
     """
     Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
-        folder (str): the initial GEE folder
-        asset_list ([assets]| optional): extra element that you would like to add to the asset list
+        folder: the initial GEE folder
+        asset_list: extra element that you would like to add to the asset list
 
-    Return:
-        ([asset]): the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
+    Returns:
+        the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
     # set the folder
-    folder = folder if folder else ee.data.getAssetRoots()[0]["id"]
+    folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # loop in the assets
     for asset in ee.data.listAssets({"parent": folder})["assets"]:
@@ -109,21 +114,20 @@ def get_assets(folder=None, asset_list=[]):
     return asset_list
 
 
-@su.need_ee
-def is_asset(asset_name, folder=None):
+@sd.need_ee
+def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
     """
-    Check if the asset already exist in the user asset folder
+    Check if the asset already exist in the user asset folder.
 
     Args:
-        asset_descripsion (str) : the descripsion of the asset
-        folder (str): the folder of the glad assets
+        asset_descripsion: the descripsion of the asset
+        folder: the folder of the glad assets
 
-    Return:
-        (bool): true if already in folder
+    Returns:
+        true if already in folder
     """
-
     # get the folder
-    folder = folder or ee.data.getAssetRoots()[0]["id"]
+    folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # get all the assets
     asset_list = get_assets(folder)

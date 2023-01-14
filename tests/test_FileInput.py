@@ -12,13 +12,13 @@ class TestFileInput:
         file_input = sw.FileInput()
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model is None
+        assert file_input.v_model == ""
 
         # init with a string
         file_input = sw.FileInput(folder=str(root_dir))
 
         assert isinstance(file_input, sw.FileInput)
-        assert file_input.v_model is None
+        assert file_input.v_model == ""
 
         # get all the names
         assert "sepal_ui" in self.get_names(file_input)
@@ -32,17 +32,22 @@ class TestFileInput:
         return
 
     def test_bind(self, file_input):
-        class Test_io(Model):
+
+        # init a model
+        class TestModel(Model):
             out = Any(None).tag(sync=True)
 
-        test_io = Test_io()
+        model = TestModel()
 
-        test_io.bind(file_input, "out")
+        # bind the model to the fileinput
+        model.bind(file_input, "out")
 
+        # edit the widget
         path = "toto.ici.shp"
         file_input.v_model = path
 
-        assert test_io.out == path
+        # check that the bind worked as expected
+        assert model.out == path
         assert file_input.file_menu.v_model is False
 
         return
@@ -51,7 +56,7 @@ class TestFileInput:
 
         file_input._on_file_select({"new": root_dir})
 
-        assert file_input.v_model is None
+        assert file_input.v_model == ""
         assert "README.rst" in self.get_names(file_input)
 
         # select readme
@@ -91,10 +96,11 @@ class TestFileInput:
         # move into sepal_ui folders
         file_input.select_file(readme)
 
+        # reset to default
         file_input.reset()
 
         # assert that the folder has been reset
-        assert file_input.v_model is None
+        assert file_input.v_model == ""
         assert file_input.folder != str(root_dir)
 
         return
@@ -115,16 +121,20 @@ class TestFileInput:
 
     @pytest.fixture
     def file_input(self, root_dir):
-        """create a default file_input in the root_dir"""
-
+        """create a default file_input in the root_dir."""
         return sw.FileInput(folder=root_dir)
+
+    @pytest.fixture
+    def readme(self, root_dir):
+        """return the readme file path."""
+        return root_dir / "README.rst"
 
     @staticmethod
     def get_names(widget):
-        """get the list name of a fileinput object"""
+        """get the list name of a fileinput object."""
+        item_list = widget.file_list.children[0].children
 
-        name_list = []
-        for item_list in widget.file_list.children[0].children:
-            name_list.append(item_list.children[1].children[0].children[0])
+        def get_name(item):
+            return item.children[1].children[0].children[0]
 
-        return name_list
+        return [get_name(i) for i in item_list]

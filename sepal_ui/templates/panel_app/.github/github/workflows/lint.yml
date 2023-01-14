@@ -1,6 +1,6 @@
 name: Lint
 
-on: 
+on:
   - push
   - pull_request
   - workflow_dispatch
@@ -11,4 +11,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Test files formatting
-        uses: psf/black@stable 
+        uses: psf/black@stable

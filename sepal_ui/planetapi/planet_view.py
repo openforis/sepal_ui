@@ -1,3 +1,9 @@
+"""
+The ``Card`` widget to use in application to interface with Planet.
+"""
+
+from typing import Optional
+
 import ipyvuetify as v
 
 import sepal_ui.sepalwidgets as sw
@@ -8,47 +14,52 @@ from sepal_ui.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):
-    """Stand-alone interface to capture planet lab credentials, validate its  subscription and
-    connect to the client stored in the model.
 
-    Args:
-        btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
-        alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
-        planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+    planet_model: Optional[PlanetModel] = None
+    "Backend model to manipulate interface actions"
 
-    """
+    btn: Optional[sw.Btn] = None
+    "Button to trigger the validation process in the associated model"
 
-    planet_model = None
-    "sepal_ui.planetlab.PlanetModel: backend model to manipulate interface actions"
+    alert: Optional[sw.Alert] = None
+    "Alert component to display end-user action results"
 
-    btn = None
-    "sw.Btn: Button to trigger the validation process in the associated model"
+    info: bool = False
+    "either to display or not a detailed description about the planet subscriptions"
 
-    alert = None
-    "sw.Alert: Alert component to display end-user action results"
+    w_username: Optional[sw.TextField] = None
+    "Widget to set credential username"
 
-    info = False
-    "bool: either to display or not a detailed description about the planet subscriptions"
+    w_password: Optional[sw.PasswordField] = None
+    "Widget to set credential password"
 
-    w_username = None
-    "sw.TextField: widget to set credential username"
+    w_key: Optional[sw.PasswordField] = None
+    "Widget to set credential API key"
 
-    w_password = None
-    "sw.PasswordField: widget to set credential password"
-
-    w_key = None
-    "sw.PasswordField: widget to set credential API key"
-
-    w_method = None
-    "sw.Select: dropdown widget to select connection method"
+    w_method: Optional[sw.Select] = None
+    "Dropdown widget to select connection method"
 
     def __init__(
-        self, *args, btn=None, alert=None, planet_model=None, info=False, **kwargs
+        self,
+        btn: Optional[sw.Btn] = None,
+        alert: Optional[sw.Alert] = None,
+        planet_model: Optional[PlanetModel] = None,
+        info: bool = False,
+        **kwargs,
     ):
+        """
+        Stand-alone interface to capture planet lab credentials.
 
+        It also validate its  subscription and connect to the client stored in the model.
+
+        Args:
+            btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
+            alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
+            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+        """
         self.class_ = "d-block flex-wrap"
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         self.planet_model = planet_model if planet_model else PlanetModel()
         self.btn = btn if btn else sw.Btn("Validate", small=True, class_="mr-1")
@@ -100,9 +111,8 @@ class PlanetView(sw.Layout):
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
 
-    def reset(self):
-        """Empty credentials fields and restart activation mode"""
-
+    def reset(self) -> None:
+        """Empty credentials fields and restart activation mode."""
         self.w_username.v_model = None
         self.w_password.v_model = None
         self.w_key.v_model = None
@@ -110,9 +120,8 @@ class PlanetView(sw.Layout):
 
         return
 
-    def _swap_inputs(self, change):
-        """Swap between credentials and api key inputs"""
-
+    def _swap_inputs(self, change: dict) -> None:
+        """Swap between credentials and api key inputs."""
         self.alert.reset()
         self.reset()
 
@@ -123,9 +132,8 @@ class PlanetView(sw.Layout):
         return
 
     @loading_button(debug=True)
-    def validate(self, *args):
-        """Initialize planet client and validate if is active"""
-
+    def validate(self, *args) -> None:
+        """Initialize planet client and validate if is active."""
         self.planet_model.__init__()
 
         if self.w_method.v_model == "credentials":

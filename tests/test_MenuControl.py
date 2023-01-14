@@ -13,7 +13,7 @@ class TestMenuControl:
         # create the menu_control
         m = sm.SepalMap()
         tile_control = sm.MenuControl("tutu", tile)
-        m.add_control(tile_control)
+        m.add(tile_control)
 
         # set some object in variables for easy access
         btn = tile_control.widget.v_slots[0]["children"]
@@ -27,7 +27,7 @@ class TestMenuControl:
         assert "ma-0" in tile.class_
         assert "pa-2" in tile.children[0].class_
         assert tile.children[0].raised is False
-        assert tile.get_title() == "None"
+        assert tile.get_title() == ""
         assert tile.children[0].elevation == 0
 
         return
@@ -35,7 +35,7 @@ class TestMenuControl:
     def test_update_position(self):
 
         # create the widget
-        menu_control = sm.MenuControl("fas fa-folder", sw.Card())
+        menu_control = sm.MenuControl("fa-solid fa-folder", sw.Card())
 
         assert menu_control.menu.top is True
         assert menu_control.menu.bottom is False
@@ -56,12 +56,12 @@ class TestMenuControl:
 
         # add controls on the map
         m = sm.SepalMap()
-        control_1 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
-        control_2 = sm.MenuControl("fas fa-folder", sw.Card(), m=m)
-        control_3 = sm.MenuControl("fas fa-folder", sw.Card())
-        m.add_control(control_1)
-        m.add_control(control_2)
-        m.add_control(control_3)
+        control_1 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
+        control_2 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
+        control_3 = sm.MenuControl("fa-solid fa-folder", sw.Card())
+        m.add(control_1)
+        m.add(control_2)
+        m.add(control_3)
 
         # open the first one and then the second one
         control_1.menu.v_model = True

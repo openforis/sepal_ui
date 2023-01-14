@@ -1,6 +1,6 @@
 {
-    "layer_state": {
-        "loading": "loading {} layer(s) out of {}",
-        "complete": "{} layer(s) loaded"
-    }
+  "layer_state": {
+    "loading": "loading {} layer(s) out of {}",
+    "complete": "{} layer(s) loaded"
+  }
 }

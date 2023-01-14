@@ -1,11 +1,11 @@
 import ee
+import pytest
 
 from sepal_ui import mapping as sm
-from sepal_ui.scripts import utils as su
 
 
 class TestEELayer:
-    @su.need_ee
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_init(self):
 
         # create a point gee layer (easier to check)

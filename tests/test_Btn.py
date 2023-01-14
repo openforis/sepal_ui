@@ -11,29 +11,13 @@ class TestBtn:
         btn = sw.Btn()
         assert btn.color == "primary"
         assert btn.v_icon.children[0] == ""
-        assert btn.children[1] == "Click"
+        assert btn.children[1] == ""
 
         # extensive btn
-        btn = sw.Btn("toto", "fas fa-folder")
+        btn = sw.Btn("toto", "fa-solid fa-folder")
         assert btn.children[1] == "toto"
         assert isinstance(btn.v_icon, v.Icon)
-        assert btn.v_icon.children[0] == "fas fa-folder"
-
-        return
-
-    def test_set_icon(self, btn):
-
-        # new icon
-        icon = "fas fa-folder"
-        btn = btn.set_icon(icon)
-
-        assert isinstance(btn.v_icon, v.Icon)
-        assert btn.v_icon.children[0] == icon
-
-        # change existing icon
-        icon = "fas fa-file"
-        btn.set_icon(icon)
-        assert btn.v_icon.children[0] == icon
+        assert btn.v_icon.children[0] == "fa-solid fa-folder"
 
         return
 
@@ -50,8 +34,54 @@ class TestBtn:
 
         return
 
+    def test_set_gliph(self, btn):
+
+        # new gliph
+        gliph = "fa-solid fa-folder"
+        btn.gliph = gliph
+
+        assert isinstance(btn.v_icon, v.Icon)
+        assert btn.v_icon.children[0] == gliph
+        assert btn.v_icon.left is True
+
+        # change existing icon
+        gliph = "fa-solid fa-file"
+        btn.gliph = gliph
+        assert btn.v_icon.children[0] == gliph
+
+        # display only the gliph
+        btn.msg = ""
+        assert btn.children[1] == ""
+        assert btn.v_icon.left is False
+
+        # remove all gliph
+        gliph = ""
+        btn.gliph = gliph
+        assert "d-none" in btn.v_icon.class_
+
+        # assert deprecation
+        with pytest.deprecated_call():
+            sw.Btn(icon="fa-solid fa-folder")
+
+        return
+
+    def test_set_msg(self, btn):
+
+        # test the initial text
+        assert btn.children[1] == "Click"
+
+        # update msg
+        msg = "New message"
+        btn.msg = msg
+        assert btn.children[1] == msg
+
+        # test deprecation notice
+        with pytest.deprecated_call():
+            sw.Btn(text="Deprecation")
+
+        return
+
     @pytest.fixture
     def btn(self):
-        """Create a simple btn"""
-
-        return sw.Btn()
+        """Create a simple btn."""
+        return sw.Btn("Click")

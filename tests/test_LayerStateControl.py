@@ -4,7 +4,6 @@ from ipyleaflet import RasterLayer
 from traitlets import Bool
 
 from sepal_ui import mapping as sm
-from sepal_ui.scripts import utils as su
 
 
 class TestLayerStateControl:
@@ -12,14 +11,14 @@ class TestLayerStateControl:
 
         m = sm.SepalMap()
         state = sm.LayerStateControl(m)
-        m.add_control(state)
+        m.add(state)
 
         assert isinstance(state, sm.LayerStateControl)
         assert state.w_state.loading is False
 
         return
 
-    @su.need_ee
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_update_nb_layer(self, map_with_layers):
 
         # create the map and controls
@@ -35,6 +34,7 @@ class TestLayerStateControl:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_update_loading(self, map_with_layers):
 
         # get the map and control
@@ -54,13 +54,12 @@ class TestLayerStateControl:
         return
 
     @pytest.fixture
-    def map_with_layers(self, fake_layer):
-        """create a map with 2 layers and a stateBar"""
-
+    def map_with_layers(self):
+        """create a map with 2 layers and a stateBar."""
         # create the map and controls
         m = sm.SepalMap()
         state = sm.LayerStateControl(m)
-        m.add_control(state)
+        m.add(state)
 
         # add some ee_layer (loading very fast)
         # world lights
@@ -70,15 +69,13 @@ class TestLayerStateControl:
         m.addLayer(dataset, {}, "Nighttime Lights")
 
         # a fake layer with loading update possibilities
-        m.add_layer(fake_layer)
+        m.add_layer(self.FakeLayer())
 
         return m
 
-    @pytest.fixture
-    def fake_layer(self):
-        """create a layer from a fakelayer class that have only one parameter: the laoding trait"""
+    class FakeLayer(RasterLayer):
+        """
+        layer class that have only one parameter: the laoding trait.
+        """
 
-        class FakeLayer(RasterLayer):
-            loading = Bool(False).tag(sync=True)
-
-        return FakeLayer()
+        loading = Bool(False).tag(sync=True)

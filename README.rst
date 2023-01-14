@@ -7,38 +7,6 @@ Sepal_ui
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
-   :target: https://doi.org/10.5281/zenodo.6467834
-   :alt: Citation
-
-.. image:: https://badge.fury.io/py/sepal-ui.svg
-    :target: https://badge.fury.io/py/sepal-ui
-    :alt: PyPI version
-    
-.. image:: https://img.shields.io/pypi/dm/sepal-ui?color=307CC2&logo=python&logoColor=gainsboro  
-    :target: https://pypi.org/project/sepal-ui/
-    :alt: PyPI - Downloads
-    
-.. image:: https://img.shields.io/pypi/pyversions/sepal-ui
-   :target: https://pypi.org/project/sepal-ui/
-   :alt: supported Python version
-
-.. image:: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml/badge.svg
-    :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml
-    :alt: build
-
-.. image:: https://api.codeclimate.com/v1/badges/861f09002bb9d75b6ea5/maintainability
-    :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
-    :alt: Maintainability
-
-.. image:: https://codecov.io/gh/12rambau/sepal_ui/branch/master/graph/badge.svg?token=YZ3mVcuaCq
-    :target: https://codecov.io/gh/12rambau/sepal_ui
-    :alt: Test Coverage
-    
-.. image:: https://readthedocs.org/projects/sepal-ui/badge/?version=latest
-    :target: https://sepal-ui.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-    
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Black badge
@@ -46,6 +14,38 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
    :target: https://conventionalcommits.org
    :alt: conventional commit
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
+   :target: https://doi.org/10.5281/zenodo.6467834
+   :alt: Citation
+
+.. image:: https://img.shields.io/readthedocs/sepal_ui?logo=readthedocs&logoColor=white
+    :target: https://sepal-ui.readthedocs.io/en/latest/
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/pypi/v/sepal-ui?color=orange&logo=python&logoColor=white
+    :target: https://pypi.org/project/sepal-ui/
+    :alt: PyPI version
+
+.. image:: https://img.shields.io/conda/vn/conda-forge/sepal-ui?color=orange&logo=anaconda&logoColor=white
+    :target: https://anaconda.org/conda-forge/sepal-ui
+    :alt: Conda Version
+
+.. image:: https://img.shields.io/pypi/pyversions/sepal-ui?color=orange&logo=python&logoColor=white
+   :target: https://pypi.org/project/sepal-ui/
+   :alt: supported Python version
+
+.. image:: https://img.shields.io/github/actions/workflow/status/12rambau/sepal_ui/unit.yml?logo=github&logoColor=white
+    :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml
+    :alt: build
+
+.. image:: https://img.shields.io/codeclimate/maintainability/12rambau/sepal_ui?logo=codeclimate&logoColor=white
+    :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
+    :alt: Maintainability
+
+.. image:: https://img.shields.io/codecov/c/github/12rambau/sepal_ui?logo=codecov&logoColor=white
+    :target: https://codecov.io/gh/12rambau/sepal_ui
+    :alt: Test Coverage
    
 .. image:: https://badges.crowdin.net/sepal-ui/localized.svg
    :target: https://crowdin.com/project/sepal-ui
@@ -66,11 +66,22 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 :code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
-The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and a demo app can be launched on Heroku following this link: `<https://sepal-ui.herokuapp.com>`__.
+The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links: 
+
+-   `Map style application <https://sepal-map-app.herokuapp.com>`__
+-   `Panel style application <https://sepal-panel-app.herokuapp.com>`__
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/master/docs/source/_image/sepal_ui_screenshot.png
++-----------+-------------+
+| |map-app| | |panel-app| |
++-----------+-------------+
+
+.. |map-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-map-app.png
+    :width: 100%
+
+.. |panel-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-panel-app.png
+    :width: 100%
 
 Contribute
 ----------

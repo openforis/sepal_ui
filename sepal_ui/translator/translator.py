@@ -1,33 +1,20 @@
+"""
+The translator object allow developer to suport translation for their application.
+"""
+
 import json
-from collections import abc
 from configparser import ConfigParser
 from pathlib import Path
+from typing import List, Tuple, Union
 
 import pandas as pd
 from box import Box
 from deprecated.sphinx import deprecated, versionadded
 
-from sepal_ui import config_file
+from sepal_ui.conf import config_file
 
 
 class Translator(Box):
-    """
-    The translator is a Python Box of boxes. It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
-    It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
-    To access the dictionary keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key.
-    There are no depth limits, just respect the snake_case convention when naming your keys in the .json files.
-    5 internal keys are created upon initialization (there name cannot be used as keys in the translation message):
-    -   (str) _default : the default locale of the translator
-    -   (str) _targeted : the initially requested language. Use to display debug information to the user agent
-    -   (str) _target : the target locale of the translator
-    -   (bool) _match : if the target language match the one requested one by user, used to trigger information in appBar
-    -   (str) _folder : the path to the l10n folder
-
-    Args:
-        json_folder (str | pathlib.Path): The folder where the dictionaries are stored
-        target (str, optional): The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
-        default (str, optional): The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
-    """
 
     _protected_keys = [
         "find_target",
@@ -41,8 +28,29 @@ class Translator(Box):
     ] + dir(Box)
     "keys that cannot be used as var names as they are protected for methods"
 
-    def __init__(self, json_folder, target=None, default="en"):
+    def __init__(
+        self, json_folder: Union[str, Path], target: str = "", default: str = "en"
+    ) -> None:
+        """
+        Python ``Box`` of ``Box`` representing all the nested translation key, value pairs.
 
+        It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
+        It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
+        To access the dictionary keys, instead of using [], you can simply use key name as in an object ex: translator.first_key.secondary_key.
+        There are no depth limits, just respect the snake_case convention when naming your keys in the .json files.
+        5 internal keys are created upon initialization (there name cannot be used as keys in the translation message):
+
+        -   (str) _default : the default locale of the translator
+        -   (str) _targeted : the initially requested language. Use to display debug information to the user agent
+        -   (str) _target : the target locale of the translator
+        -   (bool) _match : if the target language match the one requested one by user, used to trigger information in appBar
+        -   (str) _folder : the path to the l10n folder
+
+        Args:
+            json_folder: The folder where the dictionaries are stored
+            target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
+            default: The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
+        """
         # the name of the 5 variables that cannot be used as init keys
         FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]
 
@@ -86,33 +94,32 @@ class Translator(Box):
 
     @versionadded(version="2.7.0")
     @staticmethod
-    def find_target(folder, target=None):
+    def find_target(folder: Path, target: str = "") -> Tuple[str, str]:
         """
-        find the target language in the available language folder
+        find the target language in the available language folder.
 
         given a folder and a target lang, this function returns the closest language available in the folder
         If nothing is found falling back to any working subvariety and return None if it doesn't exist
 
         Args:
-            folder (pathlib.Path): the folder where the languages dictionnaries are stored
-            target (str, optional): the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
+            folder: the folder where the languages dictionnaries are stored
+            target: the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
 
-        Return:
-            (bool, str): a bool to tell if the exact requested lan were available and the closest lang in IETF BCP 47
+        Returns:
+            the targeted language code, the closest lang in IETF BCP 47
         """
-
         # init lang
-        lang = None
+        lang = ""
 
         # if target is not set try to find one in the config file
         # exit with none if the config file is not yet existing
-        if target is None:
+        if target == "":
             if config_file.is_file():
                 config = ConfigParser()
                 config.read(config_file)
                 target = config.get("sepal-ui", "locale", fallback="en")
             else:
-                return ("en", None)
+                return ("", "en")
 
         # first scenario the target is available
         if (folder / target).is_dir():
@@ -130,15 +137,14 @@ class Translator(Box):
 
         return (target, lang)
 
-    def search_key(self, d, key):
+    def search_key(self, d: dict, key: str) -> None:
         """
-        Search a specific key in the d dictionary and raise an error if found
+        Search a specific key in the d dictionary and raise an error if found.
 
         Args:
-            d (dict): the dictionary to study
-            key (str): the key to look for
+            d: the dictionary to study
+            key: the key to look for
         """
-
         if key in d:
             msg = f"You cannot use the key {key} in your translation dictionary"
             raise Exception(msg)
@@ -148,21 +154,20 @@ class Translator(Box):
                 return self.search_key(v, key)
 
     @classmethod
-    def sanitize(cls, d):
+    def sanitize(cls, d: Union[dict, list]) -> dict:
         """
-        Identify numbered dictionnaries embeded in the dict and transform them into lists
+        Identify numbered dictionnaries embeded in the dict and transform them into lists.
 
         This function is an helper to prevent deprecation after the introduction of pontoon for translation.
         The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing
         so this function will transform back this "numbered" dictionnary (with integer keys) into lists.
 
         Args:
-            d (dict): the dictionnary to sanitize
+            d: the dictionnary to sanitize
 
-        Return:
-            (dict): the sanitized dictionnary
+        Returns:
+            the sanitized dictionnary
         """
-
         ms = d.copy()
 
         # create generator based on input type
@@ -175,7 +180,7 @@ class Translator(Box):
         for k, v in gen:
             if isinstance(v, dict):
                 tmp = v
-                if all([k.isnumeric() for k in tmp]):
+                if len(tmp) and all([k.isnumeric() for k in tmp]):
                     tmp = list(tmp.values())
                 ms[k] = cls.sanitize(tmp)
             else:
@@ -183,59 +188,57 @@ class Translator(Box):
 
         return ms
 
-    def _update(self, d, u):
+    def _update(self, d: dict, u: dict) -> dict:
         """
-        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire
+        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire.
 
         Args:
-            d (dict): The fallback dictionary
-            u (dict): the target dctionnary
+            d: The fallback dictionary
+            u: the target dctionnary
 
-        Return:
-            ms (dict): The updated dictionnay
+        Returns:
+            The updated dictionnay
         """
-
         ms = d.copy()
 
-        for k, v in u.items():
-            if isinstance(v, abc.Mapping):
-                ms[k] = self._update(d.get(k, {}), v)
+        for k, v in d.items():
+            if isinstance(v, dict):
+                ms[k] = self._update(v, u.get(k, {}))
             else:
-                ms[k] = v
+                ms[k] = u.get(k, v)
 
         return ms
 
     @deprecated(version="2.9.0", reason="Not needed with automatic translators")
     def missing_keys(self):
+        """Nothing."""
         pass
 
-    def available_locales(self):
+    def available_locales(self) -> List[str]:
         """
-        Return the available locales in the l10n folder
+        Return the available locales in the l10n folder.
 
-        Return:
-            (list): the list of str codes
+        Returns:
+            the list of str codes
         """
-
         return [f.name for f in Path(self._folder).glob("[!^._]*") if f.is_dir()]
 
     @versionadded(version="2.7.0")
     @classmethod
-    def merge_dict(cls, folder):
+    def merge_dict(cls, folder: Path) -> dict:
         """
-        gather all the .json file in the provided l10n folder as 1 single json dict
+        Gather all the .json file in the provided l10n folder as 1 single json dict.
 
-        the json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
+        The json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
         be careful with duplication. empty string keys will be removed.
 
         Args:
-            folder (pathlib.path)
+            folder: the folder where all the .json files are stored
 
-        Return:
-            (dict): the json dict with all the keys
+        Returns:
+            the json dict with all the keys
 
         """
-
         final_json = {}
         for f in folder.glob("*.json"):
             tmp_dict = cls.delete_empty(json.loads(f.read_text()))
@@ -245,30 +248,32 @@ class Translator(Box):
 
     @versionadded(version="2.8.1")
     @classmethod
-    def delete_empty(cls, d):
+    def delete_empty(cls, d: dict) -> dict:
         """
-        Remove empty strings ("") recursively from the dictionaries. This is to prevent untranslated strings from
-        Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
+        Remove empty strings ("") recursively from the dictionaries.
+
+        This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
 
         Args:
-            d (dict): the dictionnary to sanitize
+            d: the dictionnary to sanitize
 
-        Return:
-            (dict): the sanitized dictionnary
+        Returns:
+            the sanitized dictionnary
 
         """
         for k, v in list(d.items()):
             if isinstance(v, dict):
                 cls.delete_empty(v)
             elif v == "":
-                del d[k]
+                d.pop(k)
 
         return d
 
     @versionadded(version="2.10.0")
-    def key_use(self, folder, name):
+    def key_use(self, folder: Path, name: str) -> List[str]:
         """
         Parse all the files in the folder and check if keys are all used at least once.
+
         Return the unused key names.
 
         .. warning::
@@ -278,11 +283,11 @@ class Translator(Box):
             manually the variables suggested by this method before deleting them
 
         Args:
-            folder (pathlib.Path): The application folder using this translator data
-            name (str): the name use by the translator in this app (usually "cm")
+            folder: The application folder using this translator data
+            name: the name use by the translator in this app (usually "cm")
 
-        Return:
-            (list): the list of unused keys
+        Returns:
+            the list of unused keys
         """
         # cannot set FORBIDDEN_KEY in the Box as it would lock another key
         FORBIDDEN_KEYS = ["_folder", "_default", "_target", "_targeted", "_match"]
@@ -292,7 +297,8 @@ class Translator(Box):
 
         # get all the python files recursively
         py_files = []
-        for f in folder.glob(r"**/*.[py][ipynb]"):
+        all_files = [f for f in folder.glob("**/*") if f.suffix in [".py", ".ipynb"]]
+        for f in all_files:
             generated_files = [".ipynb_checkpoints", "__pycache__"]
             if all([err not in str(f) for err in generated_files]):
                 py_files.append(f)

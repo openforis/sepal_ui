@@ -9,22 +9,17 @@ from sepal_ui.planetapi import PlanetModel
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 class TestPlanetModel:
-    @pytest.fixture
-    def planet_key(self):
-        return os.getenv("PLANET_API_KEY")
+    def test_init(self, planet_key, cred, request):
 
-    @pytest.fixture
-    def cred(self):
+        # Test with a valid api key
+        planet_model = PlanetModel(planet_key)
 
-        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+        assert isinstance(planet_model, PlanetModel)
+        assert isinstance(planet_model.session, planet.http.Session)
+        assert planet_model.active is True
 
-        return list(credentials.values())
-
-    @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
-    def test_init(self, credentials, request):
-
-        # Test with a valid api key and login credentials
-        planet_model = PlanetModel(request.getfixturevalue(credentials))
+        # Test with a valid login credentials
+        planet_model = PlanetModel(cred)
 
         assert isinstance(planet_model, PlanetModel)
         assert isinstance(planet_model.session, planet.http.Session)
@@ -33,6 +28,8 @@ class TestPlanetModel:
         # Test with an invalid api key
         with pytest.raises(Exception):
             planet_model = PlanetModel("not valid")
+
+        return
 
     @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
     def test_init_client(self, credentials, request):
@@ -44,6 +41,8 @@ class TestPlanetModel:
 
         with pytest.raises(Exception):
             planet_model.init_session("wrongkey")
+
+        return
 
     def test_init_session_from_event(self):
 
@@ -61,10 +60,9 @@ class TestPlanetModel:
         with pytest.raises(planet.exceptions.APIError):
             planet_model.init_session(["valid@email.format", "not_exists"])
 
-    def test_is_active(self, planet_key):
+        return
 
-        # We only need to test with a key.
-        planet_model = PlanetModel(planet_key)
+    def test_is_active(self, planet_model):
 
         planet_model._is_active()
         assert planet_model.active is True
@@ -72,21 +70,21 @@ class TestPlanetModel:
         with pytest.raises(Exception):
             planet_model = PlanetModel("wrongkey")
 
-    def test_get_subscriptions(self, planet_key):
+        return
 
-        planet_model = PlanetModel(planet_key)
+    def test_get_subscriptions(self, planet_model):
+
         subs = planet_model.get_subscriptions()
 
         # Check object has length, because there is no way to check a value
         # that might change over the time.
-        assert len(subs)
+        assert len(subs) != 0
 
-    def test_get_planet_items(self, planet_key):
+        return
 
-        # Arrange
-        planet_model = PlanetModel(planet_key)
+    def test_get_planet_items(self, planet_model):
 
-        aoi = {
+        aoi = {  # Yasuni national park in Ecuador
             "type": "Polygon",
             "coordinates": (
                 (
@@ -105,8 +103,25 @@ class TestPlanetModel:
 
         expected_first_id = "20201118_144642_48_2262"
 
-        # Act
+        # Get the items
         items = planet_model.get_items(aoi, start, end, cloud_cover)
-
-        # Assert
         assert items[0].get("id") == expected_first_id
+
+    @pytest.fixture
+    def planet_key(self):
+
+        return os.getenv("PLANET_API_KEY")
+
+    @pytest.fixture
+    def cred(self):
+
+        credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+
+        return list(credentials.values())
+
+    @pytest.fixture
+    def planet_model(self):
+        """Start a planet model using the API key."""
+        key = os.getenv("PLANET_API_KEY")
+
+        return PlanetModel(key)
