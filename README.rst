@@ -53,10 +53,12 @@ Currently translated in the following languages:
 
 .. list-table::
 
-   * - Français
+   * - English
+     - Français
      - Español
      - 中国人
-   * - .. image:: https://img.shields.io/badge/dynamic/json?label=fr&logo=crowdin&logoColor=white&query=%24.progress.2.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
+   * - .. image:: https://img.shields.io/static/v1?label=en&message=100%&logo=crowdin&logoColor=white&color=blue
+     - .. image:: https://img.shields.io/badge/dynamic/json?label=fr&logo=crowdin&logoColor=white&query=%24.progress.2.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
      - .. image:: https://img.shields.io/badge/dynamic/json?logoColor=white&label=es-ES&logo=crowdin&query=%24.progress.1.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
      - .. image:: https://img.shields.io/badge/dynamic/json?label=zh-CN&logo=crowdin&logoColor=white&query=%24.progress.5.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
 
