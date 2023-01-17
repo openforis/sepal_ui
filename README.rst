@@ -47,17 +47,18 @@ Sepal_ui
     :target: https://codecov.io/gh/12rambau/sepal_ui
     :alt: Test Coverage
    
-.. image:: https://badges.crowdin.net/sepal-ui/localized.svg
-   :target: https://crowdin.com/project/sepal-ui
-   :alt: Crowdin
-   
 --------------------------------------------------------------------------------
 
 Currently translated in the following languages:
 
-.. csv-table::
+.. list-table::
 
-    English, Français, Español, 中国人
+   * - Français
+     - Español
+     - 中国人
+   * - .. image:: https://img.shields.io/badge/dynamic/json?label=fr&logo=crowdin&logoColor=white&query=%24.progress.2.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
+     - .. image:: https://img.shields.io/badge/dynamic/json?logoColor=white&label=es-ES&logo=crowdin&query=%24.progress.1.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
+     - .. image:: https://img.shields.io/badge/dynamic/json?label=zh-CN&logo=crowdin&logoColor=white&query=%24.progress.5.data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15167678-506362.json
 
 You can contribute to the translation effort on our `crowdin project <https://crowdin.com/project/sepal-ui>`__.
 
