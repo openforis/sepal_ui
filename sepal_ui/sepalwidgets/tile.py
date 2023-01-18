@@ -199,15 +199,7 @@ class TileAbout(Tile):
         Args:
             pathname: the path to the .md file
         """
-        if type(pathname) == str:
-            pathname = Path(pathname)
-
-        # read the content and transform it into a html
-        with pathname.open() as f:
-            about = f.read()
-
-        content = Markdown(about)
-
+        content = Markdown(Path(pathname).read_text())
         super().__init__("about_tile", "About", inputs=[content])
 
 
