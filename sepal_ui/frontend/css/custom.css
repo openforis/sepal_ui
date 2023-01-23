@@ -65,7 +65,15 @@ nav.v-navigation-drawer {
   transform: translate(-50%, -50%);
 }
 
-/* add specific css for the map btn */
+/* specific css for the btn placed on maps */
+.v-btn.v-size--default.v-map-btn:not(.v-btn--round) {
+  padding: 0px;
+  min-width: 0px;
+  width: 30px;
+  height: 30px;
+}
+
+/* add specific css for the zoom btn of the map */
 .v-btn.v-zoom-plus {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
