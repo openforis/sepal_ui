@@ -64,3 +64,14 @@ nav.v-navigation-drawer {
 .leaflet-center.leaflet-middle {
   transform: translate(-50%, -50%);
 }
+
+/* add specific css for the map btn */
+.v-btn.v-zoom-plus {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.v-btn.v-zoom-minus {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
