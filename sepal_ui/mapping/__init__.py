@@ -26,3 +26,4 @@ from .map_btn import *
 from .menu_control import *
 from .sepal_map import *
 from .value_inspector import *
+from .zoom_control import *
