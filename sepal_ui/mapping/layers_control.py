@@ -1,12 +1,16 @@
 """
 Extend fonctionalities of the ipyleaflet layer control.
 """
+import json
 from typing import Optional
 
+import ipyvuetify as v
 from ipyleaflet import Map, TileLayer
 from ipywidgets import link
 
+from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.menu_control import MenuControl
 
 
@@ -114,11 +118,28 @@ class LayersControl(MenuControl):
         # save the map
         self.m = m
 
+        # create a loading to place it on top of the card. It will always be visible
+        # even when the card is scrolled
+        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
+        self.w_loading = sw.ProgressLinear(
+            indeterminate=False,
+            background_color=color.menu,
+            color=p_style["color"][v.theme.dark],
+        )
+        self.tile = sw.Tile("nested", "")
+
         # set the kwargs parameters
         kwargs.setdefault("position", "topright")
         super().__init__(
-            icon_content="fa-solid fa-layer-group", card_content="", m=m, **kwargs
+            icon_content="fa-solid fa-layer-group",
+            card_content=self.tile,
+            m=m,
+            **kwargs
         )
+
+        # customize the menu to make it look more like a layercontrol
+        self.menu.open_on_hover = True
+        self.menu.close_delay = 200
 
         # add js behavior
         self.m.observe(self.update_table, "layers")
@@ -143,6 +164,6 @@ class LayersControl(MenuControl):
         base_group = sw.RadioGroup(v_model=current.name, children=[base_table])
 
         # set the table as children of the widget
-        self.menu.children = [base_group, sw.Divider(), layer_table]
+        self.tile.children = [base_group, sw.Divider(), layer_table]
 
         return

@@ -58,7 +58,7 @@ class MenuControl(WidgetControl):
             card_content.children[0].elevation = 0
 
         # set up a title of needed
-        if card_title is not None:
+        if card_title != "":
             card_title = sw.CardTitle(children=[card_title])
             children.insert(0, card_title)
 
