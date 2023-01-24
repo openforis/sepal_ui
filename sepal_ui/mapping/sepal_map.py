@@ -39,6 +39,7 @@ from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.layer_state_control import LayerStateControl
+from sepal_ui.mapping.layers_control import LayersControl
 from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.message import ms
@@ -122,7 +123,7 @@ class SepalMap(ipl.Map):
 
         # add the base controls
         self.add(ipl.ZoomControl(position="topright"))
-        self.add(ipl.LayersControl(position="topright"))
+        self.add(LayersControl(self))
         self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
         self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
 

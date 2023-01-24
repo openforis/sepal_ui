@@ -64,3 +64,17 @@ nav.v-navigation-drawer {
 .leaflet-center.leaflet-middle {
   transform: translate(-50%, -50%);
 }
+
+/* add a non-hover clas for tables */
+.v-no-hover tr:hover {
+  background-color: transparent !important;
+}
+
+/* extra css rules to make the messages disapear beneath the SimpleSlider */
+.v-no-messages .v-messages {
+  display: none;
+}
+
+.v-no-messages .v-input__slot {
+  margin-bottom: 0;
+}
