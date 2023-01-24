@@ -4,6 +4,7 @@ Based menu ``Control`` to display widgets to your user.
 
 from typing import Optional, Union
 
+import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
 from typing_extensions import Self
 
@@ -22,7 +23,7 @@ class MenuControl(WidgetControl):
     def __init__(
         self,
         icon_content: str,
-        card_content: sw.Tile,
+        card_content: Union[v.VuetifyWidget, str],
         card_title: str = "",
         m: Optional[Map] = None,
         **kwargs
