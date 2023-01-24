@@ -15,9 +15,6 @@ class BaseLine(sw.Html):
     w_radio: Optional[sw.SimpleCheckbox] = None
     "the radio to hide/show the layer"
 
-    layer: Optional[TileLayer] = None
-    "The basemap layer controlled by the radio btn"
-
     def __init__(self, layer: TileLayer) -> None:
         """
         Html row element to describe a base layer.
@@ -28,9 +25,6 @@ class BaseLine(sw.Html):
         Args:
             layer: the layer associated to the row
         """
-        # save the layer and map as a member
-        self.layer = layer
-
         # create the checkbox, by default layer are visible
         self.w_radio = sw.Radio(small=True, value=layer.name)
         kwargs = {"style": "width: 10%;", "tag": "td"}
@@ -48,7 +42,7 @@ class BaseLine(sw.Html):
         super().__init__(tag="tr", children=[radio_row, label_row, empty_row])
 
         # add js behavior
-        link((layer, "visible"), (self.w_radio, "v_model"))
+        link((layer, "visible"), (self.w_radio, "active"))
 
 
 class LayerLine(sw.Html):
@@ -140,11 +134,13 @@ class LayersControl(MenuControl):
         layer_table = sw.SimpleTable(children=[tbody], **kwargs)
 
         # create another table of basemapLine
-        rows = [BaseLine(lyr) for lyr in self.m.layers if lyr.base is True]
+        bases = [lyr for lyr in self.m.layers if lyr.base is True]
+        rows = [BaseLine(lyr) for lyr in bases]
+        current = next(lyr for lyr in bases if lyr.visible is True)
         tbody = sw.Html(tag="tbody", children=rows)
         kwargs = {"class_": "v-no-hover", "dense": True}
         base_table = sw.SimpleTable(children=[tbody], **kwargs)
-        base_group = sw.RadioGroup(children=[base_table])
+        base_group = sw.RadioGroup(v_model=current.name, children=[base_table])
 
         # set the table as children of the widget
         self.menu.children = [base_group, sw.Divider(), layer_table]
