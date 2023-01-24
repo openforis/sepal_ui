@@ -18,12 +18,6 @@ class LayerLine(sw.Html):
     w_slider: Optional[sw.SimpleSlider] = None
     "the slider linked to the opacity of the layer"
 
-    layer: Optional[TileLayer] = None
-    "the layer controlled by the row"
-
-    prev_opacity: float = 1
-    "the opacity set before clicking on the checkbox"
-
     def __init__(self, layer: TileLayer) -> None:
         """
         Html row element to describe a normal layer.
@@ -35,9 +29,6 @@ class LayerLine(sw.Html):
         Args:
             layer: the layer associated to the row
         """
-        # save the layer to modify it dynamically
-        self.layer = layer
-
         # create the checkbox, by default layer are visible
         self.w_checkbox = sw.SimpleCheckbox(v_model=True, small=True)
         kwargs = {"style": "width: 10%;", "tag": "td"}
@@ -49,12 +40,22 @@ class LayerLine(sw.Html):
 
         # create the slider
         self.w_slider = sw.SimpleSlider(v_model=1, max=1, step=0.001, small=True)
-        link((layer, "opacity"), (self.w_slider, "v_model"))
         kwargs = {"style_": "width: 50%;", "tag": "td"}
         slider_row = sw.Html(children=[self.w_slider], **kwargs)
 
         # build a html tr from it
         super().__init__(tag="tr", children=[checkbox_row, label_row, slider_row])
+
+        # add js behavior
+        link((layer, "opacity"), (self.w_slider, "v_model"))
+        link((self.w_checkbox, "v_model"), (layer, "visible"))
+        self.w_checkbox.observe(self.toggle_slider, "v_model")
+
+    def toggle_slider(self, *args) -> None:
+        """toggle the modification of the slider."""
+        self.w_slider.disabled = not self.w_checkbox.v_model
+
+        return
 
 
 class LayersControl(MenuControl):
