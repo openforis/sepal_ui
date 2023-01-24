@@ -15,7 +15,7 @@ class TestSepalWidgets:
 
         for c in v_classes:
 
-            if c in ["Alert", "Tooltip", "Banner", "DatePicker"]:
+            if c in ["Alert", "Tooltip", "Banner", "DatePicker", "Radio", "RadioGroup"]:
                 # they are meant to be hidden by default
                 # they are specific sepalwidgets and tested elswhere
                 continue

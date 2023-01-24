@@ -121,6 +121,10 @@ class SepalMap(ipl.Map):
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
+        # set the visibility of all the basemaps to False but the first one
+        [setattr(lyr, "visible", False) for lyr in self.layers]
+        self.layers[0].visible = True
+
         # add the base controls
         self.add(ipl.ZoomControl(position="topright"))
         self.add(LayersControl(self))
