@@ -7,8 +7,7 @@ from types import SimpleNamespace
 from typing import Dict, Tuple
 
 import ipyvuetify as v
-import requests
-from IPython.display import display
+from IPython.display import Javascript, display
 from traitlets import Bool, HasTraits, Unicode, observe
 
 import sepal_ui.scripts.utils as su
@@ -164,7 +163,7 @@ class Styles(v.VuetifyTemplate):
 
     css = (CSS_DIR / "custom.css").read_text()
     template: Unicode = Unicode(f"<style>{css}</style>").tag(sync=True)
-    "The trait embeding the maps style"
+    "The trait embeding the sepal-ui style"
 
 
 class FAStyles(v.VuetifyTemplate):
@@ -173,12 +172,17 @@ class FAStyles(v.VuetifyTemplate):
     """
 
     cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    fontawesome = requests.get(cdn).content
-    template: Unicode = Unicode(f"<style>{fontawesome}</style>").tag(sync=True)
-    "The trait embeding the maps style"
+    key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+    template: Unicode = Unicode(
+        f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous" refferpolicy="no-referrer"/>'
+    ).tag(sync=True)
+    "The trait embeding the fontawesome 6 cdn"
 
 
 # cdn and FA must be splitted
 # Jupyter can only load one of them at once
 display(Styles())
 display(FAStyles())
+
+# create a small hack to remove fontawesome from the html output
+display(Javascript((JS_DIR / "fontawesome.js").read_text()))
