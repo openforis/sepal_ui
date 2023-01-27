@@ -24,7 +24,7 @@ class MapBtn(v.Btn, sw.SepalWidget):
             content: a fa-solid/mdi fully qualified name or a string name. If a string name is used, only the 3 first letters will be displayed.
         """
         # create the icon
-        if content.startswith("mdi-") or content.startswith("fa-solid fa-"):
+        if content.startswith("mdi-") or content.startswith("fa"):
             content = sw.Icon(small=True, children=[content])
         else:
             content = content[: min(3, len(content))].upper()

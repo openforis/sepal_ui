@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import Dict, Tuple
 
 import ipyvuetify as v
+import requests
 from IPython.display import display
 from traitlets import Bool, HasTraits, Unicode, observe
 
@@ -159,24 +160,25 @@ class SepalColor(HasTraits, SimpleNamespace):
 class Styles(v.VuetifyTemplate):
     """
     Fixed styles to fix display issues in the lib.
-
-    - avoid leaflet maps overlap sepal widgets
-    - remove shadow of widget-control
-    - remove padding of the main content
-    - load fontawsome as a resource
-    - ensure that tqdm bars are using a transparent background when displayed in an alert
-    - correct items z-index
     """
 
     css = (CSS_DIR / "custom.css").read_text()
-    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-    template: Unicode = Unicode(
-        f"<style>{css}</style>"
-        f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous", refferpolicy="no-referrer"/>'
-    ).tag(sync=True)
+    template: Unicode = Unicode(f"<style>{css}</style>").tag(sync=True)
     "The trait embeding the maps style"
 
 
-styles = Styles()
-display(styles)
+class FAStyles(v.VuetifyTemplate):
+    """
+    Import fontawseome 6 in the display.
+    """
+
+    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    fontawesome = requests.get(cdn).content
+    template: Unicode = Unicode(f"<style>{fontawesome}</style>").tag(sync=True)
+    "The trait embeding the maps style"
+
+
+# cdn and FA must be splitted
+# Jupyter can only load one of them at once
+display(Styles())
+display(FAStyles())
