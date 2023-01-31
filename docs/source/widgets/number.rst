@@ -7,14 +7,14 @@ Overview
 :code:`NumberField` is a field widget to enter number with an incremental arrow. it inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`TextField` ipyvuetify class can be used to complement it.
 
-.. jupyter-execute:: 
+.. jupyter-execute::
     :raises:
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
 

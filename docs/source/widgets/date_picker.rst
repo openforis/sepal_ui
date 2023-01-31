@@ -11,13 +11,13 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+    from sepal_ui import sepalwidgets as sw
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
-    
+
     date = sw.DatePicker()
     date
 
