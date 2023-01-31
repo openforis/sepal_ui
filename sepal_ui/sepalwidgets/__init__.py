@@ -6,11 +6,11 @@ Package to access all the widget available in sepal-ui. The widgets are all deri
 Everything module content can be called directly from the package.
 
 Example:
-.. jupyter-execute::
+    .. jupyter-execute::
 
-    from sepal_ui import sepalwidgets as sw
+        from sepal_ui import sepalwidgets as sw
 
-    sw.Btn()
+        sw.Btn()
 """
 
 from sepal_ui.sepalwidgets.sepal_ipyvuetify import *  # noqa: I

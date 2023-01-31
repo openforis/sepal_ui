@@ -1,5 +1,5 @@
 """
-All the process that can be run using nox. 
+All the process that can be run using nox.
 
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
@@ -14,7 +14,7 @@ def lint(session):
     session.run("pre-commit", "run", "--a", *session.posargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
+@nox.session(reuse_venv=True)
 def test(session):
     """Run all the test using the environment varialbe of the running machine."""
     session.install(".[test]")
@@ -39,36 +39,26 @@ def bin(session):
 def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
+    session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/", external=True)
     session.run(
         "sphinx-apidoc",
-        "--force",
-        "--module-first",
         "--templatedir=docs/source/_templates/apidoc",
         "-o",
         "docs/source/modules",
-        "./sepal_ui",
+        "sepal_ui",
     )
     session.run(
-        "sphinx-build", "-v", "-b", "html", "docs/source", "build", "-w", "warnings.txt"
+        "sphinx-build",
+        "-v",
+        "-b",
+        "html",
+        "docs/source",
+        "docs/build/html",
+        "-w",
+        "warnings.txt",
     )
     session.run("python", "tests/check_warnings.py")
-
-
-@nox.session(name="docs-live", reuse_venv=False)
-def docs_live(session):
-    """Build a live-updating documentation."""
-    session.install(".[doc]")
-    session.run(
-        "sphinx-apidoc",
-        "--force",
-        "--module-first",
-        "--templatedir=docs/source/_templates/apidoc",
-        "-o",
-        "docs/source/modules",
-        "./sepal_ui",
-    )
-    session.run("sphinx-autobuild", "-b", "html", "docs/source", "build")
 
 
 @nox.session(name="mypy", reuse_venv=True)
