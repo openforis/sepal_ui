@@ -1,18 +1,18 @@
 """
-All modules used to create a application ``Map``. 
+All modules used to create a application ``Map``.
 
-The ``SepalMap`` is inheriting from the **ipyleaflet** ``Map``. It has been customized to support additional widgets as controls based on **ipyvuetify**. It is also fully compatible with the **sepal-ui** framework thanks to frontend modifications. 
+The ``SepalMap`` is inheriting from the **ipyleaflet** ``Map``. It has been customized to support additional widgets as controls based on **ipyvuetify**. It is also fully compatible with the **sepal-ui** framework thanks to frontend modifications.
 
-The main object is the ``SepalMap``that should be used in favor of ``Map`` in **sepal-ui** framework. The others are predisgned controls that can be helpful to speed up developments. 
+The main object is the ``SepalMap``that should be used in favor of ``Map`` in **sepal-ui** framework. The others are predisgned controls that can be helpful to speed up developments.
 ``SepalMap`` is fully compatible with Google Earth Engine layers.
 
 Every module content can be called directly from the package.
 
 Example:
-    ..jupyter-execute::
+    .. jupyter-execute::
 
         from sepal_ui import mapping as sm
-    
+
         sm.SepalMap()
 """
 
