@@ -118,9 +118,9 @@ class AdminField(sw.Select):
         It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
-            level (int): The administrative level of the field
-            parent (AdminField): the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
-            ee (bool, optional): wether to use ee or not (default to True)
+            level: The administrative level of the field
+            parent: the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
+            ee: wether to use ee or not (default to True)
         """
         # save ee state
         self.gee = gee
@@ -373,11 +373,7 @@ class AoiView(sw.Card):
         if self.map_:
             self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
-
-            if self.gee:
-                self.map_.add_ee_layer(self.model.feature_collection, {}, name="aoi")
-            else:
-                self.map_.add_layer(self.model.get_ipygeojson())
+            self.map_.add_layer(self.model.get_ipygeojson())
 
             self.aoi_dc.hide()
 
