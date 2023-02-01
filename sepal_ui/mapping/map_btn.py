@@ -2,13 +2,10 @@
 Based ``SepalMap`` Btn.
 """
 
-import json
-
 import ipyvuetify as v
 
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
 
 
 class MapBtn(v.Btn, sw.SepalWidget):
@@ -29,15 +26,12 @@ class MapBtn(v.Btn, sw.SepalWidget):
         else:
             content = content[: min(3, len(content))].upper()
 
-        # create the style from default
-        style = json.loads((ss.JSON_DIR / "map_btn.json").read_text())
-        style.update(background=color.bg)
-
         # some parameters are overloaded to match the map requirements
         kwargs["color"] = "text-color"
         kwargs["outlined"] = True
-        kwargs["style_"] = " ".join([f"{k}: {v};" for k, v in style.items()])
+        kwargs["style_"] = f"background: {color.bg};"
         kwargs["children"] = [content]
         kwargs["icon"] = False
+        kwargs.setdefault("class_", "v-map-btn")
 
         super().__init__(**kwargs)

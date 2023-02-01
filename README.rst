@@ -10,6 +10,10 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Black badge
+   
+.. image:: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
+   :target: https://github.com/prettier/prettier
+   :alt: prettier badge
 
 .. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
    :target: https://conventionalcommits.org
