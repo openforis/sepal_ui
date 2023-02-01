@@ -10,7 +10,7 @@ Example:
 
         from sepal_ui import reclassify
 
-        reclassify.ReclassifyTile()
+        reclassify.ReclassifyTile(gee=False)
 """
 
 from .parameters import *

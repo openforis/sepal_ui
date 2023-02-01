@@ -13,7 +13,7 @@ Example:
 
         from sepal_ui import mapping as sm
 
-        sm.SepalMap()
+        sm.SepalMap(gee=False)
 """
 
 from .aoi_control import *
