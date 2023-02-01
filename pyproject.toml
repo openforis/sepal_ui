@@ -183,4 +183,4 @@ omit = [
 
 [tool.doc8]
 ignore = ["D001"] # we follow a 1 line = 1 paragraph style
-ignore-path-errors = "docs/source/index.rst;D000"
+ignore-path-errors = ["docs/source/index.rst;D000"]
