@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Customization of the provided css from the different libs used by sepal_ui 
+ * Customization of the provided css from the different libs used by sepal_ui
  */
 
 /* replace the map panel elements on top */
@@ -80,6 +80,7 @@ nav.v-navigation-drawer {
 }
 
 .v-btn.v-zoom-minus {
+  margin-top: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
