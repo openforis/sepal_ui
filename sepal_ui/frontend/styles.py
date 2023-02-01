@@ -157,14 +157,15 @@ class SepalColor(HasTraits, SimpleNamespace):
 
 
 # load custom styling of sepal_ui
-display(HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>"))
+sepal_ui_css = HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>")
 
 # load fa-6
-display(
-    HTML(
-        '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>'
-    )
+fa_css = HTML(
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>'
 )
 
 # create a small hack to remove fontawesome from the html output
-display(Javascript((JS_DIR / "fontawesome.js").read_text()))
+clean_fa_js = Javascript((JS_DIR / "fontawesome.js").read_text())
+
+# display all
+display(sepal_ui_css, fa_css, clean_fa_js)
