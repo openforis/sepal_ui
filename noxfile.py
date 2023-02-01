@@ -1,5 +1,5 @@
 """
-All the process that can be run using nox. 
+All the process that can be run using nox.
 
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
@@ -39,7 +39,8 @@ def bin(session):
 def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
-    session.run("rm", "-rf", "docs/build/", external=True)
+    session.run("rm", "-rf", "docs/source/modules", external=True)
+    session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(
         "sphinx-apidoc",
         "--force",
@@ -50,7 +51,14 @@ def docs(session):
         "./sepal_ui",
     )
     session.run(
-        "sphinx-build", "-v", "-b", "html", "docs/source", "build", "-w", "warnings.txt"
+        "sphinx-build",
+        "-v",
+        "-b",
+        "html",
+        "docs/source",
+        "docs/build/html",
+        "-w",
+        "warnings.txt",
     )
     session.run("python", "tests/check_warnings.py")
 
@@ -68,7 +76,7 @@ def docs_live(session):
         "docs/source/modules",
         "./sepal_ui",
     )
-    session.run("sphinx-autobuild", "-b", "html", "docs/source", "build")
+    session.run("sphinx-autobuild", "-b", "html", "docs/source", "docs/build/html")
 
 
 @nox.session(name="mypy", reuse_venv=True)

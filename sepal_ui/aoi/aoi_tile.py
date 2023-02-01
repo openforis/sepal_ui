@@ -31,6 +31,7 @@ class AoiTile(sw.Tile):
         admin: Union[int, str] = "",
         asset: Union[str, Path] = "",
         folder: Union[str, Path] = "",
+        map_style: Optional[dict] = None,
         **kwargs
     ) -> None:
         """
@@ -42,6 +43,7 @@ class AoiTile(sw.Tile):
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if :code:`ee==True`.
+            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
@@ -57,6 +59,7 @@ class AoiTile(sw.Tile):
             admin=admin,
             asset=asset,
             folder=folder,
+            map_style=map_style,
             **kwargs
         )
         self.view.elevation = 0
