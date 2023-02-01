@@ -43,6 +43,7 @@ dependencies = [
     "Unidecode",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
+    "nest-asyncio", # planet API interaction
 ]
 
 [[project.authors]]
