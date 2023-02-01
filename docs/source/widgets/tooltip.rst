@@ -15,12 +15,12 @@ Remember that, even though the widget is wrapped by the tooltip, the widget meth
 .. jupyter-execute::
     :raises:
     :stderr:
-    
-    from sepal_ui import sepalwidgets as sw 
 
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
-    import ipyvuetify as v 
+    from sepal_ui import sepalwidgets as sw
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
+    import ipyvuetify as v
     v.theme.dark = False
 
     btn = sw.Btn('click')
@@ -28,10 +28,10 @@ Remember that, even though the widget is wrapped by the tooltip, the widget meth
 
     # Note that calling btn won't display anything
     btn
-    
+
     # Create events
     btn.on_event("click", lambda *_: print("test"))
-    
+
     # And to display it..
     btn.with_tooltip
 
@@ -47,12 +47,12 @@ The external :code:`Tooltip` is a custom widget to provide easy to use tooltip i
 .. jupyter-execute::
     :raises:
     :stderr:
-    
-    from sepal_ui import sepalwidgets as sw 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
-    import ipyvuetify as v 
+
+    from sepal_ui import sepalwidgets as sw
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
+    import ipyvuetify as v
     v.theme.dark = False
 
     btn = sw.Btn('click')

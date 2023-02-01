@@ -12,12 +12,12 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
     :stderr:
 
     from sepal_ui import reclassify as rec
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
-    
+
     reclassify_tile = rec.ReclassifyTile(gee=False)
     reclassify_tile
 

@@ -11,10 +11,10 @@ Overview
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     v.theme.dark = False
 
     class SepalSelect(sw.SepalWidget, v.Select):
@@ -22,10 +22,10 @@ Overview
         def __init__(self, **kwargs):
 
             super().__init__(**kwargs)
-            
+
     sepal_select = SepalSelect()
     sepal_select
-    
+
 Methods
 -------
 
@@ -41,10 +41,10 @@ Hide the component by changing its class.
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     v.theme.dark = False
 
     class SepalSelect(sw.SepalWidget, v.Select):
@@ -52,16 +52,16 @@ Hide the component by changing its class.
         def __init__(self, **kwargs):
 
             super().__init__(**kwargs)
-            
+
     sepal_select = SepalSelect()
     sepal_select.hide()
-    
+
 .. note::
 
     the component can also be hidden by setting:
-    
+
     .. code-block:: python
-        
+
         sepal_select.viz = False
 
 show
@@ -74,10 +74,10 @@ Show the component by changing its class.
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     v.theme.dark = False
 
     class SepalSelect(sw.SepalWidget, v.Select):
@@ -85,16 +85,16 @@ Show the component by changing its class.
         def __init__(self, **kwargs):
 
             super().__init__(**kwargs)
-            
+
     sepal_select = SepalSelect()
     sepal_select.hide().show()
-    
+
 .. note::
 
     the component can also be shown by setting:
-    
+
     .. code-block:: python
-        
+
         sepal_select.viz = True
 
 reset
@@ -107,10 +107,10 @@ remove the :code:`v_model` of the component and replace it by :code:`None`.
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    import ipyvuetify as v 
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+    import ipyvuetify as v
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     v.theme.dark = False
 
     class SepalTextField(sw.SepalWidget, v.TextField):
@@ -118,7 +118,7 @@ remove the :code:`v_model` of the component and replace it by :code:`None`.
         def __init__(self, **kwargs):
 
             super().__init__(**kwargs)
-            
+
     sepal_select = SepalTextField(v_model='toto')
     print(sepal_select.v_model)
     sepal_select.reset()
