@@ -6,19 +6,19 @@ Sepal_ui
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
-    
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Black badge
-   
+
 .. image:: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
    :target: https://github.com/prettier/prettier
    :alt: prettier badge
-   
+
 .. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
    :target: https://conventionalcommits.org
    :alt: conventional commit
-    
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
    :target: https://doi.org/10.5281/zenodo.6467834
    :alt: Citation
@@ -50,7 +50,7 @@ Sepal_ui
 .. image:: https://img.shields.io/codecov/c/github/12rambau/sepal_ui?logo=codecov&logoColor=white
     :target: https://codecov.io/gh/12rambau/sepal_ui
     :alt: Test Coverage
-   
+
 --------------------------------------------------------------------------------
 
 Currently translated in the following languages:
@@ -70,10 +70,10 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 
 --------------------------------------------------------------------------------
 
-:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows. 
+:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
-The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links: 
+The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links:
 
 -   `Map style application <https://sepal-map-app.herokuapp.com>`__
 -   `Panel style application <https://sepal-panel-app.herokuapp.com>`__
@@ -93,8 +93,8 @@ We are happy to receive feedback and we welcome any kind of contribution.
 Contribute
 ----------
 
-If you want to contribute you can fork the project in you own repository and then use it. 
-If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`__. 
+If you want to contribute you can fork the project in you own repository and then use it.
+If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`__.
 
-Meet our `contributor <AUTHORS.rst>`__. 
+Meet our `contributor <AUTHORS.rst>`__.
 

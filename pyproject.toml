@@ -25,10 +25,10 @@ dependencies = [
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
     # earthengine management
     "earthengine-api",
-    # to create a module 
+    # to create a module
     "colorama",
     "pipreqs",
-    # read local data 
+    # read local data
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
     "geopandas",
@@ -63,14 +63,14 @@ Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.t
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit", 
+    "pre-commit",
     "commitizen",
 ]
 test = [
-    "pytest", 
-    "pytest-sugar", 
-    "pytest-icdiff", 
-    "pytest-cov", 
+    "pytest",
+    "pytest-sugar",
+    "pytest-icdiff",
+    "pytest-cov",
     "pytest-deadfixtures",
     "Flake8-pyproject",
     "nox",
@@ -133,7 +133,7 @@ tag_format = "v_$major.$minor.$patch$prerelease"
 update_changelog_on_bump = true
 version = "2.14.2"
 version_files = [
-    "pyproject.toml:version", 
+    "pyproject.toml:version",
     "sepal_ui/__init__.py:__version__"
 ]
 
@@ -174,10 +174,14 @@ skip = "sepal_ui/sepalwidgets/__init__.py"
 skip_glob = ["**/.ipynb_checkpoints/*", "**__pycache__/*"]
 src_paths = "sepal_ui"
 
-[tool.coverage.run] 
+[tool.coverage.run]
 source = ["sepal_ui"]
 omit = [
     "sepal_ui/*/__init__.py",
     "sepal_ui/scripts/messages.py",
     "sepal_ui/reclassify/parameters.py",
 ]
+
+[tool.doc8]
+ignore = ["D001"] # we follow a 1 line = 1 paragraph style
+ignore-path-errors = ["docs/source/index.rst;D000"]
