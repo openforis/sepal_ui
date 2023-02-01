@@ -127,7 +127,7 @@ class SepalMap(ipl.Map):
 
         # add the base controls
         self.add(ipl.ZoomControl(position="topright"))
-        self.add(LayersControl(self))
+        self.add(LayersControl(self, group=-1))
         self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
         self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
 
