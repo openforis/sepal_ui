@@ -12,9 +12,25 @@ from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.menu_control import MenuControl
+from sepal_ui.message import ms
 
 
-class BaseLine(sw.Html):
+class HeaderRow(sw.Html):
+    def __init__(self, title: str) -> None:
+        """
+        Html Row element including a single title of 3 colspan.
+
+        Specifically designed to work in the layer_control table
+
+        Args:
+            title: the line value
+        """
+        attr = {"colspan": 3}
+        head = sw.Html(tag="th", attributes=attr, children=title)
+        super().__init__(tag="tr", children=[head])
+
+
+class BaseRow(sw.Html):
 
     w_radio: Optional[sw.SimpleCheckbox] = None
     "the radio to hide/show the layer"
@@ -49,7 +65,7 @@ class BaseLine(sw.Html):
         link((layer, "visible"), (self.w_radio, "active"))
 
 
-class LayerLine(sw.Html):
+class LayerRow(sw.Html):
 
     w_checkbox: Optional[sw.SimpleCheckbox] = None
     "the ckeckbox to hide/show the layer"
@@ -69,7 +85,9 @@ class LayerLine(sw.Html):
             layer: the layer associated to the row
         """
         # create the checkbox, by default layer are visible
-        self.w_checkbox = sw.SimpleCheckbox(v_model=True, small=True, label=layer.name)
+        self.w_checkbox = sw.SimpleCheckbox(
+            v_model=True, small=True, label=layer.name, color=color.primary
+        )
         kwargs = {"style": "width: 50%;", "tag": "td"}
         checkbox_row = sw.Html(children=[self.w_checkbox], **kwargs)
 
@@ -78,7 +96,7 @@ class LayerLine(sw.Html):
         label_row = sw.Html(children=[layer.name], **kwargs)
 
         # create the slider
-        self.w_slider = sw.SimpleSlider(v_model=1, max=1, step=0.001, small=True)
+        self.w_slider = sw.SimpleSlider(v_model=1, max=1, step=0.01, small=True)
         kwargs = {"style_": "width: 50%;", "tag": "td"}
         slider_row = sw.Html(children=[self.w_slider], **kwargs)
 
@@ -102,8 +120,8 @@ class LayersControl(MenuControl):
     m: Optional[Map] = None
     "the map controlled by the layercontrol"
 
-    fake_group: Optional[sw.RadioGroup] = None
-    "As radio button cannot behave individually we add an extra GroupRadio that will nor be displayed"
+    group: Optional[sw.RadioGroup] = None
+    "As radio button cannot behave individually we add an extra GroupRadio to wrap the table"
 
     def __init__(self, m: Map, **kwargs) -> None:
         """
@@ -149,21 +167,24 @@ class LayersControl(MenuControl):
         Update the table content.
         """
         # create a table of layerLine
-        rows = [LayerLine(lyr) for lyr in self.m.layers if lyr.base is False]
-        tbody = sw.Html(tag="tbody", children=rows)
-        kwargs = {"class_": "v-no-hover", "dense": True}
-        layer_table = sw.SimpleTable(children=[tbody], **kwargs)
+        layers = [lyr for lyr in reversed(self.m.layers) if lyr.base is False]
+        layer_head = [HeaderRow(ms.layer_control.layer.header)]
+        layer_rows = [LayerRow(lyr) for lyr in layers]
 
         # create another table of basemapLine
         bases = [lyr for lyr in self.m.layers if lyr.base is True]
-        rows = [BaseLine(lyr) for lyr in bases]
+        base_head = [HeaderRow(ms.layer_control.basemap.header)]
+        base_rows = [BaseRow(lyr) for lyr in bases]
         current = next(lyr for lyr in bases if lyr.visible is True)
-        tbody = sw.Html(tag="tbody", children=rows)
         kwargs = {"class_": "v-no-hover", "dense": True}
-        base_table = sw.SimpleTable(children=[tbody], **kwargs)
-        base_group = sw.RadioGroup(v_model=current.name, children=[base_table])
+
+        # create a table from these rows and wrap it in the radioGroup
+        table = sw.SimpleTable(
+            children=layer_head + layer_rows + base_head + base_rows, **kwargs
+        )
+        self.group = sw.RadioGroup(v_model=current.name, children=[table])
 
         # set the table as children of the widget
-        self.tile.children = [base_group, sw.Divider(), layer_table]
+        self.tile.children = [self.group]
 
         return
