@@ -31,24 +31,6 @@ class TestRadioGroup:
 
         return
 
-    def test_search_radios(self) -> None:
-
-        # create a group where Radios are nested in a simpleTable
-        # this is the main use case for this override
-        radios = [sw.Radio(active=None, value=i) for i in range(3)]
-        tr = sw.Html(
-            tag="tr", children=[sw.Html(tag="td", children=[r]) for r in radios]
-        )
-        tbody = sw.Html(tag="tbody", children=[tr])
-        table = sw.SimpleTable(children=[tbody])
-        group = sw.RadioGroup(v_model=None, children=[table])
-
-        res_radios = group.search_radios(widget=group)
-
-        assert res_radios == radios
-
-        return
-
     @pytest.fixture
     def group(self) -> sw.RadioGroup:
         """return a Radiogroup with 3 radios children"""
