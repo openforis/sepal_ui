@@ -1,23 +1,23 @@
 Create my first module
 ======================
 
-In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository.    
+In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository.
 The steps presented bellow will demonstrate the safest and most complete way of creating a new module from scratch.
 
-Create the GitHub repository 
+Create the GitHub repository
 ----------------------------
 
 To initialize our project, let's create an empty GitHub repository.
 Make sure that the repository is public.
 All the following checkbox need to stay unchecked:
 
-* add a README file 
+* add a README file
 * add a `.gitignore`
 * choose a license
 
 
 .. note::
-   
+
    As the repository is empty there is no need to fill the description, it will not be taken into account
 
 Here I will use :code:`my_first_module`:
@@ -27,7 +27,7 @@ Here I will use :code:`my_first_module`:
 You can click on :code:`create repository`
 Keep the GitHub web page open.
 
-Initialize the module 
+Initialize the module
 ---------------------
 
 Open Sepal in a second tab of your browser and start an new instance (t1) in the terminal interface
@@ -35,23 +35,23 @@ Open Sepal in a second tab of your browser and start an new instance (t1) in the
 from root execute the following command:
 
 .. code-block:: console
-   
+
    module_factory
-   
-.. tip:: 
 
-   if the :code:`module_factory` is not available, use the following command instead: 
-   
+.. tip::
+
+   if the :code:`module_factory` is not available, use the following command instead:
+
    .. code-block:: console
-   
-      /usr/local/lib/python3.6/dist-packages/sepal_ui/bin/module_factory
-      
 
-It will launch the creation script of the module factory. 
+      /usr/local/lib/python3.6/dist-packages/sepal_ui/bin/module_factory
+
+
+It will launch the creation script of the module factory.
 
 .. code-block:: console
 
-      
+
    ##################################
    #                                #
    #      SEPAL MODULE FACTORY      #
@@ -67,12 +67,12 @@ It will launch the creation script of the module factory.
    Initializing module creation by setting up your module parameters
    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-   Provide a module name: 
-   My first module 
-   Provide the URL of an empty github repository: 
+   Provide a module name:
+   My first module
+   Provide the URL of an empty github repository:
    https://github.com/12rambau/my_first_module.git
-   Provide a short description for your module(optional): 
-   This is the first module of my life 
+   Provide a short description for your module(optional):
+   This is the first module of my life
 
    Build the module init configuration
    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -153,16 +153,16 @@ If you're not sure it's here :
 Description
 ^^^^^^^^^^^
 
-You can provide a short description of your module. It will be added to the repository description and README. 
+You can provide a short description of your module. It will be added to the repository description and README.
 This parameter is optional
 
 What happened ?
 ^^^^^^^^^^^^^^^
 
-This script cloned the `template repository <https://github.com/12rambau/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file have been build on the fly based on the description you gave in the questionnaire. 
+This script cloned the `template repository <https://github.com/12rambau/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file have been build on the fly based on the description you gave in the questionnaire.
 The name of the app have been changed in the translation dictionaries and your folder has been pushed to the empty GitHub repository.
 
-if you reload your GitHub page in your browser, you'll find out that all the files have been updated. In your SEPAL terminal run :code:`cd my_first_repository` to start coding. 
+if you reload your GitHub page in your browser, you'll find out that all the files have been updated. In your SEPAL terminal run :code:`cd my_first_repository` to start coding.
 
 Let's play
 ----------
@@ -172,15 +172,15 @@ On the top bar of your window click on the :code:`voila` button.
 
 .. image:: ../_image/tutorials/create-module/voila-btn.png
 
-It will start a popup window. 
+It will start a popup window.
 
 .. note::
-   
-   If you want to reproduce the sepal behavior you'll need to add an extra option to the URL of this popup windows. 
+
+   If you want to reproduce the sepal behavior you'll need to add an extra option to the URL of this popup windows.
    The sepal interface will display voila with it's dark theme so if you don't want to have a light background add :code:`?voila-theme=dark` at the end of your URL as in:
-   
-   .. code-block:: bash 
-      
+
+   .. code-block:: bash
+
       https://sepal.io/api/sandbox/jupyter/voila/render/My_first_module/ui.ipynb?voila-theme=dark
 
 
@@ -197,37 +197,37 @@ The popup will display a fully functional app. A default process have been set-u
 
       earthengine authenticate
 
-   You'll need to follow the command instructions and then reload the dashboard. 
-   
+   You'll need to follow the command instructions and then reload the dashboard.
+
 .. warning::
 
-    The module factory is bound to a specific folder in sepal : :code:`module_results`. This folder stores the results of all dashboard applications. It is by default set in the :code:`directory.py` component : 
-    
-    .. code-block:: python 
-        
+    The module factory is bound to a specific folder in sepal : :code:`module_results`. This folder stores the results of all dashboard applications. It is by default set in the :code:`directory.py` component :
+
+    .. code-block:: python
+
         # component/parameter/directory.py
-        
+
         from pathlib import Path
-        
+
         module_dir = Path.home()/"module_results"
         module_dir.mkdir(exist_ok=True)
-        
+
     Please use it as a starting point for any results you want to export in SEPAL.
-    
+
 GitHub Template
 ---------------
 
 .. warning::
 
     For advanced users only
-    
+
 The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsability. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
-    
-.. danger:: 
+
+.. danger::
 
     Do not copy every branch while using the template generator
 
 
 
-      
+
 

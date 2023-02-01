@@ -2,32 +2,34 @@
 
 {% block functions -%}
 {% if functions -%}
-   .. rubric:: Functions
+.. rubric:: Functions
 
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-      
-      {% for item in functions -%}
-      {% if item not in inherited_members -%}
-      {{ item }}
-      {% endif -%}
-      {% endfor -%}
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   {% for item in functions -%}
+   {% if item not in inherited_members -%}
+   {{ item }}
+   {% endif -%}
+   {% endfor -%}
+
 {% endif -%}
 {% endblock -%}
 
 {% block classes -%}
 {% if classes -%}
-   .. rubric:: Classes
+.. rubric:: Classes
 
-   .. autosummary::
-      :toctree:
-      :template: autosummary/class.rst
-      
-      {% for item in classes -%}
-      {% if item not in inherited_members -%}
-      {{ item }}
-      {% endif -%}
-      {% endfor -%}
+.. autosummary::
+   :toctree:
+   :template: autosummary/class.rst
+
+   {% for item in classes -%}
+   {% if item not in inherited_members -%}
+   {{ item }}
+   {% endif -%}
+   {% endfor -%}
+
 {% endif -%}
 {% endblock -%}

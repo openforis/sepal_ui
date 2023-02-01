@@ -2,11 +2,11 @@
 Cookbook
 ========
 
-Using these tutorials, you'll be guided through standard usage of the :code:`sepal_ui`. 
+Using these tutorials, you'll be guided through standard usage of the :code:`sepal_ui`.
 By the end, you will have an overview of the library usage and you'll be able to design you're own application based on Google Earth Engine scripts or Python workflow.
 
 .. warning::
-   
+
    **Requirements:**
 
    * Sepal activated account (if you want to develop in the platform)
@@ -15,8 +15,8 @@ By the end, you will have an overview of the library usage and you'll be able to
    * knowledge of python and OOP
 
 .. danger::
-   
-   During this tutorial, everything will be presented in the sepal environment. 
+
+   During this tutorial, everything will be presented in the sepal environment.
    If you decide to develop on you local computer, it will be exactly the same but you'll need to make sure that Jupyterlab, and all the python libraries are installed on your local machine.
 
 
