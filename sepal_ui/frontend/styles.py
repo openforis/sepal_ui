@@ -7,8 +7,8 @@ from types import SimpleNamespace
 from typing import Dict, Tuple
 
 import ipyvuetify as v
-from IPython.display import Javascript, display
-from traitlets import Bool, HasTraits, Unicode, observe
+from IPython.display import HTML, Javascript, display
+from traitlets import Bool, HasTraits, observe
 
 import sepal_ui.scripts.utils as su
 from sepal_ui.conf import config
@@ -156,33 +156,15 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
-class Styles(v.VuetifyTemplate):
-    """
-    Fixed styles to fix display issues in the lib.
-    """
+# load custom styling of sepal_ui
+display(HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>"))
 
-    css = (CSS_DIR / "custom.css").read_text()
-    template: Unicode = Unicode(f"<style>{css}</style>").tag(sync=True)
-    "The trait embeding the sepal-ui style"
-
-
-class FAStyles(v.VuetifyTemplate):
-    """
-    Import fontawseome 6 in the display.
-    """
-
-    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-    template: Unicode = Unicode(
-        f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous" refferpolicy="no-referrer"/>'
-    ).tag(sync=True)
-    "The trait embeding the fontawesome 6 cdn"
-
-
-# cdn and FA must be splitted
-# Jupyter can only load one of them at once
-display(Styles())
-display(FAStyles())
+# load fa-6
+display(
+    HTML(
+        '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>'
+    )
+)
 
 # create a small hack to remove fontawesome from the html output
 display(Javascript((JS_DIR / "fontawesome.js").read_text()))
