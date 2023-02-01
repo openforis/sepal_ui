@@ -35,7 +35,7 @@ class TestZoomControl:
 
         # click 40 times on plus and then 40 times on minus
         [zoom_control.zoom(zoom_control.plus) for i in range(40)]
-        assert m.zoom == 20
+        assert m.zoom == 24
         [zoom_control.zoom(zoom_control.minus) for i in range(40)]
         assert m.zoom == 0
 
