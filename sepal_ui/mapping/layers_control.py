@@ -27,7 +27,7 @@ class HeaderRow(sw.Html):
         """
         attr = {"colspan": 3}
         head = sw.Html(tag="th", attributes=attr, children=title)
-        super().__init__(tag="tr", children=[head])
+        super().__init__(tag="tr", class_="v-no-hover", children=[head])
 
 
 class BaseRow(sw.Html):
@@ -48,18 +48,18 @@ class BaseRow(sw.Html):
         # create the checkbox, by default layer are visible
         self.w_radio = sw.Radio(small=True, value=layer.name)
         kwargs = {"style": "width: 10%;", "tag": "td"}
-        radio_row = sw.Html(children=[self.w_radio], **kwargs)
+        radio_cell = sw.Html(children=[self.w_radio], **kwargs)
 
         # create the label
-        kwargs = {"style_": "width: 40%;", "tag": "td", "class_": "text-right"}
-        label_row = sw.Html(children=[layer.name], **kwargs)
+        kwargs = {"style_": "width: 40%;", "tag": "td"}
+        label_cell = sw.Html(children=[layer.name], **kwargs)
 
         # create an empty row to align on
         kwargs = {"style_": "width: 50%;", "tag": "td"}
-        empty_row = sw.Html(children=[""], **kwargs)
+        empty_cell = sw.Html(children=[""], **kwargs)
 
         # build a html tr from it
-        super().__init__(tag="tr", children=[radio_row, label_row, empty_row])
+        super().__init__(tag="tr", children=[label_cell, empty_cell, radio_cell])
 
         # add js behavior
         link((layer, "visible"), (self.w_radio, "active"))
@@ -89,19 +89,19 @@ class LayerRow(sw.Html):
             v_model=True, small=True, label=layer.name, color=color.primary
         )
         kwargs = {"style": "width: 50%;", "tag": "td"}
-        checkbox_row = sw.Html(children=[self.w_checkbox], **kwargs)
+        checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
 
         # create the label
-        kwargs = {"style_": "width: 40%;", "tag": "td", "class_": "text-right"}
-        label_row = sw.Html(children=[layer.name], **kwargs)
+        kwargs = {"style_": "width: 40%;", "tag": "td"}
+        label_cell = sw.Html(children=[layer.name], **kwargs)
 
         # create the slider
         self.w_slider = sw.SimpleSlider(v_model=1, max=1, step=0.01, small=True)
         kwargs = {"style_": "width: 50%;", "tag": "td"}
-        slider_row = sw.Html(children=[self.w_slider], **kwargs)
+        slider_cell = sw.Html(children=[self.w_slider], **kwargs)
 
         # build a html tr from it
-        super().__init__(tag="tr", children=[checkbox_row, label_row, slider_row])
+        super().__init__(tag="tr", children=[label_cell, slider_cell, checkbox_cell])
 
         # add js behavior
         link((layer, "opacity"), (self.w_slider, "v_model"))
@@ -174,14 +174,16 @@ class LayersControl(MenuControl):
         # create another table of basemapLine
         bases = [lyr for lyr in self.m.layers if lyr.base is True]
         base_head = [HeaderRow(ms.layer_control.basemap.header)]
-        base_rows = [BaseRow(lyr) for lyr in bases]
+        empy_cell = sw.Html(tag="td", children=[" "], attributes={"colspan": 3})
+        empty_row = sw.Html(tag="tr", class_="v-no-hever", children=[empy_cell])
+        base_rows = [BaseRow(lyr) for lyr in bases] + [empty_row]
         current = next(lyr for lyr in bases if lyr.visible is True)
-        kwargs = {"class_": "v-no-hover", "dense": True}
 
         # create a table from these rows and wrap it in the radioGroup
-        table = sw.SimpleTable(
-            children=layer_head + layer_rows + base_head + base_rows, **kwargs
+        tbody = sw.Html(
+            tag="tbody", children=layer_head + layer_rows + base_head + base_rows
         )
+        table = sw.SimpleTable(children=[tbody], dense=True, class_="v-no-border")
         self.group = sw.RadioGroup(v_model=current.name, children=[table])
 
         # set the table as children of the widget

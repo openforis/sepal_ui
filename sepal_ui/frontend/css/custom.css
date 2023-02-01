@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Customization of the provided css from the different libs used by sepal_ui 
+ * Customization of the provided css from the different libs used by sepal_ui
  */
 
 /* replace the map panel elements on top */
@@ -65,9 +65,14 @@ nav.v-navigation-drawer {
   transform: translate(-50%, -50%);
 }
 
-/* add a non-hover clas for tables */
-.v-no-hover tr:hover {
+/* create extra classes to customize the layer_control table */
+.v-no-hover:hover {
   background-color: transparent !important;
+}
+
+.v-no-border tbody tr td,
+.v-no-border tbody tr th {
+  border: none !important;
 }
 
 /* extra css rules to make the messages disapear beneath the SimpleSlider */
