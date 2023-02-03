@@ -40,7 +40,7 @@ def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
     session.run("rm", "-rf", "docs/source/modules", external=True)
-    session.run("rm", "-rf", "docs/build/", external=True)
+    session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(
         "sphinx-apidoc",
         "--templatedir=docs/source/_templates/apidoc",
