@@ -168,12 +168,6 @@ convention = "google"
 "tests/*.py" = ["D"] # no docstring for the tests
 "setup.py" = ["D100"] # nothing to see there
 
-[tool.isort]
-profile = "black"
-skip = "sepal_ui/sepalwidgets/__init__.py"
-skip_glob = ["**/.ipynb_checkpoints/*", "**__pycache__/*"]
-src_paths = "sepal_ui"
-
 [tool.coverage.run]
 source = ["sepal_ui"]
 omit = [
