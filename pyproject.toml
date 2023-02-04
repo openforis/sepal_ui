@@ -63,7 +63,7 @@ Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.t
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit",
+    "pre-commit>=2.18.0",
     "commitizen",
 ]
 test = [
