@@ -22,3 +22,6 @@ CLI
 
 .. autoprogram:: activate_venv:parser
    :prog: activate_venv
+
+.. autoprogram:: sepal_ipyvuetify:parser
+   :prog: sepal_ipyvuetify

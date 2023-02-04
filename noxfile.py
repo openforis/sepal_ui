@@ -14,7 +14,7 @@ def lint(session):
     session.run("pre-commit", "run", "--a", *session.posargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
+@nox.session(reuse_venv=True)
 def test(session):
     """Run all the test using the environment varialbe of the running machine."""
     session.install(".[test]")
@@ -43,12 +43,10 @@ def docs(session):
     session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(
         "sphinx-apidoc",
-        "--force",
-        "--module-first",
         "--templatedir=docs/source/_templates/apidoc",
         "-o",
         "docs/source/modules",
-        "./sepal_ui",
+        "sepal_ui",
     )
     session.run(
         "sphinx-build",
@@ -61,22 +59,6 @@ def docs(session):
         "warnings.txt",
     )
     session.run("python", "tests/check_warnings.py")
-
-
-@nox.session(name="docs-live", reuse_venv=False)
-def docs_live(session):
-    """Build a live-updating documentation."""
-    session.install(".[doc]")
-    session.run(
-        "sphinx-apidoc",
-        "--force",
-        "--module-first",
-        "--templatedir=docs/source/_templates/apidoc",
-        "-o",
-        "docs/source/modules",
-        "./sepal_ui",
-    )
-    session.run("sphinx-autobuild", "-b", "html", "docs/source", "docs/build/html")
 
 
 @nox.session(name="mypy", reuse_venv=True)
