@@ -65,6 +65,25 @@ nav.v-navigation-drawer {
   transform: translate(-50%, -50%);
 }
 
+/* create extra classes to customize the layer_control table */
+.v-no-hover:hover {
+  background-color: transparent !important;
+}
+
+.v-no-border tbody tr td,
+.v-no-border tbody tr th {
+  border: none !important;
+}
+
+/* extra css rules to make the messages disapear beneath the SimpleSlider */
+.v-no-messages .v-messages {
+  display: none;
+}
+
+.v-no-messages .v-input__slot {
+  margin-bottom: 0;
+}
+
 /* specific css for the btn placed on maps */
 .v-btn.v-size--default.v-map-btn:not(.v-btn--round) {
   padding: 0px;

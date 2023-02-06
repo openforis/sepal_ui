@@ -4,7 +4,9 @@ Based menu ``Control`` to display widgets to your user.
 
 from typing import Optional, Union
 
+import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
+from traitlets import Int
 from typing_extensions import Self
 
 from sepal_ui import sepalwidgets as sw
@@ -19,12 +21,16 @@ class MenuControl(WidgetControl):
     m: Optional[Map] = None
     "the map used to display the control"
 
+    group: Int = Int().tag(sync=True)
+    "The group of Menu control, tell how the Menucontrol interact with the others"
+
     def __init__(
         self,
         icon_content: str,
-        card_content: sw.Tile,
+        card_content: Union[v.VuetifyWidget, str],
         card_title: str = "",
         m: Optional[Map] = None,
+        group: int = 0,
         **kwargs
     ) -> None:
         """
@@ -38,9 +44,13 @@ class MenuControl(WidgetControl):
             card_content: any container from sw. The sw.Tile is specifically design to fit in this component
             card_title: the card title. THe tile title will override this parameter if existing
             m: The map associated with the Menu
+            group: The group of Menu control, tell how the Menucontrol interact with the others
         """
         # save the map in the members
         self.m = m
+
+        # set the menucontrol group
+        self.group = group
 
         # create a clickable btn
         btn = MapBtn(content=icon_content, v_on="menu.on")
@@ -57,7 +67,7 @@ class MenuControl(WidgetControl):
             card_content.children[0].elevation = 0
 
         # set up a title of needed
-        if card_title is not None:
+        if card_title != "":
             card_title = sw.CardTitle(children=[card_title])
             children.insert(0, card_title)
 
@@ -129,7 +139,11 @@ class MenuControl(WidgetControl):
         return self
 
     def close_others(self, *args) -> None:
-        """Close all the other menus associated to the map to avoid overlapping."""
+        """
+        Close all the other menus associated to the map to avoid overlapping.
+
+        all the other Menu control from the same group will be closed if this menu is opened. Other MenuCOntrol from other groups can remain open. User will need to be careful with Widget placements on the map.
+        """
         # don't do anything if no map was set to avoid deprecation
         # remove when jumping to sepal-ui 3.0
         if self.m is None:
@@ -140,7 +154,7 @@ class MenuControl(WidgetControl):
             [
                 setattr(c.menu, "v_model", False)
                 for c in self.m.controls
-                if isinstance(c, MenuControl) and c != self
+                if isinstance(c, MenuControl) and c != self and c.group == self.group
             ]
 
         return

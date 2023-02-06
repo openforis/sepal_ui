@@ -23,3 +23,4 @@ from sepal_ui.sepalwidgets.btn import *
 from sepal_ui.sepalwidgets.inputs import *
 from sepal_ui.sepalwidgets.tile import *
 from sepal_ui.sepalwidgets.widget import *
+from sepal_ui.sepalwidgets.radio import *
