@@ -159,6 +159,9 @@ class LayersControl(MenuControl):
         self.menu.open_on_hover = True
         self.menu.close_delay = 200
 
+        # update the table at instance creation
+        self.update_table({})
+
         # add js behavior
         self.m.observe(self.update_table, "layers")
 
