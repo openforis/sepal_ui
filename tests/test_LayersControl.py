@@ -1,6 +1,7 @@
 import ee
 import pytest
 
+from sepal_ui import aoi
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
@@ -17,7 +18,9 @@ class TestLayersControl:
 
         layer_rows = layer_control.tile.get_children(klass=sm.LayerRow)
         base_rows = layer_control.tile.get_children(klass=sm.BaseRow)
+        vector_rows = layer_control.tile.get_children(klass=sm.VectorRow)
 
+        assert len(vector_rows) == 0
         assert len(layer_rows) == 0
         assert len(base_rows) == 1
         assert "CartoDB" in base_rows[0].children[0].children[0]
@@ -169,3 +172,23 @@ class TestLayersControl:
         assert m.v_inspector.menu.v_model is True
 
         return
+
+    def test_vectors(self) -> None:
+        """Check that vectors are grouped together and they can be controlled"""
+
+        m = sm.SepalMap()
+        m.add_layer(aoi.AoiModel(admin="171").get_ipygeojson())
+        aoi_layer = m.find_layer("aoi")
+        layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
+        vector_rows = layer_control.tile.get_children(klass=sm.VectorRow)
+        vector_row = vector_rows[0]
+
+        assert len(vector_rows) == 1
+
+        # set visibility from the btn
+        vector_row.w_checkbox.v_model = False
+        assert aoi_layer.visible is False
+
+        # set the visibility from the layer
+        aoi_layer.visible = True
+        assert vector_row.w_checkbox.v_model is True

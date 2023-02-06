@@ -2,10 +2,11 @@
 Extend fonctionalities of the ipyleaflet layer control.
 """
 import json
+from types import SimpleNamespace
 from typing import Optional
 
 import ipyvuetify as v
-from ipyleaflet import Map, TileLayer
+from ipyleaflet import GeoJSON, Map, TileLayer
 from ipywidgets import link
 
 from sepal_ui import color
@@ -88,7 +89,7 @@ class LayerRow(sw.Html):
         self.w_checkbox = sw.SimpleCheckbox(
             v_model=True, small=True, label=layer.name, color=color.primary
         )
-        kwargs = {"style": "width: 50%;", "tag": "td"}
+        kwargs = {"style": "width: 10%;", "tag": "td"}
         checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
 
         # create the label
@@ -113,6 +114,44 @@ class LayerRow(sw.Html):
         self.w_slider.disabled = not self.w_checkbox.v_model
 
         return
+
+
+class VectorRow(sw.Html):
+
+    w_checkbox: Optional[sw.SimpleCheckbox] = None
+    "the ckeckbox to hide/show the layer"
+
+    def __init__(self, layer: TileLayer) -> None:
+        """
+        Html row element to describe a vector layer.
+
+        This Html element include all the controls to manipulate the layer displayed in the map
+        - a checkbox to show/hide
+        Vector are always placed on top of the map
+
+        Args:
+            layer: the vector layer associated to the row
+        """
+        # create the checkbox, by default layer are visible
+        self.w_checkbox = sw.SimpleCheckbox(
+            v_model=True, small=True, label=layer.name, color=color.primary
+        )
+        kwargs = {"style": "width: 10%;", "tag": "td"}
+        checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
+
+        # create the label
+        kwargs = {"style_": "width: 40%;", "tag": "td"}
+        label_cell = sw.Html(children=[layer.name], **kwargs)
+
+        # create the slider
+        kwargs = {"style_": "width: 50%;", "tag": "td"}
+        empty_cell = sw.Html(children=[""], **kwargs)
+
+        # build a html tr from it
+        super().__init__(tag="tr", children=[label_cell, empty_cell, checkbox_cell])
+
+        # add js behavior
+        link((self.w_checkbox, "v_model"), (layer, "visible"))
 
 
 class LayersControl(MenuControl):
@@ -169,23 +208,42 @@ class LayersControl(MenuControl):
         """
         Update the table content.
         """
-        # create a table of layerLine
-        layers = [lyr for lyr in reversed(self.m.layers) if lyr.base is False]
-        layer_head = [HeaderRow(ms.layer_control.layer.header)]
-        layer_rows = [LayerRow(lyr) for lyr in layers]
+        # create the vector line
+        vectors = [lyr for lyr in reversed(self.m.layers) if isinstance(lyr, GeoJSON)]
+        vector_rows = []
+        if len(vectors) > 0:
+            head = [HeaderRow(ms.layer_control.vector.header)]
+            rows = [VectorRow(lyr) for lyr in vectors]
+            vector_rows = head + rows
 
-        # create another table of basemapLine
+        # create a table of layerLine
+        layers = [
+            lyr
+            for lyr in reversed(self.m.layers)
+            if lyr.base is False and isinstance(lyr, TileLayer)
+        ]
+        layer_rows = []
+        if len(layers) > 0:
+            head = [HeaderRow(ms.layer_control.layer.header)]
+            rows = [LayerRow(lyr) for lyr in layers]
+            layer_rows = head + rows
+
+        # create another table of basemapLine it should always be a basemap
+        # the error raised if you delete the last one is a feature
         bases = [lyr for lyr in self.m.layers if lyr.base is True]
-        base_head = [HeaderRow(ms.layer_control.basemap.header)]
-        empy_cell = sw.Html(tag="td", children=[" "], attributes={"colspan": 3})
-        empty_row = sw.Html(tag="tr", class_="v-no-hever", children=[empy_cell])
-        base_rows = [BaseRow(lyr) for lyr in bases] + [empty_row]
-        current = next(lyr for lyr in bases if lyr.visible is True)
+        base_rows = []
+        current = next(
+            (lyr for lyr in bases if lyr.visible is True), SimpleNamespace(name=None)
+        )
+        if len(bases) > 0:
+            head = [HeaderRow(ms.layer_control.basemap.header)]
+            empy_cell = sw.Html(tag="td", children=[" "], attributes={"colspan": 3})
+            empty_row = sw.Html(tag="tr", class_="v-no-hever", children=[empy_cell])
+            rows = [BaseRow(lyr) for lyr in bases] + [empty_row]
+            base_rows = head + rows
 
         # create a table from these rows and wrap it in the radioGroup
-        tbody = sw.Html(
-            tag="tbody", children=layer_head + layer_rows + base_head + base_rows
-        )
+        tbody = sw.Html(tag="tbody", children=vector_rows + layer_rows + base_rows)
         table = sw.SimpleTable(children=[tbody], dense=True, class_="v-no-border")
         self.group = sw.RadioGroup(v_model=current.name, children=[table])
 

@@ -99,7 +99,7 @@ class InfoView(sw.ExpansionPanels):
             btn_id: the id of the btn object
             state: the state to apply to the btn
         """
-        btn = self.get_children(btn_id)
+        btn = self.get_children(attr="id", value=btn_id)[0]
         btn.disabled = not state
         btn.color = BTNS[btn_id][1][state]
 

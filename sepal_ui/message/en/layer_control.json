@@ -9,6 +9,9 @@
     },
     "basemap": {
       "header": "Basemaps"
+    },
+    "vector": {
+      "header": "Vectors"
     }
   }
 }
