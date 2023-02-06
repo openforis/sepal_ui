@@ -1,3 +1,14 @@
+## v_2.14.2 (2023-01-25)
+
+### Fix
+
+- read resize_trigger js as text. Closes #709
+- read resize_trigger js as text. Closes #709
+
+### Refactor
+
+- write about_tile in 2 lines
+
 ## v_2.14.1 (2023-01-14)
 
 ### Refactor

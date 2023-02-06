@@ -1,16 +1,16 @@
 Manage the app footer
 =====================
 
-Edit the footer 
+Edit the footer
 ---------------
-In the default application, the footer is displaying the following message : 
+In the default application, the footer is displaying the following message :
 
-.. code-block:: 
+.. code-block::
 
     The sky is the limit (c) 2020
 
-This not very useful. If you want to add your name or company name to the footer it's very simple. 
-go to the English dictionary file : 
+This not very useful. If you want to add your name or company name to the footer it's very simple.
+go to the English dictionary file :
 
 .. code-block:: python
 
@@ -53,7 +53,7 @@ go to the English dictionary file :
 
 In this file lives all the keys that are displayed in the default application (see this tutorial for more information). simply change the one called in :code:`ui.ipynb` footer. as such :
 
-.. code-block:: python 
+.. code-block:: python
 
     # component/message/en.json
 
@@ -71,26 +71,26 @@ In this file lives all the keys that are displayed in the default application (s
 
     don't forget that JSON format only support " (double quote)
 
-.. tip:: 
+.. tip::
 
     if you use different translation you'll also want to change the :code:`fr.json` accordingly.
 
 
 If the new footer text does not include parameters, remove the :code:`.format(2020)` in :code:`ui.ipynb` third cell.
 
-Remove the footer 
+Remove the footer
 -----------------
 
-If the sepal footer (always included bellow dashboard app) is sufficient for your app, then you can consider removing the footer. 
-first remove the :code:`app_footer` variable from the :code:`ui.ipynb` file by removing the third cell. 
+If the sepal footer (always included bellow dashboard app) is sufficient for your app, then you can consider removing the footer.
+first remove the :code:`app_footer` variable from the :code:`ui.ipynb` file by removing the third cell.
 Then in the penultimate cell of the same file remove the line corresponding to the footer :
 
-.. code-block:: python 
+.. code-block:: python
 
-    # build the Html final app by gathering everything 
+    # build the Html final app by gathering everything
     app = sw.App(
-        tiles    = app_content, 
-        appBar   = app_bar, 
+        tiles    = app_content,
+        appBar   = app_bar,
         navDrawer= app_drawer
     ).show_tile('aoi_widget') # id of the tile you want to display
 

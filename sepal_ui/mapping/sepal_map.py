@@ -42,6 +42,7 @@ from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.layers_control import LayersControl
 from sepal_ui.mapping.legend_control import LegendControl
 from sepal_ui.mapping.value_inspector import ValueInspector
+from sepal_ui.mapping.zoom_control import ZoomControl
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
@@ -126,7 +127,7 @@ class SepalMap(ipl.Map):
         self.layers[0].visible = True
 
         # add the base controls
-        self.add(ipl.ZoomControl(position="topright"))
+        self.add(ZoomControl(self))
         self.add(LayersControl(self, group=-1))
         self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
         self.add(ipl.ScaleControl(position="bottomleft", imperial=False))

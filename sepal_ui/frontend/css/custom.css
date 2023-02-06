@@ -82,4 +82,24 @@ nav.v-navigation-drawer {
 
 .v-no-messages .v-input__slot {
   margin-bottom: 0;
+
+/* specific css for the btn placed on maps */
+.v-btn.v-size--default.v-map-btn:not(.v-btn--round) {
+  padding: 0px;
+  min-width: 0px;
+  width: 30px;
+  height: 30px;
+}
+
+/* add specific css for the zoom btn of the map */
+.v-btn.v-zoom-plus {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.v-btn.v-zoom-minus {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+
 }

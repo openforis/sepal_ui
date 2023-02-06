@@ -19,7 +19,7 @@ class ResizeTrigger(v.VuetifyTemplate):
     """
 
     # load the js file
-    js = Path(__file__).parent / "js/jupyter_resize.js"
+    js = (Path(__file__).parent / "js/jupyter_resize.js").read_text()
     template = Unicode("<script>{methods: {jupyter_resize(){%s}}}</script>" % js).tag(
         sync=True
     )

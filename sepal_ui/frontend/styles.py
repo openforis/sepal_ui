@@ -7,8 +7,8 @@ from types import SimpleNamespace
 from typing import Dict, Tuple
 
 import ipyvuetify as v
-from IPython.display import display
-from traitlets import Bool, HasTraits, Unicode, observe
+from IPython.display import HTML, Javascript, display
+from traitlets import Bool, HasTraits, observe
 
 import sepal_ui.scripts.utils as su
 from sepal_ui.conf import config
@@ -156,27 +156,16 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
-class Styles(v.VuetifyTemplate):
-    """
-    Fixed styles to fix display issues in the lib.
+# load custom styling of sepal_ui
+sepal_ui_css = HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>")
 
-    - avoid leaflet maps overlap sepal widgets
-    - remove shadow of widget-control
-    - remove padding of the main content
-    - load fontawsome as a resource
-    - ensure that tqdm bars are using a transparent background when displayed in an alert
-    - correct items z-index
-    """
+# load fa-6
+fa_css = HTML(
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>'
+)
 
-    css = (CSS_DIR / "custom.css").read_text()
-    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    key = "sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
-    template: Unicode = Unicode(
-        f"<style>{css}</style>"
-        f'<link rel="stylesheet" href="{cdn}" integrity="{key}" crossorigin="anonymous", refferpolicy="no-referrer"/>'
-    ).tag(sync=True)
-    "The trait embeding the maps style"
+# create a small hack to remove fontawesome from the html output
+clean_fa_js = Javascript((JS_DIR / "fontawesome.js").read_text())
 
-
-styles = Styles()
-display(styles)
+# display all
+display(sepal_ui_css, fa_css, clean_fa_js)
