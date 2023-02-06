@@ -1,3 +1,45 @@
+## v_2.15.0 (2023-02-07)
+
+### Feat
+
+- add a style parameter to generate aoi geojson
+- manage basemaps
+- upgrade the radio behavior
+- add a checkbox to the layer_control
+- use a custom layer_control
+- add a simpleslider component
+
+### Fix
+
+- add vector management also fix some test bugs linked to get_children
+- drop deprecated scenes (#729)
+- drop deprecated scenes
+- add extra line this line is invisble but ensures that the focusing animation of the radio button is not cut
+- update control display
+- use group to split layer control from the others
+- avoid double border in zoom btn
+- set max theoric level to 24
+- auto-merge main in release
+- propagate the aoi style in tile and view
+- remove testing file
+- remove fontawesome 5 from the html output
+- inject fontawesome 6
+- improve display of layer_control
+- replace built-in ZoomControl
+
+### Refactor
+
+- remove isort parameters (#728)
+- install the appropriate pre-commit at once
+- remove isort parameters
+- use get_children instead of search_radio
+- make get_children more flexible new arguments: klass, attr, value
+- single call to display
+- add styling with HTML instead of widgets
+- always use the gejsjon to display aoi
+- use doc8 on our docs
+- move map-btn css from json to css file
+
 ## v_2.14.2 (2023-01-25)
 
 ### Fix
