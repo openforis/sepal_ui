@@ -100,20 +100,10 @@ sepal_ipyvuetify = "sepal_ui.bin.sepal_ipyvuetify:main"
 
 [tool.setuptools]
 include-package-data = true
-packages = [
-    "sepal_ui",
-    "sepal_ui.scripts",
-    "sepal_ui.frontend",
-    "sepal_ui.sepalwidgets",
-    "sepal_ui.aoi",
-    "sepal_ui.message",
-    "sepal_ui.mapping",
-    "sepal_ui.translator",
-    "sepal_ui.model",
-    "sepal_ui.reclassify",
-    "sepal_ui.planetapi",
-]
 license-files = ["LICENSE.txt"]
+
+[tool.setuptools.packages.find]
+where = ["sepal_ui"]
 
 [tool.setuptools.package-data]
 sepal_ui = [
