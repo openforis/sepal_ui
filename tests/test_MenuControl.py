@@ -59,9 +59,11 @@ class TestMenuControl:
         control_1 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
         control_2 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)
         control_3 = sm.MenuControl("fa-solid fa-folder", sw.Card())
+        control_4 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m, group=1)
         m.add(control_1)
         m.add(control_2)
         m.add(control_3)
+        m.add(control_4)
 
         # open the first one and then the second one
         control_1.menu.v_model = True
@@ -72,12 +74,24 @@ class TestMenuControl:
         assert control_1.menu.v_model is False
         assert control_2.menu.v_model is True
         assert control_3.menu.v_model is False
+        assert control_4.menu.v_model is False
 
-        # use the control that is not wired
+        # use the control that has no map
         control_3.menu.v_model = True
 
         assert control_1.menu.v_model is False
         assert control_2.menu.v_model is True
         assert control_3.menu.v_model is True
+        assert control_4.menu.v_model is False
+
+        # use the control that has no map
+        control_3.menu.v_model = False
+        control_2.menu.v_model = True
+        control_4.menu.v_model = True
+
+        assert control_1.menu.v_model is False
+        assert control_2.menu.v_model is True
+        assert control_3.menu.v_model is False
+        assert control_4.menu.v_model is True
 
         return

@@ -24,7 +24,7 @@
 
     .. autosummary::
        :nosignatures:
-       
+
        {% for item in methods -%}
        {% if item not in inherited_members -%}
        ~{{ name }}.{{ item }}
@@ -32,7 +32,7 @@
        {% endfor -%}
     {% endif -%}
     {% endblock -%}
-    
+
 {% block details %}
 {% if methods -%}
 {% for item in methods  if item not in inherited_members -%}

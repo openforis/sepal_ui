@@ -166,11 +166,9 @@ class PlanetModel(Model):
             ]
         )
 
-        # PSScene3Band and PSScene4Band item type and assets will be deprecated by January 2023
-        # But we'll keep them here because there are images tagged with these labels
-        # item types from https://developers.planet.com/docs/apis/data/items-assets/
-
-        item_types = ["PSScene", "PSScene3Band", "PSScene4Band"]
+        # PSScene3Band and PSScene4Band item type and assets are deprecated
+        # since January 2023 so we are now only looking at PSScene
+        item_types = ["PSScene"]
 
         async def _main():
             """

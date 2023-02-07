@@ -7,14 +7,14 @@ Overview
 :code:`FileInput` is a field widget to search for files in the SEPAL folders. it inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Layout` ipyvuetify class can be used to complement it.
 
-.. jupyter-execute:: 
+.. jupyter-execute::
     :raises:
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
 
@@ -23,7 +23,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
 
 the value can be retrieve from the :code:`v_model` trait.
 
-Methods 
+Methods
 -------
 
 select_file
@@ -37,12 +37,12 @@ Manually select a file from it's path. No verification on the extension is perfo
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
-    
+
     path = Path.home()/'test.txt'
     path.write_text("hello world")
 
@@ -53,21 +53,21 @@ Manually select a file from it's path. No verification on the extension is perfo
 reset
 ^^^^^
 
-    
+
 Clear the File selection and move to the root folder if something was selected.
 
-.. jupyter-execute:: 
+.. jupyter-execute::
     :raises:
     :stderr:
 
     from sepal_ui import sepalwidgets as sw
     from pathlib import Path
-    
-    # correct colors for the documentation 
-    # set to dark in SEPAL by default 
+
+    # correct colors for the documentation
+    # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
-    
+
     path = Path.home()/'test.txt'
     path.write_text("hello world")
 

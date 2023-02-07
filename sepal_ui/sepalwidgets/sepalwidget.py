@@ -6,20 +6,20 @@ All the content of this modules is included in the parent ``sepal_ui.sepalwidget
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.Tooltip(widget=sw.Btn(), tooltip="tooltip")
 """
 
+import warnings
 from typing import Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import versionadded
-from ipyvue import VueWidget
 from traitlets import observe
-from typing_extensions import Self
+from typing_extensions import Self, Type
 
 __all__ = ["SepalWidget", "Tooltip"]
 
@@ -117,8 +117,30 @@ class SepalWidget(v.VuetifyWidget):
 
         return self
 
-    def get_children(self, id_: str = "") -> Union[str, list]:
+    def get_children(
+        self,
+        widget: Optional[v.VuetifyWidget] = None,
+        klass: Type[v.VuetifyWidget] = v.VuetifyWidget,
+        attr: str = "",
+        value: str = "",
+        id_: str = "",
+        elements: Optional[list] = None,
+    ) -> list:
         r"""
+        Recursively search for every element matching the specifications.
+
+        multiple parameters can be used to search for matching elements. no error is raised if nothing is found.
+
+        Args:
+            widget: the widget to search into
+            klass: the vuetify widget class to look for . Leave empty for any.
+            attr: the attribute to look at. leave empty for no search
+            value: the value of the attr. ignored if attr is not set
+            elements: the list used to store found elements
+
+        Returns:
+            List containing all matching elements
+
         Retrieve all children elements that matches with the given id\_.
 
         Args:
@@ -128,22 +150,40 @@ class SepalWidget(v.VuetifyWidget):
             list with all mathing elements if there are more than one, otherwise will return the matching element.
 
         """
-        elements = []
+        # id_ was the previous variable it should continue working in this implementation
+        # remove kwargs when this will be deprecated
+        if id_ != "":
+            attr, value = ("id", id_)
+            warnings.warn(
+                '"id_" is a deprecated argument, use an ("attr", "value") pair instead',
+                DeprecationWarning,
+            )
 
-        def search_children(parent):
+        # init the element list
+        elements = [] if elements is None else elements
 
-            if issubclass(parent.__class__, VueWidget):
+        # init the widget
+        widget = self if widget is None else widget
 
-                if parent.attributes.get("id") == id_:
-                    elements.append(parent)
+        for w in widget.children:
 
-                if len(parent.children):
-                    [search_children(chld) for chld in parent.children]
+            # exit if children is not a widget (str, DOM objects.. etc)
+            if not isinstance(w, v.VuetifyWidget):
+                continue
 
-        # Search in the self children elements
-        [search_children(chld) for chld in self.children]
+            # compare the widget with requirements
+            # using "niet" as default so that result is True if attr is Falsy
+            # "niet" is very unlikely to be used compared to None, False, "none"...
+            is_klass = isinstance(w, klass)
+            is_val = w.attributes.get(attr, "niet") == value if attr and value else True
 
-        return elements[0] if len(elements) == 1 else elements
+            # asumption: searched element won't be nested inside one another
+            if is_klass and is_val:
+                elements.append(w)
+            else:
+                elements = self.get_children(w, klass, attr, value, id_, elements)
+
+        return elements
 
     def set_children(
         self, children: Union[str, v.VuetifyWidget, list], position: str = "first"

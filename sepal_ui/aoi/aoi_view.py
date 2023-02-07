@@ -118,9 +118,9 @@ class AdminField(sw.Select):
         It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
-            level (int): The administrative level of the field
-            parent (AdminField): the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
-            ee (bool, optional): wether to use ee or not (default to True)
+            level: The administrative level of the field
+            parent: the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
+            ee: wether to use ee or not (default to True)
         """
         # save ee state
         self.gee = gee
@@ -208,6 +208,9 @@ class AoiView(sw.Card):
     model: Optional[AoiModel] = None
     "The model to create the AOI from the selected parameters"
 
+    map_style: Optional[dict] = None
+    "The predifined style of the aoi on the map"
+
     # ##########################################################################
     # ###                            the embeded widgets                     ###
     # ##########################################################################
@@ -262,6 +265,7 @@ class AoiView(sw.Card):
         gee: bool = True,
         folder: Union[str, Path] = "",
         model: Optional[AoiModel] = None,
+        map_style: Optional[dict] = None,
         **kwargs,
     ) -> None:
         r"""
@@ -274,6 +278,7 @@ class AoiView(sw.Card):
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
+            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
         # set ee dependencie
         self.gee = gee
@@ -286,6 +291,9 @@ class AoiView(sw.Card):
 
         # get the map if filled
         self.map_ = map_
+
+        # get the aoi geoJSON style
+        self.map_style = map_style
 
         # create the method widget
         self.w_method = MethodSelect(methods, gee=gee, map_=map_)
@@ -373,11 +381,7 @@ class AoiView(sw.Card):
         if self.map_:
             self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
-
-            if self.gee:
-                self.map_.add_ee_layer(self.model.feature_collection, {}, name="aoi")
-            else:
-                self.map_.add_layer(self.model.get_ipygeojson())
+            self.map_.add_layer(self.model.get_ipygeojson(self.map_style))
 
             self.aoi_dc.hide()
 

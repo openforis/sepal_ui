@@ -1,15 +1,15 @@
 """
-All modules used to create an Planet interface. 
+All modules used to create an Planet interface.
 
 Package to access all the widget, model and tiles to create an Planet interface in sepal-ui.
 
 Every module content can be called directly from the package.
 
 Example:
-    ..jupyter-execute::
+    .. jupyter-execute::
 
         from sepal_ui import planetapi
-    
+
         planetapi.PlanetView()
 """
 

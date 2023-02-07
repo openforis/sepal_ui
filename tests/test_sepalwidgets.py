@@ -4,7 +4,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 class TestSepalWidgets:
-    def test_generated(self):
+    def test_generated(self) -> None:
         """test that all the vuetify classes have been overwritten."""
         # get all the classes names
         v_classes = [c for c in dir(v.generated) if c.startswith("__") is False]
@@ -13,11 +13,9 @@ class TestSepalWidgets:
         # set a class option
         option = "ma-5"
 
-        print(locals().keys())
-
         for c in v_classes:
 
-            if c in ["Alert", "Tooltip", "Banner", "DatePicker"]:
+            if c in ["Alert", "Tooltip", "Banner", "DatePicker", "Radio", "RadioGroup"]:
                 # they are meant to be hidden by default
                 # they are specific sepalwidgets and tested elswhere
                 continue
@@ -43,7 +41,7 @@ class TestSepalWidgets:
 
         return
 
-    def test_html(self):
+    def test_html(self) -> None:
         """test a HTML class."""
         # set a class option
         option = "ma-5"

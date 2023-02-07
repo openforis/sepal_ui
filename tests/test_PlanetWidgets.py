@@ -16,30 +16,33 @@ class TestPlanetWidgets:
 
     def test_open_info(self, no_subs, only_others, only_nicfi, all_subs, info_view):
 
+        nicfi_sub = info_view.get_children(attr="id", value="nicfi")[0]
+        other_sub = info_view.get_children(attr="id", value="others")[0]
+
         # Trigger event to check subscriptions
         info_view.model.subscriptions = {}
         info_view.model.subscriptions = no_subs
-        assert info_view.get_children("nicfi").disabled
-        assert info_view.get_children("others").disabled
+        assert nicfi_sub.disabled is True
+        assert other_sub.disabled is True
 
         info_view.model.subscriptions = {}
         info_view.model.subscriptions = only_others
-        assert info_view.get_children("nicfi").disabled
-        assert not info_view.get_children("others").disabled
+        assert nicfi_sub.disabled is True
+        assert other_sub.disabled is False
 
         info_view.model.subscriptions = {}
         info_view.model.subscriptions = only_nicfi
-        assert not info_view.get_children("nicfi").disabled
-        assert info_view.get_children("others").disabled
+        assert nicfi_sub.disabled is False
+        assert other_sub.disabled is True
 
         info_view.model.subscriptions = {}
         info_view.model.subscriptions = all_subs
-        assert not info_view.get_children("nicfi").disabled
-        assert not info_view.get_children("others").disabled
+        assert nicfi_sub.disabled is False
+        assert other_sub.disabled is False
 
         # Check the info displayed in the cards
         assert info_view.v_model == 1
-        info_view.get_children("nicfi").fire_event("click", None)
+        nicfi_sub.fire_event("click", None)
         assert len(info_view.info_card.children) == len(all_subs)
         assert (
             info_view.info_card.children[0].children[0].children[0]
@@ -48,7 +51,7 @@ class TestPlanetWidgets:
         assert info_view.v_model == 0
 
         # If we click the button two times, it will close the expansion panel
-        info_view.get_children("nicfi").fire_event("click", None)
+        nicfi_sub.fire_event("click", None)
         assert info_view.v_model == 1
 
         return

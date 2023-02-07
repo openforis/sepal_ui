@@ -10,14 +10,14 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
                <sub><b>Pierrick Rambaud</b></sub>
             </a>
             <br/>
-            <a href="#code" title="Code">💻</a> 
-            <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> 
-            <a href="#question" title="Answering Questions">💬</a> 
-            <a href="#issue" title="Bug reports">🐛</a> 
-            <a href="#documentation" title="Documentation">📖</a> 
+            <a href="#code" title="Code">💻</a>
+            <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a>
+            <a href="#question" title="Answering Questions">💬</a>
+            <a href="#issue" title="Bug reports">🐛</a>
+            <a href="#documentation" title="Documentation">📖</a>
             <br/>
-            <a href="#maintenance" title="Maintenance">🚧</a> 
-            <a href="#review" title="Reviewed Pull Requests">👀</a> 
+            <a href="#maintenance" title="Maintenance">🚧</a>
+            <a href="#review" title="Reviewed Pull Requests">👀</a>
             <a href="#test" title="Tests">⚠️</a>
             <a href="#example" title="Examples">💡</a>
             <a href="#infra" title="Infrastructure">🚇</a>
@@ -30,24 +30,24 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
                <sub><b>Daniel Guerrero</b></sub>
             </a>
             <br/>
-            <a href="#code" title="Code">💻</a> 
-            <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> 
-            <a href="#question" title="Answering Questions">💬</a>  
-            <a href="#documentation" title="Documentation">📖</a> 
+            <a href="#code" title="Code">💻</a>
+            <a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a>
+            <a href="#question" title="Answering Questions">💬</a>
+            <a href="#documentation" title="Documentation">📖</a>
             <a href="#examples" title="Examples">💡</a>
             <br/>
-            <a href="#review" title="Reviewed Pull Requests">👀</a> 
+            <a href="#review" title="Reviewed Pull Requests">👀</a>
             <a href="translation" title="Translation">🌍</a>
             <a href="#test" title="Tests">⚠️</a>
             <br/>
-         </td>	
+         </td>
          <td align="center">
             <a href="https://www.linkedin.com/in/rémi-d-annunzio-575625bb/?originalSubdomain=it">
                <img src="https://avatars.githubusercontent.com/u/13508875?v=4" width="70px;" alt="lecrabe"/><br />
                <sub><b>Rémi D'Annunzio</b></sub>
             </a>
-            <br/> 
-            <a href="#documentation" title="Documentation">📖</a> 
+            <br/>
+            <a href="#documentation" title="Documentation">📖</a>
             <br/>
             <br/>
          </td>
@@ -56,8 +56,8 @@ Thanks goes to these wonderful people (`emoji key <https://allcontributors.org/d
                <img src="https://avatars.githubusercontent.com/u/37068938?v=4" width="70px;" alt="t-elisee"/><br />
                <sub><b>Elisée Tchana</b></sub>
             </a>
-            <br/> 
-            <a href="#documentation" title="Documentation">📖</a> 
+            <br/>
+            <a href="#documentation" title="Documentation">📖</a>
             <br/>
             <br/>
          </td>
