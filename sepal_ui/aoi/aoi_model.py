@@ -621,7 +621,7 @@ class AoiModel(Model):
         # adapt the style to the theme
         if style is None:
             style = json.loads((ss.JSON_DIR / "aoi.json").read_text())
-            style.update(color=color.success, fillColor=color.success)
+            style.update(color=color.primary, fillColor=color.primary)
 
         # create a GeoJSON object
         # attribution="SEPAL(c)" is not recognized yet
