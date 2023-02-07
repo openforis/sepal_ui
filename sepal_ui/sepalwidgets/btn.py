@@ -6,9 +6,9 @@ All the content of this modules is included in the parent ``sepal_ui.sepalwidget
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.Btn()
 """
 
@@ -74,8 +74,9 @@ class Btn(v.Btn, SepalWidget):
                     DeprecationWarning,
                 )
 
-        # create the default v_icon
-        self.v_icon = v.Icon(children=[""])
+        # create the default v_icon (hidden)
+        self.v_icon = v.Icon(children=[""], left=True)
+        self.v_icon.hide()
 
         # set the default parameters
         kwargs.setdefault("color", "primary")
@@ -84,22 +85,17 @@ class Btn(v.Btn, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        self.gliph = gliph
+        # set msg and gliph to trigger the rendering
         self.msg = msg
+        self.gliph = gliph
 
     @observe("gliph")
     def _set_gliph(self, change: dict) -> Self:
         """
         Set a new icon. If the icon is set to "", then it's hidden.
         """
-        new_gliph = change["new"]
-        self.v_icon.children = [new_gliph]
-
-        # hide the component to avoid the right padding
-        if not new_gliph:
-            su.hide_component(self.v_icon)
-        else:
-            su.show_component(self.v_icon)
+        self.v_icon.children = [self.gliph]
+        self.v_icon.hide() if self.gliph == "" else self.v_icon.show()
 
         return self
 
@@ -108,8 +104,8 @@ class Btn(v.Btn, SepalWidget):
         """
         Set the text of the btn.
         """
-        self.v_icon.left = bool(change["new"])
-        self.children = [self.v_icon, change["new"]]
+        self.v_icon.left = bool(self.msg)
+        self.children = [self.v_icon, self.msg]
 
         return self
 
