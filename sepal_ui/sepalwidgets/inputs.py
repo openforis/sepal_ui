@@ -6,9 +6,9 @@ All the content of this modules is included in the parent ``sepal_ui.sepalwidget
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.DatePicker()
 """
 
@@ -162,13 +162,12 @@ class DatePicker(v.Layout, SepalWidget):
             date: the date to test in YYYY-MM-DD format
 
         Returns:
-            the date to test
+            The validity of the date with respect to the datepicker format
         """
+        valid = True
         try:
             datetime.strptime(date, "%Y-%m-%d")
-            valid = True
-
-        except Exception:
+        except (ValueError, TypeError):
             valid = False
 
         return valid
