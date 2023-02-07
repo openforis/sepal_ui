@@ -37,11 +37,11 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.basemaps import basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
+from sepal_ui.mapping.inspector_control import InspectorControl
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.layer_state_control import LayerStateControl
 from sepal_ui.mapping.layers_control import LayersControl
 from sepal_ui.mapping.legend_control import LegendControl
-from sepal_ui.mapping.value_inspector import ValueInspector
 from sepal_ui.mapping.zoom_control import ZoomControl
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
@@ -60,7 +60,7 @@ class SepalMap(ipl.Map):
     gee: bool = True
     "Either the map will use ee binding or not"
 
-    v_inspector: Optional[ValueInspector] = None
+    v_inspector: Optional[InspectorControl] = None
     "The value inspector of the map"
 
     dc: Optional[DrawControl] = None
@@ -137,7 +137,7 @@ class SepalMap(ipl.Map):
         not dc or self.add(self.dc)
 
         # specific v_inspector
-        self.v_inspector = ValueInspector(self)
+        self.v_inspector = InspectorControl(self)
         not vinspector or self.add(self.v_inspector)
 
         # specific statebar

@@ -11,6 +11,7 @@ import geopandas as gpd
 import ipyvuetify as v
 import rasterio as rio
 import rioxarray
+from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON, Map
 from rasterio.crs import CRS
 from shapely import geometry as sg
@@ -24,7 +25,7 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 
 
-class ValueInspector(MenuControl):
+class InspectorControl(MenuControl):
 
     m: Optional[Map] = None
     "the map on which he vinspector is displayed to interact with it's layers"
@@ -61,8 +62,8 @@ class ValueInspector(MenuControl):
         )
 
         # set up the content
-        title = sw.CardTitle(children=[ms.v_inspector.title])
-        self.text = sw.CardText(children=[ms.v_inspector.landing])
+        title = sw.CardTitle(children=[ms.inspector_control.title])
+        self.text = sw.CardText(children=[ms.inspector_control.landing])
 
         # create the menu widget
         super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
@@ -111,13 +112,13 @@ class ValueInspector(MenuControl):
         lng, lat = coords = [c for c in reversed(kwargs.get("coordinates"))]
 
         # write the coordinates and the scale
-        txt = ms.v_inspector.coords.format(round(self.m.get_scale()))
+        txt = ms.inspector_control.coords.format(round(self.m.get_scale()))
         children.append(sw.Html(tag="h4", children=[txt]))
         children.append(sw.Html(tag="p", children=[f"[{lng:.3f}, {lat:.3f}]"]))
 
         # wrap layer data in a treeview widget
         tree_view = sw.Treeview(hoverable=True, dense=True, open_on_click=True)
-        children.append(sw.Html(tag="h4", children=["Layers"]))
+        children.append(sw.Html(tag="h4", children=[ms.inspector_control.layers]))
         children.append(tree_view)
 
         # write the layers data
@@ -131,7 +132,9 @@ class ValueInspector(MenuControl):
             elif type(lyr).__name__ == "BoundTileLayer":
                 data = self._from_raster(lyr.raster, coords)
             else:
-                data = {ms.v_inspector.info.header: ms.v_inspector.info.text}
+                data = {
+                    ms.inspector_control.info.header: ms.inspector_control.info.text
+                }
 
             items.append(
                 {
@@ -261,13 +264,21 @@ class ValueInspector(MenuControl):
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
             pixel_values = {
-                ms.v_inspector.band.format(i + 1): v for i, v in enumerate(means)
+                ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)
             }
 
         # if the point is out of the image display None
         else:
             pixel_values = {
-                ms.v_inspector.band.format(i + 1): None for i in range(da.rio.count)
+                ms.inspector_control.band.format(i + 1): None
+                for i in range(da.rio.count)
             }
 
         return pixel_values
+
+
+@deprecated(
+    version="2.15.1", reason="ValueInspector class is now renamed InspectorControl"
+)
+class ValueInspector(InspectorControl):
+    pass
