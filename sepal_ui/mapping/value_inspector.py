@@ -115,11 +115,14 @@ class ValueInspector(MenuControl):
         children.append(sw.Html(tag="h4", children=[txt]))
         children.append(sw.Html(tag="p", children=[f"[{lng:.3f}, {lat:.3f}]"]))
 
-        # write the layers data
+        # wrap layer data in a treeview widget
+        tree_view = sw.Treeview(hoverable=True, dense=True, open_on_click=True)
         children.append(sw.Html(tag="h4", children=["Layers"]))
-        layers = [lyr for lyr in self.m.layers if not lyr.base]
+        children.append(tree_view)
+
+        # write the layers data
+        items, layers = [], [lyr for lyr in self.m.layers if not lyr.base]
         for lyr in layers:
-            children.append(sw.Html(tag="h5", children=[lyr.name]))
 
             if isinstance(lyr, EELayer):
                 data = self._from_eelayer(lyr.ee_object, coords)
@@ -130,9 +133,13 @@ class ValueInspector(MenuControl):
             else:
                 data = {ms.v_inspector.info.header: ms.v_inspector.info.text}
 
-            for k, val in data.items():
-                children.append(sw.Html(tag="span", children=[f"{k}: {val}"]))
-                children.append(sw.Html(tag="br", children=[]))
+            items.append(
+                {
+                    "name": lyr.name,
+                    "children": [{"name": f"{k}: {v}"} for k, v in data.items()],
+                }
+            )
+        tree_view.items = items
 
         # set them in the card
         self.text.children = children
@@ -143,8 +150,8 @@ class ValueInspector(MenuControl):
 
         # one last flicker to replace the menu next to the btn
         # if not it goes below the map
-        # i've try playing with the styles but it didn't worked out well
-        # lost hours on this issue : 1h
+        # I've try playing with the styles but it didn't worked out well
+        # lost hours on this issue : 2h
         self.menu.v_model = False
         self.menu.v_model = True
 
