@@ -350,7 +350,7 @@ class AoiView(sw.Card):
             self.aoi_dc.hide()
 
         # add a validation btn
-        self.btn = sw.Btn(ms.aoi_sel.btn)
+        self.btn = sw.Btn(msg=ms.aoi_sel.btn)
 
         # create the widget
         self.children = (
