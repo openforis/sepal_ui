@@ -11,9 +11,11 @@ import geopandas as gpd
 import ipyvuetify as v
 import rasterio as rio
 import rioxarray
+from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON, Map
 from rasterio.crs import CRS
 from shapely import geometry as sg
+from traitlets import Bool
 
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
@@ -24,7 +26,7 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 
 
-class ValueInspector(MenuControl):
+class InspectorControl(MenuControl):
 
     m: Optional[Map] = None
     "the map on which he vinspector is displayed to interact with it's layers"
@@ -38,7 +40,10 @@ class ValueInspector(MenuControl):
     text: Optional[v.CardText] = None
     "The text element from the card that is edited when the user click on the map"
 
-    def __init__(self, m: Map, **kwargs) -> None:
+    open_tree: Bool = Bool(True).tag(sync=True)
+    "Either or not the tree should be opened automatically"
+
+    def __init__(self, m: Map, open_tree: bool = True, **kwargs) -> None:
         """
         Widget control displaying a btn on the map.
 
@@ -47,6 +52,9 @@ class ValueInspector(MenuControl):
         Args:
             m: the map on which he vinspector is displayed to interact with it's layers
         """
+        # set traits
+        self.open_tree = open_tree
+
         # set some default parameters
         kwargs.setdefault("position", "topleft")
         kwargs["m"] = m
@@ -61,8 +69,8 @@ class ValueInspector(MenuControl):
         )
 
         # set up the content
-        title = sw.CardTitle(children=[ms.v_inspector.title])
-        self.text = sw.CardText(children=[ms.v_inspector.landing])
+        title = sw.CardTitle(children=[ms.inspector_control.title])
+        self.text = sw.CardText(children=[ms.inspector_control.landing])
 
         # create the menu widget
         super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
@@ -111,15 +119,18 @@ class ValueInspector(MenuControl):
         lng, lat = coords = [c for c in reversed(kwargs.get("coordinates"))]
 
         # write the coordinates and the scale
-        txt = ms.v_inspector.coords.format(round(self.m.get_scale()))
+        txt = ms.inspector_control.coords.format(round(self.m.get_scale()))
         children.append(sw.Html(tag="h4", children=[txt]))
         children.append(sw.Html(tag="p", children=[f"[{lng:.3f}, {lat:.3f}]"]))
 
+        # wrap layer data in a treeview widget
+        tree_view = sw.Treeview(hoverable=True, dense=True, open_on_click=True)
+        children.append(sw.Html(tag="h4", children=[ms.inspector_control.layers]))
+        children.append(tree_view)
+
         # write the layers data
-        children.append(sw.Html(tag="h4", children=["Layers"]))
-        layers = [lyr for lyr in self.m.layers if not lyr.base]
-        for lyr in layers:
-            children.append(sw.Html(tag="h5", children=[lyr.name]))
+        items, layers = [], [lyr for lyr in self.m.layers if not lyr.base]
+        for i, lyr in enumerate(layers):
 
             if isinstance(lyr, EELayer):
                 data = self._from_eelayer(lyr.ee_object, coords)
@@ -128,11 +139,19 @@ class ValueInspector(MenuControl):
             elif type(lyr).__name__ == "BoundTileLayer":
                 data = self._from_raster(lyr.raster, coords)
             else:
-                data = {ms.v_inspector.info.header: ms.v_inspector.info.text}
+                data = {
+                    ms.inspector_control.info.header: ms.inspector_control.info.text
+                }
 
-            for k, val in data.items():
-                children.append(sw.Html(tag="span", children=[f"{k}: {val}"]))
-                children.append(sw.Html(tag="br", children=[]))
+            items.append(
+                {
+                    "id": str(i),
+                    "name": lyr.name,
+                    "children": [{"name": f"{k}: {v}"} for k, v in data.items()],
+                }
+            )
+        tree_view.items = items
+        tree_view.open_ = "0" if self.open_tree else ""
 
         # set them in the card
         self.text.children = children
@@ -143,8 +162,8 @@ class ValueInspector(MenuControl):
 
         # one last flicker to replace the menu next to the btn
         # if not it goes below the map
-        # i've try playing with the styles but it didn't worked out well
-        # lost hours on this issue : 1h
+        # I've try playing with the styles but it didn't worked out well
+        # lost hours on this issue : 2h
         self.menu.v_model = False
         self.menu.v_model = True
 
@@ -254,13 +273,21 @@ class ValueInspector(MenuControl):
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
             pixel_values = {
-                ms.v_inspector.band.format(i + 1): v for i, v in enumerate(means)
+                ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)
             }
 
         # if the point is out of the image display None
         else:
             pixel_values = {
-                ms.v_inspector.band.format(i + 1): None for i in range(da.rio.count)
+                ms.inspector_control.band.format(i + 1): None
+                for i in range(da.rio.count)
             }
 
         return pixel_values
+
+
+@deprecated(
+    version="2.15.1", reason="ValueInspector class is now renamed InspectorControl"
+)
+class ValueInspector(InspectorControl):
+    pass

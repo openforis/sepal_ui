@@ -9,27 +9,36 @@ import pytest
 from sepal_ui import mapping as sm
 
 
-class TestValueInspector:
+class TestInspectorControl:
     def test_init(self):
 
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
-        m.add(value_inspector)
+        inspector_control = sm.InspectorControl(m)
+        m.add(inspector_control)
 
-        assert isinstance(value_inspector, sm.ValueInspector)
+        assert isinstance(inspector_control, sm.InspectorControl)
+
+    def test_deprecated(self):
+
+        m = sm.SepalMap()
+        with pytest.deprecated_call():
+            inspector_control = sm.ValueInspector(m)
+        m.add(inspector_control)
+
+        assert isinstance(inspector_control, sm.InspectorControl)
 
     def test_toogle_cursor(self):
 
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
-        m.add(value_inspector)
+        inspector_control = sm.InspectorControl(m)
+        m.add(inspector_control)
 
         # activate the window
-        value_inspector.menu.v_model = True
+        inspector_control.menu.v_model = True
         assert m.default_style.cursor == "crosshair"
 
         # close with the menu
-        value_inspector.menu.v_model = False
+        inspector_control.menu.v_model = False
         assert m.default_style.cursor == "grab"
 
         return
@@ -38,17 +47,17 @@ class TestValueInspector:
 
         # not testing the display of anything here just the interaction
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
-        m.add(value_inspector)
+        inspector_control = sm.InspectorControl(m)
+        m.add(inspector_control)
 
         # click anywhere without activation
-        value_inspector.read_data(type="click", coordinates=[0, 0])
-        assert len(value_inspector.text.children) == 1
+        inspector_control.read_data(type="click", coordinates=[0, 0])
+        assert len(inspector_control.text.children) == 1
 
         # click when activated
-        value_inspector.menu.v_model = True
-        value_inspector.read_data(type="click", coordinates=[0, 0])
-        assert len(value_inspector.text.children) == 3
+        inspector_control.menu.v_model = True
+        inspector_control.read_data(type="click", coordinates=[0, 0])
+        assert len(inspector_control.text.children) == 4
 
         return
 
@@ -57,22 +66,22 @@ class TestValueInspector:
 
         # create a map with a value inspector
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
+        inspector_control = sm.InspectorControl(m)
 
         # check a nodata place on Image
-        data = value_inspector._from_eelayer(world_temp.mosaic(), [0, 0])
+        data = inspector_control._from_eelayer(world_temp.mosaic(), [0, 0])
         assert data == {"temperature_2m": None}
 
         # check vatican city
-        data = value_inspector._from_eelayer(world_temp.mosaic(), [12.457, 41.902])
+        data = inspector_control._from_eelayer(world_temp.mosaic(), [12.457, 41.902])
         assert data == {"temperature_2m": 296.00286865234375}
 
         # check a featurecollection on nodata place
-        data = value_inspector._from_eelayer(ee_adm2, [0, 0])
+        data = inspector_control._from_eelayer(ee_adm2, [0, 0])
         assert data == {"ADM2_CODE": None}
 
         # check the featurecollection on vatican city
-        data = value_inspector._from_eelayer(ee_adm2, [12.457, 41.902])
+        data = inspector_control._from_eelayer(ee_adm2, [12.457, 41.902])
         assert data == {"ADM2_CODE": 18350}
 
         return
@@ -81,14 +90,14 @@ class TestValueInspector:
 
         # create a map with a value inspector
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
+        inspector_control = sm.InspectorControl(m)
 
         # check a featurecollection on nodata place
-        data = value_inspector._from_geojson(adm0_vatican, [0, 0])
+        data = inspector_control._from_geojson(adm0_vatican, [0, 0])
         assert data == {"GID_0": None, "NAME_0": None}
 
         # check the featurecollection on vatican city
-        data = value_inspector._from_geojson(adm0_vatican, [12.457, 41.902])
+        data = inspector_control._from_geojson(adm0_vatican, [12.457, 41.902])
         assert data == {"GID_0": "VAT", "NAME_0": "Vatican City"}
 
         return
@@ -97,14 +106,14 @@ class TestValueInspector:
 
         # create a map with a value inspector
         m = sm.SepalMap()
-        value_inspector = sm.ValueInspector(m)
+        inspector_control = sm.InspectorControl(m)
 
         # check a featurecollection on nodata place
-        data = value_inspector._from_raster(raster_bahamas, [0, 0])
+        data = inspector_control._from_raster(raster_bahamas, [0, 0])
         assert data == {"band 1": None, "band 2": None, "band 3": None}
 
         # check the featurecollection on vatican city
-        data = value_inspector._from_raster(raster_bahamas, [-78.072, 24.769])
+        data = inspector_control._from_raster(raster_bahamas, [-78.072, 24.769])
         assert math.isclose(data["band 1"], 70.46553, rel_tol=1e-5)
         assert math.isclose(data["band 2"], 91.41595, rel_tol=1e-5)
         assert math.isclose(data["band 3"], 93.08673, rel_tol=1e-5)
