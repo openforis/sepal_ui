@@ -107,12 +107,10 @@ where = ["sepal_ui"]
 
 [tool.setuptools.package-data]
 sepal_ui = [
-    "data/*.parquet",
-    "message/**/*.json",
+    "data/*",
+    "message/**/*",
     "bin/*",
-    "frontend/css/*.css",
-    "frontend/json/*.json",
-    "frontend/js/*.js",
+    "frontend/**/*",
     "templates/**/*",
 ]
 
