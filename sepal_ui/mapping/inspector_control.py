@@ -15,6 +15,7 @@ from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON, Map
 from rasterio.crs import CRS
 from shapely import geometry as sg
+from traitlets import Bool
 
 from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
@@ -39,7 +40,10 @@ class InspectorControl(MenuControl):
     text: Optional[v.CardText] = None
     "The text element from the card that is edited when the user click on the map"
 
-    def __init__(self, m: Map, **kwargs) -> None:
+    open_tree: Bool = Bool(True).tag(sync=True)
+    "Either or not the tree should be opened automatically"
+
+    def __init__(self, m: Map, open_tree: bool = True, **kwargs) -> None:
         """
         Widget control displaying a btn on the map.
 
@@ -48,6 +52,9 @@ class InspectorControl(MenuControl):
         Args:
             m: the map on which he vinspector is displayed to interact with it's layers
         """
+        # set traits
+        self.open_tree = open_tree
+
         # set some default parameters
         kwargs.setdefault("position", "topleft")
         kwargs["m"] = m
@@ -123,7 +130,7 @@ class InspectorControl(MenuControl):
 
         # write the layers data
         items, layers = [], [lyr for lyr in self.m.layers if not lyr.base]
-        for lyr in layers:
+        for i, lyr in enumerate(layers):
 
             if isinstance(lyr, EELayer):
                 data = self._from_eelayer(lyr.ee_object, coords)
@@ -138,11 +145,13 @@ class InspectorControl(MenuControl):
 
             items.append(
                 {
+                    "id": str(i),
                     "name": lyr.name,
                     "children": [{"name": f"{k}: {v}"} for k, v in data.items()],
                 }
             )
         tree_view.items = items
+        tree_view.open_ = "0" if self.open_tree else ""
 
         # set them in the card
         self.text.children = children
