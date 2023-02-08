@@ -64,7 +64,9 @@ class DatePicker(v.Layout, SepalWidget):
     disabled: t.Bool = t.Bool(False).tag(sync=True)
     "the disabled status of the Datepicker object"
 
-    def __init__(self, label: str = "Date", layout_kwargs: dict = {}, **kwargs) -> None:
+    def __init__(
+        self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs
+    ) -> None:
         """
         Custom input widget to provide a reusable DatePicker.
 
@@ -106,6 +108,7 @@ class DatePicker(v.Layout, SepalWidget):
         )
 
         # set the default parameter
+        layout_kwargs = layout_kwargs or {}
         layout_kwargs.setdefault("row", True)
         layout_kwargs.setdefault("class_", "pa-5")
         layout_kwargs.setdefault("align_center", True)
