@@ -1,3 +1,28 @@
+## v_2.15.1 (2023-02-08)
+
+### Fix
+
+- update package discovery (#742)
+- update datepicker (#741)
+- make get_children always recursive (#747)
+- open first item autoamtically
+- make get_children always recursive
+- avoid layout_kwargs sharing among datepicker
+- remove gliph when btn have only msg (#740)
+- use attributes instead of _metadata (#739)
+- change aoi color to primary (#738)
+- use treeview to display vinspector
+- discover packages automatically related to #734 need to be tested in the next fix release
+- update v_model in both direction in datepicker Fix #730
+- remove gliph when btn have only msg Fix #732
+- use attributes instead of _metadata Fix #735
+- change aoi color to primary Fix #736
+
+### Refactor
+
+- 1 line per data folder
+- rename ValueControl
+
 ## v_2.15.0 (2023-02-07)
 
 ### Feat
