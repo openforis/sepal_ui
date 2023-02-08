@@ -65,6 +65,7 @@ Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.t
 dev = [
     "pre-commit>=2.18.0",
     "commitizen",
+    "nox",
 ]
 test = [
     "pytest",
@@ -73,7 +74,6 @@ test = [
     "pytest-cov",
     "pytest-deadfixtures",
     "Flake8-pyproject",
-    "nox",
     "nbmake",
 ]
 doc = [
@@ -86,7 +86,6 @@ doc = [
     "m2r2>=0.3.3",
     "sphinxcontrib-autoprogram",
     "sphinx-favicon",
-    "nox",
 ]
 
 [project.scripts]
@@ -99,17 +98,17 @@ activate_venv = "sepal_ui.bin.activate_venv:main"
 sepal_ipyvuetify = "sepal_ui.bin.sepal_ipyvuetify:main"
 
 [tool.setuptools]
-include-package-data = true
+include-package-data = false
 license-files = ["LICENSE.txt"]
 
 [tool.setuptools.packages.find]
-where = ["sepal_ui"]
+include = ["sepal_ui*"]
+exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
 sepal_ui = [
     "data/*",
     "message/**/*",
-    "bin/*",
     "frontend/**/*",
     "templates/**/*",
 ]
