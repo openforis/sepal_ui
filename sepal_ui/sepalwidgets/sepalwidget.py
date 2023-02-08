@@ -177,11 +177,11 @@ class SepalWidget(v.VuetifyWidget):
             is_klass = isinstance(w, klass)
             is_val = w.attributes.get(attr, "niet") == value if attr and value else True
 
-            # asumption: searched element won't be nested inside one another
             if is_klass and is_val:
                 elements.append(w)
-            else:
-                elements = self.get_children(w, klass, attr, value, id_, elements)
+
+            # always search for nested elements
+            elements = self.get_children(w, klass, attr, value, id_, elements)
 
         return elements
 

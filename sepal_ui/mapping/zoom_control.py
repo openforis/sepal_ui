@@ -34,8 +34,8 @@ class ZoomControl(WidgetControl):
         self.m = m
 
         # create the 2 btns
-        self.plus = MapBtn("fa-solid fa-plus", _metadata={"step": 1})
-        self.minus = MapBtn("fa-solid fa-minus", _metadata={"step": -1})
+        self.plus = MapBtn("fa-solid fa-plus", attributes={"data-step": 1})
+        self.minus = MapBtn("fa-solid fa-minus", attributes={"data-step": -1})
 
         # customize their layout by removing the bottom radius
         self.plus.class_list.add("v-zoom-plus")
@@ -61,7 +61,7 @@ class ZoomControl(WidgetControl):
         min_zoom = self.m.min_zoom or 0
 
         # computed zoom
-        zoom = self.m.zoom + widget._metadata["step"]
+        zoom = self.m.zoom + widget.attributes["data-step"]
 
         # adapt to the limitations of the map
         self.m.zoom = max(min(zoom, max_zoom), min_zoom)
