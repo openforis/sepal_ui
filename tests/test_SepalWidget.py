@@ -108,24 +108,23 @@ class TestSepalWidget:
         assert len(res) == 0
 
         # search for specific attributes in any class
-        # one alert that could match is ignored because the parent card is identified
-        # earlier, that's a feature
         res = test_card.get_children(attr="id", value=3)
-        assert len(res) == 6
+        assert len(res) == 7
         assert isinstance(res[0], sw.Alert)
         assert isinstance(res[1], sw.Alert)
         assert isinstance(res[2], sw.Alert)
         assert isinstance(res[3], sw.Card)
         assert isinstance(res[4], sw.Alert)
-        assert isinstance(res[5], sw.Btn)
+        assert isinstance(res[5], sw.Alert)
+        assert isinstance(res[6], sw.Btn)
 
-        # missing value (all children will match so nested are ignored)
+        # missing value (all children will match including icons)
         res = test_card.get_children(attr="id")
-        assert len(res) == 10
+        assert len(res) == 40
 
-        # missing attr (all children will match so nested are ignored)
+        # missing attr (all children will match including icons)
         res = test_card.get_children(value=5)
-        assert len(res) == 10
+        assert len(res) == 40
 
         # no match search attr
         res = test_card.get_children(attr="toto", value="toto")
