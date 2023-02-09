@@ -146,7 +146,7 @@ class Alert(v.Alert, SepalWidget):
 
         self.progress_bar.update(progress - self.progress_bar.n)
 
-        if progress == 1:
+        if progress == total:
             self.progress_bar.close()
 
         return
