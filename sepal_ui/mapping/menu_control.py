@@ -82,8 +82,8 @@ class MenuControl(WidgetControl):
             tile=True,
             style_="overflow: auto",
             children=children,
-            class_="v-menu-fullscreen" if self.fullscreen else None,
         )
+        not fullscreen or card.class_list.add("v-menu-fullscreen")
 
         # assemble everything in a menu
         self.menu = sw.Menu(
@@ -140,10 +140,14 @@ class MenuControl(WidgetControl):
         """
         card = self.menu.children[0]
 
-        card.min_width = None if self.fullscreen else min_width
-        card.max_width = None if self.fullscreen else max_width
-        card.min_height = None if self.fullscreen else min_height
-        card.max_height = None if self.fullscreen else max_height
+        # special case to None for everything if the menu is displayed in fullscree
+        if self.fullscreen:
+            min_width = max_width = min_height = max_height = None
+
+        card.min_width = min_width
+        card.max_width = max_width
+        card.min_height = min_height
+        card.max_height = max_height
 
         return self
 
