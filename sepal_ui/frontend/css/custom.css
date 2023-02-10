@@ -35,6 +35,7 @@ header.v-app-bar {
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
   z-index: 801 !important;
+  max-width: 100% !important;
 }
 
 /* make sure the dialog remain on top of the bars (header and footer) */
@@ -102,4 +103,10 @@ nav.v-navigation-drawer {
   margin-top: -1px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+/* css rules for fullscreen menus */
+.v-card.v-menu-fullscreen {
+  width: calc(100vw - 80px);
+  height: calc(100vh - 20px);
 }

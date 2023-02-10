@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
-from traitlets import Int
+from traitlets import Bool, Int
 from typing_extensions import Self
 
 from sepal_ui import sepalwidgets as sw
@@ -24,6 +24,9 @@ class MenuControl(WidgetControl):
     group: Int = Int().tag(sync=True)
     "The group of Menu control, tell how the Menucontrol interact with the others"
 
+    fullscreen: Bool(False).tag(sync=True)
+    "Either or not the Menu container should be displayed in fullscreen on top of the map"
+
     def __init__(
         self,
         icon_content: str,
@@ -31,6 +34,7 @@ class MenuControl(WidgetControl):
         card_title: str = "",
         m: Optional[Map] = None,
         group: int = 0,
+        fullscreen: bool = False,
         **kwargs
     ) -> None:
         """
@@ -45,12 +49,14 @@ class MenuControl(WidgetControl):
             card_title: the card title. THe tile title will override this parameter if existing
             m: The map associated with the Menu
             group: The group of Menu control, tell how the Menucontrol interact with the others
+            fullscreen: Either or not the Menu container should be displayed in fullscreen on top of the map
         """
         # save the map in the members
         self.m = m
 
-        # set the menucontrol group
+        # set the menucontrol parameters
         self.group = group
+        self.fullscreen = fullscreen
 
         # create a clickable btn
         btn = MapBtn(content=icon_content, v_on="menu.on")
@@ -76,6 +82,7 @@ class MenuControl(WidgetControl):
             tile=True,
             style_="overflow: auto",
             children=children,
+            class_="v-menu-fullscreen" if self.fullscreen else None,
         )
 
         # assemble everything in a menu
@@ -123,6 +130,8 @@ class MenuControl(WidgetControl):
         """
         Set the size of the card using all the sizing parameters from a v.Card.
 
+        Default to None for everything if the menu control is fullscreened to avoid css conflict.
+
         Args:
           min_width: a fully qualified css description of the wanted min_width. default to 400px.
           max_width: a fully qualified css description of the wanted max_width. default to 400px.
@@ -131,10 +140,10 @@ class MenuControl(WidgetControl):
         """
         card = self.menu.children[0]
 
-        card.min_width = min_width
-        card.max_width = max_width
-        card.min_height = min_height
-        card.max_height = max_height
+        card.min_width = None if self.fullscreen else min_width
+        card.max_width = None if self.fullscreen else max_width
+        card.min_height = None if self.fullscreen else min_height
+        card.max_height = None if self.fullscreen else max_height
 
         return self
 
