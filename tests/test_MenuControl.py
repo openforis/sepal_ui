@@ -3,7 +3,8 @@ from sepal_ui import sepalwidgets as sw
 
 
 class TestMenuControl:
-    def test_init(self):
+    def test_init(self) -> None:
+        """Init a menu control in different setup"""
 
         # create a tile
         tile = sw.Tile(
@@ -32,7 +33,8 @@ class TestMenuControl:
 
         return
 
-    def test_update_position(self):
+    def test_update_position(self) -> None:
+        """Check that the position can be updated dynamically"""
 
         # create the widget
         menu_control = sm.MenuControl("fa-solid fa-folder", sw.Card())
@@ -52,7 +54,8 @@ class TestMenuControl:
 
         return
 
-    def test_close_others(self):
+    def test_close_others(self) -> None:
+        """Check that opening a menu is closing the others"""
 
         # add controls on the map
         m = sm.SepalMap()
@@ -93,5 +96,24 @@ class TestMenuControl:
         assert control_2.menu.v_model is True
         assert control_3.menu.v_model is False
         assert control_4.menu.v_model is True
+
+        return
+
+    def test_fullscreen(self) -> None:
+        """Check if the fullscreen display of a menu"""
+
+        # create the menu_control
+        tile = sw.Tile("toto", "tutu", inputs=[sw.Slider()])
+        m = sm.SepalMap()
+        tile_control = sm.MenuControl("tutu", tile, fullscreen=True)
+        m.add(tile_control)
+
+        # check the class as it's the only thing that changes
+        card = tile_control.menu.children[0]
+        assert "v-menu-fullscreen" in card.class_
+        assert card.min_width is None
+        assert card.max_width is None
+        assert card.min_height is None
+        assert card.max_height is None
 
         return
