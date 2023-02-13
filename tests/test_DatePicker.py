@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from traitlets import Any
 
@@ -93,6 +95,16 @@ class TestDatePicker:
         datepicker.v_model = test
         assert datepicker.v_model == test
         assert datepicker.date_text.error_messages is None
+
+        return
+
+    def test_today(self, datepicker) -> None:
+        """check that the date is updated to today"""
+
+        res = datepicker.today()
+
+        assert res == datepicker
+        assert res.v_model == datetime.today().strftime("%Y-%m-%d")
 
         return
 
