@@ -12,6 +12,14 @@ After forking the projet, run the following command to start developing:
     $ git clone https://github.com/<github id>/sepal_ui.git
     $ cd sepal_ui
     $ pip install -e .[dev, test, doc]
+    
+.. warning::
+    
+    If you are using https://sepal.io enviroment and :code:`sepal_ui > v_2.13.0`, —as of today (15/02/23), there is not support to editable mode, if that is the case you will have to use the following line:
+        
+        .. code-block:: console
+        
+        pip install -e --config-settings editable_mode=compat sepal_ui
 
 .. danger::
 
