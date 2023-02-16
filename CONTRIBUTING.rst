@@ -19,7 +19,7 @@ After forking the projet, run the following command to start developing:
         
         .. code-block:: console
         
-            $ pip install -e --config-settings editable_mode=compat sepal_ui
+            $ pip install -e . --config-settings editable_mode=compat
 
 .. danger::
 
