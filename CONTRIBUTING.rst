@@ -11,7 +11,7 @@ After forking the projet, run the following command to start developing:
 
     $ git clone https://github.com/<github id>/sepal_ui.git
     $ cd sepal_ui
-    $ pip install -e .[dev, test, doc]
+    $ pip install -e .[dev]
     
 .. warning::
     
