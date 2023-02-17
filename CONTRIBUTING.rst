@@ -15,7 +15,7 @@ After forking the projet, run the following command to start developing:
     
 .. warning::
     
-    If you are using https://sepal.io enviroment and :code:`sepal_ui > v_2.13.0`, —as of today (15/02/23), there is not support to editable mode, if that is the case you will have to use the following line:
+    ``setuptool`` > 60 has changed its editable installation process. If your environment is not suporting it (e.g. SEPAL) use the following line instead:
         
         .. code-block:: console
         
