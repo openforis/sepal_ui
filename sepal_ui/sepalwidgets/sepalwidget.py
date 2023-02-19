@@ -120,7 +120,7 @@ class SepalWidget(v.VuetifyWidget):
     def get_children(
         self,
         widget: Optional[v.VuetifyWidget] = None,
-        klass: Type[v.VuetifyWidget] = v.VuetifyWidget,
+        klass: Optional[Type[v.VuetifyWidget]] = None,
         attr: str = "",
         value: str = "",
         id_: str = "",
@@ -168,17 +168,22 @@ class SepalWidget(v.VuetifyWidget):
         for w in widget.children:
 
             # exit if children is not a widget (str, DOM objects.. etc)
-            if not isinstance(w, v.VuetifyWidget):
+            if not isinstance(w, (v.VuetifyWidget, v.Html)):
                 continue
 
             # compare the widget with requirements
+            # if no klass is specified, use both vuetifyWidget and Html objects
+            is_klass = (
+                isinstance(w, klass)
+                if klass
+                else isinstance(w, ((v.VuetifyWidget, v.Html)))
+            )
+
             # using "niet" as default so that result is True if attr is Falsy
             # "niet" is very unlikely to be used compared to None, False, "none"...
-            is_klass = isinstance(w, klass)
             is_val = w.attributes.get(attr, "niet") == value if attr and value else True
 
-            if is_klass and is_val:
-                elements.append(w)
+            not (is_klass and is_val) or elements.append(w)
 
             # always search for nested elements
             elements = self.get_children(w, klass, attr, value, id_, elements)
