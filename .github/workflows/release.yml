@@ -30,7 +30,7 @@ jobs:
         uses: devmasx/merge-branch@master
         with:
           type: now
-          label_name: ":rocket: ${{  github.ref_name }}"
+          message: ":rocket: ${{  github.ref_name }}"
           from_branch: main
           target_branch: release
           github_token: ${{ github.token }}

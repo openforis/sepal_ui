@@ -37,7 +37,7 @@ class TestSepalMap:
         assert isinstance(m, sm.SepalMap)
         assert m.center == [0, 0]
         assert m.zoom == 2
-        assert len(m.layers) == 1
+        assert len(m.layers) == 2
 
         basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
 
@@ -50,7 +50,7 @@ class TestSepalMap:
         # check that the map start with several basemaps
 
         m = sm.SepalMap(basemaps)
-        assert len(m.layers) == 2
+        assert len(m.layers) == 3
         layers_name = [layer.name for layer in m.layers]
         assert all(b in layers_name for b in basemaps)
 
@@ -143,12 +143,14 @@ class TestSepalMap:
 
         # add a rgb layer to the map
         m.add_raster(rgb, layer_name="rgb")
-        assert m.layers[1].name == "rgb"
-        assert type(m.layers[1]).__name__ == "BoundTileLayer"
+        layer = m.find_layer("rgb")
+        assert layer.name == "rgb"
+        assert type(layer).__name__ == "BoundTileLayer"
 
         # add a byte layer
         m.add_raster(byte, layer_name="byte")
-        assert m.layers[2].name == "byte"
+        layer = m.find_layer("byte")
+        assert layer.name == "byte"
 
         return
 
@@ -201,7 +203,7 @@ class TestSepalMap:
         for viz in sm.SepalMap.get_viz_params(image).values():
             m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
-        assert len(m.layers) == 5
+        assert len(m.layers) == 6
 
         # display an image without properties
         m = sm.SepalMap()
@@ -210,7 +212,7 @@ class TestSepalMap:
         dataset = ee.Image().addBands(dataset)  # with all bands and 0 properties
         m.addLayer(dataset)
 
-        assert len(m.layers) == 2
+        assert len(m.layers) == 3
 
         # Test with vector
 
@@ -230,7 +232,7 @@ class TestSepalMap:
         map_ = sm.SepalMap()
         map_.addLayer(geometry, {"color": "red", "fillColor": None})
 
-        assert len(m.layers) == 2
+        assert len(m.layers) == 3
 
         return
 
@@ -311,13 +313,14 @@ class TestSepalMap:
 
         # remove using a layer without counting the base
         m.remove_layer(0)
-        assert len(m.layers) == 4
+        assert len(m.layers) == 5
         assert m.layers[0].base is True
 
         # remove when authorizing selection of bases
         m.remove_layer(0, base=True)
-        assert len(m.layers) == 3
-        assert m.layers[0].name == "NDWI harmonics"
+        assert len(m.layers) == 4
+        assert len([ly for ly in m.layers if ly.base is True]) == 0
+        # assert m.layers[0].name == "NDWI harmonics"
 
         return
 
@@ -396,9 +399,10 @@ class TestSepalMap:
         m = sm.SepalMap()
         m.add_basemap("HYBRID")
 
-        assert len(m.layers) == 2
-        assert m.layers[1].name == "Google Satellite"
-        assert m.layers[1].base is True
+        assert len(m.layers) == 3
+        layer = m.find_layer("Google Satellite", base=True)
+        assert layer.name == "Google Satellite"
+        assert layer.base is True
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -431,7 +435,7 @@ class TestSepalMap:
         assert res is None
 
         # search by index
-        res = m.find_layer(0)
+        res = m.find_layer(1)
         assert res.name == "Classification"
 
         res = m.find_layer(-1)
@@ -442,7 +446,7 @@ class TestSepalMap:
             res = m.find_layer(50)
 
         # search by layer
-        res = m.find_layer(m.layers[2])
+        res = m.find_layer(m.layers[3])
         assert res.name == "NDWI harmonics"
 
         # search including the basemap

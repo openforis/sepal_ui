@@ -11,7 +11,15 @@ After forking the projet, run the following command to start developing:
 
     $ git clone https://github.com/<github id>/sepal_ui.git
     $ cd sepal_ui
-    $ pip install -e .[dev, test, doc]
+    $ pip install -e .[dev]
+
+.. warning::
+
+    ``setuptool`` > 60 has changed its editable installation process. If your environment is not suporting it (e.g. SEPAL) use the following line instead:
+
+        .. code-block:: console
+
+            $ pip install -e .[dev] --config-settings editable_mode=compat
 
 .. danger::
 

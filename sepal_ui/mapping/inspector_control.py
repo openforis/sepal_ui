@@ -12,7 +12,7 @@ import ipyvuetify as v
 import rasterio as rio
 import rioxarray
 from deprecated.sphinx import deprecated
-from ipyleaflet import GeoJSON, Map
+from ipyleaflet import GeoJSON, Map, Marker
 from rasterio.crs import CRS
 from shapely import geometry as sg
 from traitlets import Bool
@@ -42,6 +42,9 @@ class InspectorControl(MenuControl):
 
     open_tree: Bool = Bool(True).tag(sync=True)
     "Either or not the tree should be opened automatically"
+
+    marker: Optional[Marker] = None
+    "The marker of the last visited point"
 
     def __init__(self, m: Map, open_tree: bool = True, **kwargs) -> None:
         """
@@ -75,6 +78,10 @@ class InspectorControl(MenuControl):
         # create the menu widget
         super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
 
+        # create a marker outside of the map [91, 181] and hide it
+        self.marker = Marker(location=[91, 181], draggable=False, visible=False)
+        self.m.add_layer(self.marker)
+
         # adapt the size
         self.set_size(min_height=0)
 
@@ -84,13 +91,14 @@ class InspectorControl(MenuControl):
 
     def toggle_cursor(self, *args) -> None:
         """
-        Toggle the cursor display.
+        Toggle the cursor and marker display.
 
         Toggle the cursor on the map to notify to the user that the inspector
-        mode is activated.
+        mode is activated. also activate previous marker if the inspector already include data.
         """
         cursors = [{"cursor": "grab"}, {"cursor": "crosshair"}]
         self.m.default_style = cursors[self.menu.v_model]
+        self.marker.visible = self.menu.v_model
 
         return
 
@@ -138,6 +146,8 @@ class InspectorControl(MenuControl):
                 data = self._from_geojson(lyr.data, coords)
             elif type(lyr).__name__ == "BoundTileLayer":
                 data = self._from_raster(lyr.raster, coords)
+            elif isinstance(lyr, Marker):
+                continue
             else:
                 data = {
                     ms.inspector_control.info.header: ms.inspector_control.info.text
@@ -155,6 +165,9 @@ class InspectorControl(MenuControl):
 
         # set them in the card
         self.text.children = children
+
+        # place a marker on the right coordinates
+        self.marker.location = [lat, lng]
 
         # set back the cursor to crosshair
         self.w_loading.indeterminate = False

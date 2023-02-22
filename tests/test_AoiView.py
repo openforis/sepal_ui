@@ -125,7 +125,7 @@ class TestAoiView:
         # perform checks
         assert aoi_gee_view.updated == 1
         assert aoi_gee_view.model.name == "VAT"
-        assert len(aoi_gee_view.map_.layers) == 2
+        assert len(aoi_gee_view.map_.layers) == 3
 
     def test_update_local_aoi(self, aoi_local_view):
 
@@ -142,7 +142,7 @@ class TestAoiView:
         # perform checks
         assert aoi_local_view.updated == 1
         assert aoi_local_view.model.name == "VAT"
-        assert len(aoi_local_view.map_.layers) == 2
+        assert len(aoi_local_view.map_.layers) == 3
 
         return
 
@@ -162,7 +162,7 @@ class TestAoiView:
         aoi_local_view.reset()
 
         # checks
-        assert len(aoi_local_view.map_.layers) == 1
+        assert len(aoi_local_view.map_.layers) == 2
         assert aoi_local_view.w_method.v_model is None
         assert aoi_local_view.model.name is None
 
