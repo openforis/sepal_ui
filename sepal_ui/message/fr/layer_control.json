@@ -5,13 +5,13 @@
   },
   "layer_control": {
     "layer": {
-      "header": ""
+      "header": "Couches"
     },
     "basemap": {
-      "header": ""
+      "header": "Fonds de carte"
     },
     "vector": {
-      "header": ""
+      "header": "Vecteurs"
     }
   }
 }
