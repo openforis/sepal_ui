@@ -1,3 +1,20 @@
+## v_2.15.2 (2023-02-22)
+
+### Fix
+
+- increase z-index to avoid issues with select over dialogs (#766)
+- increase z-index to avoid issues with select over dialogs
+- add a marker on the map for inspection (#757)
+- add html to the tested widgets (#764)
+- add html to the tested widgets
+- remove last fa5 icon (#748)
+- add a marker on the map for inspection
+- close tqdm when total is reached (#751)
+- load autoreload extension before using it (#750)
+- close tqdm when total is reached
+- load autoreload extension before using it
+- remove last fa5 icon
+
 ## v_2.15.1 (2023-02-08)
 
 ### Fix
