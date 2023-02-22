@@ -81,7 +81,6 @@ doc = [
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
-    "sphinxcontrib-spelling",
     "sphinx-copybutton",
     "m2r2>=0.3.3",
     "sphinxcontrib-autoprogram",

@@ -208,8 +208,3 @@ The visualization parameters are added as a second argument in the :code:`SepalM
 
     map_ = sm.SepalMap()
     map_.addLayer(geometry, {"color": "red", "fillColor": None})
-
-
-.. spelling:word-list::
-
-    colormap

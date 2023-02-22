@@ -218,7 +218,3 @@ We are using :code:`api-doc` to build the documentation of the lib so if you wan
     sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules
 
 You can then build the documentation, it will automatically call :code:`autodoc` and :code:`autosummary` during the process.
-
-.. spelling:word-list::
-
-    pre
