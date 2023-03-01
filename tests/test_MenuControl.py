@@ -1,3 +1,4 @@
+from sepal_ui import color
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
@@ -117,3 +118,23 @@ class TestMenuControl:
         assert card.max_height is None
 
         return
+
+    def test_activate(self) -> None:
+        """check that activating the menu changes the color of the button"""
+
+        # create the menu_control
+        tile = sw.Tile("toto", "tutu", inputs=[sw.Slider()])
+        m = sm.SepalMap()
+        tile_control = sm.MenuControl("tutu", tile, fullscreen=True)
+        m.add(tile_control)
+
+        # use a variable that point to the btn style
+        btn = tile_control.menu.v_slots[0]["children"]
+
+        # open the controle
+        tile_control.menu.v_model = True
+        assert btn.style_ == "background: gray;"
+
+        # close the controle
+        tile_control.menu.v_model = False
+        assert btn.style_ == f"background: {color.bg};"
