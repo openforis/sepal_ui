@@ -1,6 +1,7 @@
 import uuid
 from itertools import product
 from pathlib import Path
+from typing import Optional
 
 import ee
 import geopandas as gpd
@@ -20,7 +21,7 @@ except Exception:
 
 
 @pytest.fixture(scope="session")
-def root_dir():
+def root_dir() -> Path:
     """
     Path to the root dir of the librairy.
     """
@@ -28,7 +29,7 @@ def root_dir():
 
 
 @pytest.fixture(scope="session")
-def tmp_dir():
+def tmp_dir() -> Path:
     """
     Creates a temporary local directory to store data.
     """
@@ -39,7 +40,7 @@ def tmp_dir():
 
 
 @pytest.fixture(scope="session")
-def _hash():
+def _hash() -> str:
     """
     Create a hash for each test instance.
     """
@@ -47,7 +48,7 @@ def _hash():
 
 
 @pytest.fixture(scope="session")
-def gee_dir(_hash):
+def gee_dir(_hash: str) -> Optional[Path]:
     """
     Create a test dir based on earthengine initialization
     populate it with fake super small assets:
@@ -131,6 +132,6 @@ def gee_dir(_hash):
 
 
 @pytest.fixture
-def alert():
+def alert() -> sw.Alert:
     """return a dummy alert that can be used everywhere to display informations."""
     return sw.Alert()

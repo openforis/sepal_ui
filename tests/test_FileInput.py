@@ -1,3 +1,7 @@
+from pathlib import Path
+from typing import List
+
+import ipyvuetify as v
 import pytest
 from traitlets import Any
 
@@ -119,20 +123,32 @@ class TestFileInput:
 
         return
 
+    def test_root(self, file_input: sw.FileInput, root_dir: Path) -> None:
+        """Add a root folder to a file_input and check that you can't go higher"""
+
+        # set the root to the current folder and reload
+        file_input.root = str(root_dir)
+        file_input._on_reload()
+        first_title_item = file_input.get_children(klass=v.ListItemTitle)[0]
+
+        assert ".. /" not in first_title_item.children[0]
+
+        return
+
     @pytest.fixture
-    def file_input(self, root_dir):
+    def file_input(self, root_dir: Path) -> sw.FileInput:
         """create a default file_input in the root_dir."""
         return sw.FileInput(folder=root_dir)
 
     @pytest.fixture
-    def readme(self, root_dir):
+    def readme(self, root_dir: Path) -> Path:
         """return the readme file path."""
         return root_dir / "README.rst"
 
     @staticmethod
-    def get_names(widget):
+    def get_names(file_input: sw.FileInput) -> List[str]:
         """get the list name of a fileinput object."""
-        item_list = widget.file_list.children[0].children
+        item_list = file_input.file_list.children[0].children
 
         def get_name(item):
             return item.children[1].children[0].children[0]

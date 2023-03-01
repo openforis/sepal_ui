@@ -205,6 +205,9 @@ class FileInput(v.Flex, SepalWidget):
     clear: Optional[v.Btn] = None
     "clear btn to remove everything and set back to the ini folder"
 
+    root: t.Unicode = t.Unicode("").tag(sync=True)
+    "the root folder from which you cannot go higher in the tree."
+
     v_model: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
     "the v_model of the input"
 
@@ -218,6 +221,7 @@ class FileInput(v.Flex, SepalWidget):
         label: str = ms.widgets.fileinput.label,
         v_model: Union[str, None] = "",
         clearable: bool = False,
+        root: Union[str, Path] = "",
         **kwargs,
     ) -> None:
         """
@@ -229,10 +233,12 @@ class FileInput(v.Flex, SepalWidget):
             label: the label of the input
             v_model: the default value
             clearable: wether or not to make the widget clearable. default to False
+            root: the root folder from which you cannot go higher in the tree.
             kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
         """
         self.extentions = extentions
         self.folder = Path(folder)
+        self.root = str(root) if isinstance(root, Path) else root
 
         self.selected_file = v.TextField(
             readonly=True,
@@ -441,7 +447,10 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
         file_list = humansorted(file_list, key=lambda x: x.value)
+        folder_list.extend(file_list)
 
+        # add the parent item if root is set and is not reached yet
+        # if root is not set then we always display it
         parent_item = v.ListItem(
             value=str(folder.parent),
             children=[
@@ -458,9 +467,11 @@ class FileInput(v.Flex, SepalWidget):
                 ),
             ],
         )
-
-        folder_list.extend(file_list)
-        folder_list.insert(0, parent_item)
+        root_folder = Path(self.root)
+        if self.root == "":
+            folder_list.insert(0, parent_item)
+        elif folder.is_relative_to(root_folder) and not folder == root_folder:
+            folder_list.insert(0, parent_item)
 
         return folder_list
 
