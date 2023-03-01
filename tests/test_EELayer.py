@@ -13,7 +13,8 @@ class TestEELayer:
         ee_point = ee.FeatureCollection(ee.Geometry.Point(0, 0))
         m.addLayer(ee_point, {}, "point")
 
-        assert isinstance(m.layers[1], sm.EELayer)
-        assert m.layers[1].ee_object == ee_point
+        layer = m.find_layer("point")
+        assert isinstance(layer, sm.EELayer)
+        assert layer.ee_object == ee_point
 
         return

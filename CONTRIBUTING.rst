@@ -11,7 +11,15 @@ After forking the projet, run the following command to start developing:
 
     $ git clone https://github.com/<github id>/sepal_ui.git
     $ cd sepal_ui
-    $ pip install -e .[dev, test, doc]
+    $ pip install -e .[dev]
+
+.. warning::
+
+    ``setuptool`` > 60 has changed its editable installation process. If your environment is not suporting it (e.g. SEPAL) use the following line instead:
+
+        .. code-block:: console
+
+            $ pip install -e .[dev] --config-settings editable_mode=compat
 
 .. danger::
 
@@ -210,7 +218,3 @@ We are using :code:`api-doc` to build the documentation of the lib so if you wan
     sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules
 
 You can then build the documentation, it will automatically call :code:`autodoc` and :code:`autosummary` during the process.
-
-.. spelling:word-list::
-
-    pre

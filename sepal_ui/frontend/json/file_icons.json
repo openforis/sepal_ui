@@ -3,7 +3,7 @@
   ".csv": { "color": ["#4caf50", "#00c853"], "icon": "fa-solid fa-table" },
   ".txt": { "color": ["#4caf50", "#00c853"], "icon": "fa-solid fa-table" },
   ".tif": { "color": ["#9c27b0", "#673ab7"], "icon": "fa-regular fa-image" },
-  ".tiff": { "color": ["#9c27b0", "#673ab7"], "icon": "far fa-image" },
+  ".tiff": { "color": ["#9c27b0", "#673ab7"], "icon": "fa-regular fa-image" },
   ".vrt": { "color": ["#9c27b0", "#673ab7"], "icon": "fa-regular fa-image" },
   ".shp": {
     "color": ["#9c27b0", "#673ab7"],

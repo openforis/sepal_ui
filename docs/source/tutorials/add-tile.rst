@@ -143,8 +143,3 @@ in the :code:`app_items` list, add a :code:`DrawerItem` corresponding to your ti
 
 
 start your voila dashboard "et voila!", you're tile will be loaded at the kernel start and display when you click on the corresponding drawer item.
-
-
-.. spelling:word-list::
-
-    et

@@ -34,7 +34,7 @@ header.v-app-bar {
 
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
-  z-index: 801 !important;
+  z-index: 802 !important;
   max-width: 100% !important;
 }
 

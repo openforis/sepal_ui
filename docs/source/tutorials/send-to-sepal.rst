@@ -161,6 +161,3 @@ Once your PR has been accepted you should change in the ui.ipynb the link to the
     wiki_link = 'https://docs.sepal.io/module/<module_name>.html'
     issue_link = 'https://github.com/<profile>/<repository>/issues/new'
 
-.. spelling:word-list::
-
-    env
