@@ -13,7 +13,7 @@ Example:
 """
 
 import warnings
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
@@ -125,7 +125,7 @@ class SepalWidget(v.VuetifyWidget):
         value: str = "",
         id_: str = "",
         elements: Optional[list] = None,
-    ) -> list:
+    ) -> List[v.VuetifyWidget]:
         r"""
         Recursively search for every element matching the specifications.
 
