@@ -470,7 +470,7 @@ class FileInput(v.Flex, SepalWidget):
         root_folder = Path(self.root)
         if self.root == "":
             folder_list.insert(0, parent_item)
-        elif folder.is_relative_to(root_folder) and not folder == root_folder:
+        elif root_folder in folder.parents:
             folder_list.insert(0, parent_item)
 
         return folder_list
