@@ -88,7 +88,6 @@ class MenuControl(WidgetControl):
         # assemble everything in a menu
         self.menu = sw.Menu(
             v_model=False,
-            close_on_click=False,
             close_on_content_click=False,
             children=[card],
             v_slots=[slot],
