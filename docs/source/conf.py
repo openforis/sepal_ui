@@ -53,7 +53,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
-    "sphinx-favicon",
+    "sphinx_favicon",
     "notfound.extension",
     "sphinxcontrib.autoprogram",
     "_extentions.line_break",
@@ -128,25 +128,20 @@ html_context = {
 }
 
 favicons = [
-    {
-        "rel": "apple-touch-icon",
-        "size": "180x180",
-        "static-file": "apple-touch-icon.png",
-    },
-    {
-        "rel": "icon",
-        "type": "image/png",
-        "size": "32x32",
-        "static-file": "favicon-32x32.png",
-    },
-    {
-        "rel": "icon",
-        "type": "image/png",
-        "size": "16x16",
-        "static-file": "favicon-16x16.png",
-    },
-    {"rel": "mask-icon", "static-file": "safari-pinned-tab.svg", "color": "#186691"},
-    {"rel": "manifest", "static-file": "/site.webmanifest"},
+    # generic icons compatible with most browsers
+    "favicon-32x32.png",
+    "favicon-16x16.png",
+    {"rel": "shortcut icon", "sizes": "any", "href": "favicon.ico"},
+    # chrome specific
+    "android-chrome-192x192.png",
+    "android-chrome-512x512.png",
+    # apple icons
+    {"rel": "mask-icon", "color": "#459db9", "href": "safari-pinned-tab.svg"},
+    {"rel": "apple-touch-icon", "href": "apple-touch-icon.png"},
+    # msapplications
+    {"name": "msapplication-TileColor", "content": "#459db9"},
+    {"name": "theme-color", "content": "#ffffff"},
+    {"name": "msapplication-TileImage", "content": "mstile-150x150.png"},
 ]
 
 # Add any paths that contain custom static files (such as style sheets) here,
