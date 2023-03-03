@@ -1,5 +1,4 @@
-"""
-All modules used to create a application ``Map``.
+"""All modules used to create a application ``Map``.
 
 The ``SepalMap`` is inheriting from the **ipyleaflet** ``Map``. It has been customized to support additional widgets as controls based on **ipyvuetify**. It is also fully compatible with the **sepal-ui** framework thanks to frontend modifications.
 

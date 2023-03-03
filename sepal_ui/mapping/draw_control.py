@@ -1,6 +1,4 @@
-"""
-Customized drawing control.
-"""
+"""Customized drawing control."""
 
 from copy import deepcopy
 from typing import Optional
@@ -18,8 +16,7 @@ class DrawControl(ipl.DrawControl):
     "the map on which he drawControl is displayed. It will help control the visibility"
 
     def __init__(self, m: ipl.Map, **kwargs) -> None:
-        """
-        A custom DrawingControl object to handle edition of features.
+        """A custom DrawingControl object to handle edition of features.
 
         Args:
             m: the map on which he drawControl is displayed
@@ -40,26 +37,21 @@ class DrawControl(ipl.DrawControl):
         super().__init__(**kwargs)
 
     def show(self) -> None:
-        """
-        show the drawing control on the map. and clear it's content.
-        """
+        """Show the drawing control on the map. and clear it's content."""
         self.clear()
         self in self.m.controls or self.m.add(self)
 
         return
 
     def hide(self) -> None:
-        """
-        hide the drawing control from the map, and clear it's content.
-        """
+        """Hide the drawing control from the map, and clear it's content."""
         self.clear()
         self not in self.m.controls or self.m.remove(self)
 
         return
 
     def to_json(self) -> dict:
-        """
-        Return the content of the DrawControl data.
+        """Return the content of the DrawControl data.
 
         Returned without the styling properties and using a polygonized representation of circles. The output is fully compatible with __geo_interface__.
 
@@ -73,8 +65,7 @@ class DrawControl(ipl.DrawControl):
 
     @staticmethod
     def polygonize(geo_json: dict) -> dict:
-        """
-        Transform a ipyleaflet circle (a point with a radius) into a GeoJson polygon.
+        """Transform a ipyleaflet circle (a point with a radius) into a GeoJson polygon.
 
         The methods preserves all the geo_json other attributes.
         If the geometry is not a circle (don't require polygonisation), do nothing.

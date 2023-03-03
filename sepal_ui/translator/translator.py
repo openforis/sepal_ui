@@ -1,6 +1,4 @@
-"""
-The translator object allow developer to suport translation for their application.
-"""
+"""The translator object allow developer to suport translation for their application."""
 
 import json
 from configparser import ConfigParser
@@ -31,8 +29,7 @@ class Translator(Box):
     def __init__(
         self, json_folder: Union[str, Path], target: str = "", default: str = "en"
     ) -> None:
-        """
-        Python ``Box`` of ``Box`` representing all the nested translation key, value pairs.
+        """Python ``Box`` of ``Box`` representing all the nested translation key, value pairs.
 
         It reads 2 Json files, the first one being the source language (usually English) and the second one the target language.
         It will replace in the source dictionary every key that exist in both json dictionaries. Following this procedure, every message that is not translated can still be accessed in the source language.
@@ -95,8 +92,7 @@ class Translator(Box):
     @versionadded(version="2.7.0")
     @staticmethod
     def find_target(folder: Path, target: str = "") -> Tuple[str, str]:
-        """
-        find the target language in the available language folder.
+        """find the target language in the available language folder.
 
         given a folder and a target lang, this function returns the closest language available in the folder
         If nothing is found falling back to any working subvariety and return None if it doesn't exist
@@ -138,8 +134,7 @@ class Translator(Box):
         return (target, lang)
 
     def search_key(self, d: dict, key: str) -> None:
-        """
-        Search a specific key in the d dictionary and raise an error if found.
+        """Search a specific key in the d dictionary and raise an error if found.
 
         Args:
             d: the dictionary to study
@@ -155,8 +150,7 @@ class Translator(Box):
 
     @classmethod
     def sanitize(cls, d: Union[dict, list]) -> dict:
-        """
-        Identify numbered dictionnaries embeded in the dict and transform them into lists.
+        """Identify numbered dictionnaries embeded in the dict and transform them into lists.
 
         This function is an helper to prevent deprecation after the introduction of pontoon for translation.
         The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing
@@ -189,8 +183,7 @@ class Translator(Box):
         return ms
 
     def _update(self, d: dict, u: dict) -> dict:
-        """
-        Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire.
+        """Update the fallback dictionnaire (d) values with the keys that exist in the target (u) dictionnaire.
 
         Args:
             d: The fallback dictionary
@@ -215,8 +208,7 @@ class Translator(Box):
         pass
 
     def available_locales(self) -> List[str]:
-        """
-        Return the available locales in the l10n folder.
+        """Return the available locales in the l10n folder.
 
         Returns:
             the list of str codes
@@ -226,8 +218,7 @@ class Translator(Box):
     @versionadded(version="2.7.0")
     @classmethod
     def merge_dict(cls, folder: Path) -> dict:
-        """
-        Gather all the .json file in the provided l10n folder as 1 single json dict.
+        """Gather all the .json file in the provided l10n folder as 1 single json dict.
 
         The json dict will be sanitysed and the key will be used as if they were coming from 1 single file.
         be careful with duplication. empty string keys will be removed.
@@ -249,8 +240,7 @@ class Translator(Box):
     @versionadded(version="2.8.1")
     @classmethod
     def delete_empty(cls, d: dict) -> dict:
-        """
-        Remove empty strings ("") recursively from the dictionaries.
+        """Remove empty strings ("") recursively from the dictionaries.
 
         This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
 
@@ -271,8 +261,7 @@ class Translator(Box):
 
     @versionadded(version="2.10.0")
     def key_use(self, folder: Path, name: str) -> List[str]:
-        """
-        Parse all the files in the folder and check if keys are all used at least once.
+        """Parse all the files in the folder and check if keys are all used at least once.
 
         Return the unused key names.
 

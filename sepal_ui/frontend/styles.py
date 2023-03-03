@@ -1,6 +1,4 @@
-"""
-Helpers to customize the display of sepal-ui widgets and maps.
-"""
+"""Helpers to customize the display of sepal-ui widgets and maps."""
 
 from pathlib import Path
 from types import SimpleNamespace
@@ -81,8 +79,7 @@ TYPES: Tuple[str, ...] = (
 
 
 def get_theme() -> str:
-    """
-    Get theme name from the config file (default to dark).
+    """Get theme name from the config file (default to dark).
 
     Returns:
         The theme to use
@@ -100,8 +97,7 @@ class SepalColor(HasTraits, SimpleNamespace):
 
     @observe("_dark_theme")
     def __init__(self, *_, **new_colors) -> None:
-        """
-        Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
+        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
         Args:
             **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)

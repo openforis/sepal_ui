@@ -1,6 +1,4 @@
-"""
-Model object dedicated to Planet interface.
-"""
+"""Model object dedicated to Planet interface."""
 
 import asyncio
 from datetime import datetime
@@ -41,8 +39,7 @@ class PlanetModel(Model):
     "Value to determine if at least one subscription has the active true state"
 
     def __init__(self, credentials: Union[str, List[str]] = "") -> None:
-        """
-        Planet model helper to connect planet API client and perform requests.
+        """Planet model helper to connect planet API client and perform requests.
 
         It can be
         instantiated whether itself or linked with a PlanetView input helper. All the methods
@@ -59,8 +56,7 @@ class PlanetModel(Model):
             self.init_session(credentials)
 
     def init_session(self, credentials: Union[str, List[str]]) -> None:
-        """
-        Initialize planet client with api key or credentials. It will handle errors.
+        """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
             credentials: planet API key or username and password pair of planet explorer.
@@ -82,9 +78,7 @@ class PlanetModel(Model):
         return
 
     def _is_active(self) -> None:
-        """
-        check if the key has an associated active subscription and change the state button accordingly.
-        """
+        """Check if the key has an associated active subscription and change the state button accordingly."""
         # As there is not any key that identify the nicfi contract,
         # let's find though all the subscriptions a representative name
         wildcards = ["Level_0", "Level_1", "Level2"]
@@ -108,8 +102,7 @@ class PlanetModel(Model):
         return
 
     def get_subscriptions(self) -> dict:
-        """
-        load the user subscriptions.
+        """Load the user subscriptions.
 
         Returns:
             the dictionnary of user subscription or empty list if nothing found
@@ -137,8 +130,7 @@ class PlanetModel(Model):
         cloud_cover: float,
         limit_to_x_pages: Optional[int] = None,
     ) -> list:
-        """
-        Request imagery items from the planet API for the requested dates.
+        """Request imagery items from the planet API for the requested dates.
 
         Args:
             aoi: geojson clipping geometry
@@ -171,8 +163,7 @@ class PlanetModel(Model):
         item_types = ["PSScene"]
 
         async def _main():
-            """
-            Create an asyncrhonous function here to avoid making the main get_items as async.
+            """Create an asyncrhonous function here to avoid making the main get_items as async.
 
             So we can keep calling get_items without any change.
             """
@@ -186,8 +177,7 @@ class PlanetModel(Model):
 
     @staticmethod
     def search_status(d: dict) -> List[Dict[str, bool]]:
-        """
-        Get the status of a specific subscription.
+        """Get the status of a specific subscription.
 
         Args:
             d: dictionnary of subscription object

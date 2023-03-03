@@ -1,5 +1,4 @@
-"""
-Add extra behavior to radio and radio group to allow radio to be used as stand_alone components.
+"""Add extra behavior to radio and radio group to allow radio to be used as stand_alone components.
 
 The radio from ipyvuetify cannot be used as stand alone elements like checkboxes (https://github.com/vuetifyjs/vuetify/issues/2345). Here the radio included in a radio group will have a v_model trait embedding the active status of the button. In short it's an overlay to reflect the JS into the Python code.
 """
@@ -20,13 +19,11 @@ class Radio(v.Radio, SepalWidget):
 
 
 class RadioGroup(v.RadioGroup, SepalWidget):
-    """
-    This class will change the active of the included radio according to its v_model and vice-versa.
-    """
+    """This class will change the active of the included radio according to its v_model and vice-versa."""
 
     @observe("children")
     def link_radios(self, *args) -> None:
-        """link all the radio children to the v_model."""
+        """Link all the radio children to the v_model."""
         for w in self.get_children(klass=Radio):
             w.observe(self.update_v_model, "active")
 
@@ -39,8 +36,7 @@ class RadioGroup(v.RadioGroup, SepalWidget):
 
     @observe("v_model")
     def update_radios(self, *args) -> None:
-        """
-        Update radios v_model.
+        """Update radios v_model.
 
         Change the v_model of every subsequent radios buttons according to new value of the radioGroup.
         children that are not Radios will be ignored.

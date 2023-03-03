@@ -1,13 +1,12 @@
-"""
-Custom widgets that are nor input nor UI interface.
+"""Custom widgets that are nor input nor UI interface.
 
 Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.CopyToClip()
 """
 
@@ -29,8 +28,7 @@ __all__ = ["Markdown", "CopyToClip", "StateIcon"]
 
 class Markdown(v.Layout, SepalWidget):
     def __init__(self, mkd_str: str = "", **kwargs) -> None:
-        """
-        Custom Layout based on the markdown text given.
+        """Custom Layout based on the markdown text given.
 
         Args:
             mkd_str: the text to display using the markdown convention. multi-line string are also interpreted
@@ -70,8 +68,7 @@ class CopyToClip(v.VuetifyTemplate):
     "a v_model trait that embed the string to copy"
 
     def __init__(self, **kwargs) -> None:
-        """
-        Custom textField that provides a handy copy-to-clipboard javascript behaviour.
+        """Custom textField that provides a handy copy-to-clipboard javascript behaviour.
 
         When the clipboard btn is clicked the v_model will be copied in the local browser clipboard. You just have to change the clipboard v_model. when copied, the icon change from a copy to a check.
 
@@ -107,9 +104,7 @@ class CopyToClip(v.VuetifyTemplate):
         link((self, "v_model"), (self.tf, "v_model"))
 
     def _clip(self, *args) -> None:
-        """
-        Launch the javascript clipping process.
-        """
+        """Launch the javascript clipping process."""
         self.send({"method": "clip", "args": [self.tf.v_model]})
         self.tf.append_icon = "fa-solid fa-clipboard-check"
 
@@ -134,8 +129,7 @@ class StateIcon(Tooltip):
         states: dict = {},
         **kwargs,
     ):
-        """
-        Custom icon with multiple state colors.
+        """Custom icon with multiple state colors.
 
         Args:
             model: Model to manage StateIcon behaviour from outside.

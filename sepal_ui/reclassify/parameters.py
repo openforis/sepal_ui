@@ -1,6 +1,4 @@
-"""
-Parameters of the reclassification interface.
-"""
+"""Parameters of the reclassification interface."""
 
 from sepal_ui.message import ms
 

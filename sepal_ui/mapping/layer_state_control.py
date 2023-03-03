@@ -1,6 +1,4 @@
-"""
-A specific statebar dedicated to the the counting of loading tiles in the map.
-"""
+"""A specific statebar dedicated to the the counting of loading tiles in the map."""
 
 from typing import Optional
 
@@ -27,8 +25,7 @@ class LayerStateControl(WidgetControl):
     "the number of loading layer in the map"
 
     def __init__(self, m: Map, **kwargs) -> None:
-        """
-        A specific statebar dedicated to the the counting of loading tiles in the map.
+        """A specific statebar dedicated to the the counting of loading tiles in the map.
 
         every time a map is added to the map the counter will be raised by one. same behaviour with removed.
 
@@ -54,9 +51,7 @@ class LayerStateControl(WidgetControl):
         self.m.observe(self.update_nb_layer, "layers")
 
     def update_nb_layer(self, change: dict) -> None:
-        """
-        Update the number of layer monitored by the statebar.
-        """
+        """Update the number of layer monitored by the statebar."""
         # exit if nothing changed
         # for example we change a layer parameters and it trigger this one
         if len(change["new"]) == len(change["old"]):
@@ -83,7 +78,7 @@ class LayerStateControl(WidgetControl):
         return
 
     def update_loading(self, change: dict) -> None:
-        """update the nb_loading_layer value according to the number of tile loading on the map."""
+        """Update the nb_loading_layer value according to the number of tile loading on the map."""
         increment = [-1, 1]
         self.nb_loading_layer += increment[change["new"]]
 

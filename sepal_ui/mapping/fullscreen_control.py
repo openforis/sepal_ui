@@ -1,6 +1,4 @@
-"""
-Customized control to toogle the fullscreen state of the map.
-"""
+"""Customized control to toogle the fullscreen state of the map."""
 
 from pathlib import Path
 from typing import List, Optional
@@ -32,8 +30,7 @@ class FullScreenControl(WidgetControl):
     def __init__(
         self, m: Map, fullscreen: bool = False, fullapp: bool = False, **kwargs
     ) -> None:
-        """
-        A custom Fullscreen Button ready to be embed in a map object.
+        """A custom Fullscreen Button ready to be embed in a map object.
 
         This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embeding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
         simply click on it and the map will automatically expand
@@ -89,8 +86,7 @@ class FullScreenControl(WidgetControl):
         display(Javascript(js))
 
     def toggle_fullscreen(self, *args) -> None:
-        """
-        Toogle fullscreen state.
+        """Toogle fullscreen state.
 
         Toggle the fullscreen state of the map by sending the required javascript method,
         changing the w_btn icons and the zoomed state of the control.

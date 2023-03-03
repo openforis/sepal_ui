@@ -1,6 +1,4 @@
-"""
-All directories used in the application. 
-"""
+"""All directories used in the application."""
 
 from pathlib import Path
 

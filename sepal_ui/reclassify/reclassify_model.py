@@ -1,6 +1,4 @@
-"""
-Model object dedicated to the reclassification interface.
-"""
+"""Model object dedicated to the reclassification interface."""
 
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -103,8 +101,7 @@ class ReclassifyModel(Model):
         enforce_aoi: bool = False,
         **kwargs,
     ) -> None:
-        """
-        Reclassification model to store information about the current reclassification and share them within your app.
+        """Reclassification model to store information about the current reclassification and share them within your app.
 
         Save all the input and output of the reclassification + the the matrix to move from one to another. It is embeding 2 backends, one based on GEE that will use assets as in/out and another based on python that will use local files as in/out. The model can handle both vector and raster data, the format and name of the output will be determined from the the input format/name. The developer will still have the possiblity to choose where to save the outputs (folder name).
 
@@ -149,8 +146,7 @@ class ReclassifyModel(Model):
         self.save = save
 
     def get_classes(self) -> dict:
-        """
-        Extract the classes from the class file.
+        """Extract the classes from the class file.
 
         The class file need to be compatible with the reclassify tool i.e. a table file with 3 headerless columns using the following format: 'code', 'desc', 'color'. Color need to be set in hexadecimal to be read else black will be used.
 
@@ -179,8 +175,7 @@ class ReclassifyModel(Model):
         return class_list
 
     def get_type(self) -> bool:
-        """
-        Guess the type of the input and set the input type attribute for the model (vector or raster).
+        """Guess the type of the input and set the input type attribute for the model (vector or raster).
 
         Returns:
             the type of input (1 for raster, 0 for vector)
@@ -212,8 +207,7 @@ class ReclassifyModel(Model):
         return self.input_type
 
     def get_bands(self) -> list:
-        """
-        Use the input_type to extract all the bands/properties from the input.
+        """Use the input_type to extract all the bands/properties from the input.
 
         Returns:
             sorted list of all the available bands/properties as
@@ -257,8 +251,7 @@ class ReclassifyModel(Model):
         return natsorted(band_func[self.gee][self.input_type]())
 
     def get_aoi(self) -> Union[gpd.GeoDataFrame, ee.ComputedObject]:
-        """
-        Validate and get feature collection from aoi_model.
+        """Validate and get feature collection from aoi_model.
 
         Returns:
             the saved AOI in the appropriate format
@@ -285,8 +278,7 @@ class ReclassifyModel(Model):
         return aoi
 
     def unique(self) -> dict:
-        """
-        Retreive all the existing class.
+        """Retreive all the existing class.
 
         Retreive all the existing class from the specified band/property according to the input_type. The data will be saved in self.src_class with no_name and black as a color.
 
@@ -364,8 +356,7 @@ class ReclassifyModel(Model):
         return self.src_class
 
     def reclassify(self) -> Self:
-        """
-        Reclassify the input according to the provided matrix.
+        """Reclassify the input according to the provided matrix.
 
         For vector file type reclassifying correspond to add an extra column at the end, for raster the initial class band will be replaced by the new class, the oher being kept unmodified. vizualization colors will be set for both local (QGIS compatible) and assets (SEPAL vizualization compatible).
         """
@@ -589,8 +580,7 @@ class ReclassifyModel(Model):
         return "Asset successfully reclassified."
 
     def set_dst_gee(self) -> str:
-        """
-        Creates a unique and consecutive asset name based on the source.
+        """Creates a unique and consecutive asset name based on the source.
 
         Returns:
             the destination folder

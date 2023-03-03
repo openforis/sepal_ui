@@ -1,5 +1,4 @@
-"""
-Script to manually activate one of the venv available in the current Jupyter environment.
+"""Script to manually activate one of the venv available in the current Jupyter environment.
 
 Application are designed to run on specific venv, created to avoid lib deprecation.
 this script allows the user to easily activate one of the venv have already installed in Jupyter and customize it

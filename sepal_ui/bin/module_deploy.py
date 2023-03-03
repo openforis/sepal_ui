@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-"""
-Script to update the requirements file with the currently used libs.
+"""Script to update the requirements file with the currently used libs.
 
 The script should be launched from a module directory.
 It will parse all the files and extract the differnet librairies used in the module. They will be added to the requirements.txt
@@ -31,8 +30,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
 
 
 def write_reqs(file: Union[str, Path]) -> None:
-    """
-    write the requirements in the requirements file.
+    """Write the requirements in the requirements file.
 
     Args:
         file: the requirements file
@@ -62,8 +60,7 @@ def write_reqs(file: Union[str, Path]) -> None:
 
 
 def clean_dulpicate(file: Union[str, Path]) -> None:
-    """
-    Remove the requirements that are already part of the default installation.
+    """Remove the requirements that are already part of the default installation.
 
     Args:
         file: the requirements file
@@ -94,8 +91,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
 
 
 def clean_troubleshouting(file: Union[str, Path]) -> None:
-    """
-    Remove know buggish lib from the requirements.
+    """Remove know buggish lib from the requirements.
 
     The pipreqs is creating the file based on the import statements in .py files
     some libs doesn't have the same name as the pip command we are replacing/deleting the known one.
@@ -138,8 +134,7 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
 
 
 def freeze_sepal_ui(file: Union[str, Path]) -> None:
-    """
-    Set the sepal version to the currently used sepal-ui version.
+    """Set the sepal version to the currently used sepal-ui version.
 
     Args:
         file: the requirements file
@@ -164,8 +159,7 @@ def freeze_sepal_ui(file: Union[str, Path]) -> None:
 
 
 def clean_custom(file: Union[str, Path]) -> None:
-    """
-    Remove the previous custom installation and requirements.
+    """Remove the previous custom installation and requirements.
 
     To start the process from a blank page.
 

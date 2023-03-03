@@ -1,6 +1,4 @@
-"""
-Customized control to display a legend on the map.
-"""
+"""Customized control to display a legend on the map."""
 
 from typing import Optional, Union
 
@@ -38,8 +36,7 @@ class LegendControl(WidgetControl):
         vertical: bool = True,
         **kwargs,
     ) -> None:
-        """
-        A custom Legend widget ready to be embed in a map.
+        """A custom Legend widget ready to be embed in a map.
 
         This Legend can be control though it's different attributes, changin it's position of course but also the orientation ,the keys and their colors.
 
@@ -78,7 +75,7 @@ class LegendControl(WidgetControl):
         self._set_legend(legend_dict)
 
     def __len__(self) -> int:
-        """returns the number of elements in the legend."""
+        """Returns the number of elements in the legend."""
         return len(self.legend_dict)
 
     def hide(self) -> None:
@@ -151,8 +148,7 @@ class LegendControl(WidgetControl):
 
     @staticmethod
     def color_box(color: Union[str, tuple], size: int = 35) -> HTML:
-        """
-        Returns an rectangular SVG html element with the provided color.
+        """Returns an rectangular SVG html element with the provided color.
 
         Args:
             color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0))

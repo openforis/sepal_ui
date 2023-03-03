@@ -1,6 +1,4 @@
-"""
-Customized ``Control`` to zoom in and out on the map.
-"""
+"""Customized ``Control`` to zoom in and out on the map."""
 from typing import Optional
 
 from ipyleaflet import Map, WidgetControl
@@ -21,8 +19,7 @@ class ZoomControl(WidgetControl):
     "the map to manipulate"
 
     def __init__(self, m: Map, **kwargs) -> None:
-        """
-        Customized ``Control`` to zoom in and out on the map.
+        """Customized ``Control`` to zoom in and out on the map.
 
         Replace the built-in zoom control of ipyleaflet to match the theme of sepal-ui based applications. It is by default positioned in the top-right corner
 
