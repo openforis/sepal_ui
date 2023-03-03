@@ -84,7 +84,7 @@ doc = [
     "sphinx-copybutton",
     "m2r2>=0.3.3",
     "sphinxcontrib-autoprogram",
-    "sphinx-favicon",
+    "sphinx-favicon>=1.0.1",
 ]
 
 [project.scripts]
