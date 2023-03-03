@@ -69,7 +69,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
         file: the requirements file
     """
     # already available libs
-    libs = ["wheel", "Cython", "pybind11", "GDAL", "pyproj", "sepal_ui"]
+    libs = ["jupyter", "voila", "toml", "sepal_ui"]
 
     file = Path(file)
     text = file.read_text().split("\n")
@@ -120,12 +120,10 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
                 f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui."
             )
             continue
-        elif any(lib in line for lib in ["osgeo", "gdal"]):
-            print(
-                f"Removing {Style.BRIGHT}'osgeo & gdal'{Style.NORMAL} from reqs, included in GDAL."
-            )
-            continue
-        elif "earthengine_api" in line:
+        elif any(lib in line for lib in ["osgeo"]):
+            print(f"Removing {Style.BRIGHT}'osgeo'{Style.NORMAL} as part of gdal")
+            line = "gdal"
+        elif "earthengine-api" in line:
             print(
                 f"Removing {Style.BRIGHT}earthengine_api{Style.NORMAL} from reqs, included in sepal_ui."
             )
@@ -203,9 +201,11 @@ def main() -> None:
     print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
-    ui_file = Path.cwd() / "ui.ipynb"
-    if not ui_file.is_file():
-        raise Exception(f"{Fore.RED}This is not a module folder.")
+    toml = Path.cwd() / "pyproject.toml"
+    try:
+        toml.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+    except Exception as e:
+        raise Exception(f"{Fore.RED}This is not a module folder ({e})")
 
     # add the requirements to the requirements.txt file
     req_file = Path.cwd() / "requirements.txt"
