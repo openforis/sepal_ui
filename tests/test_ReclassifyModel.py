@@ -9,10 +9,10 @@ import pytest
 
 from sepal_ui import aoi
 from sepal_ui.reclassify import ReclassifyModel
-from sepal_ui.scripts import gee
 
 
 class TestReclassifyModel:
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_gee_init(self, model_gee):
 
         assert isinstance(model_gee, ReclassifyModel)
@@ -27,14 +27,13 @@ class TestReclassifyModel:
 
         return
 
-    def test_get_classes(self, model_gee, reclass_file):
-        """Test if the matrix is saved and corresponds with the the output"""
-
+    def test_get_classes(self, model_local, reclass_file):
+        """Test if the matrix is saved and corresponds with the the output."""
         with pytest.raises(Exception):
-            model_gee.dst_class_file = "I/dont/exist.nothing"
-            model_gee.get_classes()
+            model_local.dst_class_file = "I/dont/exist.nothing"
+            model_local.get_classes()
 
-        # Arrange
+        # test these class
         expected_class_dict = {
             1: ("Forest", "#044D02"),
             2: ("Grassland", "#F5FF00"),
@@ -44,18 +43,16 @@ class TestReclassifyModel:
             6: ("Other land", "#FF00DE"),
         }
 
-        # Act
-        model_gee.dst_class_file = str(reclass_file)
-        class_dict = model_gee.get_classes()
-
-        # Assert
+        # load the class file
+        model_local.dst_class_file = str(reclass_file)
+        class_dict = model_local.get_classes()
         assert class_dict == expected_class_dict
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_get_type_gee(self, model_gee, model_gee_vector, model_gee_image):
-        """Tests the asset type with gee"""
-
+        """Tests the asset type with gee."""
         # Test without source
         with pytest.raises(Exception):
             model_gee.get_type()
@@ -73,8 +70,7 @@ class TestReclassifyModel:
         return
 
     def test_get_type_local(self, model_local, model_local_vector, model_local_image):
-        """Tests the asset type without gee"""
-
+        """Tests the asset type without gee."""
         # Test no input
         with pytest.raises(Exception):
             model_local.get_type()
@@ -87,14 +83,14 @@ class TestReclassifyModel:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_get_bands_gee(self, model_gee_vector, model_gee_image):
-        """check if the bands are correctly retreived"""
-
+        """check if the bands are correctly retreived."""
         # Arrange
-        table_bands = ["APOYO", "AREA_HA", "CAMBIO", "CODIGO"]
-        image_bands = ["y1992", "y1993", "y1994"]
+        table_bands = ["data"]
+        image_bands = ["constant"]
 
-        # Act - Assert
+        # assert
         assert model_gee_vector.get_bands() == table_bands
         assert model_gee_image.get_bands() == image_bands
 
@@ -110,10 +106,15 @@ class TestReclassifyModel:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_get_aoi(self, model_gee):
+
+        # tested on model_gee instead of model_local a clipping is not yet
+        # possible on local gdf and/or raster
 
         # default to error if no asset is set in the aoi_model
         with pytest.raises(Exception):
+            model_gee.enforce_aoi = True
             assert model_gee.get_aoi() is None
 
         # Test when there is an aoi but there is not a feature collection selected
@@ -121,111 +122,47 @@ class TestReclassifyModel:
         assert model_gee.get_aoi() is None
 
         # set the aoi to france
-        model_gee.aoi_model._from_admin(85)  # france
+        model_gee.aoi_model._from_admin("110")  # Vatican city
         assert model_gee.get_aoi() is not None
 
         return
 
-    def test_unique_gee_image(self, model_gee_image, asset_image_aoi, no_name):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_unique_gee_image(self, model_gee_image, aoi_model, no_name):
 
-        # Unique values when not using an area of interes
-        image_unique = [
-            10,
-            11,
-            30,
-            40,
-            50,
-            60,
-            100,
-            110,
-            120,
-            130,
-            150,
-            160,
-            180,
-            190,
-            210,
-        ]
+        # read the band of the image
+        model_gee_image.band = "constant"
 
         # Unique values when using a sample area of interest
-        image_unique_aoi = [30, 40, 50, 100, 110, 120, 130, 160]
-
-        model_gee_image.band = "y1992"
-        model_gee_image.aoi_model._from_asset(
-            {"pathname": asset_image_aoi, "column": "ALL", "value": None}
-        )
-        print(model_gee_image.aoi_model.name)
+        image_unique_aoi = [2]
+        model_gee_image.aoi_model = aoi_model
+        assert model_gee_image.get_aoi() is not None
         assert model_gee_image.unique() == {str(i): no_name for i in image_unique_aoi}
 
+        # unique value when no aoi is set
+        # tested after as we delete the aoi_model
+        image_unique = [1, 2, 3, 4]
         model_gee_image.aoi_model = None
         assert model_gee_image.unique() == {str(i): no_name for i in image_unique}
 
         return
 
-    def test_unique_gee_vector(self, model_gee_vector, asset_table_aoi, no_name):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_unique_gee_vector(self, model_gee_vector, aoi_model, no_name):
 
-        # Unique values when not using an area of interest
-        vector_unique = [
-            111,
-            112,
-            231,
-            232,
-            233,
-            242,
-            243,
-            244,
-            245,
-            313,
-            314,
-            323,
-            333,
-            334,
-            511,
-            512,
-            1312,
-            2121,
-            2141,
-            2232,
-            3131,
-            3132,
-            3221,
-            3222,
-            3231,
-            3232,
-            31111,
-            31121,
-            31211,
-            31221,
-            32111,
-            32112,
-        ]
+        model_gee_vector.band = "data"
 
         # Unique values when using an area of interest
-        vector_unique_aoi = [
-            231,
-            233,
-            242,
-            243,
-            244,
-            313,
-            323,
-            511,
-            3131,
-            3132,
-            3221,
-            3231,
-            3232,
-            31111,
-        ]
-
-        model_gee_vector.band = "CODIGO"
-        model_gee_vector.aoi_model._from_asset(
-            {"pathname": asset_table_aoi, "column": "ALL", "value": None}
-        )
+        vector_unique_aoi = [3]
+        model_gee_vector.aoi_model = aoi_model
+        assert model_gee_vector.get_aoi() is not None
         assert model_gee_vector.unique() == {i: no_name for i in vector_unique_aoi}
 
+        # Unique values when not using an area of interest
+        # tested after as we delete the aoi_model
+        vector_unique = [0, 1, 2, 3]
         model_gee_vector.aoi_model = None
-        model_gee_vector.band = "CODIGO"
+        model_gee_vector.band = "data"
         assert model_gee_vector.unique() == {i: no_name for i in vector_unique}
 
         return
@@ -250,6 +187,7 @@ class TestReclassifyModel:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_reclassify_initial_exceptions(self, model_gee_image):
 
         # Test reclassify method without matrix
@@ -263,81 +201,37 @@ class TestReclassifyModel:
 
         # test reclassify without setting an aoi
         with pytest.raises(Exception):
+            model_gee_image.enforce_aoi = True
             model_gee_image.matrix = {1: 1}
-            model_gee_image.band = "y1992"
+            model_gee_image.band = "constant"
             model_gee_image.reclassify()
 
         return
 
-    def test_reclassify_gee_vector(self, model_gee_vector, asset_table_aoi, alert):
-        """Test reclassification of vectors when using an area of interest"""
-
-        unique_value = [
-            231,
-            233,
-            242,
-            243,
-            244,
-            313,
-            323,
-            511,
-            3131,
-            3132,
-            3221,
-            3231,
-            3232,
-            31111,
-        ]
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_reclassify_gee_vector(self, model_gee_vector, gee_dir, alert):
+        """Test reclassification of vectors when using an area of interest."""
+        unique_value = [0, 1, 2, 3]
         matrix = {v: 2 * i // len(unique_value) for i, v in enumerate(unique_value)}
 
         model_gee_vector.matrix = matrix
-        model_gee_vector.band = "CODIGO"
-        model_gee_vector.aoi_model._from_asset(
-            {"pathname": asset_table_aoi, "column": "ALL", "value": None}
-        )
+        model_gee_vector.band = "data"
         model_gee_vector.reclassify()
 
-        if model_gee_vector.save:
-
-            assert model_gee_vector.dst_gee == f"{model_gee_vector.src_gee}_reclass"
-
-            # delete the created file
-            description = Path(model_gee_vector.dst_gee).stem
-            gee.wait_for_completion(description, alert)
-            ee.data.deleteAsset(model_gee_vector.dst_gee)
-        else:
-
-            assert model_gee_vector.dst_gee_memory is not None
+        assert model_gee_vector.dst_gee_memory is not None
 
         return
 
-    def test_reclassify_gee_image(self, model_gee_image, asset_image_aoi, alert):
-        """Test reclassification of vectors when using an area of interest"""
-
-        unique_value = [30, 40, 50, 100, 110, 120, 130, 160]
-        matrix = {
-            v: 2 * (i // len(unique_value) + 1) for i, v in enumerate(unique_value)
-        }
+    def test_reclassify_gee_image(self, model_gee_image, alert):
+        """Test reclassification of vectors when using an area of interest."""
+        unique_value = [1, 2, 3, 4]
+        matrix = {v: 2 * i // len(unique_value) for i, v in enumerate(unique_value)}
 
         model_gee_image.matrix = matrix
-        model_gee_image.band = "y1992"
-        model_gee_image.aoi_model._from_asset(
-            {"pathname": asset_image_aoi, "column": "ALL", "value": None}
-        )
+        model_gee_image.band = "constant"
         model_gee_image.reclassify()
 
-        if model_gee_image.save:
-
-            assert model_gee_image.dst_gee == f"{model_gee_image.src_gee}_reclass"
-
-            # delete the created file
-            description = Path(model_gee_image.dst_gee).stem
-            gee.wait_for_completion(description, alert)
-            ee.data.deleteAsset(model_gee_image.dst_gee)
-
-        else:
-
-            assert model_gee_image.dst_gee_memory is not None
+        assert model_gee_image.dst_gee_memory is not None
 
         return
 
@@ -379,10 +273,9 @@ class TestReclassifyModel:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def reclass_file(self, tmp_dir):
-        """create a fake classification file"""
-
+        """create a fake classification file."""
         reclass_file = tmp_dir / "dum_map_matrix.csv"
         reclass_file.write_text(
             """
@@ -403,52 +296,47 @@ class TestReclassifyModel:
         return
 
     @pytest.fixture
-    def model_gee(self, tmp_dir, alert, gee_ready, gee_dir):
-        """Reclassify model using Google Earth Engine assets"""
-
-        aoi_model = aoi.AoiModel(alert, gee=True, folder=gee_dir)
+    def model_gee(self, tmp_dir, alert, gee_dir):
+        """Reclassify model using Google Earth Engine assets."""
+        aoi_model = aoi.AoiModel(gee=True, folder=gee_dir)
 
         return ReclassifyModel(
-            enforce_aoi=True,
+            enforce_aoi=False,
             gee=True,
             dst_dir=tmp_dir,
             aoi_model=aoi_model,
-            save=gee_ready,
+            save=False,
             folder=gee_dir,
         )
 
     @pytest.fixture
-    def model_local(self, tmp_dir, alert):
-        """Reclassify model using local raster assets"""
-
-        aoi_model = aoi.AoiModel(alert, gee=False)
-
-        return ReclassifyModel(gee=False, dst_dir=tmp_dir, aoi_model=aoi_model)
-
-    @pytest.fixture
     def model_gee_vector(self, model_gee, gee_dir):
-        """Creates a reclassify model with a gee vector"""
-
+        """Creates a reclassify model with a gee vector."""
         model_gee = deepcopy(model_gee)
-        model_gee.src_gee = f"{gee_dir}/reclassify_table"
+        model_gee.src_gee = str(gee_dir / "feature_collection")
         model_gee.get_type()
 
         return model_gee
 
     @pytest.fixture
     def model_gee_image(self, model_gee, gee_dir):
-        """Creates a reclassify model with a gee image"""
-
+        """Creates a reclassify model with a gee image."""
         model_gee = deepcopy(model_gee)
-        model_gee.src_gee = f"{gee_dir}/reclassify_image"
+        model_gee.src_gee = str(gee_dir / "image")
         model_gee.get_type()
 
         return model_gee
 
     @pytest.fixture
-    def model_local_vector(self, model_local, tmp_dir):
-        """Create a reclassify model with a local vector"""
+    def model_local(self, tmp_dir, alert):
+        """Reclassify model using local raster assets."""
+        aoi_model = aoi.AoiModel(gee=False)
 
+        return ReclassifyModel(gee=False, dst_dir=tmp_dir, aoi_model=aoi_model)
+
+    @pytest.fixture
+    def model_local_vector(self, model_local, tmp_dir):
+        """Create a reclassify model with a local vector."""
         # create the vector file
         file = Path(gpd.datasets.get_path("nybb").replace("zip:", ""))
 
@@ -468,8 +356,7 @@ class TestReclassifyModel:
 
     @pytest.fixture
     def model_local_image(self, model_local, tmp_dir):
-        """create a reclassify model with a tif image"""
-
+        """create a reclassify model with a tif image."""
         # retreive the image
         url = "https://raw.githubusercontent.com/12rambau/gwb/master/utils/backup/clc3class.tif"
         filename = tmp_dir / "clc3class.tif"
@@ -485,3 +372,24 @@ class TestReclassifyModel:
         filename.unlink()
 
         return
+
+    @pytest.fixture
+    def no_name(self):
+        """return a no-name tuple."""
+        return ("no_name", "#000000")
+
+    @pytest.fixture(scope="class")
+    def aoi_model(self, _hash, gee_dir):
+        """create an aoi_model with a 100m square geometry centered in 50, 50."""
+        # create the geoemtry as featurecollection
+        point = ee.Geometry.Point([50, 50], "EPSG:3857")
+        aoi_ee = ee.FeatureCollection(point.buffer(50).bounds())
+        aoi_gdf = gpd.GeoDataFrame.from_features(aoi_ee.getInfo())
+
+        # add it to a aoi_model
+        aoi_model = aoi.AoiModel(gee=True, folder=gee_dir)
+        aoi_model.feature_collection = aoi_ee
+        aoi_model.gdf = aoi_gdf
+        aoi_model.name = f"test_{_hash}"
+
+        return aoi_model

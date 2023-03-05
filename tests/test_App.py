@@ -14,6 +14,7 @@ class TestApp:
         assert isinstance(app.children[0], v.Overlay)
         assert isinstance(app.children[1], sw.AppBar)
         assert isinstance(app.children[2], v.Content)
+        assert app.appBar.toggle_button.class_ == "d-none"
 
         # exhaustive
         navDrawer = sw.NavDrawer([sw.DrawerItem(f"title {i}") for i in range(5)])
@@ -99,8 +100,7 @@ class TestApp:
         return
 
     def test_close_banner(self, app):
-        """Test closing banner event"""
-
+        """Test closing banner event."""
         msg = "test"
         app.add_banner(msg, id_="test_close")
 
@@ -119,8 +119,7 @@ class TestApp:
 
     @pytest.fixture
     def app(self):
-        """create a default App"""
-
+        """create a default App."""
         # create default widgets
         tiles = [sw.Tile(f"id_{i}", f"title_{i}") for i in range(5)]
         drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]

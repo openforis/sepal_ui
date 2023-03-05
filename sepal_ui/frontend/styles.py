@@ -1,14 +1,39 @@
+"""
+Helpers to customize the display of sepal-ui widgets and maps.
+"""
+
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Dict, Tuple
 
 import ipyvuetify as v
-from IPython.display import display
-from traitlets import Bool, HasTraits, Unicode, observe
+from IPython.display import HTML, Javascript, display
+from traitlets import Bool, HasTraits, observe
 
 import sepal_ui.scripts.utils as su
-from sepal_ui import config
+from sepal_ui.conf import config
 
-DARK_THEME = {
+################################################################################
+# access the folders where style information is stored (layers, widgets)
+#
+
+# the colors are set using tables as follow.
+# 1 (True): dark theme
+# 0 (false): light theme
+JSON_DIR: Path = Path(__file__).parent / "json"
+"The path to the json style folder"
+
+CSS_DIR: Path = Path(__file__).parent / "css"
+"The path to the css style folder"
+
+JS_DIR: Path = Path(__file__).parent / "js"
+"The path to the js style folder"
+
+################################################################################
+# define all the colors taht we want to use in the theme
+#
+
+DARK_THEME: Dict[str, str] = {
     "primary": "#b3842e",
     "accent": "#a1458e",
     "secondary": "#324a88",
@@ -21,8 +46,9 @@ DARK_THEME = {
     "bg": "#121212",  # Are not traits
     "menu": "#424242",  # Are not traits
 }
+"colors used for the dark theme"
 
-LIGHT_THEME = {
+LIGHT_THEME: Dict[str, str] = {
     "primary": v.theme.themes.light.primary,
     "accent": v.theme.themes.light.accent,
     "secondary": v.theme.themes.light.secondary,
@@ -35,37 +61,51 @@ LIGHT_THEME = {
     "bg": "#FFFFFF",
     "menu": "#FFFFFF",
 }
+"colors used for the light theme"
 
-if not DARK_THEME.keys() == LIGHT_THEME.keys():
-    raise Exception("Both dictionaries has to have the same color names")
+TYPES: Tuple[str, ...] = (
+    "info",
+    "primary",
+    "secondary",
+    "accent",
+    "error",
+    "success",
+    "warning",
+    "anchor",
+)
+"The different types defined by ipyvuetify"
+
+################################################################################
+# define classes and method to make the application responsive
+#
 
 
-def get_theme():
+def get_theme() -> str:
     """
-    get theme name from the config file (default to dark)
+    Get theme name from the config file (default to dark).
 
-    Args:
-
-    Return:
-        (str): the theme to use
+    Returns:
+        The theme to use
     """
     return config.get("sepal-ui", "theme", fallback="dark")
 
 
 class SepalColor(HasTraits, SimpleNamespace):
-    """Custom simple name space to store and access to the sepal_ui colors and
-    with a magic method to display theme."""
 
-    # Initialize with the current theme
-    _dark_theme = Bool(True if get_theme() == "dark" else False).tag(sync=True)
-    "bool: whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
+    _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
+    "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
-    new_colors = None
-    "dict: (optional) dictionary with name:color structure."
+    new_colors: dict = {}
+    "Dictionary with name:color structure."
 
     @observe("_dark_theme")
-    def __init__(self, *_, **new_colors):
+    def __init__(self, *_, **new_colors) -> None:
+        """
+        Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
+        Args:
+            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
+        """
         # set vuetify theme
         v.theme.dark = self._dark_theme
 
@@ -88,13 +128,12 @@ class SepalColor(HasTraits, SimpleNamespace):
 
         # Now instantiate the namespace
         SimpleNamespace.__init__(self, **self.kwargs)
-        HasTraits.__init__(
-            self,
-        )
+        HasTraits.__init__(self)
 
-    def _repr_html_(self, *_):
+        return
+
+    def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
-
         s = 60
         html = f"<h3>Current theme: {self.theme_name}</h3><table>"
         items = {k: v for k, v in self.kwargs.items()}.items()
@@ -117,108 +156,16 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
-color = SepalColor()
-'color: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'
+# load custom styling of sepal_ui
+sepal_ui_css = HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>")
 
-
-class Styles(v.VuetifyTemplate):
-    """
-    Fixed styles to fix display issues in the lib:
-
-    - avoid leaflet maps overlap sepal widgets
-    - remove shadow of widget-control
-    - remove padding of the main content
-    - load fontawsome as a resource
-    - ensure that tqdm bars are using a transparent background when displayed in an alert
-    """
-
-    css = (Path(__file__).parent / "css/custom.css").read_text()
-    cdn = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    template = Unicode(
-        f'<style>{css}</style><link rel="stylesheet" href="{cdn}"/>'
-    ).tag(sync=True)
-    "Unicode: the trait embeding the maps style"
-
-
-styles = Styles()
-display(styles)
-
-# default styling of the aoi layer
-AOI_STYLE = {
-    "stroke": True,
-    "color": "grey",
-    "weight": 2,
-    "opacity": 1,
-    "fill": True,
-    "fillColor": "grey",
-    "fillOpacity": 0.4,
-}
-
-# the colors are set as follow.
-# 1 (True): dark theme
-# 0 (false): light theme
-# This will need to be changed if we want to support more than 2 theme
-COMPONENTS = {
-    "PROGRESS_BAR": {
-        "color": ["#2196f3", "#3f51b5"],
-    }
-}
-
-_folder = {"color": ["#ffca28", "#ffc107"], "icon": "far fa-folder"}
-_table = {"color": ["#4caf50", "#00c853"], "icon": "far fa-table"}
-_vector = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-vector-square"}
-_other = {"color": ["#00bcd4", "#03a9f4"], "icon": "far fa-file"}
-_parent = {"color": ["#424242", "#ffffff"], "icon": "far fa-folder-open"}
-_image = {"color": ["#9c27b0", "#673ab7"], "icon": "far fa-image"}
-
-ICON_TYPES = {
-    "": _folder,
-    ".csv": _table,
-    ".txt": _table,
-    ".tif": _image,
-    ".tiff": _image,
-    ".vrt": _image,
-    ".shp": _vector,
-    ".geojson": _vector,
-    "DEFAULT": _other,
-    "PARENT": _parent,
-}
-
-TYPES = (
-    "info",
-    "primary",
-    "secondary",
-    "accent",
-    "error",
-    "success",
-    "warning",
-    "anchor",
+# load fa-6
+fa_css = HTML(
+    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>'
 )
 
-# Default styles to GeoJSON layers added to a SepalMap.
+# create a small hack to remove fontawesome from the html output
+clean_fa_js = Javascript((JS_DIR / "fontawesome.js").read_text())
 
-layer_style = {
-    "stroke": True,
-    "color": color.primary,
-    "weight": 2,
-    "opacity": 1,
-    "fill": True,
-    "fillOpacity": 0,
-}
-
-layer_hover_style = {
-    "stroke": True,
-    "color": color.primary,
-    "weight": 5,
-    "opacity": 1,
-    "fill": True,
-    "fillOpacity": 0,
-}
-
-map_btn_style = {
-    "padding": "0px",
-    "min-width": "0px",
-    "width": "30px",
-    "height": "30px",
-    "background": color.bg,
-}
+# display all
+display(sepal_ui_css, fa_css, clean_fa_js)

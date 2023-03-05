@@ -10,22 +10,23 @@ build:
   tools:
     python: "3.9"
   jobs:
+    pre_install:
+      - pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
     pre_build:
       - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-    configuration: docs/source/conf.py
+  configuration: docs/source/conf.py
 
 # Optionally build your docs in additional formats such as PDF
 formats:
-    - epub
+  - epub
 
 # Optionally set the version of Python and requirements required to build your docs
 python:
   install:
-  - method: pip
-    path: .
-    extra_requirements:
-      - doc
-      
+    - method: pip
+      path: .
+      extra_requirements:
+        - doc

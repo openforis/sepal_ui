@@ -1,5 +1,9 @@
 /*******************************************************************************
  * color the icon in the header navbar
  */
-i.fa-github:hover {color: #333;}
-i.fa-python:hover {color: #306998;}
+i.fa-github:hover {
+  color: #333;
+}
+i.fa-python:hover {
+  color: #306998;
+}

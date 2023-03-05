@@ -1,138 +1,207 @@
-from planet import api
-from planet.api import APIException, filters
-from planet.api.client import InvalidIdentity
-from traitlets import Bool
+"""
+Model object dedicated to Planet interface.
+"""
+
+import asyncio
+from datetime import datetime
+from typing import Dict, List, Optional, Union
+
+import nest_asyncio
+import planet.data_filter as filters
+import traitlets as t
+from planet import DataClient
+from planet.auth import Auth
+from planet.exceptions import NoPermission
+from planet.http import Session
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 
+# known problem https://github.com/jupyter/notebook/issues/3397
+nest_asyncio.apply()
+
 
 class PlanetModel(Model):
-    """
-    Planet model helper to connect planet API client and perform requests. It can be
-    instantiated whether itself or linked with a PlanetView input helper. All the methods
-    are aimed to be used without the need of a view.
 
-    Args:
-        credentials ([tuple, str], optional): planet API key or tuple of username and password of planet explorer.
+    SUBS_URL: str = (
+        "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
+    )
+    "The url of the planet API subscription"
 
-    """
+    credentials: List[str] = []
+    "list containing [api_key] or pair of [username, password] to log in"
 
-    SUBS_URL = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
-    "str: the url of the planet API subscription"
+    session: Optional[Session] = None
+    "planet.http.session: planet session."
 
-    active = Bool(False).tag(sync=True)
-    "bool: whether if the client has an active subscription or not"
+    subscriptions: t.Dict = t.Dict({}).tag(sync=True)
+    "All the dictionary info from the available subscriptions"
 
-    client = None
-    "planet.api.ClientV1: planet api initialized client."
+    active = t.Bool(False).tag(sync=True)
+    "Value to determine if at least one subscription has the active true state"
 
-    def __init__(self, credentials=None):
+    def __init__(self, credentials: Union[str, List[str]] = "") -> None:
+        """
+        Planet model helper to connect planet API client and perform requests.
 
-        # Instantiate a fake client to avoid
-        # https://github.com/12rambau/sepal_ui/pull/439#issuecomment-1121538658
-        # This will be changed when planet launches new release
-        self.client = api.ClientV1("fake_init")
-        self.init_client(credentials)
-
-    def init_client(self, credentials, event=None):
-        """Initialize planet client with api key or credentials. It will handle errors
-        if the method is called from an event (view)
+        It can be
+        instantiated whether itself or linked with a PlanetView input helper. All the methods
+        are aimed to be used without the need of a view.
 
         Args:
-            credentials (str, tuple): planet API key or tuple of username and password of planet explorer.
-            event (bool): whether to initialize from an event or not.
+            credentials: planet API key or tuple of username and password of planet explorer.
         """
+        self.subscriptions = {}
+        self.session = None
+        self.active = False
 
-        credentials_ = credentials
-        if event and not any(tuple(credentials)):
+        if credentials:
+            self.init_session(credentials)
+
+    def init_session(self, credentials: Union[str, List[str]]) -> None:
+        """
+        Initialize planet client with api key or credentials. It will handle errors.
+
+        Args:
+            credentials: planet API key or username and password pair of planet explorer.
+        """
+        if not isinstance(credentials, list):
+            credentials = [credentials]
+
+        if not all(credentials):
             raise ValueError(ms.planet.exception.empty)
 
-        if isinstance(credentials_, tuple):
-            try:
-                credentials_ = api.ClientV1().login(*credentials_)["api_key"]
+        if len(credentials) == 2:
+            self.auth = Auth.from_login(*credentials)
+        else:
+            self.auth = Auth.from_key(credentials[0])
 
-            except InvalidIdentity:
-                raise InvalidIdentity(ms.planet.exception.empty)
-
-            except APIException as e:
-                if "invalid parameters" in e.args[0]:
-                    # This error will be triggered when email is passed in bad format
-                    raise APIException(ms.planet.exception.invalid)
-                else:
-                    raise e
-
-        self.client.auth.value = credentials_
+        self.session = Session(auth=self.auth)
         self._is_active()
 
-        if event and not self.active:
-            raise Exception(ms.planet.exception.nosubs)
+        return
+
+    def _is_active(self) -> None:
+        """
+        check if the key has an associated active subscription and change the state button accordingly.
+        """
+        # As there is not any key that identify the nicfi contract,
+        # let's find though all the subscriptions a representative name
+        wildcards = ["Level_0", "Level_1", "Level2"]
+
+        # get the subs from the api key and save them in the model. It will be useful
+        # to avoid doing more calls.
+        tmp_subscriptions: dict[str, list] = {"nicfi": [], "others": []}
+        for sub in self.get_subscriptions():
+            for w in wildcards:
+                if w in str(sub):
+                    tmp_subscriptions["nicfi"].append(sub)
+                    break
+            if sub not in tmp_subscriptions["nicfi"]:
+                tmp_subscriptions["others"].append(sub)
+
+        self.subscriptions = tmp_subscriptions
+
+        states = self.search_status(self.subscriptions)
+        self.active = any([next(iter(d.values())) for d in states])
 
         return
 
-    def _is_active(self):
-        """check if the key has an associated active subscription"""
+    def get_subscriptions(self) -> dict:
+        """
+        load the user subscriptions.
 
-        # get the subs from the api key
-        subs = self.get_subscriptions()
+        Returns:
+            the dictionnary of user subscription or empty list if nothing found
+        """
+        req = self.session.request("GET", self.SUBS_URL)
 
-        # read the subs
-        # it will be empty if no sub are set
-        self.active = any([True for sub in subs if sub.get("state") == "active"])
+        try:
+            response = asyncio.run(req)
 
-        return
+        except NoPermission:
+            raise Exception(
+                "You don't have permission to access to this resource. Check your input data."
+            )
 
-    def get_subscriptions(self):
-        """load the user subscriptions and throw an error if none are found"""
+        except Exception as e:
+            raise e
 
-        response = self.client.dispatcher.dispatch_request(
-            "get", self.SUBS_URL, auth=self.client.auth
-        )
+        return response.json() if response.status_code == 200 else {}
 
-        if response.status_code == 200:
-            return response.json()
-
-        return []
-
-    def get_items(self, aoi, start, end, cloud_cover, limit_to_x_pages=None):
+    def get_items(
+        self,
+        aoi: dict,
+        start: Union[str, datetime],
+        end: Union[str, datetime],
+        cloud_cover: float,
+        limit_to_x_pages: Optional[int] = None,
+    ) -> list:
         """
         Request imagery items from the planet API for the requested dates.
 
         Args:
-            aoi(geojson, polygon): clipping geometry
-            start(str, YYYY-mm-dd): the start of the request
-            end (str, YYYY-mm-dd): the end of the request
-            cloud_cover (float): maximum cloud coverage.
-            limit_to_x_pages (int): number of pages to constrain the search.
-                Defaults None to use all of them.
+            aoi: geojson clipping geometry
+            start: the start of the request (YYYY-mm-dd))
+            end: the end of the request (YYYY-mm-dd))
+            cloud_cover: maximum cloud coverage.
+            limit_to_x_pages: number of pages to constrain the search. Defaults to -1 to use all of them.
 
-        Return:
-            items (list): items found using the search query
+        Returns:
+            items found using the search query
 
         """
+        # cast start and end to str
+        start = (
+            datetime.strptime(start, "%Y-%m-%d") if isinstance(start, str) else start
+        )
+        end = datetime.strptime(end, "%Y-%m-%d") if isinstance(end, str) else end
 
-        query = filters.and_filter(
-            filters.geom_filter(aoi),
-            filters.range_filter("cloud_cover", lte=cloud_cover),
-            filters.date_range("acquired", gt=start),
-            filters.date_range("acquired", lt=end),
+        and_filter = filters.and_filter(
+            [
+                filters.geometry_filter(aoi),
+                filters.range_filter("cloud_cover", lte=cloud_cover),
+                filters.date_range_filter("acquired", gt=start),
+                filters.date_range_filter("acquired", lt=end),
+            ]
         )
 
-        # Skipping REScene because is not orthorrectified and
-        # cannot be clipped.
-        asset_types = ["PSScene"]
+        # PSScene3Band and PSScene4Band item type and assets are deprecated
+        # since January 2023 so we are now only looking at PSScene
+        item_types = ["PSScene"]
 
-        # build the request
-        request = filters.build_search_request(query, asset_types)
-        result = self.client.quick_search(request)
+        async def _main():
+            """
+            Create an asyncrhonous function here to avoid making the main get_items as async.
 
-        # get all the results
+            So we can keep calling get_items without any change.
+            """
+            client = DataClient(self.session)
+            items = await client.search(item_types, and_filter, name="quick_search")
+            items.limit = limit_to_x_pages
+            items_list = [item async for item in items]
+            return items_list
 
-        items_pages = []
-        limit_to_x_pages = None
-        for page in result.iter(limit_to_x_pages):
-            items_pages.append(page.get())
+        return asyncio.run(_main())
 
-        items = [item for page in items_pages for item in page["features"]]
+    @staticmethod
+    def search_status(d: dict) -> List[Dict[str, bool]]:
+        """
+        Get the status of a specific subscription.
 
-        return items
+        Args:
+            d: dictionnary of subscription object
+
+        Returns:
+            the (sub.name: status) pairs
+        """
+        states = []
+
+        for v in d.values():
+            for subs in v:
+                if "plan" in subs:
+                    plan = subs.get("plan")
+                    state = True if plan.get("state") == "active" else False
+                    states.append({plan.get("name"): state})
+
+        return states

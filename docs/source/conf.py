@@ -1,8 +1,10 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
+Configuration file for the Sphinx documentation builder.
+
+This file only contains a selection of the most common options. For a full
+list see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 # -- Path setup ----------------------------------------------------------------
 
@@ -15,13 +17,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
-import ipyvuetify as v
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
 
-from sepal_ui import __author__, __version__
+from sepal_ui import __author__, __version__  # noqa: E402
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
@@ -52,11 +53,11 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx_favicon",
     "notfound.extension",
-    "sphinxcontrib.spelling",
     "sphinxcontrib.autoprogram",
-    "_extentions.video",
     "_extentions.line_break",
+    # "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -71,14 +72,6 @@ exclude_patterns = ["**.ipynb_checkpoints"]
 source_suffix = [".rst", ".md"]
 
 # -- Load the images from the master sepal-doc ---------------------------------
-urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal.png",
-    "_image/dwn/sepal.png",
-)
-urlretrieve(
-    "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/favicon.ico",
-    "_image/dwn/favicon.ico",
-)
 urlretrieve(
     "https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/404-compass.png",
     "_image/dwn/404-compass.png",
@@ -96,30 +89,34 @@ if not version_match or version_match.isdigit():
     # For local development, infer the version to latest
     release = "dev"
     version_match = "latest"
-    json_url = "/_static/switcher.json"
+    json_url = "_static/switcher.json"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "_image/dwn/sepal.png"
-html_favicon = "_image/dwn/favicon.ico"
 html_last_updated_fmt = ""
 html_theme_options = {
+    "header_links_before_dropdown": 6,
+    "logo": {
+        "text": "sepal-ui",
+        "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",
+        "image_dark": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_dark.png",
+    },
     "use_edit_page_button": True,
     "show_prev_next": False,
-    "switcher": {"json_url": json_url, "version": version_match},
+    "switcher": {"json_url": json_url, "version_match": version_match},
     "navbar_start": ["navbar-logo", "version-switcher"],
     "icon_links": [
         {
             "name": "GitHub",
             "url": "https://github.com/12rambau/sepal_ui",
-            "icon": "fab fa-github",
+            "icon": "fa-brands fa-github",
         },
         {
             "name": "Pypi",
             "url": "https://pypi.org/project/sepal-ui/",
-            "icon": "fab fa-python",
+            "icon": "fa-brands fa-python",
         },
     ],
 }
@@ -130,6 +127,23 @@ html_context = {
     "doc_path": "docs/source",
 }
 
+favicons = [
+    # generic icons compatible with most browsers
+    "favicon-32x32.png",
+    "favicon-16x16.png",
+    {"rel": "shortcut icon", "sizes": "any", "href": "favicon.ico"},
+    # chrome specific
+    "android-chrome-192x192.png",
+    "android-chrome-512x512.png",
+    # apple icons
+    {"rel": "mask-icon", "color": "#459db9", "href": "safari-pinned-tab.svg"},
+    {"rel": "apple-touch-icon", "href": "apple-touch-icon.png"},
+    # msapplications
+    {"name": "msapplication-TileColor", "content": "#459db9"},
+    {"name": "theme-color", "content": "#ffffff"},
+    {"name": "msapplication-TileImage", "content": "mstile-150x150.png"},
+]
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -139,14 +153,7 @@ html_static_path = ["_static"]
 # or fully qualified paths (eg. https://...)
 html_css_files = ["css/custom.css", "css/icon.css"]
 
-# -- Options for spelling output -----------------------------------------------
-spelling_lang = "en_US"
-spelling_show_suggestions = True
-spelling_filters = ["_filters.names.Names"]
-spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
-spelling_verbose = False
-spelling_exclude_patterns = ["modules/*"]
-
 # -- Options for autosummary/autodoc output ------------------------------------
 autosummary_generate = True
-autoclass_content = "class"
+autoclass_content = "both"
+autodoc_typehints = "description"

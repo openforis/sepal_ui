@@ -6,7 +6,7 @@ StateIcon
 .. jupyter-execute::
     :raises:
     :stderr:
-    
+
     import ipyvuetify as v
     from traitlets import Unicode
     from sepal_ui import sepalwidgets as sw

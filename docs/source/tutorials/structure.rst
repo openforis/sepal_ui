@@ -1,9 +1,9 @@
-Structure of a module repository 
+Structure of a module repository
 ================================
 
-In this tutorial we will explain how the files are structured in the module and how to use each module to build an app 
+In this tutorial we will explain how the files are structured in the module and how to use each module to build an app
 
-If you just created you module you should have the following tree : 
+If you just created you module you should have the following tree :
 
 .. code-block::
 
@@ -25,22 +25,22 @@ If you just created you module you should have the following tree :
    |     |     |     └── test_translation.ipynb
    |     |     |
    |     |     ├── parameter
-   |     |     |     ├── __init__.py 
+   |     |     |     ├── __init__.py
    |     |     |     └── default_directory.py
    |     |     |
-   |     |     ├── scripts 
+   |     |     ├── scripts
    |     |     |     ├── __init__.py
    |     |     |     └── default_process.py
    |     |     |
-   |     |     ├── tile 
+   |     |     ├── tile
    |     |     |     ├── __init__.py
    |     |     |     ├── default_process_tile.py
-   |     |     |     └── default_result_tile.py 
+   |     |     |     └── default_result_tile.py
    |     |     |
    |     |     └── widget
    |     |           └── __init__.py
    |     |
-   |     ├── doc 
+   |     ├── doc
    |     |
    |     ├── utils
    |     |     └── ABOUT.md
@@ -72,8 +72,8 @@ If your project require a specific license file you can edit this one to reflect
 
 .. image:: ../_image/tutorials/structure/license-template.png
 
-If you use a custom license, you'll nee to change the badge in the :code:`README.md`. 
-copy paste any badge from this `github repository <https://gist.github.com/lukas-h/2a5d00690736b4c3a7ba>`_ instead of the classic MIT one : 
+If you use a custom license, you'll nee to change the badge in the :code:`README.md`.
+copy paste any badge from this `github repository <https://gist.github.com/lukas-h/2a5d00690736b4c3a7ba>`_ instead of the classic MIT one :
 
 .. code-block::
 
@@ -82,7 +82,7 @@ copy paste any badge from this `github repository <https://gist.github.com/lukas
 :code:`.gitignore`
 ^^^^^^^^^^^^^^^^^^
 
-We use the default Python Github :code:`.gitignore`. It will prevent any cache file to be pushed in the GitHub repository. 
+We use the default Python Github :code:`.gitignore`. It will prevent any cache file to be pushed in the GitHub repository.
 If your module requires API keys, it is strongly suggested to add the :code:`api_key.txt` file inside the :code:`.gitignore` to avoid security breaches.
 
 README.md
@@ -94,7 +94,7 @@ it uses the markdown format. you can use the `offical cheatsheet <https://github
 Utils
 -----
 
-You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the :code:`ABOUT.md` file. 
+You can add anything useful for your project in this folder (API code, workbench tools). at the moment it only host the :code:`ABOUT.md` file.
 
 Partial ui
 ----------
@@ -122,14 +122,14 @@ In this folder live all your app logic. Everything is well split for the sake of
 Model
 ^^^^^
 
-In this package every :code:`Model` object that will be used in the project are gathered learn more in :doc:`./io-design`. 
+In this package every :code:`Model` object that will be used in the project are gathered learn more in :doc:`./io-design`.
 
 Message
 ^^^^^^^
 
 In this package all the messages that will be displayed in the app are gathered in json dictionaries. More information in :doc:`./translate-app`.
 
-Parameter 
+Parameter
 ^^^^^^^^^
 
 For the sake of maintenance, hard-coded parameter shouldn't be used in the scripts or in the tiles. Instead they should be gathered in the parameter package. More information in :doc:`./sepalize`.
@@ -142,11 +142,11 @@ This is where your app logic lives. More information in this tutorial.
 Tile
 ^^^^
 
-This is where all the tiles that will be displayed in the app are created. More information in :doc:`./sepalize` and :doc:`./create_asset`. 
+This is where all the tiles that will be displayed in the app are created. More information in :doc:`./sepalize` and :doc:`./create_asset`.
 
 .. note::
 
-   In the :code:`sepal_ui` framework, app are designed using the tile-based UX. 
+   In the :code:`sepal_ui` framework, app are designed using the tile-based UX.
    A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation.
 
 Widget
@@ -154,6 +154,3 @@ Widget
 
 At some point you'll may encounter limitation in the basics `vuetify <https://vuetifyjs.com/en/>`_ components. every custom widget that you'll build need to live in this package. More information in this :doc:`./custom-widget`.
 
-.. spelling::
-
-   utils

@@ -1,31 +1,48 @@
+"""
+Custom sepalwidgets to add extra members to normal ``IpyvuetfiWidget``.
+
+Gather the customized ``ipyvuetifyWidgets`` used toadd extra members to the exisiting one.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+
+        from sepal_ui import sepalwidgets as sw
+
+        sw.Tooltip(widget=sw.Btn(), tooltip="tooltip")
+"""
+
+import warnings
+from typing import List, Optional, Union
+
 import ipyvuetify as v
+import traitlets as t
 from deprecated.sphinx import versionadded
-from ipyvue import VueWidget
-from traitlets import Bool, Unicode, observe
+from traitlets import observe
+from typing_extensions import Self, Type
 
 __all__ = ["SepalWidget", "Tooltip"]
 
 
 class SepalWidget(v.VuetifyWidget):
-    """
-    Custom vuetifyWidget to add specific methods
 
-    Args:
-        viz (bool, optional): define if the widget should be visible or not
-        tooltip (str, optional): tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
-    """
+    viz: t.Bool = t.Bool(True).tag(sync=True)
+    "whether the widget is displayed or not"
 
-    viz = Bool(True).tag(sync=True)
-    "Bool: whether the widget is displayed or not"
+    old_class: t.Unicode = t.Unicode("").tag(sync=True)
+    "a saving attribute of the widget class"
 
-    old_class = Unicode("").tag(sync=True)
-    "Unicode: a saving attribute of the widget class"
+    with_tooltip: Optional[v.Tooltip] = None
+    "the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
 
-    with_tooltip = None
-    "sw.ToolTip: the full widget and its tooltip. Useful for display purposes when a tooltip has been set"
+    def __init__(self, viz: bool = True, tooltip: str = "", **kwargs) -> None:
+        """
+        Custom vuetifyWidget to add specific methods.
 
-    def __init__(self, viz=True, tooltip=None, **kwargs):
-
+        Args:
+            viz: define if the widget should be visible or not
+            tooltip: tooltip text of the widget. If set the widget will be displayed on :code:`self.widget` (irreversible).
+        """
         # init the widget
         super().__init__(**kwargs)
 
@@ -36,18 +53,14 @@ class SepalWidget(v.VuetifyWidget):
         self.set_tooltip(tooltip)
 
     @observe("viz")
-    def _set_viz(self, change):
+    def _set_viz(self, *args) -> None:
         """
-        hide or show the component according to its viz param value.
+        Hide or show the component according to its viz param value.
 
         Hide the widget by reducing the html class to :code:`d-none`.
         Show the widget by removing the :code:`d-none` html class.
         Save the previous class
-
-        Args:
-            change: the dict of a trait callback
         """
-
         # will be replaced byt direct calls to built-in hide
         # once the previous custom implementation will be fully removed
 
@@ -66,95 +79,127 @@ class SepalWidget(v.VuetifyWidget):
 
         return
 
-    def toggle_viz(self):
-        """
-        toogle the visibility of the widget.
-
-        Return:
-            self
-        """
-
+    def toggle_viz(self) -> Self:
+        """Toogle the visibility of the widget."""
         self.viz = not self.viz
 
         return self
 
-    def hide(self):
+    def hide(self) -> Self:
         """
         Hide the widget by reducing the html class to :code:`d-none`.
+
         Save the previous class and set viz attribute to False.
-
-        Return:
-            self
         """
-
         # update viz state
         self.viz = False
 
         return self
 
-    def show(self):
+    def show(self) -> Self:
         """
         Show the widget by removing the d-none html class.
+
         Save the previous class and set viz attribute to True.
-
-        Return:
-            self
         """
-
         # update viz state
         self.viz = True
 
         return self
 
-    def reset(self):
+    def reset(self) -> Self:
         """
-        Clear the widget v_model. Need to be extented in custom widgets to fit the structure of the actual input.
+        Clear the widget v_model.
 
-        Return:
-            self
+        Need to be extented in custom widgets to fit the structure of the actual input.
         """
-
         self.v_model = None
 
         return self
 
-    def get_children(self, id_):
-        """Retrieve all children elements that matches with the given id\_.
+    def get_children(
+        self,
+        widget: Optional[v.VuetifyWidget] = None,
+        klass: Optional[Type[v.VuetifyWidget]] = None,
+        attr: str = "",
+        value: str = "",
+        id_: str = "",
+        elements: Optional[list] = None,
+    ) -> List[v.VuetifyWidget]:
+        r"""
+        Recursively search for every element matching the specifications.
+
+        multiple parameters can be used to search for matching elements. no error is raised if nothing is found.
+
+        Args:
+            widget: the widget to search into
+            klass: the vuetify widget class to look for . Leave empty for any.
+            attr: the attribute to look at. leave empty for no search
+            value: the value of the attr. ignored if attr is not set
+            elements: the list used to store found elements
+
+        Returns:
+            List containing all matching elements
+
+        Retrieve all children elements that matches with the given id\_.
 
         Args:
             id\_ (str, optional): attribute id to compare with.
 
         Returns:
-            Will return a list with all mathing elements if there are more than one,
-            otherwise will return the mathing element.
+            list with all mathing elements if there are more than one, otherwise will return the matching element.
 
         """
+        # id_ was the previous variable it should continue working in this implementation
+        # remove kwargs when this will be deprecated
+        if id_ != "":
+            attr, value = ("id", id_)
+            warnings.warn(
+                '"id_" is a deprecated argument, use an ("attr", "value") pair instead',
+                DeprecationWarning,
+            )
 
-        elements = []
+        # init the element list
+        elements = [] if elements is None else elements
 
-        def search_children(parent):
+        # init the widget
+        widget = self if widget is None else widget
 
-            if issubclass(parent.__class__, VueWidget):
+        for w in widget.children:
 
-                if parent.attributes.get("id") == id_:
-                    elements.append(parent)
+            # exit if children is not a widget (str, DOM objects.. etc)
+            if not isinstance(w, (v.VuetifyWidget, v.Html)):
+                continue
 
-                if len(parent.children):
-                    [search_children(chld) for chld in parent.children]
+            # compare the widget with requirements
+            # if no klass is specified, use both vuetifyWidget and Html objects
+            is_klass = (
+                isinstance(w, klass)
+                if klass
+                else isinstance(w, ((v.VuetifyWidget, v.Html)))
+            )
 
-        # Search in the self children elements
-        [search_children(chld) for chld in self.children]
+            # using "niet" as default so that result is True if attr is Falsy
+            # "niet" is very unlikely to be used compared to None, False, "none"...
+            is_val = w.attributes.get(attr, "niet") == value if attr and value else True
 
-        return elements[0] if len(elements) == 1 else elements
+            not (is_klass and is_val) or elements.append(w)
 
-    def set_children(self, children, position="first"):
-        """Insert input children in self children within given position
+            # always search for nested elements
+            elements = self.get_children(w, klass, attr, value, id_, elements)
+
+        return elements
+
+    def set_children(
+        self, children: Union[str, v.VuetifyWidget, list], position: str = "first"
+    ) -> Self:
+        """
+        Insert input children in self children within given position.
 
         Args:
-            children (str, DOMWidget, list(str, DOMWidget)):
-            position (str): whether to insert as first or last element. ["first", "last"]
+            children: the list of children to add to the widget. It can also be a list (str and DOMWidgets are accepted)
+            position: whether to insert as first or last element. ["first", "last"]
         """
-
         if not isinstance(children, list):
             children = [children]
 
@@ -176,44 +221,41 @@ class SepalWidget(v.VuetifyWidget):
         return self
 
     @versionadded(version="2.9.0", reason="Tooltip are now integrated to widgets")
-    def set_tooltip(self, txt=None, **kwargs):
+    def set_tooltip(self, txt: str = "", **kwargs) -> v.Tooltip:
         """
-        Create a tooltip associated with the widget. If the text is not set, the
-        tooltip will be automatically removed. Once the tooltip is set the object
-        variable can be accessed normally but to render the widget, one will need
-        to use :code:`self.with_tooltip` (irreversible).
+        Create a tooltip associated with the widget.
+
+        If the text is not set, the tooltip will be automatically removed. Once the tooltip is set the object variable can be accessed normally but to render the widget, one will need to use :code:`self.with_tooltip` (irreversible).
 
         Args:
-            txt (str): anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
+            txt: anything False (0, False, empty text, None) will lead to the removal of the tooltip. everything else will be used to fill the text area
             kwargs: any options available in a Tooltip widget
 
         Returns:
-            (sw.Tooltip): the tooltip associated with the object
+            the tooltip associated with the object
         """
         if isinstance(self.with_tooltip, Tooltip):
             # If it's already created, and there are new kwargs, let's modify it
             [setattr(self.with_tooltip, attr, value) for attr, value in kwargs.items()]
             self.with_tooltip.children = [txt]
             self.with_tooltip.disabled = not bool(txt)
-        elif bool(txt) is True:
+        elif txt != "":
             self.with_tooltip = Tooltip(self, txt, **kwargs)
 
         return self
 
 
 class Tooltip(v.Tooltip):
-    """
-    Custom widget to display tooltip when mouse is over widget
+    def __init__(self, widget: v.VuetifyWidget, tooltip: str, **kwargs) -> None:
+        """
+        Custom widget to display tooltip when mouse is over widget.
 
-    Args:
-        widget (Vuetify.widget): widget used to display tooltip
-        tooltip (str): the text to display in the tooltip
-    """
-
-    def __init__(self, widget, tooltip, **kwargs):
-
+        Args:
+            widget: widget used to display tooltip
+            tooltip: the text to display in the tooltip
+        """
         # set some default parameters
-        kwargs["close_delay"] = kwargs.pop("close_delay", 200)
+        kwargs.setdefault("close_delay", 200)
 
         self.v_slots = [
             {"name": "activator", "variable": "tooltip", "children": widget}

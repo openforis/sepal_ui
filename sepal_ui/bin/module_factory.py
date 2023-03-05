@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-This script will create the skeleton of a sepal-ui module
+Script to create the skeleton of a sepal-ui module.
 
 The script will extract the skeleton of a module from the sepal_ui_template GitHub repository. This template will be adapted based on the answsers to the questionnaire.
 Placeholdre from the template will be replaced and the directory will be synced with a GitHub freshly created repository. Note that the repository need to be fully empty when the command is launched.
@@ -23,17 +23,18 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_factory")
 
 
-def set_default_readme(folder, module_name, description, url):
+def set_default_readme(
+    folder: Path, module_name: str, description: str, url: str
+) -> None:
     """
     Write a default README.md file and overwrite the existing one.
 
     Args:
-        folder (pathlib.Path): the module directory
-        module_name (str): the module name used as title everywhere
-        description (str): the description of the module
-        url (str): the url of the module repository in GitHub
+        folder: the module directory
+        module_name: the module name used as title everywhere
+        description: the description of the module
+        url: the url of the module repository in GitHub
     """
-
     print("Write a default README.md file")
 
     license = f"{url}/blob/master/LICENSE"
@@ -57,18 +58,22 @@ def set_default_readme(folder, module_name, description, url):
     return
 
 
-def set_default_about(folder, description):
+def set_default_about(folder: Path, description: str) -> None:
     """
-    Write a default ABOUT.md file and overwrite the existing one
+    Write a default ABOUT_en.md file and overwrite the existing one.
 
     Args:
-        folder (pathlib.Path): the directory of the module
-        description (str): the description of the module functions
+        folder: the directory of the module
+        description: the description of the module functions
     """
+    print("Write a default ABOUT_en.md file")
 
-    print("Write a default ABOUT.md file")
+    # creating the dir
+    dir_ = folder / "utils"
+    dir_.mkdir(exist_ok=True)
 
-    file = folder / "utils" / "ABOUT.md"
+    # set the file
+    file = dir_ / "ABOUT_en.md"
 
     with file.open("w") as about:
         about.write(f"{description}  \n")
@@ -76,69 +81,39 @@ def set_default_about(folder, description):
     return
 
 
-def set_module_name(folder, module_name):
+def set_module_name(folder: Path, module_name: str) -> None:
     """
-    Use the module name in the different translation dictionaries
+    Use the module name in the different translation dictionaries.
 
     Args:
-        folder (pathlib.Path): the directory of the module
-        module_name (str): the module name
+        folder: the directory of the module
+        module_name: the module name
     """
-
     print("Update the module name in the json translation dictionaries")
 
-    # loop in the available languages
-    message_dir = folder / "component" / "message"
-    json_files = [d / "locale.json" for d in message_dir.iterdir() if d.is_dir()]
-    for file in json_files:
+    # edit the en file
+    app_file = folder / "component" / "message" / "en" / "app.json"
 
-        with file.open("r") as f:
-            data = json.load(f)
+    with app_file.open("r") as f:
+        data = json.load(f)
 
-        data["app"]["title"] = module_name
+    data["app"]["title"] = module_name
 
-        with file.open("w") as f:
-            json.dump(data, f, indent=4)
+    with app_file.open("w") as f:
+        json.dump(data, f, indent=4)
 
     return
 
 
-def set_contribute_file(folder, url, module_name):
+def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
     """
-    Complete the contributing file with the appropriate informations
+    Set the module name in each documentation file and set the appropriate repository in the link.
 
     Args:
-        folder (pathlib.Path): the directory of the module
-        url (str): the url of the GitHub repository
-        module_name (str): the module name
+        folder: the directory of the module
+        url: the url of the GitHub repository
+        module_name: the module name
     """
-
-    print("Update the module name in the contribute file")
-
-    contrib = folder / "CONTRIBUTE.md"
-
-    with contrib.open() as f:
-        data = f.read()
-
-    data = data.replace("SEPAL_UI_TEMPLATE", module_name)
-    data = data.replace("https://github.com/12rambau/sepal_ui_template.git", url)
-
-    with contrib.open("w") as f:
-        f.write(data)
-
-    return
-
-
-def set_module_name_doc(folder, url, module_name):
-    """
-    Set the module name in each documentation file and set the appropriate repository in the link
-
-    Args:
-        folder (pathlib.Path): the directory of the module
-        url (str): the url of the GitHub repository
-        module_name (str): the module name
-    """
-
     # get the documentation folder
     doc_dir = folder / "doc"
 
@@ -150,22 +125,21 @@ def set_module_name_doc(folder, url, module_name):
 
         text = text.replace("Module_name", module_name)
         text = text.replace("===========", "=" * len(module_name))
-        text = text.replace("https://github.com/12rambau/sepal_ui_template", url)
+        text = text.replace("https://github.com/12rambau/sepal_ui", url)
 
         with file.open("w") as f:
             f.write(text)
     return
 
 
-def set_drawer_link(folder, url):
+def set_drawer_link(folder: Path, url: str) -> None:
     """
-    Replace the reference to the default repository to the one provided by the use
+    Replace the reference to the default repository to the one provided by the user.
 
     Args:
-        folder (pathlib.Path): the directory of the module
-        url (str): the url of the GitHub repository
+        folder: the directory of the module
+        url: the url of the GitHub repository
     """
-
     print("Update the drawers link with the new repository one")
 
     # get the ui file
@@ -176,9 +150,7 @@ def set_drawer_link(folder, url):
         ui_content = f.read()
 
     # replace the target strings
-    ui_content = ui_content.replace(
-        "https://github.com/12rambau/sepal_ui_template", url
-    )
+    ui_content = ui_content.replace("https://github.com/12rambau/sepal_ui", url)
 
     # write everything down again
     with ui.open("w") as f:
@@ -187,8 +159,8 @@ def set_drawer_link(folder, url):
     return
 
 
-def main():
-
+def main() -> None:
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 
@@ -202,45 +174,18 @@ def main():
     module_name = input(f"{Fore.CYAN}Provide a module name: \n{Fore.RESET}")
     if not module_name:
         raise Exception(f"{Fore.RED}A module name should be set")
-
-    # set the module github URL
-    github_url = input(
-        f"{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}"
-    )
+    question = f"{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}"  # fmt: skip
+    github_url = input(question)
     if not github_url:
-        raise Exception(
-            f"{Fore.RED}A module name should be set with an asociated github repository"
-        )
+        msg = f"{Fore.RED}A module name should be set with an asociated github repository"  # fmt: skip
+        raise Exception(msg)
+    question = f"{Fore.CYAN}Provide a short description for your module (optional): \n{Fore.RESET}"  # fmt: skip
+    description = input(question)
 
-    # ask for a short description
-    description = input(
-        f"{Fore.CYAN}Provide a short description for your module(optional): \n{Fore.RESET}"
-    )
-
-    # default to the default branch (obviously)
-    branch = "default"
-
-    # ask if the user need the default function
-    default = input(
-        f"{Fore.CYAN}Do you need to use the default function as a template [y]? \n{Fore.RESET}"
-    )
-    if not strtobool(default):
-        branch = "no_default"
-
-        # ask if the user need the aoi
-        aoi = input(
-            f"{Fore.CYAN}Do you need an AOI selector in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}"
-        )
-        if not strtobool(aoi):
-            branch = "no_aoi"
-
-        else:
-
-            gee = input(
-                f"{Fore.CYAN}Do you need a connection to GEE in your module (it will still be possible to add one afterward) [y]? \n{Fore.RESET}"
-            )
-            if not strtobool(gee):
-                branch = "no_gee"
+    # default to a panel application
+    question = f"{Fore.CYAN}Do you need a fullscreen application [n]? \n{Fore.RESET}"
+    type_ = input(question) or "no"
+    branch = "map_app" if strtobool(type_) is True else "panel_app"
 
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub("[^a-zA-Z\d\-\_]", "_", module_name)
@@ -250,22 +195,9 @@ def main():
 
     # clone the repository in a folder that has the normalized module name
     folder = Path.cwd() / normalized_name
-    template_url = "https://github.com/12rambau/sepal_ui_template.git"
-    subprocess.run(
-        [
-            "git",
-            "clone",
-            "--single-branch",
-            "--branch",
-            branch,
-            template_url,
-            str(folder),
-        ],
-        cwd=Path.cwd(),
-    )
 
-    # remove the .git folder
-    subprocess.run(["rm", "rf", str(folder / ".git")], cwd=Path.cwd())
+    template_dir = Path(__file__).parents[1] / "templates" / branch / "."
+    subprocess.run(["cp", "-r", str(template_dir), str(folder)], cwd=Path.cwd())
 
     # replace the placeholders
     url = github_url.replace(".git", "").replace(
@@ -277,39 +209,35 @@ def main():
     set_module_name(folder, module_name)
     set_drawer_link(folder, url)
     set_module_name_doc(folder, url, module_name)
-    set_contribute_file(folder, url, module_name)
 
-    # init the new git repository
+    default = "main"
+
+    # execute the creation process in command lines
+    # - init the new git repository
+    # - change default branch name if using an old version of git
+    # - add the configuration of the git repository
+    # - add all the files in the git repo
+    # - run all the precommit at least once
+    # - include the correction from pre-commits
+    # - first commit
+    # - create a branch
+    # - add the remote
+    # - make the first push
+    # - create a release branch and push it to the server
+    # - checkout to master
     subprocess.run(["git", "init"], cwd=folder)
-
-    # add the configuration of the git repository
+    subprocess.run(["git", "checkout", "-b", default], cwd=folder)
     subprocess.run(["pre-commit", "install"], cwd=folder)
-
-    # The dev version of black is used in sepal_ui_template so we cannot autoupdate yet
-    # command = ["pre-commit", "autoupdate"]
-    # res = subprocess.run(command, cwd=folder)
-
-    # add all the files in the git repo
     subprocess.run(["git", "add", "."], cwd=folder)
-
-    # first commit
-    subprocess.run(["git", "commit", "-m", "first commit"], cwd=folder)
-
-    # create a branch
-    subprocess.run(["git", "branch", "-M", "master"], cwd=folder)
-
-    # add the remote
-    subprocess.run(["git", "remote", "set-url", "origin", str(github_url)], cwd=folder)
-
-    # make the first push
-    subprocess.run(["git", "push", "-u", "origin", "master"], cwd=folder)
-
-    # create a release branch and push it to the server
+    subprocess.run(["pre-commit", "run", "--all-files"], cwd=folder)
+    subprocess.run(["git", "add", "."], cwd=folder)
+    subprocess.run(["git", "commit", "-m", "initial commit"], cwd=folder)
+    subprocess.run(["git", "branch", "-M", default], cwd=folder)
+    subprocess.run(["git", "remote", "add", "origin", str(github_url)], cwd=folder)
+    subprocess.run(["git", "push", "-u", "origin", default], cwd=folder)
     subprocess.run(["git", "checkout", "-b", "release"], cwd=folder)
     subprocess.run(["git", "push", "--set-upstream", "origin", "release"], cwd=folder)
-
-    # checkout to master
-    subprocess.run(["git", "checkout", "master"], cwd=folder)
+    subprocess.run(["git", "checkout", default], cwd=folder)
 
     # exit message
     print(

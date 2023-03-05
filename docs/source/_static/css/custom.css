@@ -2,7 +2,7 @@
  *  add padding to the jupyter-sphinx widgets
  */
 div.jupyter_container.docutils {
-  padding: .4em;
+  padding: 0.4em;
 }
 
 /*******************************************************************************
@@ -13,8 +13,8 @@ div.jupyter_container.docutils {
 }
 .footer-item:not(:last-child) {
   border-right: 1px solid var(--pst-color-text-base);
-  margin-right: .5em;
-  padding-right: .5em;
+  margin-right: 0.5em;
+  padding-right: 0.5em;
 }
 
 /*******************************************************************************
@@ -22,17 +22,17 @@ div.jupyter_container.docutils {
  * most of our images are from SEPAL which is already using a dark theme 
  * there is no need for extra contrast and dimned brightness
  */
-html[data-theme=dark] img {
-   filter: brightness(1) contrast(1);
+html[data-theme="dark"] img {
+  filter: brightness(1) contrast(1);
 }
 
 /*******************************************************************************
  * Customize the colors of the website
  */
-html[data-theme=light] {
-    --pst-color-primary: #196692;
+html[data-theme="light"] {
+  --pst-color-primary: #196692;
 }
 
-html[data-theme=dark] {
-    --pst-color-primary: #196692;
+html[data-theme="dark"] {
+  --pst-color-primary: #196692;
 }

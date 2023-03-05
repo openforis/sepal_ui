@@ -1,7 +1,7 @@
 {
-    "utils": {
-        "check_input": {
-            "error": ""
-        }
+  "utils": {
+    "check_input": {
+      "error": ""
     }
+  }
 }

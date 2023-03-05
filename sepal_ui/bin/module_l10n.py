@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-Script to manually change the used theme
+Script to manually change the used theme.
 
 This script will update the parameters shared between all sepal-ui based modules.
 The "language" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
@@ -22,21 +22,24 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_l10n")
 
 
-def check_locale(locale):
+def check_locale(locale: str) -> bool:
     """
-    Check if the locale exist in the country list
+    Check if the locale exist in the country list.
 
-    Return:
-        (bool)
+    Args:
+        locale: the locale name in iso code
+
+    Returns:
+        True if the language is a well defined
     """
-
-    countries = pd.read_csv(Path(__file__).parents[1] / "scripts" / "locale.csv")
+    file = Path(__file__).parents[1] / "data" / "locale.parquet"
+    countries = pd.read_parquet(file).astype(str)
 
     return locale in countries.code.values
 
 
-def main():
-
+def main() -> None:
+    """Launch the process."""
     # parse agruments
     parser.parse_args()
 
@@ -63,6 +66,8 @@ def main():
     print(
         f'{Fore.GREEN} The provided language code ("{locale}") has been set as default language for all SEPAL applications.{Fore.RESET}'
     )
+
+    return
 
 
 if __name__ == "__main__":

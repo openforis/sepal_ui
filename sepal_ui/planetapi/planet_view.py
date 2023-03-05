@@ -1,52 +1,65 @@
+"""
+The ``Card`` widget to use in application to interface with Planet.
+"""
+
+from typing import Optional
+
 import ipyvuetify as v
 
-import sepal_ui.scripts.utils as su
 import sepal_ui.sepalwidgets as sw
-from sepal_ui import color
 from sepal_ui.message import ms
-from sepal_ui.planetapi import PlanetModel
+from sepal_ui.planetapi.planet_model import PlanetModel
+from sepal_ui.planetapi.planet_widgets import InfoView
+from sepal_ui.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):
-    """Stand-alone interface to capture planet lab credentials, validate its  subscription and
-    connect to the client stored in the model.
 
-    Args:
-        btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
-        alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
-        planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+    planet_model: Optional[PlanetModel] = None
+    "Backend model to manipulate interface actions"
 
-    """
+    btn: Optional[sw.Btn] = None
+    "Button to trigger the validation process in the associated model"
 
-    planet_model = None
-    "sepal_ui.planetlab.PlanetModel: backend model to manipulate interface actions"
+    alert: Optional[sw.Alert] = None
+    "Alert component to display end-user action results"
 
-    btn = None
-    "sw.Btn: Button to trigger the validation process in the associated model"
+    info: bool = False
+    "either to display or not a detailed description about the planet subscriptions"
 
-    alert = None
-    "sw.Alert: Alert component to display end-user action results"
+    w_username: Optional[sw.TextField] = None
+    "Widget to set credential username"
 
-    w_username = None
-    "sw.TextField: widget to set credential username"
+    w_password: Optional[sw.PasswordField] = None
+    "Widget to set credential password"
 
-    w_password = None
-    "sw.PasswordField: widget to set credential password"
+    w_key: Optional[sw.PasswordField] = None
+    "Widget to set credential API key"
 
-    w_key = None
-    "sw.PasswordField: widget to set credential API key"
+    w_method: Optional[sw.Select] = None
+    "Dropdown widget to select connection method"
 
-    w_state = None
-    "sw.StateIcon: circle widget to inform the user on the current connection state"
+    def __init__(
+        self,
+        btn: Optional[sw.Btn] = None,
+        alert: Optional[sw.Alert] = None,
+        planet_model: Optional[PlanetModel] = None,
+        info: bool = False,
+        **kwargs,
+    ):
+        """
+        Stand-alone interface to capture planet lab credentials.
 
-    w_method = None
-    "sw.Select: dropdown widget to select connection method"
+        It also validate its  subscription and connect to the client stored in the model.
 
-    def __init__(self, *args, btn=None, alert=None, planet_model=None, **kwargs):
-
+        Args:
+            btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
+            alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
+            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+        """
         self.class_ = "d-block flex-wrap"
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         self.planet_model = planet_model if planet_model else PlanetModel()
         self.btn = btn if btn else sw.Btn("Validate", small=True, class_="mr-1")
@@ -57,13 +70,7 @@ class PlanetView(sw.Layout):
         )
         self.w_password = sw.PasswordField(label=ms.planet.widget.password)
         self.w_key = sw.PasswordField(label=ms.planet.widget.apikey, v_model="").hide()
-
-        states = {
-            False: (ms.planet.status.offilne, color.error),
-            True: (ms.planet.status.online, color.success),
-        }
-
-        self.w_state = sw.StateIcon(self.planet_model, "active", states)
+        self.w_info_view = InfoView(model=self.planet_model)
 
         self.w_method = v.Select(
             label=ms.planet.widget.method.label,
@@ -77,7 +84,7 @@ class PlanetView(sw.Layout):
 
         w_validation = v.Flex(
             style_="flex-grow: 0 !important;",
-            children=[self.btn, self.w_state],
+            children=[self.btn],
             class_="pr-1 flex-nowrap",
         )
         self.children = [
@@ -95,25 +102,26 @@ class PlanetView(sw.Layout):
         if not btn:
             self.children[-1].set_children(w_validation, "last")
 
+        # Set it here to avoid displacements when using button
+        self.set_children(self.w_info_view, "last")
+
         if not alert:
             self.set_children(self.alert, "last")
 
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
 
-    def reset(self):
-        """Empty credentials fields"""
-
+    def reset(self) -> None:
+        """Empty credentials fields and restart activation mode."""
         self.w_username.v_model = None
         self.w_password.v_model = None
         self.w_key.v_model = None
+        self.planet_model.__init__()
 
         return
 
-    def _swap_inputs(self, change):
-        """Swap between credentials and api key inputs"""
-
-        self.planet_model.init_client(None)
+    def _swap_inputs(self, change: dict) -> None:
+        """Swap between credentials and api key inputs."""
         self.alert.reset()
         self.reset()
 
@@ -123,15 +131,16 @@ class PlanetView(sw.Layout):
 
         return
 
-    @su.loading_button()
-    def validate(self, *args):
-        """Initialize planet client and validate if is active"""
+    @loading_button(debug=True)
+    def validate(self, *args) -> None:
+        """Initialize planet client and validate if is active."""
+        self.planet_model.__init__()
 
         if self.w_method.v_model == "credentials":
-            credentials = (self.w_username.v_model, self.w_password.v_model)
+            credentials = [self.w_username.v_model, self.w_password.v_model]
         else:
-            credentials = self.w_key.v_model
+            credentials = [self.w_key.v_model]
 
-        self.planet_model.init_client(credentials, event=True)
+        self.planet_model.init_session(credentials)
 
         return

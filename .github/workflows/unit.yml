@@ -1,74 +1,95 @@
 name: Build
 
-on: 
-  - push
-  - workflow_dispatch
-  
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 env:
-  EE_DECRYPT_KEY: ${{ secrets.EE_DECRYPT_KEY }}
-  PLANET_API_CREDENTIALS: '${{ secrets.PLANET_API_CREDENTIALS }}'
+  PLANET_API_CREDENTIALS: ${{ secrets.PLANET_API_CREDENTIALS }}
   PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
+  EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - uses: pre-commit/action@v3.0.0
+
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          
-      - name: Manually install GDAL 
+
+      - name: Install GDAL
         run: |
+          python -m pip install --upgrade pip
           pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
-          
+
+      - name: Install localetileserver
+        run: |
+          pip install localtileserver
+
       - name: Install dependencies
         run: pip install .[test]
-        
-      - name: Test formatting
-        uses: psf/black@stable
-        with:
-            version: "22.3.0"
-            
-      - name: PEP8 rules
-        uses: tonybajan/flake8-check-action@v1.0.0
-        with:
-            repotoken: ${{ secrets.GITHUB_TOKEN }}
-            
+
+      - name: test the entrypoints
+        if: matrix.python-version == '3.9'
+        run: |
+          module_deploy --help
+          module_factory --help
+          module_l10n --help
+          module_theme --help
+          module_venv --help
+          activate_venv --help
+          sepal_ipyvuetify --help
+
       - name: build the documentation
         if: matrix.python-version == '3.8'
         run: |
           pip install .[doc]
           sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
-        
+
       - name: Check that there are no unexpected Sphinx warnings
         if: matrix.python-version == '3.8'
-        shell: python
-        run: |
-          from pathlib import Path
-          text = Path("warnings.txt").read_text().strip()
-          print("\n=== Sphinx Warnings ===\n\n" + text)  # Print just for reference so we can look at the logs
-          warnings = [ii for ii in text.split("\n")]
-          expected = ["transition", "CHANGELOG.md", "modules.rst", "target"]
-          unexpected = [ii for ii in text.split("\n") if all(i not in ii for i in expected)]
-          assert len(unexpected) == 0
-      
+        run: python tests/check_warnings.py
+
       - name: test with pytest
-        run: coverage run -m pytest --color=yes tests
-        
+        run: pytest --color=yes --cov --cov-report=xml tests
+
+      - name: assess dead fixtures
+        if: matrix.python-version == '3.8'
+        run: pytest --dead-fixtures
+
+      - name: build the template panel application
+        if: matrix.python-version == '3.8'
+        run: pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+
+      - name: build the template map application
+        if: matrix.python-version == '3.8'
+        run: pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
+
       - name: coverage
         run: coverage xml
-        
+
       - name: codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true

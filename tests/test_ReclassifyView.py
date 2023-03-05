@@ -1,6 +1,7 @@
 from pathlib import Path
 from zipfile import ZipFile
 
+import ee
 import geopandas as gpd
 import pytest
 
@@ -9,10 +10,10 @@ from sepal_ui.reclassify import ReclassifyModel, ReclassifyView
 
 
 class TestReclassifyView:
-    def test_init_exception(alert, gee_dir):
-        """Test exceptions"""
-
-        aoi_model = aoi.AoiModel(alert, gee=False)
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_init_exception(self, gee_dir):
+        """Test exceptions."""
+        aoi_model = aoi.AoiModel(gee=False)
 
         # aoi_model has to be local when using local view.
         with pytest.raises(Exception):
@@ -22,7 +23,7 @@ class TestReclassifyView:
 
     def test_init_local(self, view_local, class_file):
 
-        assert view_local.model.aoi_model.ee is False
+        assert view_local.model.aoi_model.gee is False
         assert view_local.gee is False
 
         # Check that all the classes buttons were created
@@ -35,7 +36,7 @@ class TestReclassifyView:
 
     def test_init_gee(self, view_gee):
 
-        assert view_gee.model.aoi_model.ee is True
+        assert view_gee.model.aoi_model.gee is True
         assert view_gee.gee is True
 
         return
@@ -144,10 +145,9 @@ class TestReclassifyView:
         return
 
     @pytest.fixture
-    def view_local(self, tmp_dir, class_file, alert):
-        """return a local reclassify view"""
-
-        aoi_model = aoi.AoiModel(alert, gee=False)
+    def view_local(self, tmp_dir, class_file):
+        """return a local reclassify view."""
+        aoi_model = aoi.AoiModel(gee=False)
 
         return ReclassifyView(
             aoi_model=aoi_model,
@@ -158,21 +158,20 @@ class TestReclassifyView:
         )
 
     @pytest.fixture
-    def view_gee(self, tmp_dir, class_file, gee_dir, alert):
-        """return a gee reclassify view"""
-
-        aoi_model = aoi.AoiModel(alert, gee=True, folder=gee_dir)
+    def view_gee(self, tmp_dir, class_file, gee_dir):
+        """return a gee reclassify view."""
+        aoi_model = aoi.AoiModel(gee=True, folder=str(gee_dir))
 
         return ReclassifyView(
             aoi_model=aoi_model,
             gee=True,
-            folder=gee_dir,
+            folder=str(gee_dir),
             out_path=tmp_dir,
             class_path=tmp_dir,
             default_class={"IPCC": str(class_file)},
         )
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def class_file(self, tmp_dir):
 
         file = tmp_dir / "dum_default_classes.csv"
@@ -191,7 +190,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file_bad_char(self, tmp_dir):
 
         bad_file = tmp_dir / "map_file_bad_char.csv"
@@ -203,7 +202,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file_bad_header(self, tmp_dir):
 
         bad_file = tmp_dir / "map_file_bad_header.csv"
@@ -215,7 +214,7 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def map_file(self, tmp_dir):
 
         file = tmp_dir / "map_file.csv"
@@ -233,10 +232,10 @@ class TestReclassifyView:
 
         return
 
-    @pytest.fixture
-    def model_local_vector(self, tmp_dir, alert):
+    @pytest.fixture(scope="class")
+    def model_local_vector(self, tmp_dir):
 
-        aoi_model = aoi.AoiModel(alert, gee=False)
+        aoi_model = aoi.AoiModel(gee=False)
 
         # create the vector file
         file = Path(gpd.datasets.get_path("nybb").replace("zip:", ""))

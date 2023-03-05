@@ -1,3 +1,10 @@
+"""
+sepal-ui ``Tile`` object tuned for AOI selection.
+"""
+
+from pathlib import Path
+from typing import List, Optional, Union
+
 import ipyvuetify as v
 
 from sepal_ui import mapping as sm
@@ -9,32 +16,52 @@ __all__ = ["AoiTile"]
 
 
 class AoiTile(sw.Tile):
-    """
-    sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation
 
-    Args:
-        methods (list, optional): the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {‘ADMIN0’, ‘ADMIN1’, ‘ADMIN2’, ‘SHAPE’, ‘DRAW’, ‘POINTS’, ‘ASSET’, ‘ALL’}
-        ee (bool, optional): wether or not to use the python EartEngine API. default to True
-        vector (str|pathlib.Path, optional): the path to the default vector object
-        admin (int, optional): the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
-        asset (str, optional): the default asset. Can only work if :code:`ee==True`.
-    """
-
-    map = None
+    map: Optional[sm.SepalMap] = None
     "sepal_ui.mapping.SepalMap: a SepalMap object to display the selected aoi"
 
-    view = None
+    view: Optional[AoiView] = None
     "widget: an AoiView object to handle the aoi method selection"
 
-    def __init__(self, methods="ALL", gee=True, **kwargs):
+    def __init__(
+        self,
+        methods: Union[str, List[str]] = "ALL",
+        gee: bool = True,
+        vector: Union[str, Path] = "",
+        admin: Union[int, str] = "",
+        asset: Union[str, Path] = "",
+        folder: Union[str, Path] = "",
+        map_style: Optional[dict] = None,
+        **kwargs
+    ) -> None:
+        """
+        sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation.
 
+        Args:
+            methods: the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {`ADMIN0`, `ADMIN1`, `ADMIN2`, `SHAPE`, `DRAW`, `POINTS`, `ASSET`, `ALL`}
+            gee: wether or not to use the python EartEngine API. default to True
+            vector: the path to the default vector object
+            admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
+            asset: the default asset. Can only work if :code:`ee==True`.
+            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+        """
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)
         self.map.dc.hide()
 
         # create the view
         # the view include the model
-        self.view = AoiView(methods=methods, map_=self.map, gee=gee, **kwargs)
+        self.view = AoiView(
+            methods=methods,
+            map_=self.map,
+            gee=gee,
+            vector=vector,
+            admin=admin,
+            asset=asset,
+            folder=folder,
+            map_style=map_style,
+            **kwargs
+        )
         self.view.elevation = 0
 
         # organise them in a layout

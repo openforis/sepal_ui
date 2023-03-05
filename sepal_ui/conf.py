@@ -1,3 +1,10 @@
+"""
+sepal-ui configuration to save in the user machine.
+
+To make applications more user-friendly sepal-ui save few parameters in a config file. 
+Currently we save the language and the theme so that it won't need to be reset every time. 
+"""
+
 from configparser import ConfigParser
 from pathlib import Path
 

@@ -1,7 +1,7 @@
 {
-    "utils": {
-        "check_input": {
-            "error": "The value has not been initialized"
-        }
+  "utils": {
+    "check_input": {
+      "error": "The value has not been initialized"
     }
+  }
 }

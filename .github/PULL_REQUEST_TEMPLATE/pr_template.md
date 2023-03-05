@@ -1,10 +1,9 @@
 ---
 name: Pull request template
 about: Create a pull request
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 ## reference the related issue

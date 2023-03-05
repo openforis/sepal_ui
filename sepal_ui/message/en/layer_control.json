@@ -1,0 +1,17 @@
+{
+  "layer_state": {
+    "loading": "loading {} layer(s) out of {}",
+    "complete": "{} layer(s) loaded"
+  },
+  "layer_control": {
+    "layer": {
+      "header": "Layers"
+    },
+    "basemap": {
+      "header": "Basemaps"
+    },
+    "vector": {
+      "header": "Vectors"
+    }
+  }
+}

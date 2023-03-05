@@ -1,0 +1,17 @@
+{
+  "layer_state": {
+    "loading": "chargement de {} layer(s) sur {}",
+    "complete": "{} layer(s) chargé(s)"
+  },
+  "layer_control": {
+    "layer": {
+      "header": "Couches"
+    },
+    "basemap": {
+      "header": "Fonds de carte"
+    },
+    "vector": {
+      "header": "Vecteurs"
+    }
+  }
+}

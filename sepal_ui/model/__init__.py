@@ -1,1 +1,5 @@
-from .model import Model
+"""
+Wrapper package for the ``Model`` object.
+"""
+
+from .model import *

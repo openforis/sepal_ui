@@ -10,8 +10,8 @@ class TestClip:
         clip = sw.CopyToClip()
         assert clip.tf.outlined is True
         assert isinstance(clip.tf.label, str)
-        assert clip.tf.append_icon == "fas fa-clipboard"
-        assert clip.tf.v_model is None
+        assert clip.tf.append_icon == "fa-solid fa-clipboard"
+        assert clip.tf.v_model == ""
 
         # clip with extra options
         clip = sw.CopyToClip(outlined=False, dense=True)
@@ -27,7 +27,7 @@ class TestClip:
         # I don't know how to check the clipboard
 
         # check the icon change
-        assert clip.tf.append_icon == "fas fa-clipboard-check"
+        assert clip.tf.append_icon == "fa-solid fa-clipboard-check"
 
         return
 
@@ -48,5 +48,4 @@ class TestClip:
     @pytest.fixture
     def clip(self):
         """create a simple clip-to-clipboard with a v_model set to "value"."""
-
         return sw.CopyToClip(v_model="value")

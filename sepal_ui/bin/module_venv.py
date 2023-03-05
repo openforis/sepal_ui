@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-Script to add a testing kernel in the local environment
+Script to add a testing kernel in the local environment.
 
 This script should be run in a module folder. From there, it will create a  new venv in the "module_venv" folder.
 This venv will be named after the module repository name. All librairies specified in the requirements.txt file will be installed.
@@ -26,8 +26,8 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_venv")
 
 
-def main():
-
+def main() -> None:
+    """Launch the venv creation process."""
     # read arguments (there should be none)
     parser.parse_args()
 
@@ -116,6 +116,8 @@ def main():
     print(
         f'{Fore.GREEN}The test venv have been created, it can be found in the kernel list as "{display_name}". It has automatically been added to the entry point of the application: {entry_point.name}.{Fore.RESET}'
     )
+
+    return
 
 
 if __name__ == "__main__":

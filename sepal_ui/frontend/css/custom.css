@@ -1,6 +1,105 @@
-.leaflet-pane {z-index : 2 !important;}
-.leaflet-top, .leaflet-bottom {z-index : 2 !important;}
-.leaflet-widgetcontrol {box-shadow: none;}
-main.v-content {padding-top: 0px !important;}
-.leaflet-control-container .vuetify-styles .v-application {background: rgb(0,0,0,0);}
-.v-alert__wrapper .progress {background-color: transparent;}
+/*******************************************************************************
+ * Customization of the provided css from the different libs used by sepal_ui
+ */
+
+/* replace the map panel elements on top */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 2 !important;
+}
+
+/* remove the shadow from the widgets on the maps */
+.leaflet-widgetcontrol {
+  box-shadow: none;
+}
+
+/* remove extra padding on top of the content */
+main.v-content {
+  padding-top: 0px !important;
+}
+
+/* remove all the backgrounds from the controls and widget to be colored naturelly by the map */
+.leaflet-control-container .vuetify-styles .v-application {
+  background: rgb(0, 0, 0, 0);
+}
+.v-alert__wrapper .progress {
+  background-color: transparent;
+}
+
+/* set the bar on top of the map (800) when set to fullscreen */
+header.v-app-bar {
+  z-index: 800 !important;
+}
+
+/* set the menu_content on top of the map when it's set to fullscreen */
+.v-menu__content {
+  z-index: 802 !important;
+}
+
+/* make sure the dialog remain on top of the bars (header and footer) */
+.v-dialog__content {
+  z-index: 802 !important;
+}
+
+/* make sure navigation drawers are always visibles when they exist */
+nav.v-navigation-drawer {
+  z-index: 900 !important;
+}
+
+/* create extra position for the leaflet map controls */
+.leaflet-center {
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
+.leaflet-middle {
+  top: 50%;
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translate(0%, -50%);
+}
+
+.leaflet-center.leaflet-middle {
+  transform: translate(-50%, -50%);
+}
+
+/* create extra classes to customize the layer_control table */
+.v-no-hover:hover {
+  background-color: transparent !important;
+}
+
+.v-no-border tbody tr td,
+.v-no-border tbody tr th {
+  border: none !important;
+}
+
+/* extra css rules to make the messages disapear beneath the SimpleSlider */
+.v-no-messages .v-messages {
+  display: none;
+}
+
+.v-no-messages .v-input__slot {
+  margin-bottom: 0;
+}
+
+/* specific css for the btn placed on maps */
+.v-btn.v-size--default.v-map-btn:not(.v-btn--round) {
+  padding: 0px;
+  min-width: 0px;
+  width: 30px;
+  height: 30px;
+}
+
+/* add specific css for the zoom btn of the map */
+.v-btn.v-zoom-plus {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.v-btn.v-zoom-minus {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

@@ -9,12 +9,12 @@ class TestFullScreenControl:
 
         # add a fullscreenControl
         control = sm.FullScreenControl(map_)
-        map_.add_control(control)
+        map_.add(control)
 
         assert isinstance(control, sm.FullScreenControl)
         assert control in map_.controls
         assert control.zoomed is False
-        assert "fas fa-expand" in control.w_btn.logo.children
+        assert "fa-solid fa-expand" in control.w_btn.children[0].children
 
         return
 
@@ -22,19 +22,19 @@ class TestFullScreenControl:
 
         map_ = sm.SepalMap()
         control = sm.FullScreenControl(map_)
-        map_.add_control(control)
+        map_.add(control)
 
         # trigger the click
         # I cannot test the javascript but i can test everything else
         control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is True
-        assert "fas fa-compress" in control.w_btn.logo.children
+        assert "fa-solid fa-compress" in control.w_btn.children[0].children
 
         # click again to reset to initial state
         control.toggle_fullscreen(None, None, None)
 
         assert control.zoomed is False
-        assert "fas fa-expand" in control.w_btn.logo.children
+        assert "fa-solid fa-expand" in control.w_btn.children[0].children
 
         return

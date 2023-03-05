@@ -2,8 +2,9 @@ from configparser import ConfigParser
 
 import pytest
 
-from sepal_ui import config_file, get_theme
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.conf import config_file
+from sepal_ui.frontend.styles import get_theme
 
 
 class TestThemeSelect:
@@ -33,8 +34,7 @@ class TestThemeSelect:
 
     @pytest.fixture
     def theme_select(self):
-        """Create a simple theme_select"""
-
+        """Create a simple theme_select."""
         # destroy any existing config file
         if config_file.is_file():
             config_file.unlink()

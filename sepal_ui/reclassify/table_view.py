@@ -1,14 +1,21 @@
+"""
+Custom widgets dedicated to the reclassification  table interface.
+"""
+
 from colorsys import rgb_to_hls, rgb_to_hsv
 from pathlib import Path
+from typing import Optional, Union
 
 import ipyvuetify as v
 import pandas as pd
 from matplotlib.colors import to_rgb
 from traitlets import Int
+from typing_extensions import Self
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.message import ms
 from sepal_ui.reclassify import parameters as param
+from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 
 __all__ = ["TableView"]
@@ -16,27 +23,19 @@ __all__ = ["TableView"]
 
 class ClassTable(sw.DataTable):
 
-    """
-    Custom data table to modify, display and save classification. From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
-
-    Attributes:
-        SCHEMA (const list): the schema of the classification: ['id', 'code', 'description', 'color']
-        out_path (pathlib.Path): the output folder to save the created classifications
-        save_dialog (v.Dialog): the Dialog to save the classification (select name and format)
-        edit_dialog (v.Dialog): the dialog to edit/create a noew line in the data-table. The user will provide: the code, the description and the color (with a color selector)
-        edit_icon (v.Icon): the btn to open the edit_dialog (a line need to be selected in the table)
-        delete_icon (v.icon): the btn to delete a selected line in the table
-        add_icon (v.Icon): the btn to add a new line in the table
-        save_icon (v.Icon): the btn to open the save_dialog and save the current classification table
-
-    Args:
-        out_path (str|optional): output path where table will be saved, default to ~/downloads/
-    """
-
     SCHEMA = param.SCHEMA
 
-    def __init__(self, out_path=Path.home() / "downloads", **kwargs):
+    def __init__(
+        self, out_path: Union[str, Path] = Path.home() / "downloads", **kwargs
+    ) -> None:
+        """
+        Custom data table to modify, display and save classification.
 
+        From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
+
+        Args:
+            out_path: output path where table will be saved, default to ~/downloads/
+        """
         # save the output path
         self.out_path = Path(out_path)
 
@@ -49,19 +48,27 @@ class ClassTable(sw.DataTable):
         # create the 4 CRUD btn
         # and set them in the top slot of the table
         self.edit_btn = sw.Btn(
-            ms.rec.table.btn.edit,
-            icon="fas fa-pencil-alt",
+            msg=ms.rec.table.btn.edit,
+            gliph="fa-solid fa-pencil-alt",
             class_="ml-2 mr-2",
             color="secondary",
             small=True,
         )
         self.delete_btn = sw.Btn(
-            ms.rec.table.btn.delete, icon="fas fa-trash-alt", color="error", small=True
+            msg=ms.rec.table.btn.delete,
+            gliph="fa-solid fa-trash-alt",
+            color="error",
+            small=True,
         )
         self.add_btn = sw.Btn(
-            ms.rec.table.btn.add, icon="fas fa-plus", color="success", small=True
+            msg=ms.rec.table.btn.add,
+            gliph="fa-solid fa-plus",
+            color="success",
+            small=True,
         )
-        self.save_btn = sw.Btn(ms.rec.table.btn.save, icon="far fa-save", small=True)
+        self.save_btn = sw.Btn(
+            msg=ms.rec.table.btn.save, gliph="fa-regular fa-save", small=True
+        )
 
         slot = v.Toolbar(
             class_="d-flex mb-6",
@@ -102,17 +109,13 @@ class ClassTable(sw.DataTable):
         self.add_btn.on_event("click", self._add_event)
         self.save_btn.on_event("click", self._save_event)
 
-    def populate_table(self, items_file=None):
+    def populate_table(self, items_file: Union[Path, str] = "") -> Self:
         """
         Populate table. It will fill the table with the item contained in the items_file parameter. If no file is provided the table is reset.
 
         Args:
-            items (Path object|optional): file containing classes and description
-
-        Return:
-            self
+            items: file containing classes and description
         """
-
         # If there is not any file passed as an argument, populate and empy table
         if not items_file:
             self.items = []
@@ -125,7 +128,7 @@ class ClassTable(sw.DataTable):
         # corresponding values with the SCHEMA.
 
         # small sanity check
-        if not len(df.columns) in [2, 3]:
+        if len(df.columns) not in [2, 3]:
             raise AssertionError(
                 f"The file is not a valid classification file as it has {len(df.columns)} columns instead of 2 or 3"
             )
@@ -143,9 +146,8 @@ class ClassTable(sw.DataTable):
 
         return self
 
-    def _save_event(self, widget, event, data):
-        """open the save dialog to save the current table in a specific formatted table"""
-
+    def _save_event(self, *args) -> None:
+        """open the save dialog to save the current table in a specific formatted table."""
         if not self.items:
             return
 
@@ -153,9 +155,8 @@ class ClassTable(sw.DataTable):
 
         return
 
-    def _edit_event(self, widget, event, data):
-        """Open the edit dialog and fill it with current line information"""
-
+    def _edit_event(self, *args) -> None:
+        """Open the edit dialog and fill it with current line information."""
         if not self.v_model:
             return
 
@@ -163,16 +164,14 @@ class ClassTable(sw.DataTable):
 
         return
 
-    def _add_event(self, widget, event, data):
-        """Open the edit dialog to create a new line to the table"""
-
+    def _add_event(self, *args) -> None:
+        """Open the edit dialog to create a new line to the table."""
         self.edit_dialog.update()
 
         return
 
-    def _remove_event(self, widget, event, data):
-        """Remove current selection (self.v_model) element from table"""
-
+    def _remove_event(self, *args) -> None:
+        """Remove current selection (self.v_model) element from table."""
         if not self.v_model:
             return
 
@@ -185,26 +184,16 @@ class ClassTable(sw.DataTable):
 
 
 class EditDialog(v.Dialog):
-    """
-    Dialog to modify/create new elements from the ClassTable data_table
-
-    Args:
-        table (ClassTable, v.DataTable): Table linked with dialog
-
-    Attributes:
-        TITLES (list): the list of potential header (translated at the start of the application)
-        table (classTable): the classTable associated with the dialog
-        title (v.CardTitle): the title of the card ('modify' or 'new')
-        save (sw.Btn): the btn to validate the new line and save it in the datatable
-        modify (sw.Btn): the btn to validate the edited line and save it in the datatable
-        cancel (sw.Btn): the btn to close the dialog without saving anything
-        widgets (list): the list of widget to control the new element state (id, code, description, color) in this order.
-    """
 
     TITLES = ms.rec.table.edit_dialog.titles
 
-    def __init__(self, table, **kwargs):
+    def __init__(self, table: ClassTable, **kwargs) -> None:
+        """
+        Dialog to modify/create new elements from the ClassTable data_table.
 
+        Args:
+            table: Table linked with dialog
+        """
         # custom attributes
         self.table = table
 
@@ -212,15 +201,23 @@ class EditDialog(v.Dialog):
         self.title = v.CardTitle(children=[self.TITLES[0]])
 
         # Action buttons
-        btn_txt = ms.rec.table.edit_dialog.btn
-        self.save = sw.Btn(btn_txt.save.name)
-        save_tool = sw.Tooltip(self.save, btn_txt.save.tooltip, bottom=True)
+        self.save = sw.Btn(msg=ms.rec.table.edit_dialog.btn.save.name)
+        save_tool = sw.Tooltip(
+            self.save, ms.rec.table.edit_dialog.btn.save.tooltip, bottom=True
+        )
 
-        self.modify = sw.Btn(btn_txt.modify.name).hide()  # by default modify is hidden
-        modify_tool = sw.Tooltip(self.modify, btn_txt.modify.tooltip, bottom=True)
+        self.modify = sw.Btn(msg=ms.rec.table.edit_dialog.btn.modify.name)
+        self.modify.hide()  # by default modify is hidden
+        modify_tool = sw.Tooltip(
+            self.modify, ms.rec.table.edit_dialog.btn.modify.tooltip, bottom=True
+        )
 
-        self.cancel = sw.Btn(btn_txt.cancel.name, outlined=True, class_="ml-2")
-        cancel_tool = sw.Tooltip(self.cancel, btn_txt.cancel.tooltip, bottom=True)
+        self.cancel = sw.Btn(
+            msg=ms.rec.table.edit_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+        )
+        cancel_tool = sw.Tooltip(
+            self.cancel, ms.rec.table.edit_dialog.btn.cancel.tooltip, bottom=True
+        )
 
         actions = v.CardActions(children=[save_tool, modify_tool, cancel_tool])
 
@@ -258,17 +255,13 @@ class EditDialog(v.Dialog):
         self.modify.on_event("click", self._modify)
         self.cancel.on_event("click", self._cancel)
 
-    def update(self, data=[None, None, None, None]):
+    def update(self, data: list = [None, None, None, None]) -> Self:
         """
-        upadte the dialog with the provided information and activate it
+        Upadte the dialog with the provided information and activate it.
 
         Args:
-            data (list): the text value of the selected line (id, code, description, color). default to 4 None (new line)
-
-        Return:
-            self
+            data: the text value of the selected line (id, code, description, color). default to 4 None (new line)
         """
-
         # change the title accodring to the presence of data
         self.title.children = [self.TITLES[not any(data)]]
 
@@ -325,9 +318,8 @@ class EditDialog(v.Dialog):
 
         return self
 
-    def _modify(self, widget, event, data):
-        """Modify elements in the data_table and close the dialog"""
-
+    def _modify(self, *args) -> None:
+        """Modify elements in the data_table and close the dialog."""
         # modify a local copy of the items
         # modifying does not trigger the display so a dummy element is also added
         # just to be removed afterward
@@ -359,9 +351,8 @@ class EditDialog(v.Dialog):
 
         return
 
-    def _save(self, widget, event, data):
-        """Add elements to the table and close the dialog"""
-
+    def _save(self, *args) -> None:
+        """Add elements to the table and close the dialog."""
         # modify a local copy of the items
         current_items = self.table.items.copy()
 
@@ -381,36 +372,26 @@ class EditDialog(v.Dialog):
 
         return
 
-    def _cancel(self, widget, event, data):
-        """Close dialog and do nothing"""
-
+    def _cancel(self, *args) -> None:
+        """Close dialog and do nothing."""
         self.v_model = False
 
         return
 
 
 class SaveDialog(v.Dialog):
-    """
-    Dialog to save as .csv file the content of a ClassTable data table
 
-    Args:
-        table (ClassTable): Table linked with dialog
-        out_path (str): Folder path to store table content
+    reload = Int(0).tag(sync=True)
+    "a traitlet to inform the rest of the app that saving is complete"
 
-    Attributes:
-        reload (Int): a traitlet to inform the rest of the app that saving is complete
-        table (ClassTable): Table linked with dialog
-        out_path (str): Folder path to store table content
-        w_file_name (v.TextField): the filename to use in out_path
-        save (sw.Btn): save btn to launch the saving of the table data in the out_path using the filename provided in the widget
-        cancel (sw.Btn): btn to close the dialog and do nothing
-        alert (sw.Alert): an alert to display evolution of the saving process (errors)
-    """
+    def __init__(self, table: ClassTable, out_path: Union[str, Path], **kwargs) -> None:
+        """
+        Dialog to save as .csv file the content of a ClassTable data table.
 
-    reload = Int().tag(sync=True)
-
-    def __init__(self, table, out_path, **kwargs):
-
+        Args:
+            table: Table linked with dialog
+            out_path: Folder path to store table content
+        """
         # gather the table and saving params
         self.table = table
         self.out_path = out_path
@@ -428,7 +409,7 @@ class SaveDialog(v.Dialog):
             v_model=ms.rec.table.save_dialog.placeholder,
         )
 
-        self.save = sw.Btn(ms.rec.table.save_dialog.btn.save.name)
+        self.save = sw.Btn(msg=ms.rec.table.save_dialog.btn.save.name)
         save = sw.Tooltip(
             self.save,
             ms.rec.table.save_dialog.btn.save.tooltip,
@@ -437,7 +418,7 @@ class SaveDialog(v.Dialog):
         )
 
         self.cancel = sw.Btn(
-            ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
+            msg=ms.rec.table.save_dialog.btn.cancel.name, outlined=True, class_="ml-2"
         )
         cancel = sw.Tooltip(
             self.cancel, ms.rec.table.save_dialog.btn.cancel.tooltip, bottom=True
@@ -465,9 +446,8 @@ class SaveDialog(v.Dialog):
         self.w_file_name.on_event("blur", self._normalize_name)
         self.w_file_name.observe(self._store_info, "v_model")
 
-    def _store_info(self, change):
-        """Display where will be the file written"""
-
+    def _store_info(self, change: dict) -> None:
+        """Display where will be the file written."""
         new_val = change["new"]
         out_file = self.out_path / f"{su.normalize_str(new_val)}.csv"
 
@@ -478,14 +458,12 @@ class SaveDialog(v.Dialog):
 
         self.alert.add_msg(msg)
 
-    def show(self):
-        """
-        display the dialog and write down the text in the alert
+        return
 
-        Return:
-            self
+    def show(self) -> Self:
         """
-
+        display the dialog and write down the text in the alert.
+        """
         self.v_model = True
         self.w_file_name.v_model = ""
 
@@ -494,17 +472,15 @@ class SaveDialog(v.Dialog):
 
         return self
 
-    def _normalize_name(self, widget, event, data):
-        """Replace the name with it's normalized version"""
-
+    def _normalize_name(self, widget: v.VuetifyWidget, *args) -> None:
+        """Replace the name with it's normalized version."""
         # normalized the name
         widget.v_model = su.normalize_str(widget.v_model)
 
         return
 
-    def _save(self, widget, event, data):
-        """Write current table on a text file"""
-
+    def _save(self, *args) -> None:
+        """Write current table on a text file."""
         # set the file name
         out_file = self.out_path / su.normalize_str(self.w_file_name.v_model)
 
@@ -521,48 +497,51 @@ class SaveDialog(v.Dialog):
 
         return
 
-    def _cancel(self, widget, event, data):
-        """hide the widget and do nothing"""
-
+    def _cancel(self, *args) -> None:
+        """hide the widget and do nothing."""
         self.v_model = False
 
         return
 
 
 class TableView(sw.Card):
-    """
-    Stand-alone Card object allowing the user to build custom class table. The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile"
 
-    Args:
-        class_path (str|optional): Folder path containing already existing classes. Default to ~/
-        out_path (str|optional): the folder to save the created classifications. default to ~/downloads
-    """
-
-    title = None
+    title: Optional[v.CardTitle] = None
     "v.CardTitle: the title of the card"
 
-    class_path = None
+    class_path: str = ""
     "str: Folder path containing already existing classes"
 
-    out_path = None
+    out_path: str = ""
     "str: the folder to save the created classifications"
 
-    w_class_file = None
+    w_class_file: Optional[sw.FileInput] = None
     "sw.FileInput: the file input of the existing classification system"
 
-    w_class_table = None
+    w_class_table: Optional[ClassTable] = None
     "ClassTable: the classtable (CRUD) to manage the editing of the classification"
 
-    btn = None
+    btn: Optional[sw.Btn] = None
     "sw.Btn: the btn to start loading file data into the table"
 
-    alert = None
+    alert: Optional[sw.Alert] = None
     "sw.Alert: the alert to display loading information (error and success)"
 
     def __init__(
-        self, class_path=Path.home(), out_path=Path.home() / "downloads", **kwargs
+        self,
+        class_path: Union[str, Path] = Path.home(),
+        out_path: Union[str, Path] = Path.home() / "downloads",
+        **kwargs,
     ):
+        r"""
+        Stand-alone Card object allowing the user to build custom class table.
 
+        The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile".
+
+        Args:
+            class_path: Folder path containing already existing classes. Default to ~/
+            out_path: the folder to save the created classifications. default to ~/downloads
+        """
         # create metadata to make it compatible with the framwork app system
         self._metadata = {"mount_id": "reclassify_tile"}
 
@@ -591,8 +570,8 @@ class TableView(sw.Card):
             folder=self.class_path,
         )
         self.btn = sw.Btn(
-            ms.rec.table.classif.btn,
-            icon="far fa-table",
+            msg=ms.rec.table.classif.btn,
+            gliph="far fa-table",
             color="success",
             outlined=True,
         )
@@ -625,30 +604,23 @@ class TableView(sw.Card):
         # Events
         self.btn.on_event("click", self.get_class_table)
 
-    @su.loading_button(debug=True)
-    def get_class_table(self, widget, event, data):
+    @sd.loading_button(debug=True)
+    def get_class_table(self, *args) -> Self:
         """
-        Display class table widget in view
-
-        Return:
-            self
+        Display class table widget in view.
         """
-
         # load the existing file into the table
         self.w_class_table.populate_table(self.w_class_file.v_model)
 
         return self
 
-    def nest_tile(self):
+    def nest_tile(self) -> Self:
         """
         Prepare the view to be used as a nested component in a tile.
-        the elevation will be set to 0 and the title remove from children.
-        The mount_id will also be changed to nested
 
-        Return:
-            self
+        The elevation will be set to 0 and the title remove from children.
+        The mount_id will also be changed to nested.
         """
-
         # remove id
         self._metadata["mount_id"] = "nested_tile"
 

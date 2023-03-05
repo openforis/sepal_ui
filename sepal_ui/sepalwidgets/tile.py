@@ -1,6 +1,22 @@
+"""
+Custom Card widget to create Tiles in application.
+
+Gather the customized ``ipyvuetifyWidgets`` used to create Tiles in the application panel framework.
+All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+
+Example:
+    .. jupyter-execute::
+    
+        from sepal_ui import sepalwidgets as sw
+        
+        sw.TileDisclaimer()
+"""
+
 from pathlib import Path
+from typing import List, Optional, Union
 
 import ipyvuetify as v
+from typing_extensions import Self
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
@@ -11,38 +27,43 @@ __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
 
 
 class Tile(v.Layout, SepalWidget):
-    """
-    Custom Layout widget for the sepal UI framework.
-    It an helper to build a consistent tiling system.
-    Tile objects are indeed compatible with the other classes from sepal_ui.
 
-    Args:
-        id_ (str): the tile id that will be written in its mount_id _metadata attribute
-        title (str): the title of the Tile
-        inputs ([list]): the list of widget to display inside the tile
-        btn (v.Btn): the process btn
-        alert (sw.Alert): the alert to display process informations to the end user
-        kwargs (optional): any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
-    """
+    btn: Optional[v.Btn] = None
+    "the process btn"
 
-    btn = None
-    "v.btn: the process btn"
+    alert: Optional[v.Alert] = None
+    "the alert to display process informations to the end user"
 
-    alert = None
-    "sw.Alert: the alert to display process informations to the end user"
+    title: Optional[v.Html] = None
+    "the title of the Tile"
 
-    title = None
-    "v.Html: the title of the Tile"
+    def __init__(
+        self,
+        id_: str,
+        title: str,
+        inputs: list = [""],
+        btn: Union[v.Btn, None] = None,
+        alert: Union[v.Alert, None] = None,
+        **kwargs,
+    ) -> None:
+        """
+        Custom Layout widget for the sepal UI framework.
 
-    def __init__(self, id_, title, inputs=[""], btn=None, alert=None, **kwargs):
+        It is an helper to build a consistent tiling system. Tile objects are indeed compatible with the other classes from sepal_ui.
 
+        Args:
+            id_: the tile id that will be written in its mount_id _metadata attribute
+            title: the title of the Tile
+            inputs: the list of widget to display inside the tile
+            btn: the process btn
+            alert: the alert to display process informations to the end user
+            kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
+        """
         self.btn = btn
-        if btn:
-            inputs.append(btn)
+        inputs += [btn] if btn else []
 
         self.alert = alert
-        if alert:
-            inputs.append(alert)
+        inputs += [alert] if alert else []
 
         self.title = v.Html(xs12=True, tag="h2", children=[title])
 
@@ -54,24 +75,21 @@ class Tile(v.Layout, SepalWidget):
 
         # set some default parameters
         kwargs["_metadata"] = {"mount_id": id_}
-        kwargs["row"] = kwargs.pop("row", True)
-        kwargs["align_center"] = kwargs.pop("align_center", True)
-        kwargs["class_"] = kwargs.pop("class_", "ma-5 d-inline")
+        kwargs.setdefault("row", True)
+        kwargs.setdefault("align_center", True)
+        kwargs.setdefault("class_", "ma-5 d-inline")
         kwargs["children"] = [card]
 
         # call the constructor
         super().__init__(**kwargs)
 
-    def nest(self):
+    def nest(self) -> Self:
         """
         Prepare the tile to be used as a nested component in a tile.
+
         the elevation will be set to 0 and the title remove from children.
-        The mount_id will also be changed to nested
-
-        Return:
-            self
+        The mount_id will also be changed to nested.
         """
-
         # remove id
         self._metadata["mount_id"] = "nested_tile"
 
@@ -83,17 +101,15 @@ class Tile(v.Layout, SepalWidget):
 
         return self
 
-    def set_content(self, inputs):
+    def set_content(self, inputs: list) -> Self:
         """
-        Replace the current content of the tile with the provided inputs. it will keep the output and btn widget if existing.
+        Replace the current content of the tile with the provided inputs.
+
+        It will keep the output and btn widget if existing.
 
         Args:
-            inputs ([list]): the list of widget to display inside the tile
-
-        Return:
-            self
+            the list of widget to display inside the tile
         """
-
         # create the widgets
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
 
@@ -111,20 +127,17 @@ class Tile(v.Layout, SepalWidget):
 
         return self
 
-    def set_title(self, title=None):
+    def set_title(self, title: str = "") -> Self:
         """
         Replace the current title and activate it.
-        If no title is provided, the title is removed from the tile content
+
+        If no title is provided, the title is removed from the tile content.
 
         Args:
-            title (str, optional): the new title of the object
-
-        Return:
-            self
+            title: the new title of the object
         """
-
         # set the title text
-        self.title.children = [str(title)]
+        self.title.children = [title]
 
         # add the title if it's deactivated
         if title and self.title not in self.children[0].children:
@@ -132,34 +145,32 @@ class Tile(v.Layout, SepalWidget):
 
         # remove it if it's deactivated
         elif self.title in self.children[0].children and not title:
-            self.children[0].children = self.children[0].children.copy()[
-                1:
-            ]  # it's the first one
+            # it's the first one
+            self.children[0].children = self.children[0].children.copy()[1:]
 
         return self
 
-    def get_title(self):
+    def get_title(self) -> str:
         """
-        Return the current title of the tile
+        Return the current title of the tile.
 
-        Return:
-            (str): the title
+        Returns:
+            the title
         """
-
         return self.title.children[0]
 
-    def toggle_inputs(self, fields_2_show, fields):
+    def toggle_inputs(
+        self, fields_2_show: List[v.VuetifyWidget], fields: List[v.VuetifyWidget]
+    ) -> Self:
         """
-        Display only the widgets that are part of the input_list. the widget_list is the list of all the widgets of the tile.
+        Display only the widgets that are part of the input_list.
+
+        The widget_list is the list of all the widgets of the tile.
 
         Args:
-            fields_2_show ([v.widget]) : the list of input to be display
-            fields ([v.widget]) : the list of the tile widget
-
-        Return:
-            self
+            fields_2_show: the list of input to be display
+            fields: the list of the tile widget
         """
-
         for field in fields:
             if field in fields_2_show:
                 su.show_component(field)
@@ -168,48 +179,37 @@ class Tile(v.Layout, SepalWidget):
 
         return self
 
-    def get_id(self):
+    def get_id(self) -> str:
         """
-        Return the mount_id value
+        Get the mount_id value.
 
-        Return:
-            (str): the moun_id value from _metadata dict
+        Returns:
+            the moun_id value from _metadata dict
         """
-
         return self._metadata["mount_id"]
 
 
 class TileAbout(Tile):
-    """
-    Create an about tile using a .md file.
-    This tile will have the "about_widget" id and "About" title.
+    def __init__(self, pathname: Union[str, Path], **kwargs) -> None:
+        """
+        Create an about tile using a .md file.
 
-    Args:
-        pathname (str | pathlib.Path): the path to the .md file
-    """
+        This tile will have the "about_widget" id and "About" title.
 
-    def __init__(self, pathname, **kwargs):
-
-        if type(pathname) == str:
-            pathname = Path(pathname)
-
-        # read the content and transform it into a html
-        with pathname.open() as f:
-            about = f.read()
-
-        content = Markdown(about)
-
+        Args:
+            pathname: the path to the .md file
+        """
+        content = Markdown(Path(pathname).read_text())
         super().__init__("about_tile", "About", inputs=[content])
 
 
 class TileDisclaimer(Tile):
-    """
-    Create a about tile.
-    This tile will have the "about_widget" id and "Disclaimer" title.
-    """
+    def __init__(self) -> None:
+        """
+        Create an about tile.
 
-    def __init__(self):
-
+        This tile will have the "about_widget" id and "Disclaimer" title.
+        """
         # create the tile content on the fly
         disclaimer = "  \n".join(ms.disclaimer.p)
         disclaimer += "  \n"

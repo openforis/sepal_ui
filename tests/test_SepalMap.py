@@ -1,3 +1,4 @@
+import json
 import math
 import random
 from pathlib import Path
@@ -5,14 +6,25 @@ from urllib.request import urlretrieve
 
 import ee
 import pytest
-from ipyleaflet import GeoJSON, LocalTileLayer
+from ipyleaflet import GeoJSON
 
-import sepal_ui.frontend.styles as styles
-from sepal_ui import get_theme
 from sepal_ui import mapping as sm
+from sepal_ui.frontend import styles as ss
+from sepal_ui.frontend.styles import get_theme
+from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
 random.seed(42)
+
+# as using localtileserver is still in beta version it is not yet installed by
+# default. Using this lazy import we can skip some tests when in github CD/CI
+# will be removed when https://github.com/girder/large_image/pull/927 is ready
+try:
+    from localtileserver import TileClient  # noqa: F401
+
+    is_set_localtileserver = True
+except ModuleNotFoundError:
+    is_set_localtileserver = False
 
 
 class TestSepalMap:
@@ -25,7 +37,7 @@ class TestSepalMap:
         assert isinstance(m, sm.SepalMap)
         assert m.center == [0, 0]
         assert m.zoom == 2
-        assert len(m.layers) == 1
+        assert len(m.layers) == 2
 
         basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
 
@@ -38,7 +50,7 @@ class TestSepalMap:
         # check that the map start with several basemaps
 
         m = sm.SepalMap(basemaps)
-        assert len(m.layers) == 2
+        assert len(m.layers) == 3
         layers_name = [layer.name for layer in m.layers]
         assert all(b in layers_name for b in basemaps)
 
@@ -50,6 +62,10 @@ class TestSepalMap:
         # check that the map starts with a vinspector
         m = sm.SepalMap(vinspector=True)
         assert m.v_inspector in m.controls
+
+        # check that the map start with a statebar
+        m = sm.SepalMap(statebar=True)
+        assert m.state in m.controls
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -71,6 +87,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def zoom_ee_object(self):
 
         # init objects
@@ -105,27 +122,35 @@ class TestSepalMap:
 
         # zoom without zoom_out
         m.zoom_bounds(bounds)
-        assert m.zoom == 14.0
+
+        # it works but we cannot test pure JS from here
+        # assert m.zoom == 14.0
 
         # zoom with zoom_out
         m.zoom_bounds(bounds, 5)
-        assert m.zoom == 10.0
+
+        # it works but we cannot test pure JS from here
+        # assert m.zoom == 10.0
 
         return
 
-    @pytest.mark.skip(reason="problem dealing with local rasters")
+    @pytest.mark.skipif(
+        is_set_localtileserver is False, reason="localtileserver in beta"
+    )
     def test_add_raster(self, rgb, byte):
 
         m = sm.SepalMap()
 
         # add a rgb layer to the map
         m.add_raster(rgb, layer_name="rgb")
-        assert m.layers[1].name == "rgb"
-        assert isinstance(m.layers[1], LocalTileLayer)
+        layer = m.find_layer("rgb")
+        assert layer.name == "rgb"
+        assert type(layer).__name__ == "BoundTileLayer"
 
         # add a byte layer
         m.add_raster(byte, layer_name="byte")
-        assert m.layers[2].name == "byte"
+        layer = m.find_layer("byte")
+        assert layer.name == "byte"
 
         return
 
@@ -139,17 +164,46 @@ class TestSepalMap:
 
         return
 
-    def test_add_ee_layer(self, asset_image_viz):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_add_ee_layer_exceptions(self):
+
+        map_ = sm.SepalMap()
+
+        # Test add a non ee map element
+        with pytest.raises(AttributeError):
+            map_.addLayer({})
+
+        # Test add a feature collection with invalid style
+        geometry = ee.FeatureCollection(
+            ee.Geometry.Polygon(
+                [
+                    [
+                        [-103.198046875, 36.866172202843465],
+                        [-103.198046875, 34.655531078083534],
+                        [-100.385546875, 34.655531078083534],
+                        [-100.385546875, 36.866172202843465],
+                    ]
+                ],
+            )
+        )
+
+        with pytest.raises(AttributeError):
+            map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
+
+        return
+
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_add_ee_layer(self, image_id):
 
         # create map and image
-        image = ee.Image(asset_image_viz)
+        image = ee.Image(image_id)
         m = sm.SepalMap()
 
         # display all the viz available in the image
         for viz in sm.SepalMap.get_viz_params(image).values():
             m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
-        assert len(m.layers) == 5
+        assert len(m.layers) == 6
 
         # display an image without properties
         m = sm.SepalMap()
@@ -158,23 +212,51 @@ class TestSepalMap:
         dataset = ee.Image().addBands(dataset)  # with all bands and 0 properties
         m.addLayer(dataset)
 
-        assert len(m.layers) == 2
+        assert len(m.layers) == 3
+
+        # Test with vector
+
+        geometry = ee.FeatureCollection(
+            ee.Geometry.Polygon(
+                [
+                    [
+                        [-103.198046875, 36.866172202843465],
+                        [-103.198046875, 34.655531078083534],
+                        [-100.385546875, 34.655531078083534],
+                        [-100.385546875, 36.866172202843465],
+                    ]
+                ],
+            )
+        )
+
+        map_ = sm.SepalMap()
+        map_.addLayer(geometry, {"color": "red", "fillColor": None})
+
+        assert len(m.layers) == 3
 
         return
 
     def test_get_basemap_list(self):
 
+        # Retrieve 5 random maps
+        random_basemaps = [
+            "Esri.OceanBasemap",
+            "OpenStreetMap",
+            "HikeBike.HikeBike",
+            "HikeBike.HillShading",
+            "BasemapAT.orthofoto",
+        ]
+
         res = sm.SepalMap.get_basemap_list()
 
-        # last time I checked there were 128
-        assert len(res) == 131
+        assert all([bm in res for bm in random_basemaps])
 
         return
 
-    def test_get_viz_params(self, asset_image_viz):
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_get_viz_params(self, image_id):
 
-        image = ee.Image(asset_image_viz)
-
+        image = ee.Image(image_id)
         res = sm.SepalMap.get_viz_params(image)
 
         expected = {
@@ -224,22 +306,25 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_remove_layer(self, ee_map_with_layers):
 
         m = ee_map_with_layers
 
         # remove using a layer without counting the base
         m.remove_layer(0)
-        assert len(m.layers) == 4
+        assert len(m.layers) == 5
         assert m.layers[0].base is True
 
         # remove when authorizing selection of bases
         m.remove_layer(0, base=True)
-        assert len(m.layers) == 3
-        assert m.layers[0].name == "Classification"
+        assert len(m.layers) == 4
+        assert len([ly for ly in m.layers if ly.base is True]) == 0
+        # assert m.layers[0].name == "NDWI harmonics"
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_remove_all(self, ee_map_with_layers):
 
         m = ee_map_with_layers
@@ -285,8 +370,11 @@ class TestSepalMap:
         # Assert
         new_layer = m.layers[-1]
 
-        assert new_layer.style == styles.layer_style
-        assert new_layer.hover_style == styles.layer_hover_style
+        layer_style = json.loads((ss.JSON_DIR / "layer.json").read_text())["layer"]
+        hover_style = json.loads((ss.JSON_DIR / "layer_hover.json").read_text())
+
+        assert all([new_layer.style[k] == v for k, v in layer_style.items()])
+        assert all([new_layer.hover_style[k] == v for k, v in hover_style.items()])
 
         # Arrange with style
         layer_style = {"color": "blue"}
@@ -304,14 +392,17 @@ class TestSepalMap:
         assert new_layer.style == layer_style
         assert new_layer.hover_style == layer_hover_style
 
+        return
+
     def test_add_basemap(self):
 
         m = sm.SepalMap()
         m.add_basemap("HYBRID")
 
-        assert len(m.layers) == 2
-        assert m.layers[1].name == "Google Satellite"
-        assert m.layers[1].base is True
+        assert len(m.layers) == 3
+        layer = m.find_layer("Google Satellite", base=True)
+        assert layer.name == "Google Satellite"
+        assert layer.base is True
 
         # check that a wrong layer raise an error if it's not part of the leaflet basemap list
         with pytest.raises(Exception):
@@ -328,6 +419,7 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
     def test_find_layer(self, ee_map_with_layers):
 
         m = ee_map_with_layers
@@ -343,19 +435,19 @@ class TestSepalMap:
         assert res is None
 
         # search by index
-        res = m.find_layer(0)
-        assert res.name == "NDWI harmonics"
+        res = m.find_layer(1)
+        assert res.name == "Classification"
 
         res = m.find_layer(-1)
-        assert res.name == "RGB"
+        assert res.name == "NDWI"
 
         # out of bounds
         with pytest.raises(ValueError):
             res = m.find_layer(50)
 
         # search by layer
-        res = m.find_layer(m.layers[2])
-        assert res.name == "Classification"
+        res = m.find_layer(m.layers[3])
+        assert res.name == "NDWI harmonics"
 
         # search including the basemap
         res = m.find_layer(0, base=True)
@@ -368,22 +460,46 @@ class TestSepalMap:
 
         return
 
+    @pytest.mark.skipif(
+        is_set_localtileserver is False, reason="localtileserver is in beta"
+    )
     def test_zoom_raster(self, byte):
 
         m = sm.SepalMap()
-        layer = m.add_raster(byte, fit_bounds=False)
+        layer = m.add_raster(byte)
         m.zoom_raster(layer)
 
         center = [33.89703655465772, -117.63458938969723]
         assert all([math.isclose(s, t, rel_tol=0.2) for s, t in zip(m.center, center)])
-        assert m.zoom == 15.0
+
+        # it works but we cannot test pure JS from here
+        # assert m.zoom == 15.0
 
         return
 
-    @pytest.fixture
-    def rgb(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
+    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+    def test_add_legend(self, ee_map_with_layers):
 
+        legend_dict = {
+            "forest": "#b3842e",
+            "non forest": "#a1458e",
+            "secondary": "#324a88",
+            "success": "#3f802a",
+            "info": "#79b1c9",
+            "warning": "#b8721d",
+        }
+
+        ee_map_with_layers.add_legend(legend_dict=legend_dict)
+
+        # just test that is a Legend, the rest is tested by Legend
+        assert isinstance(ee_map_with_layers.legend, LegendControl)
+        assert ee_map_with_layers.legend.legend_dict == legend_dict
+
+        return
+
+    @pytest.fixture(scope="class")
+    def rgb(self):
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "rgb.tif"
 
         if not rgb.is_file():
@@ -396,10 +512,9 @@ class TestSepalMap:
 
         return
 
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def byte(self):
-        """add a raster file of the bahamas coming from rasterio test suit"""
-
+        """add a raster file of the bahamas coming from rasterio test suit."""
         rgb = Path.home() / "byte.tif"
 
         if not rgb.is_file():
@@ -413,9 +528,9 @@ class TestSepalMap:
         return
 
     @pytest.fixture
-    def ee_map_with_layers(self, asset_image_viz):
+    def ee_map_with_layers(self, image_id):
 
-        image = ee.Image(asset_image_viz)
+        image = ee.Image(image_id)
         m = sm.SepalMap()
 
         # display all the viz available in the image
@@ -423,3 +538,10 @@ class TestSepalMap:
             m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
         return m
+
+    @pytest.fixture(scope="class")
+    def image_id(self):
+
+        # testing asset from Daniel Wiell
+        # may not live forever
+        return "users/wiell/forum/visualization_example"

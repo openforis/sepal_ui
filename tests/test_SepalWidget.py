@@ -84,41 +84,67 @@ class TestSepalWidget:
         assert test_card.children[: len(new_els)] == new_els
 
     def test_set_children_error(self):
-        """Test when set_children methods throws an error"""
-
+        """Test when set_children methods throws an error."""
         with pytest.raises(ValueError):
             sw.Card().set_children("asdf", "middle")
 
     def test_get_children(self):
 
-        # Arrange with multiple childrens with same id
-        test_card = sw.Card()
-        match_card = sw.Card(attributes={"id": "asdf"})
-
-        test_card.set_children([match_card] * 2, position="first")
-
-        expected_output = [match_card] * 2
-
-        assert isinstance(test_card.get_children(id_="asdf"), list)
-        assert test_card.get_children(id_="asdf") == expected_output
-
-        # Arrange without any match
         test_card = sw.Card()
 
-        # The result will be an empty list
-        assert not test_card.get_children(id_="asdf")
+        # fill with card with multiple attributes and widgets
+        alerts = [sw.Alert(attributes={"id": i}) for i in range(5)]
+        cards = [sw.Card(attributes={"id": i}, children=alerts) for i in range(5)]
+        btns = [sw.Btn(attributes={"id": i}) for i in range(5)]
+        test_card.children = cards + btns
 
-        # Arrange with a nested element
-        test_card = sw.Card()
-        test_card.set_children(sw.Card(children=[match_card]))
+        # search for specific class
+        res = test_card.get_children(klass=sw.Card)
+        assert len(res) == 5
+        assert all(isinstance(w, sw.Card) for w in res)
 
-        assert test_card.get_children(id_="asdf") == match_card
+        # no match search class
+        res = test_card.get_children(klass=sw.Badge)
+        assert len(res) == 0
 
-        # Be sure we are only getting the element (not list) when there's only one match
-        assert type(test_card.get_children(id_="asdf")) == type(match_card)
+        # search for specific attributes in any class
+        res = test_card.get_children(attr="id", value=3)
+        assert len(res) == 7
+        assert isinstance(res[0], sw.Alert)
+        assert isinstance(res[1], sw.Alert)
+        assert isinstance(res[2], sw.Alert)
+        assert isinstance(res[3], sw.Card)
+        assert isinstance(res[4], sw.Alert)
+        assert isinstance(res[5], sw.Alert)
+        assert isinstance(res[6], sw.Btn)
+
+        # missing value (all children will match including icons)
+        res = test_card.get_children(attr="id")
+        assert len(res) == 40
+
+        # missing attr (all children will match including icons)
+        res = test_card.get_children(value=5)
+        assert len(res) == 40
+
+        # no match search attr
+        res = test_card.get_children(attr="toto", value="toto")
+        assert len(res) == 0
+
+        # mixed search
+        res = test_card.get_children(klass=sw.Alert, attr="id", value=4)
+        assert len(res) == 5
+        assert isinstance(res[0], sw.Alert)
+        assert res[0].attributes.get("id") == 4
+
+        # check for old implementation
+        res = test_card.get_children(id_=3)
+        eq = test_card.get_children(attr="id", value=3)
+        assert len(res) == len(eq)
+        assert all(r == e for r, e in zip(res, eq))
+
+        return
 
     @pytest.fixture
     def widget(self):
-        """return a sepalwidget"""
-
+        """return a sepalwidget."""
         return sw.SepalWidget()
