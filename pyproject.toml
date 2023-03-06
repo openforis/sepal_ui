@@ -69,6 +69,7 @@ dev = [
     "toml",
     "jupyter",
     "voila",
+    "mypy",
 ]
 test = [
     "pytest",
