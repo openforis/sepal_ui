@@ -66,6 +66,9 @@ dev = [
     "pre-commit>=2.18.0",
     "commitizen",
     "nox",
+    "toml",
+    "jupyter",
+    "voila",
 ]
 test = [
     "pytest",
