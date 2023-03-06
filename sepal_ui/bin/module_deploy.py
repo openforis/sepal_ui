@@ -198,8 +198,8 @@ def main() -> None:
     toml = Path.cwd() / "pyproject.toml"
     try:
         toml.load("pyproject.toml")["sepal-ui"]["init-notebook"]
-    except Exception as e:
-        raise Exception(f"{Fore.RED}This is not a module folder ({e})")
+    except FileNotFoundError as e:
+        raise Exception(f"{Fore.RED}This module folder has no pyproject.toml ({e})")
 
     # add the requirements to the requirements.txt file
     req_file = Path.cwd() / "requirements.txt"
