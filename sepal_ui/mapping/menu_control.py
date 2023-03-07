@@ -174,9 +174,7 @@ class MenuControl(WidgetControl):
         return
 
     def activate(self, *args) -> None:
-        """
-        Change the background color of the btn with respect to the status.
-        """
+        """Change the background color of the btn with respect to the status."""
         # grey is contrasted enought for both ligh and dark theme
         # could be customized further if requested
         bg_color = "gray" if self.menu.v_model is True else color.bg
