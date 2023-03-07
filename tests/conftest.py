@@ -1,3 +1,5 @@
+"""The configuration of the pytest run."""
+
 import uuid
 from itertools import product
 from pathlib import Path
@@ -22,16 +24,20 @@ except Exception:
 
 @pytest.fixture(scope="session")
 def root_dir() -> Path:
-    """
-    Path to the root dir of the librairy.
+    """Path to the root dir of the librairy.
+
+    Returns:
+        the root path
     """
     return Path(__file__).parents[1].absolute()
 
 
 @pytest.fixture(scope="session")
 def tmp_dir() -> Path:
-    """
-    Creates a temporary local directory to store data.
+    """Creates a temporary local directory to store data.
+
+    Returns:
+        path to to tmp created directory
     """
     tmp_dir = Path.home() / "tmp" / "sepal_ui_tests"
     tmp_dir.mkdir(exist_ok=True, parents=True)
@@ -41,17 +47,19 @@ def tmp_dir() -> Path:
 
 @pytest.fixture(scope="session")
 def _hash() -> str:
-    """
-    Create a hash for each test instance.
+    """Create a hash for each test instance.
+
+    Returns:
+        the hash string
     """
     return uuid.uuid4().hex
 
 
 @pytest.fixture(scope="session")
 def gee_dir(_hash: str) -> Optional[Path]:
-    """
-    Create a test dir based on earthengine initialization
-    populate it with fake super small assets:
+    """Create a test dir based on earthengine initialization.
+
+    Populated with fake super small assets:
 
     sepal-ui-<hash>/
     ├── subfolder/
@@ -60,6 +68,9 @@ def gee_dir(_hash: str) -> Optional[Path]:
     └── image
 
     remove everything on teardown
+
+    Returns:
+        the path to the gee dir inside user folder
     """
     if not ee.data._credentials:
         pytest.skip("Eathengine is not connected")
@@ -133,5 +144,9 @@ def gee_dir(_hash: str) -> Optional[Path]:
 
 @pytest.fixture
 def alert() -> sw.Alert:
-    """return a dummy alert that can be used everywhere to display informations."""
+    """A dummy alert that can be used everywhere to display informations.
+
+    Returns:
+        an alert object
+    """
     return sw.Alert()

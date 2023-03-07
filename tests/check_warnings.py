@@ -1,14 +1,14 @@
+"""Check the warnings from doc builds."""
+
 import sys
 from pathlib import Path
 
 
-def check_warnings(file):
-    """
-    Check the list of warnings produced by the GitHub CI tests
-    raise errors if there are unexpected ones and/or if some are missing.
+def check_warnings(file: Path) -> int:
+    """Check the list of warnings produced by the GitHub CI tests raises errors if there are unexpected ones and/or if some are missing.
 
     Args:
-        file (pathlib.Path): the path to the generated warning.txt file from
+        file: the path to the generated warning.txt file from
             the CI build
 
     Returns:
