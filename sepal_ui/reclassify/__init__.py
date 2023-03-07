@@ -1,5 +1,4 @@
-"""
-All modules used to create an Reclassification interface.
+"""All modules used to create an Reclassification interface.
 
 Package to access all the widget, model and tiles to create an Reclassifying interface. This is compatible with any type of geographic data (vector raster, ee ...).
 

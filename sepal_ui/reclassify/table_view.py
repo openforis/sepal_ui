@@ -1,6 +1,4 @@
-"""
-Custom widgets dedicated to the reclassification  table interface.
-"""
+"""Custom widgets dedicated to the reclassification  table interface."""
 
 from colorsys import rgb_to_hls, rgb_to_hsv
 from pathlib import Path
@@ -28,8 +26,7 @@ class ClassTable(sw.DataTable):
     def __init__(
         self, out_path: Union[str, Path] = Path.home() / "downloads", **kwargs
     ) -> None:
-        """
-        Custom data table to modify, display and save classification.
+        """Custom data table to modify, display and save classification.
 
         From this interface, a user can modify a classification starting from a scratch or by loading a classification file. the display datatable allow all the CRUD fonctionality (create, read, update, delete).
 
@@ -110,8 +107,9 @@ class ClassTable(sw.DataTable):
         self.save_btn.on_event("click", self._save_event)
 
     def populate_table(self, items_file: Union[Path, str] = "") -> Self:
-        """
-        Populate table. It will fill the table with the item contained in the items_file parameter. If no file is provided the table is reset.
+        """Populate table.
+
+        It will fill the table with the item contained in the items_file parameter. If no file is provided the table is reset.
 
         Args:
             items: file containing classes and description
@@ -188,8 +186,7 @@ class EditDialog(v.Dialog):
     TITLES = ms.rec.table.edit_dialog.titles
 
     def __init__(self, table: ClassTable, **kwargs) -> None:
-        """
-        Dialog to modify/create new elements from the ClassTable data_table.
+        """Dialog to modify/create new elements from the ClassTable data_table.
 
         Args:
             table: Table linked with dialog
@@ -256,8 +253,7 @@ class EditDialog(v.Dialog):
         self.cancel.on_event("click", self._cancel)
 
     def update(self, data: list = [None, None, None, None]) -> Self:
-        """
-        Upadte the dialog with the provided information and activate it.
+        """Upadte the dialog with the provided information and activate it.
 
         Args:
             data: the text value of the selected line (id, code, description, color). default to 4 None (new line)
@@ -385,8 +381,7 @@ class SaveDialog(v.Dialog):
     "a traitlet to inform the rest of the app that saving is complete"
 
     def __init__(self, table: ClassTable, out_path: Union[str, Path], **kwargs) -> None:
-        """
-        Dialog to save as .csv file the content of a ClassTable data table.
+        """Dialog to save as .csv file the content of a ClassTable data table.
 
         Args:
             table: Table linked with dialog
@@ -461,9 +456,7 @@ class SaveDialog(v.Dialog):
         return
 
     def show(self) -> Self:
-        """
-        display the dialog and write down the text in the alert.
-        """
+        """Display the dialog and write down the text in the alert."""
         self.v_model = True
         self.w_file_name.v_model = ""
 
@@ -498,7 +491,7 @@ class SaveDialog(v.Dialog):
         return
 
     def _cancel(self, *args) -> None:
-        """hide the widget and do nothing."""
+        """Hide the widget and do nothing."""
         self.v_model = False
 
         return
@@ -533,8 +526,7 @@ class TableView(sw.Card):
         out_path: Union[str, Path] = Path.home() / "downloads",
         **kwargs,
     ):
-        r"""
-        Stand-alone Card object allowing the user to build custom class table.
+        r"""Stand-alone Card object allowing the user to build custom class table.
 
         The user can start from an existing table or start from scratch. It gives the oportunity to change: the value, the class name and the color. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "classification_tile".
 
@@ -606,17 +598,14 @@ class TableView(sw.Card):
 
     @sd.loading_button(debug=True)
     def get_class_table(self, *args) -> Self:
-        """
-        Display class table widget in view.
-        """
+        """Display class table widget in view."""
         # load the existing file into the table
         self.w_class_table.populate_table(self.w_class_file.v_model)
 
         return self
 
     def nest_tile(self) -> Self:
-        """
-        Prepare the view to be used as a nested component in a tile.
+        """Prepare the view to be used as a nested component in a tile.
 
         The elevation will be set to 0 and the title remove from children.
         The mount_id will also be changed to nested.

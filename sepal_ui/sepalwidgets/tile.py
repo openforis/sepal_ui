@@ -1,14 +1,13 @@
-"""
-Custom Card widget to create Tiles in application.
+"""Custom Card widget to create Tiles in application.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create Tiles in the application panel framework.
 All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.TileDisclaimer()
 """
 
@@ -46,8 +45,7 @@ class Tile(v.Layout, SepalWidget):
         alert: Union[v.Alert, None] = None,
         **kwargs,
     ) -> None:
-        """
-        Custom Layout widget for the sepal UI framework.
+        """Custom Layout widget for the sepal UI framework.
 
         It is an helper to build a consistent tiling system. Tile objects are indeed compatible with the other classes from sepal_ui.
 
@@ -84,8 +82,7 @@ class Tile(v.Layout, SepalWidget):
         super().__init__(**kwargs)
 
     def nest(self) -> Self:
-        """
-        Prepare the tile to be used as a nested component in a tile.
+        """Prepare the tile to be used as a nested component in a tile.
 
         the elevation will be set to 0 and the title remove from children.
         The mount_id will also be changed to nested.
@@ -102,8 +99,7 @@ class Tile(v.Layout, SepalWidget):
         return self
 
     def set_content(self, inputs: list) -> Self:
-        """
-        Replace the current content of the tile with the provided inputs.
+        """Replace the current content of the tile with the provided inputs.
 
         It will keep the output and btn widget if existing.
 
@@ -128,8 +124,7 @@ class Tile(v.Layout, SepalWidget):
         return self
 
     def set_title(self, title: str = "") -> Self:
-        """
-        Replace the current title and activate it.
+        """Replace the current title and activate it.
 
         If no title is provided, the title is removed from the tile content.
 
@@ -151,8 +146,7 @@ class Tile(v.Layout, SepalWidget):
         return self
 
     def get_title(self) -> str:
-        """
-        Return the current title of the tile.
+        """Return the current title of the tile.
 
         Returns:
             the title
@@ -162,8 +156,7 @@ class Tile(v.Layout, SepalWidget):
     def toggle_inputs(
         self, fields_2_show: List[v.VuetifyWidget], fields: List[v.VuetifyWidget]
     ) -> Self:
-        """
-        Display only the widgets that are part of the input_list.
+        """Display only the widgets that are part of the input_list.
 
         The widget_list is the list of all the widgets of the tile.
 
@@ -180,8 +173,7 @@ class Tile(v.Layout, SepalWidget):
         return self
 
     def get_id(self) -> str:
-        """
-        Get the mount_id value.
+        """Get the mount_id value.
 
         Returns:
             the moun_id value from _metadata dict
@@ -191,8 +183,7 @@ class Tile(v.Layout, SepalWidget):
 
 class TileAbout(Tile):
     def __init__(self, pathname: Union[str, Path], **kwargs) -> None:
-        """
-        Create an about tile using a .md file.
+        """Create an about tile using a .md file.
 
         This tile will have the "about_widget" id and "About" title.
 
@@ -205,8 +196,7 @@ class TileAbout(Tile):
 
 class TileDisclaimer(Tile):
     def __init__(self) -> None:
-        """
-        Create an about tile.
+        """Create an about tile.
 
         This tile will have the "about_widget" id and "Disclaimer" title.
         """

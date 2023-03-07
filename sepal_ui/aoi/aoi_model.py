@@ -1,6 +1,4 @@
-"""
-Model object dedicated to AOI selection.
-"""
+"""Model object dedicated to AOI selection."""
 
 import json
 from pathlib import Path
@@ -150,8 +148,7 @@ class AoiModel(Model):
         admin: Optional[str] = None,
         folder: Union[str, Path] = "",
     ) -> None:
-        """
-        An Model object dedicated to the sorage and the manipulation of aoi.
+        """An Model object dedicated to the sorage and the manipulation of aoi.
 
         It is meant to be used with the AoiView object (embeded in the AoiTile).
         By using this you will be able to provide your application with aoi as an ee_object
@@ -186,8 +183,7 @@ class AoiModel(Model):
         admin: Optional[str] = None,
         asset: Optional[Union[str, Path]] = None,
     ) -> Self:
-        """
-        Set the default value of the object and create a gdf/feature_collection out of it.
+        """Set the default value of the object and create a gdf/feature_collection out of it.
 
         Args:
             vector: the default vector file that will be used to produce the gdf. need to be readable by fiona and/or GDAL/OGR
@@ -225,8 +221,7 @@ class AoiModel(Model):
         return self
 
     def set_object(self, method: str = "") -> Self:
-        """
-        set the object (gdf/featurecollection) based on the model inputs.
+        """Set the object (gdf/featurecollection) based on the model inputs.
 
         The method can be manually overwritten by setting the ``method`` parameter.
 
@@ -285,8 +280,7 @@ class AoiModel(Model):
         return self
 
     def _from_points(self, point_json: dict) -> Self:
-        """
-        Set the object output from a csv json.
+        """Set the object output from a csv json.
 
         Args:
             point_json: the geo_interface description of the points
@@ -325,8 +319,7 @@ class AoiModel(Model):
         return self
 
     def _from_vector(self, vector_json: dict) -> Self:
-        """
-        Set the object output from a vector json.
+        """Set the object output from a vector json.
 
         Args:
             vector_json: the dict describing the vector file, and column filter
@@ -362,8 +355,7 @@ class AoiModel(Model):
         return self
 
     def _from_geo_json(self, geo_json: dict) -> Self:
-        """
-        Set the gdf output from a geo_json.
+        """Set the gdf output from a geo_json.
 
         Args:
             geo_json: the __geo_interface__ dict of a geometry drawn on the map
@@ -399,8 +391,7 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin: str) -> Self:
-        """
-        Set the object according to given an administrative number in the GADM norm.
+        """Set the object according to given an administrative number in the GADM norm.
 
         Args:
             admin: the admin code corresponding to FAO GAUl (if gee) or GADM
@@ -455,9 +446,7 @@ class AoiModel(Model):
         return self
 
     def clear_output(self) -> Self:
-        """
-        Clear the output of the aoi selector without changing the traits and/or the parameters.
-        """
+        """Clear the output of the aoi selector without changing the traits and/or the parameters."""
         # reset the outputs
         self.gdf = None
         self.feature_collection = None
@@ -468,8 +457,7 @@ class AoiModel(Model):
         return self
 
     def clear_attributes(self) -> Self:
-        """
-        Return all attributes to their default state.
+        """Return all attributes to their default state.
 
         Note:
             Set the default setting as current object.
@@ -491,8 +479,7 @@ class AoiModel(Model):
         return self
 
     def get_columns(self) -> List[str]:
-        """
-        Retrieve the columns or variables from self excluding geometries and gee index.
+        """Retrieve the columns or variables from self excluding geometries and gee index.
 
         Returns:
             sorted list of column names
@@ -512,8 +499,7 @@ class AoiModel(Model):
         return sorted(list_)
 
     def get_fields(self, column: str) -> List[str]:
-        """
-        Retrieve the fields from a column.
+        """Retrieve the fields from a column.
 
         Args:
             A column name to query over the asset
@@ -536,8 +522,7 @@ class AoiModel(Model):
     def get_selected(
         self, column: str, field: str
     ) -> Union[ee.Feature, gpd.GeoDataFrame]:
-        """
-        Select an ee object based on selected column and field.
+        """Select an ee object based on selected column and field.
 
         Args:
             column: the selected column in the dataset
@@ -559,8 +544,7 @@ class AoiModel(Model):
         return selected_feature
 
     def total_bounds(self) -> Tuple[float, float, float, float]:
-        """
-        Reproduce the behaviour of the total_bounds method from geopandas.
+        """Reproduce the behaviour of the total_bounds method from geopandas.
 
         Returns:
             minxx, miny, maxx, maxy
@@ -571,9 +555,7 @@ class AoiModel(Model):
         return self.gdf.total_bounds.tolist()
 
     def export_to_asset(self) -> Self:
-        """
-        Export the feature_collection as an asset (only for ee model).
-        """
+        """Export the feature_collection as an asset (only for ee model)."""
         asset_name = self.ASSET_SUFFIX + self.name
         asset_id = str(Path(self.folder, asset_name))
 
@@ -600,8 +582,7 @@ class AoiModel(Model):
         return self
 
     def get_ipygeojson(self, style: Optional[dict] = None) -> GeoJSON:
-        """
-        Converts current geopandas object into ipyleaflet GeoJSON.
+        """Converts current geopandas object into ipyleaflet GeoJSON.
 
         Args:
             style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.

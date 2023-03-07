@@ -1,5 +1,4 @@
-"""
-Package to gather all the tiles created in the application.
+"""Package to gather all the tiles created in the application.
 
 If you only have few widgets, a module is not necessary and you can simply use a tile.py file
 In a big module with lot of custom tiles, it can make sense to split things in separate files for the sake of maintenance

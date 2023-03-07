@@ -1,10 +1,9 @@
-"""
-Initialization of the ``Translator`` used in the sepal-ui.
+"""Initialization of the ``Translator`` used in the sepal-ui.
 
-Can be accessed as: 
+Can be accessed as:
 
 .. code-block::
-    
+
     from sepal_ui.message import ms
 """
 

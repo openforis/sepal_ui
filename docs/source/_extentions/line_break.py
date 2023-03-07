@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Rest directive to create line breaks."""
 
 
 from docutils import nodes
@@ -6,8 +6,7 @@ from docutils.parsers.rst import Directive, directives
 
 
 class LineBreak(Directive):
-    """
-    ReST directive for creating line break in your documentation when needed.
+    """ReST directive for creating line break in your documentation when needed.
 
     The directive does note require any argument.
 

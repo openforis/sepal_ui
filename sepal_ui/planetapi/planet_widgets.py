@@ -1,6 +1,4 @@
-"""
-Widgets used to build the ``PLanetView`` interface.
-"""
+"""Widgets used to build the ``PLanetView`` interface."""
 
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -24,8 +22,7 @@ class InfoView(sw.ExpansionPanels):
     "Backend model to manipulate interface actions"
 
     def __init__(self, model: PlanetModel, **kwargs) -> None:
-        """
-        Card to validate subscription.
+        """Card to validate subscription.
 
         Custom optinal card to be displayed within the planet view to validate the available
         subscriptions from the log-in credentials and show the info related with them, such
@@ -73,8 +70,7 @@ class InfoView(sw.ExpansionPanels):
         self.model.observe(self._toggle_btns, "subscriptions")
 
     def open_info(self, widget: v.VuetifyWidget, *args) -> None:
-        """
-        Shrink or srhunk the content of the expansion panel.
+        """Shrink or srhunk the content of the expansion panel.
 
         It automatically sends a request to build the data.
 
@@ -92,8 +88,7 @@ class InfoView(sw.ExpansionPanels):
         return
 
     def _turn_btn(self, btn_id: str, state: bool) -> None:
-        """
-        Update the status of the given button.
+        """Update the status of the given button.
 
         Args:
             btn_id: the id of the btn object
@@ -106,9 +101,7 @@ class InfoView(sw.ExpansionPanels):
         return
 
     def _toggle_btns(self, change: dict) -> None:
-        """
-        Toggle the status of the btns.
-        """
+        """Toggle the status of the btns."""
         if not change["new"]:
             self.v_model = 1
             [self._turn_btn(btn_id, False) for btn_id in BTNS.keys()]
@@ -128,9 +121,7 @@ class InfoView(sw.ExpansionPanels):
 
 class InfoCard(sw.Layout):
     def __init__(self) -> None:
-        """
-        Information card that will display the subscription data.
-        """
+        """Information card that will display the subscription data."""
         self.style_ = "max-height: 240px; overflow: auto"
         self.class_ = "d-block"
 
@@ -139,8 +130,7 @@ class InfoCard(sw.Layout):
         self.children = [v.CardText(children=[])]
 
     def _make_content(self, sub: dict) -> List[v.VuetifyWidget]:
-        """
-        Creates individual subscription card from a subscription list.
+        """Creates individual subscription card from a subscription list.
 
         Args:
             sub: the subscriptions plan from a defined category (e.g. "nicfi")
@@ -199,8 +189,7 @@ class InfoCard(sw.Layout):
         ]
 
     def update(self, subs_group: List[dict]) -> Self:
-        """
-        Extract the info from the subscription and set it in the card.
+        """Extract the info from the subscription and set it in the card.
 
         Args:
             subs_group: list of subscriptions belonging to the same category ('nicfi', 'others')

@@ -1,14 +1,13 @@
-"""
-Custom widgets relative to user outputs.
+"""Custom widgets relative to user outputs.
 
 Gather the customized ``ipyvuetifyWidgets`` used to communicate with the end user.
 All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.Alert().show()
 """
 
@@ -39,8 +38,7 @@ class Divider(v.Divider, SepalWidget):
     "Added type\_ trait to specify the current color of the divider"
 
     def __init__(self, class_: str = "", **kwargs) -> None:
-        r"""
-        A custom Divider with the ability to dynamically change color.
+        r"""A custom Divider with the ability to dynamically change color.
 
         Whenever the type\_ trait is modified, the divider class will change accordingly.
 
@@ -53,8 +51,7 @@ class Divider(v.Divider, SepalWidget):
 
     @observe("type_")
     def add_class_type(self, change: dict) -> Self:
-        r"""
-        Change the color of the divider according to the type\_.
+        r"""Change the color of the divider according to the type\_.
 
         It is binded to the type\_ traitlet but can also be called manually.
 
@@ -76,8 +73,7 @@ class Alert(v.Alert, SepalWidget):
     "the output object where the progress bar is stored"
 
     def __init__(self, type_: str = "info", **kwargs) -> None:
-        r"""
-        A custom Alert widget.
+        r"""A custom Alert widget.
 
         It is used as the output of all processes in the framework.
         In the voila interfaces, print statement will not be displayed.
@@ -103,8 +99,7 @@ class Alert(v.Alert, SepalWidget):
     def update_progress(
         self, progress: float, msg: str = "Progress", **tqdm_args
     ) -> None:
-        """
-        Update the Alert message with a tqdm progress bar.
+        """Update the Alert message with a tqdm progress bar.
 
         .. note::
 
@@ -152,8 +147,7 @@ class Alert(v.Alert, SepalWidget):
         return
 
     def add_msg(self, msg: str, type_: str = "info") -> Self:
-        r"""
-        Add a message in the alert by replacing all the existing one.
+        r"""Add a message in the alert by replacing all the existing one.
 
         The color can also be changed dynamically.
 
@@ -168,8 +162,7 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     def add_live_msg(self, msg: str, type_: str = "info") -> Self:
-        r"""
-        Add a message in the alert by replacing all the existing one.
+        r"""Add a message in the alert by replacing all the existing one.
 
         Also add the timestamp of the display. The color can also be changed dynamically.
 
@@ -189,8 +182,7 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     def append_msg(self, msg: str, section: bool = False, type_: str = "info") -> Self:
-        r"""
-        Append a message in a new parragraph, with or without divider.
+        r"""Append a message in a new parragraph, with or without divider.
 
         Args:
             msg: the message to display
@@ -221,9 +213,7 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     def remove_last_msg(self) -> Self:
-        """
-        Remove the last msg printed in the Alert widget.
-        """
+        """Remove the last msg printed in the Alert widget."""
         if len(self.children) > 1:
             current_children = self.children[:]
             self.children = current_children[:-1]
@@ -233,9 +223,7 @@ class Alert(v.Alert, SepalWidget):
         return self
 
     def reset(self) -> Self:
-        """
-        Empty the messages and hide it.
-        """
+        """Empty the messages and hide it."""
         self.children = [""]
         self.hide()
 
@@ -243,8 +231,7 @@ class Alert(v.Alert, SepalWidget):
 
     @deprecated(version="3.0", reason="This method is now part of the utils module")
     def check_input(self, input_: Any, msg: str = "") -> bool:
-        r"""
-        Check if the inpupt value is initialized.
+        r"""Check if the inpupt value is initialized.
 
         If not return false and display an error message else return True.
 
@@ -272,8 +259,7 @@ class StateBar(v.SystemBar, SepalWidget):
     "The ProgressCircular widget that will be displayed in the statebar"
 
     def __init__(self, **kwargs) -> None:
-        """
-        Widget to display quick messages on simple inline status bar.
+        """Widget to display quick messages on simple inline status bar.
 
         Args:
             kwargs (optional): any parameter from a v.SystemBar. If set, 'children' will be overwritten.
@@ -310,8 +296,7 @@ class StateBar(v.SystemBar, SepalWidget):
         return
 
     def add_msg(self, msg: str, loading: bool = False) -> Self:
-        """
-        Change current status message.
+        """Change current status message.
 
         Args:
             msg: the message to display
@@ -336,8 +321,7 @@ class Banner(v.Snackbar, SepalWidget):
         persistent: bool = True,
         **kwargs,
     ) -> None:
-        r"""
-        Custom Snackbar widget to display messages as a banner in module App.
+        r"""Custom Snackbar widget to display messages as a banner in module App.
 
         Args:
             msg: Message to display in application banner. default to nothing
@@ -378,8 +362,7 @@ class Banner(v.Snackbar, SepalWidget):
         return
 
     def get_timeout(self, text: str) -> int:
-        """
-        Calculate timeout in miliseconds to read the message.
+        """Calculate timeout in miliseconds to read the message.
 
         Args:
             text: the text displayed in the banner to adapt the duration of the timeout
@@ -398,8 +381,7 @@ class Banner(v.Snackbar, SepalWidget):
         return int(delay + words_time + bonus)
 
     def set_btn(self, nb_banner: int) -> None:
-        """
-        Change the btn display to inform the user on the number of banners in the queue.
+        """Change the btn display to inform the user on the number of banners in the queue.
 
         Args:
             nb_banner: the number of banners in the queue

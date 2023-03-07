@@ -1,6 +1,4 @@
-"""
-Customized ``Layer`` object containing EE metadata.
-"""
+"""Customized ``Layer`` object containing EE metadata."""
 
 from typing import Optional
 
@@ -14,8 +12,7 @@ class EELayer(TileLayer):
     "ee.object: the ee.object displayed on the map"
 
     def __init__(self, ee_object: ee.ComputedObject, **kwargs) -> None:
-        """
-        Wrapper of the TileLayer class to add the ee object as a member.
+        """Wrapper of the TileLayer class to add the ee object as a member.
 
         useful to get back the values for specific points in a v_inspector.
 
