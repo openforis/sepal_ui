@@ -1,3 +1,5 @@
+"""Test the AoiView widget."""
+
 from pathlib import Path
 
 import ee
@@ -9,7 +11,7 @@ from sepal_ui.message import ms
 
 
 def test_init() -> None:
-    """Init a view without GEE"""
+    """Init a view without GEE."""
     # init without ee
     view = aoi.AoiView(gee=False)
     assert view.model.gee is False
@@ -56,7 +58,7 @@ def test_init() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init_ee(gee_dir: Path) -> None:
-    """Init a view with GEE
+    """Init a view with GEE.
 
     Args:
         gee_dir: the session gee directory where assets are saved
@@ -74,7 +76,7 @@ def test_init_ee(gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_admin_ee(gee_dir: Path) -> None:
-    """init an admin view with gee
+    """Init an admin view with gee.
 
     Args:
         gee_dir: the session gee directory where assets are saved
@@ -88,7 +90,7 @@ def test_admin_ee(gee_dir: Path) -> None:
 
 
 def test_admin() -> None:
-    """init a view on the first GADM country"""
+    """Init a view on the first GADM country."""
     # test if admin0 is in gadm
     view = aoi.AoiView(gee=False)
     first_gadm_item = {"text": "Afghanistan", "value": "AFG"}
@@ -98,12 +100,11 @@ def test_admin() -> None:
 
 
 def test_activate(aoi_gee_view: aoi.AoiView) -> None:
-    """Activate the different methods fields
+    """Activate the different methods fields.
 
     Args:
         aoi_gee_view: an object with gee binding
     """
-
     view = aoi_gee_view
 
     for method in aoi.AoiModel.METHODS:
@@ -134,12 +135,11 @@ def test_activate(aoi_gee_view: aoi.AoiView) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_update_gee_aoi(aoi_gee_view: aoi.AoiView) -> None:
-    """update a view on vatican with GEE
+    """Update a view on vatican with GEE.
 
     Args:
         aoi_gee_view: an object with gee binding
     """
-
     # select Vatican
     item = next(i for i in aoi_gee_view.w_admin_0.items if i["text"] == "Holy See")
     aoi_gee_view.w_method.v_model = "ADMIN0"
@@ -155,12 +155,11 @@ def test_update_gee_aoi(aoi_gee_view: aoi.AoiView) -> None:
 
 
 def test_update_local_aoi(aoi_local_view: aoi.AoiView) -> None:
-    """update an aoi on vatican city without gee
+    """Update an aoi on vatican city without gee.
 
     Args:
         aoi_local_view: an object without gee binding
     """
-
     # select Vatican
     item = next(
         i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City"
@@ -180,12 +179,11 @@ def test_update_local_aoi(aoi_local_view: aoi.AoiView) -> None:
 
 
 def test_reset(aoi_local_view: aoi.AoiView) -> None:
-    """Reset the AoiView
+    """Reset the AoiView.
 
     Args:
         aoi_local_view: an object without gee binding
     """
-
     # select Italy
     item = next(
         i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City"

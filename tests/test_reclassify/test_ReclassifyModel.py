@@ -1,4 +1,4 @@
-"""Test the ReclassifyModel widget"""
+"""Test the ReclassifyModel widget."""
 
 from copy import deepcopy
 from pathlib import Path
@@ -15,7 +15,7 @@ from sepal_ui.reclassify import ReclassifyModel
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_gee_init(model_gee):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     assert isinstance(model_gee, ReclassifyModel)
     assert model_gee.gee is True
 
@@ -23,7 +23,7 @@ def test_gee_init(model_gee):
 
 
 def test_local_init(model_local):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     assert isinstance(model_local, ReclassifyModel)
     assert model_local.gee is False
 
@@ -91,7 +91,7 @@ def test_get_type_local(model_local, model_local_vector, model_local_image):
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_bands_gee(model_gee_vector, model_gee_image):
-    """check if the bands are correctly retreived."""
+    """Check if the bands are correctly retreived."""
     # Arrange
     table_bands = ["data"]
     image_bands = ["constant"]
@@ -104,7 +104,7 @@ def test_get_bands_gee(model_gee_vector, model_gee_image):
 
 
 def test_get_bands_local(model_local_vector, model_local_image):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     table_bands = ["BoroCode", "BoroName", "Shape_Area", "Shape_Leng"]
     image_bands = [1]
 
@@ -116,7 +116,7 @@ def test_get_bands_local(model_local_vector, model_local_image):
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_aoi(model_gee):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # tested on model_gee instead of model_local a clipping is not yet
     # possible on local gdf and/or raster
 
@@ -138,7 +138,7 @@ def test_get_aoi(model_gee):
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_unique_gee_image(model_gee_image, aoi_model, no_name):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # read the band of the image
     model_gee_image.band = "constant"
 
@@ -159,7 +159,7 @@ def test_unique_gee_image(model_gee_image, aoi_model, no_name):
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_unique_gee_vector(model_gee_vector, aoi_model, no_name):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     model_gee_vector.band = "data"
 
     # Unique values when using an area of interest
@@ -179,7 +179,7 @@ def test_unique_gee_vector(model_gee_vector, aoi_model, no_name):
 
 
 def test_unique_local_image(model_local_image, no_name):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     image_unique = [1, 2, 3]
 
     model_local_image.band = 1
@@ -191,7 +191,7 @@ def test_unique_local_image(model_local_image, no_name):
 
 
 def test_unique_local_vector(model_local_vector, no_name):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     vector_unique = [1, 2, 3, 4, 5]
 
     model_local_vector.band = "BoroCode"
@@ -202,7 +202,7 @@ def test_unique_local_vector(model_local_vector, no_name):
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_reclassify_initial_exceptions(model_gee_image):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # Test reclassify method without matrix
     with pytest.raises(Exception):
         model_gee_image.reclassify()
@@ -252,7 +252,7 @@ def test_reclassify_gee_image(model_gee_image):
 
 
 def test_reclassify_local_image(model_local_image, tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # Create a dummy translation matrix for local image
     matrix = {1: 4, 2: 5, 3: 6}
 
@@ -271,7 +271,7 @@ def test_reclassify_local_image(model_local_image, tmp_dir):
 
 
 def test_reclassify_local_vector(model_local_vector, tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # Create a dummy translation matrix
     matrix = {1: 6, 2: 7, 3: 8, 4: 9, 5: 10}
 
@@ -293,7 +293,7 @@ def test_reclassify_local_vector(model_local_vector, tmp_dir):
 
 @pytest.fixture(scope="class")
 def reclass_file(tmp_dir):
-    """create a fake classification file."""
+    """Create a fake classification file."""
     reclass_file = tmp_dir / "dum_map_matrix.csv"
     reclass_file.write_text(
         """
@@ -380,7 +380,7 @@ def model_local_vector(model_local, tmp_dir):
 
 @pytest.fixture
 def model_local_image(model_local, tmp_dir):
-    """create a reclassify model with a tif image."""
+    """Create a reclassify model with a tif image."""
     # retreive the image
     url = "https://raw.githubusercontent.com/12rambau/gwb/master/utils/backup/clc3class.tif"
     filename = tmp_dir / "clc3class.tif"
@@ -400,13 +400,13 @@ def model_local_image(model_local, tmp_dir):
 
 @pytest.fixture
 def no_name():
-    """return a no-name tuple."""
+    """Return a no-name tuple."""
     return ("no_name", "#000000")
 
 
 @pytest.fixture(scope="class")
 def aoi_model(_hash, gee_dir):
-    """create an aoi_model with a 100m square geometry centered in 50, 50."""
+    """Create an aoi_model with a 100m square geometry centered in 50, 50."""
     # create the geoemtry as featurecollection
     point = ee.Geometry.Point([50, 50], "EPSG:3857")
     aoi_ee = ee.FeatureCollection(point.buffer(50).bounds())

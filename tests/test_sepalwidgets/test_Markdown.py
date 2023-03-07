@@ -1,4 +1,4 @@
-"""Test the Markdown widget"""
+"""Test the Markdown widget."""
 
 import ipyvuetify as v
 
@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the widget"""
+    """Init the widget."""
     # default init
     mkd_widget = sw.Markdown()
     expected = "<div>\n\n</div>"
@@ -18,7 +18,7 @@ def test_init() -> None:
 
 
 def test_init_exhaustive() -> None:
-    """Init the widget"""
+    """Init the widget."""
     # exhaustive
     txt = "toto"
     expected = f"<div>\n<p>{txt}</p>\n</div>"
@@ -29,7 +29,7 @@ def test_init_exhaustive() -> None:
 
 
 def test_init_link() -> None:
-    """Test links are set to be opened in a blank page"""
+    """Test links are set to be opened in a blank page."""
     # add a link
     link_name = "toto"
     link = "#"

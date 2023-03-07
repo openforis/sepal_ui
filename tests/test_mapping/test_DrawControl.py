@@ -1,3 +1,5 @@
+"""Test the Draw Control."""
+
 import math
 
 from shapely import geometry as sg
@@ -6,7 +8,7 @@ from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init a drawing control"""
+    """Init a drawing control."""
     m = sm.SepalMap()
     draw_control = sm.DrawControl(m)
     assert isinstance(draw_control, sm.DrawControl)
@@ -15,8 +17,7 @@ def test_init() -> None:
 
 
 def test_show() -> None:
-    """show the drawing control"""
-
+    """Show the drawing control."""
     m = sm.SepalMap()
     draw_control = sm.DrawControl(m)
 
@@ -32,8 +33,7 @@ def test_show() -> None:
 
 
 def test_hide() -> None:
-    """Hide the drawing control"""
-
+    """Hide the drawing control."""
     m = sm.SepalMap()
     draw_control = sm.DrawControl(m)
     m.add(draw_control)
@@ -50,8 +50,7 @@ def test_hide() -> None:
 
 
 def test_to_json() -> None:
-    """Transform the drawn feature into a geo_interface"""
-
+    """Transform the drawn feature into a geo_interface."""
     m = sm.SepalMap()
     draw_control = sm.DrawControl(m)
 

@@ -1,3 +1,5 @@
+"""Test the Aoi Control."""
+
 from typing import Tuple
 
 import ee
@@ -9,7 +11,7 @@ from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init an aoi_control on the map"""
+    """Init an aoi_control on the map."""
     # check that the map start with no info
     m = sm.SepalMap()
     control = sm.AoiControl(m)
@@ -25,13 +27,12 @@ def test_init() -> None:
 def test_add_aoi_ee(
     ee_points: Tuple[ee.Geometry.Point], aoi_control: sm.AoiControl
 ) -> None:
-    """add a ee point to the aoi_control
+    """Add a ee point to the aoi_control.
 
     Args:
         ee_points: a Tuple of gee points
         aoi_control: an object control
     """
-
     # test with an ee point
     aoi_control.add_aoi("test1", ee_points[1])
     assert aoi_control.aoi_bounds["test1"] == (20, 30, 20, 30)
@@ -41,7 +42,7 @@ def test_add_aoi_ee(
 
 
 def test_add_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
-    """Add an aoi to the control
+    """Add an aoi to the control.
 
     Args:
         points: a tuple of ashapely points
@@ -60,7 +61,7 @@ def test_add_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
 
 
 def test_remove_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
-    """Remove an aoi from the control
+    """Remove an aoi from the control.
 
     Args:
         points: a tuple of shapely points
@@ -82,7 +83,7 @@ def test_remove_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None
 
 
 def test_click_btn(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
-    """click on the btn to change the zoom
+    """Click on the btn to change the zoom.
 
     Args:
         points: a Tuple of shapely points
@@ -112,7 +113,7 @@ def test_click_btn(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
 
 
 def test_zoom(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
-    """check the map is zoomed
+    """Check the map is zoomed.
 
     Args:
         points: a list of shapely points
@@ -131,7 +132,7 @@ def test_zoom(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
 
 @pytest.fixture
 def points() -> Tuple[sg.Point]:
-    """return a tuple of points.
+    """Return a tuple of points.
 
     Returns:
         a tuple of points
@@ -151,7 +152,7 @@ def ee_points() -> Tuple[ee.Geometry.Point]:
 
 @pytest.fixture
 def aoi_control() -> sm.AoiControl:
-    """an aoi_control and add it to a map.
+    """An aoi_control and add it to a map.
 
     Returns:
         an AoiControl object

@@ -1,3 +1,5 @@
+"""The configuration of the pytest run."""
+
 import uuid
 from itertools import product
 from pathlib import Path

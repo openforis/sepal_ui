@@ -1,3 +1,5 @@
+"""Test the frontend methods and objects."""
+
 import re
 from types import SimpleNamespace
 
@@ -7,7 +9,7 @@ from sepal_ui.frontend.styles import SepalColor
 
 
 def test_init() -> None:
-    """Init a sepalcolor object"""
+    """Init a sepalcolor object."""
     sns = SepalColor()
     assert isinstance(sns, SimpleNamespace)
 
@@ -36,7 +38,7 @@ def test_conf() -> None:
 
 
 def test_repr_html() -> None:
-    """Check the html representation of a color object"""
+    """Check the html representation of a color object."""
     # Arrange
     expected_title_dark = "<h3>Current theme: dark</h3>"
     expected_dark = "primary</br>#b3842e"

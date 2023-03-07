@@ -1,4 +1,4 @@
-"""Test VectorField widget"""
+"""Test VectorField widget."""
 
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -11,8 +11,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Check the widget init"""
-
+    """Check the widget init."""
     vector_field = sw.VectorField()
 
     assert isinstance(vector_field, sw.VectorField)
@@ -21,7 +20,7 @@ def test_init() -> None:
 
 
 def test_update_file(fake_vector: Path, default_v_model: dict) -> None:
-    """Update the selected file and check the widget behaviour
+    """Update the selected file and check the widget behaviour.
 
     Args:
         fake_vector: the path to a fake vector file
@@ -51,14 +50,13 @@ def test_update_file(fake_vector: Path, default_v_model: dict) -> None:
 def test_update_file_gee(
     gee_dir: Path, default_v_model: dict, fake_asset: Path
 ) -> None:
-    """Update the selected file and check the widget behaviour in a GEE context
+    """Update the selected file and check the widget behaviour in a GEE context.
 
     Args:
         gee_dir: The session created GEE directory
         fake_asset: the path to a fake vector asset
         default_v_model: the default v_model values
     """
-
     vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
     # Arrange
     test_data = {
@@ -80,7 +78,7 @@ def test_update_file_gee(
 
 
 def test_reset(fake_vector: Path, default_v_model: dict) -> None:
-    """Reset an already set widget
+    """Reset an already set widget.
 
     Args:
         fake_vector: the path to a fake vector file
@@ -101,7 +99,7 @@ def test_reset(fake_vector: Path, default_v_model: dict) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_reset_gee(gee_dir: Path, default_v_model: dict, fake_asset: Path) -> None:
-    """Reset an already set widget in GEE context
+    """Reset an already set widget in GEE context.
 
     Args:
         gee_dir: The session created GEE directory
@@ -122,12 +120,11 @@ def test_reset_gee(gee_dir: Path, default_v_model: dict, fake_asset: Path) -> No
 
 
 def test_update_column(fake_vector: Path) -> None:
-    """Update a single column in a vector field
+    """Update a single column in a vector field.
 
     Args:
         fake_vector: the path to a fake vector file
     """
-
     # change the value of the file
     vector_field = sw.VectorField()
     vector_field._update_file({"new": str(fake_vector)})
@@ -143,7 +140,7 @@ def test_update_column(fake_vector: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_update_column_gee(gee_dir: Path, fake_asset: Path) -> None:
-    """Update a single column in a vector field in GEE context
+    """Update a single column in a vector field in GEE context.
 
     Args:
         gee_dir: The session created GEE directory
@@ -163,7 +160,7 @@ def test_update_column_gee(gee_dir: Path, fake_asset: Path) -> None:
 
 
 def test_update_value(fake_vector: Path) -> None:
-    """Check the update of a value in an already selected column
+    """Check the update of a value in an already selected column.
 
     Args:
         fake_vector: the path to a fake vector file
@@ -183,7 +180,7 @@ def test_update_value(fake_vector: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_update_value_gee(gee_dir: Path, fake_asset: Path) -> None:
-    """Check the update of a value in an already selected column in GEE context
+    """Check the update of a value in an already selected column in GEE context.
 
     Args:
         gee_dir: The session created GEE directory
@@ -218,7 +215,7 @@ def default_v_model() -> dict:
 
 @pytest.fixture
 def fake_vector(tmp_dir: Path) -> Path:
-    """return a fake vector based on the vatican file.
+    """Return a fake vector based on the vatican file.
 
     Args:
         tmp_dir: the session created tmp directory
@@ -249,7 +246,7 @@ def fake_vector(tmp_dir: Path) -> Path:
 
 @pytest.fixture
 def fake_asset(gee_dir: Path) -> Path:
-    """return the path to a fake asset.
+    """Return the path to a fake asset.
 
     Returns:
         the path to the dir

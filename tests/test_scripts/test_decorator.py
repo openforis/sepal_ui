@@ -1,3 +1,5 @@
+"""Test the custom decorators."""
+
 import warnings
 
 import ee
@@ -11,8 +13,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init_ee() -> None:
-    """Check that ee can bi initialzed from sepal_ui"""
-
+    """Check that ee can bi initialzed from sepal_ui."""
     # check that no error is raised
     sd.init_ee()
 
@@ -20,8 +21,7 @@ def test_init_ee() -> None:
 
 
 def test_catch_errors() -> None:
-    """Check the catch error decorator"""
-
+    """Check the catch error decorator."""
     # create a fake object that uses the decorator
     class Obj:
         def __init__(self):
@@ -45,8 +45,7 @@ def test_catch_errors() -> None:
 
 
 def test_loading_button() -> None:
-    """Check the loading decorator"""
-
+    """Check the loading decorator."""
     # create a fake object that uses the decorator
     class Obj:
         def __init__(self):
@@ -111,8 +110,7 @@ def test_loading_button() -> None:
 
 
 def test_switch() -> None:
-    """test the switch decorator"""
-
+    """Test the switch decorator."""
     # create a fake object that uses the decorator
     class Obj:
         def __init__(self):

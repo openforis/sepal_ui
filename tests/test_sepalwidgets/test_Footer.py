@@ -1,4 +1,4 @@
-"""Test the Footer widget"""
+"""Test the Footer widget."""
 
 from datetime import datetime
 
@@ -8,7 +8,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """init the widget"""
+    """Init the widget."""
     # default init
     footer = sw.Footer()
 

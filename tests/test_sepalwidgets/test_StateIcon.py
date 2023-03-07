@@ -1,4 +1,4 @@
-"""Test the StateIcon widget"""
+"""Test the StateIcon widget."""
 
 import pytest
 from traitlets import Unicode
@@ -9,13 +9,13 @@ from sepal_ui.model import Model
 
 
 class TestModel(Model):
-    """Test model class with one single trait"""
+    """Test model class with one single trait."""
 
     state_value = Unicode().tag(sync=True)
 
 
 def test_init(model: TestModel) -> None:
-    """Check init the widget
+    """Check init the widget.
 
     Args:
         model: the model to pilote the stateicon
@@ -40,12 +40,11 @@ def test_init(model: TestModel) -> None:
 
 
 def test_swap(model: TestModel) -> None:
-    """Check we can swap the state of the stateicon
+    """Check we can swap the state of the stateicon.
 
     Args:
         model: the model to pilote the stateicon
     """
-
     state_icon = sw.StateIcon(model, "state_value")
     model.state_value = "non_valid"
 

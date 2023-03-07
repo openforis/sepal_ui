@@ -1,4 +1,4 @@
-"""Test AppBar widget"""
+"""Test AppBar widget."""
 
 import ipyvuetify as v
 
@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Test widget init"""
+    """Test widget init."""
     # default init
     appBar = sw.AppBar()
 
@@ -24,7 +24,7 @@ def test_init() -> None:
 
 
 def test_title() -> None:
-    """Dynamically add a title to the bar"""
+    """Dynamically add a title to the bar."""
     appBar = sw.AppBar()
     title = "toto"
     res = appBar.set_title(title)

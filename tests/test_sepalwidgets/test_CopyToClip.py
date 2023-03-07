@@ -1,4 +1,4 @@
-"""Test the CopyToClip widget"""
+"""Test the CopyToClip widget."""
 
 import pytest
 
@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the widget"""
+    """Init the widget."""
     # minimal clip
     clip = sw.CopyToClip()
     assert clip.tf.outlined is True
@@ -23,7 +23,7 @@ def test_init() -> None:
 
 
 def test_copy(clip: sw.CopyToClip) -> None:
-    """Copy the content of the field
+    """Copy the content of the field.
 
     Args:
         clip: a object set to "value"
@@ -39,7 +39,7 @@ def test_copy(clip: sw.CopyToClip) -> None:
 
 
 def test_change(clip: sw.CopyToClip) -> None:
-    """Dynamically change the text to copy
+    """Dynamically change the text to copy.
 
     Args:
         clip: a object set to "value"
@@ -59,7 +59,7 @@ def test_change(clip: sw.CopyToClip) -> None:
 
 @pytest.fixture
 def clip() -> sw.CopyToClip:
-    """create a simple clip-to-clipboard with a v_model set to "value".
+    """Create a simple clip-to-clipboard with a v_model set to "value".
 
     Returns:
         the object instance

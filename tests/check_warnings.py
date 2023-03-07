@@ -1,3 +1,5 @@
+"""Check the warnings from doc builds."""
+
 import sys
 from pathlib import Path
 

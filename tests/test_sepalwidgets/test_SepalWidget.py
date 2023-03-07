@@ -1,4 +1,4 @@
-"""Test the SepalWidget meta class"""
+"""Test the SepalWidget meta class."""
 
 import pytest
 
@@ -6,8 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Test widget init"""
-
+    """Test widget init."""
     widget = sw.SepalWidget()
 
     assert widget.viz is True
@@ -16,8 +15,7 @@ def test_init() -> None:
 
 
 def test_set_viz() -> None:
-    """Check viz can be changed"""
-
+    """Check viz can be changed."""
     widget = sw.SepalWidget()
 
     # hide the widget
@@ -32,8 +30,7 @@ def test_set_viz() -> None:
 
 
 def test_show() -> None:
-    """Check show method can force show a widget"""
-
+    """Check show method can force show a widget."""
     widget = sw.SepalWidget()
 
     widget.viz = False
@@ -45,8 +42,7 @@ def test_show() -> None:
 
 
 def test_hide() -> None:
-    """Check hide can force hide a widget"""
-
+    """Check hide can force hide a widget."""
     widget = sw.SepalWidget()
 
     widget.class_ = None
@@ -58,8 +54,7 @@ def test_hide() -> None:
 
 
 def test_toggle_viz() -> None:
-    """Check visibility can be toggled"""
-
+    """Check visibility can be toggled."""
     widget = sw.SepalWidget()
 
     widget.class_ = None
@@ -78,8 +73,7 @@ def test_toggle_viz() -> None:
 
 
 def test_reset() -> None:
-    """Check widget implement a reset method"""
-
+    """Check widget implement a reset method."""
     widget = sw.SepalWidget()
 
     widget.v_model = "toto"
@@ -92,7 +86,7 @@ def test_reset() -> None:
 
 
 def test_set_children() -> None:
-    """Check children can be added in specific index"""
+    """Check children can be added in specific index."""
     test_card = sw.Card()
 
     # Test that new element is at the end of the children
@@ -120,8 +114,7 @@ def test_set_children_error() -> None:
 
 
 def test_get_children() -> None:
-    """Check get_children can identify and list the target children widgets"""
-
+    """Check get_children can identify and list the target children widgets."""
     test_card = sw.Card()
 
     # fill with card with multiple attributes and widgets

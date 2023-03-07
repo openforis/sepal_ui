@@ -1,10 +1,12 @@
+"""Test the Legend Control."""
+
 import re
 
 from sepal_ui.mapping import LegendControl
 
 
 def test_init() -> None:
-    """Init the control object"""
+    """Init the control object."""
     legend_dict = {
         "forest": "#b3842e",
         "non forest": "#a1458e",
@@ -42,7 +44,7 @@ def test_init() -> None:
 
 
 def test_set_legend() -> None:
-    """Set a legend with values (FNF)"""
+    """Set a legend with values (FNF)."""
     legend_dict = {
         "forest": "#b3842e",
         "info": "#79b1c9",
@@ -81,7 +83,7 @@ def test_set_legend() -> None:
 
 
 def test_update_title() -> None:
-    """Update the title of an existing legend control"""
+    """Update the title of an existing legend control."""
     legend_dict = {
         "forest": "#b3842e",
         "info": "#79b1c9",
@@ -99,7 +101,7 @@ def test_update_title() -> None:
 
 
 def test_color_box() -> None:
-    """Use color boxes when multiple values (forest, info)"""
+    """Use color boxes when multiple values (forest, info)."""
     legend_dict = {
         "forest": "#b3842e",
         "info": "#79b1c9",

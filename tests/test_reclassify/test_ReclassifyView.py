@@ -1,4 +1,4 @@
-"""Test the ReclassifyView widget"""
+"""Test the ReclassifyView widget."""
 
 from pathlib import Path
 from zipfile import ZipFile
@@ -24,7 +24,7 @@ def test_init_exception(gee_dir):
 
 
 def test_init_local(view_local, class_file):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     assert view_local.model.aoi_model.gee is False
     assert view_local.gee is False
 
@@ -38,7 +38,7 @@ def test_init_local(view_local, class_file):
 
 
 def test_init_gee(view_gee):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     assert view_gee.model.aoi_model.gee is True
     assert view_gee.gee is True
 
@@ -46,7 +46,7 @@ def test_init_gee(view_gee):
 
 
 def test_set_dst_class_file(view_local, class_file):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # Arrange
     btn_list = [btn for btn in view_local.btn_list if btn._metadata["path"]]
     custom_btn, class_file_btn = btn_list
@@ -82,7 +82,7 @@ def test_load_matrix_content(
     model_local_vector,
     class_file,
 ):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # No file selected
     view_local.import_dialog.w_file.v_model = ""
     with pytest.raises(Exception):
@@ -115,7 +115,7 @@ def test_load_matrix_content(
 
 
 def test_update_band(view_local, model_local_vector):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     # Arrange
     table_bands = ["BoroCode", "BoroName", "Shape_Area", "Shape_Leng"]
     view_local.model = model_local_vector
@@ -130,7 +130,7 @@ def test_update_band(view_local, model_local_vector):
 
 
 def test_reclassify(view_local, model_local_vector):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     view_local.model = model_local_vector
     view_local.reclassify(None, None, None)
 
@@ -153,7 +153,7 @@ def test_reclassify(view_local, model_local_vector):
 
 @pytest.fixture
 def view_local(tmp_dir, class_file):
-    """return a local reclassify view."""
+    """Return a local reclassify view."""
     aoi_model = aoi.AoiModel(gee=False)
 
     return ReclassifyView(
@@ -167,7 +167,7 @@ def view_local(tmp_dir, class_file):
 
 @pytest.fixture
 def view_gee(tmp_dir, class_file, gee_dir):
-    """return a gee reclassify view."""
+    """Return a gee reclassify view."""
     aoi_model = aoi.AoiModel(gee=True, folder=str(gee_dir))
 
     return ReclassifyView(
@@ -182,7 +182,7 @@ def view_gee(tmp_dir, class_file, gee_dir):
 
 @pytest.fixture
 def class_file(tmp_dir):
-
+    """Test will be removed eventually."""
     file = tmp_dir / "dum_default_classes.csv"
     file.write_text(
         "1,Forest,#044D02\n"
@@ -202,7 +202,7 @@ def class_file(tmp_dir):
 
 @pytest.fixture
 def map_file_bad_char(tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     bad_file = tmp_dir / "map_file_bad_char.csv"
     bad_file.write_text(",src,dst\nnot_valid,not_valid")
 
@@ -215,7 +215,7 @@ def map_file_bad_char(tmp_dir):
 
 @pytest.fixture
 def map_file_bad_header(tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     bad_file = tmp_dir / "map_file_bad_header.csv"
     bad_file.write_text(",xx,yy,zz\n,1,2,3")
 
@@ -228,7 +228,7 @@ def map_file_bad_header(tmp_dir):
 
 @pytest.fixture
 def map_file(tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     file = tmp_dir / "map_file.csv"
     file.write_text(
         ",src,dst\n0,10,1\n1,100,1\n2,11,2\n"
@@ -247,7 +247,7 @@ def map_file(tmp_dir):
 
 @pytest.fixture
 def model_local_vector(tmp_dir):
-    """Test will eventually be removed"""
+    """Test will eventually be removed."""
     aoi_model = aoi.AoiModel(gee=False)
 
     # create the vector file

@@ -1,11 +1,12 @@
+"""Test the basemaps registered in the SepalMap."""
+
 from ipyleaflet import TileLayer
 
 from sepal_ui import mapping as sm
 
 
 def test_get_xyz_dict() -> None:
-    """Check some known basemaps and assert they are in the list"""
-
+    """Check some known basemaps and assert they are in the list."""
     # Retrieve 4 random maps
     random_basemaps = [
         "Esri.OceanBasemap",
@@ -20,7 +21,7 @@ def test_get_xyz_dict() -> None:
 
 
 def test_xyz_to_leaflet() -> None:
-    """Check the maps can be transformed in TileLayer"""
+    """Check the maps can be transformed in TileLayer."""
     # Retrieve 1 random maps + the five manually added
     random_basemaps = [
         "Esri.OceanBasemap",

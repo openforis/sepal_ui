@@ -1,4 +1,4 @@
-"""Test the overwritten classes of ipyvuetify"""
+"""Test the overwritten classes of ipyvuetify."""
 
 import ipyvuetify as v
 
@@ -6,8 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_generated() -> None:
-    """test that all the vuetify classes have been overwritten."""
-
+    """Test that all the vuetify classes have been overwritten."""
     # get all the classes names
     v_classes = [c for c in dir(v.generated) if c.startswith("__") is False]
     v_classes = [c for c in v_classes if c != "VuetifyWidget"]
@@ -45,8 +44,7 @@ def test_generated() -> None:
 
 
 def test_html() -> None:
-    """test a HTML class."""
-
+    """Test a HTML class."""
     # set a class option
     option = "ma-5"
 

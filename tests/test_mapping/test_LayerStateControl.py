@@ -1,3 +1,5 @@
+"""Test the LayerState control."""
+
 import ee
 import pytest
 from ipyleaflet import RasterLayer
@@ -7,7 +9,7 @@ from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init a control object"""
+    """Init a control object."""
     m = sm.SepalMap()
     state = sm.LayerStateControl(m)
     m.add(state)
@@ -20,7 +22,7 @@ def test_init() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_update_nb_layer(map_with_layers: sm.SepalMap) -> None:
-    """Check that number of layer is dynamically updated
+    """Check that number of layer is dynamically updated.
 
     Args:
         map_with_layers: a map supporting 2 FakeLayer
@@ -41,7 +43,7 @@ def test_update_nb_layer(map_with_layers: sm.SepalMap) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_update_loading(map_with_layers: sm.SepalMap) -> None:
-    """Check loading control is updated when a layer is loading
+    """Check loading control is updated when a layer is loading.
 
     Args:
         map_with_layers: a map supporting 2 FakeLayer
@@ -65,7 +67,7 @@ def test_update_loading(map_with_layers: sm.SepalMap) -> None:
 
 @pytest.fixture
 def map_with_layers() -> sm.SepalMap:
-    """create a map with 2 layers and a stateBar."""
+    """Create a map with 2 layers and a stateBar."""
     # create the map and controls
     m = sm.SepalMap()
     state = sm.LayerStateControl(m)

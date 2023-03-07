@@ -1,10 +1,10 @@
-"""Test the NavDrawer widget"""
+"""Test the NavDrawer widget."""
 
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the widget"""
+    """Init the widget."""
     items = [sw.DrawerItem("title {}".format(i)) for i in range(5)]
 
     # default init
@@ -55,7 +55,7 @@ def test_init() -> None:
 
 
 def test_display_drawer() -> None:
-    """check hide and show of the widget"""
+    """Check hide and show of the widget."""
     # create the items
     nav_drawer = sw.NavDrawer()
     app_bar = sw.AppBar()
@@ -74,7 +74,7 @@ def test_display_drawer() -> None:
 
 
 def test_on_item_click() -> None:
-    """Check item click behaviour"""
+    """Check item click behaviour."""
     # create items
     items = [sw.DrawerItem(f"title {i}") for i in range(5)]
     sw.NavDrawer(items)

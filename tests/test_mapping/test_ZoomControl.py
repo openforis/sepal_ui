@@ -1,8 +1,10 @@
+"""Test the Zoom Control."""
+
 from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init a zoom control"""
+    """Init a zoom control."""
     m = sm.SepalMap()
     m.clear()
     zoom_control = sm.ZoomControl(m)
@@ -15,7 +17,7 @@ def test_init() -> None:
 
 
 def test_change_zoom() -> None:
-    """Change the zoom of the map"""
+    """Change the zoom of the map."""
     m = sm.SepalMap()
     zoom_control = next(c for c in m.controls if isinstance(c, sm.ZoomControl))
     m.zoom = 10
@@ -30,7 +32,7 @@ def test_change_zoom() -> None:
 
 
 def test_min_max_zoom() -> None:
-    """Check that min and max values are respected"""
+    """Check that min and max values are respected."""
     m = sm.SepalMap()
     zoom_control = next(c for c in m.controls if isinstance(c, sm.ZoomControl))
 

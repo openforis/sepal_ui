@@ -1,3 +1,5 @@
+"""Test the Inspector Control."""
+
 import math
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -10,7 +12,7 @@ from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init the inspector control"""
+    """Init the inspector control."""
     m = sm.SepalMap()
     inspector_control = sm.InspectorControl(m)
     m.add(inspector_control)
@@ -21,7 +23,7 @@ def test_init() -> None:
 
 
 def test_deprecated() -> None:
-    """Check deprecation notice"""
+    """Check deprecation notice."""
     m = sm.SepalMap()
     with pytest.deprecated_call():
         inspector_control = sm.ValueInspector(m)
@@ -33,7 +35,7 @@ def test_deprecated() -> None:
 
 
 def test_toogle_cursor() -> None:
-    """Toggle cursor when activated"""
+    """Toggle cursor when activated."""
     m = sm.SepalMap()
     inspector_control = sm.InspectorControl(m)
     m.add(inspector_control)
@@ -50,7 +52,7 @@ def test_toogle_cursor() -> None:
 
 
 def test_read_data() -> None:
-    """Check the infuence of activation on control behaviour"""
+    """Check the infuence of activation on control behaviour."""
     # not testing the display of anything here just the interaction
     m = sm.SepalMap()
     inspector_control = sm.InspectorControl(m)
@@ -72,7 +74,7 @@ def test_read_data() -> None:
 def test_free_eelayer(
     world_temp: ee.imagecollection, ee_adm2: ee.FeatureCollection
 ) -> None:
-    """Check result when clicking on a ee object
+    """Check result when clicking on a ee object.
 
     Args:
         world_temp: the imagecollection of the worl tempreature dataset
@@ -102,7 +104,7 @@ def test_free_eelayer(
 
 
 def test_from_geojson(adm0_vatican: dict) -> None:
-    """Check the result of clicking on a geojson
+    """Check the result of clicking on a geojson.
 
     Args:
         adm0_vatican: the geo_interface of the vatican
@@ -123,7 +125,7 @@ def test_from_geojson(adm0_vatican: dict) -> None:
 
 
 def test_from_raster(raster_bahamas: Path) -> None:
-    """Check the result of clicking on a raster
+    """Check the result of clicking on a raster.
 
     Args:
         the path of a raster image
@@ -147,7 +149,7 @@ def test_from_raster(raster_bahamas: Path) -> None:
 
 @pytest.fixture
 def world_temp() -> ee.ImageCollection:
-    """get the world temperature dataset from GEE.
+    """Get the world temperature dataset from GEE.
 
     Returns:
         the filtered temperature_2m band
@@ -171,7 +173,7 @@ def ee_adm2() -> ee.FeatureCollection:
 
 @pytest.fixture
 def raster_bahamas() -> Path:
-    """add a raster file of the bahamas coming from rasterio test suit.
+    """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path of the image

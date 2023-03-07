@@ -1,3 +1,5 @@
+"""Test the Translator object."""
+
 import json
 import shutil
 from configparser import ConfigParser
@@ -11,13 +13,12 @@ from sepal_ui.translator import Translator
 
 
 def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
-    """Check the Translator can be inited
+    """Check the Translator can be inited.
 
     Args:
         translation_folder: the folder where the language keys are stored
         tmp_config_file: create the config file for the prefered language
     """
-
     # assert that the test key exist in fr
     translator = Translator(translation_folder, "fr")
     assert translator.test_key == "Clef de test"
@@ -51,8 +52,7 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
 
 
 def test_search_key() -> None:
-    """Check that a key can be searched in the bbuild messages"""
-
+    """Check that a key can be searched in the bbuild messages."""
     # generate the tmp_dir in the test directory
     tmp_dir = Path(__file__).parent / "data" / "messages"
     tmp_dir.mkdir(exist_ok=True, parents=True)
@@ -76,8 +76,7 @@ def test_search_key() -> None:
 
 
 def test_sanitize() -> None:
-    """Check that the dict are sanitized by the Translator object"""
-
+    """Check that the dict are sanitized by the Translator object."""
     # a test dict with many embeded numbered list
     # but also an already existing list
     test = {
@@ -99,8 +98,7 @@ def test_sanitize() -> None:
 
 
 def test_delete_empty() -> None:
-    """Check the translator remove empty keys"""
-
+    """Check the translator remove empty keys."""
     test = {"a": "", "b": 1, "c": {"d": ""}, "e": {"f": "", "g": 2}}
     result = {"b": 1, "c": {}, "e": {"g": 2}}
 
@@ -110,12 +108,11 @@ def test_delete_empty() -> None:
 
 
 def test_find_target(translation_folder: Path) -> None:
-    """Check the targets is found in the folder list and understand ISO 2 codes
+    """Check the targets is found in the folder list and understand ISO 2 codes.
 
     Args:
         translation_folder: the folder where the language keys are stored
     """
-
     # test grid
     test_grid = {
         "en": ("en", "en"),
@@ -134,12 +131,11 @@ def test_find_target(translation_folder: Path) -> None:
 
 
 def test_available_locales(translation_folder: Path) -> None:
-    """Check the locales are correctly parsed from the existing files
+    """Check the locales are correctly parsed from the existing files.
 
     Args:
         translation_folder: the folder where the language keys are stored
     """
-
     # expected grid
     res = ["es", "fr", "fr-FR", "en"]
 
@@ -158,8 +154,7 @@ def test_available_locales(translation_folder: Path) -> None:
 
 
 def test_key_use() -> None:
-    """Check that are used at least once"""
-
+    """Check that are used at least once."""
     # check key usage method
     # don't test if all keys are translated, crowdin will monitor it
     lib_folder = Path(__file__).parents[1] / "sepal_ui"

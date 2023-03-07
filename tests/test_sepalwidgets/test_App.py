@@ -1,4 +1,4 @@
-"""Test the App widget"""
+"""Test the App widget."""
 
 import ipyvuetify as v
 import pytest
@@ -7,7 +7,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the widget"""
+    """Init the widget."""
     # default init
     app = sw.App()
     assert isinstance(app, sw.App)
@@ -38,7 +38,7 @@ def test_init() -> None:
 
 
 def test_show_tile() -> None:
-    """Check that tiles are shown when licking a drawerItem"""
+    """Check that tiles are shown when licking a drawerItem."""
     tiles = [sw.Tile(f"id_{i}", f"title_{i}") for i in range(5)]
     drawer_items = [sw.DrawerItem(f"title {i}", card=f"id_{i}") for i in range(5)]
     appBar = sw.AppBar()
@@ -72,7 +72,7 @@ def test_show_tile() -> None:
 
 
 def test_add_banner(app: sw.App) -> None:
-    """Add a banner to the application
+    """Add a banner to the application.
 
     Args:
         app: an fully defined App instance
@@ -134,7 +134,7 @@ def test_close_banner(app: sw.App) -> None:
 
 @pytest.fixture
 def app() -> sw.App:
-    """create a default App.
+    """Create a default App.
 
     Returns:
         App instance with 5 tiles and associated drawers

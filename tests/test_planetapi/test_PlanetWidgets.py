@@ -1,4 +1,4 @@
-"""Test the PlanetWidget widget"""
+"""Test the PlanetWidget widget."""
 
 import pytest
 
@@ -7,8 +7,7 @@ from sepal_ui.planetapi.planet_widgets import InfoView
 
 
 def test_init() -> None:
-    """Check widget init"""
-
+    """Check widget init."""
     info_view = InfoView(model=PlanetModel())
 
     assert isinstance(info_view, InfoView)
@@ -19,7 +18,7 @@ def test_init() -> None:
 def test_open_info(
     no_subs: dict, only_others: dict, only_nicfi: dict, all_subs: dict
 ) -> None:
-    """Check the display of subs in different configurations
+    """Check the display of subs in different configurations.
 
     Args:
         no_subs: 0 subs
@@ -27,7 +26,6 @@ def test_open_info(
         only_nicfi: only NICFI related subs
         all_subs: all types of subs
     """
-
     info_view = InfoView(model=PlanetModel())
 
     nicfi_sub = info_view.get_children(attr="id", value="nicfi")[0]
@@ -73,13 +71,21 @@ def test_open_info(
 
 @pytest.fixture
 def no_subs() -> dict:
+    """List of subs.
 
+    Returns:
+        a list with no subs
+    """
     return {"nicfi": [], "others": []}
 
 
 @pytest.fixture
 def only_others() -> dict:
+    """List of subs.
 
+    Returns:
+        a list with only subs that are not NICFI
+    """
     return {
         "nicfi": [],
         "others": [
@@ -97,7 +103,11 @@ def only_others() -> dict:
 
 @pytest.fixture
 def only_nicfi() -> dict:
+    """List of subs.
 
+    Returns:
+        a list with only subs that are NICFI
+    """
     return {
         "nicfi": [
             {
@@ -123,7 +133,11 @@ def only_nicfi() -> dict:
 
 @pytest.fixture
 def all_subs() -> dict:
+    """List of subs.
 
+    Returns:
+        a list with subs of any kind
+    """
     return {
         "nicfi": [
             {

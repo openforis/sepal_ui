@@ -1,3 +1,5 @@
+"""Test the GEE methods."""
+
 import time
 from pathlib import Path
 
@@ -13,7 +15,7 @@ from sepal_ui.scripts import gee
 def test_wait_for_completion(
     alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str
 ) -> None:
-    """Check we can wait for a task completion
+    """Check we can wait for a task completion.
 
     Args:
         alert: an alert to display outputs
@@ -21,7 +23,6 @@ def test_wait_for_completion(
         gee_dir: the hashed folder where all files are saved
         _hash: the has used in file and task naming
     """
-
     # wait for the end of the the fake task
     res = gee.wait_for_completion(fake_task, alert)
 
@@ -48,12 +49,11 @@ def test_wait_for_completion(
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_is_task(fake_task: str) -> None:
-    """Check a name is a task
+    """Check a name is a task.
 
     Args:
         fake_task: the name of the running fake task
     """
-
     # check if it exist
     res = gee.is_task(fake_task)
 
@@ -64,12 +64,11 @@ def test_is_task(fake_task: str) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_assets(gee_dir: Path) -> None:
-    """Check the assets are existing in the gee_dir folder
+    """Check the assets are existing in the gee_dir folder.
 
     Args:
         gee_dir: gee_dir: the directory where gee files are exported
     """
-
     # get the assets from the test repository
     list_ = gee.get_assets(gee_dir)
 
@@ -89,12 +88,11 @@ def test_get_assets(gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_is_asset(gee_dir: Path) -> None:
-    """Check if the asset exist
+    """Check if the asset exist.
 
     Args:
         gee_dir: gee_dir: the directory where gee files are exported
     """
-
     # real asset
     res = gee.is_asset(str(gee_dir / "image"), gee_dir)
     assert res is True
@@ -108,12 +106,11 @@ def test_is_asset(gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_is_running(fake_task: str) -> None:
-    """Check if a task can be monitored
+    """Check if a task can be monitored.
 
     Args:
         fake_task: the name of the running fake task
     """
-
     for _ in range(30):
         time.sleep(1)
         res = gee.is_running(fake_task)

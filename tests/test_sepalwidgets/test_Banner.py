@@ -1,4 +1,4 @@
-"""Test the Banner widget"""
+"""Test the Banner widget."""
 
 import pytest
 

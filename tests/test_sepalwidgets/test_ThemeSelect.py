@@ -1,4 +1,4 @@
-"""Test the ThemeSelect widget"""
+"""Test the ThemeSelect widget."""
 
 from configparser import ConfigParser
 
@@ -10,12 +10,11 @@ from sepal_ui.frontend.styles import get_theme
 
 
 def test_init(theme_select: sw.ThemeSelect) -> None:
-    """Check Init widget
+    """Check Init widget.
 
     Args:
         theme_select: a widget instance removing all existing config
     """
-
     # minimal btn
     assert isinstance(theme_select, sw.ThemeSelect)
 
@@ -23,12 +22,11 @@ def test_init(theme_select: sw.ThemeSelect) -> None:
 
 
 def test_change_theme(theme_select: sw.ThemeSelect) -> None:
-    """Check the prefered theme can be changed from the widget
+    """Check the prefered theme can be changed from the widget.
 
     Args:
         theme_select: a widget instance removing all existing config
     """
-
     # Get the current theme
     themes = ["dark", "light"]
     dark_theme = True if get_theme() == "dark" else False
@@ -47,7 +45,7 @@ def test_change_theme(theme_select: sw.ThemeSelect) -> None:
 
 @pytest.fixture
 def theme_select() -> sw.ThemeSelect:
-    """Create a simple theme_select and remove existing config
+    """Create a simple theme_select and remove existing config.
 
     Returns:
         the object instance

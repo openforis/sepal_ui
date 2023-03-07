@@ -1,4 +1,4 @@
-"""Test the DownloadBtn widget"""
+"""Test the DownloadBtn widget."""
 
 import pytest
 
@@ -7,7 +7,7 @@ from sepal_ui.scripts.utils import create_download_link
 
 
 def test_init(file_start: str) -> None:
-    """Init the widget
+    """Init the widget.
 
     Args:
         file_start: sandbox path
@@ -41,7 +41,7 @@ def test_init(file_start: str) -> None:
 
 
 def test_set_url() -> None:
-    """Check the url set based on the file link"""
+    """Check the url set based on the file link."""
     # parameters
     link = "toto/ici"
 
@@ -67,7 +67,7 @@ def test_set_url() -> None:
 
 
 def test_create_download_link(file_start: str) -> None:
-    """Click on the btn link
+    """Click on the btn link.
 
     Args:
         file_start: sandbox path
@@ -85,7 +85,7 @@ def test_create_download_link(file_start: str) -> None:
 
 @pytest.fixture
 def file_start() -> str:
-    """the start of any link to the sepal platform.
+    """The start of any link to the sepal platform.
 
     Args:
         the value of the sandbox path

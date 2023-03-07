@@ -1,4 +1,4 @@
-"""Test the RadioGroup Widget"""
+"""Test the RadioGroup Widget."""
 
 import pytest
 
@@ -6,7 +6,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init a RadioGroup"""
+    """Init a RadioGroup."""
     radios = [sw.Radio(active=None, value=i) for i in range(3)]
     group = sw.RadioGroup(v_model=None, children=radios)
 
@@ -16,7 +16,7 @@ def test_init() -> None:
 
 
 def test_update_radios(group: sw.RadioGroup) -> None:
-    """Check that updating the radio status update the group v_model
+    """Check that updating the radio status update the group v_model.
 
     Args:
         group: a RadioGRoup object
@@ -30,12 +30,11 @@ def test_update_radios(group: sw.RadioGroup) -> None:
 
 
 def test_update_v_model(group: sw.RadioGroup) -> None:
-    """Check that updating the v_model update the radio status
+    """Check that updating the v_model update the radio status.
 
     Args:
         group: a RadioGRoup object
     """
-
     group.children[2].active = True
     assert group.v_model == 2
     assert group.children[0].active is False
@@ -46,11 +45,10 @@ def test_update_v_model(group: sw.RadioGroup) -> None:
 
 @pytest.fixture
 def group() -> sw.RadioGroup:
-    """Return a Radiogroup with 3 radios children
+    """Return a Radiogroup with 3 radios children.
 
     Returns:
         The RadioGroup object
     """
-
     radios = [sw.Radio(active=None, value=i) for i in range(3)]
     return sw.RadioGroup(v_model=None, children=radios)

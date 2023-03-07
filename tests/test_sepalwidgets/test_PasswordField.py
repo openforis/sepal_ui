@@ -1,12 +1,11 @@
-"""Test the Password widget"""
+"""Test the Password widget."""
 
 
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the widget"""
-
+    """Init the widget."""
     password = sw.PasswordField()
     assert isinstance(password, sw.PasswordField)
     assert password.type == "password"
@@ -15,8 +14,7 @@ def test_init() -> None:
 
 
 def test_toogle_viz() -> None:
-    """Check tvisz roggle of the widget"""
-
+    """Check tvisz roggle of the widget."""
     password = sw.PasswordField()
 
     # change the viz once

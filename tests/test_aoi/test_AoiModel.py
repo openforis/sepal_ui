@@ -1,3 +1,5 @@
+"""Test AoiModel custom model."""
+
 import math
 from pathlib import Path
 from typing import List, Tuple
@@ -12,7 +14,7 @@ from sepal_ui import aoi
 
 
 def test_init_no_ee(fake_vector: Path) -> None:
-    """Init an AoiModel without GEE
+    """Init an AoiModel without GEE.
 
     Args:
         fake_vector: the path to a fake vector file
@@ -37,7 +39,7 @@ def test_init_no_ee(fake_vector: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init_ee(gee_dir: Path) -> None:
-    """Init an AoiMOdel with GEE
+    """Init an AoiMOdel with GEE.
 
     Args:
         gee_dir: the session directory where assets are saved
@@ -83,7 +85,7 @@ def test_init_ee(gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
-    """Get the columns from a selected geometry
+    """Get the columns from a selected geometry.
 
     Args:
         test_model: an object set on Vatican city
@@ -103,7 +105,7 @@ def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_fields(test_model: aoi.AoiModel) -> None:
-    """get fields from a selected geometry
+    """Get fields from a selected geometry.
 
     Args:
         test_model: a model set on the vatican city
@@ -123,7 +125,7 @@ def test_get_fields(test_model: aoi.AoiModel) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_selected(test_model: aoi.AoiModel) -> None:
-    """get fields from a selected geometry
+    """Get fields from a selected geometry.
 
     Args:
         test_model: a model set on the vatican city
@@ -152,13 +154,12 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
 def test_clear_attributes(
     aoi_model_outputs: List[str], aoi_model_traits: List[str]
 ) -> None:
-    """Remove all attributes from an AoiMOdel
+    """Remove all attributes from an AoiMOdel.
 
     Args:
         aoi_model_outputs: the name of the object outputs
         aoi_model_traits: the name of the object traits
     """
-
     aoi_model = aoi.AoiModel(gee=False)
 
     # insert dum parameter everywhere
@@ -204,7 +205,7 @@ def test_clear_attributes(
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_total_bounds(test_model: aoi.AoiModel, test_bounds: Tuple[float]) -> None:
-    """check that total bouds of the vatican are as expected
+    """Check that total bouds of the vatican are as expected.
 
     Args:
         test_model: a AoiMOdel object set on Vatican city
@@ -222,7 +223,7 @@ def test_total_bounds(test_model: aoi.AoiModel, test_bounds: Tuple[float]) -> No
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_clear_output(test_model: aoi.AoiModel, aoi_model_outputs: List[str]) -> None:
-    """Clear all output from a AoiModel
+    """Clear all output from a AoiModel.
 
     Args:
         test_model: a aoi_model set on vatican city
@@ -246,8 +247,7 @@ def test_clear_output(test_model: aoi.AoiModel, aoi_model_outputs: List[str]) ->
 
 
 def test_set_object() -> None:
-    """set object without parameters"""
-
+    """Set object without parameters."""
     aoi_model = aoi.AoiModel(gee=False)
 
     # test that no method returns an error
@@ -259,7 +259,7 @@ def test_set_object() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_admin(gee_dir: Path) -> None:
-    """get an AoiMOdel from an admin value
+    """Get an AoiMOdel from an admin value.
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -279,7 +279,7 @@ def test_from_admin(gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_point(fake_points: Path, gee_dir: Path) -> None:
-    """Get an AoiModel from point file
+    """Get an AoiModel from point file.
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -312,7 +312,7 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
-    """Get an AoiModel from a vector
+    """Get an AoiModel from a vector.
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -344,7 +344,7 @@ def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_geo_json(gee_dir, square: dict) -> None:
-    """Get an AoiModel from a geojson (equivalent to draw)
+    """Get an AoiModel from a geojson (equivalent to draw).
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -366,7 +366,7 @@ def test_from_geo_json(gee_dir, square: dict) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_asset(gee_dir: Path) -> Path:
-    """Get an AoiModel from gee assets
+    """Get an AoiModel from gee assets.
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -400,7 +400,7 @@ def test_from_asset(gee_dir: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def square() -> dict:
-    """a geojson square around the vatican city.
+    """A geojson square around the vatican city.
 
     Returns:
         the geo_interface desciption of the square
@@ -465,7 +465,6 @@ def fake_vector(tmp_dir: Path) -> Path:
     Returns:
         the path to the tmp vector file
     """
-
     # download vatican city from GADM
     file = tmp_dir / "test.zip"
 
@@ -508,7 +507,6 @@ def aoi_model_traits() -> List[str]:
     Returns:
         the model traits
     """
-
     return [
         "method",
         "point_json",
@@ -528,7 +526,6 @@ def aoi_model_outputs() -> List[str]:
     Returns:
         the outputs of the model
     """
-
     return [
         "gdf",
         "feature_collection",

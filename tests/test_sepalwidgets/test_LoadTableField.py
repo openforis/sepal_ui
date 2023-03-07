@@ -1,4 +1,4 @@
-"""Test the LoadTableField widget"""
+"""Test the LoadTableField widget."""
 
 from pathlib import Path
 
@@ -9,8 +9,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Check the init widget"""
-
+    """Check the init widget."""
     load_table = sw.LoadTableField()
 
     assert isinstance(load_table, sw.LoadTableField)
@@ -19,13 +18,12 @@ def test_init() -> None:
 
 
 def test_on_file_input_change(fake_table: Path, wrong_table: Path) -> None:
-    """Check to use temp created table
+    """Check to use temp created table.
 
     Args:
         fake_table: a well defined table
         wrong_table: a badly defined table
     """
-
     load_table = sw.LoadTableField()
 
     # change the value of the file
@@ -54,12 +52,11 @@ def test_on_file_input_change(fake_table: Path, wrong_table: Path) -> None:
 
 @pytest.mark.skip(reason="The test is not behaving as the interface")
 def test_reset(fake_table: Path) -> None:
-    """test the reset after setting a table
+    """Test the reset after setting a table.
 
     Args:
         fake_table: a well defined table
     """
-
     load_table = sw.LoadTableField()
 
     # for no apparent reasons the test remains on the initial value set up in the fileInput
@@ -83,7 +80,7 @@ def test_reset(fake_table: Path) -> None:
 
 @pytest.fixture
 def fake_table(tmp_dir: Path) -> Path:
-    """create a fake table.
+    """Create a fake table.
 
     Args:
         tmp_dir: the session defined tmp directory
@@ -112,7 +109,7 @@ def fake_table(tmp_dir: Path) -> Path:
 
 @pytest.fixture
 def wrong_table(tmp_dir: Path) -> Path:
-    """create a wrongly defined table (with 2 columns instead of the minimal 3.
+    """Create a wrongly defined table (with 2 columns instead of the minimal 3.
 
     Args:
         tmp_dir: the session defined tmp directory

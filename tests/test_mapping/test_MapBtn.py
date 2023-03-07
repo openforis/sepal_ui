@@ -1,9 +1,11 @@
+"""Test MapBtn widget."""
+
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init map btn in several ways"""
+    """Init map btn in several ways."""
     # fa-solid icon
     map_btn = sm.MapBtn("fa-solid fa-folder")
     assert isinstance(map_btn, sm.MapBtn)

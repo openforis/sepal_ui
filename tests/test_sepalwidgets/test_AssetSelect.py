@@ -1,4 +1,4 @@
-"""Test the AssetSelect widget"""
+"""Test the AssetSelect widget."""
 
 from pathlib import Path
 from typing import List
@@ -11,7 +11,7 @@ from sepal_ui import sepalwidgets as sw
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init(gee_dir: Path, gee_user_dir: Path) -> None:
-    """Init the widget
+    """Init the widget.
 
     Args:
         gee_dir: the session defined GEE directory
@@ -31,7 +31,7 @@ def test_init(gee_dir: Path, gee_user_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_default(asset_select: sw.AssetSelect, default_items: List[str]) -> None:
-    """Check that user can add default assets to the list
+    """Check that user can add default assets to the list.
 
     Args:
         asset_select: a fully defined asset widget
@@ -54,7 +54,7 @@ def test_add_default(asset_select: sw.AssetSelect, default_items: List[str]) -> 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_validate(asset_select: sw.AssetSelect, default_items: List[str]) -> None:
-    """Check asset that user cannot read cannot be selected
+    """Check asset that user cannot read cannot be selected.
 
     Args:
         asset_select: a fully defined asset widget
@@ -84,7 +84,7 @@ def test_validate(asset_select: sw.AssetSelect, default_items: List[str]) -> Non
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
-    """Check only the specified types are displayed to the ned user
+    """Check only the specified types are displayed to the ned user.
 
     Args:
         asset_select: a fully defined asset widget
@@ -116,13 +116,12 @@ def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_items(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
-    """Get items from a specific folder
+    """Get items from a specific folder.
 
     Args:
         asset_select: a fully defined asset widget
         gee_user_dir: the path to the GEE directory
     """
-
     # test function itself
     asset_select.items = []
     asset_select._get_items()
@@ -154,7 +153,7 @@ def default_items() -> List[str]:
 
 @pytest.fixture
 def asset_select(gee_dir: Path) -> sw.AssetSelect:
-    """create a default assetSelect.
+    """Create a default assetSelect.
 
     Args:
         gee_dir: the path to the session defined GEE directory

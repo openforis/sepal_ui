@@ -1,10 +1,10 @@
-"""Test the StateBar widget"""
+"""Test the StateBar widget."""
 
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Check init the widget"""
+    """Check init the widget."""
     # minimal state bar
     state_bar = sw.StateBar()
     assert len(state_bar.children) == 2
@@ -14,7 +14,7 @@ def test_init() -> None:
 
 
 def test_add_msg() -> None:
-    """Check that a message can be added"""
+    """Check that a message can be added."""
     state_bar = sw.StateBar()
 
     # assert that add msg can add a msg without blocking the loading

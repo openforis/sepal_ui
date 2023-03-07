@@ -1,4 +1,4 @@
-"""Test the Alert widget"""
+"""Test the Alert widget."""
 
 import pytest
 
@@ -8,7 +8,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 
 def test_init() -> None:
-    """Test widget init"""
+    """Test widget init."""
     # default init
     alert = sw.Alert()
     assert alert.viz is False
@@ -28,7 +28,7 @@ def test_init() -> None:
 
 
 def test_add_msg() -> None:
-    """Check alert can receive new messagess"""
+    """Check alert can receive new messagess."""
     alert = sw.Alert()
     msg = "toto"
 
@@ -54,8 +54,7 @@ def test_add_msg() -> None:
 
 
 def test_add_live_msg() -> None:
-    """Check alert can receive new live messages"""
-
+    """Check alert can receive new live messages."""
     alert = sw.Alert()
     msg = "toto"
 
@@ -81,8 +80,7 @@ def test_add_live_msg() -> None:
 
 
 def test_append_msg() -> None:
-    """Check I can append new messages to alert object"""
-
+    """Check I can append new messages to alert object."""
     alert = sw.Alert()
     start = "toto"
     msg = "tutu"
@@ -120,8 +118,7 @@ def test_append_msg() -> None:
 
 
 def test_reset() -> None:
-    """Check alert object can be reset"""
-
+    """Check alert object can be reset."""
     alert = sw.Alert()
     alert.add_msg("toto").reset()
 
@@ -133,8 +130,7 @@ def test_reset() -> None:
 
 
 def test_rmv_last_msg() -> None:
-    """Check last message can be removed"""
-
+    """Check last message can be removed."""
     # check with a no msg alert
     alert = sw.Alert().remove_last_msg()
 
@@ -165,8 +161,7 @@ def test_rmv_last_msg() -> None:
 
 
 def test_update_progress() -> None:
-    """Check alert can embed tqdm output"""
-
+    """Check alert can embed tqdm output."""
     # test a random update
     alert = sw.Alert()
     alert.update_progress(0.5)

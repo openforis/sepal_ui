@@ -1,4 +1,4 @@
-"""Test the FileInput widget"""
+"""Test the FileInput widget."""
 
 from pathlib import Path
 from typing import List
@@ -12,7 +12,7 @@ from sepal_ui.model import Model
 
 
 def test_init(root_dir: Path) -> None:
-    """Init the widget
+    """Init the widget.
 
     Args:
         root_dir: the patht to the root of the repository
@@ -42,7 +42,7 @@ def test_init(root_dir: Path) -> None:
 
 
 def test_bind(file_input: sw.FileInput) -> None:
-    """Check binding with a model works
+    """Check binding with a model works.
 
     Args:
         file_input: a widget instance
@@ -68,7 +68,7 @@ def test_bind(file_input: sw.FileInput) -> None:
 
 
 def test_on_file_select(root_dir: Path, file_input: sw.FileInput, readme: Path) -> None:
-    """Check that A file can be selected
+    """Check that A file can be selected.
 
     Args:
         root_dir: the path to the root of the repository
@@ -92,7 +92,7 @@ def test_on_file_select(root_dir: Path, file_input: sw.FileInput, readme: Path) 
 
 
 def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
-    """Check that updating file content is updated when clicking on reload
+    """Check that updating file content is updated when clicking on reload.
 
     Args:
         file_input: a widget instance
@@ -120,7 +120,7 @@ def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
 
 
 def test_reset(file_input: sw.FileInput, root_dir: Path, readme: Path):
-    """Reset the control after setting it to readme
+    """Reset the control after setting it to readme.
 
     Args:
         root_dir: the path to the root of the repository
@@ -141,7 +141,7 @@ def test_reset(file_input: sw.FileInput, root_dir: Path, readme: Path):
 
 
 def test_select_file(file_input: sw.FileInput, readme: Path) -> None:
-    """Check selecting a known file
+    """Check selecting a known file.
 
     Args:
         file_input: a widget instance
@@ -161,13 +161,12 @@ def test_select_file(file_input: sw.FileInput, readme: Path) -> None:
 
 
 def test_root(file_input: sw.FileInput, root_dir: Path) -> None:
-    """Add a root folder to a file_input and check that you can't go higher
+    """Add a root folder to a file_input and check that you can't go higher.
 
     Args:
         file_input: a widget instance
         root_dir: the path to the root of this repository
     """
-
     # set the root to the current folder and reload
     file_input.root = str(root_dir)
     file_input._on_reload()
@@ -180,7 +179,7 @@ def test_root(file_input: sw.FileInput, root_dir: Path) -> None:
 
 @pytest.fixture
 def file_input(root_dir: Path) -> sw.FileInput:
-    """create a default file_input in the root_dir.
+    """Create a default file_input in the root_dir.
 
     Returns:
         an object instance
@@ -190,7 +189,7 @@ def file_input(root_dir: Path) -> sw.FileInput:
 
 @pytest.fixture
 def readme(root_dir: Path) -> Path:
-    """return the readme file path.
+    """Return the readme file path.
 
     Returns:
         the path to the file
@@ -199,7 +198,7 @@ def readme(root_dir: Path) -> Path:
 
 
 def get_names(file_input: sw.FileInput) -> List[str]:
-    """get the list name of a fileinput object.
+    """Get the list name of a fileinput object.
 
     Args:
         file_input: a file_input widget
@@ -207,7 +206,6 @@ def get_names(file_input: sw.FileInput) -> List[str]:
     Returns:
         the names of the current files
     """
-
     item_list = file_input.file_list.children[0].children
 
     def get_name(item):

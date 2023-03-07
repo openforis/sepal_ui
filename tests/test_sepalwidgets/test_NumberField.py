@@ -1,12 +1,11 @@
-"""Test the NumberField widget"""
+"""Test the NumberField widget."""
 
 
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Test Init widget"""
-
+    """Test Init widget."""
     number = sw.NumberField()
 
     assert isinstance(number, sw.NumberField)
@@ -24,8 +23,7 @@ def test_init() -> None:
 
 
 def test_increment() -> None:
-    """Check increment the widget values"""
-
+    """Check increment the widget values."""
     number = sw.NumberField()
 
     # increment to 5
@@ -47,8 +45,7 @@ def test_increment() -> None:
 
 
 def test_decrement() -> None:
-    """Check decrement the widget values"""
-
+    """Check decrement the widget values."""
     number = sw.NumberField()
 
     # increment to 5

@@ -1,4 +1,4 @@
-"""Test the planet PlanetModel model"""
+"""Test the planet PlanetModel model."""
 
 import json
 import os
@@ -13,13 +13,12 @@ from sepal_ui.planetapi import PlanetModel
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_init(planet_key: str, cred: list) -> None:
-    """Test model init with different identification methods
+    """Test model init with different identification methods.
 
     Args:
         planet_key: the planet API key
         cred: the user credentials (usernam, pasword)
     """
-
     # Test with a valid api key
     planet_model = PlanetModel(planet_key)
 
@@ -44,7 +43,7 @@ def test_init(planet_key: str, cred: list) -> None:
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
 def test_init_client(credentials: Any, request: FixtureRequest) -> None:
-    """Check init the client with 2 methods
+    """Check init the client with 2 methods.
 
     Args:
         credentials: any credentials as set in the parameters
@@ -63,7 +62,7 @@ def test_init_client(credentials: Any, request: FixtureRequest) -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_init_session_from_event() -> None:
-    """Check init the session from an event"""
+    """Check init the session from an event."""
     planet_model = PlanetModel()
 
     # Test with bad credentials format
@@ -83,7 +82,7 @@ def test_init_session_from_event() -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_is_active(planet_key: str) -> None:
-    """Check if the model is active when set with api key
+    """Check if the model is active when set with api key.
 
     Args:
         planet_key: the planet API key
@@ -100,7 +99,7 @@ def test_is_active(planet_key: str) -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_get_subscriptions(planet_key: str) -> None:
-    """check the registered subs of the test api key
+    """Check the registered subs of the test api key.
 
     Args:
         planet_key: the planet API key
@@ -117,7 +116,11 @@ def test_get_subscriptions(planet_key: str) -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_get_planet_items(planet_key: str) -> None:
+    """Get the planet items and check an expected entry.
 
+    Args:
+        planet_key: the planet API key
+    """
     planet_model = PlanetModel(planet_key)
     aoi = {  # Yasuni national park in Ecuador
         "type": "Polygon",
@@ -145,7 +148,7 @@ def test_get_planet_items(planet_key: str) -> None:
 
 @pytest.fixture
 def planet_key() -> str:
-    """Get the planet key stored in env
+    """Get the planet key stored in env.
 
     Returns:
         the str key
@@ -155,7 +158,7 @@ def planet_key() -> str:
 
 @pytest.fixture
 def cred() -> list:
-    """Get the credentials stored in env
+    """Get the credentials stored in env.
 
     Returns:
         credential as a list: [cred(username, password)]

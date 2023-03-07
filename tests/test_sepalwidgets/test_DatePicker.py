@@ -1,4 +1,4 @@
-"""Test the DatePicker widget"""
+"""Test the DatePicker widget."""
 
 from traitlets import Any
 
@@ -7,8 +7,7 @@ from sepal_ui.model import Model
 
 
 def test_init() -> None:
-    """Check widget init"""
-
+    """Check widget init."""
     # default init
     datepicker = sw.DatePicker()
     assert isinstance(datepicker, sw.DatePicker)
@@ -26,7 +25,7 @@ def test_init() -> None:
 
 
 def test_kwargs() -> None:
-    """test kwargs to both datepicker and layout."""
+    """Test kwargs to both datepicker and layout."""
     date_picker_kwargs = {
         "min": "2018-02-14",
         "max": "2021-03-14",
@@ -50,8 +49,7 @@ def test_kwargs() -> None:
 
 
 def test_bind() -> None:
-    """Check we can bind the value with other trait"""
-
+    """Check we can bind the value with other trait."""
     datepicker = sw.DatePicker()
 
     class Test_io(Model):
@@ -71,8 +69,7 @@ def test_bind() -> None:
 
 
 def test_disable() -> None:
-    """Check the widget can be disabled"""
-
+    """Check the widget can be disabled."""
     datepicker = sw.DatePicker()
 
     for boolean in [True, False]:
@@ -83,8 +80,7 @@ def test_disable() -> None:
 
 
 def test_is_valid_date() -> None:
-    """Ensure v_model can only be a well defined date"""
-
+    """Ensure v_model can only be a well defined date."""
     datepicker = sw.DatePicker()
 
     # a nicely shaped date
@@ -99,8 +95,7 @@ def test_is_valid_date() -> None:
 
 
 def test_check_date() -> None:
-    """Check when the date is manually set, the date format is tested as well"""
-
+    """Check when the date is manually set, the date format is tested as well."""
     datepicker = sw.DatePicker()
 
     # manually update the value with a badely shaped date

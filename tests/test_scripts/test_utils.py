@@ -1,4 +1,4 @@
-"""Test the helper methods contained in utils file"""
+"""Test the helper methods contained in utils file."""
 
 import random
 from configparser import ConfigParser
@@ -18,8 +18,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 
 def test_hide_component() -> None:
-    """Check we can hide vanilla ipyvuetify widgets"""
-
+    """Check we can hide vanilla ipyvuetify widgets."""
     # hide a normal v component
     widget = v.Btn()
     su.hide_component(widget)
@@ -34,8 +33,7 @@ def test_hide_component() -> None:
 
 
 def test_show_component() -> None:
-    """Check we can show vanilla ipyvuetify widgets"""
-
+    """Check we can show vanilla ipyvuetify widgets."""
     # show a normal v component
     widget = v.Btn()
     su.hide_component(widget)
@@ -52,8 +50,7 @@ def test_show_component() -> None:
 
 
 def test_download_link() -> None:
-    """Check we can create SEPAL compatible download links"""
-
+    """Check we can create SEPAL compatible download links."""
     # check the URL for a 'toto/tutu.png' path
     path = "toto/tutu.png"
 
@@ -67,8 +64,7 @@ def test_download_link() -> None:
 
 
 def test_random_string() -> None:
-    """Check we can create random strings"""
-
+    """Check we can create random strings."""
     # use a seed for the random function
     random.seed(1)
 
@@ -86,8 +82,7 @@ def test_random_string() -> None:
 
 
 def test_get_file_size() -> None:
-    """Check we can display file size in human readable manner"""
-
+    """Check we can display file size in human readable manner."""
     # init test values
     test_value = 7.5
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
@@ -112,8 +107,7 @@ def test_get_file_size() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init_ee() -> None:
-    """Check we can init EE"""
-
+    """Check we can init EE."""
     # check that no error is raised
     su.init_ee()
 
@@ -121,7 +115,7 @@ def test_init_ee() -> None:
 
 
 def test_to_colors() -> None:
-    """Check we can handle any color format and transform it back to hex"""
+    """Check we can handle any color format and transform it back to hex."""
     # setup the same color in several formats
     colors = {
         "hex": "#b8860b",
@@ -143,8 +137,7 @@ def test_to_colors() -> None:
 
 
 def test_next_string() -> None:
-    """Check string can be automatically indexed when equals"""
-
+    """Check string can be automatically indexed when equals."""
     # Arrange
     input_string = "name"
     output_string = "name_1"
@@ -158,8 +151,7 @@ def test_next_string() -> None:
 
 
 def test_set_config_locale() -> None:
-    """Check we can set local config file"""
-
+    """Check we can set local config file."""
     # remove any config file that could exist
     if config_file.is_file():
         config_file.unlink()
@@ -186,8 +178,7 @@ def test_set_config_locale() -> None:
 
 
 def test_set_config_theme() -> None:
-    """Check we can set the theme config variable"""
-
+    """Check we can set the theme config variable."""
     # remove any config file that could exist
     if config_file.is_file():
         config_file.unlink()
@@ -214,8 +205,7 @@ def test_set_config_theme() -> None:
 
 
 def test_set_style() -> None:
-    """Check we know the authorized type names"""
-
+    """Check we know the authorized type names."""
     # test every legit type
     for t in TYPES:
         assert t == su.set_type(t)
@@ -230,8 +220,7 @@ def test_set_style() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_geojson_to_ee() -> None:
-    """Check the method to parse geojson into ee.FeatureCollection"""
-
+    """Check the method to parse geojson into ee.FeatureCollection."""
     # create a point list
     points = [sg.Point(i, i + 1) for i in range(4)]
     d = {"col1": [str(i) for i in range(len(points))], "geometry": points}
@@ -265,8 +254,7 @@ def test_geojson_to_ee() -> None:
 
 
 def test_check_input() -> None:
-    """test if an input is set or not"""
-
+    """Test if an input is set or not."""
     with pytest.raises(ValueError, match="The value has not been initialized"):
         su.check_input(None)
 

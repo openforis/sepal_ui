@@ -1,3 +1,5 @@
+"""Test the custom Layer Control."""
+
 import ee
 import pytest
 
@@ -8,8 +10,7 @@ from sepal_ui import sepalwidgets as sw
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init() -> None:
-    """Check the init of a layer control on a standard map"""
-
+    """Check the init of a layer control on a standard map."""
     # create a map with 1 layer (the basemap)
     m = sm.SepalMap()
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
@@ -29,8 +30,7 @@ def test_init() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_layer() -> None:
-    """Check that adding a layer refresh the layer control"""
-
+    """Check that adding a layer refresh the layer control."""
     m = sm.SepalMap()
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
 
@@ -55,8 +55,7 @@ def test_add_layer() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_basemaps() -> None:
-    """Check that multiple basempas can be displayed at the same time"""
-
+    """Check that multiple basempas can be displayed at the same time."""
     m = sm.SepalMap()
     m.add_basemap("HYBRID")
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
@@ -74,8 +73,7 @@ def test_add_basemaps() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_change_alpha() -> None:
-    """Check that alpha channel can be changed"""
-
+    """Check that alpha channel can be changed."""
     m = sm.SepalMap()
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
     data = (
@@ -100,8 +98,7 @@ def test_change_alpha() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_select() -> None:
-    """Check that layers can be selected and deselected preserving the alpha value"""
-
+    """Check that layers can be selected and deselected preserving the alpha value."""
     m = sm.SepalMap()
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
     data = (
@@ -129,8 +126,7 @@ def test_select() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_change_basemap() -> None:
-    """Check that besmap can be changed and that user can select 2 at a time"""
-
+    """Check that besmap can be changed and that user can select 2 at a time."""
     m = sm.SepalMap(["HYBRID", "CartoDB.Positron"])
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
     layer_rows = layer_control.tile.get_children(klass=sm.BaseRow)
@@ -166,8 +162,7 @@ def test_change_basemap() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_ungrouped() -> None:
-    """Check that layer control can be displayed at the same time with other menus"""
-
+    """Check that layer control can be displayed at the same time with other menus."""
     m = sm.SepalMap(["HYBRID", "CartoDB.Positron"], vinspector=True)
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
     m.v_inspector.menu.v_model = True
@@ -180,8 +175,7 @@ def test_ungrouped() -> None:
 
 
 def test_vectors() -> None:
-    """Check that vectors are grouped together and they can be controlled"""
-
+    """Check that vectors are grouped together and they can be controlled."""
     m = sm.SepalMap()
     m.add_layer(aoi.AoiModel(admin="171").get_ipygeojson())
     aoi_layer = m.find_layer("aoi")

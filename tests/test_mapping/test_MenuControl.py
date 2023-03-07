@@ -1,9 +1,11 @@
+"""Test the Menu Control."""
+
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init a menu control"""
+    """Init a menu control."""
     # create a tile
     tile = sw.Tile(
         "toto", "tutu", inputs=[sw.Slider()], btn=sw.Btn(), alert=sw.Alert().show()
@@ -33,7 +35,7 @@ def test_init() -> None:
 
 
 def test_update_position() -> None:
-    """Update the position dynamically"""
+    """Update the position dynamically."""
     # create the widget
     menu_control = sm.MenuControl("fa-solid fa-folder", sw.Card())
 
@@ -54,7 +56,7 @@ def test_update_position() -> None:
 
 
 def test_close_others() -> None:
-    """Check that other controls are closed when another of the same group is opened"""
+    """Check that other controls are closed when another of the same group is opened."""
     # add controls on the map
     m = sm.SepalMap()
     control_1 = sm.MenuControl("fa-solid fa-folder", sw.Card(), m=m)

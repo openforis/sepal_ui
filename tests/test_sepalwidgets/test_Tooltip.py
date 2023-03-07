@@ -1,8 +1,10 @@
+"""Test the Tooltip widget."""
+
 from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the tooltip widget"""
+    """Init the tooltip widget."""
     # Arrange
     btn = sw.Btn("click")
     tooltip = sw.Tooltip(widget=btn, tooltip="tooltip")

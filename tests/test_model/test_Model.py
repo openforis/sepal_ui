@@ -1,4 +1,4 @@
-"""Test the Model class"""
+"""Test the Model class."""
 
 import json
 
@@ -16,7 +16,7 @@ class DummyClass(model.Model):
 
 
 def test_export(dum_model: DummyClass, test_data: dict) -> None:
-    """Export model data and check validity
+    """Export model data and check validity.
 
     Args:
         dum_model: a dummy model
@@ -35,7 +35,7 @@ def test_export(dum_model: DummyClass, test_data: dict) -> None:
 
 
 def test_import(dum_model: DummyClass, test_data: dict) -> None:
-    """Check we can import data from a exported dict
+    """Check we can import data from a exported dict.
 
     Args:
         dum_model: a dummy model
@@ -59,7 +59,7 @@ def test_import(dum_model: DummyClass, test_data: dict) -> None:
 
 
 def test_str(dum_model: DummyClass, test_data: dict) -> None:
-    """Check the representation of a model
+    """Check the representation of a model.
 
     Args:
         dum_model: a dummy model
@@ -75,21 +75,19 @@ def test_str(dum_model: DummyClass, test_data: dict) -> None:
 
 @pytest.fixture
 def test_data() -> dict:
-    """test data to fill a model class
+    """Test data to fill a model class.
 
     Returns:
         traits as key value pairs
     """
-
     return {"dummy1": "test1", "dummy2": "test2"}
 
 
 @pytest.fixture
 def dum_model() -> DummyClass:
-    """a dummyclass instance
+    """A dummyclass instance.
 
     Returns:
         the object
     """
-
     return DummyClass()

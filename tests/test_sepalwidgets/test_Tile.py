@@ -1,4 +1,4 @@
-"""Test the different Tile widgets"""
+"""Test the different Tile widgets."""
 
 from pathlib import Path
 
@@ -8,8 +8,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Check the widget init"""
-
+    """Check the widget init."""
     # default init
     id_ = "id"
     title = "title"
@@ -30,8 +29,7 @@ def test_init() -> None:
 
 
 def test_set_content() -> None:
-    """Check content can be set from a method"""
-
+    """Check content can be set from a method."""
     id_ = "id"
     title = "title"
     tile = sw.Tile(id_, title, alert=sw.Alert(), btn=sw.Btn())
@@ -48,8 +46,7 @@ def test_set_content() -> None:
 
 
 def test_set_title() -> None:
-    """Check title can be set from a method"""
-
+    """Check title can be set from a method."""
     id_ = "id"
     title = "title"
     input_ = v.Slider()
@@ -77,8 +74,7 @@ def test_set_title() -> None:
 
 
 def test_nest() -> None:
-    """Check tile can be nested"""
-
+    """Check tile can be nested."""
     id_ = "id"
     title = "title"
     input_ = v.Slider()
@@ -96,8 +92,7 @@ def test_nest() -> None:
 
 
 def test_hide() -> None:
-    """Check TIle can be hidden"""
-
+    """Check TIle can be hidden."""
     id_ = "id"
     title = "title"
     tile = sw.Tile(id_, title)
@@ -112,8 +107,7 @@ def test_hide() -> None:
 
 
 def test_show() -> None:
-    """Check Tile can be shown"""
-
+    """Check Tile can be shown."""
     id_ = "id"
     title = "title"
     tile = sw.Tile(id_, title).hide()
@@ -128,8 +122,7 @@ def test_show() -> None:
 
 
 def test_toggle_inputs() -> None:
-    """Check inputs can be shown alternatively"""
-
+    """Check inputs can be shown alternatively."""
     inputs = []
     for i in range(5):
         inputs.append(v.Slider())
@@ -155,8 +148,7 @@ def test_toggle_inputs() -> None:
 
 
 def test_get_id() -> None:
-    """Check id can be retreived"""
-
+    """Check id can be retreived."""
     id_ = "id"
     tile = sw.Tile(id_, "title", [""])
 
@@ -166,8 +158,7 @@ def test_get_id() -> None:
 
 
 def test_tile_about() -> None:
-    """Check the init of the special cased About Tile"""
-
+    """Check the init of the special cased About Tile."""
     pathname = Path(__file__).parents[2] / "CODE_OF_CONDUCT.md"
 
     tile = sw.TileAbout(pathname)
@@ -185,8 +176,7 @@ def test_tile_about() -> None:
 
 
 def test_tile_disclaimer() -> None:
-    """Check init of the special cased Disclaimer tile"""
-
+    """Check init of the special cased Disclaimer tile."""
     tile = sw.TileDisclaimer()
 
     assert isinstance(tile, sw.TileDisclaimer)

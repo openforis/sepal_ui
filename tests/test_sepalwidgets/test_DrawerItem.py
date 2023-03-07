@@ -1,4 +1,4 @@
-"""Test the DrawerItem widget"""
+"""Test the DrawerItem widget."""
 
 import ipyvuetify as v
 import pytest
@@ -9,13 +9,13 @@ from sepal_ui.model import Model
 
 
 class TestModel(Model):
-    """A test model with one single trait"""
+    """A test model with one single trait."""
 
     app_ready = Bool(False).tag(sync=True)
 
 
 def test_init_cards() -> None:
-    """Check init the widgets"""
+    """Check init the widgets."""
     title = "toto"
     id_ = "toto_id"
     icon = "fa-solid fa-folder"
@@ -44,7 +44,7 @@ def test_init_cards() -> None:
 
 
 def test_display_tile() -> None:
-    """Display the tile that is associated with the widget"""
+    """Display the tile that is associated with the widget."""
     # build fake tiles
     tiles = []
     for i in range(5):
@@ -75,7 +75,7 @@ def test_display_tile() -> None:
 
 
 def test_add_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
-    """Check notification is added to the drawer
+    """Check notification is added to the drawer.
 
     Args:
         model: the model piloting the status of the tile
@@ -91,13 +91,12 @@ def test_add_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
 
 
 def test_remove_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
-    """Check notification can be removed
+    """Check notification can be removed.
 
     Args:
         model: the model piloting the status of the tile
         drawer_item: a drawer item associated to the model
     """
-
     model.app_ready = True
     drawer_item.remove_notif()
     assert drawer_item.alert_badge not in drawer_item.children
@@ -107,18 +106,17 @@ def test_remove_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
 
 @pytest.fixture
 def model() -> TestModel:
-    """A test model instance
+    """A test model instance.
 
     Returns:
         the object instance
     """
-
     return TestModel()
 
 
 @pytest.fixture
 def drawer_item(model: TestModel) -> sw.DrawerItem:
-    """create dummy drawer item.
+    """Create dummy drawer item.
 
     Args:
         model: the test_model to update drawer status

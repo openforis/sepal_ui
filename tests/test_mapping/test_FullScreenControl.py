@@ -1,8 +1,10 @@
+"""Test the FullScreen Control."""
+
 from sepal_ui import mapping as sm
 
 
 def test_init() -> None:
-    """Init a FullScreen Control"""
+    """Init a FullScreen Control."""
     # check that the map start with no info
     map_ = sm.SepalMap()
 
@@ -19,7 +21,7 @@ def test_init() -> None:
 
 
 def test_toggle_fullscreen() -> None:
-    """Check we can toggle the fullsxreen state"""
+    """Check we can toggle the fullsxreen state."""
     map_ = sm.SepalMap()
     control = sm.FullScreenControl(map_)
     map_.add(control)

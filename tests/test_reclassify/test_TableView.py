@@ -1,11 +1,10 @@
-"""Test the tableView widget"""
+"""Test the tableView widget."""
 
 from sepal_ui import reclassify as rec
 
 
 def test_init() -> None:
-    """Check the init widget"""
-
+    """Check the init widget."""
     # default init
     view = rec.TableView()
     assert isinstance(view, rec.TableView)
@@ -14,13 +13,12 @@ def test_init() -> None:
 
 
 def test_get_class() -> None:
-    """Nothing is tested"""
+    """Nothing is tested."""
     return
 
 
 def test_nest_tile() -> None:
-    """Check tile is nested"""
-
+    """Check tile is nested."""
     # nest the tile
     view = rec.TableView()
     res = view.nest_tile()

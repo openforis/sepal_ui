@@ -1,4 +1,4 @@
-"""Test PlanetView widget"""
+"""Test PlanetView widget."""
 
 import json
 import os
@@ -11,8 +11,7 @@ from sepal_ui.planetapi import PlanetView
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_init() -> None:
-    """Check the widget init"""
-
+    """Check the widget init."""
     planet_view = PlanetView()
 
     # check the feault planet_view
@@ -31,8 +30,7 @@ def test_init() -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_reset() -> None:
-    """Check the widget can be reset"""
-
+    """Check the widget can be reset."""
     planet_view = PlanetView()
 
     # add dummy parameter
@@ -65,8 +63,7 @@ def test_reset() -> None:
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_validate() -> None:
-    """Check the probvided credentials can be validated"""
-
+    """Check the probvided credentials can be validated."""
     planet_view = PlanetView()
 
     # Arrange

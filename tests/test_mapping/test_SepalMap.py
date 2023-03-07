@@ -1,3 +1,5 @@
+"""Test the SepalMap object."""
+
 import json
 import math
 import random
@@ -28,7 +30,7 @@ except ModuleNotFoundError:
 
 
 def test_init() -> None:
-    """Init a Sepal Map"""
+    """Init a Sepal Map."""
     # check that the map start with no info
     m = sm.SepalMap()
     id1 = m._id  # to check that the next map has another ID
@@ -74,7 +76,7 @@ def test_init() -> None:
 
 
 def test_set_center() -> None:
-    """Check the center can be updated"""
+    """Check the center can be updated."""
     m = sm.SepalMap()
 
     lat = random.randint(-90, 90)
@@ -90,7 +92,7 @@ def test_set_center() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def zoom_ee_object() -> None:
-    """Check we can zoom on a GEE object"""
+    """Check we can zoom on a GEE object."""
     # init objects
     m = sm.SepalMap()
     ee_object = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(
@@ -142,7 +144,7 @@ def test_zoom_bounds() -> None:
 
 @pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_add_raster(rgb: Path, byte: Path) -> None:
-    """add raster files to the map
+    """Add raster files to the map.
 
     Args:
         rgb: the path to a rgb image (3 bands)
@@ -165,7 +167,7 @@ def test_add_raster(rgb: Path, byte: Path) -> None:
 
 
 def test_add_colorbar() -> None:
-    """Add a colorbar to the map"""
+    """Add a colorbar to the map."""
     # create a map and add a colorbar
     m = sm.SepalMap()
     m.add_colorbar(colors=["#fc8d59", "#ffffbf", "#91bfdb"], vmin=0, vmax=5)
@@ -177,7 +179,7 @@ def test_add_colorbar() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_ee_layer_exceptions() -> None:
-    """Check exceptions are raised on ee_layer method"""
+    """Check exceptions are raised on ee_layer method."""
     map_ = sm.SepalMap()
 
     # Test add a non ee map element
@@ -206,7 +208,7 @@ def test_add_ee_layer_exceptions() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_ee_layer(image_id: str) -> None:
-    """Add a GEE layer on the map
+    """Add a GEE layer on the map.
 
     Args:
         image_id: the AssetId of the Daniel W. image
@@ -254,7 +256,7 @@ def test_add_ee_layer(image_id: str) -> None:
 
 
 def test_get_basemap_list() -> None:
-    """set multiple basemaps on the SepalMap"""
+    """Set multiple basemaps on the SepalMap."""
     # Retrieve 5 random maps
     random_basemaps = [
         "Esri.OceanBasemap",
@@ -273,7 +275,7 @@ def test_get_basemap_list() -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_get_viz_params(image_id: str) -> None:
-    """Check I identify all the viz parameter from Daniel W. asset
+    """Check I identify all the viz parameter from Daniel W. asset.
 
     Args:
         image_id: the AssetId of the GEE image
@@ -331,7 +333,7 @@ def test_get_viz_params(image_id: str) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
-    """remove a spcific layer from the map
+    """Remove a spcific layer from the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -354,7 +356,7 @@ def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_remove_all(ee_map_with_layers: sm.SepalMap) -> None:
-    """Remove all layers from the map
+    """Remove all layers from the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -371,7 +373,7 @@ def test_remove_all(ee_map_with_layers: sm.SepalMap) -> None:
 
 
 def test_add_layer() -> None:
-    """Add geojson layer to the map"""
+    """Add geojson layer to the map."""
     m = sm.SepalMap()
 
     polygon = {
@@ -427,7 +429,7 @@ def test_add_layer() -> None:
 
 
 def test_add_basemap() -> None:
-    """Add a basemap to the map"""
+    """Add a basemap to the map."""
     m = sm.SepalMap()
     m.add_basemap("HYBRID")
 
@@ -444,7 +446,7 @@ def test_add_basemap() -> None:
 
 
 def test_get_scale():
-
+    """Get the scale of a map."""
     m = sm.SepalMap()
     m.zoom = 5
 
@@ -455,7 +457,7 @@ def test_get_scale():
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
-    """Find a layer in a map
+    """Find a layer in a map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -501,7 +503,7 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
 
 @pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_zoom_raster(byte: Path) -> None:
-    """Check that we can zoom on a raster
+    """Check that we can zoom on a raster.
 
     Args:
         byte: the path to the image
@@ -521,7 +523,7 @@ def test_zoom_raster(byte: Path) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
-    """add a legend to the map
+    """Add a legend to the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -586,7 +588,7 @@ def byte() -> Path:
 
 @pytest.fixture
 def ee_map_with_layers(image_id: str) -> sm.SepalMap:
-    """A sepalMap supporting each combo band from the asset"""
+    """A sepalMap supporting each combo band from the asset."""
     image = ee.Image(image_id)
     m = sm.SepalMap()
 
@@ -599,7 +601,7 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
 
 @pytest.fixture
 def image_id() -> str:
-    """The image id of an asset
+    """The image id of an asset.
 
     Returns:
         the AssetId of Daniel Wiell asset

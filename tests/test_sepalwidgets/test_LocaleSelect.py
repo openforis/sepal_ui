@@ -1,4 +1,4 @@
-"""Test the LocalSelect widget"""
+"""Test the LocalSelect widget."""
 
 from configparser import ConfigParser
 
@@ -7,8 +7,7 @@ from sepal_ui.conf import config_file
 
 
 def test_init() -> None:
-    """Check widget init"""
-
+    """Check widget init."""
     locale_select = sw.LocaleSelect()
 
     # minimal btn
@@ -19,8 +18,7 @@ def test_init() -> None:
 
 
 def test_change_language() -> None:
-    """Check default language can be change from the widget"""
-
+    """Check default language can be change from the widget."""
     locale_select = sw.LocaleSelect()
 
     # remove any existing config file

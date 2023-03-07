@@ -1,4 +1,4 @@
-"""Test the Btn widget"""
+"""Test the Btn widget."""
 
 import ipyvuetify as v
 import pytest
@@ -7,7 +7,7 @@ from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:
-    """Init the Btn widget"""
+    """Init the Btn widget."""
     # minimal btn
     btn = sw.Btn()
     assert btn.color == "primary"
@@ -24,7 +24,7 @@ def test_init() -> None:
 
 
 def test_toggle_loading(btn: sw.Btn) -> None:
-    """Toggle loading status of the btn
+    """Toggle loading status of the btn.
 
     Args:
         btn: a Btn object
@@ -42,7 +42,7 @@ def test_toggle_loading(btn: sw.Btn) -> None:
 
 
 def test_set_gliph(btn: sw.Btn) -> None:
-    """Dynamically set the gliph
+    """Dynamically set the gliph.
 
     Args:
         btn: a Btn object
@@ -78,7 +78,7 @@ def test_set_gliph(btn: sw.Btn) -> None:
 
 
 def test_set_msg(btn: sw.Btn) -> None:
-    """Dynamically set the btn message
+    """Dynamically set the btn message.
 
     Args:
         btn: the Btn object
