@@ -681,9 +681,9 @@ class App(v.App, SepalWidget):
         Args:
             msg: Message to display in application banner. default to nothing
             type\_: Used to display an appropiate banner color. fallback to "info".
-            id_: unique banner identificator.
+            id\_: unique banner identificator.
             persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
-            **kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
+            \*\*kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
         """
         # the Banner was previously an Alert. for compatibility we accept the type parameter
         type_ = kwargs.pop("type", type_)
