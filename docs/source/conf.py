@@ -53,7 +53,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
-    "sphinx-favicon",
+    "sphinx_favicon",
     "notfound.extension",
     "sphinxcontrib.autoprogram",
     "_extentions.line_break",

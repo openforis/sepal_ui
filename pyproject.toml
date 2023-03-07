@@ -77,7 +77,7 @@ test = [
     "nbmake",
 ]
 doc = [
-    "Sphinx",
+    "sphinx @ git+https://github.com/jenshnielsen/sphinx.git@fix_9884",
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
