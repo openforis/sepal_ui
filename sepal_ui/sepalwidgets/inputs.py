@@ -156,6 +156,12 @@ class DatePicker(v.Layout, SepalWidget):
 
         return
 
+    def today(self) -> Self:
+        """Update the date to the current day."""
+        self.v_model = datetime.today().strftime("%Y-%m-%d")
+
+        return self
+
     @staticmethod
     def is_valid_date(date: str) -> bool:
         """
