@@ -1,5 +1,7 @@
 """Test the DatePicker widget."""
 
+from datetime import datetime
+
 from traitlets import Any
 
 from sepal_ui import sepalwidgets as sw
@@ -109,5 +111,16 @@ def test_check_date() -> None:
     datepicker.v_model = test
     assert datepicker.v_model == test
     assert datepicker.date_text.error_messages is None
+
+    return
+
+
+def test_today() -> None:
+    """Check that the date is updated to today."""
+    datepicker = sw.DatePicker()
+    res = datepicker.today()
+
+    assert res == datepicker
+    assert res.v_model == datetime.today().strftime("%Y-%m-%d")
 
     return

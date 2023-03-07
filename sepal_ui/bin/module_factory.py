@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-"""
-Script to create the skeleton of a sepal-ui module.
+"""Script to create the skeleton of a sepal-ui module.
 
 The script will extract the skeleton of a module from the sepal_ui_template GitHub repository. This template will be adapted based on the answsers to the questionnaire.
 Placeholdre from the template will be replaced and the directory will be synced with a GitHub freshly created repository. Note that the repository need to be fully empty when the command is launched.
@@ -26,8 +25,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="module_factory")
 def set_default_readme(
     folder: Path, module_name: str, description: str, url: str
 ) -> None:
-    """
-    Write a default README.md file and overwrite the existing one.
+    """Write a default README.md file and overwrite the existing one.
 
     Args:
         folder: the module directory
@@ -59,8 +57,7 @@ def set_default_readme(
 
 
 def set_default_about(folder: Path, description: str) -> None:
-    """
-    Write a default ABOUT_en.md file and overwrite the existing one.
+    """Write a default ABOUT_en.md file and overwrite the existing one.
 
     Args:
         folder: the directory of the module
@@ -82,8 +79,7 @@ def set_default_about(folder: Path, description: str) -> None:
 
 
 def set_module_name(folder: Path, module_name: str) -> None:
-    """
-    Use the module name in the different translation dictionaries.
+    """Use the module name in the different translation dictionaries.
 
     Args:
         folder: the directory of the module
@@ -106,8 +102,7 @@ def set_module_name(folder: Path, module_name: str) -> None:
 
 
 def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
-    """
-    Set the module name in each documentation file and set the appropriate repository in the link.
+    """Set the module name in each documentation file and set the appropriate repository in the link.
 
     Args:
         folder: the directory of the module
@@ -133,8 +128,7 @@ def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
 
 
 def set_drawer_link(folder: Path, url: str) -> None:
-    """
-    Replace the reference to the default repository to the one provided by the user.
+    """Replace the reference to the default repository to the one provided by the user.
 
     Args:
         folder: the directory of the module
@@ -184,8 +178,8 @@ def main() -> None:
 
     # default to a panel application
     question = f"{Fore.CYAN}Do you need a fullscreen application [n]? \n{Fore.RESET}"
-    type_ = input(question) or "no"
-    branch = "map_app" if strtobool(type_) is True else "panel_app"
+    type_ = input(question)
+    branch = "map_app" if bool(strtobool(type_)) is True else "panel_app"
 
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub("[^a-zA-Z\d\-\_]", "_", module_name)

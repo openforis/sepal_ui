@@ -1,6 +1,4 @@
-"""
-Customized ``Control`` to display the value of all available layers on a specific pixel.
-"""
+"""Customized ``Control`` to display the value of all available layers on a specific pixel."""
 
 import json
 from pathlib import Path
@@ -47,8 +45,7 @@ class InspectorControl(MenuControl):
     "The marker of the last visited point"
 
     def __init__(self, m: Map, open_tree: bool = True, **kwargs) -> None:
-        """
-        Widget control displaying a btn on the map.
+        """Widget control displaying a btn on the map.
 
         When clicked the menu expand to show the values of each layer available on the map. The menu values will be change when the user click on a location on the map. It can digest any Layer added on a SepalMap.
 
@@ -90,8 +87,7 @@ class InspectorControl(MenuControl):
         self.m.on_interaction(self.read_data)
 
     def toggle_cursor(self, *args) -> None:
-        """
-        Toggle the cursor and marker display.
+        """Toggle the cursor and marker display.
 
         Toggle the cursor on the map to notify to the user that the inspector
         mode is activated. also activate previous marker if the inspector already include data.
@@ -103,8 +99,7 @@ class InspectorControl(MenuControl):
         return
 
     def read_data(self, **kwargs) -> None:
-        """
-        Read the data when the map is clicked with the vinspector activated.
+        """Read the data when the map is clicked with the vinspector activated.
 
         Args:
             kwargs: any arguments from the map interaction
@@ -184,8 +179,7 @@ class InspectorControl(MenuControl):
 
     @sd.need_ee
     def _from_eelayer(self, ee_obj: ee.ComputedObject, coords: Sequence[float]) -> dict:
-        """
-        extract the values of the ee_object for the considered point.
+        """Extract the values of the ee_object for the considered point.
 
         Args:
             ee_obj: the ee object to reduce to a single point
@@ -228,8 +222,7 @@ class InspectorControl(MenuControl):
         return pixel_values
 
     def _from_geojson(self, data: dict, coords: Sequence[float]) -> dict:
-        """
-        extract the values of the data for the considered point.
+        """Extract the values of the data for the considered point.
 
         Args:
             data: the shape to reduce to a single point
@@ -256,8 +249,7 @@ class InspectorControl(MenuControl):
             return gdf_filtered.iloc[0, ~gdf.columns.isin(skip_cols)].to_dict()
 
     def _from_raster(self, raster: Union[str, Path], coords: Sequence[float]) -> dict:
-        """
-        extract the values of the data-array for the considered point.
+        """Extract the values of the data-array for the considered point.
 
         Args:
             raster: the path to the image to reduce to a single point

@@ -1,17 +1,13 @@
-"""
-The map displayed in the map application.
-"""
+"""The map displayed in the map application."""
 
 from ipyleaflet import WidgetControl
-
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
 
 class MapTile(sw.Tile):
     def __init__(self):
-        """
-        Specific Map integrating all the widget components.
+        """Specific Map integrating all the widget components.
 
         Use this map to gather all your widget and place them on it. It will reduce the amount of work to perform in the notebook
         """

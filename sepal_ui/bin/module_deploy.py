@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-"""
-Script to update the requirements file with the currently used libs.
+"""Script to update the requirements file with the currently used libs.
 
 The script should be launched from a module directory.
 It will parse all the files and extract the differnet librairies used in the module. They will be added to the requirements.txt
@@ -31,8 +30,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="module_deploy")
 
 
 def write_reqs(file: Union[str, Path]) -> None:
-    """
-    write the requirements in the requirements file.
+    """Write the requirements in the requirements file.
 
     Args:
         file: the requirements file
@@ -62,14 +60,13 @@ def write_reqs(file: Union[str, Path]) -> None:
 
 
 def clean_dulpicate(file: Union[str, Path]) -> None:
-    """
-    Remove the requirements that are already part of the default installation.
+    """Remove the requirements that are already part of the default installation.
 
     Args:
         file: the requirements file
     """
     # already available libs
-    libs = ["wheel", "Cython", "pybind11", "GDAL", "pyproj", "sepal_ui"]
+    libs = ["jupyter", "voila", "toml", "sepal_ui"]
 
     file = Path(file)
     text = file.read_text().split("\n")
@@ -94,8 +91,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
 
 
 def clean_troubleshouting(file: Union[str, Path]) -> None:
-    """
-    Remove know buggish lib from the requirements.
+    """Remove know buggish lib from the requirements.
 
     The pipreqs is creating the file based on the import statements in .py files
     some libs doesn't have the same name as the pip command we are replacing/deleting the known one.
@@ -120,12 +116,10 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
                 f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui."
             )
             continue
-        elif any(lib in line for lib in ["osgeo", "gdal"]):
-            print(
-                f"Removing {Style.BRIGHT}'osgeo & gdal'{Style.NORMAL} from reqs, included in GDAL."
-            )
-            continue
-        elif "earthengine_api" in line:
+        elif any(lib in line for lib in ["osgeo"]):
+            print(f"Removing {Style.BRIGHT}'osgeo'{Style.NORMAL} as part of gdal")
+            line = "gdal"
+        elif "earthengine-api" in line:
             print(
                 f"Removing {Style.BRIGHT}earthengine_api{Style.NORMAL} from reqs, included in sepal_ui."
             )
@@ -140,8 +134,7 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
 
 
 def freeze_sepal_ui(file: Union[str, Path]) -> None:
-    """
-    Set the sepal version to the currently used sepal-ui version.
+    """Set the sepal version to the currently used sepal-ui version.
 
     Args:
         file: the requirements file
@@ -166,8 +159,7 @@ def freeze_sepal_ui(file: Union[str, Path]) -> None:
 
 
 def clean_custom(file: Union[str, Path]) -> None:
-    """
-    Remove the previous custom installation and requirements.
+    """Remove the previous custom installation and requirements.
 
     To start the process from a blank page.
 
@@ -203,9 +195,11 @@ def main() -> None:
     print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
-    ui_file = Path.cwd() / "ui.ipynb"
-    if not ui_file.is_file():
-        raise Exception(f"{Fore.RED}This is not a module folder.")
+    toml = Path.cwd() / "pyproject.toml"
+    try:
+        toml.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+    except FileNotFoundError as e:
+        raise Exception(f"{Fore.RED}This module folder has no pyproject.toml ({e})")
 
     # add the requirements to the requirements.txt file
     req_file = Path.cwd() / "requirements.txt"

@@ -1,19 +1,10 @@
-# these libs are requested to build common python libs 
-# if you are an advance user and are sure to not use them you can comment the following lines
-wheel
-Cython
-pybind11
-pre-commit
+# these libs are requested to build application env
+jupyter
 voila
+toml
 
-# if you require GDAL and or pyproj in your module please uncomment these lines
-# there are set up to be inlined with SEPAL implementation of GDAL and PROJ version
-pygdal==3.4.0.10
-pyproj<3.0.0
-
-# comment if you don't want to run your module with GEE in SEPAL
-git+https://github.com/openforis/earthengine-api.git@v0.1.270#egg=earthengine-api&subdirectory=python
-
-# the base lib to run any sepal_ui based app 
+# the base lib to run any sepal_ui based app
 # don't forget to fix it to a specific version when you're app is ready
 sepal_ui
+
+# custom libs

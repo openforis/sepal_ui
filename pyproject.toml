@@ -66,6 +66,10 @@ dev = [
     "pre-commit>=2.18.0",
     "commitizen",
     "nox",
+    "toml",
+    "jupyter",
+    "voila",
+    "mypy",
 ]
 test = [
     "pytest",
@@ -77,7 +81,7 @@ test = [
     "nbmake",
 ]
 doc = [
-    "Sphinx",
+    "sphinx @ git+https://github.com/jenshnielsen/sphinx.git@fix_9884",
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
@@ -133,7 +137,6 @@ select = ["E", "F", "W", "I", "D", "RUF"]
 ignore = [
     "E501",  # line too long | Black take care of it
     "W605",  # invalid escape sequence | we escape specific characters for sphinx
-    "D212", # Multi-line docstring | we use a different convention, too late
     "D200", # One-line docstring should fit on one line | too late
     "D101", # Missing docstring in public class | set it in __init__
     "D417", #  Missing argument descriptions in the docstring | seems buggy TODO

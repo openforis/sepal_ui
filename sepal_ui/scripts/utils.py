@@ -1,6 +1,4 @@
-"""
-All the helper function of sepal-ui. 
-"""
+"""All the helper function of sepal-ui."""
 
 import math
 import os
@@ -27,8 +25,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 
 def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
-    """
-    hide a vuetify based component.
+    """Hide a vuetify based component.
 
     Args:
         widget: the widget to hide
@@ -46,8 +43,7 @@ def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
 
 
 def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
-    """
-    show a vuetify based component.
+    """Show a vuetify based component.
 
     Args:
         widget: the widget to hide
@@ -65,8 +61,7 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
 
 
 def create_download_link(pathname: Union[str, Path]) -> str:
-    """
-    Create a clickable link to download the pathname target.
+    """Create a clickable link to download the pathname target.
 
     Args:
         pathname: the pathname th download
@@ -94,8 +89,7 @@ def create_download_link(pathname: Union[str, Path]) -> str:
 
 
 def random_string(string_length: int = 3) -> str:
-    """
-    Generates a random string of fixed length.
+    """Generates a random string of fixed length.
 
     Args:
         string_length: Fixed length. Defaults to 3.
@@ -109,8 +103,7 @@ def random_string(string_length: int = 3) -> str:
 
 
 def get_file_size(filename: Union[str, Path]) -> str:
-    """
-    Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
+    """Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
         filename: the path to the file to mesure
@@ -132,8 +125,7 @@ def get_file_size(filename: Union[str, Path]) -> str:
 
 
 def init_ee() -> None:
-    """
-    Initialize earth engine according to the environment.
+    """Initialize earth engine according to the environment.
 
     It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
     Otherwise it use the simple Initialize command (asking the user to register if necessary).
@@ -159,8 +151,7 @@ def init_ee() -> None:
 
 
 def normalize_str(msg: str, folder: bool = True) -> str:
-    """
-    Normalize an str to make it compatible with file naming (no spaces, special chars ...etc).
+    """Normalize an str to make it compatible with file naming (no spaces, special chars ...etc).
 
     Params:
         msg: the string to sanitise
@@ -177,8 +168,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
 def to_colors(
     in_color: Union[str, Sequence], out_type: str = "hex"
 ) -> Union[str, tuple]:
-    """
-    Transform any color type into a color in the specified output format.
+    """Transform any color type into a color in the specified output format.
 
     Avalable format: [hex]
 
@@ -221,8 +211,7 @@ def to_colors(
 
 
 def next_string(string: str) -> str:
-    """
-    Create a string followed by an underscore and a consecutive number.
+    """Create a string followed by an underscore and a consecutive number.
 
     Args:
         string: the initial string
@@ -243,8 +232,7 @@ def next_string(string: str) -> str:
 
 
 def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
-    """
-    Set a config variable.
+    """Set a config variable.
 
     Set the provided value to the given key for the given section in the sepal-ui config
     file.
@@ -271,8 +259,7 @@ def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     version="2.9.1", reason="This function will be removed in favor of set_config()"
 )
 def set_config_locale(locale: str) -> None:
-    """
-    Set the provided local in the sepal-ui config file.
+    """Set the provided local in the sepal-ui config file.
 
     Args:
         locale: a locale name in IETF BCP 47 (no verifications are performed)
@@ -284,8 +271,7 @@ def set_config_locale(locale: str) -> None:
     version="2.9.1", reason="This function will be removed in favor of set_config()"
 )
 def set_config_theme(theme: str) -> None:
-    """
-    Set the provided theme in the sepal-ui config file.
+    """Set the provided theme in the sepal-ui config file.
 
     Args:
         theme: a theme name (currently supporting "dark" and "light")
@@ -295,8 +281,7 @@ def set_config_theme(theme: str) -> None:
 
 @versionadded(version="2.7.1")
 def set_type(color: str) -> str:
-    r"""
-    Return a pre-defined material colors based on the requested type\_ parameter.
+    r"""Return a pre-defined material colors based on the requested type\_ parameter.
 
     If the parameter is not a predifined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
 
@@ -323,8 +308,7 @@ def set_type(color: str) -> str:
 def geojson_to_ee(
     geo_json: dict, geodesic: bool = False, encoding: str = "utf-8"
 ) -> ee.FeatureCollection:
-    """
-    Transform a geojson object into a featureCollection or a Geometry.
+    """Transform a geojson object into a featureCollection or a Geometry.
 
     No sanity check is performed on the initial geo_json. It must respect the
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
@@ -368,8 +352,7 @@ def geojson_to_ee(
 
 
 def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
-    r"""
-    Check if the inpupt value is initialized.
+    r"""Check if the inpupt value is initialized.
 
     If not raise an error, else return True.
 

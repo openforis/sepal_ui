@@ -1,6 +1,4 @@
-"""
-Module to load basemaps from different providers.
-"""
+"""Module to load basemaps from different providers."""
 
 from typing import Optional
 
@@ -44,8 +42,7 @@ def get_xyz_dict(
     _collection: Optional[dict] = None,
     _output: Optional[dict] = None,
 ) -> dict:
-    """
-    Returns a dictionary of xyz services.
+    """Returns a dictionary of xyz services.
 
     Args:
         free_only: Whether to return only free xyz tile services that do not require an access token.
@@ -71,8 +68,7 @@ def get_xyz_dict(
 
 
 def xyz_to_leaflet() -> dict:
-    """
-    Convert all available xyz tile services to ipyleaflet tile layers.
+    """Convert all available xyz tile services to ipyleaflet tile layers.
 
     Adapted from https://github.com/giswqs/geemap.
 

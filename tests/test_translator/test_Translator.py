@@ -164,10 +164,9 @@ def test_key_use() -> None:
     return
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def translation_folder() -> Path:
-    """
-    Generate a fully qualified translation folder with limited keys in en, fr and es.
+    """Generate a fully qualified translation folder with limited keys in en, fr and es.
 
     Cannot use the temfile lib as we need the directory to appear in the tree.
     """
@@ -200,9 +199,7 @@ def translation_folder() -> Path:
 
 @pytest.fixture
 def tmp_config_file() -> int:
-    """
-    Erase any existing config file and replace it with one specifically design for thesting the translation.
-    """
+    """Erase any existing config file and replace it with one specifically design for thesting the translation."""
     # erase anything that exists
     if config_file.is_file():
         config_file.unlink()

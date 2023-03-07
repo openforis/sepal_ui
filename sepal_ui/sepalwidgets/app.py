@@ -1,14 +1,13 @@
-"""
-Custom widgets relative to user application framework.
+"""Custom widgets relative to user application framework.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create the application framework.
 All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
-    
+
         from sepal_ui import sepalwidgets as sw
-        
+
         sw.LocaleSelect()
 """
 
@@ -71,8 +70,7 @@ class LocaleSelect(v.Menu, SepalWidget):
     "the list of countries with their flag,name in english, and ISO code"
 
     def __init__(self, translator: Optional[Translator] = None, **kwargs) -> None:
-        """
-        A language selector for sepal-ui based application.
+        """A language selector for sepal-ui based application.
 
         It displays the currently requested language (not the one used by the translator).
         When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
@@ -130,8 +128,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.language_list.children[0].observe(self._on_locale_select, "v_model")
 
     def _get_country_items(self, locales: list) -> List[str]:
-        """
-        Get the list of countries as a list of listItem.
+        """Get the list of countries as a list of listItem.
 
         Reduce the list to the available language of the module.
 
@@ -158,8 +155,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         return country_list
 
     def _on_locale_select(self, change: dict) -> None:
-        """
-        adapt the application to the newly selected language.
+        """adapt the application to the newly selected language.
 
         Display the new flag and country code on the widget btn
         change the value in the config file
@@ -190,8 +186,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     "the current theme of the widget (default to dark)"
 
     def __init__(self, **kwargs) -> None:
-        """
-        A theme selector for sepal-ui based application.
+        """A theme selector for sepal-ui based application.
 
         It displays the currently requested theme (default to dark).
         When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
@@ -218,9 +213,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         self.on_event("click", self.toggle_theme)
 
     def toggle_theme(self, *args) -> None:
-        """
-        Toggle the btn icon from dark to light and adapt the configuration file.
-        """
+        """Toggle the btn icon from dark to light and adapt the configuration file."""
         # use a cycle to go through the themes
         theme_cycle = cycle(self.THEME_ICONS.keys())
         next(t for t in theme_cycle if t == self.theme)
@@ -259,8 +252,7 @@ class AppBar(v.AppBar, SepalWidget):
         translator: Union[None, Translator] = None,
         **kwargs,
     ) -> None:
-        """
-        Custom AppBar widget with the provided title using the sepal color framework.
+        """Custom AppBar widget with the provided title using the sepal color framework.
 
         Args:
             title: the title of the app
@@ -295,8 +287,7 @@ class AppBar(v.AppBar, SepalWidget):
         super().__init__(**kwargs)
 
     def set_title(self, title: str) -> Self:
-        """
-        Set the title of the appBar.
+        """Set the title of the appBar.
 
         Args:
             title: the new app title
@@ -327,8 +318,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         bind_var: str = "",
         **kwargs,
     ) -> None:
-        """
-        Custom DrawerItem using the user input.
+        """Custom DrawerItem using the user input.
 
         If a card is set the drawerItem will trigger the display of all the Tiles in the app that have the same mount_id.
         If an href is set, the drawer will open the link in a new tab.
@@ -410,8 +400,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         return
 
     def display_tile(self, tiles: List[v.Card]) -> Self:
-        """
-        Display the apropriate tiles when the item is clicked.
+        """Display the apropriate tiles when the item is clicked.
 
         The tile to display will be all tile in the list with the mount_id as the current object.
 
@@ -455,8 +444,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         issue: str = "",
         **kwargs,
     ) -> None:
-        """
-        Custom NavDrawer using the different DrawerItems of the user.
+        """Custom NavDrawer using the different DrawerItems of the user.
 
         The drawer can include links to the github page of the project for wiki, bugs and repository.
 
@@ -506,8 +494,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             i.observe(self._on_item_click, "input_value")
 
     def display_drawer(self, toggleButton: v.Btn) -> Self:
-        """
-        Bind the drawer to the app toggleButton.
+        """Bind the drawer to the app toggleButton.
 
         Args:
             toggleButton: the button that activate the drawer
@@ -517,17 +504,13 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         return self
 
     def _on_drawer_click(self, *args) -> Self:
-        """
-        Toggle the drawer visibility.
-        """
+        """Toggle the drawer visibility."""
         self.v_model = not self.v_model
 
         return self
 
     def _on_item_click(self, change: dict) -> Self:
-        """
-        Deactivate all the other items when on of the is activated.
-        """
+        """Deactivate all the other items when on of the is activated."""
         if change["new"] is False:
             return self
 
@@ -541,8 +524,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
 
 class Footer(v.Footer, SepalWidget):
     def __init__(self, text: str = "", **kwargs) -> None:
-        """
-        Custom Footer with cuzomizable text.
+        """Custom Footer with cuzomizable text.
 
         Not yet capable of displaying logos.
 
@@ -588,8 +570,7 @@ class App(v.App, SepalWidget):
         translator: Optional[Translator] = None,
         **kwargs,
     ) -> None:
-        """
-        Custom App display with the tiles created by the user using the sepal color framework.
+        """Custom App display with the tiles created by the user using the sepal color framework.
 
         Display false appBar if not filled. Navdrawer is fully optionnal.
         The drawerItem will be linked to the app tile and they will be able to control their display
@@ -662,8 +643,7 @@ class App(v.App, SepalWidget):
         self.appBar.theme.observe(self._theme_info, "v_model")
 
     def show_tile(self, name: str) -> Self:
-        """
-        Select the tile to display when the app is launched.
+        """Select the tile to display when the app is launched.
 
         Args:
             name: the mount-id of the tile(s) to display
@@ -694,8 +674,7 @@ class App(v.App, SepalWidget):
         persistent: bool = True,
         **kwargs,
     ) -> Self:
-        r"""
-        Display a snackbar object on top of the app.
+        r"""Display a snackbar object on top of the app.
 
         Used to communicate development information to end user (release date, known issues, beta version). The alert is dissmisable and prominent.
 
@@ -738,7 +717,7 @@ class App(v.App, SepalWidget):
         return self
 
     def _locale_info(self, change: dict) -> None:
-        """display information about the locale change."""
+        """Display information about the locale change."""
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
             self.add_banner(msg)
@@ -746,7 +725,7 @@ class App(v.App, SepalWidget):
         return
 
     def _theme_info(self, change: dict) -> None:
-        """display information about the theme change."""
+        """Display information about the theme change."""
         if change["new"] != "":
             msg = ms.theme.change.format(change["new"])
             self.add_banner(msg)
@@ -754,8 +733,7 @@ class App(v.App, SepalWidget):
         return
 
     def _remove_banner(self, change: dict) -> None:
-        """
-        remove banner and adapt display of the others.
+        """Remove banner and adapt display of the others.
 
         Adapt the banner display so that the first one is the only one shown displaying the number of other banner in the queue
         """
