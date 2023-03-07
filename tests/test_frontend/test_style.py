@@ -1,19 +1,19 @@
 from sepal_ui.frontend import styles as ss
 
 
-class TestStyle:
-    def test_folders(self):
+def test_folders() -> None:
+    """Assert folders are existing with the frontend files"""
+    assert ss.JSON_DIR.is_dir()
+    assert ss.CSS_DIR.is_dir()
+    assert ss.JS_DIR.is_dir()
 
-        assert ss.JSON_DIR.is_dir()
-        assert ss.CSS_DIR.is_dir()
-        assert ss.JS_DIR.is_dir()
+    return
 
-        return
 
-    def test_colors(self):
+def test_colors() -> None:
+    """Assert the colors are customized as expected"""
+    # test that colors have the same size and names
+    assert len(ss.DARK_THEME.keys()) == len(ss.LIGHT_THEME.keys())
+    assert all(dc in ss.LIGHT_THEME.keys() for dc in ss.DARK_THEME.keys())
 
-        # test that colors have the same size and names
-        assert len(ss.DARK_THEME.keys()) == len(ss.LIGHT_THEME.keys())
-        assert all(dc in ss.LIGHT_THEME.keys() for dc in ss.DARK_THEME.keys())
-
-        return
+    return

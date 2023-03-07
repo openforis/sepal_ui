@@ -1,37 +1,38 @@
-from configparser import ConfigParser
+"""Test the LocalSelect widget"""
 
-import pytest
+from configparser import ConfigParser
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.conf import config_file
 
 
-class TestLocalSelect:
-    def test_init(self, locale_select):
+def test_init() -> None:
+    """Check widget init"""
 
-        # minimal btn
-        assert isinstance(locale_select, sw.LocaleSelect)
-        assert len(locale_select.language_list.children[0].children) == 1
+    locale_select = sw.LocaleSelect()
 
-        return
+    # minimal btn
+    assert isinstance(locale_select, sw.LocaleSelect)
+    assert len(locale_select.language_list.children[0].children) == 1
 
-    def test_change_language(self, locale_select):
+    return
 
-        # destroy any existing config file
-        if config_file.is_file():
-            config_file.unlink()
 
-        # change value
-        locale = "fr"
-        locale_select._on_locale_select({"new": locale})
-        config = ConfigParser()
-        config.read(config_file)
-        assert "sepal-ui" in config.sections()
-        assert config["sepal-ui"]["locale"] == locale
+def test_change_language() -> None:
+    """Check default language can be change from the widget"""
 
-        return
+    locale_select = sw.LocaleSelect()
 
-    @pytest.fixture
-    def locale_select(self):
-        """Create a simple locale_select."""
-        return sw.LocaleSelect()
+    # remove any existing config file
+    if config_file.is_file():
+        config_file.unlink()
+
+    # change value
+    locale = "fr"
+    locale_select._on_locale_select({"new": locale})
+    config = ConfigParser()
+    config.read(config_file)
+    assert "sepal-ui" in config.sections()
+    assert config["sepal-ui"]["locale"] == locale
+
+    return

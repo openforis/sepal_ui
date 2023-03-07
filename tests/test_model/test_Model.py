@@ -1,3 +1,5 @@
+"""Test the Model class"""
+
 import json
 
 import pytest
@@ -6,58 +8,88 @@ from traitlets import Any
 from sepal_ui import model
 
 
-class TestModel:
+class DummyClass(model.Model):
+    """A dummy model with 2 traits, dummy1 and dummy2."""
 
-    # prepare the data
-    test_data = {"dummy1": "test1", "dummy2": "test2"}
+    dummy1 = Any(None).tag(sync=True)
+    dummy2 = Any(None).tag(sync=True)
 
-    def test_export(self, dum_model):
 
-        # create a fake model class with 2 traits
-        dum_model.dummy1 = self.test_data["dummy1"]
-        dum_model.dummy2 = self.test_data["dummy2"]
+def test_export(dum_model: DummyClass, test_data: dict) -> None:
+    """Export model data and check validity
 
-        dict_ = dum_model.export_data()
+    Args:
+        dum_model: a dummy model
+        test_data: an exportation dict of a dummy model
+    """
+    # create a fake model class with 2 traits
+    dum_model.dummy1 = test_data["dummy1"]
+    dum_model.dummy2 = test_data["dummy2"]
 
-        # assert the result
-        assert dict_ == self.test_data
+    dict_ = dum_model.export_data()
 
-        return
+    # assert the result
+    assert dict_ == test_data
 
-    def test_import(self, dum_model):
+    return
 
-        # create a fake model class with 2 traits
-        dum_model.import_data(self.test_data)
 
-        # assert the result
-        assert dum_model.dummy1 == self.test_data["dummy1"]
-        assert dum_model.dummy2 == self.test_data["dummy2"]
+def test_import(dum_model: DummyClass, test_data: dict) -> None:
+    """Check we can import data from a exported dict
 
-        # create a fake model class using a str
-        dum_model.import_data(json.dumps(self.test_data))
+    Args:
+        dum_model: a dummy model
+        test_data: an exportation dict of a dummy model
+    """
+    # create a fake model class with 2 traits
+    dum_model.import_data(test_data)
 
-        # assert the result
-        assert dum_model.dummy1 == self.test_data["dummy1"]
-        assert dum_model.dummy2 == self.test_data["dummy2"]
+    # assert the result
+    assert dum_model.dummy1 == test_data["dummy1"]
+    assert dum_model.dummy2 == test_data["dummy2"]
 
-        return
+    # create a fake model class using a str
+    dum_model.import_data(json.dumps(test_data))
 
-    def test_str(self, dum_model):
+    # assert the result
+    assert dum_model.dummy1 == test_data["dummy1"]
+    assert dum_model.dummy2 == test_data["dummy2"]
 
-        # create a fake model class with 2 traits
-        dum_model.import_data(self.test_data)
+    return
 
-        assert str(dum_model) == "DummyClass(dummy1=test1, dummy2=test2)"
 
-        return
+def test_str(dum_model: DummyClass, test_data: dict) -> None:
+    """Check the representation of a model
 
-    @pytest.fixture
-    def dum_model(self):
-        """return a dummy model with 2 traits, dummy1 and dummy2."""
+    Args:
+        dum_model: a dummy model
+        test_data: an exportation dict of a dummy model
+    """
+    # create a fake model class with 2 traits
+    dum_model.import_data(test_data)
 
-        class DummyClass(model.Model):
+    assert str(dum_model) == "DummyClass(dummy1=test1, dummy2=test2)"
 
-            dummy1 = Any(None).tag(sync=True)
-            dummy2 = Any(None).tag(sync=True)
+    return
 
-        return DummyClass()
+
+@pytest.fixture
+def test_data() -> dict:
+    """test data to fill a model class
+
+    Returns:
+        traits as key value pairs
+    """
+
+    return {"dummy1": "test1", "dummy2": "test2"}
+
+
+@pytest.fixture
+def dum_model() -> DummyClass:
+    """a dummyclass instance
+
+    Returns:
+        the object
+    """
+
+    return DummyClass()

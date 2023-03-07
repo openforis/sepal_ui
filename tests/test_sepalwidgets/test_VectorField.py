@@ -1,3 +1,6 @@
+"""Test VectorField widget"""
+
+from pathlib import Path
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -7,177 +10,248 @@ import pytest
 from sepal_ui import sepalwidgets as sw
 
 
-class TestVectorField:
-    def test_init(self, vector_field):
+def test_init() -> None:
+    """Check the widget init"""
 
-        assert isinstance(vector_field, sw.VectorField)
+    vector_field = sw.VectorField()
 
-        return
+    assert isinstance(vector_field, sw.VectorField)
 
-    def test_update_file(self, vector_field, fake_vector, default_v_model):
+    return
 
-        # change the value of the file
-        vector_field._update_file({"new": str(fake_vector)})
 
-        test_data = {
-            "pathname": str(fake_vector),
-            "column": "ALL",
-            "value": None,
-        }
+def test_update_file(fake_vector: Path, default_v_model: dict) -> None:
+    """Update the selected file and check the widget behaviour
 
-        assert vector_field.v_model == test_data
+    Args:
+        fake_vector: the path to a fake vector file
+        default_v_model: the default v_model values
+    """
+    vector_field = sw.VectorField()
 
-        # change for a empty file
-        vector_field._update_file({"new": None})
-        assert vector_field.v_model == default_v_model
+    # change the value of the file
+    vector_field._update_file({"new": str(fake_vector)})
 
-        return
+    test_data = {
+        "pathname": str(fake_vector),
+        "column": "ALL",
+        "value": None,
+    }
 
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_update_file_gee(self, vector_field_gee, default_v_model, fake_asset):
+    assert vector_field.v_model == test_data
 
-        # Arrange
-        test_data = {
-            "pathname": str(fake_asset),
-            "column": "ALL",
-            "value": None,
-        }
+    # change for a empty file
+    vector_field._update_file({"new": None})
+    assert vector_field.v_model == default_v_model
 
-        # Act
-        vector_field_gee._update_file({"new": str(fake_asset)})
+    return
 
-        # Assert
-        assert vector_field_gee.v_model == test_data
 
-        vector_field_gee._update_file({"new": None})
-        assert vector_field_gee.v_model == default_v_model
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_update_file_gee(
+    gee_dir: Path, default_v_model: dict, fake_asset: Path
+) -> None:
+    """Update the selected file and check the widget behaviour in a GEE context
 
-        return
+    Args:
+        gee_dir: The session created GEE directory
+        fake_asset: the path to a fake vector asset
+        default_v_model: the default v_model values
+    """
 
-    def test_reset(self, vector_field, fake_vector, default_v_model):
+    vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
+    # Arrange
+    test_data = {
+        "pathname": str(fake_asset),
+        "column": "ALL",
+        "value": None,
+    }
 
-        # trigger the event
-        vector_field.w_file.v_model = str(fake_vector)
+    # Act
+    vector_field_gee._update_file({"new": str(fake_asset)})
 
-        # reset the loadtable
-        vector_field.reset()
+    # Assert
+    assert vector_field_gee.v_model == test_data
 
-        # assert the current values
-        assert vector_field.v_model == default_v_model
+    vector_field_gee._update_file({"new": None})
+    assert vector_field_gee.v_model == default_v_model
 
-        return
+    return
 
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_reset_gee(self, vector_field_gee, default_v_model, fake_asset):
 
-        # It will trigger the event
-        vector_field_gee.w_file.v_model = str(fake_asset)
+def test_reset(fake_vector: Path, default_v_model: dict) -> None:
+    """Reset an already set widget
 
-        # reset the loadtable
-        vector_field_gee.reset()
+    Args:
+        fake_vector: the path to a fake vector file
+        default_v_model: the default v_model values
+    """
+    # trigger the event
+    vector_field = sw.VectorField()
+    vector_field.w_file.v_model = str(fake_vector)
 
-        # assert the current values
-        assert vector_field_gee.v_model == default_v_model
+    # reset the loadtable
+    vector_field.reset()
 
-        return
+    # assert the current values
+    assert vector_field.v_model == default_v_model
 
-    def test_update_column(self, vector_field, fake_vector):
+    return
 
-        # change the value of the file
-        vector_field._update_file({"new": str(fake_vector)})
 
-        # read a column
-        vector_field.w_column.v_model = "GID_0"  # first one to select
-        assert vector_field.v_model["column"] == "GID_0"
-        assert "d-none" not in vector_field.w_value.class_
-        assert vector_field.w_value.items == ["VAT"]
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_reset_gee(gee_dir: Path, default_v_model: dict, fake_asset: Path) -> None:
+    """Reset an already set widget in GEE context
 
-        return
+    Args:
+        gee_dir: The session created GEE directory
+        fake_asset: the path to a fake vector asset
+        default_v_model: the default v_model values
+    """
+    # It will trigger the event
+    vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
+    vector_field_gee.w_file.v_model = str(fake_asset)
 
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_update_column_gee(self, vector_field_gee, fake_asset):
+    # reset the loadtable
+    vector_field_gee.reset()
 
-        # change the value of the file
-        vector_field_gee._update_file({"new": str(fake_asset)})
+    # assert the current values
+    assert vector_field_gee.v_model == default_v_model
 
-        # read a column
-        vector_field_gee.w_column.v_model = "data"
-        assert vector_field_gee.v_model["column"] == "data"
-        assert "d-none" not in vector_field_gee.w_value.class_
-        assert vector_field_gee.w_value.items == [0, 1, 2, 3]
+    return
 
-        return
 
-    def test_update_value(self, vector_field, fake_vector):
+def test_update_column(fake_vector: Path) -> None:
+    """Update a single column in a vector field
 
-        # change the value of the file
-        vector_field._update_file({"new": str(fake_vector)})
+    Args:
+        fake_vector: the path to a fake vector file
+    """
 
-        # read a column
-        vector_field.w_column.v_model = "GID_0"  # first one to select
-        vector_field.w_value.v_model = "VAT"  # unique possible value
+    # change the value of the file
+    vector_field = sw.VectorField()
+    vector_field._update_file({"new": str(fake_vector)})
 
-        assert vector_field.v_model["value"] == "VAT"
+    # read a column
+    vector_field.w_column.v_model = "GID_0"  # first one to select
+    assert vector_field.v_model["column"] == "GID_0"
+    assert "d-none" not in vector_field.w_value.class_
+    assert vector_field.w_value.items == ["VAT"]
 
-        return
+    return
 
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_update_value_gee(self, vector_field_gee, fake_asset):
 
-        # change the value of the file
-        vector_field_gee._update_file({"new": str(fake_asset)})
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_update_column_gee(gee_dir: Path, fake_asset: Path) -> None:
+    """Update a single column in a vector field in GEE context
 
-        # read a column
-        vector_field_gee.w_column.v_model = "data"
-        vector_field_gee.w_value.v_model = 1
+    Args:
+        gee_dir: The session created GEE directory
+        fake_asset: the path to a fake vector asset
+    """
+    # change the value of the file
+    vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
+    vector_field_gee._update_file({"new": str(fake_asset)})
 
-        assert vector_field_gee.v_model["value"] == 1
+    # read a column
+    vector_field_gee.w_column.v_model = "data"
+    assert vector_field_gee.v_model["column"] == "data"
+    assert "d-none" not in vector_field_gee.w_value.class_
+    assert vector_field_gee.w_value.items == [0, 1, 2, 3]
 
-        return
+    return
 
-    @pytest.fixture(scope="class")
-    def default_v_model(self):
-        """Returns the default v_model."""
-        return {
-            "pathname": None,
-            "column": None,
-            "value": None,
-        }
 
-    @pytest.fixture
-    def vector_field(self):
-        """return a VectorField."""
-        return sw.VectorField()
+def test_update_value(fake_vector: Path) -> None:
+    """Check the update of a value in an already selected column
 
-    @pytest.fixture
-    def vector_field_gee(self, gee_dir):
-        """Instance of VectorField using GEE."""
-        return sw.VectorField(gee=True, folder=gee_dir)
+    Args:
+        fake_vector: the path to a fake vector file
+    """
+    # change the value of the file
+    vector_field = sw.VectorField()
+    vector_field._update_file({"new": str(fake_vector)})
 
-    @pytest.fixture(scope="class")
-    def fake_vector(self, tmp_dir):
-        """return a fake vector based on the vatican file."""
-        file = tmp_dir / "test.zip"
+    # read a column
+    vector_field.w_column.v_model = "GID_0"  # first one to select
+    vector_field.w_value.v_model = "VAT"  # unique possible value
 
-        gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
-        name = "gadm36_VAT_0"
+    assert vector_field.v_model["value"] == "VAT"
 
-        # download vatican city from GADM
-        urlretrieve(gadm_vat_link, file)
+    return
 
-        with ZipFile(file, "r") as zip_ref:
-            zip_ref.extractall(tmp_dir)
 
-        file.unlink()
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_update_value_gee(gee_dir: Path, fake_asset: Path) -> None:
+    """Check the update of a value in an already selected column in GEE context
 
-        yield tmp_dir / f"{name}.shp"
+    Args:
+        gee_dir: The session created GEE directory
+        fake_asset: the path to a fake vector asset
+    """
+    # change the value of the file
+    vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
+    vector_field_gee._update_file({"new": str(fake_asset)})
 
-        # delete the files
-        [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
+    # read a column
+    vector_field_gee.w_column.v_model = "data"
+    vector_field_gee.w_value.v_model = 1
 
-        return
+    assert vector_field_gee.v_model["value"] == 1
 
-    @pytest.fixture(scope="class")
-    def fake_asset(self, gee_dir):
-        """return the path to a fake asset."""
-        return gee_dir / "feature_collection"
+    return
+
+
+@pytest.fixture
+def default_v_model() -> dict:
+    """Returns the default v_model.
+
+    Returns:
+        the default v_model
+    """
+    return {
+        "pathname": None,
+        "column": None,
+        "value": None,
+    }
+
+
+@pytest.fixture
+def fake_vector(tmp_dir: Path) -> Path:
+    """return a fake vector based on the vatican file.
+
+    Args:
+        tmp_dir: the session created tmp directory
+
+    Returns:
+        the path to the created file
+    """
+    file = tmp_dir / "test.zip"
+
+    gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
+    name = "gadm36_VAT_0"
+
+    # download vatican city from GADM
+    urlretrieve(gadm_vat_link, file)
+
+    with ZipFile(file, "r") as zip_ref:
+        zip_ref.extractall(tmp_dir)
+
+    file.unlink()
+
+    yield tmp_dir / f"{name}.shp"
+
+    # delete the files
+    [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
+
+    return
+
+
+@pytest.fixture
+def fake_asset(gee_dir: Path) -> Path:
+    """return the path to a fake asset.
+
+    Returns:
+        the path to the dir
+    """
+    return gee_dir / "feature_collection"

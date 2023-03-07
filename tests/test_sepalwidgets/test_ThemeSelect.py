@@ -1,3 +1,5 @@
+"""Test the ThemeSelect widget"""
+
 from configparser import ConfigParser
 
 import pytest
@@ -7,36 +9,51 @@ from sepal_ui.conf import config_file
 from sepal_ui.frontend.styles import get_theme
 
 
-class TestThemeSelect:
-    def test_init(self, theme_select):
+def test_init(theme_select: sw.ThemeSelect) -> None:
+    """Check Init widget
 
-        # minimal btn
-        assert isinstance(theme_select, sw.ThemeSelect)
+    Args:
+        theme_select: a widget instance removing all existing config
+    """
 
-        return
+    # minimal btn
+    assert isinstance(theme_select, sw.ThemeSelect)
 
-    def test_change_theme(self, theme_select):
+    return
 
-        # Get the current theme
-        themes = ["dark", "light"]
-        dark_theme = True if get_theme() == "dark" else False
 
-        # change value
-        theme_select.fire_event("click", None)
-        config = ConfigParser()
-        config.read(config_file)
-        assert "sepal-ui" in config.sections()
+def test_change_theme(theme_select: sw.ThemeSelect) -> None:
+    """Check the prefered theme can be changed from the widget
 
-        # New theme has to be the opposite than the initial
-        assert config["sepal-ui"]["theme"] == themes[dark_theme]
+    Args:
+        theme_select: a widget instance removing all existing config
+    """
 
-        return
+    # Get the current theme
+    themes = ["dark", "light"]
+    dark_theme = True if get_theme() == "dark" else False
 
-    @pytest.fixture
-    def theme_select(self):
-        """Create a simple theme_select."""
-        # destroy any existing config file
-        if config_file.is_file():
-            config_file.unlink()
+    # change value
+    theme_select.fire_event("click", None)
+    config = ConfigParser()
+    config.read(config_file)
+    assert "sepal-ui" in config.sections()
 
-        return sw.ThemeSelect()
+    # New theme has to be the opposite than the initial
+    assert config["sepal-ui"]["theme"] == themes[dark_theme]
+
+    return
+
+
+@pytest.fixture
+def theme_select() -> sw.ThemeSelect:
+    """Create a simple theme_select and remove existing config
+
+    Returns:
+        the object instance
+    """
+    # remove any existing config file
+    if config_file.is_file():
+        config_file.unlink()
+
+    return sw.ThemeSelect()

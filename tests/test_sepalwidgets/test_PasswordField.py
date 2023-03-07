@@ -1,31 +1,32 @@
-import pytest
+"""Test the Password widget"""
+
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestPasswordField:
-    def test_init(self, password):
+def test_init() -> None:
+    """Init the widget"""
 
-        assert isinstance(password, sw.PasswordField)
-        assert password.type == "password"
+    password = sw.PasswordField()
+    assert isinstance(password, sw.PasswordField)
+    assert password.type == "password"
 
-        return
+    return
 
-    def test_toogle_viz(self, password):
 
-        # change the viz once
-        password._toggle_pwd(None, None, None)
-        assert password.type == "text"
-        assert password.append_icon == "fa-solid fa-eye"
+def test_toogle_viz() -> None:
+    """Check tvisz roggle of the widget"""
 
-        # change it a second time
-        password._toggle_pwd(None, None, None)
-        assert password.type == "password"
-        assert password.append_icon == "fa-solid fa-eye-slash"
+    password = sw.PasswordField()
 
-        return
+    # change the viz once
+    password._toggle_pwd(None, None, None)
+    assert password.type == "text"
+    assert password.append_icon == "fa-solid fa-eye"
 
-    @pytest.fixture
-    def password(self):
-        """return a passwordfield."""
-        return sw.PasswordField()
+    # change it a second time
+    password._toggle_pwd(None, None, None)
+    assert password.type == "password"
+    assert password.append_icon == "fa-solid fa-eye-slash"
+
+    return

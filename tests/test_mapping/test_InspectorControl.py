@@ -9,163 +9,207 @@ import pytest
 from sepal_ui import mapping as sm
 
 
-class TestInspectorControl:
-    def test_init(self):
+def test_init() -> None:
+    """Init the inspector control"""
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
+    m.add(inspector_control)
 
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
-        m.add(inspector_control)
+    assert isinstance(inspector_control, sm.InspectorControl)
 
-        assert isinstance(inspector_control, sm.InspectorControl)
+    return
 
-    def test_deprecated(self):
 
-        m = sm.SepalMap()
-        with pytest.deprecated_call():
-            inspector_control = sm.ValueInspector(m)
-        m.add(inspector_control)
+def test_deprecated() -> None:
+    """Check deprecation notice"""
+    m = sm.SepalMap()
+    with pytest.deprecated_call():
+        inspector_control = sm.ValueInspector(m)
+    m.add(inspector_control)
 
-        assert isinstance(inspector_control, sm.InspectorControl)
+    assert isinstance(inspector_control, sm.InspectorControl)
 
-    def test_toogle_cursor(self):
+    return
 
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
-        m.add(inspector_control)
 
-        # activate the window
-        inspector_control.menu.v_model = True
-        assert m.default_style.cursor == "crosshair"
+def test_toogle_cursor() -> None:
+    """Toggle cursor when activated"""
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
+    m.add(inspector_control)
 
-        # close with the menu
-        inspector_control.menu.v_model = False
-        assert m.default_style.cursor == "grab"
+    # activate the window
+    inspector_control.menu.v_model = True
+    assert m.default_style.cursor == "crosshair"
 
-        return
+    # close with the menu
+    inspector_control.menu.v_model = False
+    assert m.default_style.cursor == "grab"
 
-    def test_read_data(self):
+    return
 
-        # not testing the display of anything here just the interaction
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
-        m.add(inspector_control)
 
-        # click anywhere without activation
-        inspector_control.read_data(type="click", coordinates=[0, 0])
-        assert len(inspector_control.text.children) == 1
+def test_read_data() -> None:
+    """Check the infuence of activation on control behaviour"""
+    # not testing the display of anything here just the interaction
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
+    m.add(inspector_control)
 
-        # click when activated
-        inspector_control.menu.v_model = True
-        inspector_control.read_data(type="click", coordinates=[0, 0])
-        assert len(inspector_control.text.children) == 4
+    # click anywhere without activation
+    inspector_control.read_data(type="click", coordinates=[0, 0])
+    assert len(inspector_control.text.children) == 1
 
-        return
+    # click when activated
+    inspector_control.menu.v_model = True
+    inspector_control.read_data(type="click", coordinates=[0, 0])
+    assert len(inspector_control.text.children) == 4
 
-    @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-    def test_free_eelayer(self, world_temp, ee_adm2):
+    return
 
-        # create a map with a value inspector
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
 
-        # check a nodata place on Image
-        data = inspector_control._from_eelayer(world_temp.mosaic(), [0, 0])
-        assert data == {"temperature_2m": None}
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_free_eelayer(
+    world_temp: ee.imagecollection, ee_adm2: ee.FeatureCollection
+) -> None:
+    """Check result when clicking on a ee object
 
-        # check vatican city
-        data = inspector_control._from_eelayer(world_temp.mosaic(), [12.457, 41.902])
-        assert data == {"temperature_2m": 296.00286865234375}
+    Args:
+        world_temp: the imagecollection of the worl tempreature dataset
+        ee_adm2: the vectors of the administrative boundaries of level 2
+    """
+    # create a map with a value inspector
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
 
-        # check a featurecollection on nodata place
-        data = inspector_control._from_eelayer(ee_adm2, [0, 0])
-        assert data == {"ADM2_CODE": None}
+    # check a nodata place on Image
+    data = inspector_control._from_eelayer(world_temp.mosaic(), [0, 0])
+    assert data == {"temperature_2m": None}
 
-        # check the featurecollection on vatican city
-        data = inspector_control._from_eelayer(ee_adm2, [12.457, 41.902])
-        assert data == {"ADM2_CODE": 18350}
+    # check vatican city
+    data = inspector_control._from_eelayer(world_temp.mosaic(), [12.457, 41.902])
+    assert data == {"temperature_2m": 296.00286865234375}
 
-        return
+    # check a featurecollection on nodata place
+    data = inspector_control._from_eelayer(ee_adm2, [0, 0])
+    assert data == {"ADM2_CODE": None}
 
-    def test_from_geojson(self, adm0_vatican):
+    # check the featurecollection on vatican city
+    data = inspector_control._from_eelayer(ee_adm2, [12.457, 41.902])
+    assert data == {"ADM2_CODE": 18350}
 
-        # create a map with a value inspector
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
+    return
 
-        # check a featurecollection on nodata place
-        data = inspector_control._from_geojson(adm0_vatican, [0, 0])
-        assert data == {"GID_0": None, "NAME_0": None}
 
-        # check the featurecollection on vatican city
-        data = inspector_control._from_geojson(adm0_vatican, [12.457, 41.902])
-        assert data == {"GID_0": "VAT", "NAME_0": "Vatican City"}
+def test_from_geojson(adm0_vatican: dict) -> None:
+    """Check the result of clicking on a geojson
 
-        return
+    Args:
+        adm0_vatican: the geo_interface of the vatican
+    """
+    # create a map with a value inspector
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
 
-    def test_from_raster(self, raster_bahamas):
+    # check a featurecollection on nodata place
+    data = inspector_control._from_geojson(adm0_vatican, [0, 0])
+    assert data == {"GID_0": None, "NAME_0": None}
 
-        # create a map with a value inspector
-        m = sm.SepalMap()
-        inspector_control = sm.InspectorControl(m)
+    # check the featurecollection on vatican city
+    data = inspector_control._from_geojson(adm0_vatican, [12.457, 41.902])
+    assert data == {"GID_0": "VAT", "NAME_0": "Vatican City"}
 
-        # check a featurecollection on nodata place
-        data = inspector_control._from_raster(raster_bahamas, [0, 0])
-        assert data == {"band 1": None, "band 2": None, "band 3": None}
+    return
 
-        # check the featurecollection on vatican city
-        data = inspector_control._from_raster(raster_bahamas, [-78.072, 24.769])
-        assert math.isclose(data["band 1"], 70.46553, rel_tol=1e-5)
-        assert math.isclose(data["band 2"], 91.41595, rel_tol=1e-5)
-        assert math.isclose(data["band 3"], 93.08673, rel_tol=1e-5)
 
-        return
+def test_from_raster(raster_bahamas: Path) -> None:
+    """Check the result of clicking on a raster
 
-    @pytest.fixture(scope="class")
-    def world_temp(self):
-        """get the world temperature dataset from GEE."""
-        return (
-            ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY")
-            .filter(ee.Filter.date("2020-07-01", "2020-07-02"))
-            .select("temperature_2m")
+    Args:
+        the path of a raster image
+    """
+    # create a map with a value inspector
+    m = sm.SepalMap()
+    inspector_control = sm.InspectorControl(m)
+
+    # check a featurecollection on nodata place
+    data = inspector_control._from_raster(raster_bahamas, [0, 0])
+    assert data == {"band 1": None, "band 2": None, "band 3": None}
+
+    # check the featurecollection on vatican city
+    data = inspector_control._from_raster(raster_bahamas, [-78.072, 24.769])
+    assert math.isclose(data["band 1"], 70.46553, rel_tol=1e-5)
+    assert math.isclose(data["band 2"], 91.41595, rel_tol=1e-5)
+    assert math.isclose(data["band 3"], 93.08673, rel_tol=1e-5)
+
+    return
+
+
+@pytest.fixture
+def world_temp() -> ee.ImageCollection:
+    """get the world temperature dataset from GEE.
+
+    Returns:
+        the filtered temperature_2m band
+    """
+    return (
+        ee.ImageCollection("ECMWF/ERA5_LAND/HOURLY")
+        .filter(ee.Filter.date("2020-07-01", "2020-07-02"))
+        .select("temperature_2m")
+    )
+
+
+@pytest.fixture
+def ee_adm2() -> ee.FeatureCollection:
+    """Get a featurecollection with only adm2code values.
+
+    Returns:
+        the adm2 names of FAO GAUL
+    """
+    return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
+
+
+@pytest.fixture
+def raster_bahamas() -> Path:
+    """add a raster file of the bahamas coming from rasterio test suit.
+
+    Returns:
+        the path of the image
+    """
+    rgb = Path.home() / "rgb.tif"
+
+    if not rgb.is_file():
+        file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+        urlretrieve(file, rgb)
+
+    yield rgb
+
+    rgb.unlink()
+
+    return
+
+
+@pytest.fixture
+def adm0_vatican() -> dict:
+    """Create a geojson of vatican city.
+
+    Returns:
+        the geo_interface of vatican city
+    """
+    zip_file = Path.home() / "VAT.zip"
+
+    if not zip_file.is_file():
+        urlretrieve(
+            "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_VAT_gpkg.zip",
+            zip_file,
         )
 
-    @pytest.fixture(scope="class")
-    def ee_adm2(self):
-        """get a featurecollection with only adm2code values."""
-        return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
+    layer_name = "gadm36_VAT_0"
+    level_gdf = gpd.read_file(f"{zip_file}!gadm36_VAT.gpkg", layer=layer_name)
+    geojson = level_gdf.__geo_interface__
 
-    @pytest.fixture(scope="class")
-    def raster_bahamas(self):
-        """add a raster file of the bahamas coming from rasterio test suit."""
-        rgb = Path.home() / "rgb.tif"
+    yield geojson
 
-        if not rgb.is_file():
-            file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
-            urlretrieve(file, rgb)
+    zip_file.unlink()
 
-        yield rgb
-
-        rgb.unlink()
-
-        return
-
-    @pytest.fixture(scope="class")
-    def adm0_vatican(self):
-        """create a geojson of vatican city."""
-        zip_file = Path.home() / "VAT.zip"
-
-        if not zip_file.is_file():
-            urlretrieve(
-                "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_VAT_gpkg.zip",
-                zip_file,
-            )
-
-        layer_name = "gadm36_VAT_0"
-        level_gdf = gpd.read_file(f"{zip_file}!gadm36_VAT.gpkg", layer=layer_name)
-        geojson = level_gdf.__geo_interface__
-
-        yield geojson
-
-        zip_file.unlink()
-
-        return
+    return

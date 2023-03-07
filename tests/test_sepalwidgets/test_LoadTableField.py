@@ -1,105 +1,139 @@
+"""Test the LoadTableField widget"""
+
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 from sepal_ui import sepalwidgets as sw
 
 
-class TestLoadTableField:
-    def test_init(self, load_table):
+def test_init() -> None:
+    """Check the init widget"""
 
-        assert isinstance(load_table, sw.LoadTableField)
+    load_table = sw.LoadTableField()
 
-        return
+    assert isinstance(load_table, sw.LoadTableField)
 
-    def test_on_file_input_change(self, load_table, fake_table, wrong_table):
+    return
 
-        # change the value of the file
-        load_table._on_file_input_change({"new": str(fake_table)})
 
-        test_data = {
-            "pathname": str(fake_table),
-            "id_column": "id",
-            "lng_column": "lng",
-            "lat_column": "lat",
-        }
+def test_on_file_input_change(fake_table: Path, wrong_table: Path) -> None:
+    """Check to use temp created table
 
-        assert load_table.v_model == test_data
+    Args:
+        fake_table: a well defined table
+        wrong_table: a badly defined table
+    """
 
-        # change for a empty update
-        load_table._on_file_input_change({"new": None})
-        assert load_table.v_model == load_table.default_v_model
+    load_table = sw.LoadTableField()
 
-        # test if the csv have not enough columns
-        load_table._on_file_input_change({"new": str(wrong_table)})
-        assert load_table.v_model == load_table.default_v_model
-        assert load_table.fileInput.selected_file.error_messages is not None
+    # change the value of the file
+    load_table._on_file_input_change({"new": str(fake_table)})
 
-        return
+    test_data = {
+        "pathname": str(fake_table),
+        "id_column": "id",
+        "lng_column": "lng",
+        "lat_column": "lat",
+    }
 
-    @pytest.mark.skip(reason="The test is not behaving as the interface")
-    def test_reset(self, fake_table, load_table):
+    assert load_table.v_model == test_data
 
-        # for no apparent reasons the test remains on the initial value set up in the fileInput
-        # when testing live the widget behave like expected
+    # change for a empty update
+    load_table._on_file_input_change({"new": None})
+    assert load_table.v_model == load_table.default_v_model
 
-        print(load_table.v_model)
+    # test if the csv have not enough columns
+    load_table._on_file_input_change({"new": str(wrong_table)})
+    assert load_table.v_model == load_table.default_v_model
+    assert load_table.fileInput.selected_file.error_messages is not None
 
-        # change the value of the file
-        load_table._on_file_input_change({"new": str(fake_table)})
+    return
 
-        # reset the loadtable
-        load_table.reset()
 
-        print(load_table.v_model)
+@pytest.mark.skip(reason="The test is not behaving as the interface")
+def test_reset(fake_table: Path) -> None:
+    """test the reset after setting a table
 
-        # assert the current values
-        assert load_table.v_model == load_table.default_v_model
+    Args:
+        fake_table: a well defined table
+    """
 
-        return
+    load_table = sw.LoadTableField()
 
-    @pytest.fixture
-    def load_table(self):
-        """create a default load table."""
-        return sw.LoadTableField()
+    # for no apparent reasons the test remains on the initial value set up in the fileInput
+    # when testing live the widget behave like expected
 
-    @pytest.fixture(scope="class")
-    def fake_table(self, tmp_dir):
-        """create a fake table."""
-        filename = tmp_dir / "test.csv"
+    print(load_table.v_model)
 
-        end = 3
+    # change the value of the file
+    load_table._on_file_input_change({"new": str(fake_table)})
 
-        coloseo = [1, 41.89042582290999, 12.492241627092199]
-        fao = [2, 41.88369224629387, 12.489216069409004]
-        columns = ["id", "lat", "lng"]
-        df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
+    # reset the loadtable
+    load_table.reset()
 
-        df.to_csv(filename, index=False)
+    print(load_table.v_model)
 
-        yield filename
+    # assert the current values
+    assert load_table.v_model == load_table.default_v_model
 
-        # delete the file
-        filename.unlink()
+    return
 
-        return
 
-    @pytest.fixture(scope="class")
-    def wrong_table(self, tmp_dir):
-        """create a wrongly defined table (with 2 columns instead of the minimal 3."""
-        filename = tmp_dir / "wrong_test.csv"
+@pytest.fixture
+def fake_table(tmp_dir: Path) -> Path:
+    """create a fake table.
 
-        end = 2
+    Args:
+        tmp_dir: the session defined tmp directory
 
-        coloseo = [1, 41.89042582290999, 12.492241627092199]
-        fao = [2, 41.88369224629387, 12.489216069409004]
-        columns = ["id", "lat", "lng"]
-        df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
+    Returns:
+        the path to the created file
+    """
+    filename = tmp_dir / "test.csv"
 
-        df.to_csv(filename, index=False)
+    end = 3
 
-        yield filename
+    coloseo = [1, 41.89042582290999, 12.492241627092199]
+    fao = [2, 41.88369224629387, 12.489216069409004]
+    columns = ["id", "lat", "lng"]
+    df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
 
-        # delete the file
-        filename.unlink()
+    df.to_csv(filename, index=False)
 
-        return
+    yield filename
+
+    # delete the file
+    filename.unlink()
+
+    return
+
+
+@pytest.fixture
+def wrong_table(tmp_dir: Path) -> Path:
+    """create a wrongly defined table (with 2 columns instead of the minimal 3.
+
+    Args:
+        tmp_dir: the session defined tmp directory
+
+    Returns:
+        the Path to the created file
+    """
+    filename = tmp_dir / "wrong_test.csv"
+
+    end = 2
+
+    coloseo = [1, 41.89042582290999, 12.492241627092199]
+    fao = [2, 41.88369224629387, 12.489216069409004]
+    columns = ["id", "lat", "lng"]
+    df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
+
+    df.to_csv(filename, index=False)
+
+    yield filename
+
+    # delete the file
+    filename.unlink()
+
+    return

@@ -5,79 +5,84 @@ from shapely import geometry as sg
 from sepal_ui import mapping as sm
 
 
-class TestDrawControl:
-    def test_init(self):
+def test_init() -> None:
+    """Init a drawing control"""
+    m = sm.SepalMap()
+    draw_control = sm.DrawControl(m)
+    assert isinstance(draw_control, sm.DrawControl)
 
-        m = sm.SepalMap()
-        draw_control = sm.DrawControl(m)
-        assert isinstance(draw_control, sm.DrawControl)
+    return
 
-        return
 
-    def test_show(self):
+def test_show() -> None:
+    """show the drawing control"""
 
-        m = sm.SepalMap()
-        draw_control = sm.DrawControl(m)
+    m = sm.SepalMap()
+    draw_control = sm.DrawControl(m)
 
-        # add it to the map
-        draw_control.show()
-        assert draw_control in m.controls
+    # add it to the map
+    draw_control.show()
+    assert draw_control in m.controls
 
-        # check that it's not added twice
-        draw_control.show()
-        assert m.controls.count(draw_control) == 1
+    # check that it's not added twice
+    draw_control.show()
+    assert m.controls.count(draw_control) == 1
 
-        return
+    return
 
-    def test_hide(self):
 
-        m = sm.SepalMap()
-        draw_control = sm.DrawControl(m)
-        m.add(draw_control)
+def test_hide() -> None:
+    """Hide the drawing control"""
 
-        # remove it
-        draw_control.hide()
-        assert draw_control not in m.controls
+    m = sm.SepalMap()
+    draw_control = sm.DrawControl(m)
+    m.add(draw_control)
 
-        # check that hide when not on the map doesn not raise error
-        draw_control.hide()
-        assert draw_control not in m.controls
+    # remove it
+    draw_control.hide()
+    assert draw_control not in m.controls
 
-        return
+    # check that hide when not on the map doesn not raise error
+    draw_control.hide()
+    assert draw_control not in m.controls
 
-    def test_to_json(self):
+    return
 
-        m = sm.SepalMap()
-        draw_control = sm.DrawControl(m)
 
-        # add a circle to the data
-        draw_control.data = [
-            {
-                "type": "Feature",
-                "properties": {
-                    "style": {
-                        "stroke": True,
-                        "color": "#2196F3",
-                        "weight": 4,
-                        "opacity": 0.5,
-                        "fill": True,
-                        "fillColor": None,
-                        "fillOpacity": 0.2,
-                        "clickable": True,
-                        "radius": 50,
-                    }
-                },
-                "geometry": {"type": "Point", "coordinates": [0, 0]},
-            }
-        ]
+def test_to_json() -> None:
+    """Transform the drawn feature into a geo_interface"""
 
-        res = draw_control.to_json()
-        circle = sg.shape(res["features"][0]["geometry"])
+    m = sm.SepalMap()
+    draw_control = sm.DrawControl(m)
 
-        assert res["type"] == "FeatureCollection"
-        assert "features" in res
-        assert "style" not in res["features"][0]["properties"]
-        assert all([math.isclose(c, 0, abs_tol=0.1) for c in circle.centroid.coords[0]])
-        assert len(res["features"][0]["geometry"]["coordinates"][0]) == 65
+    # add a circle to the data
+    draw_control.data = [
+        {
+            "type": "Feature",
+            "properties": {
+                "style": {
+                    "stroke": True,
+                    "color": "#2196F3",
+                    "weight": 4,
+                    "opacity": 0.5,
+                    "fill": True,
+                    "fillColor": None,
+                    "fillOpacity": 0.2,
+                    "clickable": True,
+                    "radius": 50,
+                }
+            },
+            "geometry": {"type": "Point", "coordinates": [0, 0]},
+        }
+    ]
 
-        return
+    res = draw_control.to_json()
+    circle = sg.shape(res["features"][0]["geometry"])
+
+    assert res["type"] == "FeatureCollection"
+    assert "features" in res
+    assert "style" not in res["features"][0]["properties"]
+    assert all([math.isclose(c, 0, abs_tol=0.1) for c in circle.centroid.coords[0]])
+    assert len(res["features"][0]["geometry"]["coordinates"][0]) == 65
+
+    return

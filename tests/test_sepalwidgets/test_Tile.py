@@ -1,3 +1,5 @@
+"""Test the different Tile widgets"""
+
 from pathlib import Path
 
 import ipyvuetify as v
@@ -5,171 +7,189 @@ import ipyvuetify as v
 from sepal_ui import sepalwidgets as sw
 
 
-class TestTile:
-    def test_init(self):
+def test_init() -> None:
+    """Check the widget init"""
 
-        # default init
-        id_ = "id"
-        title = "title"
-        tile = sw.Tile(id_, title)
+    # default init
+    id_ = "id"
+    title = "title"
+    tile = sw.Tile(id_, title)
 
-        assert isinstance(tile, sw.Tile)
-        assert tile.children[0].children[0].children[0] == title
-        assert len(tile.children[0].children) == 2
+    assert isinstance(tile, sw.Tile)
+    assert tile.children[0].children[0].children[0] == title
+    assert len(tile.children[0].children) == 2
 
-        # exhaustive
-        btn = sw.Btn()
-        alert = sw.Alert()
-        tile = sw.Tile(id_, title, [""], btn, alert)
-        assert isinstance(tile, sw.Tile)
-        assert len(tile.children[0].children) == 4
+    # exhaustive
+    btn = sw.Btn()
+    alert = sw.Alert()
+    tile = sw.Tile(id_, title, [""], btn, alert)
+    assert isinstance(tile, sw.Tile)
+    assert len(tile.children[0].children) == 4
 
-        return
+    return
 
-    def test_set_content(self):
 
-        id_ = "id"
-        title = "title"
-        tile = sw.Tile(id_, title, alert=sw.Alert(), btn=sw.Btn())
+def test_set_content() -> None:
+    """Check content can be set from a method"""
 
-        input_ = v.Slider()
+    id_ = "id"
+    title = "title"
+    tile = sw.Tile(id_, title, alert=sw.Alert(), btn=sw.Btn())
 
-        res = tile.set_content([input_])
+    input_ = v.Slider()
 
-        assert res == tile
-        assert tile.children[0].children[0].children[0] == title
-        assert tile.children[0].children[1].children[0] == input_
+    res = tile.set_content([input_])
 
-        return
+    assert res == tile
+    assert tile.children[0].children[0].children[0] == title
+    assert tile.children[0].children[1].children[0] == input_
 
-    def test_set_title(self):
+    return
 
-        id_ = "id"
-        title = "title"
-        input_ = v.Slider()
-        tile = sw.Tile(id_, title, [input_])
 
-        # add a title
-        title2 = "title2"
-        res = tile.set_title(title2)
+def test_set_title() -> None:
+    """Check title can be set from a method"""
 
-        assert res == tile
-        assert tile.children[0].children[0].children[0] == title2
-        assert tile.children[0].children[1].children[0] == input_
+    id_ = "id"
+    title = "title"
+    input_ = v.Slider()
+    tile = sw.Tile(id_, title, [input_])
 
-        # remove a title
-        res = tile.set_title()
-        assert res == tile
-        assert tile.children[0].children[0].children[0] == input_
+    # add a title
+    title2 = "title2"
+    res = tile.set_title(title2)
 
-        # add a title after removing it
-        res = tile.set_title(title2)
-        assert tile.children[0].children[0].children[0] == title2
-        assert tile.children[0].children[1].children[0] == input_
+    assert res == tile
+    assert tile.children[0].children[0].children[0] == title2
+    assert tile.children[0].children[1].children[0] == input_
 
-        return
+    # remove a title
+    res = tile.set_title()
+    assert res == tile
+    assert tile.children[0].children[0].children[0] == input_
 
-    def test_nest(self):
+    # add a title after removing it
+    res = tile.set_title(title2)
+    assert tile.children[0].children[0].children[0] == title2
+    assert tile.children[0].children[1].children[0] == input_
 
-        id_ = "id"
-        title = "title"
-        input_ = v.Slider()
-        tile = sw.Tile(id_, title, [input_])
+    return
 
-        # nest the tile
-        res = tile.nest()
 
-        assert res == tile
-        assert tile._metadata["mount_id"] == "nested_tile"
-        assert tile.children[0].elevation == 0
-        assert len(tile.children[0].children) == 1
+def test_nest() -> None:
+    """Check tile can be nested"""
 
-        return
+    id_ = "id"
+    title = "title"
+    input_ = v.Slider()
+    tile = sw.Tile(id_, title, [input_])
 
-    def test_hide(self):
+    # nest the tile
+    res = tile.nest()
 
-        id_ = "id"
-        title = "title"
-        tile = sw.Tile(id_, title)
+    assert res == tile
+    assert tile._metadata["mount_id"] == "nested_tile"
+    assert tile.children[0].elevation == 0
+    assert len(tile.children[0].children) == 1
 
-        res = tile.hide()
+    return
 
-        assert res == tile
-        assert tile.viz is False
-        assert "d-inline" not in tile.class_
 
-        return
+def test_hide() -> None:
+    """Check TIle can be hidden"""
 
-    def test_show(self):
+    id_ = "id"
+    title = "title"
+    tile = sw.Tile(id_, title)
 
-        id_ = "id"
-        title = "title"
-        tile = sw.Tile(id_, title).hide()
+    res = tile.hide()
 
-        res = tile.show()
+    assert res == tile
+    assert tile.viz is False
+    assert "d-inline" not in tile.class_
 
-        assert res == tile
-        assert tile.viz is True
-        assert "d-inline" in tile.class_
+    return
 
-        return
 
-    def test_toggle_inputs(self):
+def test_show() -> None:
+    """Check Tile can be shown"""
 
-        inputs = []
-        for i in range(5):
-            inputs.append(v.Slider())
+    id_ = "id"
+    title = "title"
+    tile = sw.Tile(id_, title).hide()
 
-        input_2_show = v.Slider()
-        inputs.append(input_2_show)
+    res = tile.show()
 
-        id_ = "id"
-        title = "title"
-        tile = sw.Tile(id_, title, inputs)
+    assert res == tile
+    assert tile.viz is True
+    assert "d-inline" in tile.class_
 
-        res = tile.toggle_inputs([input_2_show], inputs)
+    return
 
-        assert res == tile
 
-        for input_ in inputs:
-            if input_ == input_2_show:
-                assert "d-none" not in str(input_.class_)
-            else:
-                assert "d-none" in input_.class_
+def test_toggle_inputs() -> None:
+    """Check inputs can be shown alternatively"""
 
-        return
+    inputs = []
+    for i in range(5):
+        inputs.append(v.Slider())
 
-    def test_get_id(self):
+    input_2_show = v.Slider()
+    inputs.append(input_2_show)
 
-        id_ = "id"
-        tile = sw.Tile(id_, "title", [""])
+    id_ = "id"
+    title = "title"
+    tile = sw.Tile(id_, title, inputs)
 
-        assert tile.get_id() == id_
+    res = tile.toggle_inputs([input_2_show], inputs)
 
-        return
+    assert res == tile
 
-    def test_tile_about(self):
+    for input_ in inputs:
+        if input_ == input_2_show:
+            assert "d-none" not in str(input_.class_)
+        else:
+            assert "d-none" in input_.class_
 
-        pathname = Path(__file__).parents[2] / "CODE_OF_CONDUCT.md"
+    return
 
-        tile = sw.TileAbout(pathname)
 
-        assert isinstance(tile, sw.TileAbout)
-        assert tile._metadata["mount_id"] == "about_tile"
+def test_get_id() -> None:
+    """Check id can be retreived"""
 
-        # check with str path
-        tile = sw.TileAbout(str(pathname))
+    id_ = "id"
+    tile = sw.Tile(id_, "title", [""])
 
-        assert isinstance(tile, sw.TileAbout)
-        assert tile._metadata["mount_id"] == "about_tile"
+    assert tile.get_id() == id_
 
-        return
+    return
 
-    def test_tile_disclaimer(self):
 
-        tile = sw.TileDisclaimer()
+def test_tile_about() -> None:
+    """Check the init of the special cased About Tile"""
 
-        assert isinstance(tile, sw.TileDisclaimer)
-        assert tile._metadata["mount_id"] == "about_tile"
+    pathname = Path(__file__).parents[2] / "CODE_OF_CONDUCT.md"
 
-        return
+    tile = sw.TileAbout(pathname)
+
+    assert isinstance(tile, sw.TileAbout)
+    assert tile._metadata["mount_id"] == "about_tile"
+
+    # check with str path
+    tile = sw.TileAbout(str(pathname))
+
+    assert isinstance(tile, sw.TileAbout)
+    assert tile._metadata["mount_id"] == "about_tile"
+
+    return
+
+
+def test_tile_disclaimer() -> None:
+    """Check init of the special cased Disclaimer tile"""
+
+    tile = sw.TileDisclaimer()
+
+    assert isinstance(tile, sw.TileDisclaimer)
+    assert tile._metadata["mount_id"] == "about_tile"
+
+    return
