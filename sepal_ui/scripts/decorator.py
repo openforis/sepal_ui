@@ -204,14 +204,14 @@ def loading_button(
 def switch(
     *params, debug: bool = True, on_widgets: List[str] = [], targets: List[bool] = []
 ) -> Any:
-    """Decorator to switch the state of input boolean parameters on class widgets or the class itself.
+    r"""Decorator to switch the state of input boolean parameters on class widgets or the class itself.
 
     If on_widgets is defined, it will switch the state of every widget
     parameter, otherwise it will change the state of the class (self). You can also set
     two decorators on the same function, one could affect the class and other the widgets.
 
     Args:
-        *params: any boolean parameter of a SepalWidget.
+        \*params: any boolean parameter of a SepalWidget.
         debug: Whether trigger or not an Exception if the decorated function fails.
         on_widgets: List of widget names into the class
         targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.

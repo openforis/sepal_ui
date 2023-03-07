@@ -26,7 +26,7 @@ def test_init_no_ee(fake_vector: Path) -> None:
 
     # with a default vector
     aoi_model = aoi.AoiModel(vector=fake_vector, gee=False)
-    assert aoi_model.name == "gadm36_VAT_0"
+    assert aoi_model.name == "gadm41_VAT_0"
 
     # test with a non ee admin
     admin = "VAT"  # GADM Vatican city
@@ -327,12 +327,12 @@ def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
     # only pathname and all
     vector = {"pathname": fake_vector, "column": "ALL", "value": None}
     aoi_model._from_vector(vector)
-    assert aoi_model.name == "gadm36_VAT_0"
+    assert aoi_model.name == "gadm41_VAT_0"
 
     # all params
     vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
     aoi_model._from_vector(vector)
-    assert aoi_model.name == "gadm36_VAT_0_GID_0_VAT"
+    assert aoi_model.name == "gadm41_VAT_0_GID_0_VAT"
 
     # missing value
     vector = {"pathname": fake_vector, "column": "GID_0", "value": None}
@@ -468,8 +468,8 @@ def fake_vector(tmp_dir: Path) -> Path:
     # download vatican city from GADM
     file = tmp_dir / "test.zip"
 
-    gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
-    name = "gadm36_VAT_0"
+    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
+    name = "gadm41_VAT_0"
 
     urlretrieve(gadm_vat_link, file)
 

@@ -1,11 +1,11 @@
 """Test the Inspector Control."""
 
+import json
 import math
 from pathlib import Path
-from urllib.request import urlretrieve
+from urllib.request import urlopen, urlretrieve
 
 import ee
-import geopandas as gpd
 import pytest
 
 from sepal_ui import mapping as sm
@@ -115,11 +115,11 @@ def test_from_geojson(adm0_vatican: dict) -> None:
 
     # check a featurecollection on nodata place
     data = inspector_control._from_geojson(adm0_vatican, [0, 0])
-    assert data == {"GID_0": None, "NAME_0": None}
+    assert data == {"GID_0": None, "COUNTRY": None}
 
     # check the featurecollection on vatican city
     data = inspector_control._from_geojson(adm0_vatican, [12.457, 41.902])
-    assert data == {"GID_0": "VAT", "NAME_0": "Vatican City"}
+    assert data == {"GID_0": "VAT", "COUNTRY": "VaticanCity"}
 
     return
 
@@ -198,20 +198,7 @@ def adm0_vatican() -> dict:
     Returns:
         the geo_interface of vatican city
     """
-    zip_file = Path.home() / "VAT.zip"
+    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
+    geojson = json.load(urlopen(gadm_vat_link))
 
-    if not zip_file.is_file():
-        urlretrieve(
-            "https://biogeo.ucdavis.edu/data/gadm3.6/gpkg/gadm36_VAT_gpkg.zip",
-            zip_file,
-        )
-
-    layer_name = "gadm36_VAT_0"
-    level_gdf = gpd.read_file(f"{zip_file}!gadm36_VAT.gpkg", layer=layer_name)
-    geojson = level_gdf.__geo_interface__
-
-    yield geojson
-
-    zip_file.unlink()
-
-    return
+    return geojson

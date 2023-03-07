@@ -225,8 +225,8 @@ def fake_vector(tmp_dir: Path) -> Path:
     """
     file = tmp_dir / "test.zip"
 
-    gadm_vat_link = "https://biogeo.ucdavis.edu/data/gadm3.6/shp/gadm36_VAT_shp.zip"
-    name = "gadm36_VAT_0"
+    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
+    name = "gadm41_VAT_0"
 
     # download vatican city from GADM
     urlretrieve(gadm_vat_link, file)
