@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, Union
 import ipyvuetify as v
 import pandas as pd
 import traitlets as t
-from deprecated.sphinx import versionadded
 from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
@@ -247,10 +246,10 @@ class AoiView(sw.Card):
     alert: Optional[sw.Alert] = None
     "A alert to display message to the end user"
 
-    @versionadded(
-        version="2.11.3",
-        reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
-    )
+    # @versionadded(
+    #    version="2.11.3",
+    #    reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
+    # )
     def __init__(
         self,
         methods: Union[str, List[str]] = "ALL",
@@ -261,7 +260,9 @@ class AoiView(sw.Card):
         map_style: Optional[dict] = None,
         **kwargs,
     ) -> None:
-        r"""Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
+        r"""Versatile card object to deal with the aoi selection.
+
+        multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
 
         Args:
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}

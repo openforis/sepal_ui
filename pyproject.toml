@@ -39,7 +39,7 @@ dependencies = [
     # miscellaneous
     "python-box",
     "tqdm",
-    "Deprecated",
+    "Deprecated @ git+https://github.com/12rambau/deprecated.git@master",
     "Unidecode",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
