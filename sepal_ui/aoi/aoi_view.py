@@ -261,7 +261,9 @@ class AoiView(sw.Card):
         map_style: Optional[dict] = None,
         **kwargs,
     ) -> None:
-        r"""Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
+        r"""Versatile card object to deal with the aoi selection.
+
+        multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
 
         Args:
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
