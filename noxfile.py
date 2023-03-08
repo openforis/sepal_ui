@@ -38,6 +38,9 @@ def bin(session):
 def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
+    # patch version in nox instead of pyproject to avoid blocking conda releases
+    session.install("git+https://github.com/jenshnielsen/sphinx.git@fix_9884")
+    session.install("git+https://github.com/12rambau/deprecated.git@master")
     session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(

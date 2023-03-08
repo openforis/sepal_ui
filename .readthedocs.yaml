@@ -12,6 +12,10 @@ build:
   jobs:
     pre_install:
       - pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
+    # patch deprecated and sphinx version to mimic nox build
+    post_install:
+      - pip install git+https://github.com/jenshnielsen/sphinx.git@fix_9884
+      - pip install git+https://github.com/12rambau/deprecated.git@master
     pre_build:
       - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 

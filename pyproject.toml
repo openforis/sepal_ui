@@ -39,7 +39,7 @@ dependencies = [
     # miscellaneous
     "python-box",
     "tqdm",
-    "Deprecated @ git+https://github.com/12rambau/deprecated.git@master",
+    "Deprecated",
     "Unidecode",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
@@ -81,7 +81,7 @@ test = [
     "nbmake",
 ]
 doc = [
-    "sphinx @ git+https://github.com/jenshnielsen/sphinx.git@fix_9884",
+    "sphinx",
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
