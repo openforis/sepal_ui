@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Union
 import ipyvuetify as v
 import pandas as pd
 import traitlets as t
+from deprecated.sphinx import versionadded
 from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
@@ -246,10 +247,10 @@ class AoiView(sw.Card):
     alert: Optional[sw.Alert] = None
     "A alert to display message to the end user"
 
-    # @versionadded(
-    #    version="2.11.3",
-    #    reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
-    # )
+    @versionadded(
+        version="2.11.3",
+        reason="Model is now an optional parameter to AoiView, it can be created from outside and passed to the initialization function.",
+    )
     def __init__(
         self,
         methods: Union[str, List[str]] = "ALL",
