@@ -1,5 +1,4 @@
-"""
-All modules used to create AOI selection interface.
+"""All modules used to create AOI selection interface.
 
 Package to access all the widget, model and tiles to create an AOI selection interface available in sepal-ui.
 

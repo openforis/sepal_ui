@@ -1,6 +1,4 @@
-"""
-Based ``SepalMap`` Btn.
-"""
+"""Base ``SepalMap`` Btn."""
 
 import ipyvuetify as v
 
@@ -10,8 +8,7 @@ from sepal_ui import sepalwidgets as sw
 
 class MapBtn(v.Btn, sw.SepalWidget):
     def __init__(self, content: str, **kwargs) -> None:
-        """
-        Btn specifically design to be displayed on a map.
+        """Btn specifically design to be displayed on a map.
 
         It matches all the characteristics of
         the classic leaflet btn but as they are from ipyvuetify we can use them in combination with Menu to produce on-the-map tiles.

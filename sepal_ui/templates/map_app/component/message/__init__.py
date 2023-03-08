@@ -1,5 +1,4 @@
-"""
-Creation of the Translator object associated with the application. 
+"""Creation of the Translator object associated with the application.
 
 Can be accessed via the foolowing code: ``from component.message import cm``
 """

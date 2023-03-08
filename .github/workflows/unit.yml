@@ -63,6 +63,8 @@ jobs:
         if: matrix.python-version == '3.8'
         run: |
           pip install .[doc]
+          pip install git+https://github.com/jenshnielsen/sphinx.git@fix_9884
+          pip install git+https://github.com/12rambau/deprecated.git@master
           sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
 

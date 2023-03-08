@@ -1,3 +1,48 @@
+## v_2.16.0 (2023-03-08)
+
+### Feat
+
+- add a fullscreen parameter to display bigger menu in map applications (#756)
+- add a nox session to run application locally (#775)
+
+### Fix
+
+- use fork of deprecated
+- use latest version of gadm (4.1)
+- build the coverage analysis with nox as well (#773)
+- add a today method to datepickers (#758)
+- catch FileNotFoundError
+- pin sphinx-favicon to latest version (#776)
+- pin sphinx-favicon to latest version
+- run local sessions in debug mode
+- apply the modification to panel applications as well
+- loose requirements on deploy
+- move the entry-point in the pyproject.toml
+- use a pyproject.toml for parameters
+- create a noxfile to run apps
+- add root parameters in FileInput (#774)
+- don't use is_related_to method
+- add root parameters in FileInput
+- build the coverage analysis with nox as well
+- update bg color when menu is activated
+- close menu when clicking outside
+- add a today method to datepickers Fix #752
+- create a fullscreen menu control
+
+### Refactor
+
+- use patched versions of sphinx and deprecated (#784)
+- add back versionadded
+- move patched versions to builder to avoid blocking conda release
+- update the tests (#780)
+- lint tests as well
+- drop legacy object structure
+- respect D212
+- improve FileInput typing
+- drop use of spelling extention (#762)
+- drop use of spelling extention
+- cleaning
+
 ## v_2.15.2 (2023-02-22)
 
 ### Fix

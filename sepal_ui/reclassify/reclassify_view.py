@@ -1,6 +1,4 @@
-"""
-Custom widgets dedicated to the reclassification interface.
-"""
+"""Custom widgets dedicated to the reclassification interface."""
 
 from pathlib import Path
 from typing import Optional, Union
@@ -28,8 +26,7 @@ class ImportMatrixDialog(v.Dialog):
     "the file to use"
 
     def __init__(self, folder: Union[str, Path], **kwargs) -> None:
-        """
-        Dialog to select the file to use and fill the matrix.
+        """Dialog to select the file to use and fill the matrix.
 
         Args:
             folder: the path to the saved classifications
@@ -69,8 +66,7 @@ class ImportMatrixDialog(v.Dialog):
 
 class SaveMatrixDialog(v.Dialog):
     def __init__(self, folder: Union[Path, str] = Path.home(), **kwargs) -> None:
-        """
-        Dialog to setup the name of the output matrix file.
+        """Dialog to setup the name of the output matrix file.
 
         Args:
             folder: the path to the save folder. default to ~/
@@ -106,9 +102,7 @@ class SaveMatrixDialog(v.Dialog):
         self.w_file.observe(self._store_info, "v_model")
 
     def _store_info(self, change: dict) -> None:
-        """
-        Display where will be the file written.
-        """
+        """Display where will be the file written."""
         new_val = change["new"]
 
         out_file = self.folder / f"{su.normalize_str(new_val)}.csv"
@@ -122,18 +116,14 @@ class SaveMatrixDialog(v.Dialog):
         return
 
     def _cancel(self, *args) -> Self:
-        """
-        Do nothing and exit.
-        """
+        """Do nothing and exit."""
         self.w_file.v_model = None
         self.value = False
 
         return self
 
     def _save(self, *args) -> Self:
-        """
-        Save the matrix in a specified file.
-        """
+        """Save the matrix in a specified file."""
         file = self.folder / f"{su.normalize_str(self.w_file.v_model)}.csv"
 
         matrix = pd.DataFrame.from_dict(self._matrix, orient="index").reset_index()
@@ -146,9 +136,7 @@ class SaveMatrixDialog(v.Dialog):
         return self
 
     def show(self, matrix: dict) -> Self:
-        """
-        show the dialog and set the matrix values.
-        """
+        """Show the dialog and set the matrix values."""
         self._matrix = matrix
 
         # Reset file name
@@ -159,9 +147,7 @@ class SaveMatrixDialog(v.Dialog):
         return self
 
     def _sanitize(self, *args) -> Self:
-        """
-        Sanitize the used name when saving.
-        """
+        """Sanitize the used name when saving."""
         if not self.w_file.v_model:
             return self
 
@@ -172,8 +158,7 @@ class SaveMatrixDialog(v.Dialog):
 
 class ClassSelect(sw.Select):
     def __init__(self, new_codes: dict, old_code: int, **kwargs) -> None:
-        """
-        Custom widget to pick the value of a original class in the new classification system.
+        """Custom widget to pick the value of a original class in the new classification system.
 
         Args:
             new_codes: the dict of the new codes to use as items {code: (name, color)}
@@ -210,8 +195,7 @@ class ReclassifyTable(sw.SimpleTable):
         src_classes: dict = {},
         **kwargs,
     ) -> None:
-        """
-        Table to store the reclassifying information.
+        """Table to store the reclassifying information.
 
         2 columns are integrated, the new class value and the values in the original input. One can select multiple class to be reclassify in the new classification.
 
@@ -239,8 +223,7 @@ class ReclassifyTable(sw.SimpleTable):
         self.set_table(dst_classes, src_classes)
 
     def set_table(self, dst_classes: dict, src_classes: dict) -> Self:
-        """
-        Rebuild the table content based on the new_classes and codes provided.
+        """Rebuild the table content based on the new_classes and codes provided.
 
         Args:
             dst_classes: a dictionnary that represent the classes of new the new classification table as {class_code: (class_name, class_color)}. class_code must be ints and class_name str.
@@ -291,9 +274,7 @@ class ReclassifyTable(sw.SimpleTable):
         return self
 
     def _update_matrix_values(self, change: dict) -> Self:
-        """
-        Update the appropriate matrix value when a Combo select change.
-        """
+        """Update the appropriate matrix value when a Combo select change."""
         # get the code of the class in the src classification
         code = change["owner"]._metadata["class"]
 
@@ -358,8 +339,7 @@ class ReclassifyView(sw.Card):
         enforce_aoi: bool = False,
         **kwargs,
     ) -> None:
-        r"""
-        Stand-alone Card object allowing the user to reclassify a input file.
+        r"""Stand-alone Card object allowing the user to reclassify a input file.
 
         The input can be of any type (vector or raster) and from any source (local or GEE).
         The user need to provide a destination classification file (table) in the following format : 3 headless columns: 'code', 'desc', 'color'. Once all the old class have been attributed to their new class the file can be exported in the source format to local memory or GEE. the output is also savec in memory for further use in the app. It can be used as a tile in a sepal_ui app. The id\_ of the tile is set to "reclassify_tile".
@@ -589,8 +569,7 @@ class ReclassifyView(sw.Card):
         [btn.on_event("click", self._set_dst_class_file) for btn in self.btn_list]
 
     def _set_dst_class_file(self, widget: v.VuetifyWidget, *args) -> Self:
-        """
-        Set the destination classification according to the one selected with btn.
+        """Set the destination classification according to the one selected with btn.
 
         Alter the widgets properties to reflect this change.
         """
@@ -610,8 +589,7 @@ class ReclassifyView(sw.Card):
         return self
 
     def load_matrix_content(self, widget: v.VuetifyWidget, *args) -> Self:
-        """
-        Load the content of the file in the matrix.
+        """Load the content of the file in the matrix.
 
         The table need to be already set to perform this operation.
         """
@@ -666,8 +644,7 @@ class ReclassifyView(sw.Card):
         return self
 
     def reclassify(self, *args) -> Self:
-        """
-        Reclassify the input and store it in the appropriate format.
+        """Reclassify the input and store it in the appropriate format.
 
         The input is not saved locally to avoid memory overload.
         """
@@ -681,9 +658,7 @@ class ReclassifyView(sw.Card):
 
     @sd.switch("loading", "disabled", on_widgets=["w_code"])
     def _update_band(self, *args) -> Self:
-        """
-        Update the band possibility to the available bands/properties of the input.
-        """
+        """Update the band possibility to the available bands/properties of the input."""
         # guess the file type and save it in the model
         self.model.get_type()
         # update the bands values
@@ -695,8 +670,7 @@ class ReclassifyView(sw.Card):
     @sd.switch("disabled", on_widgets=["reclassify_btn"], targets=[False])
     @sd.switch("table_created", on_widgets=["model"], targets=[True])
     def get_reclassify_table(self, *args) -> Self:
-        """
-        Display a reclassify table.
+        """Display a reclassify table.
 
         It will lead the user to select a local code 'from user' to a target code based on a classes file.
         """
@@ -721,8 +695,7 @@ class ReclassifyView(sw.Card):
         return self
 
     def nest_tile(self) -> Self:
-        """
-        Prepare the view to be used as a nested component in a tile.
+        """Prepare the view to be used as a nested component in a tile.
 
         The elevation will be set to 0 and the title remove from children.
         The mount_id will also be changed to nested.

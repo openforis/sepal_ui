@@ -1,14 +1,13 @@
-"""
-Based menu ``Control`` to display widgets to your user.
-"""
+"""Base menu ``Control`` to display widgets to your user."""
 
 from typing import Optional, Union
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
-from traitlets import Int
+from traitlets import Bool, Int
 from typing_extensions import Self
 
+from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.map_btn import MapBtn
 
@@ -24,6 +23,9 @@ class MenuControl(WidgetControl):
     group: Int = Int().tag(sync=True)
     "The group of Menu control, tell how the Menucontrol interact with the others"
 
+    fullscreen: Bool(False).tag(sync=True)
+    "Either or not the Menu container should be displayed in fullscreen on top of the map"
+
     def __init__(
         self,
         icon_content: str,
@@ -31,10 +33,10 @@ class MenuControl(WidgetControl):
         card_title: str = "",
         m: Optional[Map] = None,
         group: int = 0,
-        **kwargs
+        fullscreen: bool = False,
+        **kwargs,
     ) -> None:
-        """
-        Widget control displaying a btn on the map.
+        """Widget control displaying a btn on the map.
 
         When clicked the menu expand to show the content set by the user and all the others are closed.
         It's used to display interactive tiles directly in the map. If the card_content is a Tile it will be automatically nested.
@@ -45,12 +47,14 @@ class MenuControl(WidgetControl):
             card_title: the card title. THe tile title will override this parameter if existing
             m: The map associated with the Menu
             group: The group of Menu control, tell how the Menucontrol interact with the others
+            fullscreen: Either or not the Menu container should be displayed in fullscreen on top of the map
         """
         # save the map in the members
         self.m = m
 
-        # set the menucontrol group
+        # set the menucontrol parameters
         self.group = group
+        self.fullscreen = fullscreen
 
         # create a clickable btn
         btn = MapBtn(content=icon_content, v_on="menu.on")
@@ -77,11 +81,11 @@ class MenuControl(WidgetControl):
             style_="overflow: auto",
             children=children,
         )
+        not fullscreen or card.class_list.add("v-menu-fullscreen")
 
         # assemble everything in a menu
         self.menu = sw.Menu(
             v_model=False,
-            close_on_click=False,
             close_on_content_click=False,
             children=[card],
             v_slots=[slot],
@@ -101,11 +105,10 @@ class MenuControl(WidgetControl):
         # add some interaction
         self.observe(self.update_position, "position")
         self.menu.observe(self.close_others, "v_model")
+        self.menu.observe(self.activate, "v_model")
 
     def update_position(self, *args) -> None:
-        """
-        Update the position of the menu if the position of the widget is dynamically changed.
-        """
+        """Update the position of the menu if the position of the widget is dynamically changed."""
         self.menu.top = "bottom" in self.position
         self.menu.bottom = "top" in self.position
         self.menu.left = "right" in self.position
@@ -120,8 +123,9 @@ class MenuControl(WidgetControl):
         min_height: Optional[Union[str, int]] = "40vh",
         max_height: Optional[Union[str, int]] = "40vh",
     ) -> Self:
-        """
-        Set the size of the card using all the sizing parameters from a v.Card.
+        """Set the size of the card using all the sizing parameters from a v.Card.
+
+        Default to None for everything if the menu control is fullscreened to avoid css conflict.
 
         Args:
           min_width: a fully qualified css description of the wanted min_width. default to 400px.
@@ -131,6 +135,10 @@ class MenuControl(WidgetControl):
         """
         card = self.menu.children[0]
 
+        # special case to None for everything if the menu is displayed in fullscree
+        if self.fullscreen:
+            min_width = max_width = min_height = max_height = None
+
         card.min_width = min_width
         card.max_width = max_width
         card.min_height = min_height
@@ -139,8 +147,7 @@ class MenuControl(WidgetControl):
         return self
 
     def close_others(self, *args) -> None:
-        """
-        Close all the other menus associated to the map to avoid overlapping.
+        """Close all the other menus associated to the map to avoid overlapping.
 
         all the other Menu control from the same group will be closed if this menu is opened. Other MenuCOntrol from other groups can remain open. User will need to be careful with Widget placements on the map.
         """
@@ -156,5 +163,14 @@ class MenuControl(WidgetControl):
                 for c in self.m.controls
                 if isinstance(c, MenuControl) and c != self and c.group == self.group
             ]
+
+        return
+
+    def activate(self, *args) -> None:
+        """Change the background color of the btn with respect to the status."""
+        # grey is contrasted enought for both ligh and dark theme
+        # could be customized further if requested
+        bg_color = "gray" if self.menu.v_model is True else color.bg
+        self.menu.v_slots[0]["children"].style_ = f"background: {bg_color};"
 
         return

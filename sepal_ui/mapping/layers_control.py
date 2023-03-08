@@ -1,6 +1,4 @@
-"""
-Extend fonctionalities of the ipyleaflet layer control.
-"""
+"""Extend fonctionalities of the ipyleaflet layer control."""
 import json
 from types import SimpleNamespace
 from typing import Optional
@@ -18,8 +16,7 @@ from sepal_ui.message import ms
 
 class HeaderRow(sw.Html):
     def __init__(self, title: str) -> None:
-        """
-        Html Row element including a single title of 3 colspan.
+        """Html Row element including a single title of 3 colspan.
 
         Specifically designed to work in the layer_control table
 
@@ -37,8 +34,7 @@ class BaseRow(sw.Html):
     "the radio to hide/show the layer"
 
     def __init__(self, layer: TileLayer) -> None:
-        """
-        Html row element to describe a base layer.
+        """Html row element to describe a base layer.
 
         This Html element include all the controls to manipulate the basemap displayed in the map
         - a checkbox to show/hide (it will behave like a radio)
@@ -75,8 +71,7 @@ class LayerRow(sw.Html):
     "the slider linked to the opacity of the layer"
 
     def __init__(self, layer: TileLayer) -> None:
-        """
-        Html row element to describe a normal layer.
+        """Html row element to describe a normal layer.
 
         This Html element include all the controls to manipulate the layer displayed in the map
         - a checkbox to show/hide
@@ -122,8 +117,7 @@ class VectorRow(sw.Html):
     "the ckeckbox to hide/show the layer"
 
     def __init__(self, layer: TileLayer) -> None:
-        """
-        Html row element to describe a vector layer.
+        """Html row element to describe a vector layer.
 
         This Html element include all the controls to manipulate the layer displayed in the map
         - a checkbox to show/hide
@@ -163,8 +157,7 @@ class LayersControl(MenuControl):
     "As radio button cannot behave individually we add an extra GroupRadio to wrap the table"
 
     def __init__(self, m: Map, **kwargs) -> None:
-        """
-        Richer layerControl to add some controls over the lyers displayed on the map.
+        """Richer layerControl to add some controls over the lyers displayed on the map.
 
         Each layer is associated to a line where the user can adapt the alpha chanel or even hide it completely
 
@@ -205,9 +198,7 @@ class LayersControl(MenuControl):
         self.m.observe(self.update_table, "layers")
 
     def update_table(self, change: dict) -> None:
-        """
-        Update the table content.
-        """
+        """Update the table content."""
         # create the vector line
         vectors = [lyr for lyr in reversed(self.m.layers) if isinstance(lyr, GeoJSON)]
         vector_rows = []

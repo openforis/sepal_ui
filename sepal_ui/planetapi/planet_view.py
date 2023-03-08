@@ -1,6 +1,4 @@
-"""
-The ``Card`` widget to use in application to interface with Planet.
-"""
+"""The ``Card`` widget to use in application to interface with Planet."""
 
 from typing import Optional
 
@@ -47,8 +45,7 @@ class PlanetView(sw.Layout):
         info: bool = False,
         **kwargs,
     ):
-        """
-        Stand-alone interface to capture planet lab credentials.
+        """Stand-alone interface to capture planet lab credentials.
 
         It also validate its  subscription and connect to the client stored in the model.
 

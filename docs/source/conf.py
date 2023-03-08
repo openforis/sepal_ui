@@ -1,5 +1,4 @@
-"""
-Configuration file for the Sphinx documentation builder.
+"""Configuration file for the Sphinx documentation builder.
 
 This file only contains a selection of the most common options. For a full
 list see the documentation:
@@ -53,12 +52,10 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
-    "sphinx-favicon",
+    "sphinx_favicon",
     "notfound.extension",
-    "sphinxcontrib.spelling",
     "sphinxcontrib.autoprogram",
     "_extentions.line_break",
-    # "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -129,25 +126,20 @@ html_context = {
 }
 
 favicons = [
-    {
-        "rel": "apple-touch-icon",
-        "size": "180x180",
-        "static-file": "apple-touch-icon.png",
-    },
-    {
-        "rel": "icon",
-        "type": "image/png",
-        "size": "32x32",
-        "static-file": "favicon-32x32.png",
-    },
-    {
-        "rel": "icon",
-        "type": "image/png",
-        "size": "16x16",
-        "static-file": "favicon-16x16.png",
-    },
-    {"rel": "mask-icon", "static-file": "safari-pinned-tab.svg", "color": "#186691"},
-    {"rel": "manifest", "static-file": "/site.webmanifest"},
+    # generic icons compatible with most browsers
+    "favicon-32x32.png",
+    "favicon-16x16.png",
+    {"rel": "shortcut icon", "sizes": "any", "href": "favicon.ico"},
+    # chrome specific
+    "android-chrome-192x192.png",
+    "android-chrome-512x512.png",
+    # apple icons
+    {"rel": "mask-icon", "color": "#459db9", "href": "safari-pinned-tab.svg"},
+    {"rel": "apple-touch-icon", "href": "apple-touch-icon.png"},
+    # msapplications
+    {"name": "msapplication-TileColor", "content": "#459db9"},
+    {"name": "theme-color", "content": "#ffffff"},
+    {"name": "msapplication-TileImage", "content": "mstile-150x150.png"},
 ]
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -158,14 +150,6 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = ["css/custom.css", "css/icon.css"]
-
-# -- Options for spelling output -----------------------------------------------
-spelling_lang = "en_US"
-spelling_show_suggestions = True
-spelling_filters = ["_filters.names.Names"]
-spelling_word_list_filename = [DOC_DIR / "_spelling" / "en_US.txt"]
-spelling_verbose = False
-spelling_exclude_patterns = ["modules/*"]
 
 # -- Options for autosummary/autodoc output ------------------------------------
 autosummary_generate = True

@@ -1,6 +1,4 @@
-"""
-``Card`` object dedicated to AOI selection. It does not include maps.
-"""
+"""``Card`` object dedicated to AOI selection. It does not include maps."""
 
 from datetime import datetime as dt
 from pathlib import Path
@@ -34,8 +32,7 @@ class MethodSelect(sw.Select):
         gee: bool = True,
         map_: Optional[sm.SepalMap] = None,
     ) -> None:
-        """
-        A method selector.
+        """A method selector.
 
         It will list the available methods for this very AoiView.
         'ALL' will select all the available methods (default)
@@ -112,8 +109,7 @@ class AdminField(sw.Select):
     def __init__(
         self, level: int, parent: Optional[sw.Select] = None, gee: bool = True
     ) -> None:
-        """
-        An admin level selector.
+        """An admin level selector.
 
         It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
@@ -138,17 +134,14 @@ class AdminField(sw.Select):
         self.parent is None or self.parent.observe(self._update, "v_model")
 
     def show(self) -> Self:
-        """
-        when an admin field is shown, show its parent as well.
-        """
+        """when an admin field is shown, show its parent as well."""
         super().show()
         self.parent is None or self.parent.show()
 
         return self
 
     def get_items(self, filter_: str = "") -> Self:
-        r"""
-        Update the item list based on the given filter.
+        r"""Update the item list based on the given filter.
 
         Args:
             filter\_ (str): The code of the parent v_model to filter the current results
@@ -179,7 +172,7 @@ class AdminField(sw.Select):
         return self
 
     def _update(self, change: dict) -> Self:
-        """update the item list of the admin select."""
+        """Update the item list of the admin select."""
         # reset v_model
         self.v_model = None
 
@@ -268,8 +261,9 @@ class AoiView(sw.Card):
         map_style: Optional[dict] = None,
         **kwargs,
     ) -> None:
-        r"""
-        Versatile card object to deal with the aoi selection. multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
+        r"""Versatile card object to deal with the aoi selection.
+
+        multiple selection method are available (see the MethodSelector object) and the widget can be fully customizable. Can also be bound to ee (ee==True) or not (ee==False).
 
         Args:
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
@@ -368,7 +362,7 @@ class AoiView(sw.Card):
 
     @sd.loading_button(debug=True)
     def _update_aoi(self, *args) -> Self:
-        """load the object in the model & update the map (if possible)."""
+        """Load the object in the model & update the map (if possible)."""
         # read the information from the geojson datas
         if self.map_:
             self.model.geo_json = self.aoi_dc.to_json()
@@ -391,7 +385,7 @@ class AoiView(sw.Card):
         return self
 
     def reset(self) -> Self:
-        """clear the aoi_model from input and remove the layer from the map (if existing)."""
+        """Clear the aoi_model from input and remove the layer from the map (if existing)."""
         # reset the view of the widgets
         self.w_method.v_model = None
 
@@ -403,7 +397,7 @@ class AoiView(sw.Card):
 
     @sd.switch("loading", on_widgets=["w_method"])
     def _activate(self, change: dict) -> None:
-        """activate the adapted widgets."""
+        """Activate the adapted widgets."""
         # clear and hide the alert
         self.alert.reset()
 

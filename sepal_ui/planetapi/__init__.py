@@ -1,5 +1,4 @@
-"""
-All modules used to create an Planet interface.
+"""All modules used to create an Planet interface.
 
 Package to access all the widget, model and tiles to create an Planet interface in sepal-ui.
 

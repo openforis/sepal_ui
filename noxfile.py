@@ -1,5 +1,4 @@
-"""
-All the process that can be run using nox.
+"""All the process that can be run using nox.
 
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
@@ -19,7 +18,7 @@ def test(session):
     """Run all the test using the environment varialbe of the running machine."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
-    session.run("pytest", "--color=yes", *test_files)
+    session.run("pytest", "--color=yes", "--cov", "--cov-report=html", *test_files)
 
 
 @nox.session(reuse_venv=True)
@@ -39,6 +38,9 @@ def bin(session):
 def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
+    # patch version in nox instead of pyproject to avoid blocking conda releases
+    session.install("git+https://github.com/jenshnielsen/sphinx.git@fix_9884")
+    session.install("git+https://github.com/12rambau/deprecated.git@master")
     session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(

@@ -1,5 +1,4 @@
-"""
-Custom input widgets to setup parameters in application.
+"""Custom input widgets to setup parameters in application.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create input fields in applications.
 All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
@@ -67,8 +66,7 @@ class DatePicker(v.Layout, SepalWidget):
     def __init__(
         self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs
     ) -> None:
-        """
-        Custom input widget to provide a reusable DatePicker.
+        """Custom input widget to provide a reusable DatePicker.
 
         It allows to choose date as a string in the following format YYYY-MM-DD.
 
@@ -122,8 +120,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     @observe("v_model")
     def check_date(self, change: dict) -> None:
-        """
-        Check if the data is formatted date.
+        """Check if the data is formatted date.
 
         A method to check if the value of the set v_model is a correctly formated date
         Reset the widget and display an error if it's not the case.
@@ -156,10 +153,15 @@ class DatePicker(v.Layout, SepalWidget):
 
         return
 
+    def today(self) -> Self:
+        """Update the date to the current day."""
+        self.v_model = datetime.today().strftime("%Y-%m-%d")
+
+        return self
+
     @staticmethod
     def is_valid_date(date: str) -> bool:
-        """
-        Check if the date is provided using the date format required for the widget.
+        """Check if the date is provided using the date format required for the widget.
 
         Args:
             date: the date to test in YYYY-MM-DD format
@@ -205,6 +207,9 @@ class FileInput(v.Flex, SepalWidget):
     clear: Optional[v.Btn] = None
     "clear btn to remove everything and set back to the ini folder"
 
+    root: t.Unicode = t.Unicode("").tag(sync=True)
+    "the root folder from which you cannot go higher in the tree."
+
     v_model: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
     "the v_model of the input"
 
@@ -218,10 +223,10 @@ class FileInput(v.Flex, SepalWidget):
         label: str = ms.widgets.fileinput.label,
         v_model: Union[str, None] = "",
         clearable: bool = False,
+        root: Union[str, Path] = "",
         **kwargs,
     ) -> None:
-        """
-        Custom input field to select a file in the sepal folders.
+        """Custom input field to select a file in the sepal folders.
 
         Args:
             extentions: the list of the allowed extentions. the FileInput will only display these extention and folders
@@ -229,10 +234,12 @@ class FileInput(v.Flex, SepalWidget):
             label: the label of the input
             v_model: the default value
             clearable: wether or not to make the widget clearable. default to False
+            root: the root folder from which you cannot go higher in the tree.
             kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
         """
         self.extentions = extentions
         self.folder = Path(folder)
+        self.root = str(root) if isinstance(root, Path) else root
 
         self.selected_file = v.TextField(
             readonly=True,
@@ -317,9 +324,7 @@ class FileInput(v.Flex, SepalWidget):
         self.v_model = v_model
 
     def reset(self, *args) -> Self:
-        """
-        Clear the File selection and move to the root folder.
-        """
+        """Clear the File selection and move to the root folder."""
         # note: The args arguments are useless here but need to be kept so that
         # the function is natively compatible with the clear btn
 
@@ -336,8 +341,7 @@ class FileInput(v.Flex, SepalWidget):
         return self
 
     def select_file(self, path: Union[str, Path]) -> Self:
-        """
-        Manually select a file from it's path. No verification on the extension is performed.
+        """Manually select a file from it's path. No verification on the extension is performed.
 
         Args:
             path: the path to the file
@@ -358,9 +362,7 @@ class FileInput(v.Flex, SepalWidget):
         return self
 
     def _on_file_select(self, change: dict) -> Self:
-        """
-        Dispatch the behavior between file selection and folder change.
-        """
+        """Dispatch the behavior between file selection and folder change."""
         if not change["new"]:
             return self
 
@@ -377,9 +379,7 @@ class FileInput(v.Flex, SepalWidget):
 
     @sd.switch("indeterminate", on_widgets=["loading"])
     def _change_folder(self) -> None:
-        """
-        Change the target folder.
-        """
+        """Change the target folder."""
         # get the items
         items = self._get_items()
 
@@ -393,8 +393,7 @@ class FileInput(v.Flex, SepalWidget):
         return
 
     def _get_items(self) -> List[v.ListItem]:
-        """
-        Create the list of items inside the folder.
+        """Create the list of items inside the folder.
 
         Returns:
             list of items inside the selected folder
@@ -441,7 +440,10 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
         file_list = humansorted(file_list, key=lambda x: x.value)
+        folder_list.extend(file_list)
 
+        # add the parent item if root is set and is not reached yet
+        # if root is not set then we always display it
         parent_item = v.ListItem(
             value=str(folder.parent),
             children=[
@@ -458,9 +460,11 @@ class FileInput(v.Flex, SepalWidget):
                 ),
             ],
         )
-
-        folder_list.extend(file_list)
-        folder_list.insert(0, parent_item)
+        root_folder = Path(self.root)
+        if self.root == "":
+            folder_list.insert(0, parent_item)
+        elif root_folder in folder.parents:
+            folder_list.insert(0, parent_item)
 
         return folder_list
 
@@ -473,9 +477,7 @@ class FileInput(v.Flex, SepalWidget):
 
     @observe("v_model")
     def close_menu(self, change: dict) -> None:
-        """
-        A method to close the menu of the Fileinput programatically.
-        """
+        """A method to close the menu of the Fileinput programatically."""
         # set the visibility
         self.file_menu.v_model = False
 
@@ -505,8 +507,7 @@ class LoadTableField(v.Col, SepalWidget):
     "The default v_model structure {'pathname': xx, 'id_column': xx, 'lat_column': xx, 'lng_column': xx}"
 
     def __init__(self, label: str = ms.widgets.table.label, **kwargs) -> None:
-        """
-        A custom input widget to load points data.
+        """A custom input widget to load points data.
 
         The user will provide a csv or txt file containing labeled dataset.
         The relevant columns (lat, long and id) can then be identified in the updated select. Once everything is set, the widget will populate itself with a json dict.
@@ -560,9 +561,7 @@ class LoadTableField(v.Col, SepalWidget):
         self.LatSelect.observe(self._on_select_change, "v_model")
 
     def reset(self) -> Self:
-        """
-        Clear the values and return to the empty default json.
-        """
+        """Clear the values and return to the empty default json."""
         # clear the fileInput
         self.fileInput.reset()
 
@@ -570,9 +569,7 @@ class LoadTableField(v.Col, SepalWidget):
 
     @sd.switch("loading", on_widgets=["IdSelect", "LngSelect", "LatSelect"])
     def _on_file_input_change(self, change: dict) -> Self:
-        """
-        Update the select content when the fileinput v_model is changing.
-        """
+        """Update the select content when the fileinput v_model is changing."""
         # clear the selects
         self._clear_select()
 
@@ -613,9 +610,7 @@ class LoadTableField(v.Col, SepalWidget):
         return self
 
     def _clear_select(self) -> Self:
-        """
-        clear the selects components.
-        """
+        """Clear the selects components."""
         self.fileInput.selected_file.error_messages = None
         self.IdSelect.items = []  # all the others are listening to this one
         self.IdSelect.v_model = self.LngSelect.v_model = self.LatSelect.v_model = None
@@ -623,17 +618,14 @@ class LoadTableField(v.Col, SepalWidget):
         return self
 
     def _on_select_change(self, change: dict) -> Self:
-        """
-        change the v_model value when a select is changed.
-        """
+        """Change the v_model value when a select is changed."""
         name = change["owner"]._metadata["name"]
         self._set_v_model(name, change["new"])
 
         return self
 
     def _set_v_model(self, key: str, value: Any) -> None:
-        """
-        set the v_model from an external function to trigger the change event.
+        """set the v_model from an external function to trigger the change event.
 
         Args:
             key: the column name
@@ -681,8 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         default_asset: Union[str, List[str]] = [],
         **kwargs,
     ) -> None:
-        """
-        Custom widget input to select an asset inside the asset folder of the user.
+        """Custom widget input to select an asset inside the asset folder of the user.
 
         Args:
             label: the label of the input
@@ -725,9 +716,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @sd.switch("loading")
     def _validate(self, change: dict) -> None:
-        """
-        Validate the selected asset. Throw an error message if is not accesible or not in the type list.
-        """
+        """Validate the selected asset. Throw an error message if is not accesible or not in the type list."""
         self.error_messages = None
 
         if change["new"]:
@@ -791,9 +780,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @observe("types")
     def _check_types(self, change: dict) -> None:
-        """
-        clean the type list, keeping only the valid one.
-        """
+        """Clean the type list, keeping only the valid one."""
         self.v_model = None
 
         # check the type
@@ -807,8 +794,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
 class PasswordField(v.TextField, SepalWidget):
     def __init__(self, **kwargs) -> None:
-        """
-        Custom widget to input passwords in text area and toggle its visibility.
+        """Custom widget to input passwords in text area and toggle its visibility.
 
         Args:
             kwargs: any parameter from a v.TextField. If set, 'type' will be overwritten.
@@ -827,9 +813,7 @@ class PasswordField(v.TextField, SepalWidget):
         self.on_event("click:append", self._toggle_pwd)
 
     def _toggle_pwd(self, *args) -> None:
-        """
-        Toggle password visibility when append button is clicked.
-        """
+        """Toggle password visibility when append button is clicked."""
         if self.type == "text":
             self.type = "password"
             self.append_icon = "fa-solid fa-eye-slash"
@@ -852,8 +836,7 @@ class NumberField(v.TextField, SepalWidget):
     "Incremental value added at each step."
 
     def __init__(self, max_: int = 10, min_: int = 0, increm: int = 1, **kwargs):
-        r"""
-        Custom widget to input numbers in text area and add/substract with single increment.
+        r"""Custom widget to input numbers in text area and add/substract with single increment.
 
         Args:
             max\_: Maximum selectable number. Defaults to 10.
@@ -880,17 +863,13 @@ class NumberField(v.TextField, SepalWidget):
         self.on_event("click:prepend", self.decrement)
 
     def increment(self, *args) -> None:
-        """
-        Adds increm to the current v_model number.
-        """
+        """Adds increm to the current v_model number."""
         self.v_model = min((self.v_model + self.increm), self.max_)
 
         return
 
     def decrement(self, *args) -> None:
-        """
-        Substracts increm to the current v_model number.
-        """
+        """Substracts increm to the current v_model number."""
         self.v_model = max((self.v_model - self.increm), self.min_)
 
         return
@@ -937,8 +916,7 @@ class VectorField(v.Col, SepalWidget):
     def __init__(
         self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs
     ) -> None:
-        """
-        A custom input widget to load vector data.
+        """A custom input widget to load vector data.
 
         The user will provide a vector file compatible with fiona or a GEE feature collection.
         The user can then select a specific shape by setting column and value fields.
@@ -982,16 +960,14 @@ class VectorField(v.Col, SepalWidget):
         self.w_value.observe(self._update_value, "v_model")
 
     def reset(self) -> Self:
-        """
-        Return the field to its initial state.
-        """
+        """Return the field to its initial state."""
         self.w_file.reset()
 
         return self
 
     @sd.switch("loading", on_widgets=["w_column", "w_value"])
     def _update_file(self, change: dict) -> Self:
-        """update the file name, the v_model and reset the other widgets."""
+        """Update the file name, the v_model and reset the other widgets."""
         # reset the widgets
         self.w_column.items, self.w_value.items = [], []
         self.w_column.v_model = self.w_value.v_model = None
@@ -1068,8 +1044,7 @@ class VectorField(v.Col, SepalWidget):
         return self
 
     def _set_v_model(self, key: str, value: Any) -> None:
-        """
-        Set the v_model from an external function to trigger the change event.
+        """Set the v_model from an external function to trigger the change event.
 
         Args:
             key: the column name
@@ -1084,8 +1059,7 @@ class VectorField(v.Col, SepalWidget):
 
 class SimpleSlider(v.Slider, SepalWidget):
     def __init__(self, **kwargs) -> None:
-        """
-        Simple Slider is a simplified slider that can be center alined in table.
+        """Simple Slider is a simplified slider that can be center alined in table.
 
         The normal vuetify slider is included html placeholder for the thumbs and the messages (errors and hints). This is preventing anyone from center-aligning them in a table. This class is behaving exactly like a regular Slider but embed extra css class to prevent the display of these sections. any hints or message won't be displayed.
         """

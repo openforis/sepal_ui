@@ -1,5 +1,4 @@
-"""
-All the ipyvuetify class override as SepalWidgets.
+"""All the ipyvuetify class override as SepalWidgets.
 
 This file overwrite all the widgets generating by ipyvuetify to add the SepalWidget class as a parent.
 It should not be modified from here as it's automatically generated.

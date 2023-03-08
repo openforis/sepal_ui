@@ -1,5 +1,4 @@
-"""
-Abstract object to store information in your application. 
+"""Abstract object to store information in your application.
 
 Helper methods can be used to share information between tiles and/or save them
 """
@@ -16,8 +15,7 @@ __all__ = ["Model"]
 
 
 class Model(HasTraits):
-    """
-    Model object to store information of your computation (input, output.. etc).
+    """Model object to store information of your computation (input, output.. etc).
 
     The Model structure is based on traitlets and embed function for export or import in json format. The model traitlets can be bind to any widget field.
     """
@@ -30,8 +28,7 @@ class Model(HasTraits):
         return f"{self.__class__.__name__}({args})"
 
     def export_data(self) -> dict:
-        """
-        Export a json description of all the object traitlets.
+        """Export a json description of all the object traitlets.
 
         Note that the members will be ignored.
 
@@ -41,8 +38,7 @@ class Model(HasTraits):
         return self.__dict__["_trait_values"]
 
     def import_data(self, data: Union[dict, str]) -> None:
-        """
-        Import the model (i.e. the traitlets) from a json file.
+        """Import the model (i.e. the traitlets) from a json file.
 
         Args:
             data: the json ditionary of the model
@@ -57,8 +53,7 @@ class Model(HasTraits):
         return
 
     def bind(self, widget: v.VuetifyWidget, trait: str) -> Self:
-        """
-        Binding a widget input 'v_model' trait to a trait of the model.
+        """Binding a widget input 'v_model' trait to a trait of the model.
 
         The binding will be unidirectionnal for the sake of some custom widget that does not support it.
         This wrapper avoid to import the ipywidgets lib everywhere and reduce the number of parameters

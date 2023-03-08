@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-"""
-Script to create an automatic overwrite of all the object in ipyvuetify. We want to add SepalWidgets to the list of parent class.
+"""Script to create an automatic overwrite of all the object in ipyvuetify.
 
+We want to add SepalWidgets to the list of parent class.
 This script should be run only by maintainer when changes are made to ipyvuetify itself. Please report to the issue tracker if any class is not available.
 """
 
@@ -18,8 +18,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="sepal_ipyvuetify")
 def disclaimer() -> str:
     """Return the module docstring."""
     return (
-        '"""\n'
-        "All the ipyvuetify class override as SepalWidgets\n"
+        '"""All the ipyvuetify class override as SepalWidgets\n'
         "\n"
         "This file overwrite all the widgets generating by ipyvuetify to add the SepalWidget class as a parent.\n"
         "It should not be modified from here as it's automatically generated.\n"

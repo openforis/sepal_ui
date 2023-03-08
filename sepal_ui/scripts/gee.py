@@ -1,6 +1,4 @@
-"""
-All the heleper methods to interface Google Earthengine with sepal-ui.
-"""
+"""All the heleper methods to interface Google Earthengine with sepal-ui."""
 
 import time
 from pathlib import Path
@@ -15,8 +13,7 @@ from sepal_ui.scripts import decorator as sd
 
 @sd.need_ee
 def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> str:
-    """
-    Wait until the selected process is finished. Display some output information.
+    """Wait until the selected process is finished. Display some output information.
 
     Args:
         task_descripsion: name of the running task
@@ -51,8 +48,7 @@ def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> 
 
 @sd.need_ee
 def is_task(task_descripsion: str) -> ee.batch.Task:
-    """
-    Search for the described task in the user Task list return None if nothing is found.
+    """Search for the described task in the user Task list return None if nothing is found.
 
     Args:
         task_descripsion: the task description
@@ -71,8 +67,7 @@ def is_task(task_descripsion: str) -> ee.batch.Task:
 
 @sd.need_ee
 def is_running(task_descripsion: str) -> ee.batch.Task:
-    """
-    Search for the described task in the user Task list return None if nothing is currently running.
+    """Search for the described task in the user Task list return None if nothing is currently running.
 
     Args:
         task_descripsion: the task description
@@ -90,8 +85,7 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 @sd.need_ee
 def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[str]:
-    """
-    Get all the assets from the parameter folder. every nested asset will be displayed.
+    """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
         folder: the initial GEE folder
@@ -116,8 +110,7 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
 
 @sd.need_ee
 def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
-    """
-    Check if the asset already exist in the user asset folder.
+    """Check if the asset already exist in the user asset folder.
 
     Args:
         asset_descripsion: the descripsion of the asset

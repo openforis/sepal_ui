@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
-"""
-Script to add a testing kernel in the local environment.
+"""Script to add a testing kernel in the local environment.
 
 This script should be run in a module folder. From there, it will create a  new venv in the "module_venv" folder.
 This venv will be named after the module repository name. All librairies specified in the requirements.txt file will be installed.
