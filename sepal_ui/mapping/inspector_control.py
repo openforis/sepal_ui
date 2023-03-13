@@ -75,6 +75,9 @@ class InspectorControl(MenuControl):
         # create the menu widget
         super().__init__("fa-solid fa-crosshairs", self.text, title, **kwargs)
 
+        # avoid closing the inspector when clicking on the map
+        self.menu.close_on_click = False
+
         # create a marker outside of the map [91, 181] and hide it
         self.marker = Marker(location=[91, 181], draggable=False, visible=False)
         self.m.add_layer(self.marker)
