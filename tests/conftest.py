@@ -19,12 +19,51 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 
-# try to init earthengine. if it does not work the non existing credentials will
-# be used to skpip
 try:
     su.init_ee()
 except Exception:
-    pass
+    pass  # try to init earthengine. use ee.data._credentials to skip
+
+# -- a component to fake the display in Ipython --------------------------------
+
+
+@pytest.fixture(scope="session")
+def _alert() -> sw.Alert:
+    """An alert that can be used everywhere to display informations.
+
+    Returns:
+        an alert object
+    """
+    return sw.Alert()
+
+
+@pytest.fixture(scope="function")
+def alert(_alert: sw.Alert) -> sw.Alert:
+    """An alert that can be used everywhere to display informations.
+
+    Args:
+        _alert: the shared alert component
+
+    Returns:
+        an alert object
+    """
+    return _alert.reset()
+
+
+# -- SEPAL related parameters --------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def file_start() -> str:
+    """The start of any link to the sepal platform.
+
+    Args:
+        the value of the sandbox path
+    """
+    return "https://sepal.io/api/sandbox/jupyter/files/"
+
+
+# -- Acess files from the project ----------------------------------------------
 
 
 @pytest.fixture(scope="session")
@@ -38,17 +77,16 @@ def root_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
-def tmp_dir() -> Path:
-    """Creates a temporary local directory to store data.
+def readme(root_dir: Path) -> Path:
+    """Return the readme file path.
 
     Returns:
-        path to to tmp created directory
+        the path to the file
     """
-    with TemporaryDirectory() as tmp_dir:
+    return root_dir / "README.rst"
 
-        yield Path(tmp_dir)
 
-    return
+# -- generate a test file system in GEE ----------------------------------------
 
 
 @pytest.fixture(scope="session")
@@ -148,14 +186,58 @@ def gee_dir(_hash: str) -> Optional[Path]:
     return
 
 
-@pytest.fixture
-def alert() -> sw.Alert:
-    """A dummy alert that can be used everywhere to display informations.
+@pytest.fixture(scope="session")
+def fake_asset(gee_dir: Path) -> Path:
+    """Return the path to a fake asset.
 
     Returns:
-        an alert object
+        the path to the dir
     """
-    return sw.Alert()
+    return gee_dir / "feature_collection"
+
+
+@pytest.fixture(scope="session")
+def gee_user_dir(gee_dir: Path) -> Path:
+    """Return the path to the gee_dir assets without the project elements.
+
+    Args:
+        gee_dir: the path to the session defined GEE directory
+
+    Returns:
+        the path to gee_dir
+    """
+    legacy_project = Path("projects/earthengine-legacy/assets")
+
+    return gee_dir.relative_to(legacy_project)
+
+
+@pytest.fixture(scope="session")
+def image_id() -> str:
+    """The image id of an asset.
+
+    Returns:
+        the AssetId of Daniel Wiell asset
+    """
+    # testing asset from Daniel Wiell
+    # may not live forever
+    return "users/wiell/forum/visualization_example"
+
+
+# -- create local tmp files ----------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def tmp_dir() -> Path:
+    """Creates a temporary local directory to store data.
+
+    Returns:
+        path to to tmp created directory
+    """
+    with TemporaryDirectory() as tmp_dir:
+
+        yield Path(tmp_dir)
+
+    return
 
 
 @pytest.fixture(scope="session")
@@ -174,16 +256,6 @@ def fake_vector() -> Path:
         yield file
 
     return
-
-
-@pytest.fixture(scope="session")
-def fake_asset(gee_dir: Path) -> Path:
-    """Return the path to a fake asset.
-
-    Returns:
-        the path to the dir
-    """
-    return gee_dir / "feature_collection"
 
 
 @pytest.fixture(scope="session")
@@ -246,75 +318,6 @@ def wrong_table(fake_table: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def readme(root_dir: Path) -> Path:
-    """Return the readme file path.
-
-    Returns:
-        the path to the file
-    """
-    return root_dir / "README.rst"
-
-
-@pytest.fixture(scope="session")
-def file_start() -> str:
-    """The start of any link to the sepal platform.
-
-    Args:
-        the value of the sandbox path
-    """
-    return "https://sepal.io/api/sandbox/jupyter/files/"
-
-
-@pytest.fixture(scope="session")
-def gee_user_dir(gee_dir: Path) -> Path:
-    """Return the path to the gee_dir assets without the project elements.
-
-    Args:
-        gee_dir: the path to the session defined GEE directory
-
-    Returns:
-        the path to gee_dir
-    """
-    legacy_project = Path("projects/earthengine-legacy/assets")
-
-    return gee_dir.relative_to(legacy_project)
-
-
-@pytest.fixture(scope="session")
-def planet_key() -> str:
-    """Get the planet key stored in env.
-
-    Returns:
-        the str key
-    """
-    return os.getenv("PLANET_API_KEY")
-
-
-@pytest.fixture(scope="session")
-def cred() -> list:
-    """Get the credentials stored in env.
-
-    Returns:
-        credential as a list: [cred(username, password)]
-    """
-    credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
-
-    return list(credentials.values())
-
-
-@pytest.fixture(scope="session")
-def image_id() -> str:
-    """The image id of an asset.
-
-    Returns:
-        the AssetId of Daniel Wiell asset
-    """
-    # testing asset from Daniel Wiell
-    # may not live forever
-    return "users/wiell/forum/visualization_example"
-
-
-@pytest.fixture(scope="session")
 def rgb() -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
@@ -346,3 +349,28 @@ def byte() -> Path:
         yield file
 
     return
+
+
+# -- Planet credentials --------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def planet_key() -> str:
+    """Get the planet key stored in env.
+
+    Returns:
+        the str key
+    """
+    return os.getenv("PLANET_API_KEY")
+
+
+@pytest.fixture(scope="session")
+def cred() -> list:
+    """Get the credentials stored in env.
+
+    Returns:
+        credential as a list: [cred(username, password)]
+    """
+    credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+
+    return list(credentials.values())

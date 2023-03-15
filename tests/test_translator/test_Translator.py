@@ -53,24 +53,20 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
 
 def test_search_key() -> None:
     """Check that a key can be searched in the bbuild messages."""
-    # generate the tmp_dir in the test directory
-    tmp_dir = Path(__file__).parent / "data" / "messages"
-    tmp_dir.mkdir(exist_ok=True, parents=True)
-
     # assert that having a wrong key  at root level
     # in the json will raise an error
     key = "toto"
     d = {"toto": {"a": "b"}, "c": "d"}
 
     with pytest.raises(Exception):
-        Translator(tmp_dir).search_key(d, key)
+        Translator.search_key(d, key)
 
     # Search when the key is in a deeper nested level
     key = "nested_key"
     d = {"en": {"level1": {"level2": {"nested_key": "value"}}}}
 
     with pytest.raises(Exception):
-        Translator(tmp_dir).search_key(d, key)
+        Translator.search_key(d, key)
 
     return
 
