@@ -187,16 +187,6 @@ def file_input(root_dir: Path) -> sw.FileInput:
     return sw.FileInput(folder=root_dir)
 
 
-@pytest.fixture
-def readme(root_dir: Path) -> Path:
-    """Return the readme file path.
-
-    Returns:
-        the path to the file
-    """
-    return root_dir / "README.rst"
-
-
 def get_names(file_input: sw.FileInput) -> List[str]:
     """Get the list name of a fileinput object.
 

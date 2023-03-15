@@ -1,6 +1,5 @@
 """Test the planet PlanetModel model."""
 
-import json
 import os
 
 import planet
@@ -144,25 +143,3 @@ def test_get_planet_items(planet_key: str) -> None:
     # Get the items
     items = planet_model.get_items(aoi, start, end, cloud_cover)
     assert items[0].get("id") == expected_first_id
-
-
-@pytest.fixture
-def planet_key() -> str:
-    """Get the planet key stored in env.
-
-    Returns:
-        the str key
-    """
-    return os.getenv("PLANET_API_KEY")
-
-
-@pytest.fixture
-def cred() -> list:
-    """Get the credentials stored in env.
-
-    Returns:
-        credential as a list: [cred(username, password)]
-    """
-    credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
-
-    return list(credentials.values())

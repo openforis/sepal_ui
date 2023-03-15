@@ -3,8 +3,6 @@
 import math
 from pathlib import Path
 from typing import List, Tuple
-from urllib.request import urlretrieve
-from zipfile import ZipFile
 
 import ee
 import pytest
@@ -305,7 +303,7 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
         "lng_column": "lon",
     }
     aoi_model._from_points(points)
-    assert aoi_model.name == "point"
+    assert aoi_model.name.startswith("tmp")
 
     return
 
@@ -398,7 +396,7 @@ def test_from_asset(gee_dir: Path) -> Path:
     return
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def square() -> dict:
     """A geojson square around the vatican city.
 
@@ -428,64 +426,6 @@ def square() -> dict:
     }
 
 
-@pytest.fixture(scope="session")
-def fake_points(tmp_dir: Path) -> Path:
-    """Create a fake point file the tmp file.
-
-    Will be destroyed after the tests.
-
-    Args:
-        tmp_dir: the tmp_directory
-
-    Returns:
-        the path to the point file
-    """
-    file = tmp_dir / "point.csv"
-    with file.open("w") as f:
-        f.write("lat,lon,id\n")
-        f.write("1,1,0\n")
-        f.write("0,0,1\n")
-
-    yield file
-
-    file.unlink()
-
-    return
-
-
-@pytest.fixture(scope="session")
-def fake_vector(tmp_dir: Path) -> Path:
-    """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
-
-    the tmp files will be destroyed after the test.
-
-    Args:
-        tmp_dir: the tmp directory path
-
-    Returns:
-        the path to the tmp vector file
-    """
-    # download vatican city from GADM
-    file = tmp_dir / "test.zip"
-
-    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
-    name = "gadm41_VAT_0"
-
-    urlretrieve(gadm_vat_link, file)
-
-    with ZipFile(file, "r") as zip_ref:
-        zip_ref.extractall(tmp_dir)
-
-    file.unlink()
-
-    yield tmp_dir / f"{name}.shp"
-
-    # destroy the file after the test
-    [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
-
-    return
-
-
 @pytest.fixture
 def test_model(gee_dir: Path) -> aoi.AoiModel:
     """Create a test AoiModel based on GEE using Vatican.
@@ -500,7 +440,7 @@ def test_model(gee_dir: Path) -> aoi.AoiModel:
     return aoi.AoiModel(admin=admin, folder=gee_dir)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def aoi_model_traits() -> List[str]:
     """Return the list of an aoi model traits.
 
@@ -519,7 +459,7 @@ def aoi_model_traits() -> List[str]:
     ]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def aoi_model_outputs() -> List[str]:
     """Return the list of an aoi model outputs.
 
@@ -535,7 +475,7 @@ def aoi_model_outputs() -> List[str]:
     ]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def test_columns() -> List[str]:
     """Returns the column of the test vatican aoi.
 
@@ -553,7 +493,7 @@ def test_columns() -> List[str]:
     ]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def test_bounds() -> Tuple[float]:
     """Returns the bounds of the vatican asset.
 

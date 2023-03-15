@@ -164,7 +164,7 @@ def test_key_use() -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def translation_folder() -> Path:
     """Generate a fully qualified translation folder with limited keys in en, fr and es."""
     # set up the appropriate keys for each language
@@ -178,18 +178,18 @@ def translation_folder() -> Path:
     with TemporaryDirectory() as tmp_dir:
 
         # create the translation files
-        tmp_path = Path(tmp_dir)
+        tmp_dir = Path(tmp_dir)
         for lan, d in keys.items():
-            folder = tmp_path / lan
+            folder = tmp_dir / lan
             folder.mkdir()
             (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
-        yield tmp_path
+        yield tmp_dir
 
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def tmp_config_file() -> int:
     """Erase any existing config file and replace it with one specifically design for thesting the translation."""
     # erase anything that exists

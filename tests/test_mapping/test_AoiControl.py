@@ -130,7 +130,7 @@ def test_zoom(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def points() -> Tuple[sg.Point]:
     """Return a tuple of points.
 
@@ -140,7 +140,7 @@ def points() -> Tuple[sg.Point]:
     return (sg.Point(10, 20), sg.Point(20, 30))
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def ee_points() -> Tuple[ee.Geometry.Point]:
     """Return a tuple of ee_point.
 

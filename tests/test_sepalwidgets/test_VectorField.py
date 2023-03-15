@@ -1,9 +1,6 @@
 """Test VectorField widget."""
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from urllib.request import urlretrieve
-from zipfile import ZipFile
 
 import ee
 import pytest
@@ -200,7 +197,7 @@ def test_update_value_gee(gee_dir: Path, fake_asset: Path) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def default_v_model() -> dict:
     """Returns the default v_model.
 
@@ -212,40 +209,3 @@ def default_v_model() -> dict:
         "column": None,
         "value": None,
     }
-
-
-@pytest.fixture
-def fake_vector() -> Path:
-    """Return a fake vector based on the vatican file.
-
-    Returns:
-        the path to the created file
-    """
-    with TemporaryDirectory() as tmp_dir:
-        tmp_dir = Path(tmp_dir)
-        file = tmp_dir / "test.zip"
-
-        gadm_vat_link = (
-            "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
-        )
-        name = "gadm41_VAT_0"
-
-        # download vatican city from GADM
-        urlretrieve(gadm_vat_link, file)
-
-        with ZipFile(file, "r") as zip_ref:
-            zip_ref.extractall(tmp_dir)
-
-        yield tmp_dir / f"{name}.shp"
-
-    return
-
-
-@pytest.fixture
-def fake_asset(gee_dir: Path) -> Path:
-    """Return the path to a fake asset.
-
-    Returns:
-        the path to the dir
-    """
-    return gee_dir / "feature_collection"
