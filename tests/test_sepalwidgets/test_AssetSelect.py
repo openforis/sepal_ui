@@ -137,7 +137,7 @@ def test_get_items(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     assert str(gee_user_dir / "image") in asset_select.items
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def default_items() -> List[str]:
     """Some default public data from GEE.
 
@@ -151,7 +151,7 @@ def default_items() -> List[str]:
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def asset_select(gee_dir: Path) -> sw.AssetSelect:
     """Create a default assetSelect.
 

@@ -545,7 +545,7 @@ def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     """A sepalMap supporting each combo band from the asset."""
     image = ee.Image(image_id)

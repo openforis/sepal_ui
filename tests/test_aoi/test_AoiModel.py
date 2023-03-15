@@ -1,8 +1,7 @@
 """Test AoiModel custom model."""
 
-import math
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 import ee
 import pytest
@@ -82,12 +81,12 @@ def test_init_ee(gee_dir: Path) -> None:
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
+def test_get_columns(test_model: aoi.AoiModel, data_regression) -> None:
     """Get the columns from a selected geometry.
 
     Args:
         test_model: an object set on Vatican city
-        test_columns: the columns name of a AoiMOdel object
+        data_regression: the pytest regression fixture
     """
     # test that before any data is set the method raise an error
     with pytest.raises(Exception):
@@ -96,7 +95,7 @@ def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
 
     # test data
     res = test_model.get_columns()
-    assert res == test_columns
+    data_regression.check(res)
 
     return
 
@@ -202,15 +201,15 @@ def test_clear_attributes(
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_total_bounds(test_model: aoi.AoiModel, test_bounds: Tuple[float]) -> None:
+def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
     """Check that total bouds of the vatican are as expected.
 
     Args:
         test_model: a AoiMOdel object set on Vatican city
-        test_bounds: the bounds of the expected geometry
+        data_regression: the pytest regression fixture
     """
     bounds = test_model.total_bounds()
-    assert all([math.isclose(b, t) for b, t in zip(bounds, test_bounds)])
+    data_regression.check(bounds)
 
     with pytest.raises(ValueError):
         test_model.clear_output()
@@ -296,12 +295,7 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
         aoi_model._from_points(points)
 
     # complete
-    points = {
-        "pathname": fake_points,
-        "id_column": "id",
-        "lat_column": "lat",
-        "lng_column": "lon",
-    }
+    points.update(pathname=fake_points)
     aoi_model._from_points(points)
     assert aoi_model.name.startswith("tmp")
 
@@ -346,7 +340,7 @@ def test_from_geo_json(gee_dir, square: dict) -> None:
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
-        square; the geo_interface representation of a quare around vatican
+        square: the geo_interface representation of a quare around vatican
     """
     aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
@@ -396,7 +390,7 @@ def test_from_asset(gee_dir: Path) -> Path:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def square() -> dict:
     """A geojson square around the vatican city.
 
@@ -426,7 +420,7 @@ def square() -> dict:
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_model(gee_dir: Path) -> aoi.AoiModel:
     """Create a test AoiModel based on GEE using Vatican.
 
@@ -473,36 +467,3 @@ def aoi_model_outputs() -> List[str]:
         "selected_feature",
         "dst_asset_id",
     ]
-
-
-@pytest.fixture
-def test_columns() -> List[str]:
-    """Returns the column of the test vatican aoi.
-
-    Returns:
-        the column names
-    """
-    return [
-        "ADM0_CODE",
-        "ADM0_NAME",
-        "DISP_AREA",
-        "EXP0_YEAR",
-        "STATUS",
-        "STR0_YEAR",
-        "Shape_Leng",
-    ]
-
-
-@pytest.fixture
-def test_bounds() -> Tuple[float]:
-    """Returns the bounds of the vatican asset.
-
-    Returns:
-        the bounds of vatican
-    """
-    return (
-        12.445770205631668,
-        41.90021953934405,
-        12.457671530175347,
-        41.90667181034752,
-    )

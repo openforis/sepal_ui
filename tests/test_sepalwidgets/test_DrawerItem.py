@@ -104,7 +104,7 @@ def test_remove_notif(model: LocalModel, drawer_item: sw.DrawerItem) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def model() -> LocalModel:
     """A test model instance.
 
@@ -114,7 +114,7 @@ def model() -> LocalModel:
     return LocalModel()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def drawer_item(model: LocalModel) -> sw.DrawerItem:
     """Create dummy drawer item.
 

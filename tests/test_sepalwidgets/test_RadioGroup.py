@@ -43,7 +43,7 @@ def test_update_v_model(group: sw.RadioGroup) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def group() -> sw.RadioGroup:
     """Return a Radiogroup with 3 radios children.
 

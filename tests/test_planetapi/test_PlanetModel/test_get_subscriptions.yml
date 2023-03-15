@@ -1,0 +1,141 @@
+- active_from: "2021-04-29T00:00:00+00:00"
+  active_to: "2023-09-30T10:00:00+00:00"
+  basemap_quad_quota: null
+  basemap_tile_quota:
+    current: 0
+    current_updated: null
+    enabled: true
+    limit: 0
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:10:13.005351+00:00"
+  created_at: "2021-04-29T14:42:42.087295+00:00"
+  deleted_at: null
+  id: 560748
+  organization:
+    id: 306776
+    name: FAO (NICFI Level 2 Access)
+  organization_id: 306776
+  plan:
+    id: 9607
+    name: PL-0020051_Level2_Access
+    state: active
+  plan_id: 9607
+  quota_anchor_date: "2022-09-01T00:00:00+00:00"
+  quota_enable_overage: false
+  quota_enabled: true
+  quota_interval: access_period
+  quota_reset_at: null
+  quota_sqkm: 100000000
+  quota_style: preferred
+  quota_used: 3672116.5187372095
+  reference: NICIF Level 2 Access
+  scene_tile_quota:
+    current: 1207273
+    current_updated: "2023-03-15T06:00:12+00:00"
+    enabled: true
+    limit: 20000000
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:10:13.008539+00:00"
+  state: active
+  updated_at: "2022-09-05T09:10:12.989515+00:00"
+  url: https://api.planet.com/auth/v1/experimental/public/subscriptions/560748
+- active_from: "2021-04-29T00:00:00+00:00"
+  active_to: "2023-09-30T10:00:00+00:00"
+  basemap_quad_quota: null
+  basemap_tile_quota:
+    current: 498986
+    current_updated: "2023-03-15T09:00:08+00:00"
+    enabled: true
+    limit: 50000000
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:09:40.162579+00:00"
+  created_at: "2021-04-29T14:40:57.444706+00:00"
+  deleted_at: null
+  id: 560747
+  organization:
+    id: 306776
+    name: FAO (NICFI Level 2 Access)
+  organization_id: 306776
+  plan:
+    id: 8269
+    name: NICFI_Level_0
+    state: active
+  plan_id: 8269
+  quota_anchor_date: "2022-09-01T00:00:00+00:00"
+  quota_enable_overage: false
+  quota_enabled: true
+  quota_interval: access_period
+  quota_reset_at: null
+  quota_sqkm: 0
+  quota_style: starter
+  quota_used: 0.0
+  reference: NICFI Level 0
+  scene_tile_quota:
+    current: 0
+    current_updated: null
+    enabled: true
+    limit: 0
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:09:40.164860+00:00"
+  state: active
+  updated_at: "2022-09-05T09:09:40.148081+00:00"
+  url: https://api.planet.com/auth/v1/experimental/public/subscriptions/560747
+- active_from: "2021-04-29T00:00:00+00:00"
+  active_to: "2023-09-30T10:00:00+00:00"
+  basemap_quad_quota: null
+  basemap_tile_quota:
+    current: 498646
+    current_updated: "2023-03-15T15:00:11+00:00"
+    enabled: true
+    limit: 50000000
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:09:54.824581+00:00"
+  created_at: "2021-04-29T14:38:34.304564+00:00"
+  deleted_at: null
+  id: 560743
+  organization:
+    id: 306776
+    name: FAO (NICFI Level 2 Access)
+  organization_id: 306776
+  plan:
+    id: 8411
+    name: NICFI_Level_1
+    state: active
+  plan_id: 8411
+  quota_anchor_date: "2022-09-01T00:00:00+00:00"
+  quota_enable_overage: false
+  quota_enabled: true
+  quota_interval: access_period
+  quota_reset_at: null
+  quota_sqkm: 0
+  quota_style: starter
+  quota_used: 0.0
+  reference: NICFI Level1
+  scene_tile_quota:
+    current: 0
+    current_updated: null
+    enabled: true
+    limit: 0
+    metering: tile
+    overage: false
+    refresh: null
+    reset: null
+    updated_at: "2022-09-05T09:09:54.822339+00:00"
+  state: active
+  updated_at: "2022-09-05T09:09:54.805974+00:00"
+  url: https://api.planet.com/auth/v1/experimental/public/subscriptions/560743

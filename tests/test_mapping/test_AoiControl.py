@@ -150,7 +150,7 @@ def ee_points() -> Tuple[ee.Geometry.Point]:
     return (ee.Geometry.Point(10, 20), ee.Geometry.Point(20, 30))
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def aoi_control() -> sm.AoiControl:
     """An aoi_control and add it to a map.
 

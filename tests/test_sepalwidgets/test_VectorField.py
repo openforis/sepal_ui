@@ -17,70 +17,58 @@ def test_init() -> None:
     return
 
 
-def test_update_file(fake_vector: Path, default_v_model: dict) -> None:
+def test_update_file(fake_vector: Path, data_regression) -> None:
     """Update the selected file and check the widget behaviour.
 
     Args:
         fake_vector: the path to a fake vector file
-        default_v_model: the default v_model values
+        data_regression: the pytest regression fixture
     """
     vector_field = sw.VectorField()
 
     # change the value of the file
     vector_field._update_file({"new": str(fake_vector)})
 
-    test_data = {
-        "pathname": str(fake_vector),
-        "column": "ALL",
-        "value": None,
-    }
-
-    assert vector_field.v_model == test_data
+    assert vector_field.v_model["pathname"] == str(fake_vector)
+    assert vector_field.v_model["column"] == "ALL"
+    assert vector_field.v_model["value"] is None
 
     # change for a empty file
     vector_field._update_file({"new": None})
-    assert vector_field.v_model == default_v_model
+    data_regression.check(vector_field.v_model, basename="default_v_model")
 
     return
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_update_file_gee(
-    gee_dir: Path, default_v_model: dict, fake_asset: Path
-) -> None:
+def test_update_file_gee(gee_dir: Path, data_regression, fake_asset: Path) -> None:
     """Update the selected file and check the widget behaviour in a GEE context.
 
     Args:
         gee_dir: The session created GEE directory
         fake_asset: the path to a fake vector asset
-        default_v_model: the default v_model values
+        data_regression: the pytest regression fixture
     """
     vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
-    # Arrange
-    test_data = {
-        "pathname": str(fake_asset),
-        "column": "ALL",
-        "value": None,
-    }
 
-    # Act
     vector_field_gee._update_file({"new": str(fake_asset)})
 
-    # Assert
-    assert vector_field_gee.v_model == test_data
+    assert vector_field_gee.v_model["pathname"] == str(fake_asset)
+    assert vector_field_gee.v_model["column"] == "ALL"
+    assert vector_field_gee.v_model["value"] is None
 
     vector_field_gee._update_file({"new": None})
-    assert vector_field_gee.v_model == default_v_model
+    data_regression.check(vector_field_gee.v_model, basename="default_v_model")
 
     return
 
 
-def test_reset(fake_vector: Path, default_v_model: dict) -> None:
+def test_reset(fake_vector: Path, data_regression) -> None:
     """Reset an already set widget.
 
     Args:
         fake_vector: the path to a fake vector file
-        default_v_model: the default v_model values
+        data_regression: the pytest regression fixture
     """
     # trigger the event
     vector_field = sw.VectorField()
@@ -90,19 +78,19 @@ def test_reset(fake_vector: Path, default_v_model: dict) -> None:
     vector_field.reset()
 
     # assert the current values
-    assert vector_field.v_model == default_v_model
+    data_regression.check(vector_field.v_model, basename="default_v_model")
 
     return
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_reset_gee(gee_dir: Path, default_v_model: dict, fake_asset: Path) -> None:
+def test_reset_gee(gee_dir: Path, data_regression, fake_asset: Path) -> None:
     """Reset an already set widget in GEE context.
 
     Args:
         gee_dir: The session created GEE directory
         fake_asset: the path to a fake vector asset
-        default_v_model: the default v_model values
+        data_regression: the pytest regression fixture
     """
     # It will trigger the event
     vector_field_gee = sw.VectorField(gee=True, folder=gee_dir)
@@ -112,7 +100,7 @@ def test_reset_gee(gee_dir: Path, default_v_model: dict, fake_asset: Path) -> No
     vector_field_gee.reset()
 
     # assert the current values
-    assert vector_field_gee.v_model == default_v_model
+    data_regression.check(vector_field_gee.v_model, basename="default_v_model")
 
     return
 
@@ -129,6 +117,7 @@ def test_update_column(fake_vector: Path) -> None:
 
     # read a column
     vector_field.w_column.v_model = "GID_0"  # first one to select
+
     assert vector_field.v_model["column"] == "GID_0"
     assert "d-none" not in vector_field.w_value.class_
     assert vector_field.w_value.items == ["VAT"]
@@ -195,17 +184,3 @@ def test_update_value_gee(gee_dir: Path, fake_asset: Path) -> None:
     assert vector_field_gee.v_model["value"] == 1
 
     return
-
-
-@pytest.fixture(scope="module")
-def default_v_model() -> dict:
-    """Returns the default v_model.
-
-    Returns:
-        the default v_model
-    """
-    return {
-        "pathname": None,
-        "column": None,
-        "value": None,
-    }

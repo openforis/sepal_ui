@@ -43,7 +43,7 @@ def test_change_theme(theme_select: sw.ThemeSelect) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def theme_select() -> sw.ThemeSelect:
     """Create a simple theme_select and remove existing config.
 

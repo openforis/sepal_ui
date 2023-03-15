@@ -177,7 +177,7 @@ def test_root(file_input: sw.FileInput, root_dir: Path) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def file_input(root_dir: Path) -> sw.FileInput:
     """Create a default file_input in the root_dir.
 
