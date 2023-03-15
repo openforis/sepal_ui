@@ -1,9 +1,9 @@
 """Test the Translator object."""
 
 import json
-import shutil
 from configparser import ConfigParser
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -166,10 +166,7 @@ def test_key_use() -> None:
 
 @pytest.fixture
 def translation_folder() -> Path:
-    """Generate a fully qualified translation folder with limited keys in en, fr and es.
-
-    Cannot use the temfile lib as we need the directory to appear in the tree.
-    """
+    """Generate a fully qualified translation folder with limited keys in en, fr and es."""
     # set up the appropriate keys for each language
     keys = {
         "en": {"a_key": "A key", "test_key": "Test key"},
@@ -178,21 +175,16 @@ def translation_folder() -> Path:
         "es": {"a_key": "Una llave"},
     }
 
-    # generate the tmp_dir in the test directory
-    tmp_data = Path(__file__).parent / "data"
-    tmp_dir = tmp_data / "messages"
-    tmp_dir.mkdir(exist_ok=True, parents=True)
+    with TemporaryDirectory() as tmp_dir:
 
-    # create the translation files
-    for lan, d in keys.items():
-        folder = tmp_dir / lan
-        folder.mkdir()
-        (folder / "locale.json").write_text(json.dumps(d, indent=2))
+        # create the translation files
+        tmp_path = Path(tmp_dir)
+        for lan, d in keys.items():
+            folder = tmp_path / lan
+            folder.mkdir()
+            (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
-    yield tmp_dir
-
-    # flush everything
-    shutil.rmtree(tmp_data)
+        yield tmp_path
 
     return
 
