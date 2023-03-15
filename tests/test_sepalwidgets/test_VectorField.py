@@ -1,6 +1,7 @@
 """Test VectorField widget."""
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -214,32 +215,28 @@ def default_v_model() -> dict:
 
 
 @pytest.fixture
-def fake_vector(tmp_dir: Path) -> Path:
+def fake_vector() -> Path:
     """Return a fake vector based on the vatican file.
-
-    Args:
-        tmp_dir: the session created tmp directory
 
     Returns:
         the path to the created file
     """
-    file = tmp_dir / "test.zip"
+    with TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        file = tmp_dir / "test.zip"
 
-    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
-    name = "gadm41_VAT_0"
+        gadm_vat_link = (
+            "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
+        )
+        name = "gadm41_VAT_0"
 
-    # download vatican city from GADM
-    urlretrieve(gadm_vat_link, file)
+        # download vatican city from GADM
+        urlretrieve(gadm_vat_link, file)
 
-    with ZipFile(file, "r") as zip_ref:
-        zip_ref.extractall(tmp_dir)
+        with ZipFile(file, "r") as zip_ref:
+            zip_ref.extractall(tmp_dir)
 
-    file.unlink()
-
-    yield tmp_dir / f"{name}.shp"
-
-    # delete the files
-    [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
+        yield tmp_dir / f"{name}.shp"
 
     return
 
