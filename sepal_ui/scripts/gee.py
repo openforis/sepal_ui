@@ -133,3 +133,39 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
             break
 
     return exist
+
+
+@sd.need_ee
+def delete_assets(asset_id: str) -> None:
+    """Delete the selected asset and all its content.
+
+    Args:
+        asset_id: the Id of the asset
+    """
+    # identify the type of asset
+    asset_info = ee.data.getAsset(asset_id)
+
+    # if it's a single file then simply delete it
+    if asset_info["type"] in ["IMAGE", "TABLE"]:
+        ee.data.deleteAsset(asset_id)
+
+    elif asset_info["type"] == "FOLDER":
+
+        # get all the assets
+        asset_list = get_assets(folder=asset_id)
+
+        # split the list between assets and folders
+        items, folders = [], []
+        for asset in asset_list:
+            if asset["type"] == "FOLDER":
+                folders.append(asset)
+            else:
+                items.append(asset)
+
+        # delete items first and then folders as in gee a folder cannot
+        # be deleted if it's not emptied first
+        [ee.data.deleteAsset(i) for i in items]
+        [ee.data.deleteAsset(f) for f in folders]
+
+        # delete the initial folder
+        ee.data.deleteAsset(asset_id)
