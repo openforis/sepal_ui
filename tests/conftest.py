@@ -342,7 +342,7 @@ def byte() -> Path:
         the path to the byte file
     """
     with NamedTemporaryFile(suffix=".tif") as file:
-        file = Path(file)
+        file = Path(file.name)
         link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
         urlretrieve(link, file)
 
