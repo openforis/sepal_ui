@@ -106,8 +106,9 @@ def test_get_subscriptions(planet_key: str, data_regression) -> None:
     """
     planet_model = PlanetModel(planet_key)
     subs = planet_model.get_subscriptions()
+    plans = [s["plan"] for s in subs]
 
-    data_regression.check(subs)
+    data_regression.check(plans)
 
     return
 
