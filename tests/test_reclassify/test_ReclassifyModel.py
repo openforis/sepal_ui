@@ -382,7 +382,7 @@ def model_local_vector(model_local, tmp_dir):
 def model_local_image(model_local, tmp_dir):
     """Create a reclassify model with a tif image."""
     # retreive the image
-    url = "https://raw.githubusercontent.com/12rambau/gwb/master/utils/backup/clc3class.tif"
+    url = "https://raw.githubusercontent.com/sepal-contrib/gwb/master/utils/backup/clc3class.tif"
     filename = tmp_dir / "clc3class.tif"
     urlretrieve(url, filename)
 
