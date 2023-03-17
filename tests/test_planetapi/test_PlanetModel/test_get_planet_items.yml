@@ -3,51 +3,51 @@
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144642_48_2262/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_144642_48_2262/thumb
   _permissions:
-    - assets.basic_analytic_4b:download
-    - assets.basic_analytic_4b_rpc:download
-    - assets.basic_analytic_4b_xml:download
-    - assets.basic_analytic_8b:download
-    - assets.basic_analytic_8b_xml:download
-    - assets.basic_udm2:download
-    - assets.ortho_analytic_4b:download
-    - assets.ortho_analytic_4b_sr:download
-    - assets.ortho_analytic_4b_xml:download
-    - assets.ortho_analytic_8b:download
-    - assets.ortho_analytic_8b_sr:download
-    - assets.ortho_analytic_8b_xml:download
-    - assets.ortho_udm2:download
-    - assets.ortho_visual:download
+  - assets.basic_analytic_4b:download
+  - assets.basic_analytic_4b_rpc:download
+  - assets.basic_analytic_4b_xml:download
+  - assets.basic_analytic_8b:download
+  - assets.basic_analytic_8b_xml:download
+  - assets.basic_udm2:download
+  - assets.ortho_analytic_4b:download
+  - assets.ortho_analytic_4b_sr:download
+  - assets.ortho_analytic_4b_xml:download
+  - assets.ortho_analytic_8b:download
+  - assets.ortho_analytic_8b_sr:download
+  - assets.ortho_analytic_8b_xml:download
+  - assets.ortho_udm2:download
+  - assets.ortho_visual:download
   assets:
-    - basic_analytic_4b
-    - basic_analytic_4b_rpc
-    - basic_analytic_4b_xml
-    - basic_analytic_8b
-    - basic_analytic_8b_xml
-    - basic_udm2
-    - ortho_analytic_4b
-    - ortho_analytic_4b_sr
-    - ortho_analytic_4b_xml
-    - ortho_analytic_8b
-    - ortho_analytic_8b_sr
-    - ortho_analytic_8b_xml
-    - ortho_udm2
-    - ortho_visual
+  - basic_analytic_4b
+  - basic_analytic_4b_rpc
+  - basic_analytic_4b_xml
+  - basic_analytic_8b
+  - basic_analytic_8b_xml
+  - basic_udm2
+  - ortho_analytic_4b
+  - ortho_analytic_4b_sr
+  - ortho_analytic_4b_xml
+  - ortho_analytic_8b
+  - ortho_analytic_8b_sr
+  - ortho_analytic_8b_xml
+  - ortho_udm2
+  - ortho_visual
   geometry:
     coordinates:
-      - - - -75.90539274979537
-          - -1.469029018506064
-        - - -75.94231756307904
-          - -1.6555315767664476
-        - - -75.62948151394262
-          - -1.718496225519279
-        - - -75.59228103500627
-          - -1.5310534961485103
-        - - -75.90539274979537
-          - -1.469029018506064
+    - - - -75.90539274979537
+        - -1.469029018506064
+      - - -75.94231756307904
+        - -1.6555315767664476
+      - - -75.62948151394262
+        - -1.718496225519279
+      - - -75.59228103500627
+        - -1.5310534961485103
+      - - -75.90539274979537
+        - -1.469029018506064
     type: Polygon
-  id: "20201118_144642_48_2262"
+  id: '20201118_144642_48_2262'
   properties:
-    acquired: "2020-11-18T14:46:42.483972Z"
+    acquired: '2020-11-18T14:46:42.483972Z'
     anomalous_pixels: 0
     clear_confidence_percent: 83
     clear_percent: 47
@@ -61,17 +61,17 @@
     light_haze_percent: 1
     pixel_resolution: 3
     provider: planetscope
-    published: "2021-03-18T07:22:01Z"
+    published: '2021-03-18T07:22:01Z'
     publishing_stage: finalized
     quality_category: standard
     satellite_azimuth: 277.9
-    satellite_id: "2262"
+    satellite_id: '2262'
     shadow_percent: 11
     snow_ice_percent: 0
-    strip_id: "3910203"
+    strip_id: '3910203'
     sun_azimuth: 122.7
     sun_elevation: 55
-    updated: "2022-12-18T15:59:56Z"
+    updated: '2022-12-18T15:59:56Z'
     view_angle: 5
     visible_confidence_percent: 69
     visible_percent: 59
@@ -81,51 +81,51 @@
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144640_20_2262/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_144640_20_2262/thumb
   _permissions:
-    - assets.basic_analytic_4b:download
-    - assets.basic_analytic_4b_rpc:download
-    - assets.basic_analytic_4b_xml:download
-    - assets.basic_analytic_8b:download
-    - assets.basic_analytic_8b_xml:download
-    - assets.basic_udm2:download
-    - assets.ortho_analytic_4b:download
-    - assets.ortho_analytic_4b_sr:download
-    - assets.ortho_analytic_4b_xml:download
-    - assets.ortho_analytic_8b:download
-    - assets.ortho_analytic_8b_sr:download
-    - assets.ortho_analytic_8b_xml:download
-    - assets.ortho_udm2:download
-    - assets.ortho_visual:download
+  - assets.basic_analytic_4b:download
+  - assets.basic_analytic_4b_rpc:download
+  - assets.basic_analytic_4b_xml:download
+  - assets.basic_analytic_8b:download
+  - assets.basic_analytic_8b_xml:download
+  - assets.basic_udm2:download
+  - assets.ortho_analytic_4b:download
+  - assets.ortho_analytic_4b_sr:download
+  - assets.ortho_analytic_4b_xml:download
+  - assets.ortho_analytic_8b:download
+  - assets.ortho_analytic_8b_sr:download
+  - assets.ortho_analytic_8b_xml:download
+  - assets.ortho_udm2:download
+  - assets.ortho_visual:download
   assets:
-    - basic_analytic_4b
-    - basic_analytic_4b_rpc
-    - basic_analytic_4b_xml
-    - basic_analytic_8b
-    - basic_analytic_8b_xml
-    - basic_udm2
-    - ortho_analytic_4b
-    - ortho_analytic_4b_sr
-    - ortho_analytic_4b_xml
-    - ortho_analytic_8b
-    - ortho_analytic_8b_sr
-    - ortho_analytic_8b_xml
-    - ortho_udm2
-    - ortho_visual
+  - basic_analytic_4b
+  - basic_analytic_4b_rpc
+  - basic_analytic_4b_xml
+  - basic_analytic_8b
+  - basic_analytic_8b_xml
+  - basic_udm2
+  - ortho_analytic_4b
+  - ortho_analytic_4b_sr
+  - ortho_analytic_4b_xml
+  - ortho_analytic_8b
+  - ortho_analytic_8b_sr
+  - ortho_analytic_8b_xml
+  - ortho_udm2
+  - ortho_visual
   geometry:
     coordinates:
-      - - - -75.87713517132215
-          - -1.3250462742672
-        - - -75.91418352726843
-          - -1.5118119367308216
-        - - -75.60130418219413
-          - -1.5749117915925552
-        - - -75.56399489662202
-          - -1.3871911250138966
-        - - -75.87713517132215
-          - -1.3250462742672
+    - - - -75.87713517132215
+        - -1.3250462742672
+      - - -75.91418352726843
+        - -1.5118119367308216
+      - - -75.60130418219413
+        - -1.5749117915925552
+      - - -75.56399489662202
+        - -1.3871911250138966
+      - - -75.87713517132215
+        - -1.3250462742672
     type: Polygon
-  id: "20201118_144640_20_2262"
+  id: '20201118_144640_20_2262'
   properties:
-    acquired: "2020-11-18T14:46:40.202441Z"
+    acquired: '2020-11-18T14:46:40.202441Z'
     anomalous_pixels: 0
     clear_confidence_percent: 80
     clear_percent: 58
@@ -139,17 +139,17 @@
     light_haze_percent: 1
     pixel_resolution: 3
     provider: planetscope
-    published: "2021-03-18T07:21:54Z"
+    published: '2021-03-18T07:21:54Z'
     publishing_stage: finalized
     quality_category: standard
     satellite_azimuth: 277.9
-    satellite_id: "2262"
+    satellite_id: '2262'
     shadow_percent: 6
     snow_ice_percent: 0
-    strip_id: "3910203"
+    strip_id: '3910203'
     sun_azimuth: 122.9
     sun_elevation: 54.9
-    updated: "2022-12-18T15:59:56Z"
+    updated: '2022-12-18T15:59:56Z'
     view_angle: 5
     visible_confidence_percent: 64
     visible_percent: 66
@@ -159,51 +159,51 @@
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153326_24_227b/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_153326_24_227b/thumb
   _permissions:
-    - assets.basic_analytic_4b:download
-    - assets.basic_analytic_4b_rpc:download
-    - assets.basic_analytic_4b_xml:download
-    - assets.basic_analytic_8b:download
-    - assets.basic_analytic_8b_xml:download
-    - assets.basic_udm2:download
-    - assets.ortho_analytic_4b:download
-    - assets.ortho_analytic_4b_sr:download
-    - assets.ortho_analytic_4b_xml:download
-    - assets.ortho_analytic_8b:download
-    - assets.ortho_analytic_8b_sr:download
-    - assets.ortho_analytic_8b_xml:download
-    - assets.ortho_udm2:download
-    - assets.ortho_visual:download
+  - assets.basic_analytic_4b:download
+  - assets.basic_analytic_4b_rpc:download
+  - assets.basic_analytic_4b_xml:download
+  - assets.basic_analytic_8b:download
+  - assets.basic_analytic_8b_xml:download
+  - assets.basic_udm2:download
+  - assets.ortho_analytic_4b:download
+  - assets.ortho_analytic_4b_sr:download
+  - assets.ortho_analytic_4b_xml:download
+  - assets.ortho_analytic_8b:download
+  - assets.ortho_analytic_8b_sr:download
+  - assets.ortho_analytic_8b_xml:download
+  - assets.ortho_udm2:download
+  - assets.ortho_visual:download
   assets:
-    - basic_analytic_4b
-    - basic_analytic_4b_rpc
-    - basic_analytic_4b_xml
-    - basic_analytic_8b
-    - basic_analytic_8b_xml
-    - basic_udm2
-    - ortho_analytic_4b
-    - ortho_analytic_4b_sr
-    - ortho_analytic_4b_xml
-    - ortho_analytic_8b
-    - ortho_analytic_8b_sr
-    - ortho_analytic_8b_xml
-    - ortho_udm2
-    - ortho_visual
+  - basic_analytic_4b
+  - basic_analytic_4b_rpc
+  - basic_analytic_4b_xml
+  - basic_analytic_8b
+  - basic_analytic_8b_xml
+  - basic_udm2
+  - ortho_analytic_4b
+  - ortho_analytic_4b_sr
+  - ortho_analytic_4b_xml
+  - ortho_analytic_8b
+  - ortho_analytic_8b_sr
+  - ortho_analytic_8b_xml
+  - ortho_udm2
+  - ortho_visual
   geometry:
     coordinates:
-      - - - -76.07875837654288
-          - -1.3707028099927743
-        - - -76.11721457082852
-          - -1.5647005462116164
-        - - -75.79193737632433
-          - -1.630386759072708
-        - - -75.75289986752149
-          - -1.435358732321515
-        - - -76.07875837654288
-          - -1.3707028099927743
+    - - - -76.07875837654288
+        - -1.3707028099927743
+      - - -76.11721457082852
+        - -1.5647005462116164
+      - - -75.79193737632433
+        - -1.630386759072708
+      - - -75.75289986752149
+        - -1.435358732321515
+      - - -76.07875837654288
+        - -1.3707028099927743
     type: Polygon
   id: 20201118_153326_24_227b
   properties:
-    acquired: "2020-11-18T15:33:26.244795Z"
+    acquired: '2020-11-18T15:33:26.244795Z'
     anomalous_pixels: 0
     clear_confidence_percent: 85
     clear_percent: 57
@@ -217,17 +217,17 @@
     light_haze_percent: 5
     pixel_resolution: 3
     provider: planetscope
-    published: "2020-11-18T23:27:24Z"
+    published: '2020-11-18T23:27:24Z'
     publishing_stage: finalized
     quality_category: standard
     satellite_azimuth: 277.6
     satellite_id: 227b
     shadow_percent: 6
     snow_ice_percent: 0
-    strip_id: "3910339"
+    strip_id: '3910339'
     sun_azimuth: 134.8
     sun_elevation: 63.9
-    updated: "2022-12-17T17:07:53Z"
+    updated: '2022-12-17T17:07:53Z'
     view_angle: 5.1
     visible_confidence_percent: 70
     visible_percent: 68
@@ -237,51 +237,51 @@
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153323_87_227b/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_153323_87_227b/thumb
   _permissions:
-    - assets.basic_analytic_4b:download
-    - assets.basic_analytic_4b_rpc:download
-    - assets.basic_analytic_4b_xml:download
-    - assets.basic_analytic_8b:download
-    - assets.basic_analytic_8b_xml:download
-    - assets.basic_udm2:download
-    - assets.ortho_analytic_4b:download
-    - assets.ortho_analytic_4b_sr:download
-    - assets.ortho_analytic_4b_xml:download
-    - assets.ortho_analytic_8b:download
-    - assets.ortho_analytic_8b_sr:download
-    - assets.ortho_analytic_8b_xml:download
-    - assets.ortho_udm2:download
-    - assets.ortho_visual:download
+  - assets.basic_analytic_4b:download
+  - assets.basic_analytic_4b_rpc:download
+  - assets.basic_analytic_4b_xml:download
+  - assets.basic_analytic_8b:download
+  - assets.basic_analytic_8b_xml:download
+  - assets.basic_udm2:download
+  - assets.ortho_analytic_4b:download
+  - assets.ortho_analytic_4b_sr:download
+  - assets.ortho_analytic_4b_xml:download
+  - assets.ortho_analytic_8b:download
+  - assets.ortho_analytic_8b_sr:download
+  - assets.ortho_analytic_8b_xml:download
+  - assets.ortho_udm2:download
+  - assets.ortho_visual:download
   assets:
-    - basic_analytic_4b
-    - basic_analytic_4b_rpc
-    - basic_analytic_4b_xml
-    - basic_analytic_8b
-    - basic_analytic_8b_xml
-    - basic_udm2
-    - ortho_analytic_4b
-    - ortho_analytic_4b_sr
-    - ortho_analytic_4b_xml
-    - ortho_analytic_8b
-    - ortho_analytic_8b_sr
-    - ortho_analytic_8b_xml
-    - ortho_udm2
-    - ortho_visual
+  - basic_analytic_4b
+  - basic_analytic_4b_rpc
+  - basic_analytic_4b_xml
+  - basic_analytic_8b
+  - basic_analytic_8b_xml
+  - basic_udm2
+  - ortho_analytic_4b
+  - ortho_analytic_4b_sr
+  - ortho_analytic_4b_xml
+  - ortho_analytic_8b
+  - ortho_analytic_8b_sr
+  - ortho_analytic_8b_xml
+  - ortho_udm2
+  - ortho_visual
   geometry:
     coordinates:
-      - - - -76.04955904839929
-          - -1.2215450641425716
-        - - -76.08804072972879
-          - -1.4153194541863285
-        - - -75.76260536912653
-          - -1.4810218221826175
-        - - -75.72398081008859
-          - -1.2861048047250965
-        - - -76.04955904839929
-          - -1.2215450641425716
+    - - - -76.04955904839929
+        - -1.2215450641425716
+      - - -76.08804072972879
+        - -1.4153194541863285
+      - - -75.76260536912653
+        - -1.4810218221826175
+      - - -75.72398081008859
+        - -1.2861048047250965
+      - - -76.04955904839929
+        - -1.2215450641425716
     type: Polygon
   id: 20201118_153323_87_227b
   properties:
-    acquired: "2020-11-18T15:33:23.872744Z"
+    acquired: '2020-11-18T15:33:23.872744Z'
     anomalous_pixels: 0
     clear_confidence_percent: 77
     clear_percent: 46
@@ -295,17 +295,17 @@
     light_haze_percent: 12
     pixel_resolution: 3
     provider: planetscope
-    published: "2020-11-18T23:27:24Z"
+    published: '2020-11-18T23:27:24Z'
     publishing_stage: finalized
     quality_category: test
     satellite_azimuth: 277.5
     satellite_id: 227b
     shadow_percent: 5
     snow_ice_percent: 0
-    strip_id: "3910339"
+    strip_id: '3910339'
     sun_azimuth: 135
     sun_elevation: 63.8
-    updated: "2022-12-17T17:07:53Z"
+    updated: '2022-12-17T17:07:53Z'
     view_angle: 5.1
     visible_confidence_percent: 64
     visible_percent: 63
