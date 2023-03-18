@@ -11,6 +11,7 @@ from urllib.request import urlretrieve
 
 import ee
 import geopandas as gpd
+import matplotlib
 import pandas as pd
 import pytest
 from shapely import geometry as sg
@@ -64,6 +65,9 @@ def file_start() -> str:
 
 
 # -- Acess files from the project ----------------------------------------------
+
+# init pyplot with the non interactive backend and use it in the rest of the tests
+matplotlib.use("Agg")
 
 
 @pytest.fixture(scope="session")
