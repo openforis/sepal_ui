@@ -133,11 +133,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     yield gee_dir
 
     # flush the directory and it's content
-    ee.data.deleteAsset(str(subfolder / subfolder_fc))
-    ee.data.deleteAsset(str(subfolder))
-    ee.data.deleteAsset(str(gee_dir / fc))
-    ee.data.deleteAsset(str(gee_dir / rand_image))
-    ee.data.deleteAsset(str(gee_dir))
+    gee.delete_assets(str(gee_dir))
 
     return
 
