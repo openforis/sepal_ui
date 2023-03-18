@@ -7,6 +7,7 @@ from typing import Optional
 
 import ee
 import geopandas as gpd
+import matplotlib
 import pytest
 from shapely import geometry as sg
 
@@ -20,6 +21,9 @@ try:
     su.init_ee()
 except Exception:
     pass
+
+# init pyplot with the non interactive backend and use it in the rest of the tests
+matplotlib.use("Agg")
 
 
 @pytest.fixture(scope="session")
