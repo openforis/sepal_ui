@@ -1,10 +1,7 @@
 """Test AoiModel custom model."""
 
-import math
 from pathlib import Path
-from typing import List, Tuple
-from urllib.request import urlretrieve
-from zipfile import ZipFile
+from typing import List
 
 import ee
 import pytest
@@ -84,12 +81,12 @@ def test_init_ee(gee_dir: Path) -> None:
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
+def test_get_columns(test_model: aoi.AoiModel, data_regression) -> None:
     """Get the columns from a selected geometry.
 
     Args:
         test_model: an object set on Vatican city
-        test_columns: the columns name of a AoiMOdel object
+        data_regression: the pytest regression fixture
     """
     # test that before any data is set the method raise an error
     with pytest.raises(Exception):
@@ -98,7 +95,7 @@ def test_get_columns(test_model: aoi.AoiModel, test_columns: List[str]) -> None:
 
     # test data
     res = test_model.get_columns()
-    assert res == test_columns
+    data_regression.check(res)
 
     return
 
@@ -204,15 +201,15 @@ def test_clear_attributes(
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_total_bounds(test_model: aoi.AoiModel, test_bounds: Tuple[float]) -> None:
+def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
     """Check that total bouds of the vatican are as expected.
 
     Args:
         test_model: a AoiMOdel object set on Vatican city
-        test_bounds: the bounds of the expected geometry
+        data_regression: the pytest regression fixture
     """
     bounds = test_model.total_bounds()
-    assert all([math.isclose(b, t) for b, t in zip(bounds, test_bounds)])
+    data_regression.check(bounds)
 
     with pytest.raises(ValueError):
         test_model.clear_output()
@@ -298,14 +295,9 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
         aoi_model._from_points(points)
 
     # complete
-    points = {
-        "pathname": fake_points,
-        "id_column": "id",
-        "lat_column": "lat",
-        "lng_column": "lon",
-    }
+    points.update(pathname=fake_points)
     aoi_model._from_points(points)
-    assert aoi_model.name == "point"
+    assert aoi_model.name.startswith("tmp")
 
     return
 
@@ -348,7 +340,7 @@ def test_from_geo_json(gee_dir, square: dict) -> None:
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
-        square; the geo_interface representation of a quare around vatican
+        square: the geo_interface representation of a quare around vatican
     """
     aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
@@ -398,7 +390,7 @@ def test_from_asset(gee_dir: Path) -> Path:
     return
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def square() -> dict:
     """A geojson square around the vatican city.
 
@@ -428,65 +420,7 @@ def square() -> dict:
     }
 
 
-@pytest.fixture(scope="session")
-def fake_points(tmp_dir: Path) -> Path:
-    """Create a fake point file the tmp file.
-
-    Will be destroyed after the tests.
-
-    Args:
-        tmp_dir: the tmp_directory
-
-    Returns:
-        the path to the point file
-    """
-    file = tmp_dir / "point.csv"
-    with file.open("w") as f:
-        f.write("lat,lon,id\n")
-        f.write("1,1,0\n")
-        f.write("0,0,1\n")
-
-    yield file
-
-    file.unlink()
-
-    return
-
-
-@pytest.fixture(scope="session")
-def fake_vector(tmp_dir: Path) -> Path:
-    """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
-
-    the tmp files will be destroyed after the test.
-
-    Args:
-        tmp_dir: the tmp directory path
-
-    Returns:
-        the path to the tmp vector file
-    """
-    # download vatican city from GADM
-    file = tmp_dir / "test.zip"
-
-    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/shp/gadm41_VAT_shp.zip"
-    name = "gadm41_VAT_0"
-
-    urlretrieve(gadm_vat_link, file)
-
-    with ZipFile(file, "r") as zip_ref:
-        zip_ref.extractall(tmp_dir)
-
-    file.unlink()
-
-    yield tmp_dir / f"{name}.shp"
-
-    # destroy the file after the test
-    [f.unlink() for f in tmp_dir.glob(f"{name}.*")]
-
-    return
-
-
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_model(gee_dir: Path) -> aoi.AoiModel:
     """Create a test AoiModel based on GEE using Vatican.
 
@@ -500,7 +434,7 @@ def test_model(gee_dir: Path) -> aoi.AoiModel:
     return aoi.AoiModel(admin=admin, folder=gee_dir)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def aoi_model_traits() -> List[str]:
     """Return the list of an aoi model traits.
 
@@ -519,7 +453,7 @@ def aoi_model_traits() -> List[str]:
     ]
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def aoi_model_outputs() -> List[str]:
     """Return the list of an aoi model outputs.
 
@@ -533,36 +467,3 @@ def aoi_model_outputs() -> List[str]:
         "selected_feature",
         "dst_asset_id",
     ]
-
-
-@pytest.fixture(scope="session")
-def test_columns() -> List[str]:
-    """Returns the column of the test vatican aoi.
-
-    Returns:
-        the column names
-    """
-    return [
-        "ADM0_CODE",
-        "ADM0_NAME",
-        "DISP_AREA",
-        "EXP0_YEAR",
-        "STATUS",
-        "STR0_YEAR",
-        "Shape_Leng",
-    ]
-
-
-@pytest.fixture(scope="session")
-def test_bounds() -> Tuple[float]:
-    """Returns the bounds of the vatican asset.
-
-    Returns:
-        the bounds of vatican
-    """
-    return (
-        12.445770205631668,
-        41.90021953934405,
-        12.457671530175347,
-        41.90667181034752,
-    )

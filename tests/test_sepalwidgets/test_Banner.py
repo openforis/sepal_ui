@@ -62,7 +62,7 @@ def test_get_timeout(banner: sw.Banner) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def banner() -> sw.Banner:
     """Return a default dummy Banner.
 

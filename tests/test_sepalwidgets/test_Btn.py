@@ -98,7 +98,7 @@ def test_set_msg(btn: sw.Btn) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def btn() -> sw.Btn:
     """Create a simple btn.
 

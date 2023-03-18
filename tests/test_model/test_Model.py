@@ -73,7 +73,7 @@ def test_str(dum_model: DummyClass, test_data: dict) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def test_data() -> dict:
     """Test data to fill a model class.
 
@@ -83,7 +83,7 @@ def test_data() -> dict:
     return {"dummy1": "test1", "dummy2": "test2"}
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def dum_model() -> DummyClass:
     """A dummyclass instance.
 

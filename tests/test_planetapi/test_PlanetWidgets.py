@@ -15,16 +15,11 @@ def test_init() -> None:
     return
 
 
-def test_open_info(
-    no_subs: dict, only_others: dict, only_nicfi: dict, all_subs: dict
-) -> None:
+def test_open_info(plan: dict) -> None:
     """Check the display of subs in different configurations.
 
     Args:
-        no_subs: 0 subs
-        only other: only subs that are unrelated to NICFI
-        only_nicfi: only NICFI related subs
-        all_subs: all types of subs
+        plan: the structure of a plan to check display update
     """
     info_view = InfoView(model=PlanetModel())
 
@@ -33,32 +28,31 @@ def test_open_info(
 
     # Trigger event to check subscriptions
     info_view.model.subscriptions = {}
-    info_view.model.subscriptions = no_subs
+    info_view.model.subscriptions = {"nicfi": [], "others": []}
     assert nicfi_sub.disabled is True
     assert other_sub.disabled is True
 
     info_view.model.subscriptions = {}
-    info_view.model.subscriptions = only_others
+    info_view.model.subscriptions = {"nicfi": [], "others": [plan]}
     assert nicfi_sub.disabled is True
     assert other_sub.disabled is False
 
     info_view.model.subscriptions = {}
-    info_view.model.subscriptions = only_nicfi
+    info_view.model.subscriptions = {"nicfi": [plan], "others": []}
     assert nicfi_sub.disabled is False
     assert other_sub.disabled is True
 
     info_view.model.subscriptions = {}
-    info_view.model.subscriptions = all_subs
+    info_view.model.subscriptions = {"nicfi": [plan], "others": [plan]}
     assert nicfi_sub.disabled is False
     assert other_sub.disabled is False
 
     # Check the info displayed in the cards
     assert info_view.v_model == 1
     nicfi_sub.fire_event("click", None)
-    assert len(info_view.info_card.children) == len(all_subs)
+    assert len(info_view.info_card.children) == 1
     assert (
-        info_view.info_card.children[0].children[0].children[0]
-        == all_subs["nicfi"][0]["plan"]["name"]
+        info_view.info_card.children[0].children[0].children[0] == plan["plan"]["name"]
     )
     assert info_view.v_model == 0
 
@@ -70,101 +64,13 @@ def test_open_info(
 
 
 @pytest.fixture
-def no_subs() -> dict:
-    """List of subs.
-
-    Returns:
-        a list with no subs
-    """
-    return {"nicfi": [], "others": []}
-
-
-@pytest.fixture
-def only_others() -> dict:
-    """List of subs.
-
-    Returns:
-        a list with only subs that are not NICFI
-    """
+def plan() -> dict:
+    """A plan dict."""
     return {
-        "nicfi": [],
-        "others": [
-            {
-                "plan": {
-                    "name": "level0",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            },
-        ],
-    }
-
-
-@pytest.fixture
-def only_nicfi() -> dict:
-    """List of subs.
-
-    Returns:
-        a list with only subs that are NICFI
-    """
-    return {
-        "nicfi": [
-            {
-                "plan": {
-                    "name": "level0",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            },
-            {
-                "plan": {
-                    "name": "level0",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            },
-        ],
-        "others": [],
-    }
-
-
-@pytest.fixture
-def all_subs() -> dict:
-    """List of subs.
-
-    Returns:
-        a list with subs of any kind
-    """
-    return {
-        "nicfi": [
-            {
-                "plan": {
-                    "name": "level0",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            },
-            {
-                "plan": {
-                    "name": "level0",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            },
-        ],
-        "others": [
-            {
-                "plan": {
-                    "name": "others",
-                    "state": "active",
-                },
-                "active_from": "2022-03-04T02:28:03.053172+00:00",
-                "active_to": "2022-05-04T02:28:03.053172+00:00",
-            }
-        ],
+        "plan": {
+            "name": "level0",
+            "state": "active",
+        },
+        "active_from": "2022-03-04T02:28:03.053172+00:00",
+        "active_to": "2022-05-04T02:28:03.053172+00:00",
     }

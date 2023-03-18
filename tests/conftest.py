@@ -1,13 +1,18 @@
 """The configuration of the pytest run."""
 
+import json
+import os
 import uuid
 from itertools import product
 from pathlib import Path
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Optional
+from urllib.request import urlretrieve
 
 import ee
 import geopandas as gpd
 import matplotlib
+import pandas as pd
 import pytest
 from shapely import geometry as sg
 
@@ -15,12 +20,51 @@ import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
 
-# try to init earthengine. if it does not work the non existing credentials will
-# be used to skpip
 try:
     su.init_ee()
 except Exception:
-    pass
+    pass  # try to init earthengine. use ee.data._credentials to skip
+
+# -- a component to fake the display in Ipython --------------------------------
+
+
+@pytest.fixture(scope="session")
+def _alert() -> sw.Alert:
+    """An alert that can be used everywhere to display informations.
+
+    Returns:
+        an alert object
+    """
+    return sw.Alert()
+
+
+@pytest.fixture(scope="function")
+def alert(_alert: sw.Alert) -> sw.Alert:
+    """An alert that can be used everywhere to display informations.
+
+    Args:
+        _alert: the shared alert component
+
+    Returns:
+        an alert object
+    """
+    return _alert.reset()
+
+
+# -- SEPAL related parameters --------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def file_start() -> str:
+    """The start of any link to the sepal platform.
+
+    Args:
+        the value of the sandbox path
+    """
+    return "https://sepal.io/api/sandbox/jupyter/files/"
+
+
+# -- Acess files from the project ----------------------------------------------
 
 # init pyplot with the non interactive backend and use it in the rest of the tests
 matplotlib.use("Agg")
@@ -37,16 +81,16 @@ def root_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
-def tmp_dir() -> Path:
-    """Creates a temporary local directory to store data.
+def readme(root_dir: Path) -> Path:
+    """Return the readme file path.
 
     Returns:
-        path to to tmp created directory
+        the path to the file
     """
-    tmp_dir = Path.home() / "tmp" / "sepal_ui_tests"
-    tmp_dir.mkdir(exist_ok=True, parents=True)
+    return root_dir / "README.rst"
 
-    return tmp_dir
+
+# -- generate a test file system in GEE ----------------------------------------
 
 
 @pytest.fixture(scope="session")
@@ -146,11 +190,191 @@ def gee_dir(_hash: str) -> Optional[Path]:
     return
 
 
-@pytest.fixture
-def alert() -> sw.Alert:
-    """A dummy alert that can be used everywhere to display informations.
+@pytest.fixture(scope="session")
+def fake_asset(gee_dir: Path) -> Path:
+    """Return the path to a fake asset.
 
     Returns:
-        an alert object
+        the path to the dir
     """
-    return sw.Alert()
+    return gee_dir / "feature_collection"
+
+
+@pytest.fixture(scope="session")
+def gee_user_dir(gee_dir: Path) -> Path:
+    """Return the path to the gee_dir assets without the project elements.
+
+    Args:
+        gee_dir: the path to the session defined GEE directory
+
+    Returns:
+        the path to gee_dir
+    """
+    legacy_project = Path("projects/earthengine-legacy/assets")
+
+    return gee_dir.relative_to(legacy_project)
+
+
+@pytest.fixture(scope="session")
+def image_id() -> str:
+    """The image id of an asset.
+
+    Returns:
+        the AssetId of Daniel Wiell asset
+    """
+    # testing asset from Daniel Wiell
+    # may not live forever
+    return "users/wiell/forum/visualization_example"
+
+
+# -- create local tmp files ----------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def tmp_dir() -> Path:
+    """Creates a temporary local directory to store data.
+
+    Returns:
+        path to to tmp created directory
+    """
+    with TemporaryDirectory() as tmp_dir:
+
+        yield Path(tmp_dir)
+
+    return
+
+
+@pytest.fixture(scope="session")
+def fake_vector() -> Path:
+    """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
+
+    Returns:
+        the path to the tmp vector file
+    """
+    with TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
+        file = tmp_dir / "gadm41_VAT_0.shp"
+        gpd.read_file(link).to_file(file)
+
+        yield file
+
+    return
+
+
+@pytest.fixture(scope="session")
+def fake_points() -> Path:
+    """Create a fake point file the tmp file.
+
+    Returns:
+        the path to the point file
+    """
+    with NamedTemporaryFile(suffix=".csv") as tmp_file:
+        tmp_file = Path(tmp_file.name)
+        data = "lat,lon,id\n1,1,0\n0,0,1"
+        tmp_file.write_text(data)
+
+        yield tmp_file
+
+    return
+
+
+@pytest.fixture(scope="session")
+def fake_table() -> Path:
+    """Create a fake table.
+
+    Returns:
+        the path to the created file
+    """
+    with NamedTemporaryFile(suffix=".csv") as tmp_file:
+        tmp_file = Path(tmp_file.name)
+
+        coloseo = [1, 41.89042582290999, 12.492241627092199]
+        fao = [2, 41.88369224629387, 12.489216069409004]
+        columns = ["id", "lat", "lng"]
+        df = pd.DataFrame([coloseo, fao], columns=columns)
+
+        df.to_csv(tmp_file, index=False)
+
+        yield tmp_file
+
+    return
+
+
+@pytest.fixture(scope="session")
+def wrong_table(fake_table: Path) -> Path:
+    """Create a wrongly defined table (with 2 columns instead of the minimal 3.
+
+    Args:
+        fake_table: the path to the complete table
+
+    Returns:
+        the Path to the created file
+    """
+    with NamedTemporaryFile(suffix=".csv") as tmp_file:
+        tmp_file = Path(tmp_file.name)
+        df = pd.read_csv(fake_table).drop(["lng"], axis=1)
+        df.to_csv(tmp_file, index=False)
+
+        yield tmp_file
+
+    return
+
+
+@pytest.fixture(scope="session")
+def rgb() -> Path:
+    """Add a raster file of the bahamas coming from rasterio test suit.
+
+    Returns:
+        the path to the image
+    """
+    with NamedTemporaryFile(suffix=".tif") as file:
+        file = Path(file.name)
+        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+        urlretrieve(link, file)
+
+        yield file
+
+    return
+
+
+@pytest.fixture(scope="session")
+def byte() -> Path:
+    """Add a raster file of the bahamas coming from rasterio test suit.
+
+    Returns:
+        the path to the byte file
+    """
+    with NamedTemporaryFile(suffix=".tif") as file:
+        file = Path(file.name)
+        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
+        urlretrieve(link, file)
+
+        yield file
+
+    return
+
+
+# -- Planet credentials --------------------------------------------------------
+
+
+@pytest.fixture(scope="session")
+def planet_key() -> str:
+    """Get the planet key stored in env.
+
+    Returns:
+        the str key
+    """
+    return os.getenv("PLANET_API_KEY")
+
+
+@pytest.fixture(scope="session")
+def cred() -> list:
+    """Get the credentials stored in env.
+
+    Returns:
+        credential as a list: [cred(username, password)]
+    """
+    credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
+
+    return list(credentials.values())

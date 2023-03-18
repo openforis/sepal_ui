@@ -4,7 +4,6 @@ import json
 import math
 import random
 from pathlib import Path
-from urllib.request import urlretrieve
 
 import ee
 import pytest
@@ -546,47 +545,7 @@ def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.fixture
-def rgb() -> Path:
-    """Add a raster file of the bahamas coming from rasterio test suit.
-
-    Returns:
-        the path to the image
-    """
-    rgb = Path.home() / "rgb.tif"
-
-    if not rgb.is_file():
-        file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
-        urlretrieve(file, rgb)
-
-    yield rgb
-
-    rgb.unlink()
-
-    return
-
-
-@pytest.fixture
-def byte() -> Path:
-    """Add a raster file of the bahamas coming from rasterio test suit.
-
-    Returns:
-        the path to the byte file
-    """
-    rgb = Path.home() / "byte.tif"
-
-    if not rgb.is_file():
-        file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
-        urlretrieve(file, rgb)
-
-    yield rgb
-
-    rgb.unlink()
-
-    return
-
-
-@pytest.fixture
+@pytest.fixture(scope="function")
 def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     """A sepalMap supporting each combo band from the asset."""
     image = ee.Image(image_id)
@@ -597,15 +556,3 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
         m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     return m
-
-
-@pytest.fixture
-def image_id() -> str:
-    """The image id of an asset.
-
-    Returns:
-        the AssetId of Daniel Wiell asset
-    """
-    # testing asset from Daniel Wiell
-    # may not live forever
-    return "users/wiell/forum/visualization_example"

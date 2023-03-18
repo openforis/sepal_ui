@@ -132,7 +132,7 @@ def test_close_banner(app: sw.App) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def app() -> sw.App:
     """Create a default App.
 
