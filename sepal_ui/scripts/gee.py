@@ -84,7 +84,7 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 
 @sd.need_ee
-def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[str]:
+def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
@@ -154,18 +154,22 @@ def delete_assets(asset_id: str) -> None:
         # get all the assets
         asset_list = get_assets(folder=asset_id)
 
-        # split the list between assets and folders
-        items, folders = [], []
+        # split the files by nesting levels
+        # we will need to delete the more nested files first
+        asset_list_ordered = {}
         for asset in asset_list:
-            if asset["type"] == "FOLDER":
-                folders.append(asset)
-            else:
-                items.append(asset)
+            lvl = len(asset["id"].split("/"))
+            asset_list_ordered.setdefault(lvl, [])
+            asset_list_ordered[lvl].append(asset)
 
-        # delete items first and then folders as in gee a folder cannot
-        # be deleted if it's not emptied first
-        [ee.data.deleteAsset(i) for i in items]
-        [ee.data.deleteAsset(f) for f in folders]
+        # delete all items starting from the more nested one
+        asset_list_ordered = dict(sorted(asset_list_ordered.items(), reverse=True))
+        for lvl in asset_list_ordered:
+            for i in asset_list_ordered[lvl]:
+                print(f"delete: {i['name']}")
+                ee.data.deleteAsset(i["name"])
 
         # delete the initial folder
         ee.data.deleteAsset(asset_id)
+
+    return
