@@ -1,6 +1,5 @@
 """Test the planet PlanetModel model."""
 
-import json
 import os
 
 import planet
@@ -98,28 +97,29 @@ def test_is_active(planet_key: str) -> None:
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
-def test_get_subscriptions(planet_key: str) -> None:
+def test_get_subscriptions(planet_key: str, data_regression) -> None:
     """Check the registered subs of the test api key.
 
     Args:
         planet_key: the planet API key
+        data_regression: the pytest regression fixture
     """
     planet_model = PlanetModel(planet_key)
     subs = planet_model.get_subscriptions()
+    plans = [s["plan"] for s in subs]
 
-    # Check object has length, because there is no way to check a value
-    # that might change over the time.
-    assert len(subs) != 0
+    data_regression.check(plans)
 
     return
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
-def test_get_planet_items(planet_key: str) -> None:
+def test_get_planet_items(planet_key: str, data_regression) -> None:
     """Get the planet items and check an expected entry.
 
     Args:
         planet_key: the planet API key
+        data_regression: the pytest regression fixture
     """
     planet_model = PlanetModel(planet_key)
     aoi = {  # Yasuni national park in Ecuador
@@ -139,30 +139,6 @@ def test_get_planet_items(planet_key: str) -> None:
     end = "2020-11-19"
     cloud_cover = 0.5
 
-    expected_first_id = "20201118_144642_48_2262"
-
     # Get the items
     items = planet_model.get_items(aoi, start, end, cloud_cover)
-    assert items[0].get("id") == expected_first_id
-
-
-@pytest.fixture
-def planet_key() -> str:
-    """Get the planet key stored in env.
-
-    Returns:
-        the str key
-    """
-    return os.getenv("PLANET_API_KEY")
-
-
-@pytest.fixture
-def cred() -> list:
-    """Get the credentials stored in env.
-
-    Returns:
-        credential as a list: [cred(username, password)]
-    """
-    credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
-
-    return list(credentials.values())
+    data_regression.check(items)

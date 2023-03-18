@@ -79,6 +79,7 @@ test = [
     "pytest-deadfixtures",
     "Flake8-pyproject",
     "nbmake",
+    "pytest-regressions",
 ]
 doc = [
     "sphinx",

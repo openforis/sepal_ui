@@ -1,6 +1,5 @@
 """Test the DownloadBtn widget."""
 
-import pytest
 
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.scripts.utils import create_download_link
@@ -81,13 +80,3 @@ def test_create_download_link(file_start: str) -> None:
     assert relative_link in path
 
     return
-
-
-@pytest.fixture
-def file_start() -> str:
-    """The start of any link to the sepal platform.
-
-    Args:
-        the value of the sandbox path
-    """
-    return "https://sepal.io/api/sandbox/jupyter/files/"

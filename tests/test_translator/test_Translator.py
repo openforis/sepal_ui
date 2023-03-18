@@ -1,9 +1,9 @@
 """Test the Translator object."""
 
 import json
-import shutil
 from configparser import ConfigParser
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -53,24 +53,20 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
 
 def test_search_key() -> None:
     """Check that a key can be searched in the bbuild messages."""
-    # generate the tmp_dir in the test directory
-    tmp_dir = Path(__file__).parent / "data" / "messages"
-    tmp_dir.mkdir(exist_ok=True, parents=True)
-
     # assert that having a wrong key  at root level
     # in the json will raise an error
     key = "toto"
     d = {"toto": {"a": "b"}, "c": "d"}
 
     with pytest.raises(Exception):
-        Translator(tmp_dir).search_key(d, key)
+        Translator.search_key(d, key)
 
     # Search when the key is in a deeper nested level
     key = "nested_key"
     d = {"en": {"level1": {"level2": {"nested_key": "value"}}}}
 
     with pytest.raises(Exception):
-        Translator(tmp_dir).search_key(d, key)
+        Translator.search_key(d, key)
 
     return
 
@@ -164,12 +160,9 @@ def test_key_use() -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def translation_folder() -> Path:
-    """Generate a fully qualified translation folder with limited keys in en, fr and es.
-
-    Cannot use the temfile lib as we need the directory to appear in the tree.
-    """
+    """Generate a fully qualified translation folder with limited keys in en, fr and es."""
     # set up the appropriate keys for each language
     keys = {
         "en": {"a_key": "A key", "test_key": "Test key"},
@@ -178,26 +171,21 @@ def translation_folder() -> Path:
         "es": {"a_key": "Una llave"},
     }
 
-    # generate the tmp_dir in the test directory
-    tmp_data = Path(__file__).parent / "data"
-    tmp_dir = tmp_data / "messages"
-    tmp_dir.mkdir(exist_ok=True, parents=True)
+    with TemporaryDirectory() as tmp_dir:
 
-    # create the translation files
-    for lan, d in keys.items():
-        folder = tmp_dir / lan
-        folder.mkdir()
-        (folder / "locale.json").write_text(json.dumps(d, indent=2))
+        # create the translation files
+        tmp_dir = Path(tmp_dir)
+        for lan, d in keys.items():
+            folder = tmp_dir / lan
+            folder.mkdir()
+            (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
-    yield tmp_dir
-
-    # flush everything
-    shutil.rmtree(tmp_data)
+        yield tmp_dir
 
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def tmp_config_file() -> int:
     """Erase any existing config file and replace it with one specifically design for thesting the translation."""
     # erase anything that exists

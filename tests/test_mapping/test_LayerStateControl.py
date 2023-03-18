@@ -65,7 +65,7 @@ def test_update_loading(map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def map_with_layers() -> sm.SepalMap:
     """Create a map with 2 layers and a stateBar."""
     # create the map and controls

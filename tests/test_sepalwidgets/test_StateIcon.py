@@ -8,13 +8,13 @@ from sepal_ui import color
 from sepal_ui.model import Model
 
 
-class TestModel(Model):
+class LocalModel(Model):
     """Test model class with one single trait."""
 
     state_value = Unicode().tag(sync=True)
 
 
-def test_init(model: TestModel) -> None:
+def test_init(model: LocalModel) -> None:
     """Check init the widget.
 
     Args:
@@ -39,7 +39,7 @@ def test_init(model: TestModel) -> None:
     assert state_icon.children[0] == "Non connected"
 
 
-def test_swap(model: TestModel) -> None:
+def test_swap(model: LocalModel) -> None:
     """Check we can swap the state of the stateicon.
 
     Args:
@@ -56,11 +56,11 @@ def test_swap(model: TestModel) -> None:
         model.state_value = "asdf"
 
 
-@pytest.fixture
-def model() -> TestModel:
+@pytest.fixture(scope="function")
+def model() -> LocalModel:
     """Dummy model with state value trait.
 
     Returns:
         a test model instance
     """
-    return TestModel()
+    return LocalModel()

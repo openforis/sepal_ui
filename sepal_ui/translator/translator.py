@@ -133,7 +133,8 @@ class Translator(Box):
 
         return (target, lang)
 
-    def search_key(self, d: dict, key: str) -> None:
+    @classmethod
+    def search_key(cls, d: dict, key: str) -> None:
         """Search a specific key in the d dictionary and raise an error if found.
 
         Args:
@@ -144,9 +145,9 @@ class Translator(Box):
             msg = f"You cannot use the key {key} in your translation dictionary"
             raise Exception(msg)
 
-        for k, v in d.items():
+        for v in d.values():
             if isinstance(v, dict):
-                return self.search_key(v, key)
+                return cls.search_key(v, key)
 
     @classmethod
     def sanitize(cls, d: Union[dict, list]) -> dict:

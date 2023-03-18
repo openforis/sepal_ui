@@ -137,7 +137,7 @@ def test_get_items(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     assert str(gee_user_dir / "image") in asset_select.items
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def default_items() -> List[str]:
     """Some default public data from GEE.
 
@@ -151,7 +151,7 @@ def default_items() -> List[str]:
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def asset_select(gee_dir: Path) -> sw.AssetSelect:
     """Create a default assetSelect.
 
@@ -162,18 +162,3 @@ def asset_select(gee_dir: Path) -> sw.AssetSelect:
         The assertSelected wired to the session folder
     """
     return sw.AssetSelect(folder=str(gee_dir))
-
-
-@pytest.fixture
-def gee_user_dir(gee_dir: Path) -> Path:
-    """Return the path to the gee_dir assets without the project elements.
-
-    Args:
-        gee_dir: the path to the session defined GEE directory
-
-    Returns:
-        the path to gee_dir
-    """
-    legacy_project = Path("projects/earthengine-legacy/assets")
-
-    return gee_dir.relative_to(legacy_project)

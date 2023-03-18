@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import pandas as pd
 import pytest
 
 from sepal_ui import sepalwidgets as sw
@@ -74,63 +73,5 @@ def test_reset(fake_table: Path) -> None:
 
     # assert the current values
     assert load_table.v_model == load_table.default_v_model
-
-    return
-
-
-@pytest.fixture
-def fake_table(tmp_dir: Path) -> Path:
-    """Create a fake table.
-
-    Args:
-        tmp_dir: the session defined tmp directory
-
-    Returns:
-        the path to the created file
-    """
-    filename = tmp_dir / "test.csv"
-
-    end = 3
-
-    coloseo = [1, 41.89042582290999, 12.492241627092199]
-    fao = [2, 41.88369224629387, 12.489216069409004]
-    columns = ["id", "lat", "lng"]
-    df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
-
-    df.to_csv(filename, index=False)
-
-    yield filename
-
-    # delete the file
-    filename.unlink()
-
-    return
-
-
-@pytest.fixture
-def wrong_table(tmp_dir: Path) -> Path:
-    """Create a wrongly defined table (with 2 columns instead of the minimal 3.
-
-    Args:
-        tmp_dir: the session defined tmp directory
-
-    Returns:
-        the Path to the created file
-    """
-    filename = tmp_dir / "wrong_test.csv"
-
-    end = 2
-
-    coloseo = [1, 41.89042582290999, 12.492241627092199]
-    fao = [2, 41.88369224629387, 12.489216069409004]
-    columns = ["id", "lat", "lng"]
-    df = pd.DataFrame([coloseo[:end], fao[:end]], columns=columns[:end])
-
-    df.to_csv(filename, index=False)
-
-    yield filename
-
-    # delete the file
-    filename.unlink()
 
     return
