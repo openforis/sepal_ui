@@ -490,7 +490,7 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     res = m.find_layer(m.layers[3])
     assert res.name == "NDWI harmonics"
 
-    # search by layer name
+    # search by layer key
     res = m.find_layer(m.layers[3].key)
     assert res.name == "NDWI harmonics"
 
