@@ -12,7 +12,6 @@ Example:
 """
 
 from datetime import datetime
-from functools import partial
 from itertools import cycle
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -305,8 +304,11 @@ class DrawerItem(v.ListItem, SepalWidget):
     alert: t.Bool = t.Bool(False).tag(sync=True)
     "Trait to control visibility of an alert in the drawer item"
 
-    alert_badge: Optional[v.ListItemAction]
+    alert_badge: Optional[v.ListItemAction] = None
     "red circle to display in the drawer"
+
+    tiles: Optional[List[v.Card]] = None
+    "the cards of the application"
 
     def __init__(
         self,
@@ -407,17 +409,16 @@ class DrawerItem(v.ListItem, SepalWidget):
         Args:
             tiles: the list of all the available tiles in the app
         """
-        self.on_event("click", partial(self._on_click, tiles=tiles))
+        self.tiles = tiles
+        self.on_event("click", self._on_click)
 
         return self
 
-    def _on_click(self, tiles: List[v.Card], *args) -> Self:
+    def _on_click(self, *args) -> Self:
 
-        for tile in tiles:
-            if self._metadata["card_id"] == tile._metadata["mount_id"]:
-                tile.show()
-            else:
-                tile.hide()
+        for tile in self.tiles:
+            show = self._metadata["card_id"] == tile._metadata["mount_id"]
+            tile.viz = show
 
         # trigger the resize event
         self.rt.resize()
@@ -515,9 +516,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             return self
 
         # reset all others states
-        for i in self.items:
-            if i != change["owner"]:
-                i.input_value = False
+        [setattr(i, "input_value", False) for i in self.items if i != change["owner"]]
 
         return self
 
@@ -595,11 +594,9 @@ class App(v.App, SepalWidget):
         app_children.append(self.appBar)
 
         # add the navDrawer if existing
-        self.navDrawer = None
         if navDrawer is not None:
             # bind app tile list to the navdrawer
-            for di in navDrawer.items:
-                di.display_tile(tiles)
+            [di.display_tile(tiles) for di in navDrawer.items]
 
             # link it with the appbar
             navDrawer.display_drawer(self.appBar.toggle_button)
@@ -650,10 +647,7 @@ class App(v.App, SepalWidget):
         """
         # show the tile
         for tile in self.tiles:
-            if name == tile._metadata["mount_id"]:
-                tile.show()
-            else:
-                tile.hide()
+            tile.viz = name == tile._metadata["mount_id"]
 
         # activate the drawerItem
         if self.navDrawer:
