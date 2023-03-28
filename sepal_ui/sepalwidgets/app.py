@@ -414,10 +414,8 @@ class DrawerItem(v.ListItem, SepalWidget):
     def _on_click(self, tiles: List[v.Card], *args) -> Self:
 
         for tile in tiles:
-            if self._metadata["card_id"] == tile._metadata["mount_id"]:
-                tile.show()
-            else:
-                tile.hide()
+            show = self._metadata["card_id"] == tile._metadata["mount_id"]
+            tile.viz = show
 
         # trigger the resize event
         self.rt.resize()
@@ -515,9 +513,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             return self
 
         # reset all others states
-        for i in self.items:
-            if i != change["owner"]:
-                i.input_value = False
+        [setattr(i, "input_value", False) for i in self.items if i != change["owner"]]
 
         return self
 
@@ -598,8 +594,7 @@ class App(v.App, SepalWidget):
         self.navDrawer = None
         if navDrawer is not None:
             # bind app tile list to the navdrawer
-            for di in navDrawer.items:
-                di.display_tile(tiles)
+            [di.display_tile(tiles) for di in navDrawer.items]
 
             # link it with the appbar
             navDrawer.display_drawer(self.appBar.toggle_button)
@@ -650,10 +645,7 @@ class App(v.App, SepalWidget):
         """
         # show the tile
         for tile in self.tiles:
-            if name == tile._metadata["mount_id"]:
-                tile.show()
-            else:
-                tile.hide()
+            tile.viz = name == tile._metadata["mount_id"]
 
         # activate the drawerItem
         if self.navDrawer:
