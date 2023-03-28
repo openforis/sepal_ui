@@ -1,11 +1,10 @@
 """Test the Inspector Control."""
 
-import json
 import math
 from pathlib import Path
-from urllib.request import urlopen, urlretrieve
 
 import ee
+import geopandas as gpd
 import pytest
 
 from sepal_ui import mapping as sm
@@ -124,22 +123,22 @@ def test_from_geojson(adm0_vatican: dict) -> None:
     return
 
 
-def test_from_raster(raster_bahamas: Path) -> None:
+def test_from_raster(rgb: Path) -> None:
     """Check the result of clicking on a raster.
 
     Args:
-        the path of a raster image
+        rgb: the path of a raster image
     """
     # create a map with a value inspector
     m = sm.SepalMap()
     inspector_control = sm.InspectorControl(m)
 
     # check a featurecollection on nodata place
-    data = inspector_control._from_raster(raster_bahamas, [0, 0])
+    data = inspector_control._from_raster(rgb, [0, 0])
     assert data == {"band 1": None, "band 2": None, "band 3": None}
 
     # check the featurecollection on vatican city
-    data = inspector_control._from_raster(raster_bahamas, [-78.072, 24.769])
+    data = inspector_control._from_raster(rgb, [-78.072, 24.769])
     assert math.isclose(data["band 1"], 70.46553, rel_tol=1e-5)
     assert math.isclose(data["band 2"], 91.41595, rel_tol=1e-5)
     assert math.isclose(data["band 3"], 93.08673, rel_tol=1e-5)
@@ -147,7 +146,7 @@ def test_from_raster(raster_bahamas: Path) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def world_temp() -> ee.ImageCollection:
     """Get the world temperature dataset from GEE.
 
@@ -161,7 +160,7 @@ def world_temp() -> ee.ImageCollection:
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def ee_adm2() -> ee.FeatureCollection:
     """Get a featurecollection with only adm2code values.
 
@@ -171,34 +170,14 @@ def ee_adm2() -> ee.FeatureCollection:
     return ee.FeatureCollection("FAO/GAUL/2015/level2").select("ADM2_CODE")
 
 
-@pytest.fixture
-def raster_bahamas() -> Path:
-    """Add a raster file of the bahamas coming from rasterio test suit.
-
-    Returns:
-        the path of the image
-    """
-    rgb = Path.home() / "rgb.tif"
-
-    if not rgb.is_file():
-        file = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
-        urlretrieve(file, rgb)
-
-    yield rgb
-
-    rgb.unlink()
-
-    return
-
-
-@pytest.fixture
-def adm0_vatican() -> dict:
+@pytest.fixture(scope="module")
+def adm0_vatican(fake_vector: Path) -> dict:
     """Create a geojson of vatican city.
+
+    Args:
+        fake_vector: the path to the vatican vector file
 
     Returns:
         the geo_interface of vatican city
     """
-    gadm_vat_link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
-    geojson = json.load(urlopen(gadm_vat_link))
-
-    return geojson
+    return gpd.read_file(fake_vector).__geo_interface__

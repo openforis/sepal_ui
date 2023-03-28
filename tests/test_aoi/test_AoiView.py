@@ -205,7 +205,7 @@ def test_reset(aoi_local_view: aoi.AoiView) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def aoi_gee_view(gee_dir: Path) -> aoi.AoiView:
     """Create an AoiView based on GEE with a silent sepalMap.
 
@@ -219,7 +219,7 @@ def aoi_gee_view(gee_dir: Path) -> aoi.AoiView:
     return aoi.AoiView(map_=m, folder=gee_dir)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def aoi_local_view() -> aoi.AoiView:
     """Create an AoiView based on GADM with a silent sepalMap.
 

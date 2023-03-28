@@ -122,7 +122,7 @@ def test_is_running(fake_task: str) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def fake_task(gee_dir: Path, _hash: str, alert: sw.Alert) -> str:
     """Create a fake exportation task.
 

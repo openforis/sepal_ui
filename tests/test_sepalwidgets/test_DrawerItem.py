@@ -8,7 +8,7 @@ from sepal_ui import sepalwidgets as sw
 from sepal_ui.model import Model
 
 
-class TestModel(Model):
+class LocalModel(Model):
     """A test model with one single trait."""
 
     app_ready = Bool(False).tag(sync=True)
@@ -74,7 +74,7 @@ def test_display_tile() -> None:
     return
 
 
-def test_add_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
+def test_add_notif(model: LocalModel, drawer_item: sw.DrawerItem) -> None:
     """Check notification is added to the drawer.
 
     Args:
@@ -90,7 +90,7 @@ def test_add_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
     return
 
 
-def test_remove_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
+def test_remove_notif(model: LocalModel, drawer_item: sw.DrawerItem) -> None:
     """Check notification can be removed.
 
     Args:
@@ -104,18 +104,18 @@ def test_remove_notif(model: TestModel, drawer_item: sw.DrawerItem) -> None:
     return
 
 
-@pytest.fixture
-def model() -> TestModel:
+@pytest.fixture(scope="function")
+def model() -> LocalModel:
     """A test model instance.
 
     Returns:
         the object instance
     """
-    return TestModel()
+    return LocalModel()
 
 
-@pytest.fixture
-def drawer_item(model: TestModel) -> sw.DrawerItem:
+@pytest.fixture(scope="function")
+def drawer_item(model: LocalModel) -> sw.DrawerItem:
     """Create dummy drawer item.
 
     Args:

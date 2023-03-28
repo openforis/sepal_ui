@@ -57,7 +57,7 @@ def test_change(clip: sw.CopyToClip) -> None:
     return
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def clip() -> sw.CopyToClip:
     """Create a simple clip-to-clipboard with a v_model set to "value".
 

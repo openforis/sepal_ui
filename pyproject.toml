@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sepal-ui"
-version = "2.16.0"
+version = "2.16.1"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -79,6 +79,7 @@ test = [
     "pytest-deadfixtures",
     "Flake8-pyproject",
     "nbmake",
+    "pytest-regressions",
 ]
 doc = [
     "sphinx",
@@ -121,7 +122,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v_$major.$minor.$patch$prerelease"
 update_changelog_on_bump = true
-version = "2.16.0"
+version = "2.16.1"
 version_files = [
     "pyproject.toml:version",
     "sepal_ui/__init__.py:__version__"
