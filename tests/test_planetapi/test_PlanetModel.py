@@ -53,6 +53,13 @@ def test_init_client(credentials: Any, request: FixtureRequest) -> None:
     planet_model.init_session(request.getfixturevalue(credentials))
     assert planet_model.active is True
 
+    # check the content of cred
+    # I use a proxy to avoid exposing the credentials in the logs
+    cred = request.getfixturevalue(credentials)
+    cred = [cred] if isinstance(cred, str) else cred
+    is_same = planet_model.credentials == cred
+    assert is_same is True, "The credentials are not corresponding"
+
     with pytest.raises(Exception):
         planet_model.init_session("wrongkey")
 
