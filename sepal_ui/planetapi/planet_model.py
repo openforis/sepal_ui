@@ -61,7 +61,7 @@ class PlanetModel(Model):
         Args:
             credentials: planet API key or username and password pair of planet explorer.
         """
-        if not isinstance(credentials, list):
+        if isinstance(credentials, str):
             credentials = [credentials]
 
         if not all(credentials):
@@ -72,6 +72,7 @@ class PlanetModel(Model):
         else:
             self.auth = Auth.from_key(credentials[0])
 
+        self.credentials = credentials
         self.session = Session(auth=self.auth)
         self._is_active()
 
