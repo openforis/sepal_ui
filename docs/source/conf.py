@@ -52,6 +52,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
     "sphinx_favicon",
     "notfound.extension",
     "sphinxcontrib.autoprogram",
@@ -155,3 +156,6 @@ html_css_files = ["css/custom.css", "css/icon.css"]
 autosummary_generate = True
 autoclass_content = "both"
 autodoc_typehints = "description"
+
+# -- Options for TODO ----------------------------------------------------------
+todo_include_todos = True
