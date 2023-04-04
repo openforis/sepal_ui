@@ -54,7 +54,7 @@ jobs:
       - name: Install GDAL
         run: python -m pip install --find-links=https://girder.github.io/large_image_wheels GDAL
       - name: Install localetileserver
-        run: pyhton -m pip install localtileserver
+        run: python -m pip install localtileserver
       - name: Install dependencies
         run: python -m pip install .[test]
       - name: test with pytest
@@ -81,7 +81,7 @@ jobs:
       - name: Install GDAL
         run: python -m pip install --find-links=https://girder.github.io/large_image_wheels GDAL
       - name: Install localetileserver
-        run: pyhton -m pip install localtileserver
+        run: python -m pip install localtileserver
       - name: Install dependencies
         run: python -m pip install .
       - name: test the entrypoints
@@ -114,7 +114,7 @@ jobs:
         run: python tests/check_warnings.py
 
   apps:
-    need: [build]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
