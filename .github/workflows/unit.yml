@@ -114,7 +114,7 @@ jobs:
         run: python tests/check_warnings.py
 
   apps:
-    need: [build]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
