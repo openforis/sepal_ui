@@ -181,32 +181,35 @@ class PlanetModel(Model):
         """Get all the mosaics available in a client without pagination limitations.
 
         Returns:
-            the mosaics contained in the API request. using the following format:
+            The mosaics contained in the API request.
+
+        Note:
+            The output format is the following:
 
             .. code-block:: json
 
                 {
-                        '_links': {
-                                '_self': '<mosaic_url>',
-                                'quads': '<quad_url>',
-                                'tiles': '<xyz_tiles_url>'
-                        },
-                        'bbox': ['<4_corners_coordinates>'],
-                        'coordinate_system': '<projection_system>',
-                        'datatype': 'uint16',
-                    'first_acquired': '<date_of_aquisition>',
-                        'grid': {
-                                'quad_size': 4096,
-                                'resolution': 4.77731426716
+                    "_links": {
+                        "_self": "<mosaic_url>",
+                        "quads": "<quad_url>",
+                        "tiles": "<xyz_tiles_url>"
                     },
-                        'id': '<mposaic_hashed_id>',
-                        'interval': '<acquisition_interval>',
-                        'item_types': ['<types_of_imagery'],
-                        'last_acquired': '<last_image_timestamp>',
-                        'level': '<max_zoom_level>',
-                        'name': "<mosaic_name>",
-                        'product_type': 'timelapse',
-                        'quad_download': True
+                    "bbox": ["<4_corners_coordinates>"],
+                    "coordinate_system": "<projection_system>",
+                    "datatype": "uint16",
+                    "first_acquired": "<date_of_aquisition>",
+                    "grid": {
+                        "quad_size": 4096,
+                        "resolution": 4.77731426716
+                    },
+                    "id": "<mposaic_hashed_id>",
+                    "interval": "<acquisition_interval>",
+                    "item_types": ["<types_of_imagery"],
+                    "last_acquired": "<last_image_timestamp>",
+                    "level": "<max_zoom_level>",
+                    "name": "<mosaic_name>",
+                    "product_type": "timelapse",
+                    "quad_download": true
                 }
         """
         url = "https://api.planet.com/basemaps/v1/mosaics?api_key={}"
@@ -222,20 +225,23 @@ class PlanetModel(Model):
             quad_id: A quad id (typically <xcoord>-<ycoord>)
 
         Returns:
-            the quad inforation as a dict in the following format:
+            The quad inforation as a dict.
+
+        Note:
+            The output format is the following:
 
             .. code-block:: json
 
                 {
-                        '_links': {
-                                '_self': '<quad_url>',
-                                'download': '<download_url>',
-                                'items': '<items_url>',
-                                'thumbnail': '<thumbnail_url>'
-                        },
-                        'bbox': ['<corner_coordinates>'],
-                        'id': '<quad_id>',
-                        'percent_covered': 100
+                    "_links": {
+                        "_self": "<quad_url>",
+                        "download": "<download_url>",
+                        "items": "<items_url>",
+                        "thumbnail": "<thumbnail_url>"
+                    },
+                    "bbox": ["<corner_coordinates>"],
+                    "id": "<quad_id>",
+                    "percent_covered": 100
                 }
         """
         url = "https://api.planet.com/basemaps/v1/mosaics/{}/quads/{}?api_key={}"
