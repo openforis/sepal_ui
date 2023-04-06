@@ -40,7 +40,7 @@ dependencies = [
     "python-box",
     "tqdm",
     "Deprecated",
-    "Unidecode",  # to decode international names with non latin characters
+    "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
     "nest-asyncio", # planet API interaction
@@ -168,3 +168,6 @@ omit = [
 [tool.doc8]
 ignore = ["D001"] # we follow a 1 line = 1 paragraph style
 ignore-path-errors = ["docs/source/index.rst;D000"]
+
+[tool.licensecheck]
+using = "PEP631:test;dev;doc"
