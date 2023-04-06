@@ -1,0 +1,1206 @@
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/1f0570f3-b373-457f-89a5-046b4080d199?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/1f0570f3-b373-457f-89a5-046b4080d199/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2015-12_2016-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -30.145127179527
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2015-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 1f0570f3-b373-457f-89a5-046b4080d199
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2016-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2015-12_2016-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/d514a774-2bb8-45c5-b552-1577b6711fca?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/d514a774-2bb8-45c5-b552-1577b6711fca/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2016-06_2016-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2016-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: d514a774-2bb8-45c5-b552-1577b6711fca
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2016-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2016-06_2016-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/b3eaabdf-7d12-472d-aa44-7810a8585410?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/b3eaabdf-7d12-472d-aa44-7810a8585410/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2016-12_2017-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.016241885452
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2016-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: b3eaabdf-7d12-472d-aa44-7810a8585410
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2017-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2016-12_2017-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/86a3070d-c49b-4d66-b232-f6cf8112c0c7?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/86a3070d-c49b-4d66-b232-f6cf8112c0c7/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2017-06_2017-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2017-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 86a3070d-c49b-4d66-b232-f6cf8112c0c7
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2017-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2017-06_2017-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/7d124d52-a7d6-4b1d-875c-4f5307c28431?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/7d124d52-a7d6-4b1d-875c-4f5307c28431/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2017-12_2018-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2017-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 7d124d52-a7d6-4b1d-875c-4f5307c28431
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2018-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2017-12_2018-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/41ceab16-f41e-47fd-9438-cac8ffef6a82?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/41ceab16-f41e-47fd-9438-cac8ffef6a82/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2018-06_2018-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2018-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 41ceab16-f41e-47fd-9438-cac8ffef6a82
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2018-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2018-06_2018-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/1f8f8011-4063-41f0-b054-91447a6ecd6c?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/1f8f8011-4063-41f0-b054-91447a6ecd6c/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2018-12_2019-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2018-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 1f8f8011-4063-41f0-b054-91447a6ecd6c
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2019-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2018-12_2019-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/be47e0f2-c91b-41b5-865e-eb4d212b59e6?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/be47e0f2-c91b-41b5-865e-eb4d212b59e6/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2019-06_2019-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2019-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: be47e0f2-c91b-41b5-865e-eb4d212b59e6
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2019-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2019-06_2019-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/c1ec34e1-4967-45a9-a2ba-6eba2d07cb8e?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/c1ec34e1-4967-45a9-a2ba-6eba2d07cb8e/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2019-12_2020-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2019-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: c1ec34e1-4967-45a9-a2ba-6eba2d07cb8e
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2019-12_2020-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/b1a5e592-a608-4e61-b588-015bf6331eca?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/b1a5e592-a608-4e61-b588-015bf6331eca/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2020-06_2020-08_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2020-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: b1a5e592-a608-4e61-b588-015bf6331eca
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-09-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2020-06_2020-08_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/755805d4-8eba-4a61-a6ab-7514c1bde810?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/755805d4-8eba-4a61-a6ab-7514c1bde810/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2020-09_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2020-09-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 755805d4-8eba-4a61-a6ab-7514c1bde810
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-10-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2020-09_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/943d4604-7237-4f4f-9548-bb41f9db8254?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/943d4604-7237-4f4f-9548-bb41f9db8254/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2020-10_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2020-10-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 943d4604-7237-4f4f-9548-bb41f9db8254
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-11-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2020-10_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a6f85a67-b879-42b3-ade3-38d02fc404c0?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a6f85a67-b879-42b3-ade3-38d02fc404c0/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2020-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2020-11-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: a6f85a67-b879-42b3-ade3-38d02fc404c0
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2020-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/55bee073-bd31-4d5c-aea5-ba2d8355b807?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/55bee073-bd31-4d5c-aea5-ba2d8355b807/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2020-12_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2020-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 55bee073-bd31-4d5c-aea5-ba2d8355b807
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-01-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2020-12_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/08edb2bf-3f36-4ad5-9330-182e5245a738?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/08edb2bf-3f36-4ad5-9330-182e5245a738/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-01-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 08edb2bf-3f36-4ad5-9330-182e5245a738
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-02-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-01_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/f59e5e34-36ed-4a4b-af4f-a3c0a384c50d?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/f59e5e34-36ed-4a4b-af4f-a3c0a384c50d/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-02_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-02-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: f59e5e34-36ed-4a4b-af4f-a3c0a384c50d
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-03-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-02_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/d342de73-6981-438c-a993-533944911c2d?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/d342de73-6981-438c-a993-533944911c2d/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-03_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-03-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: d342de73-6981-438c-a993-533944911c2d
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-04-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-03_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/d15679e8-1f2c-4b0e-a50b-055eb88ce999?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/d15679e8-1f2c-4b0e-a50b-055eb88ce999/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-04_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-04-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: d15679e8-1f2c-4b0e-a50b-055eb88ce999
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-05-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-04_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a4917528-8540-45bc-be55-b92fb053f602?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a4917528-8540-45bc-be55-b92fb053f602/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-05-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: a4917528-8540-45bc-be55-b92fb053f602
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/733473f6-b85c-4d31-b10e-d73ea3186310?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/733473f6-b85c-4d31-b10e-d73ea3186310/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-06_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 733473f6-b85c-4d31-b10e-d73ea3186310
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-07-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-06_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a22d3de4-f597-47ee-849e-5408f8cbbce5?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a22d3de4-f597-47ee-849e-5408f8cbbce5/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-07_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -56.072035466496
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-07-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: a22d3de4-f597-47ee-849e-5408f8cbbce5
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-08-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-07_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/ce7bad0f-a4a0-45fd-904b-eb6cc6eee373?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/ce7bad0f-a4a0-45fd-904b-eb6cc6eee373/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-08_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-08-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: ce7bad0f-a4a0-45fd-904b-eb6cc6eee373
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-09-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-08_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/168b5f2e-e0ad-474b-bfe6-c0d4c17df905?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/168b5f2e-e0ad-474b-bfe6-c0d4c17df905/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-09_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-09-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 168b5f2e-e0ad-474b-bfe6-c0d4c17df905
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-10-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-09_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/4a18d02d-2a17-4548-b705-9834ed866478?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/4a18d02d-2a17-4548-b705-9834ed866478/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-10_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-10-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 4a18d02d-2a17-4548-b705-9834ed866478
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-11-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-10_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/d7e95d46-64a9-4553-b1ea-574e21b49562?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/d7e95d46-64a9-4553-b1ea-574e21b49562/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-11-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: d7e95d46-64a9-4553-b1ea-574e21b49562
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2021-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/5b352386-b09a-48c3-8dfc-174578a22a2e?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/5b352386-b09a-48c3-8dfc-174578a22a2e/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2021-12_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.297017879605
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2021-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 5b352386-b09a-48c3-8dfc-174578a22a2e
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-01-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2021-12_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/f7bcdce3-5ccc-4d68-99bd-8a95d37eeb91?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/f7bcdce3-5ccc-4d68-99bd-8a95d37eeb91/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-01-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: f7bcdce3-5ccc-4d68-99bd-8a95d37eeb91
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-02-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-01_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/5ccf79dd-2c77-416b-87c3-93cedc527f8d?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/5ccf79dd-2c77-416b-87c3-93cedc527f8d/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-02_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-02-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 5ccf79dd-2c77-416b-87c3-93cedc527f8d
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-03-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-02_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/23dee1d3-35b1-46ae-a0f3-c3e04d79c0a5?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/23dee1d3-35b1-46ae-a0f3-c3e04d79c0a5/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-03_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-03-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 23dee1d3-35b1-46ae-a0f3-c3e04d79c0a5
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-04-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-03_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/e8a0f193-ac27-46ca-9ac8-920549a7254e?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/e8a0f193-ac27-46ca-9ac8-920549a7254e/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-04_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-04-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: e8a0f193-ac27-46ca-9ac8-920549a7254e
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-05-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-04_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/f2a3f873-9f7c-457a-9dfb-f295d0be6c3a?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/f2a3f873-9f7c-457a-9dfb-f295d0be6c3a/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-05-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: f2a3f873-9f7c-457a-9dfb-f295d0be6c3a
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/540b304e-ecfb-449d-a13b-3f16ee6923d6?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/540b304e-ecfb-449d-a13b-3f16ee6923d6/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-06_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 540b304e-ecfb-449d-a13b-3f16ee6923d6
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-07-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-06_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a39f3482-f960-4800-95fc-bd2542fafa66?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a39f3482-f960-4800-95fc-bd2542fafa66/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-07_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-07-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: a39f3482-f960-4800-95fc-bd2542fafa66
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-08-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-07_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/9eff8b55-451b-4d08-9a80-a47c8ac1cb93?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/9eff8b55-451b-4d08-9a80-a47c8ac1cb93/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-08_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-08-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 9eff8b55-451b-4d08-9a80-a47c8ac1cb93
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-09-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-08_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/cb934fb3-63aa-4a6c-849f-84f599030ea9?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/cb934fb3-63aa-4a6c-849f-84f599030ea9/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-09_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-09-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: cb934fb3-63aa-4a6c-849f-84f599030ea9
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-10-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-09_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/9aef7f2c-9ed1-42d5-81cd-721b04eef49e?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/9aef7f2c-9ed1-42d5-81cd-721b04eef49e/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-10_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-10-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 9aef7f2c-9ed1-42d5-81cd-721b04eef49e
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-11-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-10_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/0bdd9cae-2eb0-4fb3-8042-3478e18e7ba4?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/0bdd9cae-2eb0-4fb3-8042-3478e18e7ba4/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-11-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 0bdd9cae-2eb0-4fb3-8042-3478e18e7ba4
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2022-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/8a587acd-81bd-48e6-ac51-669d5ce29f1b?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/8a587acd-81bd-48e6-ac51-669d5ce29f1b/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2022-12_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2022-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 8a587acd-81bd-48e6-ac51-669d5ce29f1b
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2023-01-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2022-12_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/e577a51a-f140-4d0c-9015-81e2eb0ffc5f?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/e577a51a-f140-4d0c-9015-81e2eb0ffc5f/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2023-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2023-01-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: e577a51a-f140-4d0c-9015-81e2eb0ffc5f
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2023-02-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2023-01_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/427f4eea-af2b-4c50-9ed2-0777deff3d71?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/427f4eea-af2b-4c50-9ed2-0777deff3d71/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2023-02_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2023-02-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 427f4eea-af2b-4c50-9ed2-0777deff3d71
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2023-03-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2023-02_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/23dc6217-138a-4d41-aaf3-7277a1204563?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/23dc6217-138a-4d41-aaf3-7277a1204563/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2015-12_2016-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -30.145127179527
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2015-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 23dc6217-138a-4d41-aaf3-7277a1204563
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2016-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2015-12_2016-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/91d2109f-3d68-4f58-b3e6-0b33e835a2c3?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/91d2109f-3d68-4f58-b3e6-0b33e835a2c3/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2016-06_2016-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2016-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 91d2109f-3d68-4f58-b3e6-0b33e835a2c3
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2016-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2016-06_2016-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/277374f7-04c2-495b-8839-b92380a8d29f?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/277374f7-04c2-495b-8839-b92380a8d29f/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2016-12_2017-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.016241885452
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2016-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 277374f7-04c2-495b-8839-b92380a8d29f
+  interval: 1 mon
+  item_types:
+  - PSScene
+  - REOrthoTile
+  last_acquired: '2017-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2016-12_2017-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a8677e49-83c7-4207-8e48-ba72a78a7870?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a8677e49-83c7-4207-8e48-ba72a78a7870/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2017-06_2017-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2017-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: a8677e49-83c7-4207-8e48-ba72a78a7870
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2017-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2017-06_2017-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/c6ef3922-5b2f-4193-87ad-9db5ae30e6fa?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/c6ef3922-5b2f-4193-87ad-9db5ae30e6fa/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2017-12_2018-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2017-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: c6ef3922-5b2f-4193-87ad-9db5ae30e6fa
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2018-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2017-12_2018-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/8eb29de4-ac2c-4b54-b5c6-fdb277add41d?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/8eb29de4-ac2c-4b54-b5c6-fdb277add41d/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2018-06_2018-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2018-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 8eb29de4-ac2c-4b54-b5c6-fdb277add41d
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2018-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2018-06_2018-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/a8ea32cc-f37d-472e-882d-ca8e22243d55?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/a8ea32cc-f37d-472e-882d-ca8e22243d55/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2018-12_2019-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2018-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: a8ea32cc-f37d-472e-882d-ca8e22243d55
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2019-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2018-12_2019-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/e5c11607-5182-494e-a2aa-3ac87dfe8edd?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/e5c11607-5182-494e-a2aa-3ac87dfe8edd/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2019-06_2019-11_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2019-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: e5c11607-5182-494e-a2aa-3ac87dfe8edd
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2019-12-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2019-06_2019-11_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/6e32bf40-f194-4ffd-8c7e-d00f3c7ea332?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/6e32bf40-f194-4ffd-8c7e-d00f3c7ea332/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2019-12_2020-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2019-12-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 6e32bf40-f194-4ffd-8c7e-d00f3c7ea332
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-06-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2019-12_2020-05_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/5414168c-5b65-4678-81f7-881aa4610597?api_key=PLAK2e507890577c41248b343240f715c5bc
+    quads: https://api.planet.com/basemaps/v1/mosaics/5414168c-5b65-4678-81f7-881aa4610597/quads?api_key=PLAK2e507890577c41248b343240f715c5bc&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2020-06_2020-08_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK2e507890577c41248b343240f715c5bc
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: byte
+  first_acquired: '2020-06-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.77731426716
+  id: 5414168c-5b65-4678-81f7-881aa4610597
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2020-09-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_visual_2020-06_2020-08_mosaic
+  product_type: timelapse
+  quad_download: true

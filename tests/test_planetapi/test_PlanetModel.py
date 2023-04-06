@@ -53,6 +53,13 @@ def test_init_client(credentials: Any, request: FixtureRequest) -> None:
     planet_model.init_session(request.getfixturevalue(credentials))
     assert planet_model.active is True
 
+    # check the content of cred
+    # I use a proxy to avoid exposing the credentials in the logs
+    cred = request.getfixturevalue(credentials)
+    cred = [cred] if isinstance(cred, str) else cred
+    is_same = planet_model.credentials == cred
+    assert is_same is True, "The credentials are not corresponding"
+
     with pytest.raises(Exception):
         planet_model.init_session("wrongkey")
 
@@ -142,3 +149,31 @@ def test_get_planet_items(planet_key: str, data_regression) -> None:
     # Get the items
     items = planet_model.get_items(aoi, start, end, cloud_cover)
     data_regression.check(items)
+
+
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
+def test_get_mosaics(planet_key: str, data_regression) -> None:
+    """Get all the subscriptions from the Planet API.
+
+    Args:
+        planet_key: the planet API key
+        data_regression: the pytest regression fixture
+    """
+    planet_model = PlanetModel(planet_key)
+    mosaics = planet_model.get_mosaics()
+    data_regression.check(mosaics)
+
+
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
+def test_get_quad(planet_key: str, data_regression) -> None:
+    """Get a single quad from a specific mosaic.
+
+    Args:
+        planet_key: the planet API key
+        data_regression: the pytest regression fixture
+    """
+    planet_model = PlanetModel(planet_key)
+    mosaic = planet_model.get_mosaics()[0]
+    quad_id = "1088-1058"  # a quad on Singapore
+    quad = planet_model.get_quad(mosaic, quad_id)
+    data_regression.check(quad)

@@ -24,6 +24,7 @@ from .layer_state_control import *
 from .layers_control import *
 from .legend_control import *
 from .map_btn import *
+from .marker_cluster import *
 from .menu_control import *
 from .sepal_map import *
 from .zoom_control import *

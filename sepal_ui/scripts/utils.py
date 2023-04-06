@@ -13,9 +13,9 @@ from urllib.parse import urlparse
 import ee
 import httplib2
 import ipyvuetify as v
+from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
-from unidecode import unidecode
 
 import sepal_ui
 from sepal_ui.conf import config, config_file
@@ -162,7 +162,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     """
     regex = "[^a-zA-Z\d\-\_]" if folder else "[^a-zA-Z\d\-\_\ ']"
 
-    return re.sub(regex, "_", unidecode(msg))
+    return re.sub(regex, "_", anyascii(msg))
 
 
 def to_colors(

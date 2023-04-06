@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Union
 
 import nest_asyncio
 import planet.data_filter as filters
+import requests
 import traitlets as t
 from planet import DataClient
 from planet.auth import Auth
@@ -61,7 +62,7 @@ class PlanetModel(Model):
         Args:
             credentials: planet API key or username and password pair of planet explorer.
         """
-        if not isinstance(credentials, list):
+        if isinstance(credentials, str):
             credentials = [credentials]
 
         if not all(credentials):
@@ -72,6 +73,7 @@ class PlanetModel(Model):
         else:
             self.auth = Auth.from_key(credentials[0])
 
+        self.credentials = credentials
         self.session = Session(auth=self.auth)
         self._is_active()
 
@@ -174,6 +176,78 @@ class PlanetModel(Model):
             return items_list
 
         return asyncio.run(_main())
+
+    def get_mosaics(self) -> dict:
+        """Get all the mosaics available in a client without pagination limitations.
+
+        Returns:
+            The mosaics contained in the API request.
+
+        Note:
+            The output format is the following:
+
+            .. code-block:: json
+
+                {
+                    "_links": {
+                        "_self": "<mosaic_url>",
+                        "quads": "<quad_url>",
+                        "tiles": "<xyz_tiles_url>"
+                    },
+                    "bbox": ["<4_corners_coordinates>"],
+                    "coordinate_system": "<projection_system>",
+                    "datatype": "uint16",
+                    "first_acquired": "<date_of_aquisition>",
+                    "grid": {
+                        "quad_size": 4096,
+                        "resolution": 4.77731426716
+                    },
+                    "id": "<mposaic_hashed_id>",
+                    "interval": "<acquisition_interval>",
+                    "item_types": ["<types_of_imagery"],
+                    "last_acquired": "<last_image_timestamp>",
+                    "level": "<max_zoom_level>",
+                    "name": "<mosaic_name>",
+                    "product_type": "timelapse",
+                    "quad_download": true
+                }
+        """
+        url = "https://api.planet.com/basemaps/v1/mosaics?api_key={}"
+        res = requests.get(url.format(self.credentials[0]))
+
+        return res.json().get("mosaics", [])
+
+    def get_quad(self, mosaic: dict, quad_id: str) -> dict:
+        """Get a quad response for a specific mosaic and quad.
+
+        Args:
+            mosaic: A dict representing a mosaic in the format of list_mosaic
+            quad_id: A quad id (typically <xcoord>-<ycoord>)
+
+        Returns:
+            The quad inforation as a dict.
+
+        Note:
+            The output format is the following:
+
+            .. code-block:: json
+
+                {
+                    "_links": {
+                        "_self": "<quad_url>",
+                        "download": "<download_url>",
+                        "items": "<items_url>",
+                        "thumbnail": "<thumbnail_url>"
+                    },
+                    "bbox": ["<corner_coordinates>"],
+                    "id": "<quad_id>",
+                    "percent_covered": 100
+                }
+        """
+        url = "https://api.planet.com/basemaps/v1/mosaics/{}/quads/{}?api_key={}"
+        res = requests.get(url.format(mosaic["id"], quad_id, self.credentials[0]))
+
+        return res.json() or {}
 
     @staticmethod
     def search_status(d: dict) -> List[Dict[str, bool]]:

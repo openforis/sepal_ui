@@ -1,3 +1,19 @@
+## v_2.16.2 (2023-04-06)
+
+### Fix
+
+- get_mosaics and get_quad in planetModel (#809)
+- typo
+- typo
+- get_mosaics and get_quad in planetModel
+- add a custom MarkerCluster (#807)
+- save the credentials in planet_model (#808)
+- save the credentials in planet_model
+- remove size constraints on LayersControl
+- add a MarkerCluster
+- launch map__app in jupyter notebook
+- launch panel_app in jupyter notebook
+
 ## v_2.16.1 (2023-03-28)
 
 ### Fix
