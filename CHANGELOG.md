@@ -1,3 +1,14 @@
+## v_2.16.3 (2023-04-11)
+
+### Fix
+
+- remove pin on dialog and menu z-index (#787)
+- only use tqdm parameters after reset (#814)
+- freeze back layers_control width (#815)
+- freeze back layers_control width
+- only use tqdm parameters after reset
+- remove pin on dialog and menu z-index
+
 ## v_2.16.2 (2023-04-06)
 
 ### Fix

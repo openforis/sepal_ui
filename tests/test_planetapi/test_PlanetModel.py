@@ -1,6 +1,7 @@
 """Test the planet PlanetModel model."""
 
 import os
+from typing import Union
 
 import planet
 import pytest
@@ -114,6 +115,7 @@ def test_get_subscriptions(planet_key: str, data_regression) -> None:
     planet_model = PlanetModel(planet_key)
     subs = planet_model.get_subscriptions()
     plans = [s["plan"] for s in subs]
+    plans = hide_key(plans, planet_key)  # hide the key in the produced file
 
     data_regression.check(plans)
 
@@ -148,6 +150,8 @@ def test_get_planet_items(planet_key: str, data_regression) -> None:
 
     # Get the items
     items = planet_model.get_items(aoi, start, end, cloud_cover)
+    items = hide_key(items, planet_key)  # hide the key in the produced file
+
     data_regression.check(items)
 
 
@@ -161,6 +165,8 @@ def test_get_mosaics(planet_key: str, data_regression) -> None:
     """
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
+    mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
+
     data_regression.check(mosaics)
 
 
@@ -176,4 +182,23 @@ def test_get_quad(planet_key: str, data_regression) -> None:
     mosaic = planet_model.get_mosaics()[0]
     quad_id = "1088-1058"  # a quad on Singapore
     quad = planet_model.get_quad(mosaic, quad_id)
+    quad = hide_key(quad, planet_key)  # hide the key in the produced file
+
     data_regression.check(quad)
+
+
+def hide_key(collection: Union[dict, list], key: str) -> dict:
+    """Hide the planet_key anywhere it could appears in the dict result."""
+    # create a generator from the data type
+    if isinstance(collection, dict):
+        gen = collection.items()
+    elif isinstance(collection, list):
+        gen = enumerate(collection)
+
+    for k, v in gen:
+        if isinstance(v, (list, dict)):
+            collection[k] = hide_key(v, key)
+        elif isinstance(v, str):
+            collection[k] = v.replace(key, "toto")
+
+    return collection
