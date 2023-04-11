@@ -34,13 +34,7 @@ header.v-app-bar {
 
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
-  z-index: 802 !important;
   max-width: 100% !important;
-}
-
-/* make sure the dialog remain on top of the bars (header and footer) */
-.v-dialog__content {
-  z-index: 802 !important;
 }
 
 /* make sure navigation drawers are always visibles when they exist */
