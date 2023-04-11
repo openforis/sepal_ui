@@ -175,7 +175,8 @@ def test_update_progress() -> None:
 
     # check that if total is set value can be more than 1
     alert.reset()
-    alert.update_progress(50, total=100)
+    alert.update_progress(0, total=100)
+    alert.update_progress(50)
     assert alert.progress_bar.n == 50
     assert alert.viz is True
 

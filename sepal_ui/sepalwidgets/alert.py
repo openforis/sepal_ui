@@ -108,14 +108,17 @@ class Alert(v.Alert, SepalWidget):
         Args:
             progress: the progress status in float
             msg: The message to use before the progress bar
-            tqdm_args (optional): any arguments supported by a tqdm progress bar
+            tqdm_args (optional): any arguments supported by a tqdm progress bar, they will only be taken into account after a call to ``self.reset()``.
         """
         # show the alert
         self.show()
 
-        # cast the progress to float
-        total = tqdm_args.get("total", 1)
+        # cast the progress to float and perform sanity checks
         progress = float(progress)
+        if self.progress_output not in self.children:
+            total = tqdm_args.get("total", 1)
+        else:
+            total = self.progress_bar.total
         if not (0 <= progress <= total):
             raise ValueError(f"progress should be in [0, {total}], {progress} given")
 
