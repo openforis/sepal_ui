@@ -191,8 +191,8 @@ class LayersControl(MenuControl):
         self.menu.open_on_hover = True
         self.menu.close_delay = 200
 
-        # set the ize according to the content
-        self.set_size(None, None, None, None)
+        # set the height according to the content
+        self.set_size(min_height=None, max_height=None)
 
         # update the table at instance creation
         self.update_table({})
