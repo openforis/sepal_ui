@@ -100,9 +100,9 @@ class LayerRow(sw.Html):
         super().__init__(tag="tr", children=[label_cell, slider_cell, checkbox_cell])
 
         # add js behavior
-        link((layer, "opacity"), (self.w_slider, "v_model"))
-        link((self.w_checkbox, "v_model"), (layer, "visible"))
         self.w_checkbox.observe(self._toggle_slider, "v_model")
+        link((layer, "opacity"), (self.w_slider, "v_model"))
+        link((layer, "visible"), (self.w_checkbox, "v_model"))
 
     def _toggle_slider(self, *args) -> None:
         """Toggle the modification of the slider."""
@@ -145,7 +145,7 @@ class VectorRow(sw.Html):
         super().__init__(tag="tr", children=[label_cell, empty_cell, checkbox_cell])
 
         # add js behavior
-        link((self.w_checkbox, "v_model"), (layer, "visible"))
+        link((layer, "visible"), (self.w_checkbox, "v_model"))
 
 
 class LayersControl(MenuControl):
