@@ -207,7 +207,6 @@ class TileDisclaimer(Tile):
 
         # add the logo (href, src, alt)
         logo_list = [
-            ("http://www.fao.org/home/en/", "fao.png", "fao_logo"),
             ("http://www.openforis.org", "open-foris.png", "openforis_logo"),
             ("https://sepal.io", "sepal.png", "sepal_logo"),
         ]
