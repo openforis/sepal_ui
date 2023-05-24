@@ -34,7 +34,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
-    "planet==2.0.1",
+    "planet>=2",
     "pyarrow",
     # miscellaneous
     "python-box",
