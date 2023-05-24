@@ -17,9 +17,9 @@ from typing import Any, Optional
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import deprecated
-from ipywidgets import Output, jslink
+from ipywidgets import Output
 from tqdm.notebook import tqdm
-from traitlets import directional_link, observe
+from traitlets import directional_link, link, observe
 from typing_extensions import Self
 
 from sepal_ui import color
@@ -282,7 +282,7 @@ class StateBar(v.SystemBar, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        jslink((self, "loading"), (self.progress, "indeterminate"))
+        link((self, "loading"), (self.progress, "indeterminate"))
 
     @observe("loading")
     def _change_loading(self, *args) -> None:
