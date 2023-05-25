@@ -9,7 +9,7 @@
     "table": {
       "label": "Tabla de archivos",
       "column": {
-        "id": "",
+        "id": "id",
         "lat": "latitud",
         "lng": "longitud"
       }
@@ -22,14 +22,14 @@
     },
     "navdrawer": {
       "code": "Código fuente",
-      "wiki": "",
+      "wiki": "Wiki",
       "bug": "Reportar error"
     },
     "asset_select": {
       "types": {
-        "0": "",
+        "0": "Raster",
         "1": "Tabla/Vector",
-        "2": "",
+        "2": "Image collection",
         "3": "Algoritmo",
         "4": "Directorio"
       },
@@ -112,10 +112,10 @@
       },
       "table": "Tabla de clasificación",
       "schema": {
-        "id": "",
+        "id": "id",
         "code": "código",
         "description": "descripción",
-        "color": ""
+        "color": "color"
       },
       "btn": {
         "edit": "editar",
