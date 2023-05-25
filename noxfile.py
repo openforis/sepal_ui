@@ -3,6 +3,8 @@
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
 
+import time
+
 import nox
 
 
@@ -50,6 +52,7 @@ def docs(session):
         "docs/source/modules",
         "sepal_ui",
     )
+    start = time.time()
     session.run(
         "sphinx-build",
         "-v",
@@ -60,6 +63,8 @@ def docs(session):
         "-w",
         "warnings.txt",
     )
+    end = time.time()
+    print(f"elapsed time: {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
     session.run("python", "tests/check_warnings.py")
 
 

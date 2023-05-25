@@ -986,6 +986,30 @@
   product_type: timelapse
   quad_download: true
 - _links:
+    _self: https://api.planet.com/basemaps/v1/mosaics/081d14ef-ef45-44ae-8c8a-269dfeaf16af?api_key=toto
+    quads: https://api.planet.com/basemaps/v1/mosaics/081d14ef-ef45-44ae-8c8a-269dfeaf16af/quads?api_key=toto&bbox={lx},{ly},{ux},{uy}
+    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2023-04_mosaic/gmap/{z}/{x}/{y}.png?api_key=toto
+  bbox:
+  - -179.999999974944
+  - -34.161818157002
+  - 179.999999975056
+  - 30.145127179625
+  coordinate_system: EPSG:3857
+  datatype: uint16
+  first_acquired: '2023-04-01T00:00:00.000Z'
+  grid:
+    quad_size: 4096
+    resolution: 4.777314267823516
+  id: 081d14ef-ef45-44ae-8c8a-269dfeaf16af
+  interval: 1 mon
+  item_types:
+  - PSScene
+  last_acquired: '2023-05-01T00:00:00.000Z'
+  level: 15
+  name: planet_medres_normalized_analytic_2023-04_mosaic
+  product_type: timelapse
+  quad_download: true
+- _links:
     _self: https://api.planet.com/basemaps/v1/mosaics/23dc6217-138a-4d41-aaf3-7277a1204563?api_key=toto
     quads: https://api.planet.com/basemaps/v1/mosaics/23dc6217-138a-4d41-aaf3-7277a1204563/quads?api_key=toto&bbox={lx},{ly},{ux},{uy}
     tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2015-12_2016-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=toto
@@ -1178,29 +1202,5 @@
   last_acquired: '2019-12-01T00:00:00.000Z'
   level: 15
   name: planet_medres_visual_2019-06_2019-11_mosaic
-  product_type: timelapse
-  quad_download: true
-- _links:
-    _self: https://api.planet.com/basemaps/v1/mosaics/6e32bf40-f194-4ffd-8c7e-d00f3c7ea332?api_key=toto
-    quads: https://api.planet.com/basemaps/v1/mosaics/6e32bf40-f194-4ffd-8c7e-d00f3c7ea332/quads?api_key=toto&bbox={lx},{ly},{ux},{uy}
-    tiles: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_visual_2019-12_2020-05_mosaic/gmap/{z}/{x}/{y}.png?api_key=toto
-  bbox:
-  - -179.999999974944
-  - -34.161818157002
-  - 179.999999975056
-  - 30.145127179625
-  coordinate_system: EPSG:3857
-  datatype: byte
-  first_acquired: '2019-12-01T00:00:00.000Z'
-  grid:
-    quad_size: 4096
-    resolution: 4.77731426716
-  id: 6e32bf40-f194-4ffd-8c7e-d00f3c7ea332
-  interval: 1 mon
-  item_types:
-  - PSScene
-  last_acquired: '2020-06-01T00:00:00.000Z'
-  level: 15
-  name: planet_medres_visual_2019-12_2020-05_mosaic
   product_type: timelapse
   quad_download: true
