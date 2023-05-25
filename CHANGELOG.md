@@ -1,3 +1,26 @@
+## v_2.16.4 (2023-05-25)
+
+### Fix
+
+- replace jslink by link (#829)
+- trim the asset input (#830)
+- use deprecated from tantale (#831)
+- use tantale deprecated in RDT build
+- use deprecated from tantale in github actions
+- use deprecated from tantale in noxfiles
+- trim the asset input
+- replace jslink by link
+- adapt to latest planet SDK
+- update test subscriptions
+- remove references to FAO (#821)
+- remove FAO logo from disclaimer
+- align the checkbox on the layer states (#819)
+- align the checkbox on the layer states
+
+### Refactor
+
+- update disclaimer messages
+
 ## v_2.16.3 (2023-04-11)
 
 ### Fix
