@@ -22,7 +22,6 @@ import ipyvuetify as v
 import pandas as pd
 import traitlets as t
 from deprecated.sphinx import versionadded
-from ipywidgets import jslink
 from natsort import humansorted
 from traitlets import link, observe
 from typing_extensions import Self
@@ -551,8 +550,8 @@ class LoadTableField(v.Col, SepalWidget):
         super().__init__(**kwargs)
 
         # link the dropdowns
-        jslink((self.IdSelect, "items"), (self.LngSelect, "items"))
-        jslink((self.IdSelect, "items"), (self.LatSelect, "items"))
+        link((self.IdSelect, "items"), (self.LngSelect, "items"))
+        link((self.IdSelect, "items"), (self.LatSelect, "items"))
 
         # link the widget with v_model
         self.fileInput.observe(self._on_file_input_change, "v_model")
@@ -719,11 +718,15 @@ class AssetSelect(v.Combobox, SepalWidget):
         """Validate the selected asset. Throw an error message if is not accesible or not in the type list."""
         self.error_messages = None
 
+        # trim the current value
+        if isinstance(self.v_model, str):
+            self.v_model = self.v_model.strip()
+
         if change["new"]:
 
             # check that the asset can be accessed
             try:
-                self.asset_info = ee.data.getAsset(change["new"])
+                self.asset_info = ee.data.getAsset(self.v_model)
 
                 # check that the asset has the correct type
                 if self.asset_info["type"] not in self.types:

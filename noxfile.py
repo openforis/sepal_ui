@@ -3,6 +3,8 @@
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
 
+import time
+
 import nox
 
 
@@ -40,7 +42,7 @@ def docs(session):
     session.install(".[doc]")
     # patch version in nox instead of pyproject to avoid blocking conda releases
     session.install("git+https://github.com/sphinx-doc/sphinx.git")
-    session.install("git+https://github.com/12rambau/deprecated.git")
+    session.install("git+https://github.com/tantale/deprecated.git")
     session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(
@@ -50,6 +52,7 @@ def docs(session):
         "docs/source/modules",
         "sepal_ui",
     )
+    start = time.time()
     session.run(
         "sphinx-build",
         "-v",
@@ -60,6 +63,8 @@ def docs(session):
         "-w",
         "warnings.txt",
     )
+    end = time.time()
+    print(f"elapsed time: {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
     session.run("python", "tests/check_warnings.py")
 
 

@@ -9,7 +9,7 @@
     "table": {
       "label": "Tabla de archivos",
       "column": {
-        "id": "",
+        "id": "id",
         "lat": "latitud",
         "lng": "longitud"
       }
@@ -22,14 +22,14 @@
     },
     "navdrawer": {
       "code": "Código fuente",
-      "wiki": "",
+      "wiki": "Wiki",
       "bug": "Reportar error"
     },
     "asset_select": {
       "types": {
-        "0": "",
+        "0": "Raster",
         "1": "Tabla/Vector",
-        "2": "",
+        "2": "Image collection",
         "3": "Algoritmo",
         "4": "Directorio"
       },
@@ -112,10 +112,10 @@
       },
       "table": "Tabla de clasificación",
       "schema": {
-        "id": "",
+        "id": "id",
         "code": "código",
         "description": "descripción",
-        "color": ""
+        "color": "color"
       },
       "btn": {
         "edit": "editar",
@@ -207,9 +207,9 @@
   },
   "disclaimer": {
     "p": {
-      "0": "La FAO declina toda responsabilidad respecto de los errores o deficiencias en la base de datos o los programas, o en la documentación que la acompaña a éstos, el mantenimiento y el mejoramiento del programa, así como por cualquier daño que pueda derivarse de ellos.",
-      "1": "Asimismo, la FAO no se considerará responsable de la actualización de los datos y no asume ningún tipo de responsabilidad respecto de los errores u omisiones en los datos proporcionados.",
-      "2": "No obstante, se ruega a los usuarios que informen de los errores o deficiencias que hallen en este producto de la FAO."
+      "0": "",
+      "1": "",
+      "2": ""
     }
   }
 }

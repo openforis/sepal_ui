@@ -130,7 +130,7 @@ class PlanetModel(Model):
         start: Union[str, datetime],
         end: Union[str, datetime],
         cloud_cover: float,
-        limit_to_x_pages: Optional[int] = None,
+        limit: int = 0,
     ) -> list:
         """Request imagery items from the planet API for the requested dates.
 
@@ -139,7 +139,7 @@ class PlanetModel(Model):
             start: the start of the request (YYYY-mm-dd))
             end: the end of the request (YYYY-mm-dd))
             cloud_cover: maximum cloud coverage.
-            limit_to_x_pages: number of pages to constrain the search. Defaults to -1 to use all of them.
+            limit: number of items to constrain the search. Defaults to 0 to use all of them.
 
         Returns:
             items found using the search query
@@ -170,8 +170,9 @@ class PlanetModel(Model):
             So we can keep calling get_items without any change.
             """
             client = DataClient(self.session)
-            items = await client.search(item_types, and_filter, name="quick_search")
-            items.limit = limit_to_x_pages
+            items = client.search(
+                item_types, and_filter, name="quick_search", limit=limit
+            )
             items_list = [item async for item in items]
             return items_list
 
