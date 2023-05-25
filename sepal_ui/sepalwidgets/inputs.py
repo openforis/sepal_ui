@@ -719,11 +719,15 @@ class AssetSelect(v.Combobox, SepalWidget):
         """Validate the selected asset. Throw an error message if is not accesible or not in the type list."""
         self.error_messages = None
 
+        # trim the current value
+        if isinstance(self.v_model, str):
+            self.v_model = self.v_model.strip()
+
         if change["new"]:
 
             # check that the asset can be accessed
             try:
-                self.asset_info = ee.data.getAsset(change["new"])
+                self.asset_info = ee.data.getAsset(self.v_model)
 
                 # check that the asset has the correct type
                 if self.asset_info["type"] not in self.types:
