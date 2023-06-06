@@ -243,10 +243,11 @@ class SepalMap(ipl.Map):
         layer_name: str = "Layer_" + su.random_string(),
         colormap: Union[str, mpc.Colormap] = "inferno",
         opacity: float = 1.0,
-        client_host: str = r"/api/sandbox/jupyter/proxy/{port}",
         fit_bounds: bool = True,
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
+
+        If used on a cloud platform (or distant jupyter), this method won't know where the entry point of the client is set and will thus fail to display the image. Please follow instructions from https://localtileserver.banesullivan.com/installation/remote-jupyter.html and set up the ``LOCALTILESERVER_CLIENT_PREFIX`` environment variable.
 
         Args:
             image: The image file path.
@@ -254,18 +255,11 @@ class SepalMap(ipl.Map):
             layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
             colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
             opacity: the opacity of the layer, default 1.0.
-            client_host: the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
             fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
 
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
-        # add the localtilelayer path to the environment
-        # if the value is already set we don't change anything
-        # os.environ["LOCALTILESERVER_CLIENT_PREFIX"] = os.environ.pop(
-        #    "LOCALTILESERVER_CLIENT_PREFIX", client_host
-        # )
-
         # force cast to Path and then start the client
         image = Path(image)
 
