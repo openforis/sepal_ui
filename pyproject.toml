@@ -37,6 +37,7 @@ dependencies = [
     "jupyter-server-proxy", # required for localtileserver
     "planet>=2",
     "pyarrow",
+    "localtileserver>=0.7.0", # first pure rio version
     # miscellaneous
     "python-box",
     "tqdm",
