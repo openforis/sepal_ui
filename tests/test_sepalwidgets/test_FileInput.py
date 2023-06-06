@@ -153,7 +153,7 @@ def test_select_file(file_input: sw.FileInput, readme: Path) -> None:
     # assert that the file has been selected
     assert file_input.v_model == str(readme)
 
-    # assert exeption if path is not a file
+    # assert exception if path is not a file
     with pytest.raises(Exception):
         file_input.select_file(readme.parent)
 

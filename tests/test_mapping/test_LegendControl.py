@@ -37,7 +37,7 @@ def test_init() -> None:
     assert all([label in str(legend._html_table) for label in expected_labels])
     assert all([color in str(legend._html_table) for color in legend_dict.values()])
 
-    # Check the lenght
+    # Check the length
     assert len(legend) == 6
 
     return

@@ -42,7 +42,7 @@ def test_min_max_zoom() -> None:
     [zoom_control.zoom(zoom_control.minus) for i in range(40)]
     assert m.zoom == 0
 
-    # ssame but with a min-max zoom on the map
+    # same but with a min-max zoom on the map
     m.min_zoom = 5
     m.max_zoom = 18
     [zoom_control.zoom(zoom_control.plus) for i in range(40)]

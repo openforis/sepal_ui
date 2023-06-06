@@ -37,7 +37,7 @@ header.v-app-bar {
   max-width: 100% !important;
 }
 
-/* make sure navigation drawers are always visibles when they exist */
+/* make sure navigation drawers are always visible when they exist */
 nav.v-navigation-drawer {
   z-index: 900 !important;
 }
@@ -70,7 +70,7 @@ nav.v-navigation-drawer {
   border: none !important;
 }
 
-/* extra css rules to make the messages disapear beneath the SimpleSlider */
+/* extra css rules to make the messages disappear beneath the SimpleSlider */
 .v-no-messages .v-messages {
   display: none;
 }

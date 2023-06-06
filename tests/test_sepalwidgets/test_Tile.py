@@ -148,7 +148,7 @@ def test_toggle_inputs() -> None:
 
 
 def test_get_id() -> None:
-    """Check id can be retreived."""
+    """Check id can be retrieved."""
     id_ = "id"
     tile = sw.Tile(id_, "title", [""])
 

@@ -96,7 +96,6 @@ if not version_match or version_match.isdigit():
 html_theme = "pydata_sphinx_theme"
 html_last_updated_fmt = ""
 html_theme_options = {
-    "header_links_before_dropdown": 6,
     "logo": {
         "text": "sepal-ui",
         "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",

@@ -17,7 +17,7 @@ def test_init(planet_key: str, cred: list) -> None:
 
     Args:
         planet_key: the planet API key
-        cred: the user credentials (usernam, pasword)
+        cred: the user credentials (usernam, password)
     """
     # Test with a valid api key
     planet_model = PlanetModel(planet_key)
@@ -166,6 +166,7 @@ def test_get_mosaics(planet_key: str, data_regression) -> None:
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
+    mosaics = [m["name"] for m in mosaics]
 
     data_regression.check(mosaics)
 

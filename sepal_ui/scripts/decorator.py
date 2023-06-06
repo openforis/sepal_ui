@@ -67,7 +67,7 @@ def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
 
     Args:
         alert (sw.Alert): Alert to display errors
-        debug (bool): Wether to raise the error or not, default to false
+        debug (bool): Whether to raise the error or not, default to false
 
     Returns:
         The return statement of the decorated method
@@ -130,7 +130,7 @@ def loading_button(
     Args:
         button: Toggled button
         alert: the alert to display the error message
-        debug: wether or not the exception should stop the execution. default to False
+        debug: Whethers or not the exception should stop the execution. default to False
 
     Returns:
         The return statement of the decorated method
@@ -214,7 +214,7 @@ def switch(
         \*params: any boolean parameter of a SepalWidget.
         debug: Whether trigger or not an Exception if the decorated function fails.
         on_widgets: List of widget names into the class
-        targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.
+        targets: list of the target value (value that will be set on switch. default to the inverse of the current state.
 
     Returns:
         The return statement of the decorated method

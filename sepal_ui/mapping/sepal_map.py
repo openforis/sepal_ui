@@ -1,6 +1,6 @@
 """The customized ``Map`` object."""
 
-# knwon bug of rasterio
+# known bug of rasterio
 import os
 
 if "GDAL_DATA" in list(os.environ.keys()):
@@ -89,10 +89,10 @@ class SepalMap(ipl.Map):
 
         Args:
             basemaps: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
-            dc: wether or not the drawing control should be displayed. default to false
+            dc: whether or not the drawing control should be displayed. default to false
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
-            gee: wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-            statebar: wether or not to display the Statebar in the map
+            gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
+            statebar: whether or not to display the Statebar in the map
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
@@ -254,10 +254,10 @@ class SepalMap(ipl.Map):
             colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
             opacity: the opacity of the layer, default 1.0.
             client_host: the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
-            fit_bounds: Wether or not we should fit the map to the image bounds. Default to True.
+            fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
 
         Returns:
-            the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
+            the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
         # lazy import of localtileserver to avoid conflicts with GDAL
         # environments
@@ -286,7 +286,7 @@ class SepalMap(ipl.Map):
         if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
-        # set the colors as independant colors
+        # set the colors as independent colors
         if isinstance(colormap, str):
             cmap = plt.get_cmap(name=colormap)
         color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
@@ -451,7 +451,7 @@ class SepalMap(ipl.Map):
 
         Copy the addLayer method from geemap to read and guess the vizaulization
         parameters the same way as in SEPAL recipes.
-        If the vizparams are empty and vizualization metadata exist, SepalMap will use
+        If the vizparams are empty and visualization metadata exist, SepalMap will use
         them automatically.
 
         Args:
@@ -460,7 +460,7 @@ class SepalMap(ipl.Map):
             name: the name of the layer
             shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
             opacity: the opcity of the layer from 0 to 1, default to 1.
-            viz_name: the name of the vizaulization you want ot use. default to the first one if existing
+            viz_name: the name of the visualization you want to use. default to the first one if existing
         """
         # check the type of the ee object and raise an error if it's not recognized
         if not isinstance(
@@ -632,7 +632,7 @@ class SepalMap(ipl.Map):
 
     @staticmethod
     def get_basemap_list() -> List[str]:
-        """Get the complete list of avaialble basemaps.
+        """Get the complete list of available basemaps.
 
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object.
@@ -650,7 +650,7 @@ class SepalMap(ipl.Map):
             image: the image to analyse
 
         Returns:
-            The dictionnary of the find properties
+            The dictionary of the find properties
         """
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
@@ -674,7 +674,7 @@ class SepalMap(ipl.Map):
         }
 
         # decompose each property by its number
-        # and gather the properties in a sub dictionnary
+        # and gather the properties in a sub dictionary
         for p, val in raw_prop_list.items():
 
             # extract the number and create the sub-dict
@@ -728,7 +728,7 @@ class SepalMap(ipl.Map):
         """
         layer = self.find_layer(key, base, none_ok)
 
-        # the error is catched in find_layer
+        # the error is caught in find_layer
         if layer is not None:
             super().remove(layer)
 
@@ -740,7 +740,7 @@ class SepalMap(ipl.Map):
         If base is set to True, the basemaps are removed as well.
 
         Args:
-            base: wether or not the basemaps should be removed, default to False
+            base: whether or not the basemaps should be removed, default to False
         """
         # filter out the basemaps if base == False
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]

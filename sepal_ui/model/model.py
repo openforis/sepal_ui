@@ -69,6 +69,6 @@ class Model(HasTraits):
         # bind them
         dlink((widget, "v_model"), (self, trait))
 
-        # maybe I would add the possiblity to add an alert to display stuff to the user with the same options as in alert.bind
+        # maybe I would add the possibility to add an alert to display stuff to the user with the same options as in alert.bind
 
         return self

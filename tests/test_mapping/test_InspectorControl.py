@@ -76,7 +76,7 @@ def test_free_eelayer(
     """Check result when clicking on a ee object.
 
     Args:
-        world_temp: the imagecollection of the worl tempreature dataset
+        world_temp: the imagecollection of the world temperature dataset
         ee_adm2: the vectors of the administrative boundaries of level 2
     """
     # create a map with a value inspector

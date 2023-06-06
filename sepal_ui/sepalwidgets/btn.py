@@ -125,7 +125,7 @@ class DownloadBtn(v.Btn, SepalWidget):
     def __init__(self, text: str, path: Union[str, Path] = "#", **kwargs) -> None:
         """Custom download Btn filled with the provided text.
 
-        The download icon is automatically embeded and green. The btn only accepts absolute links, if non is provided then the btn stays disabled.
+        The download icon is automatically embedded and green. The btn only accepts absolute links, if non is provided then the btn stays disabled.
 
         Args:
             text: the message inside the btn
