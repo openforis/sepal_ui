@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
+from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -242,7 +243,7 @@ class SepalMap(ipl.Map):
         layer_name: str = "Layer_" + su.random_string(),
         colormap: Union[str, mpc.Colormap] = "inferno",
         opacity: float = 1.0,
-        client_host: str = "/api/sandbox/jupyter/proxy/{port}",
+        client_host: str = r"/api/sandbox/jupyter/proxy/{port}",
         fit_bounds: bool = True,
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
@@ -259,20 +260,11 @@ class SepalMap(ipl.Map):
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
-        # lazy import of localtileserver to avoid conflicts with GDAL
-        # environments
-        try:
-            from localtileserver import TileClient, get_leaflet_tile_layer
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError(
-                "Your environment is not compatible with localtileserver, please check https://localtileserver.banesullivan.com/installation/index.html for more information"
-            )
-
         # add the localtilelayer path to the environment
         # if the value is already set we don't change anything
-        os.environ["LOCALTILESERVER_CLIENT_PREFIX"] = os.environ.pop(
-            "LOCALTILESERVER_CLIENT_PREFIX", client_host
-        )
+        # os.environ["LOCALTILESERVER_CLIENT_PREFIX"] = os.environ.pop(
+        #    "LOCALTILESERVER_CLIENT_PREFIX", client_host
+        # )
 
         # force cast to Path and then start the client
         image = Path(image)
