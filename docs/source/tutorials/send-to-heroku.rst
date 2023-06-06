@@ -29,7 +29,7 @@ Set up the app
 Create
 ******
 
-To start this tutorial let's create an application that doesn't require GEE and runs only with Python tools. For the example, we'll use the default template that only includes a GADM baed Aoi selector. The full process is described in the `Create my first module <./create-module.html>`__ section.
+To start this tutorial let's create an application that doesn't require GEE and runs only with Python tools. For the example, we'll use the default template that only includes a GADM based Aoi selector. The full process is described in the `Create my first module <./create-module.html>`__ section.
 
 .. code-block:: console
 

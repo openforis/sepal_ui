@@ -332,7 +332,7 @@ def test_get_viz_params(image_id: str) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
-    """Remove a spcific layer from the map.
+    """Remove a specific layer from the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer

@@ -17,7 +17,7 @@ def test_init(planet_key: str, cred: list) -> None:
 
     Args:
         planet_key: the planet API key
-        cred: the user credentials (usernam, pasword)
+        cred: the user credentials (usernam, password)
     """
     # Test with a valid api key
     planet_model = PlanetModel(planet_key)

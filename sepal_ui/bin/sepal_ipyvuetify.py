@@ -53,7 +53,7 @@ def is_widget(klass: str) -> bool:
 
 def main() -> None:
     """Launch the process."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     # name of the created file

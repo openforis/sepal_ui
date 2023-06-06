@@ -82,7 +82,7 @@ In our dictionary that could be use in the following way:
 
     {
         "error": {
-            "error_occured":  "The following error occured: {}"
+            "error_occurred":  "The following error occurred: {}"
         }
     }
 
@@ -95,7 +95,7 @@ and call it in your components for example in a try/Except statement :
     try:
         # do stuff
     except Exception as e:
-        print(ms.error.error_occured.format(e))
+        print(ms.error.error_occurred.format(e))
 
 
 Update the translated dictionaries
@@ -126,7 +126,7 @@ If your application is part of the OpenForis initiative and hosted on SEPAL, you
 
     {
         "paragraph": [
-            "I'm a multline",
+            "I'm a multiline",
             "paragraph."
         ]
     }
@@ -139,7 +139,7 @@ Then you need to replace the list by a numbered dict using string integer as key
 
     {
         "paragraph": {
-            "0": "I'm a multline",
+            "0": "I'm a multiline",
             "1": "paragraph."
         }
     }

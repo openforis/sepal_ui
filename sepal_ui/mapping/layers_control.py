@@ -1,4 +1,4 @@
-"""Extend fonctionalities of the ipyleaflet layer control."""
+"""Extend functionalities of the ipyleaflet layer control."""
 import json
 from types import SimpleNamespace
 from typing import Optional
@@ -159,7 +159,7 @@ class LayersControl(MenuControl):
     def __init__(self, m: Map, **kwargs) -> None:
         """Richer layerControl to add some controls over the lyers displayed on the map.
 
-        Each layer is associated to a line where the user can adapt the alpha chanel or even hide it completely
+        Each layer is associated to a line where the user can adapt the alpha channel or even hide it completely
 
         Args:
             m: the map to display the layers

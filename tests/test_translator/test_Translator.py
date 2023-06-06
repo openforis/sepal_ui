@@ -17,7 +17,7 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
 
     Args:
         translation_folder: the folder where the language keys are stored
-        tmp_config_file: create the config file for the prefered language
+        tmp_config_file: create the config file for the preferred language
     """
     # assert that the test key exist in fr
     translator = Translator(translation_folder, "fr")
@@ -73,7 +73,7 @@ def test_search_key() -> None:
 
 def test_sanitize() -> None:
     """Check that the dict are sanitized by the Translator object."""
-    # a test dict with many embeded numbered list
+    # a test dict with many embedded numbered list
     # but also an already existing list
     test = {
         "a": {"0": "b", "1": "c"},

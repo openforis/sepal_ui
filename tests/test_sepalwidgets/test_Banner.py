@@ -16,7 +16,7 @@ def test_init() -> None:
     assert banner.attributes["id"] == ""
     assert banner.timeout == 0
 
-    # exaustive definition
+    # exhaustive definition
     msg = "toto"
     type_ = "warning"
     id_ = "test_banner"

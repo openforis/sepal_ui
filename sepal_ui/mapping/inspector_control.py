@@ -264,7 +264,7 @@ class InspectorControl(MenuControl):
         # extract the coordinates as a point
         point = sg.Point(*coords)
 
-        # extract the pixel size in degrees (equatorial appoximation)
+        # extract the pixel size in degrees (equatorial approximation)
         scale = self.m.get_scale() * 0.00001
 
         # open the image and unproject it

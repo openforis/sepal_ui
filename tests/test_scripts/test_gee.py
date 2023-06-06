@@ -128,7 +128,7 @@ def fake_task(gee_dir: Path, _hash: str, alert: sw.Alert) -> str:
 
     Args:
         gee_dir: the directory where gee files are exported (it includes the hash in the name)
-        _hash: the hash str used to run parralel test
+        _hash: the hash str used to run parallel test
         alert: the alert used for outputs
 
     Returns:

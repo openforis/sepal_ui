@@ -1,6 +1,6 @@
 """ResizeTrigger is an essential object of sepal-ui.
 
-It guarantees that the maps displayed in the application are allways resized when you change the view. Without it moving from one panel to another would make some of the map tile invisible.
+It guarantees that the maps displayed in the application are always resized when you change the view. Without it moving from one panel to another would make some of the map tile invisible.
 """
 
 from pathlib import Path

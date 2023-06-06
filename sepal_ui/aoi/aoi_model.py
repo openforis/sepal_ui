@@ -150,13 +150,13 @@ class AoiModel(Model):
     ) -> None:
         """An Model object dedicated to the sorage and the manipulation of aoi.
 
-        It is meant to be used with the AoiView object (embeded in the AoiTile).
+        It is meant to be used with the AoiView object (embedded in the AoiTile).
         By using this you will be able to provide your application with aoi as an ee_object
         or a gdf, depending if you activated the ee binding or not.
         The class also provide insight on your aoi geometry.
 
         Args:
-            gee: wether or not the aoi selector should be using the EarthEngine binding
+            gee: whether or not the aoi selector should be using the EarthEngine binding
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if ee==True
@@ -168,7 +168,7 @@ class AoiModel(Model):
         """
         super().__init__()
 
-        # the ee retated informations
+        # the ee retated information
         self.gee = gee
         if gee:
             su.init_ee()
@@ -273,7 +273,7 @@ class AoiModel(Model):
         # set the feature collection
         self.feature_collection = ee_col
 
-        # create a gdf form te feature_collection
+        # create a gdf form the feature_collection
         features = self.feature_collection.getInfo()["features"]
         self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
@@ -286,7 +286,7 @@ class AoiModel(Model):
             point_json: the geo_interface description of the points
         """
         if not all(point_json.values()):
-            raise Exception(ms.aoi_sel.exception.uncomplete)
+            raise Exception(ms.aoi_sel.exception.incomplete)
 
         # cast the pathname to pathlib Path
         point_file = Path(point_json["pathname"])
@@ -585,7 +585,7 @@ class AoiModel(Model):
         """Converts current geopandas object into ipyleaflet GeoJSON.
 
         Args:
-            style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
 
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map

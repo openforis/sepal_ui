@@ -3,14 +3,14 @@
 """Script to update the requirements file with the currently used libs.
 
 The script should be launched from a module directory.
-It will parse all the files and extract the differnet librairies used in the module. They will be added to the requirements.txt
+It will parse all the files and extract the different libraries used in the module. They will be added to the requirements.txt
 file using the versions used in the current local installation.
 Some troubleshouting are handled by the script:
 -  the earthengine-api will be forced to use the openforis fork to be compatible with SEPAL
 -  pyproj and pygdal version will be forced to the version set in SEPAl as well
 -  sepal-ui version will be bound to the one available when calling the script
 Once the file have been created, please check it manually and make sure that there are no visible issues. PLease report any incompatibility to the developer
-so taht they can be added to the troubleshoot function.
+so that they can be added to the troubleshoot function.
 """
 
 import argparse
@@ -186,7 +186,7 @@ def clean_custom(file: Union[str, Path]) -> None:
 
 def main() -> None:
     """Launch the process."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     # welcome the user

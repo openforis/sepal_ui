@@ -24,7 +24,7 @@ class LineBreak(Directive):
     "directive have no optional arguments"
 
     final_argument_whitespace: bool = False
-    "directive have no whitspaces between arguments"
+    "directive have no whitespace between arguments"
 
     option_spec: dict = {}
     "no option specs"

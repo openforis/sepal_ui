@@ -36,11 +36,11 @@ class AoiTile(sw.Tile):
 
         Args:
             methods: the methods to select the aoi (more information in AoiView), default to 'ALL'. Available: {`ADMIN0`, `ADMIN1`, `ADMIN2`, `SHAPE`, `DRAW`, `POINTS`, `ASSET`, `ALL`}
-            gee: wether or not to use the python EartEngine API. default to True
+            gee: whether or not to use the python EartEngine API. default to True
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if :code:`ee==True`.
-            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
         # create the map
         self.map = sm.SepalMap(dc=True, gee=gee)

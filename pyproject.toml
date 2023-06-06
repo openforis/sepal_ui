@@ -154,7 +154,7 @@ docstring-quotes = "double"
 convention = "google"
 
 [tool.ruff.per-file-ignores]
-"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal strcuture
+"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal structure
 "setup.py" = ["D100"] # nothing to see there
 
 [tool.coverage.run]
@@ -171,3 +171,6 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 
 [tool.licensecheck]
 using = "PEP631:test;dev;doc"
+
+[tool.codespell]
+skip = 'CHANGELOG.md,sepal_ui/message/**/*.json'

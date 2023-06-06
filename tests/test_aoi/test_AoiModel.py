@@ -159,17 +159,17 @@ def test_clear_attributes(
     """
     aoi_model = aoi.AoiModel(gee=False)
 
-    # insert dum parameter everywhere
+    # insert dump parameter everywhere
     def set_trait(trait_id: str) -> None:
         trait_type = aoi_model.traits()[trait_id]
         if isinstance(trait_type, Unicode):
-            dum = "dum"
+            dump = "dump"
         elif isinstance(trait_type, Dict):
-            dum = {"dum": "dum"}
-        return setattr(aoi_model, trait_id, dum)
+            dump = {"dump": "dump"}
+        return setattr(aoi_model, trait_id, dump)
 
     def set_out(out_id: str) -> None:
-        return setattr(aoi_model, out_id, "dum")
+        return setattr(aoi_model, out_id, "dump")
 
     [set_trait(trait) for trait in aoi_model_traits]
     [set_out(out) for out in aoi_model_outputs]
@@ -187,7 +187,7 @@ def test_clear_attributes(
     # check that default are saved
     aoi_model = aoi.AoiModel(admin="VAT", gee=False)  # GADM for Vatican
 
-    # insert dummy parameter
+    # insert dumpmy parameter
     [set_trait(trait) for trait in aoi_model_traits]
     [set_out(out) for out in aoi_model_outputs]
 
@@ -202,7 +202,7 @@ def test_clear_attributes(
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
-    """Check that total bouds of the vatican are as expected.
+    """Check that total bounds of the vatican are as expected.
 
     Args:
         test_model: a AoiMOdel object set on Vatican city
@@ -284,7 +284,7 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
     """
     aoi_model = aoi.AoiModel(folder=gee_dir, gee=False)
 
-    # uncomplete json
+    # incomplete json
     points = {
         "pathname": None,
         "id_column": "id",
@@ -395,7 +395,7 @@ def square() -> dict:
     """A geojson square around the vatican city.
 
     Returns:
-        the geo_interface desciption of the square
+        the geo_interface description of the square
     """
     return {
         "type": "FeatureCollection",

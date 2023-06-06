@@ -1,4 +1,4 @@
-"""Customized control to toogle the fullscreen state of the map."""
+"""Customized control to toggle the fullscreen state of the map."""
 
 from pathlib import Path
 from typing import List, Optional
@@ -32,7 +32,7 @@ class FullScreenControl(WidgetControl):
     ) -> None:
         """A custom Fullscreen Button ready to be embed in a map object.
 
-        This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embeding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
+        This button will force the display of the map in fullscreen mode. It should be used instead of the built-in ipyleaflet FullscreenControl if your map is embedding ipyvuetify widgets. I tends to solve the issue raised here: https://github.com/widgetti/ipyvuetify/issues/141. The idea is to fake the fullscreen display by forcing the map container to extend to the full extend of the screen without using a z-index superior to the ipyvuetify overlay.
         simply click on it and the map will automatically expand
 
         .. versionadded:: 2.7.0
@@ -63,13 +63,13 @@ class FullScreenControl(WidgetControl):
         # add javascrip behaviour
         self.w_btn.on_event("click", self.toggle_fullscreen)
 
-        # save the 2 fullscrenn js code in a table 0 for embeded and 1 for fullscreen
+        # save the 2 fullscrenn js code in a table 0 for embedded and 1 for fullscreen
         js_dir = Path(__file__).parents[1] / "frontend/js"
         embed = (js_dir / "jupyter_embed.js").read_text() % m._id
         full = (js_dir / "jupyter_fullscreen.js").read_text() % (m._id, offset)
 
         # template with js behaviour
-        # "jupyter_fullscreen" place tje "leaflet-container element on the front screen
+        # "jupyter_fullscreen" place the "leaflet-container element on the front screen
         # and expand it's display to the full screen
         # "jupyter_embed" reset all the changed parameter
         # both trigger the resize event to force the reload of the Tilelayers
@@ -86,7 +86,7 @@ class FullScreenControl(WidgetControl):
         display(Javascript(js))
 
     def toggle_fullscreen(self, *args) -> None:
-        """Toogle fullscreen state.
+        """Toggle fullscreen state.
 
         Toggle the fullscreen state of the map by sending the required javascript method,
         changing the w_btn icons and the zoomed state of the control.

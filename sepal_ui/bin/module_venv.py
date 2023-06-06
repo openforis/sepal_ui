@@ -3,8 +3,8 @@
 """Script to add a testing kernel in the local environment.
 
 This script should be run in a module folder. From there, it will create a  new venv in the "module_venv" folder.
-This venv will be named after the module repository name. All librairies specified in the requirements.txt file will be installed.
-Then the script will read the "module.yaml" file (if existing) and exctract, the name of the module and the entry_point file (ususally "ui.ipynb").
+This venv will be named after the module repository name. All libraries specified in the requirements.txt file will be installed.
+Then the script will read the "module.yaml" file (if existing) and extract, the name of the module and the entry_point file (usually "ui.ipynb").
 The venv will be added to the list of usable Jupyter kernel. It will be named: "test-<name_of_the_repo>" and displayed as "(test) <name of the module>".
 The kernel should automatically be added to the entry_point file.
 """

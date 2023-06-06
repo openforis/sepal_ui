@@ -125,7 +125,7 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
     # get all the assets
     asset_list = get_assets(folder)
 
-    # search for asset existance
+    # search for asset existence
     exist = False
     for asset in asset_list:
         if asset_name == asset["name"]:
