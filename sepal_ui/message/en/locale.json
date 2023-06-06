@@ -68,7 +68,7 @@
       "no_inputs": "Please provide fully qualified inputs before validating your AOI",
       "no_asset": "Please select an asset.",
       "no_value": "Please select a value.",
-      "uncomplete": "All fields are required, please fill them.",
+      "incomplete": "All fields are required, please fill them.",
       "no_file": "Please select a file.",
       "duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
       "no_draw": "Please draw a shape in the map",
