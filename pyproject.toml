@@ -20,6 +20,7 @@ classifiers = [
 requires-python = ">=3.6.9"
 dependencies = [
     # building widgets
+    "ipykernel",
     "ipyvuetify",
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
