@@ -166,6 +166,7 @@ def test_get_mosaics(planet_key: str, data_regression) -> None:
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
+    mosaics = [m["name"] for m in mosaics]
 
     data_regression.check(mosaics)
 
