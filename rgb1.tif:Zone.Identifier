@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://github.com/rasterio/rasterio/blob/main/tests/data/rgb1.tif
+HostUrl=https://raw.githubusercontent.com/rasterio/rasterio/main/tests/data/rgb1.tif
