@@ -98,7 +98,7 @@ class SepalMap(ipl.Map):
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
         kwargs.setdefault("zoom", 2)
-        kwargs.setdefault("max_zoom", 20)
+        kwargs.setdefault("max_zoom", 24)
         kwargs["basemap"] = {}
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
