@@ -51,7 +51,6 @@ __all__ = ["SepalMap"]
 
 
 class SepalMap(ipl.Map):
-
     # ##########################################################################
     # ###                              Map parameters                        ###
     # ##########################################################################
@@ -99,6 +98,7 @@ class SepalMap(ipl.Map):
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
         kwargs.setdefault("zoom", 2)
+        kwargs.setdefault("max_zoom", 20)
         kwargs["basemap"] = {}
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
@@ -305,7 +305,12 @@ class SepalMap(ipl.Map):
 
         # create the layer
         layer = get_leaflet_tile_layer(
-            client, style=style, name=layer_name, opacity=opacity
+            client,
+            style=style,
+            name=layer_name,
+            opacity=opacity,
+            max_zoom=20,
+            max_native_zoom=20,
         )
         self.add_layer(layer)
 
@@ -365,7 +370,6 @@ class SepalMap(ipl.Map):
         alpha = 1
 
         if colors is not None:
-
             # transform colors in hex colors
             hexcodes = [su.to_colors(c) for c in colors]
 
@@ -381,7 +385,6 @@ class SepalMap(ipl.Map):
                 norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         elif cmap is not None:
-
             plot_color = plt.get_cmap(cmap)
             norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
@@ -474,7 +477,6 @@ class SepalMap(ipl.Map):
 
         # apply it to vis_params
         if not vis_params and viz:
-
             # find the viz params in the list
             try:
                 vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
@@ -486,7 +488,6 @@ class SepalMap(ipl.Map):
             # invert the bands if needed
             inverted = vis_params.pop("inverted", None)
             if inverted is not None:
-
                 # get the index of the bands that need to be inverted
                 index_list = [i for i, v in enumerate(inverted) if v is True]
 
@@ -502,7 +503,6 @@ class SepalMap(ipl.Map):
             # instead of remapping or using sldStyle
             # to preserve the class values in the image, for inspection
             if vis_params["type"] == "categorical":
-
                 colors = vis_params["palette"]
                 values = vis_params["values"]
                 min_ = min(values)
@@ -522,7 +522,6 @@ class SepalMap(ipl.Map):
 
             # specific case of hsv
             elif vis_params["type"] == "hsv":
-
                 # set to_min to 0 and to_max to 1
                 # in the original expression:
                 # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
@@ -538,7 +537,6 @@ class SepalMap(ipl.Map):
                 # create the rgb bands
                 asset = ee_object
                 for i, band in enumerate(vis_params["bands"]):
-
                     # adapt the expression
                     exp = expression.format(
                         from_min=mins[i], from_max=maxs[i], band=band
@@ -662,7 +660,6 @@ class SepalMap(ipl.Map):
         # decompose each property by its number
         # and gather the properties in a sub dictionary
         for p, val in raw_prop_list.items():
-
             # extract the number and create the sub-dict
             _, number, name = p.split("_")
             props.setdefault(number, {})
@@ -751,7 +748,6 @@ class SepalMap(ipl.Map):
 
         # apply default coloring for geoJson
         if isinstance(layer, ipl.GeoJSON):
-
             # define the default values
             default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())[
                 "layer"
