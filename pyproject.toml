@@ -42,7 +42,8 @@ dependencies = [
     "tqdm",
     "Deprecated>=1.2.14",
     "anyascii",  # to decode international names with non latin characters
-    "natsort",    "typing-extensions",
+    "natsort",
+    "typing-extensions",
     "nest-asyncio", # planet API interaction
 ]
 
