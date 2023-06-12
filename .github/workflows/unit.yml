@@ -99,7 +99,6 @@ jobs:
       - name: build the documentation
         run: |
           python -m pip install git+https://github.com/sphinx-doc/sphinx.git
-          python -m pip install git+https://github.com/tantale/deprecated.git
           sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
           sphinx-build -b html docs/source docs/build/html --keep-going -w warnings.txt
       - name: Check that there are no unexpected Sphinx warnings
