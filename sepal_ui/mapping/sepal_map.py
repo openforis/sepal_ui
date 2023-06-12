@@ -452,7 +452,7 @@ class SepalMap(ipl.Map):
             name: the name of the layer
             shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
             opacity: the opcity of the layer from 0 to 1, default to 1.
-            viz_name: the name of the vizaulization you want ot use. default to the first one if existing
+            viz_name: the name of the vizaulization you want to use. default to the first one if existing
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
         """
         # check the type of the ee object and raise an error if it's not recognized
