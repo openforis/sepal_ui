@@ -144,12 +144,14 @@ def test_add_raster(rgb: Path, byte: Path) -> None:
     m.add_raster(rgb, layer_name="rgb")
     layer = m.find_layer("rgb")
     assert layer.name == "rgb"
+    assert layer.key == "rgb"
     assert type(layer).__name__ == "BoundTileLayer"
 
     # add a byte layer
     m.add_raster(byte, layer_name="byte")
     layer = m.find_layer("byte")
     assert layer.name == "byte"
+    assert layer.key == "byte"
 
     return
 

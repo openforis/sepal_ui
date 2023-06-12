@@ -748,8 +748,7 @@ class SepalMap(ipl.Map):
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
         """
         # set up a unique key
-        key = key if key else su.normalize_str(layer.name)
-        layer.key = key
+        layer.key = key if key else su.normalize_str(layer.name)
 
         # remove existing layer before addition
         existing_layer = self.find_layer(layer.key, none_ok=True)
