@@ -2,7 +2,7 @@
 
 import time
 from pathlib import Path
-from typing import List, Union
+from typing import List, Optional, Union
 
 import ee
 import ipyvuetify as v
@@ -84,7 +84,9 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 
 @sd.need_ee
-def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[dict]:
+def get_assets(
+    folder: Union[str, Path] = "", asset_list: Optional[List[str]] = None
+) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
@@ -94,16 +96,15 @@ def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> Lis
     Returns:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
-    # set the folder
+    # set the folder the an the init list
+    asset_list = asset_list or []
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # loop in the assets
     for asset in ee.data.listAssets({"parent": folder})["assets"]:
+        asset_list += [asset]
         if asset["type"] == "FOLDER":
-            asset_list += [asset]
             asset_list = get_assets(asset["name"], asset_list)
-        else:
-            asset_list += [asset]
 
     return asset_list
 
@@ -156,20 +157,21 @@ def delete_assets(asset_id: str) -> None:
 
         # split the files by nesting levels
         # we will need to delete the more nested files first
-        asset_list_ordered = {}
+        assets_ordered = {}
         for asset in asset_list:
             lvl = len(asset["id"].split("/"))
-            asset_list_ordered.setdefault(lvl, [])
-            asset_list_ordered[lvl].append(asset)
+            assets_ordered.setdefault(lvl, [])
+            assets_ordered[lvl].append(asset)
 
-        # delete all items starting from the more nested one
-        asset_list_ordered = dict(sorted(asset_list_ordered.items(), reverse=True))
-        for lvl in asset_list_ordered:
-            for i in asset_list_ordered[lvl]:
-                print(f"delete: {i['name']}")
+        # delete all items starting from the more nested one but not folders
+        assets_ordered = dict(sorted(assets_ordered.items(), reverse=True))
+        for lvl in assets_ordered:
+            for i in assets_ordered[lvl]:
+                print(f"deleting: {i['name']}")
                 ee.data.deleteAsset(i["name"])
 
         # delete the initial folder
+        print(f"deleting: {asset_id}")
         ee.data.deleteAsset(asset_id)
 
     return
