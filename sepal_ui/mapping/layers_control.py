@@ -1,4 +1,4 @@
-"""Extend fonctionalities of the ipyleaflet layer control."""
+"""Extend functionalities of the ipyleaflet layer control."""
 import json
 from types import SimpleNamespace
 from typing import Optional
@@ -100,9 +100,9 @@ class LayerRow(sw.Html):
         super().__init__(tag="tr", children=[label_cell, slider_cell, checkbox_cell])
 
         # add js behavior
-        link((layer, "opacity"), (self.w_slider, "v_model"))
-        link((self.w_checkbox, "v_model"), (layer, "visible"))
         self.w_checkbox.observe(self._toggle_slider, "v_model")
+        link((layer, "opacity"), (self.w_slider, "v_model"))
+        link((layer, "visible"), (self.w_checkbox, "v_model"))
 
     def _toggle_slider(self, *args) -> None:
         """Toggle the modification of the slider."""
@@ -145,7 +145,7 @@ class VectorRow(sw.Html):
         super().__init__(tag="tr", children=[label_cell, empty_cell, checkbox_cell])
 
         # add js behavior
-        link((self.w_checkbox, "v_model"), (layer, "visible"))
+        link((layer, "visible"), (self.w_checkbox, "v_model"))
 
 
 class LayersControl(MenuControl):
@@ -159,7 +159,7 @@ class LayersControl(MenuControl):
     def __init__(self, m: Map, **kwargs) -> None:
         """Richer layerControl to add some controls over the lyers displayed on the map.
 
-        Each layer is associated to a line where the user can adapt the alpha chanel or even hide it completely
+        Each layer is associated to a line where the user can adapt the alpha channel or even hide it completely
 
         Args:
             m: the map to display the layers
@@ -190,6 +190,9 @@ class LayersControl(MenuControl):
         # customize the menu to make it look more like a layercontrol
         self.menu.open_on_hover = True
         self.menu.close_delay = 200
+
+        # set the height according to the content
+        self.set_size(min_height=None, max_height=None)
 
         # update the table at instance creation
         self.update_table({})

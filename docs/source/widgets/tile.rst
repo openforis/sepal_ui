@@ -22,7 +22,7 @@ Any argument from the original :code:`Card` ipyvuetify class can be used to comp
         id_ = "tile",
         title = "My first tile",
         inputs = [sw.Markdown('lorem ipsum'), v.Select(), v.TextField()],
-        output = sw.Alert().add_msg('lorem agin ipsum'),
+        output = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
     tile
@@ -55,7 +55,7 @@ Prepare the tile to be used as a nested component in a tile. The elevation will 
         id_ = "tile",
         title = "My first tile",
         inputs = [sw.Markdown('lorem ipsum'), v.Select(), v.TextField()],
-        alert = sw.Alert().add_msg('lorem agin ipsum'),
+        alert = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
 
@@ -81,7 +81,7 @@ Replace the current content of the tile with the provided inputs. it will keep t
         id_ = "tile",
         title = "My first tile",
         inputs = [sw.Markdown('lorem ipsum'), v.Select(), v.TextField()],
-        alert = sw.Alert().add_msg('lorem agin ipsum'),
+        alert = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
 
@@ -107,7 +107,7 @@ Replace the current title and activate it. If no title is provided, the title is
         id_ = "tile",
         title = "My first tile",
         inputs = [sw.Markdown('lorem ipsum'), v.Select(), v.TextField()],
-        alert = sw.Alert().add_msg('lorem agin ipsum'),
+        alert = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
 
@@ -133,7 +133,7 @@ Return the current title of the tile
         id_ = "tile",
         title = "My first tile",
         inputs = [sw.Markdown('lorem ipsum'), v.Select(), v.TextField()],
-        alert = sw.Alert().add_msg('lorem agin ipsum'),
+        alert = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
 
@@ -161,7 +161,7 @@ Display only the widgets that are part of the input_list. the widget_list is the
         id_ = "tile",
         title = "My first tile",
         inputs = inputs,
-        alert = sw.Alert().add_msg('lorem agin ipsum'),
+        alert = sw.Alert().add_msg('lorem ipsum'),
         btn = sw.Btn()
     )
 

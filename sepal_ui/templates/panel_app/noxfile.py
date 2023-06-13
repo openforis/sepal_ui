@@ -21,3 +21,11 @@ def app(session):
     session.install("-r", "requirements.txt")
     session.run("jupyter", "trust", init_notebook)
     session.run("voila", "--debug", init_notebook)
+
+
+@nox.session(reuse_venv=True)
+def jupyter(session):
+    """Run the application in a jupyter notebook."""
+    session.install("-r", "requirements.txt")
+    session.run("jupyter", "trust", "no_ui.ipynb")
+    session.run("jupyter", "notebook", "no_ui.ipynb")

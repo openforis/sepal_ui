@@ -1,0 +1,12 @@
+_links:
+  _self: https://api.planet.com/basemaps/v1/mosaics/1f0570f3-b373-457f-89a5-046b4080d199/quads/1088-1058?api_key=toto
+  download: https://api.planet.com/basemaps/v1/mosaics/1f0570f3-b373-457f-89a5-046b4080d199/quads/1088-1058/full?api_key=toto
+  items: https://api.planet.com/basemaps/v1/mosaics/1f0570f3-b373-457f-89a5-046b4080d199/quads/1088-1058/items?api_key=toto
+  thumbnail: https://tiles.planet.com/basemaps/v1/planet-tiles/planet_medres_normalized_analytic_2015-12_2016-05_mosaic/gmap/11/1088/989.png?api_key=toto
+bbox:
+- 11.2499999985
+- 5.9657536703
+- 11.4257812485
+- 6.14055478166
+id: 1088-1058
+percent_covered: 100

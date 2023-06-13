@@ -93,7 +93,7 @@ def test_set_children() -> None:
     test_card.set_children("asdf", "last")
     assert test_card.children[-1] == "asdf"
 
-    # Test that new element is at the begining (default)
+    # Test that new element is at the beginning (default)
     test_card.set_children("asdf")
     assert test_card.children[0] == "asdf"
 

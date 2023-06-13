@@ -22,7 +22,7 @@ def test_init(theme_select: sw.ThemeSelect) -> None:
 
 
 def test_change_theme(theme_select: sw.ThemeSelect) -> None:
-    """Check the prefered theme can be changed from the widget.
+    """Check the preferred theme can be changed from the widget.
 
     Args:
         theme_select: a widget instance removing all existing config

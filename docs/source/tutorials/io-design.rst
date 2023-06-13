@@ -27,7 +27,7 @@ the concept is easier to grasp with a simple example
 
 The value of "a" cannot be modified inside the function.
 For those who have practiced other languages such as C/C++, Fortran or Java, you know that it's possible to choose if the variable is passed to the function by reference or by value.
-The flexibility of Pyhton doesn't authorize this difference, there are just mutable and not mutable objects.
+The flexibility of Python doesn't authorize this difference, there are just mutable and not mutable objects.
 2 solution were possible: either we return all the results from function to function (which could rapidly lead to a high number of tuples in the return statement) or use :code:`Model` objects to store inputs of our widgets and output of our processes.
 
 Model object
@@ -43,7 +43,7 @@ a default model could look like
     from sepal_ui import model
     from traitlets import Any # other types are available but Any can digest anything
 
-    class CustomIo(model.Model): # the model class embed some useful fonction as 'export', 'import' and 'bind'
+    class CustomIo(model.Model): # the model class embed some useful function as 'export', 'import' and 'bind'
 
         # inputs
         username = Any(None).tag(sync=True)
@@ -55,7 +55,7 @@ a default model could look like
 
 And that's all !
 
-Exemple case
+Example case
 ------------
 
 We will here describe a complete example of the usage of a model.

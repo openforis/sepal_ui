@@ -3,7 +3,7 @@
 Sepal_ui
 --------
 
-.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+.. image:: https://img.shields.io/badge/License-MIT-yellow.svg?logo=opensourceinitiative&logoColor=white
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
 
@@ -11,11 +11,11 @@ Sepal_ui
    :target: https://github.com/psf/black
    :alt: Black badge
 
-.. image:: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
+.. image:: https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white
    :target: https://github.com/prettier/prettier
    :alt: prettier badge
 
-.. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg
+.. image:: https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?logo=git&logoColor=white
    :target: https://conventionalcommits.org
    :alt: conventional commit
 
@@ -27,7 +27,7 @@ Sepal_ui
     :target: https://sepal-ui.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. image:: https://img.shields.io/pypi/v/sepal-ui?color=orange&logo=python&logoColor=white
+.. image:: https://img.shields.io/pypi/v/sepal-ui?color=orange&logo=pypi&logoColor=white
     :target: https://pypi.org/project/sepal-ui/
     :alt: PyPI version
 

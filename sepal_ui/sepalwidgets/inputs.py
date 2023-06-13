@@ -22,7 +22,6 @@ import ipyvuetify as v
 import pandas as pd
 import traitlets as t
 from deprecated.sphinx import versionadded
-from ipywidgets import jslink
 from natsort import humansorted
 from traitlets import link, observe
 from typing_extensions import Self
@@ -122,7 +121,7 @@ class DatePicker(v.Layout, SepalWidget):
     def check_date(self, change: dict) -> None:
         """Check if the data is formatted date.
 
-        A method to check if the value of the set v_model is a correctly formated date
+        A method to check if the value of the set v_model is a correctly formatted date
         Reset the widget and display an error if it's not the case.
         """
         self.date_text.error_messages = None
@@ -140,7 +139,7 @@ class DatePicker(v.Layout, SepalWidget):
 
     @observe("v_model")
     def close_menu(self, change: dict) -> None:
-        """A method to close the menu of the datepicker programatically."""
+        """A method to close the menu of the datepicker programmatically."""
         # set the visibility
         self.menu.v_model = False
 
@@ -180,8 +179,8 @@ class DatePicker(v.Layout, SepalWidget):
 
 class FileInput(v.Flex, SepalWidget):
 
-    extentions: List[str] = []
-    "list: the extention list"
+    extensions: List[str] = []
+    "list: the extensions list"
 
     folder: Path = Path.home()
     "the current folder"
@@ -218,7 +217,7 @@ class FileInput(v.Flex, SepalWidget):
 
     def __init__(
         self,
-        extentions: List[str] = [],
+        extensions: List[str] = [],
         folder: Union[str, Path] = Path.home(),
         label: str = ms.widgets.fileinput.label,
         v_model: Union[str, None] = "",
@@ -229,15 +228,15 @@ class FileInput(v.Flex, SepalWidget):
         """Custom input field to select a file in the sepal folders.
 
         Args:
-            extentions: the list of the allowed extentions. the FileInput will only display these extention and folders
+            extensions: the list of the allowed extensions. the FileInput will only display these extension and folders
             folder: the starting folder of the file input
             label: the label of the input
             v_model: the default value
-            clearable: wether or not to make the widget clearable. default to False
+            clearable: whether or not to make the widget clearable. default to False
             root: the root folder from which you cannot go higher in the tree.
             kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
         """
-        self.extentions = extentions
+        self.extensions = extensions
         self.folder = Path(folder)
         self.root = str(root) if isinstance(root, Path) else root
 
@@ -328,7 +327,7 @@ class FileInput(v.Flex, SepalWidget):
         # note: The args arguments are useless here but need to be kept so that
         # the function is natively compatible with the clear btn
 
-        # do nothing if nothing is set to avoids extremelly long waiting
+        # do nothing if nothing is set to avoids extremely long waiting
         # time when multiple fileInput are reset at the same time as in the aoiView
         if self.v_model is not None:
 
@@ -384,7 +383,7 @@ class FileInput(v.Flex, SepalWidget):
         items = self._get_items()
 
         # reset files
-        # this is reseting the scroll to top without using js scripts
+        # this is resetting the scroll to top without using js scripts
         self.file_list.children[0].children = []
 
         # set the new files
@@ -402,9 +401,9 @@ class FileInput(v.Flex, SepalWidget):
 
         list_dir = [el for el in folder.glob("*/") if not el.name.startswith(".")]
 
-        if self.extentions:
+        if self.extensions:
             list_dir = [
-                el for el in list_dir if el.is_dir() or el.suffix in self.extentions
+                el for el in list_dir if el.is_dir() or el.suffix in self.extensions
             ]
 
         folder_list = []
@@ -477,7 +476,7 @@ class FileInput(v.Flex, SepalWidget):
 
     @observe("v_model")
     def close_menu(self, change: dict) -> None:
-        """A method to close the menu of the Fileinput programatically."""
+        """A method to close the menu of the Fileinput programmatically."""
         # set the visibility
         self.file_menu.v_model = False
 
@@ -551,8 +550,8 @@ class LoadTableField(v.Col, SepalWidget):
         super().__init__(**kwargs)
 
         # link the dropdowns
-        jslink((self.IdSelect, "items"), (self.LngSelect, "items"))
-        jslink((self.IdSelect, "items"), (self.LatSelect, "items"))
+        link((self.IdSelect, "items"), (self.LngSelect, "items"))
+        link((self.IdSelect, "items"), (self.LatSelect, "items"))
 
         # link the widget with v_model
         self.fileInput.observe(self._on_file_input_change, "v_model")
@@ -594,7 +593,7 @@ class LoadTableField(v.Col, SepalWidget):
         self.IdSelect.items = df.columns.tolist()
 
         # pre load values that sounds like what we are looking for
-        # it will only keep the first occurence of each one
+        # it will only keep the first occurrence of each one
         for name in reversed(df.columns.tolist()):
             lname = name.lower()
             if "id" in lname:
@@ -648,7 +647,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         "FOLDER": ms.widgets.asset_select.types[4],
         # UNKNOWN type is ignored
     }
-    "Valid ypes of asset"
+    "Valid types of asset"
 
     folder: str = ""
     "the folder of the user assets, mainly for debug"
@@ -657,13 +656,13 @@ class AssetSelect(v.Combobox, SepalWidget):
     "whether the selected asset is valid (user has access) or not"
 
     asset_info: dict = {}
-    "The selected asset informations"
+    "The selected asset information"
 
     default_asset: t.List = t.List([]).tag(sync=True)
     "The id of a default asset or a list of default assets"
 
     types: t.List = t.List().tag(sync=True)
-    "The list of types accepted by the asset selector. names need to be valide TYPES and changing this value will trigger the reload of the asset items."
+    "The list of types accepted by the asset selector. names need to be valid TYPES and changing this value will trigger the reload of the asset items."
 
     @sd.need_ee
     def __init__(
@@ -716,14 +715,18 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @sd.switch("loading")
     def _validate(self, change: dict) -> None:
-        """Validate the selected asset. Throw an error message if is not accesible or not in the type list."""
+        """Validate the selected asset. Throw an error message if is not accessible or not in the type list."""
         self.error_messages = None
+
+        # trim the current value
+        if isinstance(self.v_model, str):
+            self.v_model = self.v_model.strip()
 
         if change["new"]:
 
             # check that the asset can be accessed
             try:
-                self.asset_info = ee.data.getAsset(change["new"])
+                self.asset_info = ee.data.getAsset(self.v_model)
 
                 # check that the asset has the correct type
                 if self.asset_info["type"] not in self.types:
@@ -836,7 +839,7 @@ class NumberField(v.TextField, SepalWidget):
     "Incremental value added at each step."
 
     def __init__(self, max_: int = 10, min_: int = 0, increm: int = 1, **kwargs):
-        r"""Custom widget to input numbers in text area and add/substract with single increment.
+        r"""Custom widget to input numbers in text area and add/subtract with single increment.
 
         Args:
             max\_: Maximum selectable number. Defaults to 10.
@@ -869,7 +872,7 @@ class NumberField(v.TextField, SepalWidget):
         return
 
     def decrement(self, *args) -> None:
-        """Substracts increm to the current v_model number."""
+        """Subtracts increm to the current v_model number."""
         self.v_model = max((self.v_model - self.increm), self.min_)
 
         return
@@ -881,7 +884,7 @@ class VectorField(v.Col, SepalWidget):
     "The originally selected dataframe"
 
     df: Optional[pd.DataFrame] = None
-    "the orginal dataframe without the geometry (for column naming)"
+    "the original dataframe without the geometry (for column naming)"
 
     gdf: Optional[gpd.GeoDataFrame] = None
     "The selected dataframe"
@@ -1059,7 +1062,7 @@ class VectorField(v.Col, SepalWidget):
 
 class SimpleSlider(v.Slider, SepalWidget):
     def __init__(self, **kwargs) -> None:
-        """Simple Slider is a simplified slider that can be center alined in table.
+        """Simple Slider is a simplified slider that can be center aligned in table.
 
         The normal vuetify slider is included html placeholder for the thumbs and the messages (errors and hints). This is preventing anyone from center-aligning them in a table. This class is behaving exactly like a regular Slider but embed extra css class to prevent the display of these sections. any hints or message won't be displayed.
         """

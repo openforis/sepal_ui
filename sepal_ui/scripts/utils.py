@@ -13,9 +13,9 @@ from urllib.parse import urlparse
 import ee
 import httplib2
 import ipyvuetify as v
+from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
-from unidecode import unidecode
 
 import sepal_ui
 from sepal_ui.conf import config, config_file
@@ -106,7 +106,7 @@ def get_file_size(filename: Union[str, Path]) -> str:
     """Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
-        filename: the path to the file to mesure
+        filename: the path to the file to measure
 
     Returns:
         the file size in a readable humanly readable
@@ -162,7 +162,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     """
     regex = "[^a-zA-Z\d\-\_]" if folder else "[^a-zA-Z\d\-\_\ ']"
 
-    return re.sub(regex, "_", unidecode(msg))
+    return re.sub(regex, "_", anyascii(msg))
 
 
 def to_colors(
@@ -170,7 +170,7 @@ def to_colors(
 ) -> Union[str, tuple]:
     """Transform any color type into a color in the specified output format.
 
-    Avalable format: [hex]
+    Available format: [hex]
 
     Args:
         in_color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0)).
@@ -219,7 +219,7 @@ def next_string(string: str) -> str:
     Returns:
         the incremented string
     """
-    # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
+    # if the string is already numbered the last digit is separated from the rest of the string by an "_"
     split = string.split("_")
     end = split[-1]
 
@@ -283,7 +283,7 @@ def set_config_theme(theme: str) -> None:
 def set_type(color: str) -> str:
     r"""Return a pre-defined material colors based on the requested type\_ parameter.
 
-    If the parameter is not a predifined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
+    If the parameter is not a predefined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
 
     Args:
         color: the requested color
@@ -314,7 +314,7 @@ def geojson_to_ee(
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
 
     Args:
-        geo_json: a geo_json dictionnary
+        geo_json: a geo_json dictionary
         geodesic: Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
         encoding: The encoding of characters. Defaults to "utf-8".
 

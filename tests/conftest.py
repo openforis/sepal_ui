@@ -30,7 +30,7 @@ except Exception:
 
 @pytest.fixture(scope="session")
 def _alert() -> sw.Alert:
-    """An alert that can be used everywhere to display informations.
+    """An alert that can be used everywhere to display information.
 
     Returns:
         an alert object
@@ -40,7 +40,7 @@ def _alert() -> sw.Alert:
 
 @pytest.fixture(scope="function")
 def alert(_alert: sw.Alert) -> sw.Alert:
-    """An alert that can be used everywhere to display informations.
+    """An alert that can be used everywhere to display information.
 
     Args:
         _alert: the shared alert component
@@ -64,7 +64,7 @@ def file_start() -> str:
     return "https://sepal.io/api/sandbox/jupyter/files/"
 
 
-# -- Acess files from the project ----------------------------------------------
+# -- Access files from the project ---------------------------------------------
 
 # init pyplot with the non interactive backend and use it in the rest of the tests
 matplotlib.use("Agg")
@@ -72,7 +72,7 @@ matplotlib.use("Agg")
 
 @pytest.fixture(scope="session")
 def root_dir() -> Path:
-    """Path to the root dir of the librairy.
+    """Path to the root dir of the library.
 
     Returns:
         the root path
@@ -151,7 +151,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     ee_buffer = ee.Geometry.Point(0, 0).buffer(200).bounds()
     image = image.clipToBoundsAndScale(ee_buffer, scale=30)
 
-    # exports It should take less than 2 minutes unless there are concurent tasks
+    # exports It should take less than 2 minutes unless there are concurrent tasks
     fc = "feature_collection"
     ee.batch.Export.table.toAsset(
         collection=ee_gdf, description=f"{fc}_{_hash}", assetId=str(gee_dir / fc)

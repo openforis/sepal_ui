@@ -207,9 +207,9 @@
   },
   "disclaimer": {
     "p": {
-      "0": "La FAO décline toute responsabilité pour les erreurs dans la base de données ou le logiciel, la documentation l'accompagnant pour la maintenance, la mise à niveau des logiciels ainsi que pour tout dommage qui pourrait en résulter.",
-      "1": "La FAO décline également toute responsabilité quant à la mise à jour des données et n'assume aucune responsabilité pour les erreurs et les omissions dans les données fournies.",
-      "2": "Les utilisateurs sont toutefois priés de signaler toute erreur ou carence de ce produit à la FAO."
+      "0": "Les développeurs déclinent toute responsabilité pour les erreurs ou défauts dans la base de données ou le logiciel ou dans la documentation l'accompagnant pour la maintenance et la mise à niveau des programmes ainsi que pour tout dommage qui pourrait en résulter.",
+      "1": "Les développeurs déclinent également toute responsabilité pour la mise à jour des données et n'assument aucune responsabilité pour les erreurs et les omissions dans les données fournies.",
+      "2": "Les utilisateurs sont cependant priés de signaler aux développeurs toute erreur ou carence de ce produit."
     }
   }
 }

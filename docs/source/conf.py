@@ -52,6 +52,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
     "sphinx_favicon",
     "notfound.extension",
     "sphinxcontrib.autoprogram",
@@ -95,7 +96,6 @@ if not version_match or version_match.isdigit():
 html_theme = "pydata_sphinx_theme"
 html_last_updated_fmt = ""
 html_theme_options = {
-    "header_links_before_dropdown": 6,
     "logo": {
         "text": "sepal-ui",
         "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",
@@ -155,3 +155,6 @@ html_css_files = ["css/custom.css", "css/icon.css"]
 autosummary_generate = True
 autoclass_content = "both"
 autodoc_typehints = "description"
+
+# -- Options for TODO ----------------------------------------------------------
+todo_include_todos = True

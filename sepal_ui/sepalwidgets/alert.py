@@ -17,9 +17,9 @@ from typing import Any, Optional
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import deprecated
-from ipywidgets import Output, jslink
+from ipywidgets import Output
 from tqdm.notebook import tqdm
-from traitlets import directional_link, observe
+from traitlets import directional_link, link, observe
 from typing_extensions import Self
 
 from sepal_ui import color
@@ -103,19 +103,22 @@ class Alert(v.Alert, SepalWidget):
 
         .. note::
 
-            set the ``total`` argumentent of tqdm to use differnet values than [0, 1]
+            set the ``total`` argumentent of tqdm to use different values than [0, 1]
 
         Args:
             progress: the progress status in float
             msg: The message to use before the progress bar
-            tqdm_args (optional): any arguments supported by a tqdm progress bar
+            tqdm_args (optional): any arguments supported by a tqdm progress bar, they will only be taken into account after a call to ``self.reset()``.
         """
         # show the alert
         self.show()
 
-        # cast the progress to float
-        total = tqdm_args.get("total", 1)
+        # cast the progress to float and perform sanity checks
         progress = float(progress)
+        if self.progress_output not in self.children:
+            total = tqdm_args.get("total", 1)
+        else:
+            total = self.progress_bar.total
         if not (0 <= progress <= total):
             raise ValueError(f"progress should be in [0, {total}], {progress} given")
 
@@ -279,7 +282,7 @@ class StateBar(v.SystemBar, SepalWidget):
         # call the constructor
         super().__init__(**kwargs)
 
-        jslink((self, "loading"), (self.progress, "indeterminate"))
+        link((self, "loading"), (self.progress, "indeterminate"))
 
     @observe("loading")
     def _change_loading(self, *args) -> None:
@@ -325,9 +328,9 @@ class Banner(v.Snackbar, SepalWidget):
 
         Args:
             msg: Message to display in application banner. default to nothing
-            type\_: Used to display an appropiate banner color. fallback to "info".
+            type\_: Used to display an appropriate banner color. fallback to "info".
             id_: unique banner identificator.
-            persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+            persistent: Whether to close automatically based on the length of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
             kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
         """
         # compute the type and default to "info" if it's not existing
@@ -362,7 +365,7 @@ class Banner(v.Snackbar, SepalWidget):
         return
 
     def get_timeout(self, text: str) -> int:
-        """Calculate timeout in miliseconds to read the message.
+        """Calculate timeout in milliseconds to read the message.
 
         Args:
             text: the text displayed in the banner to adapt the duration of the timeout

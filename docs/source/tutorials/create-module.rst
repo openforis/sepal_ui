@@ -2,7 +2,7 @@ Create my first module
 ======================
 
 In this tutorial we will show How to get a ready to use module skeleton and synchronize it with a GitHub repository.
-The steps presented bellow will demonstrate the safest and most complete way of creating a new module from scratch.
+The steps presented below will demonstrate the safest and most complete way of creating a new module from scratch.
 
 Create the GitHub repository
 ----------------------------
@@ -126,7 +126,7 @@ It will launch the creation script of the module factory.
    Branch 'master' set up to track remote branch 'master' from 'origin'.
 
    WARNING: have a look to the git command executed in the process. if any of them is displaying an error, the final folder may not have been created
-   If thats the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues
+   If that's the case, delete the folder in your sepal instance (if there is any) and start the process again or contact us via github issues
 
    CONGRATULATION: You created a new module named: My first module
    You can find its code in /home/prambaud/My_first_module inside your sepal environment.
@@ -221,7 +221,7 @@ GitHub Template
 
     For advanced users only
 
-The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsability. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
+The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsibility. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
 
 .. danger::
 

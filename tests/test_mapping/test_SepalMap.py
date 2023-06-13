@@ -17,16 +17,6 @@ from sepal_ui.mapping.legend_control import LegendControl
 # create a seed so that we can check values
 random.seed(42)
 
-# as using localtileserver is still in beta version it is not yet installed by
-# default. Using this lazy import we can skip some tests when in github CD/CI
-# will be removed when https://github.com/girder/large_image/pull/927 is ready
-try:
-    from localtileserver import TileClient  # noqa: F401
-
-    is_set_localtileserver = True
-except ModuleNotFoundError:
-    is_set_localtileserver = False
-
 
 def test_init() -> None:
     """Init a Sepal Map."""
@@ -141,7 +131,6 @@ def test_zoom_bounds() -> None:
     return
 
 
-@pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_add_raster(rgb: Path, byte: Path) -> None:
     """Add raster files to the map.
 
@@ -332,7 +321,7 @@ def test_get_viz_params(image_id: str) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
-    """Remove a spcific layer from the map.
+    """Remove a specific layer from the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -506,7 +495,6 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_zoom_raster(byte: Path) -> None:
     """Check that we can zoom on a raster.
 

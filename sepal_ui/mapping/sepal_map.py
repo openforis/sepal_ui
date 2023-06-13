@@ -1,6 +1,6 @@
 """The customized ``Map`` object."""
 
-# knwon bug of rasterio
+# known bug of rasterio
 import os
 
 if "GDAL_DATA" in list(os.environ.keys()):
@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
+from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
@@ -50,7 +51,6 @@ __all__ = ["SepalMap"]
 
 
 class SepalMap(ipl.Map):
-
     # ##########################################################################
     # ###                              Map parameters                        ###
     # ##########################################################################
@@ -89,15 +89,16 @@ class SepalMap(ipl.Map):
 
         Args:
             basemaps: the basemaps used as background in the map. If multiple selection, they will be displayed as layers.
-            dc: wether or not the drawing control should be displayed. default to false
+            dc: whether or not the drawing control should be displayed. default to false
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
-            gee: wether or not to use the ee binding. If False none of the earthengine display fonctionalities can be used. default to True
-            statebar: wether or not to display the Statebar in the map
+            gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
+            statebar: whether or not to display the Statebar in the map
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
         kwargs.setdefault("zoom", 2)
+        kwargs.setdefault("max_zoom", 24)
         kwargs["basemap"] = {}
         kwargs["zoom_control"] = False
         kwargs["attribution_control"] = False
@@ -242,11 +243,12 @@ class SepalMap(ipl.Map):
         layer_name: str = "Layer_" + su.random_string(),
         colormap: Union[str, mpc.Colormap] = "inferno",
         opacity: float = 1.0,
-        client_host: str = "/api/sandbox/jupyter/proxy/{port}",
         fit_bounds: bool = True,
         key: str = "",
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
+
+        If used on a cloud platform (or distant jupyter), this method won't know where the entry point of the client is set and will thus fail to display the image. Please follow instructions from https://localtileserver.banesullivan.com/installation/remote-jupyter.html and set up the ``LOCALTILESERVER_CLIENT_PREFIX`` environment variable.
 
         Args:
             image: The image file path.
@@ -254,28 +256,12 @@ class SepalMap(ipl.Map):
             layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
             colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
             opacity: the opacity of the layer, default 1.0.
-            client_host: the base url of the server. It's design to work in the SEPAL environment, you only need to change it if you want to work outside of our platform. See localtielayer lib for more details.
-            fit_bounds: Wether or not we should fit the map to the image bounds. Default to True.
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
+            fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
 
         Returns:
-            the local tile layer embeding the raster member (to be used with other tools of sepal-ui)
+            the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
-        # lazy import of localtileserver to avoid conflicts with GDAL
-        # environments
-        try:
-            from localtileserver import TileClient, get_leaflet_tile_layer
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError(
-                "Your environment is not compatible with localtileserver, please check https://localtileserver.banesullivan.com/installation/index.html for more information"
-            )
-
-        # add the localtilelayer path to the environment
-        # if the value is already set we don't change anything
-        os.environ["LOCALTILESERVER_CLIENT_PREFIX"] = os.environ.pop(
-            "LOCALTILESERVER_CLIENT_PREFIX", client_host
-        )
-
         # force cast to Path and then start the client
         image = Path(image)
 
@@ -288,7 +274,7 @@ class SepalMap(ipl.Map):
         if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
-        # set the colors as independant colors
+        # set the colors as independent colors
         if isinstance(colormap, str):
             cmap = plt.get_cmap(name=colormap)
         color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
@@ -321,7 +307,12 @@ class SepalMap(ipl.Map):
 
         # create the layer
         layer = get_leaflet_tile_layer(
-            client, style=style, name=layer_name, opacity=opacity
+            client,
+            style=style,
+            name=layer_name,
+            opacity=opacity,
+            max_zoom=20,
+            max_native_zoom=20,
         )
         self.add_layer(layer, key=key)
 
@@ -381,7 +372,6 @@ class SepalMap(ipl.Map):
         alpha = 1
 
         if colors is not None:
-
             # transform colors in hex colors
             hexcodes = [su.to_colors(c) for c in colors]
 
@@ -397,7 +387,6 @@ class SepalMap(ipl.Map):
                 norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         elif cmap is not None:
-
             plot_color = plt.get_cmap(cmap)
             norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
@@ -454,7 +443,7 @@ class SepalMap(ipl.Map):
 
         Copy the addLayer method from geemap to read and guess the vizaulization
         parameters the same way as in SEPAL recipes.
-        If the vizparams are empty and vizualization metadata exist, SepalMap will use
+        If the vizparams are empty and visualization metadata exist, SepalMap will use
         them automatically.
 
         Args:
@@ -492,7 +481,6 @@ class SepalMap(ipl.Map):
 
         # apply it to vis_params
         if not vis_params and viz:
-
             # find the viz params in the list
             try:
                 vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
@@ -504,7 +492,6 @@ class SepalMap(ipl.Map):
             # invert the bands if needed
             inverted = vis_params.pop("inverted", None)
             if inverted is not None:
-
                 # get the index of the bands that need to be inverted
                 index_list = [i for i, v in enumerate(inverted) if v is True]
 
@@ -520,7 +507,6 @@ class SepalMap(ipl.Map):
             # instead of remapping or using sldStyle
             # to preserve the class values in the image, for inspection
             if vis_params["type"] == "categorical":
-
                 colors = vis_params["palette"]
                 values = vis_params["values"]
                 min_ = min(values)
@@ -540,7 +526,6 @@ class SepalMap(ipl.Map):
 
             # specific case of hsv
             elif vis_params["type"] == "hsv":
-
                 # set to_min to 0 and to_max to 1
                 # in the original expression:
                 # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
@@ -556,7 +541,6 @@ class SepalMap(ipl.Map):
                 # create the rgb bands
                 asset = ee_object
                 for i, band in enumerate(vis_params["bands"]):
-
                     # adapt the expression
                     exp = expression.format(
                         from_min=mins[i], from_max=maxs[i], band=band
@@ -636,7 +620,7 @@ class SepalMap(ipl.Map):
 
     @staticmethod
     def get_basemap_list() -> List[str]:
-        """Get the complete list of avaialble basemaps.
+        """Get the complete list of available basemaps.
 
         This function is intending for development use
         It give the list of all the available basemaps for SepalMap object.
@@ -654,7 +638,7 @@ class SepalMap(ipl.Map):
             image: the image to analyse
 
         Returns:
-            The dictionnary of the find properties
+            The dictionary of the find properties
         """
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
@@ -678,9 +662,8 @@ class SepalMap(ipl.Map):
         }
 
         # decompose each property by its number
-        # and gather the properties in a sub dictionnary
+        # and gather the properties in a sub dictionary
         for p, val in raw_prop_list.items():
-
             # extract the number and create the sub-dict
             _, number, name = p.split("_")
             props.setdefault(number, {})
@@ -732,7 +715,7 @@ class SepalMap(ipl.Map):
         """
         layer = self.find_layer(key, base, none_ok)
 
-        # the error is catched in find_layer
+        # the error is caught in find_layer
         if layer is not None:
             super().remove(layer)
 
@@ -744,7 +727,7 @@ class SepalMap(ipl.Map):
         If base is set to True, the basemaps are removed as well.
 
         Args:
-            base: wether or not the basemaps should be removed, default to False
+            base: whether or not the basemaps should be removed, default to False
         """
         # filter out the basemaps if base == False
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
@@ -774,7 +757,6 @@ class SepalMap(ipl.Map):
 
         # apply default coloring for geoJson
         if isinstance(layer, ipl.GeoJSON):
-
             # define the default values
             default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())[
                 "layer"

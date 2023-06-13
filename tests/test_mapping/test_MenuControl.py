@@ -131,11 +131,11 @@ def test_activate() -> None:
     # use a variable that point to the btn style
     btn = tile_control.menu.v_slots[0]["children"]
 
-    # open the controle
+    # open the controls
     tile_control.menu.v_model = True
     assert btn.style_ == "background: gray;"
 
-    # close the controle
+    # close the controls
     tile_control.menu.v_model = False
     assert btn.style_ == f"background: {color.bg};"
 

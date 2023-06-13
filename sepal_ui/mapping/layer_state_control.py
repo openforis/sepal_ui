@@ -70,7 +70,7 @@ class LayerStateControl(WidgetControl):
 
         # remove a layer
         elif len(change["new"]) < len(change["old"]):
-            # the test is splitted as not all the layers have a loading trait
+            # the test is split as not all the layers have a loading trait
             if hasattr(modified_layer, "loading") is True:
                 if modified_layer.loading is True:
                     self.nb_loading_layer += -1

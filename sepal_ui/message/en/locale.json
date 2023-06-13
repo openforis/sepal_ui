@@ -68,7 +68,7 @@
       "no_inputs": "Please provide fully qualified inputs before validating your AOI",
       "no_asset": "Please select an asset.",
       "no_value": "Please select a value.",
-      "uncomplete": "All fields are required, please fill them.",
+      "incomplete": "All fields are required, please fill them.",
       "no_file": "Please select a file.",
       "duplicate_key": "A key is duplicated in your selection. Please select different columns for your latitude, longitude and Id parameters",
       "no_draw": "Please draw a shape in the map",
@@ -207,9 +207,9 @@
   },
   "disclaimer": {
     "p": {
-      "0": "FAO declines all responsibility for errors or deficiencies in the database or software or in the documentation accompanying it for program maintenance and upgrading as well as for any damage that may arise from them.",
-      "1": "FAO also declines any responsibility for updating the data and assumes no responsibility for errors and omissions in the data provided.",
-      "2": "Users are, however, kindly asked to report any errors or deficiencies in this product to FAO."
+      "0": "Developers declines all responsibility for errors or deficiencies in the database or software or in the documentation accompanying it for program maintenance and upgrading as well as for any damage that may arise from them.",
+      "1": "Developers also declines any responsibility for updating the data and assumes no responsibility for errors and omissions in the data provided.",
+      "2": "Users are, however, kindly asked to report any errors or deficiencies in this product to the Developers."
     }
   }
 }

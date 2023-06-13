@@ -31,7 +31,7 @@ class Tile(v.Layout, SepalWidget):
     "the process btn"
 
     alert: Optional[v.Alert] = None
-    "the alert to display process informations to the end user"
+    "the alert to display process information to the end user"
 
     title: Optional[v.Html] = None
     "the title of the Tile"
@@ -54,7 +54,7 @@ class Tile(v.Layout, SepalWidget):
             title: the title of the Tile
             inputs: the list of widget to display inside the tile
             btn: the process btn
-            alert: the alert to display process informations to the end user
+            alert: the alert to display process information to the end user
             kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
         """
         self.btn = btn
@@ -207,7 +207,6 @@ class TileDisclaimer(Tile):
 
         # add the logo (href, src, alt)
         logo_list = [
-            ("http://www.fao.org/home/en/", "fao.png", "fao_logo"),
             ("http://www.openforis.org", "open-foris.png", "openforis_logo"),
             ("https://sepal.io", "sepal.png", "sepal_logo"),
         ]
