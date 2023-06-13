@@ -144,12 +144,14 @@ def test_add_raster(rgb: Path, byte: Path) -> None:
     m.add_raster(rgb, layer_name="rgb")
     layer = m.find_layer("rgb")
     assert layer.name == "rgb"
+    assert layer.key == "rgb"
     assert type(layer).__name__ == "BoundTileLayer"
 
     # add a byte layer
     m.add_raster(byte, layer_name="byte")
     layer = m.find_layer("byte")
     assert layer.name == "byte"
+    assert layer.key == "byte"
 
     return
 
@@ -385,7 +387,7 @@ def test_add_layer() -> None:
     }
 
     # Arrange without style and requesting default hover.
-    geojson = GeoJSON(data=polygon)
+    geojson = GeoJSON(data=polygon, name="geojson data")
 
     # Act
     m.add_layer(geojson, hover=True)
@@ -398,6 +400,8 @@ def test_add_layer() -> None:
 
     assert all([new_layer.style[k] == v for k, v in layer_style.items()])
     assert all([new_layer.hover_style[k] == v for k, v in hover_style.items()])
+    assert new_layer.name == "geojson data"
+    assert new_layer.key == "geojson_data"
 
     # Arrange with style
     layer_style = {"color": "blue"}
@@ -473,8 +477,12 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     with pytest.raises(ValueError):
         res = m.find_layer(50)
 
-    # search by layer
+    # search by layer name
     res = m.find_layer(m.layers[3])
+    assert res.name == "NDWI harmonics"
+
+    # search by layer key
+    res = m.find_layer(m.layers[3].key)
     assert res.name == "NDWI harmonics"
 
     # search including the basemap

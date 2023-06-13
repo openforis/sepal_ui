@@ -244,6 +244,7 @@ class SepalMap(ipl.Map):
         colormap: Union[str, mpc.Colormap] = "inferno",
         opacity: float = 1.0,
         fit_bounds: bool = True,
+        key: str = "",
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
 
@@ -255,6 +256,7 @@ class SepalMap(ipl.Map):
             layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
             colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
             opacity: the opacity of the layer, default 1.0.
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
             fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
 
         Returns:
@@ -312,7 +314,7 @@ class SepalMap(ipl.Map):
             max_zoom=20,
             max_native_zoom=20,
         )
-        self.add_layer(layer)
+        self.add_layer(layer, key=key)
 
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
@@ -435,6 +437,7 @@ class SepalMap(ipl.Map):
         shown: bool = True,
         opacity: float = 1.0,
         viz_name: str = "",
+        key: str = "",
     ) -> None:
         """Customized add_layer method designed for EE objects.
 
@@ -449,7 +452,8 @@ class SepalMap(ipl.Map):
             name: the name of the layer
             shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
             opacity: the opcity of the layer from 0 to 1, default to 1.
-            viz_name: the name of the visualization you want to use. default to the first one if existing
+            viz_name: the name of the vizaulization you want to use. default to the first one if existing
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
         """
         # check the type of the ee object and raise an error if it's not recognized
         if not isinstance(
@@ -610,7 +614,7 @@ class SepalMap(ipl.Map):
             max_zoom=24,
         )
 
-        self.add_layer(tile_layer)
+        self.add_layer(tile_layer, key=key)
 
         return
 
@@ -733,7 +737,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    def add_layer(self, layer: ipl.Layer, hover: bool = False) -> None:
+    def add_layer(self, layer: ipl.Layer, hover: bool = False, key: str = "") -> None:
         """Add layer and use a default style for the GeoJSON inputs.
 
         Remove existing layer if already on the map.
@@ -741,9 +745,13 @@ class SepalMap(ipl.Map):
         Args:
             layer: any layer type from ipyleaflet
             hover: whether to use the default hover style or not.
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
         """
+        # set up a unique key
+        layer.key = key if key else su.normalize_str(layer.name)
+
         # remove existing layer before addition
-        existing_layer = self.find_layer(layer.name, none_ok=True)
+        existing_layer = self.find_layer(layer.key, none_ok=True)
         not existing_layer or self.remove_layer(existing_layer)
 
         # apply default coloring for geoJson
@@ -798,7 +806,7 @@ class SepalMap(ipl.Map):
         """Search a layer by name or index.
 
         Args:
-            key: the layer name, index or directly the layer
+            key: the layer name, the layer key, the index or directly the layer
             base: either the basemaps should be included in the search or not. default to false
             none_ok: if True the function will not raise error if no layer is found. Default to False
 
@@ -809,7 +817,8 @@ class SepalMap(ipl.Map):
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
 
         if isinstance(key, str):
-            layer = next((lyr for lyr in layers if lyr.name == key), None)
+            layer = next((lyr for lyr in layers if lyr.key == key), None)
+            layer = layer or next((lyr for lyr in layers if lyr.name == key), None)
         elif isinstance(key, int):
             size = len(layers)
             layer = layers[key] if -size <= key < size else None
