@@ -85,19 +85,19 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 @sd.need_ee
 def get_assets(
-    folder: Union[str, Path] = "", asset_list: Optional[List[str]] = None
+    folder: Union[str, Path] = "", _asset_list: Optional[List[str]] = None
 ) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
         folder: the initial GEE folder
-        asset_list: extra element that you would like to add to the asset list
+        _asset_list: private list of higher assets used during recursion.
 
     Returns:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
     # set the folder the an the init list
-    asset_list = asset_list or []
+    asset_list = _asset_list or []
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
     # loop in the assets
@@ -141,7 +141,7 @@ def delete_assets(asset_id: str) -> None:
     """Delete the selected asset and all its content.
 
     Args:
-        asset_id: the Id of the asset
+        asset_id: the Id of the asset or a folder
     """
     # identify the type of asset
     asset_info = ee.data.getAsset(asset_id)
