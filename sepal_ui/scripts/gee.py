@@ -144,13 +144,13 @@ def delete_assets(asset_id: str, dry_run: bool = True) -> None:
 
     .. warning::
 
-        If this method is used on the root directory you will loose all your data, it's highly recomended to use a dry run first and carefully review the destroyed files.
+        If this method is used on the root directory you will loose all your data, it's highly recommended to use a dry run first and carefully review the destroyed files.
 
     Args:
         asset_id: the Id of the asset or a folder
-        dry_run: wether or not a dry run should be launched. dry run will only display the files name without deleting them.
+        dry_run: whether or not a dry run should be launched. dry run will only display the files name without deleting them.
     """
-    # define the action to execue for each asset based on the dry run mode
+    # define the action to execute for each asset based on the dry run mode
     def delete(id: str) -> None:
         if dry_run is True:
             print(f"to be deleted: {id}")
