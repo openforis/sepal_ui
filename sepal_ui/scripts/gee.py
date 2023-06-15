@@ -137,20 +137,33 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
 
 
 @sd.need_ee
-def delete_assets(asset_id: str) -> None:
+def delete_assets(asset_id: str, dry_run: bool = True) -> None:
     """Delete the selected asset and all its content.
+
+    This method will delete all the files and folders existing in an asset folder. By default a dry run will be launched and if you are satisfyed with the displayed names, change the ``dry_run`` variable to ``False``. No other warnng will be displayed.
+
+    .. warning::
+
+        If this method is used on the root directory you will loose all your data, it's highly recomended to use a dry run first and carefully review the destroyed files.
 
     Args:
         asset_id: the Id of the asset or a folder
+        dry_run: wether or not a dry run should be launched. dry run will only display the files name without deleting them.
     """
+    # define the action to execue for each asset based on the dry run mode
+    def delete(id: str) -> None:
+        if dry_run is True:
+            print(f"to be deleted: {id}")
+        else:
+            print(f"deleting: {id}")
+            ee.data.deleteAsset(id)
+
+        return
+
     # identify the type of asset
     asset_info = ee.data.getAsset(asset_id)
 
-    # if it's a single file then simply delete it
-    if asset_info["type"] in ["IMAGE", "TABLE"]:
-        ee.data.deleteAsset(asset_id)
-
-    elif asset_info["type"] == "FOLDER":
+    if asset_info["type"] == "FOLDER":
 
         # get all the assets
         asset_list = get_assets(folder=asset_id)
@@ -167,11 +180,9 @@ def delete_assets(asset_id: str) -> None:
         assets_ordered = dict(sorted(assets_ordered.items(), reverse=True))
         for lvl in assets_ordered:
             for i in assets_ordered[lvl]:
-                print(f"deleting: {i['name']}")
-                ee.data.deleteAsset(i["name"])
+                delete(i["name"])
 
-        # delete the initial folder
-        print(f"deleting: {asset_id}")
-        ee.data.deleteAsset(asset_id)
+    # delete the initial folder/asset
+    delete(asset_id)
 
     return

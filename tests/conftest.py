@@ -133,7 +133,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     yield gee_dir
 
     # flush the directory and it's content
-    gee.delete_assets(str(gee_dir))
+    gee.delete_assets(str(gee_dir), False)
 
     return
 
