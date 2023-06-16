@@ -8,6 +8,7 @@ from urllib.request import urlretrieve
 
 import ee
 import pytest
+from ee.ee_exception import EEException
 from ipyleaflet import GeoJSON
 
 from sepal_ui import mapping as sm
@@ -200,7 +201,7 @@ def test_add_ee_layer_exceptions() -> None:
         )
     )
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(EEException):
         map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
 
     return
