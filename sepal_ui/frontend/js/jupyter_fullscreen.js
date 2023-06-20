@@ -1,4 +1,4 @@
-// set a selected map to fullscreen
+/* set a selected map to fullscreen */
 var i = 0;
 const wait_unitl_element_appear = setInterval(() => {
   var element = document.querySelector(".%s .leaflet-container");
