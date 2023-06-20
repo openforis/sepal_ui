@@ -2,7 +2,7 @@
 
 import time
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
 
 import ee
 import ipyvuetify as v
@@ -84,29 +84,30 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 
 @sd.need_ee
-def get_assets(
-    folder: Union[str, Path] = "", _asset_list: Optional[List[str]] = None
-) -> List[dict]:
+def get_assets(folder: Union[str, Path] = "") -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
         folder: the initial GEE folder
-        _asset_list: private list of higher assets used during recursion.
 
     Returns:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
-    # set the folder the an the init list
-    asset_list = _asset_list or []
+    # set the folder and init the list
+    asset_list = []
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
-    # loop in the assets
-    for asset in ee.data.listAssets({"parent": folder})["assets"]:
-        asset_list += [asset]
-        if asset["type"] == "FOLDER":
-            asset_list = get_assets(asset["name"], asset_list)
+    def _recursive_get(folder, asset_list):
 
-    return asset_list
+        # loop in the assets
+        for asset in ee.data.listAssets({"parent": folder})["assets"]:
+            asset_list += [asset]
+            if asset["type"] == "FOLDER":
+                asset_list = _recursive_get(asset["name"], asset_list)
+
+        return asset_list
+
+    return _recursive_get(folder, asset_list)
 
 
 @sd.need_ee
