@@ -43,7 +43,7 @@ class MethodSelect(sw.Select):
         Args:
             methods: a list of methods from the available list (ADMIN0, ADMIN1, ADMIN2, SHAPE, DRAW, POINTS, ASSET)
             map_: link the aoi_view to a custom SepalMap to display the output, default to None
-            gee: wether to bind to ee or not
+            gee: whether to bind to ee or not
         """
         # create the method list
         if methods == "ALL":
@@ -98,7 +98,7 @@ class MethodSelect(sw.Select):
 class AdminField(sw.Select):
 
     gee: bool = True
-    "wether or not to depend on earthengine"
+    "whether or not to depend on earthengine"
 
     level: int = -1
     "The admin level of the current field"
@@ -116,7 +116,7 @@ class AdminField(sw.Select):
         Args:
             level: The administrative level of the field
             parent: the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
-            ee: wether to use ee or not (default to True)
+            ee: whether to use ee or not (default to True)
         """
         # save ee state
         self.gee = gee
@@ -202,10 +202,10 @@ class AoiView(sw.Card):
     "The model to create the AOI from the selected parameters"
 
     map_style: Optional[dict] = None
-    "The predifined style of the aoi on the map"
+    "The predefined style of the aoi on the map"
 
     # ##########################################################################
-    # ###                            the embeded widgets                     ###
+    # ###                           the embedded widgets                     ###
     # ##########################################################################
 
     map_: Optional[sm.SepalMap] = None
@@ -268,13 +268,13 @@ class AoiView(sw.Card):
         Args:
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
             map\_: link the aoi_view to a custom SepalMap to display the output, default to None
-            gee: wether to bind to ee or not
+            gee: whether to bind to ee or not
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
-            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
-        # set ee dependencie
+        # set ee dependency
         self.gee = gee
         self.folder = folder
         if gee is True:
@@ -324,7 +324,7 @@ class AoiView(sw.Card):
             .bind(self.w_method, "method")
         )
 
-        # defint the asset select separately. If no gee is set up we don't want any
+        # define the asset select separately. If no gee is set up we don't want any
         # gee based widget to be requested. If it's the case, application that does not support GEE
         # will crash if the user didn't authenticate
         if self.gee:
@@ -355,15 +355,15 @@ class AoiView(sw.Card):
 
         # js events
         self.w_method.observe(self._activate, "v_model")  # activate widgets
-        self.btn.on_event("click", self._update_aoi)  # load the informations
+        self.btn.on_event("click", self._update_aoi)  # load the information
 
-        # reset te aoi_model
+        # reset the aoi_model
         self.model.clear_attributes()
 
     @sd.loading_button(debug=True)
     def _update_aoi(self, *args) -> Self:
         """Load the object in the model & update the map (if possible)."""
-        # read the information from the geojson datas
+        # read the information from the geojson data
         if self.map_:
             self.model.geo_json = self.aoi_dc.to_json()
 
@@ -401,10 +401,10 @@ class AoiView(sw.Card):
         # clear and hide the alert
         self.alert.reset()
 
-        # hide the widget so that the user doens't see status changes
+        # hide the widget so that the user doesn't see status changes
         [w.hide() for w in self.components.values()]
 
-        # clear the inputs in a second step as reseting a FileInput can be long
+        # clear the inputs in a second step as resetting a FileInput can be long
         [w.reset() for w in self.components.values()]
 
         # deactivate or activate the dc

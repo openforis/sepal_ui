@@ -1,7 +1,7 @@
 Example
 =======
 
-In this section, an example of each of our component will be given. You should refer to the **Content** documentation to get an exaustive description of all our widgets and methods.
+In this section, an example of each of our component will be given. You should refer to the **Content** documentation to get an exhaustive description of all our widgets and methods.
 
 .. warning::
 

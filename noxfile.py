@@ -17,7 +17,7 @@ def lint(session):
 
 @nox.session(reuse_venv=True)
 def test(session):
-    """Run all the test using the environment varialbe of the running machine."""
+    """Run all the test using the environment variable of the running machine."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
     session.run("pytest", "--color=yes", "--cov", "--cov-report=html", *test_files)
@@ -42,7 +42,6 @@ def docs(session):
     session.install(".[doc]")
     # patch version in nox instead of pyproject to avoid blocking conda releases
     session.install("git+https://github.com/sphinx-doc/sphinx.git")
-    session.install("git+https://github.com/tantale/deprecated.git")
     session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/html", external=True)
     session.run(

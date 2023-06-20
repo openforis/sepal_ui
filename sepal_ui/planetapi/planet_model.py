@@ -107,7 +107,7 @@ class PlanetModel(Model):
         """Load the user subscriptions.
 
         Returns:
-            the dictionnary of user subscription or empty list if nothing found
+            the dictionary of user subscription or empty list if nothing found
         """
         req = self.session.request("GET", self.SUBS_URL)
 
@@ -226,7 +226,7 @@ class PlanetModel(Model):
             quad_id: A quad id (typically <xcoord>-<ycoord>)
 
         Returns:
-            The quad inforation as a dict.
+            The quad information as a dict.
 
         Note:
             The output format is the following:
@@ -255,7 +255,7 @@ class PlanetModel(Model):
         """Get the status of a specific subscription.
 
         Args:
-            d: dictionnary of subscription object
+            d: dictionary of subscription object
 
         Returns:
             the (sub.name: status) pairs

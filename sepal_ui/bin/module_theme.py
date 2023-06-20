@@ -35,7 +35,7 @@ def check_theme(theme: str) -> bool:
 
 def main() -> None:
     """Launch the process."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     # welcome the user

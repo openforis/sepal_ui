@@ -28,7 +28,7 @@ JS_DIR: Path = Path(__file__).parent / "js"
 "The path to the js style folder"
 
 ################################################################################
-# define all the colors taht we want to use in the theme
+# define all the colors that we want to use in the theme
 #
 
 DARK_THEME: Dict[str, str] = {
@@ -100,7 +100,7 @@ class SepalColor(HasTraits, SimpleNamespace):
         """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
 
         Args:
-            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimetal)
+            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimental)
         """
         # set vuetify theme
         v.theme.dark = self._dark_theme
@@ -115,7 +115,7 @@ class SepalColor(HasTraits, SimpleNamespace):
         self.kwargs = new_colors or self.kwargs
 
         # Even if the theme.themes.dark_theme trait could trigger the change on all elms
-        # we have to replace the default values everytime:
+        # we have to replace the default values every time:
         theme = getattr(v.theme.themes, self.theme_name)
 
         # TODO: Would be awesome to find a way to create traits for the new colors and

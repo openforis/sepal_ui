@@ -12,14 +12,14 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
-requires-python = ">=3.6.9"
+requires-python = ">=3.8"
 dependencies = [
     # building widgets
+    "ipykernel",
     "ipyvuetify",
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
@@ -36,10 +36,11 @@ dependencies = [
     "jupyter-server-proxy", # required for localtileserver
     "planet>=2",
     "pyarrow",
+    "localtileserver>=0.7.0", # first pure rio version
     # miscellaneous
     "python-box",
     "tqdm",
-    "Deprecated",
+    "Deprecated>=1.2.14",
     "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
@@ -154,7 +155,7 @@ docstring-quotes = "double"
 convention = "google"
 
 [tool.ruff.per-file-ignores]
-"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal strcuture
+"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal structure
 "setup.py" = ["D100"] # nothing to see there
 
 [tool.coverage.run]
@@ -171,3 +172,6 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 
 [tool.licensecheck]
 using = "PEP631:test;dev;doc"
+
+[tool.codespell]
+skip = 'CHANGELOG.md,sepal_ui/message/**/*.json'

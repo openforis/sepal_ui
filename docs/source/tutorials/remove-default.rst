@@ -58,7 +58,7 @@ going from :
             }
         },
         "default_process": {
-            "small_slider": "{} is not big enought, please provide a value > to 50",
+            "small_slider": "{} is not big enough, please provide a value > to 50",
             "end_computation": "Computation complete",
             "hist_title": "Histogram",
             "treecover2000": "Treecover 2000",

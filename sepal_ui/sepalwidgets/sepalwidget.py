@@ -1,6 +1,6 @@
 """Custom sepalwidgets to add extra members to normal ``IpyvuetfiWidget``.
 
-Gather the customized ``ipyvuetifyWidgets`` used toadd extra members to the exisiting one.
+Gather the customized ``ipyvuetifyWidgets`` used toadd extra members to the existing one.
 All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
@@ -77,7 +77,7 @@ class SepalWidget(v.VuetifyWidget):
         return
 
     def toggle_viz(self) -> Self:
-        """Toogle the visibility of the widget."""
+        """Toggle the visibility of the widget."""
         self.viz = not self.viz
 
         return self
@@ -105,7 +105,7 @@ class SepalWidget(v.VuetifyWidget):
     def reset(self) -> Self:
         """Clear the widget v_model.
 
-        Need to be extented in custom widgets to fit the structure of the actual input.
+        Need to be extended in custom widgets to fit the structure of the actual input.
         """
         self.v_model = None
 
@@ -140,7 +140,7 @@ class SepalWidget(v.VuetifyWidget):
             id\_ (str, optional): attribute id to compare with.
 
         Returns:
-            list with all mathing elements if there are more than one, otherwise will return the matching element.
+            list with all matching elements if there are more than one, otherwise will return the matching element.
 
         """
         # id_ was the previous variable it should continue working in this implementation

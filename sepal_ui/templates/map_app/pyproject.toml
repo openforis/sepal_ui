@@ -20,4 +20,7 @@ docstring-quotes = "double"
 convention = "google"
 
 [tool.ruff.per-file-ignores]
-"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal strcuture
+"*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal structure
+
+[tool.codespell]
+skip = 'component/message/**/*.json'

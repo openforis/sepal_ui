@@ -135,7 +135,7 @@ class LocaleSelect(v.Menu, SepalWidget):
             locales: list of the locales to display
 
         Returns:
-            the list of contry widget to display in the app
+            the list of country widget to display in the app
         """
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
@@ -170,7 +170,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         ]
         self.btn.color = "info"
 
-        # change the paramater file
+        # change the parameter file
         su.set_config("locale", loc.code)
 
         return
@@ -222,7 +222,7 @@ class ThemeSelect(v.Btn, SepalWidget):
         self.color = "info"
         self.children[0].children = [self.THEME_ICONS[self.theme]]
 
-        # change the paramater file
+        # change the parameter file
         su.set_config("theme", self.theme)
 
         # trigger other events by changing v_model
@@ -402,7 +402,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         return
 
     def display_tile(self, tiles: List[v.Card]) -> Self:
-        """Display the apropriate tiles when the item is clicked.
+        """Display the appropriate tiles when the item is clicked.
 
         The tile to display will be all tile in the list with the mount_id as the current object.
 
@@ -571,7 +571,7 @@ class App(v.App, SepalWidget):
     ) -> None:
         """Custom App display with the tiles created by the user using the sepal color framework.
 
-        Display false appBar if not filled. Navdrawer is fully optionnal.
+        Display false appBar if not filled. Navdrawer is fully optional.
         The drawerItem will be linked to the app tile and they will be able to control their display
         If the navdrawer exist, it will be linked to the appbar togglebtn.
 
@@ -580,7 +580,7 @@ class App(v.App, SepalWidget):
             appBar: the appBar of the application
             footer: the footer of the application
             navDrawer: the navdrawer of the application
-            translator: the translator of the app to display language informations
+            translator: the translator of the app to display language information
             kwargs (optional) any parameter from a v.App. If set, 'children' will be overwritten.
         """
         self.tiles = tiles
@@ -674,9 +674,9 @@ class App(v.App, SepalWidget):
 
         Args:
             msg: Message to display in application banner. default to nothing
-            type\_: Used to display an appropiate banner color. fallback to "info".
+            type\_: Used to display an appropriate banner color. fallback to "info".
             id\_: unique banner identificator.
-            persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+            persistent: Whether to close automatically based on the length of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
             \*\*kwargs: any arguments of the sw.Banner constructor. if set, 'children' will be overwritten.
         """
         # the Banner was previously an Alert. for compatibility we accept the type parameter

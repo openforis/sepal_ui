@@ -103,7 +103,7 @@ class Alert(v.Alert, SepalWidget):
 
         .. note::
 
-            set the ``total`` argumentent of tqdm to use differnet values than [0, 1]
+            set the ``total`` argumentent of tqdm to use different values than [0, 1]
 
         Args:
             progress: the progress status in float
@@ -328,9 +328,9 @@ class Banner(v.Snackbar, SepalWidget):
 
         Args:
             msg: Message to display in application banner. default to nothing
-            type\_: Used to display an appropiate banner color. fallback to "info".
+            type\_: Used to display an appropriate banner color. fallback to "info".
             id_: unique banner identificator.
-            persistent: Whether to close automatically based on the lenght of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
+            persistent: Whether to close automatically based on the length of message (False) or make it indefinitely open (True). Overridden if timeout duration is set.
             kwargs (optional): any parameter from a v.Alert. If set, 'vertical' and 'top' will be overwritten.
         """
         # compute the type and default to "info" if it's not existing
@@ -365,7 +365,7 @@ class Banner(v.Snackbar, SepalWidget):
         return
 
     def get_timeout(self, text: str) -> int:
-        """Calculate timeout in miliseconds to read the message.
+        """Calculate timeout in milliseconds to read the message.
 
         Args:
             text: the text displayed in the banner to adapt the duration of the timeout

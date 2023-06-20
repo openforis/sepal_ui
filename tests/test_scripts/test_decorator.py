@@ -13,7 +13,7 @@ from sepal_ui.scripts.warning import SepalWarning
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_init_ee() -> None:
-    """Check that ee can bi initialzed from sepal_ui."""
+    """Check that ee can be initialized from sepal_ui."""
     # check that no error is raised
     sd.init_ee()
 

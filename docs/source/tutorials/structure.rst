@@ -111,7 +111,7 @@ Final ui
 * :code:`no_ui.ipynb`
 * :code:`ui.ipynb`
 
-Thes files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
+These files are gathering all the partial ui to create a fully functional app. The :code:`ui.ipynb` file is designed to be display using voila when the :code:`no_ui.ipynb` can be launched as a simple Python Notebook.
 More information in :doc:`./sepalize` and :doc:`./create_asset`.
 
 Component
