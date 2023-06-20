@@ -191,7 +191,6 @@ def test_add_ee_layer_exceptions() -> None:
         )
     )
 
-
     with pytest.raises(EEException):
         map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
 
