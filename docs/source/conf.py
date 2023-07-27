@@ -121,7 +121,7 @@ html_theme_options = {
 html_context = {
     "github_user": "12rambau",
     "github_repo": "sepal_ui",
-    "github_version": "master",
+    "github_version": "main",
     "doc_path": "docs/source",
 }
 
