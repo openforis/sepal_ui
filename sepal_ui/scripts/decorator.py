@@ -13,7 +13,7 @@ import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Callable, List, Union
+from typing import Any, Callable, List, Optional, Union
 
 import ee
 import httplib2
@@ -60,14 +60,14 @@ def init_ee() -> None:
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
+def catch_errors(alert: Optional[v.Alert] = None, debug: bool = False) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
 
     If debug is True then the error is raised anyway.
 
     Args:
-        alert (sw.Alert): Alert to display errors
-        debug (bool): Whether to raise the error or not, default to false
+        alert: Alert to display errors
+        debug: Whether to raise the error or not, default to false
 
     Returns:
         The return statement of the decorated method
@@ -75,12 +75,18 @@ def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
 
     def decorator_alert_error(func):
         @wraps(func)
-        def wrapper_alert_error(*args, **kwargs):
+        def wrapper_alert_error(self, *args, **kwargs):
+
+            # Change name of variable to assign it again in this scope
+            alert_ = self.alert if not alert else alert
+            alert_.reset()
+
+            # try to execute the method
             value = None
             try:
-                value = func(*args, **kwargs)
+                value = func(self, *args, **kwargs)
             except Exception as e:
-                alert.add_msg(f"{e}", type_="error")
+                alert_.add_msg(f"{e}", type_="error")
                 if debug:
                     raise e
             return value

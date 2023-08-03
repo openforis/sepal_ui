@@ -22,22 +22,38 @@ def test_init_ee() -> None:
 
 def test_catch_errors() -> None:
     """Check the catch error decorator."""
+    # create an external alert to test the wiring
+    alert = sw.Alert()
+
     # create a fake object that uses the decorator
     class Obj:
         def __init__(self):
             self.alert = sw.Alert()
             self.btn = sw.Btn()
 
-            self.func1 = sd.catch_errors(alert=self.alert)(self.func)
-            self.func2 = sd.catch_errors(alert=self.alert, debug=True)(self.func)
+        @sd.catch_errors()
+        def func0(self, *args):
+            return 1 / 0
 
-        def func(self, *args):
+        @sd.catch_errors(alert=alert)
+        def func1(self, *args):
+            return 1 / 0
+
+        @sd.catch_errors(debug=True)
+        def func2(self, *args):
             return 1 / 0
 
     obj = Obj()
 
-    obj.func1()
+    # should return an alert error in the the self alert widget
+    obj.func0()
     assert obj.alert.type == "error"
+
+    # should return an alert in the external alert widget
+    obj.func1()
+    assert alert.type == "error"
+
+    # should raise an error
     with pytest.raises(Exception):
         obj.func2()
 
