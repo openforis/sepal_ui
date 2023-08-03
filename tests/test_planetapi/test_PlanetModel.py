@@ -1,12 +1,11 @@
 """Test the planet PlanetModel model."""
 
 import os
-from typing import Union
+from typing import Any, Union
 
 import planet
 import pytest
 from pytest import FixtureRequest
-from typing_extensions import Any
 
 from sepal_ui.planetapi import PlanetModel
 
