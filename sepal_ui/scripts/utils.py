@@ -114,7 +114,7 @@ def get_file_size(filename: Union[str, Path]) -> str:
     file_size = Path(filename).stat().st_size
 
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(file_size, 1024))) if size_name > 0 else 0
+    i = int(math.floor(math.log(file_size, 1024))) if file_size > 0 else 0
     s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
