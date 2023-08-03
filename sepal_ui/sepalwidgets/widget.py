@@ -11,7 +11,7 @@ Example:
 """
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import ipyvuetify as v
 import traitlets as t
@@ -124,7 +124,7 @@ class StateIcon(Tooltip):
 
     def __init__(
         self,
-        model: Union[None, Model] = None,
+        model: Optional[Model] = None,
         model_trait: str = "",
         states: dict = {},
         **kwargs,

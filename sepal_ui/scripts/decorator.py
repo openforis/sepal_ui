@@ -13,7 +13,7 @@ import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional
 
 import ee
 import httplib2
@@ -125,8 +125,8 @@ def need_ee(func: Callable) -> Any:
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
-    alert: Union[v.Alert, None] = None,
-    button: Union[v.Btn, None] = None,
+    alert: Optional[v.Alert] = None,
+    button: Optional[v.Btn] = None,
     debug: bool = False,
 ) -> Any:
     """Decorator to execute try/except sentence and toggle loading button object.

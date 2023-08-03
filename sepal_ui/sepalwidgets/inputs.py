@@ -220,7 +220,7 @@ class FileInput(v.Flex, SepalWidget):
         extensions: List[str] = [],
         folder: Union[str, Path] = Path.home(),
         label: str = ms.widgets.fileinput.label,
-        v_model: Union[str, None] = "",
+        v_model: str = "",
         clearable: bool = False,
         root: Union[str, Path] = "",
         **kwargs,
