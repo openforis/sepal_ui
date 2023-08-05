@@ -1,0 +1,6 @@
+{
+  "decorator": {
+    "no_alert": "You should provide the `alert` argument as parent does not have one",
+    "no_button": "You should provide the `button` argument as parent does not have one"
+  }
+}
