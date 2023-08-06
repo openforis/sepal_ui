@@ -92,7 +92,7 @@ def test_get_file_size() -> None:
         stat.return_value.st_size = 0
 
         txt = su.get_file_size("random")
-        assert txt == "0B"
+        assert txt == "0.0 B"
 
     # mock every pow of 1024 to YB
     for i in range(9):
