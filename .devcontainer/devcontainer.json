@@ -1,5 +1,5 @@
 {
-	"name": "Python 3",
-	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
-	"postCreateCommand": "./.devcontainer/postCreateCommand.sh"
+  "name": "Python 3",
+  "image": "mcr.microsoft.com/devcontainers/python",
+  "postCreateCommand": "python -m pip install nox pre-commit && pre-commit install"
 }
