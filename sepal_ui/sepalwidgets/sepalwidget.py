@@ -12,13 +12,13 @@ Example:
 """
 
 import warnings
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import versionadded
 from traitlets import observe
-from typing_extensions import Self, Type
+from typing_extensions import Self
 
 __all__ = ["SepalWidget", "Tooltip"]
 

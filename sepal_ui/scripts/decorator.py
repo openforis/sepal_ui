@@ -13,12 +13,14 @@ import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Callable, List, Union
+from typing import Any, Callable, List, Optional
 
 import ee
 import httplib2
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
+
+from sepal_ui.message import ms
 
 # from sepal_ui.scripts.utils import init_ee
 from sepal_ui.scripts.warning import SepalWarning
@@ -60,14 +62,14 @@ def init_ee() -> None:
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
+def catch_errors(alert: Optional[v.Alert] = None, debug: bool = False) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
 
     If debug is True then the error is raised anyway.
 
     Args:
-        alert (sw.Alert): Alert to display errors
-        debug (bool): Whether to raise the error or not, default to false
+        alert: Alert to display errors
+        debug: Whether to raise the error or not, default to false
 
     Returns:
         The return statement of the decorated method
@@ -75,12 +77,20 @@ def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
 
     def decorator_alert_error(func):
         @wraps(func)
-        def wrapper_alert_error(*args, **kwargs):
+        def wrapper_alert_error(self, *args, **kwargs):
+
+            # Change name of variable to assign it again in this scope
+            # check if alert exist in the parent object if alert is not set manually
+            assert hasattr(self, "alert") or alert, ms.decorator.no_alert
+            alert_ = self.alert if not alert else alert
+            alert_.reset()
+
+            # try to execute the method
             value = None
             try:
-                value = func(*args, **kwargs)
+                value = func(self, *args, **kwargs)
             except Exception as e:
-                alert.add_msg(f"{e}", type_="error")
+                alert_.add_msg(f"{e}", type_="error")
                 if debug:
                     raise e
             return value
@@ -119,8 +129,8 @@ def need_ee(func: Callable) -> Any:
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
-    alert: Union[v.Alert, None] = None,
-    button: Union[v.Btn, None] = None,
+    alert: Optional[v.Alert] = None,
+    button: Optional[v.Btn] = None,
     debug: bool = False,
 ) -> Any:
     """Decorator to execute try/except sentence and toggle loading button object.
@@ -142,6 +152,9 @@ def loading_button(
 
             # set btn and alert
             # Change name of variable to assign it again in this scope
+            # check if they exist in the parent object if alert is not set manually
+            assert hasattr(self, "alert") or alert, ms.decorator.no_alert
+            assert hasattr(self, "btn") or button, ms.decorator.no_button
             button_ = self.btn if not button else button
             alert_ = self.alert if not alert else alert
 
@@ -186,7 +199,7 @@ def loading_button(
                         [custom_showwarning(w) for w in w_list]
 
             except Exception as e:
-                alert_.add_msg(f"{e}", "error")
+                alert_.add_msg(f"{e}", type_="error")
                 if debug:
                     button_.toggle_loading()  # Stop loading button if there is an error
                     raise e

@@ -14,7 +14,7 @@ Example:
 from datetime import datetime
 from itertools import cycle
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
 import ipyvuetify as v
 import pandas as pd
@@ -248,7 +248,7 @@ class AppBar(v.AppBar, SepalWidget):
     def __init__(
         self,
         title: str = "SEPAL module",
-        translator: Union[None, Translator] = None,
+        translator: Optional[Translator] = None,
         **kwargs,
     ) -> None:
         """Custom AppBar widget with the provided title using the sepal color framework.
@@ -316,7 +316,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon: str = "",
         card: str = "",
         href: str = "",
-        model: Union[Model, None] = None,
+        model: Optional[Model] = None,
         bind_var: str = "",
         **kwargs,
     ) -> None:

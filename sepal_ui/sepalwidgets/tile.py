@@ -41,8 +41,8 @@ class Tile(v.Layout, SepalWidget):
         id_: str,
         title: str,
         inputs: list = [""],
-        btn: Union[v.Btn, None] = None,
-        alert: Union[v.Alert, None] = None,
+        btn: Optional[v.Btn] = None,
+        alert: Optional[v.Alert] = None,
         **kwargs,
     ) -> None:
         """Custom Layout widget for the sepal UI framework.

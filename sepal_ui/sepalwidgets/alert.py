@@ -229,6 +229,7 @@ class Alert(v.Alert, SepalWidget):
         """Empty the messages and hide it."""
         self.children = [""]
         self.hide()
+        self.type = set_type("info")
 
         return self
 
