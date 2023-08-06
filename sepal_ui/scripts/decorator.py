@@ -199,7 +199,7 @@ def loading_button(
                         [custom_showwarning(w) for w in w_list]
 
             except Exception as e:
-                alert_.add_msg(f"{e}", "error")
+                alert_.add_msg(f"{e}", type_="error")
                 if debug:
                     button_.toggle_loading()  # Stop loading button if there is an error
                     raise e

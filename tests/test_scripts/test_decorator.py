@@ -99,8 +99,8 @@ def test_loading_button() -> None:
     obj.alert.reset()
     with pytest.raises(Exception):
         obj.fun2(obj.btn, None, None)
-    assert obj.btn.disabled is False
-    assert obj.alert.type == "error"
+        assert obj.btn.disabled is False
+        assert obj.alert.type == "error"
 
     # should only display the sepal warning
     obj.alert.reset()
@@ -114,13 +114,13 @@ def test_loading_button() -> None:
     obj.alert.reset()
     with warnings.catch_warnings(record=True) as w_list:
         obj.func4(obj.btn, None, None)
-    assert obj.btn.disabled is False
-    assert obj.alert.type == "warning"
-    assert "sepal" in obj.alert.children[1].children[0]
-    assert "toto" not in obj.alert.children[1].children[0]
-    msg_list = [w.message.args[0] for w in w_list]
-    assert any("sepal" in s for s in msg_list)
-    assert any("toto" in s for s in msg_list)
+        assert obj.btn.disabled is False
+        assert obj.alert.type == "warning"
+        assert "sepal" in obj.alert.children[1].children[0]
+        assert "toto" not in obj.alert.children[1].children[0]
+        msg_list = [w.message.args[0] for w in w_list]
+        assert any("sepal" in s for s in msg_list)
+        assert any("toto" in s for s in msg_list)
 
     return
 
