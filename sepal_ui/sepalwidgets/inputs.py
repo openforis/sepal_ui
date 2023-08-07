@@ -52,7 +52,6 @@ __all__ = [
     reason="Empty v_model will be treated as empty string: :code:`v_model=''`.",
 )
 class DatePicker(v.Layout, SepalWidget):
-
     menu: Optional[v.Menu] = None
     "the menu widget to display the datepicker"
 
@@ -178,7 +177,6 @@ class DatePicker(v.Layout, SepalWidget):
 
 
 class FileInput(v.Flex, SepalWidget):
-
     extensions: List[str] = []
     "list: the extensions list"
 
@@ -330,7 +328,6 @@ class FileInput(v.Flex, SepalWidget):
         # do nothing if nothing is set to avoids extremely long waiting
         # time when multiple fileInput are reset at the same time as in the aoiView
         if self.v_model is not None:
-
             # move to root
             self._on_file_select({"new": Path.home()})
 
@@ -369,7 +366,10 @@ class FileInput(v.Flex, SepalWidget):
 
         if new_value.is_dir():
             self.folder = new_value
-            self._change_folder()
+
+            # don't change folder if the folder is the parent of the root
+            if not self.folder == Path(self.root).parent:
+                self._change_folder()
 
         elif new_value.is_file():
             self.file = str(new_value)
@@ -410,7 +410,6 @@ class FileInput(v.Flex, SepalWidget):
         file_list = []
 
         for el in list_dir:
-
             if el.is_dir():
                 icon = self.ICON_STYLE[""]["icon"]
                 color = self.ICON_STYLE[""]["color"][v.theme.dark]
@@ -439,10 +438,7 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
         file_list = humansorted(file_list, key=lambda x: x.value)
-        folder_list.extend(file_list)
 
-        # add the parent item if root is set and is not reached yet
-        # if root is not set then we always display it
         parent_item = v.ListItem(
             value=str(folder.parent),
             children=[
@@ -459,16 +455,13 @@ class FileInput(v.Flex, SepalWidget):
                 ),
             ],
         )
-        root_folder = Path(self.root)
-        if self.root == "":
-            folder_list.insert(0, parent_item)
-        elif root_folder in folder.parents:
-            folder_list.insert(0, parent_item)
+
+        folder_list.extend(file_list)
+        folder_list.insert(0, parent_item)
 
         return folder_list
 
     def _on_reload(self, *args) -> None:
-
         # force the update of the current folder
         self._change_folder()
 
@@ -484,7 +477,6 @@ class FileInput(v.Flex, SepalWidget):
 
 
 class LoadTableField(v.Col, SepalWidget):
-
     fileInput: Optional[FileInput] = None
     "The file input to select the .csv or .txt file"
 
@@ -638,7 +630,6 @@ class LoadTableField(v.Col, SepalWidget):
 
 
 class AssetSelect(v.Combobox, SepalWidget):
-
     TYPES: dict = {
         "IMAGE": ms.widgets.asset_select.types[0],
         "TABLE": ms.widgets.asset_select.types[1],
@@ -723,7 +714,6 @@ class AssetSelect(v.Combobox, SepalWidget):
             self.v_model = self.v_model.strip()
 
         if change["new"]:
-
             # check that the asset can be accessed
             try:
                 self.asset_info = ee.data.getAsset(self.v_model)
@@ -735,7 +725,6 @@ class AssetSelect(v.Combobox, SepalWidget):
                     )
 
             except Exception:
-
                 self.error_messages = ms.widgets.asset_select.no_access
 
             self.valid = self.error_messages is None
@@ -745,13 +734,11 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @sd.switch("loading", "disabled")
     def _get_items(self, *args) -> Self:
-
         # init the item list
         items = []
 
         # add the default values if needed
         if self.default_asset:
-
             if isinstance(self.default_asset, str):
                 self.default_asset = [self.default_asset]
 
@@ -828,7 +815,6 @@ class PasswordField(v.TextField, SepalWidget):
 
 
 class NumberField(v.TextField, SepalWidget):
-
     max_: t.Int = t.Int(10).tag(sync=True)
     "Maximum selectable number."
 
@@ -879,7 +865,6 @@ class NumberField(v.TextField, SepalWidget):
 
 
 class VectorField(v.Col, SepalWidget):
-
     original_gdf: Optional[gpd.GeoDataFrame] = None
     "The originally selected dataframe"
 
