@@ -399,7 +399,7 @@ class FileInput(v.Flex, SepalWidget):
         """
         folder = self.folder
 
-        list_dir = [el for el in folder.glob("*/") if not el.name.startswith(".")]
+        list_dir = [el for el in folder.glob("*") if not el.name.startswith(".")]
 
         if self.extensions:
             list_dir = [
