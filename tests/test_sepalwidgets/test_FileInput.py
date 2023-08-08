@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import List
 
-import ipyvuetify as v
 import pytest
 from traitlets import Any
 
@@ -170,9 +169,18 @@ def test_root(file_input: sw.FileInput, root_dir: Path) -> None:
     # set the root to the current folder and reload
     file_input.root = str(root_dir)
     file_input._on_reload()
-    first_title_item = file_input.get_children(klass=v.ListItemTitle)[0]
 
-    assert ".. /" not in first_title_item.children[0]
+    current_items = file_input.file_list
+
+    # Try to go to the parent root folder
+    root_parent = Path(file_input.root).parent
+
+    file_input._on_file_select({"new": root_parent})
+
+    new_items = file_input.file_list
+
+    # Assert that trying to go to the parent root folder does not work
+    assert current_items == new_items
 
     return
 
