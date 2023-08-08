@@ -183,6 +183,9 @@ class FileInput(v.Flex, SepalWidget):
     folder: Path = Path.home()
     "the current folder"
 
+    initial_folder: Path = Path.home()
+    "the starting point of the file input"
+
     file: t.Unicode = t.Unicode("").tag(sync=True)
     "the current file"
 
@@ -221,6 +224,7 @@ class FileInput(v.Flex, SepalWidget):
         v_model: str = "",
         clearable: bool = False,
         root: Union[str, Path] = "",
+        cache=False,
         **kwargs,
     ) -> None:
         """Custom input field to select a file in the sepal folders.
@@ -235,8 +239,10 @@ class FileInput(v.Flex, SepalWidget):
             kwargs: any parameter from a v.Flex abject. If set, 'children' will be overwritten.
         """
         self.extensions = extensions
+        self.initial_folder = folder
         self.folder = Path(folder)
         self.root = str(root) if isinstance(root, Path) else root
+        self.cache_dirs = {}
 
         self.selected_file = v.TextField(
             readonly=True,
@@ -329,7 +335,7 @@ class FileInput(v.Flex, SepalWidget):
         # time when multiple fileInput are reset at the same time as in the aoiView
         if self.v_model is not None:
             # move to root
-            self._on_file_select({"new": Path.home()})
+            self._on_file_select({"new": self.initial_folder})
 
             # remove v_model
             self.v_model = ""
@@ -406,6 +412,10 @@ class FileInput(v.Flex, SepalWidget):
                 el for el in list_dir if el.is_dir() or el.suffix in self.extensions
             ]
 
+        if folder in self.cache_dirs:
+            if self.cache_dirs[folder]["files"] == list_dir:
+                return self.cache_dirs[folder]["items"]
+
         folder_list = []
         file_list = []
 
@@ -458,6 +468,10 @@ class FileInput(v.Flex, SepalWidget):
 
         folder_list.extend(file_list)
         folder_list.insert(0, parent_item)
+
+        self.cache_dirs.setdefault(folder, {})
+        self.cache_dirs[folder]["files"] = list_dir
+        self.cache_dirs[folder]["items"] = folder_list
 
         return folder_list
 
