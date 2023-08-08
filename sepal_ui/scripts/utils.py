@@ -142,6 +142,7 @@ def init_ee() -> None:
         # if the user is in local development the authentication should
         # already be available
         ee.Initialize(http_transport=httplib2.Http())
+        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
 
     return
 
