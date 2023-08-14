@@ -29,31 +29,8 @@ class AoiModel(Model):
     # ###                      dataset const                                  ###
     # ###########################################################################
 
-    FILE: List[Path] = [
-        Path(__file__).parents[1] / "data" / "gadm_database.parquet",
-        Path(__file__).parents[1] / "data" / "gaul_database.parquet",
-    ]
-    "Paths to the GADM(0) and GAUL(1) database"
-
     MAPPING: Path = Path(__file__).parents[1] / "data" / "gaul_iso.json"
     "GAUL -> ISO-3 mapping of country code"
-
-    CODE: List[str] = ["GID_{}", "ADM{}_CODE"]
-    "GADM(0) and GAUL(1) administrative codes key format"
-
-    NAME: List[str] = ["NAME_{}", "ADM{}_NAME"]
-    "GADM(0) and GAUL(1) naming key format"
-
-    ISO: List[str] = ["GID_0", "ISO 3166-1 alpha-3"]
-    "GADM(0) and GAUL(1) iso codes key"
-
-    GADM_BASE_URL: str = (
-        "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_{}_{}.json"
-    )
-    "The base url to download gadm maps"
-
-    GAUL_ASSET: str = "FAO/GAUL/2015/level{}"
-    "The GAUL asset name"
 
     ASSET_SUFFIX: str = "aoi_"
     "The suffix to identify the asset in GEE"

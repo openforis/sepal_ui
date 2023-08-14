@@ -149,6 +149,7 @@ class AdminField(sw.Select):
         """
         get_names = pygaul.get_names if self.gee else pygadm.get_names
         df = get_names(admin=filter_, content_level=self.level)
+        df = df.sort_values(by=[df.columns[0]])
 
         # formatted as a item list for a select component
         # first column will be the name, second the code
