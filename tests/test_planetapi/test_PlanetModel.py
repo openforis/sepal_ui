@@ -155,19 +155,22 @@ def test_get_planet_items(planet_key: str, data_regression) -> None:
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
-def test_get_mosaics(planet_key: str, data_regression) -> None:
+def test_get_mosaics(planet_key: str) -> None:
     """Get all the subscriptions from the Planet API.
 
     Args:
         planet_key: the planet API key
-        data_regression: the pytest regression fixture
     """
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
     mosaics = [m["name"] for m in mosaics]
 
-    data_regression.check(mosaics)
+    # the map list is updated every month, making the test crash on regular basis
+    # that's why we do not use a data_regression here but only a simple assert
+    # time lost: 1h
+    assert len(mosaics) > 0
+    assert all(["planet_medres_" in m for m in mosaics])
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
