@@ -38,8 +38,8 @@ dependencies = [
     "planet>=2",
     "pyarrow",
     "localtileserver>=0.7.0", # first pure rio version
-    "pygaul>=0.2.2", # first version with complete parameter
-    "pygadm>=0.3.0", # first version with complete parameter
+    "pygaul>=0.2.3",
+    "pygadm>=0.4.0",
     # miscellaneous
     "python-box",
     "tqdm",

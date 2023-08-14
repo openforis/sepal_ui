@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import ipyvuetify as v
-import pandas as pd
+import pygadm
+import pygaul
 import traitlets as t
 from deprecated.sphinx import versionadded
 from typing_extensions import Self
@@ -111,7 +112,7 @@ class AdminField(sw.Select):
     ) -> None:
         """An admin level selector.
 
-        It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+        It is binded to ee (GAUL 2015) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
             level: The administrative level of the field
@@ -144,30 +145,18 @@ class AdminField(sw.Select):
         r"""Update the item list based on the given filter.
 
         Args:
-            filter\_ (str): The code of the parent v_model to filter the current results
+            filter\_: The code of the parent v_model to filter the current results
         """
-        # extract the level list
-        df = (
-            pd.read_parquet(AoiModel.FILE[self.gee])
-            .astype(str)
-            .drop_duplicates(subset=AoiModel.CODE[self.gee].format(self.level))
-            .sort_values(AoiModel.NAME[self.gee].format(self.level))
-        )
-
-        # filter it
-        if filter_:
-            df = df[df[AoiModel.CODE[self.gee].format(self.level - 1)] == filter_]
+        get_names = pygaul.get_names if self.gee else pygadm.get_names
+        df = get_names(admin=filter_, content_level=self.level)
 
         # formatted as a item list for a select component
-        self.items = [
-            {
-                "text": su.normalize_str(
-                    r[AoiModel.NAME[self.gee].format(self.level)], folder=False
-                ),
-                "value": r[AoiModel.CODE[self.gee].format(self.level)],
-            }
-            for _, r in df.iterrows()
-        ]
+        # first column will be the name, second the code
+        items = []
+        for _, r in df.iterrows():
+            text = su.normalize_str(r[0], folder=False)
+            items.append({"text": text, "value": str(r[1])})
+        self.items = items
 
         return self
 
@@ -415,12 +404,12 @@ class AoiView(sw.Card):
             else:
                 self.aoi_dc.hide()
 
+            # init the name to the current value
+            now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
+
         # activate the correct widget
         w = next((w for k, w in self.components.items() if k == change["new"]), None)
         w is None or w.show()
-
-        # init the name to the current value
-        now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
 
         return
