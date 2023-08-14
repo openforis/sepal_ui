@@ -38,6 +38,8 @@ dependencies = [
     "planet>=2",
     "pyarrow",
     "localtileserver>=0.7.0", # first pure rio version
+    "pygaul>=0.2.2", # first version with complete parameter
+    "pygadm>=0.3.0", # first version with complete parameter
     # miscellaneous
     "python-box",
     "tqdm",
@@ -175,4 +177,4 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,sepal_ui/message/**/*.json'
+skip = 'CHANGELOG.md,sepal_ui/message/**/*.json,sepal_ui/data/gaul_iso.json'
