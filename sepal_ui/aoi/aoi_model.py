@@ -384,7 +384,7 @@ class AoiModel(Model):
         # get the data from either the pygaul or the pygadm libs
         # pygaul needs extra work as ISO codes are not included in the GEE dataset
         if self.gee:
-            self.feature_collection = pygaul.get_items(admin=admin)
+            self.feature_collection = pygaul.AdmItems(admin=admin)
             features = self.feature_collection.getInfo()["features"]
             self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
             gaul_country = str(self.gdf.ADM0_CODE.unique()[0])
@@ -392,7 +392,7 @@ class AoiModel(Model):
             self.gdf["ISO"] = iso
 
         else:
-            self.gdf = pygadm.get_items(admin=admin)
+            self.gdf = pygadm.AdmItems(admin=admin)
 
         # generate the name from the columns
         r = self.gdf.iloc[0]
