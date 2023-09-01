@@ -155,19 +155,19 @@ def test_get_planet_items(planet_key: str, data_regression) -> None:
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
-def test_get_mosaics(planet_key: str, data_regression) -> None:
+def test_get_mosaics(planet_key: str) -> None:
     """Get all the subscriptions from the Planet API.
 
     Args:
         planet_key: the planet API key
-        data_regression: the pytest regression fixture
     """
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
     mosaics = [m["name"] for m in mosaics]
 
-    data_regression.check(mosaics)
+    # the list is constantly changing, we simply check that there is at least one
+    assert len(mosaics) > 0
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
