@@ -147,8 +147,8 @@ class AdminField(sw.Select):
         Args:
             filter\_: The code of the parent v_model to filter the current results
         """
-        get_names = pygaul.get_names if self.gee else pygadm.get_names
-        df = get_names(admin=filter_, content_level=self.level)
+        AdmNames = pygaul.AdmNames if self.gee else pygadm.AdmNames
+        df = AdmNames(admin=filter_, content_level=self.level)
         df = df.sort_values(by=[df.columns[0]])
 
         # formatted as a item list for a select component
