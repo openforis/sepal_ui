@@ -155,8 +155,8 @@ class AdminField(sw.Select):
         # first column will be the name, second the code
         items = []
         for _, r in df.iterrows():
-            text = su.normalize_str(r[0], folder=False)
-            items.append({"text": text, "value": str(r[1])})
+            text = su.normalize_str(r.iloc[0], folder=False)
+            items.append({"text": text, "value": str(r.iloc[1])})
         self.items = items
 
         return self
