@@ -86,7 +86,7 @@ test = [
 doc = [
     "sphinx<7",
     "jupyter-sphinx",
-    "pydata-sphinx-theme",
+    "pydata-sphinx-theme @ git+https://github.com/12rambau/pydata-sphinx-theme.git",
     "sphinx-notfound-page",
     "sphinx-copybutton",
     "m2r2>=0.3.3",
