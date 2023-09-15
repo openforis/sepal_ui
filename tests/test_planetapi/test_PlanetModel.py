@@ -166,8 +166,11 @@ def test_get_mosaics(planet_key: str) -> None:
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
     mosaics = [m["name"] for m in mosaics]
 
-    # the list is constantly changing, we simply check that there is at least one
+    # the map list is updated every month, making the test crash on regular basis
+    # that's why we do not use a data_regression here but only a simple assert
+    # time lost: 1h
     assert len(mosaics) > 0
+    assert all(["planet_medres_" in m for m in mosaics])
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
