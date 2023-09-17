@@ -3,7 +3,6 @@
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
 
-import time
 
 import nox
 
@@ -51,29 +50,22 @@ def docs(session):
     """Build the documentation."""
     session.install(".[doc]")
     # patch version in nox instead of pyproject to avoid blocking conda releases
-    session.install("git+https://github.com/sphinx-doc/sphinx.git")
     session.run("rm", "-rf", "docs/source/modules", external=True)
     session.run("rm", "-rf", "docs/build/html", external=True)
+
+    # build the api doc files
+    templates = "docs/source/_templates/apidoc"
+    modules = "docs/source/modules"
     session.run(
-        "sphinx-apidoc",
-        "--templatedir=docs/source/_templates/apidoc",
-        "-o",
-        "docs/source/modules",
-        "sepal_ui",
+        "sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui"
     )
-    start = time.time()
-    session.run(
-        "sphinx-build",
-        "-v",
-        "-b",
-        "html",
-        "docs/source",
-        "docs/build/html",
-        "-w",
-        "warnings.txt",
-    )
-    end = time.time()
-    print(f"elapsed time: {time.strftime('%H:%M:%S', time.gmtime(end - start))}")
+
+    # build the documentation
+    source = "docs/source"
+    html = "docs/build/html"
+    session.run("sphinx-build", "-b", "html", source, html, "-w", "warnings.txt")
+
+    # check for untracked documentation warnings
     session.run("python", "tests/check_warnings.py")
 
 
