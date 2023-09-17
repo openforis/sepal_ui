@@ -88,7 +88,40 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = False) -> Any:
             # try to execute the method
             value = None
             try:
-                value = func(self, *args, **kwargs)
+                # Catch warnings in the process function
+                with warnings.catch_warnings(record=True) as w_list:
+                    value = func(self, *args, **kwargs)
+
+                # Check if there are warnings in the function and append them
+                # Use append msg as several warnings could be triggered
+                if w_list:
+
+                    # split the warning list
+                    w_list_sepal = [
+                        w for w in w_list if isinstance(w.message, SepalWarning)
+                    ]
+
+                    # display the sepal one
+                    ms_list = [
+                        f"{w.category.__name__}: {w.message.args[0]}"
+                        for w in w_list_sepal
+                    ]
+                    [alert_.append_msg(ms, type_="warning") for ms in ms_list]
+
+                    # only display them in the console if debug mode
+                    if debug:
+
+                        def custom_showwarning(w):
+                            return warnings.showwarning(
+                                message=w.message,
+                                category=w.category,
+                                filename=w.filename,
+                                lineno=w.lineno,
+                                line=w.line,
+                            )
+
+                        [custom_showwarning(w) for w in w_list]
+
             except Exception as e:
                 alert_.add_msg(f"{e}", type_="error")
                 if debug:
@@ -162,49 +195,21 @@ def loading_button(
             alert_.reset()
 
             button_.toggle_loading()  # Start loading
-            value = None
+
+            # run the function using the catch_error decorator
+            decorated, value = catch_errors(alert=alert_, debug=debug)(func), None
             try:
-                # Catch warnings in the process function
-                with warnings.catch_warnings(record=True) as w_list:
-                    value = func(self, *args, **kwargs)
+                value = decorated(self, *args, **kwargs)
 
-                # Check if there are warnings in the function and append them
-                # Use append msg as several warnings could be triggered
-                if w_list:
-
-                    # split the warning list
-                    w_list_sepal = [
-                        w for w in w_list if isinstance(w.message, SepalWarning)
-                    ]
-
-                    # display the sepal one
-                    ms_list = [
-                        f"{w.category.__name__}: {w.message.args[0]}"
-                        for w in w_list_sepal
-                    ]
-                    [alert_.append_msg(ms, type_="warning") for ms in ms_list]
-
-                    # only display them in the console if debug mode
-                    if debug:
-
-                        def custom_showwarning(w):
-                            return warnings.showwarning(
-                                message=w.message,
-                                category=w.category,
-                                filename=w.filename,
-                                lineno=w.lineno,
-                                line=w.line,
-                            )
-
-                        [custom_showwarning(w) for w in w_list]
-
-            except Exception as e:
-                alert_.add_msg(f"{e}", type_="error")
+            # exception can only be raised if debug is set to True
+            # nevertheless and as a reminder, we check if debug is set to True
+            # and stop the loading state if it's the case
+            except Exception:
                 if debug:
-                    button_.toggle_loading()  # Stop loading button if there is an error
-                    raise e
+                    button_.toggle_loading()
 
-            button_.toggle_loading()  # Stop loading button
+            # normal behavior where we stop the loading state after the function is executed
+            button_.toggle_loading()
 
             return value
 
