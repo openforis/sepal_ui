@@ -6,20 +6,8 @@ div.jupyter_container.docutils {
 }
 
 /*******************************************************************************
- *  make the footer inlined
- */
-.footer-item {
-  display: inline-block;
-}
-.footer-item:not(:last-child) {
-  border-right: 1px solid var(--pst-color-text-base);
-  margin-right: 0.5em;
-  padding-right: 0.5em;
-}
-
-/*******************************************************************************
- * overwrite image filter in dark theme 
- * most of our images are from SEPAL which is already using a dark theme 
+ * overwrite image filter in dark theme
+ * most of our images are from SEPAL which is already using a dark theme
  * there is no need for extra contrast and dimned brightness
  */
 html[data-theme="dark"] img {

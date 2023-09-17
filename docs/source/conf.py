@@ -117,6 +117,8 @@ html_theme_options = {
             "icon": "fa-brands fa-python",
         },
     ],
+    "footer_start": ["copyright.html"],
+    "footer_center": ["sphinx-version.html"],
     "show_version_warning_banner": True,
 }
 html_context = {
