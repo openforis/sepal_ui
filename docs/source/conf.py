@@ -117,6 +117,7 @@ html_theme_options = {
             "icon": "fa-brands fa-python",
         },
     ],
+    "show_version_warning_banner": True,
 }
 html_context = {
     "github_user": "12rambau",
