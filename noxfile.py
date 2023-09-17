@@ -7,6 +7,8 @@ import time
 
 import nox
 
+nox.options.sessions = ["lint", "test", "docs"]
+
 
 @nox.session(reuse_venv=True)
 def lint(session):
@@ -20,7 +22,15 @@ def test(session):
     """Run all the test using the environment variable of the running machine."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
-    session.run("pytest", "--color=yes", "--cov", "--cov-report=html", *test_files)
+    session.run("pytest", "--color=yes", "--cov", "--cov-report=xml", *test_files)
+
+
+@nox.session(name="dead-fixtures", reuse_venv=True)
+def dead_fixtures(session):
+    """Check for dead fixtures items."""
+    session.install(".[test]")
+    test_files = session.posargs or ["tests"]
+    session.run("pytest", "--dead-fixtures", *test_files)
 
 
 @nox.session(reuse_venv=True)
@@ -67,7 +77,7 @@ def docs(session):
     session.run("python", "tests/check_warnings.py")
 
 
-@nox.session(name="mypy", reuse_venv=True)
+@nox.session(reuse_venv=True)
 def mypy(session):
     """Run a mypy check of the lib."""
     session.install(".[dev]")
