@@ -104,3 +104,9 @@ nav.v-navigation-drawer {
   width: calc(100vw - 80px);
   height: calc(100vh - 20px);
 }
+
+/* hide the disclaimer message placed on top of the ui notebook
+ * the message will be displayed until the css is loaded */
+#loading-app {
+  display: none !important;
+}

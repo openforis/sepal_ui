@@ -7,6 +7,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import ee
 import geopandas as gpd
 import pandas as pd
+import pygadm
+import pygaul
 import traitlets as t
 from ipyleaflet import GeoJSON
 from typing_extensions import Self
@@ -27,28 +29,8 @@ class AoiModel(Model):
     # ###                      dataset const                                  ###
     # ###########################################################################
 
-    FILE: List[Path] = [
-        Path(__file__).parents[1] / "data" / "gadm_database.parquet",
-        Path(__file__).parents[1] / "data" / "gaul_database.parquet",
-    ]
-    "Paths to the GADM(0) and GAUL(1) database"
-
-    CODE: List[str] = ["GID_{}", "ADM{}_CODE"]
-    "GADM(0) and GAUL(1) administrative codes key format"
-
-    NAME: List[str] = ["NAME_{}", "ADM{}_NAME"]
-    "GADM(0) and GAUL(1) naming key format"
-
-    ISO: List[str] = ["GID_0", "ISO 3166-1 alpha-3"]
-    "GADM(0) and GAUL(1) iso codes key"
-
-    GADM_BASE_URL: str = (
-        "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_{}_{}.json"
-    )
-    "The base url to download gadm maps"
-
-    GAUL_ASSET: str = "FAO/GAUL/2015/level{}"
-    "The GAUL asset name"
+    MAPPING: Path = Path(__file__).parents[1] / "data" / "gaul_iso.json"
+    "GAUL -> ISO-3 mapping of country code"
 
     ASSET_SUFFIX: str = "aoi_"
     "The suffix to identify the asset in GEE"
@@ -391,7 +373,7 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin: str) -> Self:
-        """Set the object according to given an administrative number in the GADM norm.
+        """Set the object according to the given an administrative code in the GADM/GAUL codes.
 
         Args:
             admin: the admin code corresponding to FAO GAUl (if gee) or GADM
@@ -399,48 +381,23 @@ class AoiModel(Model):
         if not admin:
             raise Exception(ms.aoi_sel.exception.no_admlyr)
 
-        # get the admin level corresponding to the given admin code
-        df = pd.read_parquet(self.FILE[self.gee]).astype(str)
-
-        # extract the first element that include this administrative code and set the level accordingly
-        is_in = df.filter([self.CODE[self.gee].format(i) for i in range(3)]).isin(
-            [admin]
-        )
-
-        if not is_in.any().any():
-            raise Exception(ms.aoi_sel.exception.invalid_code)
-
-        index = 3 if self.gee else -1
-        level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
-
+        # get the data from either the pygaul or the pygadm libs
+        # pygaul needs extra work as ISO codes are not included in the GEE dataset
         if self.gee:
-
-            # get the feature_collection
-            self.feature_collection = ee.FeatureCollection(
-                self.GAUL_ASSET.format(level)
-            ).filter(ee.Filter.eq(f"ADM{level}_CODE", int(admin)))
-
-            # transform it into gdf
+            self.feature_collection = pygaul.AdmItems(admin=admin)
             features = self.feature_collection.getInfo()["features"]
             self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
+            gaul_country = str(self.gdf.ADM0_CODE.unique()[0])
+            iso = json.loads(self.MAPPING.read_text())[gaul_country]
+            self.gdf["ISO"] = iso
 
         else:
-            # save the country iso_code
-            iso_3 = admin[:3]
+            self.gdf = pygadm.AdmItems(admin=admin)
 
-            # read the data from server
-            level_gdf = gpd.read_file(self.GADM_BASE_URL.format(iso_3, level))
-            level_gdf.rename(columns={"COUNTRY": "NAME_0"}, inplace=True)
-            self.gdf = level_gdf[level_gdf[self.CODE[self.gee].format(level)] == admin]
-
-        # set the name using the layer
-        r = df[df[self.CODE[self.gee].format(level)] == admin].iloc[0]
-        names = [
-            su.normalize_str(r[self.NAME[self.gee].format(i)])
-            if i
-            else r[self.ISO[self.gee]]
-            for i in range(int(level) + 1)
-        ]
+        # generate the name from the columns
+        r = self.gdf.iloc[0]
+        names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
+        names[0] = r.ISO if self.gee else r.GID_0[:3]
         self.name = "_".join(names)
 
         return self

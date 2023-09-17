@@ -113,12 +113,8 @@ def get_file_size(filename: Union[str, Path]) -> str:
     """
     file_size = Path(filename).stat().st_size
 
-    if file_size == 0:
-        return "0B"
-
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-
-    i = int(math.floor(math.log(file_size, 1024)))
+    i = int(math.floor(math.log(file_size, 1024))) if file_size > 0 else 0
     s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
@@ -146,6 +142,7 @@ def init_ee() -> None:
         # if the user is in local development the authentication should
         # already be available
         ee.Initialize(http_transport=httplib2.Http())
+        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
 
     return
 
