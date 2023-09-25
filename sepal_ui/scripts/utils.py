@@ -7,12 +7,13 @@ import re
 import string
 import warnings
 from pathlib import Path
-from typing import Any, Sequence, Union
+from typing import Any, List, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 import ee
 import httplib2
 import ipyvuetify as v
+import requests
 from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
@@ -128,10 +129,8 @@ def init_ee() -> None:
     """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
-
         # if the credentials token is asved in the environment use it
         if "EARTHENGINE_TOKEN" in os.environ:
-
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
             credential_folder_path = Path.home() / ".config" / "earthengine"
@@ -183,7 +182,6 @@ def to_colors(
     out_color = "#000000"  # default black color
 
     if isinstance(in_color, tuple) and len(in_color) == 3:
-
         # rescale color if necessary
         if all(isinstance(item, int) for item in in_color):
             in_color = [c / 255.0 for c in in_color]
@@ -191,7 +189,6 @@ def to_colors(
         return transform(in_color)
 
     else:
-
         # try to guess the color system
         try:
             return transform(in_color)
@@ -373,6 +370,92 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
         raise ValueError(msg)
 
     return init
+
+
+def parse_github_url(github_url: str) -> List[Tuple[str, str]]:
+    """Parse a github url to get the owner and the repo name.
+
+    Args:
+        github_url: the url of the github repository
+
+    Returns:
+        a tuple with the owner and the repo name
+    """
+    # Deconstruct the url and get the repo_owner and repo_name
+    parsed_url = urlparse(github_url)
+    repo_owner, repo_name = parsed_url.path.strip("/").split("/")
+
+    return repo_owner, repo_name
+
+
+def get_app_version(github_url: str, branch="release") -> str:
+    """Get the current version of the a github project using the __version__.py file in the root.
+
+    Args:
+        repo_url: the url of the repository where the app is hosted
+
+    Returns:
+        the version of the repository
+    """
+    repo_owner, repo_name = parse_github_url(github_url)
+
+    version_url = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{branch}/__version__.py"
+
+    response = requests.get(version_url)
+    if response.status_code == 200:
+        lines = response.text.split("\n")
+        for line in lines:
+            if "__version__" in line:
+                return line.split("=")[-1].strip().strip("\"'")
+
+    return None
+
+
+def get_changelog(github_url: str, branch: str = "release") -> str:
+    """Check if the repository contains a changelog file and/or a release and return its content.
+
+    Returns:
+        str: the content of the release and/or changelog file
+    """
+    repo_owner, repo_name = parse_github_url(github_url)
+    release_text, changelog_text = "", ""
+
+    release_url = (
+        f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+    )
+
+    changelog_url = (
+        f"https://github.com/{repo_owner}/{repo_name}/blob/{branch}/CHANGELOG.md"
+    )
+
+    response = requests.get(release_url)
+    if response.status_code == 200:
+        release_text = response.json().get("body", "")
+        url_pattern = r"https://github\.com/[^ ]+/pull/\d+"
+
+        def wrap_url_in_a_tag(match):
+            url = match.group(0)
+            return f'<a href="{url}">{url}</a>'
+
+        # Replace URLs with <a> tags
+        release_text = re.sub(url_pattern, wrap_url_in_a_tag, release_text)
+
+    response = requests.get(changelog_url)
+    if response.status_code == 200:
+        changelog_text = response.json()["payload"]["blob"]["richText"]
+
+        # remove_html_tags_but_keep_text
+        for tag in ["a", "article", "svg"]:
+            # Regular expression pattern to capture text between specified HTML tags
+            # Using a non-greedy approach to capture content
+            pattern = f"<{tag} [^>]*>(.*?)</{tag}>"
+            changelog_text = re.sub(pattern, r"\1", changelog_text, flags=re.DOTALL)
+
+            # Handle tags without attributes
+            pattern = f"<{tag}>(.*?)</{tag}>"
+            changelog_text = re.sub(pattern, r"\1", changelog_text, flags=re.DOTALL)
+
+    return release_text, changelog_text
 
 
 ################################################################################
