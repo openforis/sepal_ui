@@ -9,6 +9,7 @@ import warnings
 from pathlib import Path
 from typing import Any, List, Sequence, Tuple, Union
 from urllib.parse import urlparse
+import toml
 
 import ee
 import httplib2
@@ -399,15 +400,12 @@ def get_app_version(github_url: str, branch="release") -> str:
     """
     repo_owner, repo_name = parse_github_url(github_url)
 
-    version_url = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{branch}/__version__.py"
-
+    version_url = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{branch}/pyproject.toml"
     response = requests.get(version_url)
     if response.status_code == 200:
-        lines = response.text.split("\n")
-        for line in lines:
-            if "__version__" in line:
-                return line.split("=")[-1].strip().strip("\"'")
-
+        parsed_toml = toml.loads(response.text)
+        version = parsed_toml.get("project", {}).get("version", None)
+        return version
     return None
 
 
