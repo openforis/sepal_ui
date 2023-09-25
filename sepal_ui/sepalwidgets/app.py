@@ -32,6 +32,7 @@ from sepal_ui.model import Model
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.translator import Translator
 
 __all__ = [
@@ -46,7 +47,6 @@ __all__ = [
 
 
 class LocaleSelect(v.Menu, SepalWidget):
-
     COUNTRIES: pd.DataFrame = pd.read_parquet(
         Path(__file__).parents[1] / "data" / "locale.parquet"
     )
@@ -140,7 +140,6 @@ class LocaleSelect(v.Menu, SepalWidget):
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
         for r in filtered_countries.itertuples(index=False):
-
             attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
 
             children = [
@@ -177,7 +176,6 @@ class LocaleSelect(v.Menu, SepalWidget):
 
 
 class ThemeSelect(v.Btn, SepalWidget):
-
     THEME_ICONS: dict = {"dark": "fa-solid fa-moon", "light": "fa-solid fa-sun"}
     "the dictionnry of icons to use for each theme (used as keys)"
 
@@ -232,7 +230,6 @@ class ThemeSelect(v.Btn, SepalWidget):
 
 
 class AppBar(v.AppBar, SepalWidget):
-
     toogle_button: Optional[v.Btn]
     "The btn to display or hide the drawer to the user"
 
@@ -297,7 +294,6 @@ class AppBar(v.AppBar, SepalWidget):
 
 
 class DrawerItem(v.ListItem, SepalWidget):
-
     rt: Optional[ResizeTrigger] = None
     "The trigger to resize maps and other javascript object when jumping from a tile to another"
 
@@ -415,7 +411,6 @@ class DrawerItem(v.ListItem, SepalWidget):
         return self
 
     def _on_click(self, *args) -> Self:
-
         for tile in self.tiles:
             show = self._metadata["card_id"] == tile._metadata["mount_id"]
             tile.viz = show
@@ -433,7 +428,6 @@ class DrawerItem(v.ListItem, SepalWidget):
 
 
 class NavDrawer(v.NavigationDrawer, SepalWidget):
-
     items: List[DrawerItem] = []
     "the list of all the drawerItem to display in the drawer"
 
@@ -458,12 +452,15 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         """
         self.items = items
 
+        v_slots = []
+
         code_link = []
         if code:
             item_code = DrawerItem(
                 ms.widgets.navdrawer.code, icon="fa-regular fa-file-code", href=code
             )
             code_link.append(item_code)
+
         if wiki:
             item_wiki = DrawerItem(
                 ms.widgets.navdrawer.wiki, icon="fa-solid fa-book-open", href=wiki
@@ -474,6 +471,10 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
                 ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue
             )
             code_link.append(item_bug)
+
+        version_card = VersionCard(code)
+        if version_card:
+            v_slots = [{"name": "append", "children": [version_card]}]
 
         children = [
             v.List(dense=True, children=self.items),
@@ -486,6 +487,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         kwargs["app"] = True
         kwargs.setdefault("color", color.darker)
         kwargs["children"] = children
+        kwargs.setdefault("v_slots", v_slots)
 
         # call the constructor
         super().__init__(**kwargs)
@@ -544,7 +546,6 @@ class Footer(v.Footer, SepalWidget):
 
 
 class App(v.App, SepalWidget):
-
     tiles: List[v.Card] = []
     "the tiles of the app"
 
@@ -732,7 +733,6 @@ class App(v.App, SepalWidget):
         Adapt the banner display so that the first one is the only one shown displaying the number of other banner in the queue
         """
         if change["new"] is False:
-
             # extract the banner from the app children
             children, banner_list = [], []
             for e in self.content.children.copy():
@@ -752,3 +752,70 @@ class App(v.App, SepalWidget):
             self.content.children = banner_list + children
 
         return
+
+
+def VersionCard(github_url: str) -> Optional[v.Card]:
+    """Returns a card with the current version of the app and a changelog dialog.
+
+    Args:
+        github_url: the url of the github repository of the app
+    """
+    app_version = su.get_app_version(github_url)
+    if not app_version:
+        return None
+
+    release_text, changelog_text = su.get_changelog(github_url)
+
+    content = []
+
+    if release_text:
+        content.append(Markdown(release_text))
+
+    if changelog_text:
+        content.append(v.Divider())
+        content.append(Markdown(changelog_text))
+
+    btn_close = v.Btn(
+        color="primary",
+        children=[ms.widgets.navdrawer.changelog.close_btn],
+        on_event=[
+            (
+                "click",
+                lambda *_: setattr(w_changelog, "v_model", False),
+            )
+        ],
+    )
+
+    w_changelog = v.Dialog(
+        v_model=False,
+        max_width=750,
+        children=[
+            v.Card(
+                children=[
+                    v.CardTitle(
+                        class_="headline",
+                        children=[ms.widgets.navdrawer.changelog.title],
+                    ),
+                    v.CardText(children=content),
+                    v.CardActions(children=[v.Spacer(), btn_close]),
+                ]
+            )
+        ],
+    )
+
+    w_version = v.Card(
+        class_="secondary text-center",
+        children=[
+            v.CardText(
+                children=[
+                    ms.widgets.navdrawer.changelog.version.format(app_version),
+                    w_changelog,
+                ]
+            ),
+        ],
+    )
+
+    w_version.on_event("click", lambda *_: setattr(w_changelog, "v_model", True))
+    btn_close.on_event("click", lambda *_: setattr(w_changelog, "v_model", False))
+
+    return w_version
