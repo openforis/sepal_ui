@@ -754,17 +754,17 @@ class App(v.App, SepalWidget):
         return
 
 
-def VersionCard(github_url: str) -> Optional[v.Card]:
+def VersionCard() -> Optional[v.Card]:
     """Returns a card with the current version of the app and a changelog dialog.
 
     Args:
         github_url: the url of the github repository of the app
     """
-    app_version = su.get_app_version(github_url)
+    app_version = su.get_app_version()
     if not app_version:
         return None
 
-    release_text, changelog_text = su.get_changelog(github_url)
+    release_text, changelog_text = su.get_changelog()
 
     content = []
 

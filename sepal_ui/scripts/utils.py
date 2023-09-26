@@ -1,5 +1,6 @@
 """All the helper function of sepal-ui."""
 
+import configparser
 import math
 import os
 import random
@@ -7,14 +8,14 @@ import re
 import string
 import warnings
 from pathlib import Path
-from typing import Any, List, Sequence, Tuple, Union
+from typing import Any, Sequence, Tuple, Union
 from urllib.parse import urlparse
-import toml
 
 import ee
 import httplib2
 import ipyvuetify as v
 import requests
+import toml
 from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
@@ -373,85 +374,87 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
     return init
 
 
-def parse_github_url(github_url: str) -> List[Tuple[str, str]]:
-    """Parse a github url to get the owner and the repo name.
-
-    Args:
-        github_url: the url of the github repository
-
-    Returns:
-        a tuple with the owner and the repo name
-    """
-    # Deconstruct the url and get the repo_owner and repo_name
-    parsed_url = urlparse(github_url)
-    repo_owner, repo_name = parsed_url.path.strip("/").split("/")
-
-    return repo_owner, repo_name
-
-
-def get_app_version(github_url: str, branch="release") -> str:
-    """Get the current version of the a github project using the __version__.py file in the root.
-
-    Args:
-        repo_url: the url of the repository where the app is hosted
+def get_app_version() -> str:
+    """Get the current version of the a github project using the pyproject.toml file in the root.
 
     Returns:
         the version of the repository
     """
-    repo_owner, repo_name = parse_github_url(github_url)
+    # get the path to the pyproject.toml file
+    pyproject_path = Path.cwd() / "pyproject.toml"
 
-    version_url = f"https://raw.githubusercontent.com/{repo_owner}/{repo_name}/{branch}/pyproject.toml"
-    response = requests.get(version_url)
-    if response.status_code == 200:
-        parsed_toml = toml.loads(response.text)
-        version = parsed_toml.get("project", {}).get("version", None)
+    # check if the file exist
+    if pyproject_path.exists():
+        # read the file using toml
+        with pyproject_path.open("r") as f:
+            pyproject = toml.load(f)
+
+        # get the version
+        version = pyproject.get("project", {}).get("version", None)
         return version
+
     return None
 
 
-def get_changelog(github_url: str, branch: str = "release") -> str:
-    """Check if the repository contains a changelog file and/or a release and return its content.
+def get_repo_info(repo_folder: str = os.getcwd()) -> Tuple[str, str]:
+    """Get the repository name and owner from the git config file."""
+    config = configparser.ConfigParser()
+    git_config_path = os.path.join(repo_folder, ".git", "config")
+    config.read(git_config_path)
+
+    try:
+        remote_url = config.get('remote "origin"', "url")
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        return "", ""
+
+    # Parse remote URL for repo_owner and repo_name
+    match = re.search(r":(.*?)/(.*?)(?:\.git)?$", remote_url)  # for SSH
+    if not match:
+        match = re.search(r"/(.*?)/(.*?)(?:\.git)?$", remote_url)  # for HTTPS
+
+    if match:
+        repo_owner, repo_name = match.groups()
+        return repo_owner, repo_name
+    else:
+        return "", ""
+
+
+def get_changelog(repo_folder: str = os.getcwd()) -> str:
+    """Check if the repository contains a changelog file and/or a remote release and return its content.
 
     Returns:
         str: the content of the release and/or changelog file
     """
-    repo_owner, repo_name = parse_github_url(github_url)
-    release_text, changelog_text = "", ""
+    changelog_text, release_text = "", ""
+    repo_owner, repo_name = get_repo_info(repo_folder)
 
     release_url = (
         f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
     )
 
-    changelog_url = (
-        f"https://github.com/{repo_owner}/{repo_name}/blob/{branch}/CHANGELOG.md"
-    )
-
     response = requests.get(release_url)
-    if response.status_code == 200:
-        release_text = response.json().get("body", "")
-        url_pattern = r"https://github\.com/[^ ]+/pull/\d+"
+    if all([repo_owner, repo_name]) and response.status_code == 200:
+        response_json = response.json()
+        name = response_json.get("name")
 
-        def wrap_url_in_a_tag(match):
-            url = match.group(0)
-            return f'<a href="{url}">{url}</a>'
+        if name == f"v_{get_app_version()}":
+            release_text = response_json.get("body")
 
-        # Replace URLs with <a> tags
-        release_text = re.sub(url_pattern, wrap_url_in_a_tag, release_text)
+            url_pattern = r"https://github\.com/[^ ]+/pull/\d+"
 
-    response = requests.get(changelog_url)
-    if response.status_code == 200:
-        changelog_text = response.json()["payload"]["blob"]["richText"]
+            # Replace URLs with <a> tags
+            def wrap_url_in_a_tag(match):
+                url = match.group(0)
+                return f'<a href="{url}">{url}</a>'
 
-        # remove_html_tags_but_keep_text
-        for tag in ["a", "article", "svg"]:
-            # Regular expression pattern to capture text between specified HTML tags
-            # Using a non-greedy approach to capture content
-            pattern = f"<{tag} [^>]*>(.*?)</{tag}>"
-            changelog_text = re.sub(pattern, r"\1", changelog_text, flags=re.DOTALL)
+            release_text = re.sub(url_pattern, wrap_url_in_a_tag, release_text)
 
-            # Handle tags without attributes
-            pattern = f"<{tag}>(.*?)</{tag}>"
-            changelog_text = re.sub(pattern, r"\1", changelog_text, flags=re.DOTALL)
+    # get the path to the pyproject.toml file
+    changelog_path = Path.cwd() / "CHANGELOG.md"
+
+    # check if the file exist
+    if changelog_path.exists():
+        changelog_text = changelog_path.read_text()
 
     return release_text, changelog_text
 
