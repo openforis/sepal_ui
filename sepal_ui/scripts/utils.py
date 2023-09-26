@@ -374,14 +374,14 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
     return init
 
 
-def get_app_version() -> str:
+def get_app_version(repo_folder: Union[Path, str] = Path.cwd()) -> str:
     """Get the current version of the a github project using the pyproject.toml file in the root.
 
     Returns:
         the version of the repository
     """
     # get the path to the pyproject.toml file
-    pyproject_path = Path.cwd() / "pyproject.toml"
+    pyproject_path = repo_folder / "pyproject.toml"
 
     # check if the file exist
     if pyproject_path.exists():
@@ -396,30 +396,33 @@ def get_app_version() -> str:
     return None
 
 
-def get_repo_info(repo_folder: str = os.getcwd()) -> Tuple[str, str]:
+def get_repo_info(repo_folder: Union[Path, str] = Path.cwd()) -> Tuple[str, str]:
     """Get the repository name and owner from the git config file."""
     config = configparser.ConfigParser()
-    git_config_path = os.path.join(repo_folder, ".git", "config")
+    git_config_path = Path(repo_folder) / ".git/config"
     config.read(git_config_path)
 
     try:
         remote_url = config.get('remote "origin"', "url")
     except (configparser.NoSectionError, configparser.NoOptionError):
-        return "", ""
+        return "no find", "asdf"
 
-    # Parse remote URL for repo_owner and repo_name
-    match = re.search(r":(.*?)/(.*?)(?:\.git)?$", remote_url)  # for SSH
-    if not match:
-        match = re.search(r"/(.*?)/(.*?)(?:\.git)?$", remote_url)  # for HTTPS
+    # Check if URL is likely SSH
+    if "git@" in remote_url:
+        match = re.search(r":(.*?)/(.*?)(?:\.git)?$", remote_url)
+
+    # Assume URL is HTTPS otherwise
+    else:
+        match = re.search(r"github\.com/(.*?)/(.*?)(?:\.git)?$", remote_url)
 
     if match:
-        repo_owner, repo_name = match.groups()
-        return repo_owner, repo_name
+        return match.groups()
+
     else:
         return "", ""
 
 
-def get_changelog(repo_folder: str = os.getcwd()) -> str:
+def get_changelog(repo_folder: Union[Path, str] = Path.cwd()) -> str:
     """Check if the repository contains a changelog file and/or a remote release and return its content.
 
     Returns:
@@ -450,7 +453,7 @@ def get_changelog(repo_folder: str = os.getcwd()) -> str:
             release_text = re.sub(url_pattern, wrap_url_in_a_tag, release_text)
 
     # get the path to the pyproject.toml file
-    changelog_path = Path.cwd() / "CHANGELOG.md"
+    changelog_path = Path(repo_folder) / "CHANGELOG.md"
 
     # check if the file exist
     if changelog_path.exists():
