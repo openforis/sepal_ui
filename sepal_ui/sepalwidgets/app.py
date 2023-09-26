@@ -472,7 +472,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             )
             code_link.append(item_bug)
 
-        version_card = VersionCard(code)
+        version_card = VersionCard()
         if version_card:
             v_slots = [{"name": "append", "children": [version_card]}]
 
@@ -754,17 +754,17 @@ class App(v.App, SepalWidget):
         return
 
 
-def VersionCard() -> Optional[v.Card]:
+def VersionCard(repo_folder: str = Path.cwd()) -> Optional[v.Card]:
     """Returns a card with the current version of the app and a changelog dialog.
 
     Args:
         github_url: the url of the github repository of the app
     """
-    app_version = su.get_app_version()
+    app_version = su.get_app_version(repo_folder)
     if not app_version:
         return None
 
-    release_text, changelog_text = su.get_changelog()
+    release_text, changelog_text = su.get_changelog(repo_folder)
 
     content = []
 
@@ -804,7 +804,8 @@ def VersionCard() -> Optional[v.Card]:
     )
 
     w_version = v.Card(
-        class_="secondary text-center",
+        class_="text-center",
+        tile=True,
         children=[
             v.CardText(
                 children=[

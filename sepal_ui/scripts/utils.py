@@ -405,7 +405,7 @@ def get_repo_info(repo_folder: Union[Path, str] = Path.cwd()) -> Tuple[str, str]
     try:
         remote_url = config.get('remote "origin"', "url")
     except (configparser.NoSectionError, configparser.NoOptionError):
-        return "no find", "asdf"
+        return "", ""
 
     # Check if URL is likely SSH
     if "git@" in remote_url:
