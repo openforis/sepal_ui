@@ -84,6 +84,7 @@ test = [
     "Flake8-pyproject",
     "nbmake",
     "pytest-regressions",
+    "toml",
 ]
 doc = [
     "sphinx<7",
