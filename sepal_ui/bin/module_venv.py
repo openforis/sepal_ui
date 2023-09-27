@@ -63,7 +63,14 @@ def main() -> None:
     pip = current_dir_venv / "bin" / "pip"
     python3 = current_dir_venv / "bin" / "python3"
 
-    for lib in ["wheel", "Cython", "ipykernel"]:
+    base_libs = [
+        "wheel",
+        "ipykernel",
+        "gdal==3.6.4",
+        "'git+https://github.com/openforis/earthengine-api.git@v0.1.343#egg=earthengine-api&subdirectory=python'",
+    ]
+
+    for lib in base_libs:
         subprocess.run([str(pip), "install", lib], cwd=Path.cwd())
 
     # install all the requirements
