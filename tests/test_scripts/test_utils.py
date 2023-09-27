@@ -292,6 +292,10 @@ def test_get_app_version(tmp_dir):
     # remove the temporary file
     pyproject_file.unlink()
 
+    # test the function with a non-existing pyproject.toml file
+    version = su.get_app_version(dummy_repo)
+    assert version is None
+
 
 def test_get_repo_info(tmp_dir):
     """Test if the function returns repo_owner and repo_name correctly."""
@@ -310,7 +314,6 @@ def test_get_repo_info(tmp_dir):
     config.set(
         'remote "origin"', "url", f"git@github.com:{expected_owner}/{expected_repo}.git"
     )
-    print(git_folder)
     with open(git_folder / "config", "w") as f:
         config.write(f)
 
@@ -331,6 +334,15 @@ def test_get_repo_info(tmp_dir):
 
     assert repo_owner == expected_owner
     assert repo_name == expected_repo
+
+    # Test the function with a non-existing matching repository URL
+    config.set('remote "origin"', "url", "toto")
+    with open(git_folder / "config", "w") as f:
+        config.write(f)
+
+    repo_info = su.get_repo_info(repo_folder=tmp_dir)
+
+    assert repo_info == ("", "")
 
 
 def test_get_changelog(tmp_dir):
