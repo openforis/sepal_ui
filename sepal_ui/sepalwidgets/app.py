@@ -437,6 +437,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         code: str = "",
         wiki: str = "",
         issue: str = "",
+        repo_folder: str = Path.cwd(),
         **kwargs,
     ) -> None:
         """Custom NavDrawer using the different DrawerItems of the user.
@@ -448,6 +449,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             code: the absolute link to the source code
             wiki: the absolute link the the wiki page
             issue: the absolute link to the issue tracker
+            repo_folder: the path to the github repository folder where the changelog and version are stored. Default to the current working directory.
             kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
         """
         self.items = items
@@ -472,7 +474,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             )
             code_link.append(item_bug)
 
-        version_card = VersionCard()
+        version_card = VersionCard(repo_folder=repo_folder)
         if version_card:
             v_slots = [{"name": "append", "children": [version_card]}]
 

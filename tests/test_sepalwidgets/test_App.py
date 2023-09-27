@@ -1,5 +1,7 @@
 """Test the App widget."""
 
+import os
+
 import ipyvuetify as v
 import pytest
 
@@ -130,6 +132,47 @@ def test_close_banner(app: sw.App) -> None:
     assert alert.v_model is False
 
     return
+
+
+def test_version_card(tmp_dir) -> None:
+    """Test the drawer of the app."""
+    # arrange
+    app_version = "999.999.1"
+    changelog_text = "# Changelog"
+    dummy_repo = tmp_dir / "dummy_repo"
+    dummy_repo.mkdir(exist_ok=True, parents=True)
+
+    # Change current working directory to dummy repo
+    os.chdir(dummy_repo)
+
+    # Check that if there is no pyproject.toml file, the version card is not present
+    navigation_drawer = sw.NavDrawer([], repo_folder=dummy_repo)
+
+    assert navigation_drawer.v_slots == []
+
+    # Create a pyproject.toml file and a changelog
+    pyproject_file = dummy_repo / "pyproject.toml"
+
+    # create a temporary pyproject.toml file
+    with open(pyproject_file, "w") as f:
+        f.write(f"[project]\nversion = '{app_version}'")
+
+    # Create a dummy changelog file and write some text in it
+    changelog_file = dummy_repo / "CHANGELOG.md"
+    changelog_file.touch()
+    changelog_file.write_text(f"{changelog_text}")
+
+    navigation_drawer = sw.NavDrawer([], repo_folder=dummy_repo)
+
+    # Check if the version card is present
+
+    assert len(navigation_drawer.v_slots) == 1
+
+    version_card = navigation_drawer.v_slots[0]["children"][0]
+
+    # Check if the version card has the right content
+    displayed_version = version_card.children[0].children[0]
+    assert displayed_version == f"Version: {app_version}"
 
 
 @pytest.fixture(scope="function")
