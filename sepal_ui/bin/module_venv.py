@@ -67,7 +67,7 @@ def main() -> None:
         "wheel",
         "ipykernel",
         "gdal==3.6.4",
-        "'git+https://github.com/openforis/earthengine-api.git@v0.1.343#egg=earthengine-api&subdirectory=python'",
+        "git+https://github.com/openforis/earthengine-api.git@v0.1.343#egg=earthengine-api&subdirectory=python",
     ]
 
     for lib in base_libs:
