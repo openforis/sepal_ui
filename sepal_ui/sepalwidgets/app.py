@@ -437,7 +437,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         code: str = "",
         wiki: str = "",
         issue: str = "",
-        repo_folder: str = Path.cwd(),
+        repo_folder: su.Pathlike = "",
         **kwargs,
     ) -> None:
         """Custom NavDrawer using the different DrawerItems of the user.
@@ -453,6 +453,8 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             kwargs (optional) any parameter from a v.NavigationDrawer. If set, 'app' and 'children' will be overwritten.
         """
         self.items = items
+
+        repo_folder = Path(repo_folder) if repo_folder else Path.cwd()
 
         v_slots = []
 

@@ -26,6 +26,9 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning
 
+# Types
+Pathlike = Union[str, Path]
+
 
 def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     """Hide a vuetify based component.
@@ -63,7 +66,7 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     return widget
 
 
-def create_download_link(pathname: Union[str, Path]) -> str:
+def create_download_link(pathname: Pathlike) -> str:
     """Create a clickable link to download the pathname target.
 
     Args:
@@ -105,7 +108,7 @@ def random_string(string_length: int = 3) -> str:
     return "".join(random.choice(letters) for i in range(string_length))
 
 
-def get_file_size(filename: Union[str, Path]) -> str:
+def get_file_size(filename: Pathlike) -> str:
     """Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
@@ -374,7 +377,7 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
     return init
 
 
-def get_app_version(repo_folder: Union[Path, str] = Path.cwd()) -> str:
+def get_app_version(repo_folder: Pathlike = Path.cwd()) -> str:
     """Get the current version of the a github project using the pyproject.toml file in the root.
 
     Returns:
@@ -395,7 +398,7 @@ def get_app_version(repo_folder: Union[Path, str] = Path.cwd()) -> str:
     return None
 
 
-def get_repo_info(repo_folder: Union[Path, str] = Path.cwd()) -> Tuple[str, str]:
+def get_repo_info(repo_folder: Pathlike = Path.cwd()) -> Tuple[str, str]:
     """Get the repository name and owner from the git config file."""
     config = configparser.ConfigParser()
     git_config_path = Path(repo_folder) / ".git/config"
@@ -421,7 +424,7 @@ def get_repo_info(repo_folder: Union[Path, str] = Path.cwd()) -> Tuple[str, str]
         return "", ""
 
 
-def get_changelog(repo_folder: Union[Path, str] = Path.cwd()) -> str:
+def get_changelog(repo_folder: Pathlike = Path.cwd()) -> str:
     """Check if the repository contains a changelog file and/or a remote release and return its content.
 
     Returns:
