@@ -196,7 +196,6 @@ def main() -> None:
     print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
-    Path.cwd() / "pyproject.toml"
     try:
         tomli.load("pyproject.toml")["sepal-ui"]["init-notebook"]
     except FileNotFoundError as e:
