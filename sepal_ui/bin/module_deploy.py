@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 from typing import Union
 
+import tomli
 from colorama import Fore, Style, init
 
 import sepal_ui
@@ -66,7 +67,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
         file: the requirements file
     """
     # already available libs
-    libs = ["jupyter", "voila", "toml", "sepal_ui"]
+    libs = ["jupyter", "voila", "tomli", "sepal_ui"]
 
     file = Path(file)
     text = file.read_text().split("\n")
@@ -195,9 +196,9 @@ def main() -> None:
     print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
-    toml = Path.cwd() / "pyproject.toml"
+    Path.cwd() / "pyproject.toml"
     try:
-        toml.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+        tomli.load("pyproject.toml")["sepal-ui"]["init-notebook"]
     except FileNotFoundError as e:
         raise Exception(f"{Fore.RED}This module folder has no pyproject.toml ({e})")
 

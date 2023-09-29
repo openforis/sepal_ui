@@ -70,7 +70,7 @@ dev = [
     "pre-commit>=2.18.0",
     "commitizen",
     "nox",
-    "toml",
+    "tomli",
     "jupyter",
     "voila",
     "mypy",

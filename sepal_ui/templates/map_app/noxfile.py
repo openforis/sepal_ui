@@ -4,7 +4,7 @@ The nox run are build in isolated environment that will be stored in .nox. to fo
 """
 
 import nox
-import toml
+import tomli
 
 
 @nox.session(reuse_venv=True)
@@ -17,7 +17,7 @@ def lint(session):
 @nox.session(reuse_venv=True)
 def app(session):
     """Run the application."""
-    init_notebook = toml.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+    init_notebook = tomli.load("pyproject.toml")["sepal-ui"]["init-notebook"]
     session.install("-r", "requirements.txt")
     session.run("jupyter", "trust", init_notebook)
     session.run("voila", "--debug", init_notebook)
