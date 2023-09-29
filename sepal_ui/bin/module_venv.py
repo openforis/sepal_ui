@@ -31,7 +31,7 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}venv creation interface{Fore.RESET}")
+    print(f"{Fore.YELLOW}venv creation interface V4{Fore.RESET}")
 
     # check that the local folder is a module folder
     ui_file = Path.cwd() / "ui.ipynb"
@@ -66,7 +66,7 @@ def main() -> None:
     base_libs = [
         "wheel",
         "ipykernel",
-        "gdal==3.6.4",
+        # "gdal==3.6.4",
         "git+https://github.com/openforis/earthengine-api.git@v0.1.370#egg=earthengine-api&subdirectory=python",
     ]
 
@@ -75,7 +75,16 @@ def main() -> None:
 
     # install all the requirements
     req = Path.cwd() / "requirements.txt"
-    subprocess.run([str(pip), "install", "-r", str(req)], cwd=Path.cwd())
+    subprocess.run(
+        [
+            str(pip),
+            "install",
+            "--no-cache-dir",
+            "-r",
+            str(req),
+        ],
+        cwd=Path.cwd(),
+    )
 
     # search for the module.yaml file
     # it embeds name and entry point
