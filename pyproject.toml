@@ -20,6 +20,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     # building widgets
+    "tomli",
     "ipykernel",
     "ipyvuetify",
     "markdown",
