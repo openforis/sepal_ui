@@ -4,7 +4,7 @@
  */
 
 function remove_fa5() {
-  links = document.querySelectorAll(
+  let links = document.querySelectorAll(
     "link[href^='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@^5']"
   );
 
@@ -12,4 +12,4 @@ function remove_fa5() {
 }
 
 if (document.readyState != "loading") remove_fa5();
-else document.addEventListener("DOMContentLoader", remove_fa5());
+else document.addEventListener("DOMContentLoaded", remove_fa5);
