@@ -5,7 +5,7 @@ import os
 import uuid
 from itertools import product
 from pathlib import Path
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import TemporaryDirectory
 from typing import Optional
 from urllib.request import urlretrieve
 
@@ -241,64 +241,48 @@ def tmp_dir() -> Path:
 
 
 @pytest.fixture(scope="session")
-def fake_vector() -> Path:
+def fake_vector(tmp_path_factory: Path) -> Path:
     """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
 
     Returns:
         the path to the tmp vector file
     """
-    with TemporaryDirectory() as tmp_dir:
-        tmp_dir = Path(tmp_dir)
-        link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
-        file = tmp_dir / "gadm41_VAT_0.shp"
-        gpd.read_file(link).to_file(file)
-
-        yield file
-
-    return
+    link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
+    file = tmp_path_factory / "gadm41_VAT_0.shp"
+    gpd.read_file(link).to_file(file)
+    return file
 
 
 @pytest.fixture(scope="session")
-def fake_points() -> Path:
+def fake_points(tmp_path_factory: Path) -> Path:
     """Create a fake point file the tmp file.
 
     Returns:
         the path to the point file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-        data = "lat,lon,id\n1,1,0\n0,0,1"
-        tmp_file.write_text(data)
-
-        yield tmp_file
-
-    return
+    tmp_file = tmp_path_factory / "fake_point.csv"
+    tmp_file.write_text("lat,lon,id\n1,1,0\n0,0,1")
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def fake_table() -> Path:
+def fake_table(tmp_path_factory: Path) -> Path:
     """Create a fake table.
 
     Returns:
         the path to the created file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-
-        coloseo = [1, 41.89042582290999, 12.492241627092199]
-        fao = [2, 41.88369224629387, 12.489216069409004]
-        columns = ["id", "lat", "lng"]
-        df = pd.DataFrame([coloseo, fao], columns=columns)
-
-        df.to_csv(tmp_file, index=False)
-
-        yield tmp_file
-
-    return
+    tmp_file = tmp_path_factory / "fake_table.csv"
+    coloseo = [1, 41.89042582290999, 12.492241627092199]
+    fao = [2, 41.88369224629387, 12.489216069409004]
+    columns = ["id", "lat", "lng"]
+    df = pd.DataFrame([coloseo, fao], columns=columns)
+    df.to_csv(tmp_file, index=False)
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def wrong_table(fake_table: Path) -> Path:
+def wrong_table(fake_table: Path, tmp_path_factory: Path) -> Path:
     """Create a wrongly defined table (with 2 columns instead of the minimal 3.
 
     Args:
@@ -307,48 +291,40 @@ def wrong_table(fake_table: Path) -> Path:
     Returns:
         the Path to the created file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-        df = pd.read_csv(fake_table).drop(["lng"], axis=1)
-        df.to_csv(tmp_file, index=False)
+    tmp_file = tmp_path_factory / "wrong_table.csv"
+    df = pd.read_csv(fake_table).drop(["lng"], axis=1)
+    df.to_csv(tmp_file, index=False)
 
-        yield tmp_file
-
-    return
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def rgb() -> Path:
+def rgb(tmp_path_factory: Path) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the image
     """
-    with NamedTemporaryFile(suffix=".tif") as file:
-        file = Path(file.name)
-        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
-        urlretrieve(link, file)
-
-        yield file
-
-    return
+    file = tmp_path_factory / "rgb.tif"
+    link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+    urlretrieve(link, file)
+    return file
 
 
 @pytest.fixture(scope="session")
-def byte() -> Path:
+def byte(tmp_path_factory: Path) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the byte file
     """
-    with NamedTemporaryFile(suffix=".tif") as file:
-        file = Path(file.name)
-        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
-        urlretrieve(link, file)
+    file = tmp_path_factory / "byte.tif"
+    link = (
+        "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
+    )
+    urlretrieve(link, file)
 
-        yield file
-
-    return
+    return file
 
 
 # -- Planet credentials --------------------------------------------------------
