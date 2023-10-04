@@ -90,15 +90,14 @@ def test_on_file_select(root_dir: Path, file_input: sw.FileInput, readme: Path) 
     return
 
 
-def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
+def test_on_reload(file_input: sw.FileInput, tmp_path_factory: Path) -> None:
     """Check that updating file content is updated when clicking on reload.
 
     Args:
         file_input: a widget instance
-        tmp_dir: Path to the tmp_dir of the test session
     """
     # move to the tmp directory
-    file_input._on_file_select({"new": tmp_dir})
+    file_input._on_file_select({"new": tmp_path_factory})
 
     # assert that the file does not exist
     name = "text.txt"
@@ -106,7 +105,7 @@ def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
     assert name not in get_names(file_input)
 
     # create the file and reload the widget
-    tmp_file = tmp_dir / name
+    tmp_file = tmp_path_factory / name
     tmp_file.write_text("a test \n")
     file_input._on_reload(None, None, None)
 

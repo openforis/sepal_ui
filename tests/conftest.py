@@ -227,20 +227,6 @@ def image_id() -> str:
 
 
 @pytest.fixture(scope="session")
-def tmp_dir() -> Path:
-    """Creates a temporary local directory to store data.
-
-    Returns:
-        path to to tmp created directory
-    """
-    with TemporaryDirectory() as tmp_dir:
-
-        yield Path(tmp_dir)
-
-    return
-
-
-@pytest.fixture(scope="session")
 def fake_vector(tmp_path_factory: Path) -> Path:
     """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
 
