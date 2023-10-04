@@ -20,6 +20,7 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     # building widgets
+    "tomli",
     "ipykernel",
     "ipyvuetify",
     "markdown",
@@ -70,7 +71,7 @@ dev = [
     "pre-commit>=2.18.0",
     "commitizen",
     "nox",
-    "toml",
+    "tomli",
     "jupyter",
     "voila",
     "mypy",
