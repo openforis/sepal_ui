@@ -39,25 +39,57 @@ def test_catch_errors() -> None:
         def func1(self, *args):
             return 1 / 0
 
-        @sd.catch_errors(debug=True)
+        @sd.catch_errors()
         def func2(self, *args):
-            return 1 / 0
+            return "toto"
+        
+        @sd.loading_button(debug=False)
+        def func3(self, *args):
+            warnings.warn("toto")
+            warnings.warn("sepal", SepalWarning)
+            return 1
+
+        @sd.loading_button(debug=True)
+        def func4(self, *args):
+            warnings.warn("toto")
+            warnings.warn("sepal", SepalWarning)
+            return 1
+        
 
     obj = Obj()
-
+    with pytest.raises(Exception):
+        obj.func0()
+        
     # should return an alert error in the the self alert widget
-    obj.func0()
     assert obj.alert.type == "error"
 
+
+    # Reset the alert to remove previous state
+    assert obj.alert.reset()
+
+    with pytest.raises(Exception):
+        obj.func1()
+    
     # should return an alert in the external alert widget
-    obj.func1()
     assert alert.type == "error"
 
-    # should raise an error
-    with pytest.raises(Exception):
-        obj.func2()
+    # check when there's no error
+    assert obj.alert.reset()
+    value = obj.func2()
+    assert value == "toto"
+    assert obj.alert.type != "error"
 
-    return
+    # should raise warnings
+    obj.alert.reset()
+    with warnings.catch_warnings(record=True) as w_list:
+        obj.func4(obj.btn, None, None)
+        assert obj.btn.disabled is False
+        assert obj.alert.type == "warning"
+        assert "sepal" in obj.alert.children[1].children[0]
+        assert "toto" not in obj.alert.children[1].children[0]
+        msg_list = [w.message.args[0] for w in w_list]
+        assert any("sepal" in s for s in msg_list)
+        assert any("toto" in s for s in msg_list)
 
 
 def test_loading_button() -> None:
@@ -75,52 +107,29 @@ def test_loading_button() -> None:
         @sd.loading_button(debug=True)
         def func2(self, *args):
             return 1 / 0
-
-        @sd.loading_button(debug=False)
+        
+        @sd.loading_button()
         def func3(self, *args):
-            warnings.warn("toto")
-            warnings.warn("sepal", SepalWarning)
-            return 1
+            return "toto"
 
-        @sd.loading_button(debug=True)
-        def func4(self, *args):
-            warnings.warn("toto")
-            warnings.warn("sepal", SepalWarning)
-            return 1
 
     obj = Obj()
 
     # should only display error in the alert
-    obj.func1(obj.btn, None, None)
+    with pytest.raises(Exception):
+        obj.func1(obj.btn, None, None)
+    
     assert obj.btn.disabled is False
     assert obj.alert.type == "error"
+    assert obj.btn.loading is False
 
-    # should raise an error
-    obj.alert.reset()
-    with pytest.raises(Exception):
-        obj.fun2(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "error"
+    # func 3 shouldn't raise any error
+    assert obj.alert.reset()
+    value = obj.func3(obj.btn, None, None)
 
-    # should only display the sepal warning
-    obj.alert.reset()
-    obj.func3(obj.btn, None, None)
-    assert obj.btn.disabled is False
-    assert obj.alert.type == "warning"
-    assert "sepal" in obj.alert.children[1].children[0]
-    assert "toto" not in obj.alert.children[1].children[0]
-
-    # should raise warnings
-    obj.alert.reset()
-    with warnings.catch_warnings(record=True) as w_list:
-        obj.func4(obj.btn, None, None)
-        assert obj.btn.disabled is False
-        assert obj.alert.type == "warning"
-        assert "sepal" in obj.alert.children[1].children[0]
-        assert "toto" not in obj.alert.children[1].children[0]
-        msg_list = [w.message.args[0] for w in w_list]
-        assert any("sepal" in s for s in msg_list)
-        assert any("toto" in s for s in msg_list)
+    assert value == "toto"
+    assert obj.alert.type != "error"
+    assert obj.btn.loading is False
 
     return
 
