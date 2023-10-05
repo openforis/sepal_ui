@@ -61,9 +61,9 @@ def init_ee() -> None:
 
 ################################################################################
 
-
+@versionadded(version="3.1", reason="debug arument defaults to true. Will be removed in v3.2")
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: Optional[v.Alert] = None, debug: bool = False) -> Any:
+def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
 
     If debug is True then the error is raised anyway.
@@ -109,24 +109,22 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = False) -> Any:
                     ]
                     [alert_.append_msg(ms, type_="warning") for ms in ms_list]
 
-                    # only display them in the console if debug mode
-                    if debug:
 
-                        def custom_showwarning(w):
-                            return warnings.showwarning(
-                                message=w.message,
-                                category=w.category,
-                                filename=w.filename,
-                                lineno=w.lineno,
-                                line=w.line,
-                            )
+                    def custom_showwarning(w):
+                        return warnings.showwarning(
+                            message=w.message,
+                            category=w.category,
+                            filename=w.filename,
+                            lineno=w.lineno,
+                            line=w.line,
+                        )
 
-                        [custom_showwarning(w) for w in w_list]
+                    [custom_showwarning(w) for w in w_list]
 
             except Exception as e:
                 alert_.add_msg(f"{e}", type_="error")
-                if debug:
-                    raise e
+                raise e
+                
             return value
 
         return wrapper_alert_error
@@ -160,7 +158,7 @@ def need_ee(func: Callable) -> Any:
 
     return wrapper_ee
 
-
+@versionadded(version="3.1", reason="debug arument defaults to true. Will be removed in v3.2")
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
     alert: Optional[v.Alert] = None,
@@ -197,17 +195,15 @@ def loading_button(
 
             button_.toggle_loading()  # Start loading
 
-            # run the function using the catch_error decorator
-            decorated, value = catch_errors(alert=alert_, debug=debug)(func), None
-            try:
-                value = decorated(self, *args, **kwargs)
+            value = None
 
-            # exception can only be raised if debug is set to True
-            # nevertheless and as a reminder, we check if debug is set to True
-            # and stop the loading state if it's the case
-            except Exception:
-                if debug:
-                    button_.toggle_loading()
+            try:
+                # run the function using the catch_error decorator
+                value  = catch_errors(alert=alert_)(func)(self, *args, **kwargs)
+
+            except Exception as e:
+                button_.toggle_loading()
+                raise e
 
             # normal behavior where we stop the loading state after the function is executed
             button_.toggle_loading()
