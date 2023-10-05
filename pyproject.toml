@@ -85,7 +85,7 @@ test = [
     "Flake8-pyproject",
     "nbmake",
     "pytest-regressions",
-    "toml",
+    "tomli",
 ]
 doc = [
     "sphinx<7",
@@ -96,7 +96,7 @@ doc = [
     "m2r2>=0.3.3",
     "sphinxcontrib-autoprogram",
     "sphinx-favicon>=1.0.1",
-    "toml",
+    "tomli",
 ]
 
 [project.scripts]
