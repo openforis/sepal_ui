@@ -389,11 +389,10 @@ def get_app_version(repo_folder: Pathlike = Path.cwd()) -> str:
     # check if the file exist
     if pyproject_path.exists():
         # read the file using toml
-       pyproject = toml.loads(pyproject_path.read_text())
+        pyproject = toml.loads(pyproject_path.read_text())
 
         # get the version
-        version = pyproject.get("project", {}).get("version", None)
-        return version
+        return pyproject.get("project", {}).get("version", None)
 
     return None
 
