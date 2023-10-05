@@ -42,7 +42,7 @@ def test_catch_errors() -> None:
         @sd.catch_errors()
         def func2(self, *args):
             return "toto"
-        
+
         @sd.loading_button(debug=False)
         def func3(self, *args):
             warnings.warn("toto")
@@ -54,22 +54,20 @@ def test_catch_errors() -> None:
             warnings.warn("toto")
             warnings.warn("sepal", SepalWarning)
             return 1
-        
 
     obj = Obj()
     with pytest.raises(Exception):
         obj.func0()
-        
+
     # should return an alert error in the the self alert widget
     assert obj.alert.type == "error"
-
 
     # Reset the alert to remove previous state
     assert obj.alert.reset()
 
     with pytest.raises(Exception):
         obj.func1()
-    
+
     # should return an alert in the external alert widget
     assert alert.type == "error"
 
@@ -107,18 +105,17 @@ def test_loading_button() -> None:
         @sd.loading_button(debug=True)
         def func2(self, *args):
             return 1 / 0
-        
+
         @sd.loading_button()
         def func3(self, *args):
             return "toto"
-
 
     obj = Obj()
 
     # should only display error in the alert
     with pytest.raises(Exception):
         obj.func1(obj.btn, None, None)
-    
+
     assert obj.btn.disabled is False
     assert obj.alert.type == "error"
     assert obj.btn.loading is False

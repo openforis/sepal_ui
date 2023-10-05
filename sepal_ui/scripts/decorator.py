@@ -40,10 +40,8 @@ def init_ee() -> None:
     """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
-
         # if the credentials token is asved in the environment use it
         if "EARTHENGINE_TOKEN" in os.environ:
-
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
             credential_folder_path = Path.home() / ".config" / "earthengine"
@@ -61,7 +59,10 @@ def init_ee() -> None:
 
 ################################################################################
 
-@versionadded(version="3.1", reason="debug arument defaults to true. Will be removed in v3.2")
+
+@versionadded(
+    version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
+)
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
@@ -79,7 +80,6 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
     def decorator_alert_error(func):
         @wraps(func)
         def wrapper_alert_error(self, *args, **kwargs):
-
             # Change name of variable to assign it again in this scope
             # check if alert exist in the parent object if alert is not set manually
             assert hasattr(self, "alert") or alert, ms.decorator.no_alert
@@ -96,7 +96,6 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
                 # Check if there are warnings in the function and append them
                 # Use append msg as several warnings could be triggered
                 if w_list:
-
                     # split the warning list
                     w_list_sepal = [
                         w for w in w_list if isinstance(w.message, SepalWarning)
@@ -108,7 +107,6 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
                         for w in w_list_sepal
                     ]
                     [alert_.append_msg(ms, type_="warning") for ms in ms_list]
-
 
                     def custom_showwarning(w):
                         return warnings.showwarning(
@@ -124,7 +122,7 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
             except Exception as e:
                 alert_.add_msg(f"{e}", type_="error")
                 raise e
-                
+
             return value
 
         return wrapper_alert_error
@@ -147,7 +145,6 @@ def need_ee(func: Callable) -> Any:
 
     @wraps(func)
     def wrapper_ee(*args, **kwargs):
-
         # try to connect to ee
         try:
             init_ee()
@@ -158,7 +155,10 @@ def need_ee(func: Callable) -> Any:
 
     return wrapper_ee
 
-@versionadded(version="3.1", reason="debug arument defaults to true. Will be removed in v3.2")
+
+@versionadded(
+    version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
+)
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
     alert: Optional[v.Alert] = None,
@@ -181,7 +181,6 @@ def loading_button(
     def decorator_loading(func):
         @wraps(func)
         def wrapper_loading(self, *args, **kwargs):
-
             # set btn and alert
             # Change name of variable to assign it again in this scope
             # check if they exist in the parent object if alert is not set manually
@@ -199,7 +198,7 @@ def loading_button(
 
             try:
                 # run the function using the catch_error decorator
-                value  = catch_errors(alert=alert_)(func)(self, *args, **kwargs)
+                value = catch_errors(alert=alert_)(func)(self, *args, **kwargs)
 
             except Exception as e:
                 button_.toggle_loading()
@@ -238,7 +237,6 @@ def switch(
     def decorator_switch(func):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
-
             widgets_len = len(on_widgets)
             targets_len = len(targets)
 
@@ -259,7 +257,6 @@ def switch(
                 targets_ = targets
 
             if widgets_len:
-
                 # Verify that the input elements are strings
                 wrong_types = [
                     (w, type(w)) for w in on_widgets if not isinstance(w, str)
@@ -283,12 +280,11 @@ def switch(
                     )
 
                 def w_assign(bool_targets):
-
                     params_targets = [
                         (p, bool_targets[i]) for i, p in enumerate(params)
                     ]
 
-                    for (w_name, p_t) in product(on_widgets, params_targets):
+                    for w_name, p_t in product(on_widgets, params_targets):
                         param, target = p_t
                         widget = getattr(self, w_name)
                         setattr(widget, param, target)
