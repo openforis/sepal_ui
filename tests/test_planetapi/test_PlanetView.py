@@ -2,6 +2,7 @@
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -45,11 +46,22 @@ def test_reset() -> None:
     assert planet_view.w_key.v_model is None
 
     # use a default method
-    default_method = "credentials"
-    assert planet_view.w_method.v_model == default_method
-    assert planet_view.w_username.viz is True
-    assert planet_view.w_password.viz is True
-    assert planet_view.w_key.viz is False
+    # Default method will be from_file if the secrets file exists
+    default_method = (
+        "from_file" if (Path.home() / ".planet.json").exists() else "credentials"
+    )
+    if default_method == "credentials":
+        assert planet_view.w_method.v_model == default_method
+        assert planet_view.w_username.viz is True
+        assert planet_view.w_password.viz is True
+        assert planet_view.w_key.viz is False
+        assert planet_view.w_secret_file.viz is False
+    else:
+        assert planet_view.w_method.v_model == default_method
+        assert planet_view.w_username.viz is False
+        assert planet_view.w_password.viz is False
+        assert planet_view.w_key.viz is False
+        assert planet_view.w_secret_file.viz is True
 
     # change the method
     planet_view.w_method.v_model = "api_key"
@@ -57,6 +69,7 @@ def test_reset() -> None:
     assert planet_view.w_username.viz is False
     assert planet_view.w_password.viz is False
     assert planet_view.w_key.viz is True
+    assert planet_view.w_secret_file.viz is False
 
     return
 
