@@ -59,11 +59,14 @@ class PlanetModel(Model):
         version="3.0",
         reason="credentials member is deprecated, use self.auth.key_ instead",
     )
-    def init_session(self, credentials: Union[str, List[str]]) -> None:
+    def init_session(
+        self, credentials: Union[str, List[str]], write_secrets: bool = False
+    ) -> None:
         """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
-            credentials: planet API key or username and password pair of planet explorer.
+            credentials: planet API key, username and password pair or a secrets planet.json file.
+            write_secrets: either to write the credentials in the secret file or not. Defaults to True.
         """
         if isinstance(credentials, str):
             credentials = [credentials]
@@ -73,12 +76,20 @@ class PlanetModel(Model):
 
         if len(credentials) == 2:
             self.auth = Auth.from_login(*credentials)
+
+        # Check if the str is a path to a secret file
+        elif len(credentials) == 1 and credentials[0].endswith(".json"):
+            self.auth = Auth.from_file(credentials[0])
+
         else:
             self.auth = Auth.from_key(credentials[0])
 
         self.credentials = self.auth._key
         self.session = Session(auth=self.auth)
         self._is_active()
+
+        if self.active and write_secrets:
+            self.auth.store()
 
         return
 

@@ -85,14 +85,17 @@
     "exception": {
       "empty": "Please fill the required field(s).",
       "invalid": "Invalid email or password",
-      "nosubs": "Your credentials do not have any valid planet subscription."
+      "nosubs": "Your credentials do not have any valid planet subscription.",
+      "no_secret_file": "The stored credentials file does not exist."
     },
     "widget": {
       "username": "Planet username",
       "password": "Planet password",
       "apikey": "Planet API key",
+      "store": "Stored credentials file in the session.",
       "method": {
         "label": "Login method",
+        "stored": "From stored credentials",
         "credentials": "Credentials",
         "api_key": "Planet API key"
       }
