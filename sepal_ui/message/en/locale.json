@@ -95,7 +95,7 @@
       "store": "Stored credentials file in the session.",
       "method": {
         "label": "Login method",
-        "stored": "From stored credentials",
+        "from_file": "From stored credentials",
         "credentials": "Credentials",
         "api_key": "Planet API key"
       }

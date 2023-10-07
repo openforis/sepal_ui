@@ -47,7 +47,7 @@ class PlanetView(sw.Layout):
     ):
         """Stand-alone interface to capture planet lab credentials.
 
-        It also validate its  subscription and connect to the client stored in the model.
+        It also validate its  subscription and connect to the client from_file in the model.
 
         Args:
             btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
@@ -80,7 +80,7 @@ class PlanetView(sw.Layout):
             class_="mr-2",
             v_model="",
             items=[
-                {"value": "stored", "text": ms.planet.widget.method.stored},
+                {"value": "from_file", "text": ms.planet.widget.method.from_file},
                 {"value": "credentials", "text": ms.planet.widget.method.credentials},
                 {"value": "api_key", "text": ms.planet.widget.method.api_key},
             ],
@@ -136,7 +136,7 @@ class PlanetView(sw.Layout):
     def set_initial_method(self) -> None:
         """Set the initial method to connect to planet lab."""
         self.w_method.v_model = (
-            "stored" if self.validate_secret_file() else "credentials"
+            "from_file" if self.validate_secret_file() else "credentials"
         )
 
     def reset(self) -> None:
@@ -152,7 +152,7 @@ class PlanetView(sw.Layout):
         """Swap between credentials and api key inputs.
 
         Args:
-            change.new: values of stored, credentials, api_key
+            change.new: values of from_file, credentials, api_key
         """
         self.alert.reset()
         self.reset()
