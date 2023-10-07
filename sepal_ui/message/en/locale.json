@@ -86,13 +86,13 @@
       "empty": "Please fill the required field(s).",
       "invalid": "Invalid email or password",
       "nosubs": "Your credentials do not have any valid planet subscription.",
-      "no_secret_file": "The stored credentials file does not exist."
+      "no_secret_file": "The credentials file does not exist, use a different login method."
     },
     "widget": {
       "username": "Planet username",
       "password": "Planet password",
       "apikey": "Planet API key",
-      "store": "Stored credentials file in the session.",
+      "store": "Store credentials file in the session.",
       "method": {
         "label": "Login method",
         "from_file": "From stored credentials",
