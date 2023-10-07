@@ -1,5 +1,6 @@
 """The ``Card`` widget to use in application to interface with Planet."""
 
+from pathlib import Path
 from typing import Optional
 
 import ipyvuetify as v
@@ -12,7 +13,6 @@ from sepal_ui.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):
-
     planet_model: Optional[PlanetModel] = None
     "Backend model to manipulate interface actions"
 
@@ -47,7 +47,7 @@ class PlanetView(sw.Layout):
     ):
         """Stand-alone interface to capture planet lab credentials.
 
-        It also validate its  subscription and connect to the client stored in the model.
+        It also validate its  subscription and connect to the client from_file in the model.
 
         Args:
             btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
@@ -67,17 +67,26 @@ class PlanetView(sw.Layout):
         )
         self.w_password = sw.PasswordField(label=ms.planet.widget.password)
         self.w_key = sw.PasswordField(label=ms.planet.widget.apikey, v_model="").hide()
+        self.w_secret_file = sw.TextField(
+            label=ms.planet.widget.store,
+            v_model=str(Path.home() / ".planet.json"),
+            readonly=True,
+            class_="mr-2",
+        ).hide()
         self.w_info_view = InfoView(model=self.planet_model)
 
         self.w_method = v.Select(
             label=ms.planet.widget.method.label,
             class_="mr-2",
-            v_model="credentials",
+            v_model="",
             items=[
+                {"value": "from_file", "text": ms.planet.widget.method.from_file},
                 {"value": "credentials", "text": ms.planet.widget.method.credentials},
                 {"value": "api_key", "text": ms.planet.widget.method.api_key},
             ],
         )
+
+        self.w_store = sw.Checkbox(label=ms.planet.widget.store, v_model=True)
 
         w_validation = v.Flex(
             style_="flex-grow: 0 !important;",
@@ -87,17 +96,22 @@ class PlanetView(sw.Layout):
         self.children = [
             self.w_method,
             sw.Layout(
+                attributes={"id": "planet_credentials"},
                 class_="align-center",
                 children=[
                     self.w_username,
                     self.w_password,
                     self.w_key,
+                    self.w_secret_file,
                 ],
             ),
+            self.w_store,
         ]
 
         if not btn:
-            self.children[-1].set_children(w_validation, "last")
+            self.get_children(attr="id", value="planet_credentials")[0].set_children(
+                w_validation, "last"
+            )
 
         # Set it here to avoid displacements when using button
         self.set_children(self.w_info_view, "last")
@@ -107,6 +121,23 @@ class PlanetView(sw.Layout):
 
         self.w_method.observe(self._swap_inputs, "v_model")
         self.btn.on_event("click", self.validate)
+
+        self.set_initial_method()
+
+    def validate_secret_file(self) -> None:
+        """Validate the secret file path."""
+        if not Path(self.w_secret_file.v_model).exists():
+            self.w_secret_file.error_messages = [ms.planet.exception.no_secret_file]
+            return False
+
+        self.w_secret_file.error_messages = []
+        return True
+
+    def set_initial_method(self) -> None:
+        """Set the initial method to connect to planet lab."""
+        self.w_method.v_model = (
+            "from_file" if self.validate_secret_file() else "credentials"
+        )
 
     def reset(self) -> None:
         """Empty credentials fields and restart activation mode."""
@@ -118,26 +149,55 @@ class PlanetView(sw.Layout):
         return
 
     def _swap_inputs(self, change: dict) -> None:
-        """Swap between credentials and api key inputs."""
+        """Swap between credentials and api key inputs.
+
+        Args:
+            change.new: values of from_file, credentials, api_key
+        """
         self.alert.reset()
         self.reset()
 
-        self.w_username.toggle_viz()
-        self.w_password.toggle_viz()
-        self.w_key.toggle_viz()
+        # small detail, but validate the file every time the method is changed
+        self.validate_secret_file()
+
+        if change["new"] == "credentials":
+            self.w_username.show()
+            self.w_password.show()
+            self.w_secret_file.hide()
+            self.w_store.show()
+            self.w_key.hide()
+
+        elif change["new"] == "api_key":
+            self.w_username.hide()
+            self.w_password.hide()
+            self.w_secret_file.hide()
+            self.w_store.show()
+            self.w_key.show()
+        else:
+            self.w_username.hide()
+            self.w_password.hide()
+            self.w_key.hide()
+            self.w_store.hide()
+            self.w_secret_file.show()
 
         return
 
-    @loading_button(debug=True)
+    @loading_button()
     def validate(self, *args) -> None:
         """Initialize planet client and validate if is active."""
         self.planet_model.__init__()
 
         if self.w_method.v_model == "credentials":
             credentials = [self.w_username.v_model, self.w_password.v_model]
-        else:
-            credentials = [self.w_key.v_model]
 
-        self.planet_model.init_session(credentials)
+        elif self.w_method.v_model == "api_key":
+            credentials = self.w_key.v_model
+
+        else:
+            if not self.validate_secret_file():
+                raise Exception(ms.planet.exception.no_secret_file)
+            credentials = self.w_secret_file.v_model
+
+        self.planet_model.init_session(credentials, write_secrets=self.w_store.v_model)
 
         return
