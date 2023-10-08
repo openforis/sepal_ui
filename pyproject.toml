@@ -49,6 +49,7 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "nest-asyncio", # planet API interaction
+    "flask<3", # to avoid conflict with localtileserver
 ]
 
 [[project.authors]]
