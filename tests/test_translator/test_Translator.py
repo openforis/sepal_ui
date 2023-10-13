@@ -3,7 +3,6 @@
 import json
 from configparser import ConfigParser
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import pytest
 

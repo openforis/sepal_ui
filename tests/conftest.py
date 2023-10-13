@@ -5,7 +5,6 @@ import os
 import uuid
 from itertools import product
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Optional
 from urllib.request import urlretrieve
 
