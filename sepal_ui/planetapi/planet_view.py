@@ -141,9 +141,9 @@ class PlanetView(sw.Layout):
 
     def reset(self) -> None:
         """Empty credentials fields and restart activation mode."""
-        self.w_username.v_model = None
-        self.w_password.v_model = None
-        self.w_key.v_model = None
+        self.w_username.v_model = ""
+        self.w_password.v_model = ""
+        self.w_key.v_model = ""
         self.planet_model.__init__()
 
         return
