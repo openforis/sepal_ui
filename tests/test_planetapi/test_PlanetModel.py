@@ -67,6 +67,7 @@ def test_init_client(credentials: Any, request: FixtureRequest) -> None:
     return
 
 
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 def test_init_with_file(planet_key) -> None:
     """Check init the session from a file."""
     planet_secret_file = Path.home() / ".planet.json"

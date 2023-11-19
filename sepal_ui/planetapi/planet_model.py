@@ -57,7 +57,7 @@ class PlanetModel(Model):
 
     @deprecated(
         version="3.0",
-        reason="credentials member is deprecated, use self.auth.key_ instead",
+        reason="credentials member is deprecated, use self.auth._key instead",
     )
     def init_session(
         self, credentials: Union[str, List[str]], write_secrets: bool = False
