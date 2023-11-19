@@ -149,8 +149,8 @@ def test_validate_event() -> None:
 
     planet_view.w_method.v_model = "from_file"
 
-    # Act
-    planet_view.btn.fire_event("click", None)
+    with pytest.raises(Exception):
+        planet_view.btn.fire_event("click", None)
 
     # Assert
     assert planet_view.alert.children[0].children == [
