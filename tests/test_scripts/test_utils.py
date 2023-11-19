@@ -275,9 +275,9 @@ def test_check_input() -> None:
     return
 
 
-def test_get_app_version(tmp_dir):
+def test_get_app_version(repo_dir):
     """Test if the function gets the pyproject version."""
-    dummy_repo = tmp_dir / "dummy_repo"
+    dummy_repo = repo_dir / "dummy_repo"
     dummy_repo.mkdir(exist_ok=True, parents=True)
     pyproject_file = dummy_repo / "pyproject.toml"
 
@@ -297,13 +297,13 @@ def test_get_app_version(tmp_dir):
     assert version is None
 
 
-def test_get_repo_info(tmp_dir):
+def test_get_repo_info(repo_dir):
     """Test if the function returns repo_owner and repo_name correctly."""
     # test the function with a known repository URL
     # Create a temporary .git folder inside the temporary directory
 
-    # tmp_dir = Path("delete_mi")
-    git_folder = tmp_dir / ".git"
+    # repo_dir = Path("delete_mi")
+    git_folder = repo_dir / ".git"
     git_folder.mkdir(exist_ok=True, parents=True)
 
     expected_owner = "12rambau"
@@ -317,7 +317,7 @@ def test_get_repo_info(tmp_dir):
     with open(git_folder / "config", "w") as f:
         config.write(f)
 
-    repo_owner, repo_name = su.get_repo_info(repo_folder=tmp_dir)
+    repo_owner, repo_name = su.get_repo_info(repo_folder=repo_dir)
 
     assert repo_owner == expected_owner
     assert repo_name == expected_repo
@@ -330,7 +330,7 @@ def test_get_repo_info(tmp_dir):
     with open(git_folder / "config", "w") as f:
         config.write(f)
 
-    repo_owner, repo_name = su.get_repo_info(repo_folder=tmp_dir)
+    repo_owner, repo_name = su.get_repo_info(repo_folder=repo_dir)
 
     assert repo_owner == expected_owner
     assert repo_name == expected_repo
@@ -340,25 +340,22 @@ def test_get_repo_info(tmp_dir):
     with open(git_folder / "config", "w") as f:
         config.write(f)
 
-    repo_info = su.get_repo_info(repo_folder=tmp_dir)
+    repo_info = su.get_repo_info(repo_folder=repo_dir)
 
     assert repo_info == ("", "")
 
 
-def test_get_changelog(tmp_dir):
+def test_get_changelog(repo_dir):
     """Test if the function returns the changelog correctly."""
     # Create a dummy directory with a changelog file
 
-    dummy_repo = tmp_dir / "dummy_repo"
-    dummy_repo.mkdir(exist_ok=True, parents=True)
-
     # Create a dummy changelog file and write some text in it
-    changelog_file = dummy_repo / "CHANGELOG.md"
+    changelog_file = repo_dir / "CHANGELOG.md"
     changelog_file.touch()
     changelog_file.write_text("# Changelog")
 
     # Test the function
-    changelog = su.get_changelog(repo_folder=dummy_repo)
+    changelog = su.get_changelog(repo_folder=repo_dir)
 
     assert changelog == ("", "# Changelog")
 

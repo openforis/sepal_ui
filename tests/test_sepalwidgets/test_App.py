@@ -134,35 +134,33 @@ def test_close_banner(app: sw.App) -> None:
     return
 
 
-def test_version_card(tmp_dir) -> None:
+def test_version_card(repo_dir) -> None:
     """Test the drawer of the app."""
     # arrange
     app_version = "999.999.1"
     changelog_text = "# Changelog"
-    dummy_repo = tmp_dir / "dummy_repo"
-    dummy_repo.mkdir(exist_ok=True, parents=True)
 
     # Change current working directory to dummy repo
-    os.chdir(dummy_repo)
+    os.chdir(repo_dir)
 
     # Check that if there is no pyproject.toml file, the version card is not present
-    navigation_drawer = sw.NavDrawer([], repo_folder=dummy_repo)
+    navigation_drawer = sw.NavDrawer([], repo_folder=repo_dir)
 
     assert navigation_drawer.v_slots == []
 
     # Create a pyproject.toml file and a changelog
-    pyproject_file = dummy_repo / "pyproject.toml"
+    pyproject_file = repo_dir / "pyproject.toml"
 
     # create a temporary pyproject.toml file
     with open(pyproject_file, "w") as f:
         f.write(f"[project]\nversion = '{app_version}'")
 
     # Create a dummy changelog file and write some text in it
-    changelog_file = dummy_repo / "CHANGELOG.md"
+    changelog_file = repo_dir / "CHANGELOG.md"
     changelog_file.touch()
     changelog_file.write_text(f"{changelog_text}")
 
-    navigation_drawer = sw.NavDrawer([], repo_folder=dummy_repo)
+    navigation_drawer = sw.NavDrawer([], repo_folder=repo_dir)
 
     # Check if the version card is present
 
