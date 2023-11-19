@@ -226,38 +226,38 @@ def image_id() -> str:
 
 
 @pytest.fixture(scope="session")
-def fake_vector(tmp_path_factory: Path) -> Path:
+def fake_vector(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
 
     Returns:
         the path to the tmp vector file
     """
     link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
-    file = tmp_path_factory / "gadm41_VAT_0.shp"
+    file = tmp_path_factory.mktemp("temp") / "gadm41_VAT_0.shp"
     gpd.read_file(link).to_file(file)
     return file
 
 
 @pytest.fixture(scope="session")
-def fake_points(tmp_path_factory: Path) -> Path:
+def fake_points(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake point file the tmp file.
 
     Returns:
         the path to the point file
     """
-    tmp_file = tmp_path_factory / "fake_point.csv"
+    tmp_file = tmp_path_factory.mktemp("temp") / "fake_point.csv"
     tmp_file.write_text("lat,lon,id\n1,1,0\n0,0,1")
     return tmp_file
 
 
 @pytest.fixture(scope="session")
-def fake_table(tmp_path_factory: Path) -> Path:
+def fake_table(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake table.
 
     Returns:
         the path to the created file
     """
-    tmp_file = tmp_path_factory / "fake_table.csv"
+    tmp_file = tmp_path_factory.mktemp("temp") / "fake_table.csv"
     coloseo = [1, 41.89042582290999, 12.492241627092199]
     fao = [2, 41.88369224629387, 12.489216069409004]
     columns = ["id", "lat", "lng"]
@@ -267,7 +267,7 @@ def fake_table(tmp_path_factory: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def wrong_table(fake_table: Path, tmp_path_factory: Path) -> Path:
+def wrong_table(fake_table: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a wrongly defined table (with 2 columns instead of the minimal 3.
 
     Args:
@@ -276,7 +276,7 @@ def wrong_table(fake_table: Path, tmp_path_factory: Path) -> Path:
     Returns:
         the Path to the created file
     """
-    tmp_file = tmp_path_factory / "wrong_table.csv"
+    tmp_file = tmp_path_factory.mktemp("temp") / "wrong_table.csv"
     df = pd.read_csv(fake_table).drop(["lng"], axis=1)
     df.to_csv(tmp_file, index=False)
 
@@ -284,26 +284,26 @@ def wrong_table(fake_table: Path, tmp_path_factory: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def rgb(tmp_path_factory: Path) -> Path:
+def rgb(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the image
     """
-    file = tmp_path_factory / "rgb.tif"
+    file = tmp_path_factory.mktemp("temp") / "rgb.tif"
     link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
     urlretrieve(link, file)
     return file
 
 
 @pytest.fixture(scope="session")
-def byte(tmp_path_factory: Path) -> Path:
+def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the byte file
     """
-    file = tmp_path_factory / "byte.tif"
+    file = tmp_path_factory.mktemp("temp") / "byte.tif"
     link = (
         "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
     )
