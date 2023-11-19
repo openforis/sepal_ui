@@ -24,7 +24,7 @@ dependencies = [
     "ipykernel",
     "ipyvuetify",
     "markdown",
-    "ipyleaflet @ git+https://github.com/cdanielw/ipyleaflet.git#egg=ipyleaflet",  # jupyter lab == 4 supported
+    "ipyleaflet @ https://github.com/cdanielw/ipyleaflet/releases/download/0.17.4/ipyleaflet-0.17.4-py3-none-any.whl",  # jupyter lab == 4 supported
     # earthengine management
     "earthengine-api",
     # to create a module
