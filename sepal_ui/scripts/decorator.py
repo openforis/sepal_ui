@@ -18,7 +18,7 @@ from typing import Any, Callable, List, Optional
 import ee
 import httplib2
 import ipyvuetify as v
-from deprecated.sphinx import versionadded
+from deprecated.sphinx import deprecated, versionadded
 
 from sepal_ui.message import ms
 
@@ -60,7 +60,7 @@ def init_ee() -> None:
 ################################################################################
 
 
-@versionadded(
+@deprecated(
     version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
 )
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
@@ -156,7 +156,7 @@ def need_ee(func: Callable) -> Any:
     return wrapper_ee
 
 
-@versionadded(
+@deprecated(
     version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
 )
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
