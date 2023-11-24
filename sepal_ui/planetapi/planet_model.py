@@ -6,8 +6,8 @@ from typing import Dict, List, Optional, Union
 
 import nest_asyncio
 import planet.data_filter as filters
-import requests
 import traitlets as t
+from deprecated.sphinx import deprecated
 from planet import DataClient
 from planet.auth import Auth
 from planet.exceptions import NoPermission
@@ -21,7 +21,6 @@ nest_asyncio.apply()
 
 
 class PlanetModel(Model):
-
     SUBS_URL: str = (
         "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
     )
@@ -56,11 +55,18 @@ class PlanetModel(Model):
         if credentials:
             self.init_session(credentials)
 
-    def init_session(self, credentials: Union[str, List[str]]) -> None:
+    @deprecated(
+        version="3.0",
+        reason="credentials member is deprecated, use self.auth._key instead",
+    )
+    def init_session(
+        self, credentials: Union[str, List[str]], write_secrets: bool = False
+    ) -> None:
         """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
-            credentials: planet API key or username and password pair of planet explorer.
+            credentials: planet API key, username and password pair or a secrets planet.json file.
+            write_secrets: either to write the credentials in the secret file or not. Defaults to True.
         """
         if isinstance(credentials, str):
             credentials = [credentials]
@@ -70,12 +76,20 @@ class PlanetModel(Model):
 
         if len(credentials) == 2:
             self.auth = Auth.from_login(*credentials)
+
+        # Check if the str is a path to a secret file
+        elif len(credentials) == 1 and credentials[0].endswith(".json"):
+            self.auth = Auth.from_file(credentials[0])
+
         else:
             self.auth = Auth.from_key(credentials[0])
 
-        self.credentials = credentials
+        self.credentials = self.auth._key
         self.session = Session(auth=self.auth)
         self._is_active()
+
+        if self.active and write_secrets:
+            self.auth.store()
 
         return
 
@@ -213,10 +227,11 @@ class PlanetModel(Model):
                     "quad_download": true
                 }
         """
-        url = "https://api.planet.com/basemaps/v1/mosaics?api_key={}"
-        res = requests.get(url.format(self.credentials[0]))
+        mosaics_url = "https://api.planet.com/basemaps/v1/mosaics"
+        request = self.session.request("GET", mosaics_url)
+        response = asyncio.run(request)
 
-        return res.json().get("mosaics", [])
+        return response.json().get("mosaics", [])
 
     def get_quad(self, mosaic: dict, quad_id: str) -> dict:
         """Get a quad response for a specific mosaic and quad.
@@ -245,10 +260,13 @@ class PlanetModel(Model):
                     "percent_covered": 100
                 }
         """
-        url = "https://api.planet.com/basemaps/v1/mosaics/{}/quads/{}?api_key={}"
-        res = requests.get(url.format(mosaic["id"], quad_id, self.credentials[0]))
+        quads_url = "https://api.planet.com/basemaps/v1/mosaics/{}/quads/{}"
+        quads_url = quads_url.format(mosaic["id"], quad_id)
 
-        return res.json() or {}
+        request = self.session.request("GET", quads_url)
+        response = asyncio.run(request)
+
+        return response.json() or {}
 
     @staticmethod
     def search_status(d: dict) -> List[Dict[str, bool]]:
