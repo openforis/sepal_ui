@@ -3,7 +3,6 @@
 import json
 from configparser import ConfigParser
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -161,7 +160,7 @@ def test_key_use() -> None:
 
 
 @pytest.fixture(scope="module")
-def translation_folder() -> Path:
+def translation_folder(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Generate a fully qualified translation folder with limited keys in en, fr and es."""
     # set up the appropriate keys for each language
     keys = {
@@ -171,18 +170,14 @@ def translation_folder() -> Path:
         "es": {"a_key": "Una llave"},
     }
 
-    with TemporaryDirectory() as tmp_dir:
+    message_dir = tmp_path_factory.mktemp("temp") / "message"
+    message_dir.mkdir()
+    for lan, d in keys.items():
+        folder = message_dir / lan
+        folder.mkdir()
+        (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
-        # create the translation files
-        tmp_dir = Path(tmp_dir)
-        for lan, d in keys.items():
-            folder = tmp_dir / lan
-            folder.mkdir()
-            (folder / "locale.json").write_text(json.dumps(d, indent=2))
-
-        yield tmp_dir
-
-    return
+    return message_dir
 
 
 @pytest.fixture(scope="module")

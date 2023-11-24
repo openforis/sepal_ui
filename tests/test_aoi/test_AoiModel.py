@@ -297,7 +297,9 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
     # complete
     points.update(pathname=fake_points)
     aoi_model._from_points(points)
-    assert aoi_model.name.startswith("tmp")
+
+    # file csv fake name is named: fake_point
+    assert aoi_model.name == "fake_point"
 
     return
 

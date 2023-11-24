@@ -110,3 +110,9 @@ nav.v-navigation-drawer {
 #loading-app {
   display: none !important;
 }
+
+/* Related with https://github.com/12rambau/sepal_ui/issues/893 */
+#rendered_cells {
+  contain: revert !important;
+  background-color: revert !important;
+}
