@@ -335,3 +335,13 @@ def cred() -> list:
     credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
 
     return list(credentials.values())
+
+
+@pytest.fixture(scope="session")
+def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Create a dummy repo directory.
+
+    Returns:
+        Path to the repo dir
+    """
+    return tmp_path_factory.mktemp("repo_dir")

@@ -23,7 +23,12 @@
     "navdrawer": {
       "code": "Source code",
       "wiki": "Wiki",
-      "bug": "Bug report"
+      "bug": "Bug report",
+      "changelog": {
+        "version": "Version: {}",
+        "title": "Changelog",
+        "close_btn": "Close"
+      }
     },
     "asset_select": {
       "types": {
@@ -85,14 +90,17 @@
     "exception": {
       "empty": "Please fill the required field(s).",
       "invalid": "Invalid email or password",
-      "nosubs": "Your credentials do not have any valid planet subscription."
+      "nosubs": "Your credentials do not have any valid planet subscription.",
+      "no_secret_file": "The credentials file does not exist, use a different login method."
     },
     "widget": {
       "username": "Planet username",
       "password": "Planet password",
       "apikey": "Planet API key",
+      "store": "Remember credentials file in the session.",
       "method": {
         "label": "Login method",
+        "from_file": "From saved credentials",
         "credentials": "Credentials",
         "api_key": "Planet API key"
       }
