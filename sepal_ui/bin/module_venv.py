@@ -31,7 +31,7 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}venv creation interface v9{Fore.RESET}")
+    print(f"{Fore.YELLOW}venv creation interface v10{Fore.RESET}")
 
     # check that the local folder is a module folder
     ui_file = Path.cwd() / "ui.ipynb"
@@ -68,7 +68,6 @@ def main() -> None:
         "ipykernel",
         "numpy",
         "GDAL==3.6.4",
-        "git+https://github.com/openforis/earthengine-api.git@v0.1.370#egg=earthengine-api&subdirectory=python",
     ]
 
     subprocess.run([str(pip), "install", "--upgrade", "pip"], cwd=Path.cwd())
