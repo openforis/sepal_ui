@@ -23,7 +23,12 @@
     "navdrawer": {
       "code": "Source code",
       "wiki": "Wiki",
-      "bug": "Bug report"
+      "bug": "Bug report",
+      "changelog": {
+        "version": "Version: {}",
+        "title": "Changelog",
+        "close_btn": "Close"
+      }
     },
     "asset_select": {
       "types": {
