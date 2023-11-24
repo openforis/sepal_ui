@@ -810,6 +810,7 @@ def VersionCard(repo_folder: str = Path.cwd()) -> Optional[v.Card]:
     w_version = v.Card(
         class_="text-center",
         tile=True,
+        color=color.main,
         children=[
             v.CardText(
                 children=[
