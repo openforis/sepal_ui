@@ -43,13 +43,13 @@ def test_catch_errors() -> None:
         def func2(self, *args):
             return "toto"
 
-        @sd.loading_button(debug=False)
+        @sd.loading_button()
         def func3(self, *args):
             warnings.warn("toto")
             warnings.warn("sepal", SepalWarning)
             return 1
 
-        @sd.loading_button(debug=True)
+        @sd.loading_button()
         def func4(self, *args):
             warnings.warn("toto")
             warnings.warn("sepal", SepalWarning)
@@ -98,11 +98,11 @@ def test_loading_button() -> None:
             self.alert = sw.Alert()
             self.btn = sw.Btn()
 
-        @sd.loading_button(debug=False)
+        @sd.loading_button()
         def func1(self, *args):
             return 1 / 0
 
-        @sd.loading_button(debug=True)
+        @sd.loading_button()
         def func2(self, *args):
             return 1 / 0
 
@@ -162,7 +162,7 @@ def test_switch() -> None:
             return True
 
         # apply on a error func with debug = True
-        @sd.switch("valid", debug=True)
+        @sd.switch("valid")
         def func5(self, *args):
             return 1 / 0
 
