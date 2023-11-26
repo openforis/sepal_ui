@@ -58,12 +58,10 @@ class MethodSelect(sw.Select):
                 k: v for k, v in select_methods.items() if v["type"] == CUSTOM
             }
         elif type(methods) == list:
-
             if any(m[0] == "-" for m in methods) != all(m[0] == "-" for m in methods):
                 raise Exception("You mixed adding and removing, punk")
 
             if methods[0][0] == "-":
-
                 to_remove = [method[1:] for method in methods]
 
                 # Rewrite the methods instead of mutate the class methods
@@ -97,7 +95,6 @@ class MethodSelect(sw.Select):
 
 
 class AdminField(sw.Select):
-
     gee: bool = True
     "whether or not to depend on earthengine"
 
@@ -174,7 +171,6 @@ class AdminField(sw.Select):
 
 
 class AoiView(sw.Card):
-
     # ##########################################################################
     # ###                             widget parameters                      ###
     # ##########################################################################
@@ -350,7 +346,7 @@ class AoiView(sw.Card):
         # reset the aoi_model
         self.model.clear_attributes()
 
-    @sd.loading_button(debug=True)
+    @sd.loading_button()
     def _update_aoi(self, *args) -> Self:
         """Load the object in the model & update the map (if possible)."""
         # read the information from the geojson data
