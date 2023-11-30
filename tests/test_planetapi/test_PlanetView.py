@@ -149,6 +149,7 @@ def test_validate_event() -> None:
 
     planet_view.w_method.v_model = "from_file"
 
+    # Act
     with pytest.raises(Exception):
         planet_view.btn.fire_event("click", None)
 

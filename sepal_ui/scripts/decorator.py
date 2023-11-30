@@ -14,6 +14,7 @@ from functools import wraps
 from itertools import product
 from pathlib import Path
 from typing import Any, Callable, List, Optional
+from warnings import warn
 
 import ee
 import httplib2
@@ -60,11 +61,8 @@ def init_ee() -> None:
 ################################################################################
 
 
-@versionadded(
-    version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
-)
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
+def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
 
     If debug is True then the error is raised anyway.
@@ -76,6 +74,8 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: bool = True) -> Any:
     Returns:
         The return statement of the decorated method
     """
+    if debug is not None:
+        warn("debug argument defaults to `True`. It will be removed in v3.2")
 
     def decorator_alert_error(func):
         @wraps(func)
@@ -156,14 +156,11 @@ def need_ee(func: Callable) -> Any:
     return wrapper_ee
 
 
-@versionadded(
-    version="3.1", reason="debug argument defaults to true. Will be removed in v3.2"
-)
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
     alert: Optional[v.Alert] = None,
     button: Optional[v.Btn] = None,
-    debug: bool = False,
+    debug: Optional[bool] = None,
 ) -> Any:
     """Decorator to execute try/except sentence and toggle loading button object.
 
@@ -177,6 +174,8 @@ def loading_button(
     Returns:
         The return statement of the decorated method
     """
+    if debug is not None:
+        warn("debug argument defaults to `True`. It will be removed in v3.2")
 
     def decorator_loading(func):
         @wraps(func)
