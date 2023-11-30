@@ -127,8 +127,8 @@ sepal_ui = [
 [tool.commitizen]
 changelog_file = "CHANGELOG.md"
 changelog_incremental = true
-tag_format = "v_$major.$minor.$patch$prerelease"
-update_changelog_on_bump = true
+tag_format = "v$major.$minor.$patch$prerelease"
+update_changelog_on_bump = false
 version = "2.16.4"
 version_files = [
     "pyproject.toml:version",
