@@ -1,12 +1,12 @@
 """Test the planet PlanetModel model."""
 
 import os
-from typing import Union
+from pathlib import Path
+from typing import Any, Union
 
 import planet
 import pytest
 from pytest import FixtureRequest
-from typing_extensions import Any
 
 from sepal_ui.planetapi import PlanetModel
 
@@ -17,7 +17,7 @@ def test_init(planet_key: str, cred: list) -> None:
 
     Args:
         planet_key: the planet API key
-        cred: the user credentials (usernam, pasword)
+        cred: the user credentials (usernam, password)
     """
     # Test with a valid api key
     planet_model = PlanetModel(planet_key)
@@ -43,7 +43,7 @@ def test_init(planet_key: str, cred: list) -> None:
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
 @pytest.mark.parametrize("credentials", ["planet_key", "cred"])
 def test_init_client(credentials: Any, request: FixtureRequest) -> None:
-    """Check init the client with 2 methods.
+    """Check init the client with 3 methods.
 
     Args:
         credentials: any credentials as set in the parameters
@@ -54,15 +54,65 @@ def test_init_client(credentials: Any, request: FixtureRequest) -> None:
     planet_model.init_session(request.getfixturevalue(credentials))
     assert planet_model.active is True
 
-    # check the content of cred
-    # I use a proxy to avoid exposing the credentials in the logs
-    cred = request.getfixturevalue(credentials)
-    cred = [cred] if isinstance(cred, str) else cred
-    is_same = planet_model.credentials == cred
-    assert is_same is True, "The credentials are not corresponding"
+    assert (
+        planet_model.auth._key == planet_model.credentials
+    ), "The credentials are not corresponding"
 
     with pytest.raises(Exception):
         planet_model.init_session("wrongkey")
+
+    with pytest.raises(Exception):
+        planet_model.init_session(["wrongkey", "credentials"])
+
+    return
+
+
+@pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
+def test_init_with_file(planet_key) -> None:
+    """Check init the session from a file."""
+    planet_secret_file = Path.home() / ".planet.json"
+    existing = False
+
+    # This test will overwrite and remove the file, let's backup it
+    if planet_secret_file.exists():
+        existing = True
+        planet_secret_file.rename(planet_secret_file.with_suffix(".json.bak"))
+
+    # Create a file with the credentials
+    planet_model = PlanetModel()
+    # We assume that the credentials are valid
+    planet_model.init_session(planet_key, write_secrets=True)
+
+    assert planet_secret_file.exists()
+
+    # test init with the file
+    planet_model = PlanetModel()
+    planet_model.init_session(str(planet_secret_file))
+
+    assert planet_model.active is True
+
+    # Check that wrong credentials won't save the secrets file
+
+    # remove the file
+    planet_secret_file.unlink()
+
+    planet_model = PlanetModel()
+
+    with pytest.raises(Exception):
+        planet_model.init_session("wrong_key", write_secrets=True)
+
+        assert not planet_secret_file.exists()
+
+    # Check no save with good credentials
+
+    planet_model = PlanetModel()
+    planet_model.init_session(planet_key, write_secrets=False)
+
+    assert not planet_secret_file.exists()
+
+    # restore the file
+    if existing:
+        planet_secret_file.with_suffix(".json.bak").rename(planet_secret_file)
 
     return
 
@@ -156,18 +206,22 @@ def test_get_planet_items(planet_key: str, data_regression) -> None:
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")
-def test_get_mosaics(planet_key: str, data_regression) -> None:
+def test_get_mosaics(planet_key: str) -> None:
     """Get all the subscriptions from the Planet API.
 
     Args:
         planet_key: the planet API key
-        data_regression: the pytest regression fixture
     """
     planet_model = PlanetModel(planet_key)
     mosaics = planet_model.get_mosaics()
     mosaics = hide_key(mosaics, planet_key)  # hide the key in the produced file
+    mosaics = [m["name"] for m in mosaics]
 
-    data_regression.check(mosaics)
+    # the map list is updated every month, making the test crash on regular basis
+    # that's why we do not use a data_regression here but only a simple assert
+    # time lost: 1h
+    assert len(mosaics) > 0
+    assert all(["planet_medres_" in m for m in mosaics])
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")

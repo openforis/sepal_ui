@@ -84,28 +84,30 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 
 @sd.need_ee
-def get_assets(folder: Union[str, Path] = "", asset_list: List[str] = []) -> List[str]:
+def get_assets(folder: Union[str, Path] = "") -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
         folder: the initial GEE folder
-        asset_list: extra element that you would like to add to the asset list
 
     Returns:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
     """
-    # set the folder
+    # set the folder and init the list
+    asset_list = []
     folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
 
-    # loop in the assets
-    for asset in ee.data.listAssets({"parent": folder})["assets"]:
-        if asset["type"] == "FOLDER":
-            asset_list += [asset]
-            asset_list = get_assets(asset["name"], asset_list)
-        else:
-            asset_list += [asset]
+    def _recursive_get(folder, asset_list):
 
-    return asset_list
+        # loop in the assets
+        for asset in ee.data.listAssets({"parent": folder})["assets"]:
+            asset_list += [asset]
+            if asset["type"] == "FOLDER":
+                asset_list = _recursive_get(asset["name"], asset_list)
+
+        return asset_list
+
+    return _recursive_get(folder, asset_list)
 
 
 @sd.need_ee
@@ -125,7 +127,7 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
     # get all the assets
     asset_list = get_assets(folder)
 
-    # search for asset existance
+    # search for asset existence
     exist = False
     for asset in asset_list:
         if asset_name == asset["name"]:
@@ -133,3 +135,55 @@ def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
             break
 
     return exist
+
+
+@sd.need_ee
+def delete_assets(asset_id: str, dry_run: bool = True) -> None:
+    """Delete the selected asset and all its content.
+
+    This method will delete all the files and folders existing in an asset folder. By default a dry run will be launched and if you are satisfyed with the displayed names, change the ``dry_run`` variable to ``False``. No other warnng will be displayed.
+
+    .. warning::
+
+        If this method is used on the root directory you will loose all your data, it's highly recommended to use a dry run first and carefully review the destroyed files.
+
+    Args:
+        asset_id: the Id of the asset or a folder
+        dry_run: whether or not a dry run should be launched. dry run will only display the files name without deleting them.
+    """
+    # define the action to execute for each asset based on the dry run mode
+    def delete(id: str) -> None:
+        if dry_run is True:
+            print(f"to be deleted: {id}")
+        else:
+            print(f"deleting: {id}")
+            ee.data.deleteAsset(id)
+
+        return
+
+    # identify the type of asset
+    asset_info = ee.data.getAsset(asset_id)
+
+    if asset_info["type"] == "FOLDER":
+
+        # get all the assets
+        asset_list = get_assets(folder=asset_id)
+
+        # split the files by nesting levels
+        # we will need to delete the more nested files first
+        assets_ordered = {}
+        for asset in asset_list:
+            lvl = len(asset["id"].split("/"))
+            assets_ordered.setdefault(lvl, [])
+            assets_ordered[lvl].append(asset)
+
+        # delete all items starting from the more nested one but not folders
+        assets_ordered = dict(sorted(assets_ordered.items(), reverse=True))
+        for lvl in assets_ordered:
+            for i in assets_ordered[lvl]:
+                delete(i["name"])
+
+    # delete the initial folder/asset
+    delete(asset_id)
+
+    return

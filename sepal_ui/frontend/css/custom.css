@@ -37,7 +37,7 @@ header.v-app-bar {
   max-width: 100% !important;
 }
 
-/* make sure navigation drawers are always visibles when they exist */
+/* make sure navigation drawers are always visible when they exist */
 nav.v-navigation-drawer {
   z-index: 900 !important;
 }
@@ -70,7 +70,7 @@ nav.v-navigation-drawer {
   border: none !important;
 }
 
-/* extra css rules to make the messages disapear beneath the SimpleSlider */
+/* extra css rules to make the messages disappear beneath the SimpleSlider */
 .v-no-messages .v-messages {
   display: none;
 }
@@ -103,4 +103,16 @@ nav.v-navigation-drawer {
 .v-card.v-menu-fullscreen {
   width: calc(100vw - 80px);
   height: calc(100vh - 20px);
+}
+
+/* hide the disclaimer message placed on top of the ui notebook
+ * the message will be displayed until the css is loaded */
+#loading-app {
+  display: none !important;
+}
+
+/* Related with https://github.com/12rambau/sepal_ui/issues/893 */
+#rendered_cells {
+  contain: revert !important;
+  background-color: revert !important;
 }

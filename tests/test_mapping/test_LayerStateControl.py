@@ -87,6 +87,6 @@ def map_with_layers() -> sm.SepalMap:
 
 
 class FakeLayer(RasterLayer):
-    """Layer class that have only one parameter: the laoding trait."""
+    """Layer class that have only one parameter: the loading trait."""
 
     loading = Bool(False).tag(sync=True)

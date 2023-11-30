@@ -7,6 +7,7 @@ from pathlib import Path
 
 import ee
 import pytest
+from ee.ee_exception import EEException
 from ipyleaflet import GeoJSON
 
 from sepal_ui import mapping as sm
@@ -16,16 +17,6 @@ from sepal_ui.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
 random.seed(42)
-
-# as using localtileserver is still in beta version it is not yet installed by
-# default. Using this lazy import we can skip some tests when in github CD/CI
-# will be removed when https://github.com/girder/large_image/pull/927 is ready
-try:
-    from localtileserver import TileClient  # noqa: F401
-
-    is_set_localtileserver = True
-except ModuleNotFoundError:
-    is_set_localtileserver = False
 
 
 def test_init() -> None:
@@ -141,7 +132,6 @@ def test_zoom_bounds() -> None:
     return
 
 
-@pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_add_raster(rgb: Path, byte: Path) -> None:
     """Add raster files to the map.
 
@@ -155,12 +145,14 @@ def test_add_raster(rgb: Path, byte: Path) -> None:
     m.add_raster(rgb, layer_name="rgb")
     layer = m.find_layer("rgb")
     assert layer.name == "rgb"
+    assert layer.key == "rgb"
     assert type(layer).__name__ == "BoundTileLayer"
 
     # add a byte layer
     m.add_raster(byte, layer_name="byte")
     layer = m.find_layer("byte")
     assert layer.name == "byte"
+    assert layer.key == "byte"
 
     return
 
@@ -199,7 +191,7 @@ def test_add_ee_layer_exceptions() -> None:
         )
     )
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(EEException):
         map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
 
     return
@@ -332,7 +324,7 @@ def test_get_viz_params(image_id: str) -> None:
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
-    """Remove a spcific layer from the map.
+    """Remove a specific layer from the map.
 
     Args:
         ee_map_with_layers: a map supporting multiple ee assets tile layer
@@ -396,7 +388,7 @@ def test_add_layer() -> None:
     }
 
     # Arrange without style and requesting default hover.
-    geojson = GeoJSON(data=polygon)
+    geojson = GeoJSON(data=polygon, name="geojson data")
 
     # Act
     m.add_layer(geojson, hover=True)
@@ -409,6 +401,8 @@ def test_add_layer() -> None:
 
     assert all([new_layer.style[k] == v for k, v in layer_style.items()])
     assert all([new_layer.hover_style[k] == v for k, v in hover_style.items()])
+    assert new_layer.name == "geojson data"
+    assert new_layer.key == "geojson_data"
 
     # Arrange with style
     layer_style = {"color": "blue"}
@@ -484,8 +478,12 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     with pytest.raises(ValueError):
         res = m.find_layer(50)
 
-    # search by layer
+    # search by layer name
     res = m.find_layer(m.layers[3])
+    assert res.name == "NDWI harmonics"
+
+    # search by layer key
+    res = m.find_layer(m.layers[3].key)
     assert res.name == "NDWI harmonics"
 
     # search including the basemap
@@ -500,7 +498,6 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.mark.skipif(is_set_localtileserver is False, reason="localtileserver in beta")
 def test_zoom_raster(byte: Path) -> None:
     """Check that we can zoom on a raster.
 

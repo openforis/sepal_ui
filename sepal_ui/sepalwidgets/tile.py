@@ -31,7 +31,7 @@ class Tile(v.Layout, SepalWidget):
     "the process btn"
 
     alert: Optional[v.Alert] = None
-    "the alert to display process informations to the end user"
+    "the alert to display process information to the end user"
 
     title: Optional[v.Html] = None
     "the title of the Tile"
@@ -41,8 +41,8 @@ class Tile(v.Layout, SepalWidget):
         id_: str,
         title: str,
         inputs: list = [""],
-        btn: Union[v.Btn, None] = None,
-        alert: Union[v.Alert, None] = None,
+        btn: Optional[v.Btn] = None,
+        alert: Optional[v.Alert] = None,
         **kwargs,
     ) -> None:
         """Custom Layout widget for the sepal UI framework.
@@ -54,7 +54,7 @@ class Tile(v.Layout, SepalWidget):
             title: the title of the Tile
             inputs: the list of widget to display inside the tile
             btn: the process btn
-            alert: the alert to display process informations to the end user
+            alert: the alert to display process information to the end user
             kwargs: any parameter from a v.Layout. if set, 'children' and '_metadata' will be overwritten.
         """
         self.btn = btn

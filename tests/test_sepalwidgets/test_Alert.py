@@ -125,6 +125,7 @@ def test_reset() -> None:
     assert alert.viz is False
     assert len(alert.children) == 1
     assert alert.children[0] == ""
+    assert alert.type == "info"
 
     return
 

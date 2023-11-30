@@ -13,12 +13,15 @@ import warnings
 from functools import wraps
 from itertools import product
 from pathlib import Path
-from typing import Any, Callable, List, Union
+from typing import Any, Callable, List, Optional
+from warnings import warn
 
 import ee
 import httplib2
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
+
+from sepal_ui.message import ms
 
 # from sepal_ui.scripts.utils import init_ee
 from sepal_ui.scripts.warning import SepalWarning
@@ -38,10 +41,8 @@ def init_ee() -> None:
     """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
-
         # if the credentials token is asved in the environment use it
         if "EARTHENGINE_TOKEN" in os.environ:
-
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
             credential_folder_path = Path.home() / ".config" / "earthengine"
@@ -52,6 +53,7 @@ def init_ee() -> None:
         # if the user is in local development the authentication should
         # already be available
         ee.Initialize(http_transport=httplib2.Http())
+        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
 
     return
 
@@ -60,29 +62,67 @@ def init_ee() -> None:
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: v.Alert, debug: bool = False) -> Any:
+def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) -> Any:
     """Decorator to execute try/except sentence and catch errors in the alert message.
 
     If debug is True then the error is raised anyway.
 
     Args:
-        alert (sw.Alert): Alert to display errors
-        debug (bool): Wether to raise the error or not, default to false
+        alert: Alert to display errors
+        debug: Whether to raise the error or not, default to false
 
     Returns:
         The return statement of the decorated method
     """
+    if debug is not None:
+        warn("debug argument defaults to `True`. It will be removed in v3.2")
 
     def decorator_alert_error(func):
         @wraps(func)
-        def wrapper_alert_error(*args, **kwargs):
+        def wrapper_alert_error(self, *args, **kwargs):
+            # Change name of variable to assign it again in this scope
+            # check if alert exist in the parent object if alert is not set manually
+            assert hasattr(self, "alert") or alert, ms.decorator.no_alert
+            alert_ = self.alert if not alert else alert
+            alert_.reset()
+
+            # try to execute the method
             value = None
             try:
-                value = func(*args, **kwargs)
+                # Catch warnings in the process function
+                with warnings.catch_warnings(record=True) as w_list:
+                    value = func(self, *args, **kwargs)
+
+                # Check if there are warnings in the function and append them
+                # Use append msg as several warnings could be triggered
+                if w_list:
+                    # split the warning list
+                    w_list_sepal = [
+                        w for w in w_list if isinstance(w.message, SepalWarning)
+                    ]
+
+                    # display the sepal one
+                    ms_list = [
+                        f"{w.category.__name__}: {w.message.args[0]}"
+                        for w in w_list_sepal
+                    ]
+                    [alert_.append_msg(ms, type_="warning") for ms in ms_list]
+
+                    def custom_showwarning(w):
+                        return warnings.showwarning(
+                            message=w.message,
+                            category=w.category,
+                            filename=w.filename,
+                            lineno=w.lineno,
+                            line=w.line,
+                        )
+
+                    [custom_showwarning(w) for w in w_list]
+
             except Exception as e:
-                alert.add_msg(f"{e}", type_="error")
-                if debug:
-                    raise e
+                alert_.add_msg(f"{e}", type_="error")
+                raise e
+
             return value
 
         return wrapper_alert_error
@@ -105,7 +145,6 @@ def need_ee(func: Callable) -> Any:
 
     @wraps(func)
     def wrapper_ee(*args, **kwargs):
-
         # try to connect to ee
         try:
             init_ee()
@@ -119,9 +158,9 @@ def need_ee(func: Callable) -> Any:
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def loading_button(
-    alert: Union[v.Alert, None] = None,
-    button: Union[v.Btn, None] = None,
-    debug: bool = False,
+    alert: Optional[v.Alert] = None,
+    button: Optional[v.Btn] = None,
+    debug: Optional[bool] = None,
 ) -> Any:
     """Decorator to execute try/except sentence and toggle loading button object.
 
@@ -130,18 +169,22 @@ def loading_button(
     Args:
         button: Toggled button
         alert: the alert to display the error message
-        debug: wether or not the exception should stop the execution. default to False
+        debug: Whethers or not the exception should stop the execution. default to False
 
     Returns:
         The return statement of the decorated method
     """
+    if debug is not None:
+        warn("debug argument defaults to `True`. It will be removed in v3.2")
 
     def decorator_loading(func):
         @wraps(func)
         def wrapper_loading(self, *args, **kwargs):
-
             # set btn and alert
             # Change name of variable to assign it again in this scope
+            # check if they exist in the parent object if alert is not set manually
+            assert hasattr(self, "alert") or alert, ms.decorator.no_alert
+            assert hasattr(self, "btn") or button, ms.decorator.no_button
             button_ = self.btn if not button else button
             alert_ = self.alert if not alert else alert
 
@@ -149,49 +192,19 @@ def loading_button(
             alert_.reset()
 
             button_.toggle_loading()  # Start loading
+
             value = None
+
             try:
-                # Catch warnings in the process function
-                with warnings.catch_warnings(record=True) as w_list:
-                    value = func(self, *args, **kwargs)
-
-                # Check if there are warnings in the function and append them
-                # Use append msg as several warnings could be triggered
-                if w_list:
-
-                    # split the warning list
-                    w_list_sepal = [
-                        w for w in w_list if isinstance(w.message, SepalWarning)
-                    ]
-
-                    # display the sepal one
-                    ms_list = [
-                        f"{w.category.__name__}: {w.message.args[0]}"
-                        for w in w_list_sepal
-                    ]
-                    [alert_.append_msg(ms, type_="warning") for ms in ms_list]
-
-                    # only display them in the console if debug mode
-                    if debug:
-
-                        def custom_showwarning(w):
-                            return warnings.showwarning(
-                                message=w.message,
-                                category=w.category,
-                                filename=w.filename,
-                                lineno=w.lineno,
-                                line=w.line,
-                            )
-
-                        [custom_showwarning(w) for w in w_list]
+                # run the function using the catch_error decorator
+                value = catch_errors(alert=alert_)(func)(self, *args, **kwargs)
 
             except Exception as e:
-                alert_.add_msg(f"{e}", "error")
-                if debug:
-                    button_.toggle_loading()  # Stop loading button if there is an error
-                    raise e
+                button_.toggle_loading()
+                raise e
 
-            button_.toggle_loading()  # Stop loading button
+            # normal behavior where we stop the loading state after the function is executed
+            button_.toggle_loading()
 
             return value
 
@@ -214,7 +227,7 @@ def switch(
         \*params: any boolean parameter of a SepalWidget.
         debug: Whether trigger or not an Exception if the decorated function fails.
         on_widgets: List of widget names into the class
-        targets: list of the target value (value taht will be set on switch. default to the inverse of the current state.
+        targets: list of the target value (value that will be set on switch. default to the inverse of the current state.
 
     Returns:
         The return statement of the decorated method
@@ -223,7 +236,6 @@ def switch(
     def decorator_switch(func):
         @wraps(func)
         def wrapper_switch(self, *args, **kwargs):
-
             widgets_len = len(on_widgets)
             targets_len = len(targets)
 
@@ -244,7 +256,6 @@ def switch(
                 targets_ = targets
 
             if widgets_len:
-
                 # Verify that the input elements are strings
                 wrong_types = [
                     (w, type(w)) for w in on_widgets if not isinstance(w, str)
@@ -268,12 +279,11 @@ def switch(
                     )
 
                 def w_assign(bool_targets):
-
                     params_targets = [
                         (p, bool_targets[i]) for i, p in enumerate(params)
                     ]
 
-                    for (w_name, p_t) in product(on_widgets, params_targets):
+                    for w_name, p_t in product(on_widgets, params_targets):
                         param, target = p_t
                         widget = getattr(self, w_name)
                         setattr(widget, param, target)

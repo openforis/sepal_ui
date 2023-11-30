@@ -155,7 +155,7 @@ def set_drawer_link(folder: Path, url: str) -> None:
 
 def main() -> None:
     """Launch the process."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     # welcome the user
@@ -171,7 +171,7 @@ def main() -> None:
     question = f"{Fore.CYAN}Provide the URL of an empty github repository: \n{Fore.RESET}"  # fmt: skip
     github_url = input(question)
     if not github_url:
-        msg = f"{Fore.RED}A module name should be set with an asociated github repository"  # fmt: skip
+        msg = f"{Fore.RED}A module name should be set with an associated github repository"  # fmt: skip
         raise Exception(msg)
     question = f"{Fore.CYAN}Provide a short description for your module (optional): \n{Fore.RESET}"  # fmt: skip
     description = input(question)

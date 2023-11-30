@@ -7,6 +7,8 @@ from typing import Dict, List, Optional, Tuple, Union
 import ee
 import geopandas as gpd
 import pandas as pd
+import pygadm
+import pygaul
 import traitlets as t
 from ipyleaflet import GeoJSON
 from typing_extensions import Self
@@ -27,28 +29,8 @@ class AoiModel(Model):
     # ###                      dataset const                                  ###
     # ###########################################################################
 
-    FILE: List[Path] = [
-        Path(__file__).parents[1] / "data" / "gadm_database.parquet",
-        Path(__file__).parents[1] / "data" / "gaul_database.parquet",
-    ]
-    "Paths to the GADM(0) and GAUL(1) database"
-
-    CODE: List[str] = ["GID_{}", "ADM{}_CODE"]
-    "GADM(0) and GAUL(1) administrative codes key format"
-
-    NAME: List[str] = ["NAME_{}", "ADM{}_NAME"]
-    "GADM(0) and GAUL(1) naming key format"
-
-    ISO: List[str] = ["GID_0", "ISO 3166-1 alpha-3"]
-    "GADM(0) and GAUL(1) iso codes key"
-
-    GADM_BASE_URL: str = (
-        "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_{}_{}.json"
-    )
-    "The base url to download gadm maps"
-
-    GAUL_ASSET: str = "FAO/GAUL/2015/level{}"
-    "The GAUL asset name"
+    MAPPING: Path = Path(__file__).parents[1] / "data" / "gaul_iso.json"
+    "GAUL -> ISO-3 mapping of country code"
 
     ASSET_SUFFIX: str = "aoi_"
     "The suffix to identify the asset in GEE"
@@ -150,13 +132,13 @@ class AoiModel(Model):
     ) -> None:
         """An Model object dedicated to the sorage and the manipulation of aoi.
 
-        It is meant to be used with the AoiView object (embeded in the AoiTile).
+        It is meant to be used with the AoiView object (embedded in the AoiTile).
         By using this you will be able to provide your application with aoi as an ee_object
         or a gdf, depending if you activated the ee binding or not.
         The class also provide insight on your aoi geometry.
 
         Args:
-            gee: wether or not the aoi selector should be using the EarthEngine binding
+            gee: whether or not the aoi selector should be using the EarthEngine binding
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if ee==True
@@ -168,7 +150,7 @@ class AoiModel(Model):
         """
         super().__init__()
 
-        # the ee retated informations
+        # the ee retated information
         self.gee = gee
         if gee:
             su.init_ee()
@@ -273,7 +255,7 @@ class AoiModel(Model):
         # set the feature collection
         self.feature_collection = ee_col
 
-        # create a gdf form te feature_collection
+        # create a gdf form the feature_collection
         features = self.feature_collection.getInfo()["features"]
         self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
@@ -286,7 +268,7 @@ class AoiModel(Model):
             point_json: the geo_interface description of the points
         """
         if not all(point_json.values()):
-            raise Exception(ms.aoi_sel.exception.uncomplete)
+            raise Exception(ms.aoi_sel.exception.incomplete)
 
         # cast the pathname to pathlib Path
         point_file = Path(point_json["pathname"])
@@ -391,7 +373,7 @@ class AoiModel(Model):
         return self
 
     def _from_admin(self, admin: str) -> Self:
-        """Set the object according to given an administrative number in the GADM norm.
+        """Set the object according to the given an administrative code in the GADM/GAUL codes.
 
         Args:
             admin: the admin code corresponding to FAO GAUl (if gee) or GADM
@@ -399,48 +381,23 @@ class AoiModel(Model):
         if not admin:
             raise Exception(ms.aoi_sel.exception.no_admlyr)
 
-        # get the admin level corresponding to the given admin code
-        df = pd.read_parquet(self.FILE[self.gee]).astype(str)
-
-        # extract the first element that include this administrative code and set the level accordingly
-        is_in = df.filter([self.CODE[self.gee].format(i) for i in range(3)]).isin(
-            [admin]
-        )
-
-        if not is_in.any().any():
-            raise Exception(ms.aoi_sel.exception.invalid_code)
-
-        index = 3 if self.gee else -1
-        level = is_in[~((~is_in).all(axis=1))].idxmax(1).iloc[0][index]
-
+        # get the data from either the pygaul or the pygadm libs
+        # pygaul needs extra work as ISO codes are not included in the GEE dataset
         if self.gee:
-
-            # get the feature_collection
-            self.feature_collection = ee.FeatureCollection(
-                self.GAUL_ASSET.format(level)
-            ).filter(ee.Filter.eq(f"ADM{level}_CODE", int(admin)))
-
-            # transform it into gdf
+            self.feature_collection = pygaul.AdmItems(admin=admin)
             features = self.feature_collection.getInfo()["features"]
             self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
+            gaul_country = str(self.gdf.ADM0_CODE.unique()[0])
+            iso = json.loads(self.MAPPING.read_text())[gaul_country]
+            self.gdf["ISO"] = iso
 
         else:
-            # save the country iso_code
-            iso_3 = admin[:3]
+            self.gdf = pygadm.AdmItems(admin=admin)
 
-            # read the data from server
-            level_gdf = gpd.read_file(self.GADM_BASE_URL.format(iso_3, level))
-            level_gdf.rename(columns={"COUNTRY": "NAME_0"}, inplace=True)
-            self.gdf = level_gdf[level_gdf[self.CODE[self.gee].format(level)] == admin]
-
-        # set the name using the layer
-        r = df[df[self.CODE[self.gee].format(level)] == admin].iloc[0]
-        names = [
-            su.normalize_str(r[self.NAME[self.gee].format(i)])
-            if i
-            else r[self.ISO[self.gee]]
-            for i in range(int(level) + 1)
-        ]
+        # generate the name from the columns
+        r = self.gdf.iloc[0]
+        names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
+        names[0] = r.ISO if self.gee else r.GID_0[:3]
         self.name = "_".join(names)
 
         return self
@@ -585,7 +542,7 @@ class AoiModel(Model):
         """Converts current geopandas object into ipyleaflet GeoJSON.
 
         Args:
-            style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
 
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map

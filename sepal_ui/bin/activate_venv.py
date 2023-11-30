@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(description=__doc__, usage="activate_venv")
 
 def main() -> None:
     """Activate the selected venv."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     print(
@@ -76,7 +76,7 @@ def main() -> None:
     print(f"{Fore.GREEN}Activating: {kernel_path} {Fore.RESET}")
 
     # Based on https://stackoverflow.com/questions/6943208/activate-a-virtualenv-with-a-python-script
-    # It won't return anything to know if the the command was succesfully done
+    # It won't return anything to know if the the command was successfully done
     subprocess.run(
         ["/bin/bash", "--rcfile", str(kernel_path / activate_path)],
     )

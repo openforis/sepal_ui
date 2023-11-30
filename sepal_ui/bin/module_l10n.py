@@ -38,7 +38,7 @@ def check_locale(locale: str) -> bool:
 
 def main() -> None:
     """Launch the process."""
-    # parse agruments
+    # parse arguments
     parser.parse_args()
 
     # welcome the user

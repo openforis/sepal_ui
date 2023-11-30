@@ -24,7 +24,7 @@ class InfoView(sw.ExpansionPanels):
     def __init__(self, model: PlanetModel, **kwargs) -> None:
         """Card to validate subscription.
 
-        Custom optinal card to be displayed within the planet view to validate the available
+        Custom optional card to be displayed within the planet view to validate the available
         subscriptions from the log-in credentials and show the info related with them, such
         as the quotas and remaining time of activation.
 
@@ -142,7 +142,7 @@ class InfoCard(sw.Layout):
         state = sub["plan"]["state"]
 
         # Create an individual State icon for all the elements, it has to be
-        # independant
+        # independent
         w_state = sw.StateIcon(
             states={
                 "non_active": ["Non active", "error"],

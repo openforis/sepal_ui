@@ -1,4 +1,4 @@
-"""The translator object allow developer to suport translation for their application."""
+"""The translator object allow developer to support translation for their application."""
 
 import json
 from configparser import ConfigParser
@@ -98,7 +98,7 @@ class Translator(Box):
         If nothing is found falling back to any working subvariety and return None if it doesn't exist
 
         Args:
-            folder: the folder where the languages dictionnaries are stored
+            folder: the folder where the languages dictionaries are stored
             target: the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
 
         Returns:
@@ -120,7 +120,7 @@ class Translator(Box):
         # first scenario the target is available
         if (folder / target).is_dir():
             lang = target
-        # second senario the "main lang" is set
+        # second scenario the "main lang" is set
         elif (folder / target[:2]).is_dir():
             lang = target[:2]
         # third scenario we search for any closely related language
@@ -151,17 +151,17 @@ class Translator(Box):
 
     @classmethod
     def sanitize(cls, d: Union[dict, list]) -> dict:
-        """Identify numbered dictionnaries embeded in the dict and transform them into lists.
+        """Identify numbered dictionaries embedded in the dict and transform them into lists.
 
         This function is an helper to prevent deprecation after the introduction of pontoon for translation.
         The user is now force to use keys even for numbered lists. SimpleNamespace doesn't support integer indexing
-        so this function will transform back this "numbered" dictionnary (with integer keys) into lists.
+        so this function will transform back this "numbered" dictionary (with integer keys) into lists.
 
         Args:
-            d: the dictionnary to sanitize
+            d: the dictionary to sanitize
 
         Returns:
-            the sanitized dictionnary
+            the sanitized dictionary
         """
         ms = d.copy()
 
@@ -243,13 +243,13 @@ class Translator(Box):
     def delete_empty(cls, d: dict) -> dict:
         """Remove empty strings ("") recursively from the dictionaries.
 
-        This is to prevent untranslated strings from Crowdin to be uploaded. The dictionnary must only embed dictionnaries and no lists.
+        This is to prevent untranslated strings from Crowdin to be uploaded. The dictionary must only embed dictionaries and no lists.
 
         Args:
-            d: the dictionnary to sanitize
+            d: the dictionary to sanitize
 
         Returns:
-            the sanitized dictionnary
+            the sanitized dictionary
 
         """
         for k, v in list(d.items()):

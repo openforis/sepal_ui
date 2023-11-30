@@ -1,5 +1,6 @@
 """All the helper function of sepal-ui."""
 
+import configparser
 import math
 import os
 import random
@@ -7,12 +8,14 @@ import re
 import string
 import warnings
 from pathlib import Path
-from typing import Any, Sequence, Union
+from typing import Any, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 import ee
 import httplib2
 import ipyvuetify as v
+import requests
+import tomli
 from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
@@ -22,6 +25,9 @@ from sepal_ui.conf import config, config_file
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts.warning import SepalWarning
+
+# Types
+Pathlike = Union[str, Path]
 
 
 def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
@@ -60,7 +66,7 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     return widget
 
 
-def create_download_link(pathname: Union[str, Path]) -> str:
+def create_download_link(pathname: Pathlike) -> str:
     """Create a clickable link to download the pathname target.
 
     Args:
@@ -102,23 +108,19 @@ def random_string(string_length: int = 3) -> str:
     return "".join(random.choice(letters) for i in range(string_length))
 
 
-def get_file_size(filename: Union[str, Path]) -> str:
+def get_file_size(filename: Pathlike) -> str:
     """Get the file size as string of 2 digit in the adapted scale (B, KB, MB....).
 
     Args:
-        filename: the path to the file to mesure
+        filename: the path to the file to measure
 
     Returns:
         the file size in a readable humanly readable
     """
     file_size = Path(filename).stat().st_size
 
-    if file_size == 0:
-        return "0B"
-
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-
-    i = int(math.floor(math.log(file_size, 1024)))
+    i = int(math.floor(math.log(file_size, 1024))) if file_size > 0 else 0
     s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
@@ -132,10 +134,8 @@ def init_ee() -> None:
     """
     # only do the initialization if the credential are missing
     if not ee.data._credentials:
-
         # if the credentials token is asved in the environment use it
         if "EARTHENGINE_TOKEN" in os.environ:
-
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
             credential_folder_path = Path.home() / ".config" / "earthengine"
@@ -146,6 +146,7 @@ def init_ee() -> None:
         # if the user is in local development the authentication should
         # already be available
         ee.Initialize(http_transport=httplib2.Http())
+        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
 
     return
 
@@ -170,7 +171,7 @@ def to_colors(
 ) -> Union[str, tuple]:
     """Transform any color type into a color in the specified output format.
 
-    Avalable format: [hex]
+    Available format: [hex]
 
     Args:
         in_color: It can be a string (e.g., 'red', '#ffff00', 'ffff00') or RGB tuple (e.g., (255, 127, 0)).
@@ -186,7 +187,6 @@ def to_colors(
     out_color = "#000000"  # default black color
 
     if isinstance(in_color, tuple) and len(in_color) == 3:
-
         # rescale color if necessary
         if all(isinstance(item, int) for item in in_color):
             in_color = [c / 255.0 for c in in_color]
@@ -194,7 +194,6 @@ def to_colors(
         return transform(in_color)
 
     else:
-
         # try to guess the color system
         try:
             return transform(in_color)
@@ -219,7 +218,7 @@ def next_string(string: str) -> str:
     Returns:
         the incremented string
     """
-    # if the string is already numbered the last digit is separeted from the rest of the string by an "_"
+    # if the string is already numbered the last digit is separated from the rest of the string by an "_"
     split = string.split("_")
     end = split[-1]
 
@@ -283,7 +282,7 @@ def set_config_theme(theme: str) -> None:
 def set_type(color: str) -> str:
     r"""Return a pre-defined material colors based on the requested type\_ parameter.
 
-    If the parameter is not a predifined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
+    If the parameter is not a predefined color, fallback to "info" and will raise a warning. the colors can only be selected from ["primary", "secondary", "accent", "error", "info", "success", "warning", "anchor"].
 
     Args:
         color: the requested color
@@ -314,7 +313,7 @@ def geojson_to_ee(
     `__geo_interface__ <https://gist.github.com/sgillies/2217756>`__.
 
     Args:
-        geo_json: a geo_json dictionnary
+        geo_json: a geo_json dictionary
         geodesic: Whether line segments should be interpreted as spherical geodesics. If false, indicates that line segments should be interpreted as planar lines in the specified CRS. If absent, defaults to True if the CRS is geographic (including the default EPSG:4326), or to False if the CRS is projected. Defaults to False.
         encoding: The encoding of characters. Defaults to "utf-8".
 
@@ -376,6 +375,92 @@ def check_input(input_: Any, msg: str = ms.utils.check_input.error) -> bool:
         raise ValueError(msg)
 
     return init
+
+
+def get_app_version(repo_folder: Pathlike = Path.cwd()) -> str:
+    """Get the current version of the a github project using the pyproject.toml file in the root.
+
+    Returns:
+        the version of the repository
+    """
+    # get the path to the pyproject.toml file
+    pyproject_path = repo_folder / "pyproject.toml"
+
+    # check if the file exist
+    if pyproject_path.exists():
+        # read the file using tomli
+        pyproject = tomli.loads(pyproject_path.read_text())
+
+        # get the version
+        return pyproject.get("project", {}).get("version", None)
+
+    return None
+
+
+def get_repo_info(repo_folder: Pathlike = Path.cwd()) -> Tuple[str, str]:
+    """Get the repository name and owner from the git config file."""
+    config = configparser.ConfigParser()
+    git_config_path = Path(repo_folder) / ".git/config"
+    config.read(git_config_path)
+
+    try:
+        remote_url = config.get('remote "origin"', "url")
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        return "", ""
+
+    # Check if URL is likely SSH
+    if "git@" in remote_url:
+        match = re.search(r":(.*?)/(.*?)(?:\.git)?$", remote_url)
+
+    # Assume URL is HTTPS otherwise
+    else:
+        match = re.search(r"github\.com/(.*?)/(.*?)(?:\.git)?$", remote_url)
+
+    if match:
+        return match.groups()
+
+    else:
+        return "", ""
+
+
+def get_changelog(repo_folder: Pathlike = Path.cwd()) -> str:
+    """Check if the repository contains a changelog file and/or a remote release and return its content.
+
+    Returns:
+        str: the content of the release and/or changelog file
+    """
+    changelog_text, release_text = "", ""
+    repo_owner, repo_name = get_repo_info(repo_folder)
+
+    release_url = (
+        f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+    )
+
+    response = requests.get(release_url)
+    if all([repo_owner, repo_name]) and response.status_code == 200:
+        response_json = response.json()
+        name = response_json.get("name")
+
+        if name == f"v_{get_app_version()}":
+            release_text = response_json.get("body")
+
+            url_pattern = r"https://github\.com/[^ ]+/pull/\d+"
+
+            # Replace URLs with <a> tags
+            def wrap_url_in_a_tag(match):
+                url = match.group(0)
+                return f'<a href="{url}">{url}</a>'
+
+            release_text = re.sub(url_pattern, wrap_url_in_a_tag, release_text)
+
+    # get the path to the pyproject.toml file
+    changelog_path = Path(repo_folder) / "CHANGELOG.md"
+
+    # check if the file exist
+    if changelog_path.exists():
+        changelog_text = changelog_path.read_text()
+
+    return release_text, changelog_text
 
 
 ################################################################################

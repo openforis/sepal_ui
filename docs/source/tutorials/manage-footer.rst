@@ -29,7 +29,7 @@ go to the English dictionary file :
             }
         },
         "default_process": {
-            "small_slider": "{} is not big enought, please provide a value > to 50",
+            "small_slider": "{} is not big enough, please provide a value > to 50",
             "end_computation": "Computation complete",
             "hist_title": "Histogram",
             "treecover2000": "Treecover 2000",
@@ -81,7 +81,7 @@ If the new footer text does not include parameters, remove the :code:`.format(20
 Remove the footer
 -----------------
 
-If the sepal footer (always included bellow dashboard app) is sufficient for your app, then you can consider removing the footer.
+If the sepal footer (always included below dashboard app) is sufficient for your app, then you can consider removing the footer.
 first remove the :code:`app_footer` variable from the :code:`ui.ipynb` file by removing the third cell.
 Then in the penultimate cell of the same file remove the line corresponding to the footer :
 

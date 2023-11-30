@@ -31,7 +31,7 @@ def test_init(model: LocalModel) -> None:
         "off": ("Non connected", color.darker),
         "init": ("Initializing...", color.warning),
         "failed": ("Connection failed!", color.error),
-        "successfull": ("Successfull", color.success),
+        "successful": ("successful", color.success),
     }
     state_icon = sw.StateIcon(model, "state_value", custom_states)
 

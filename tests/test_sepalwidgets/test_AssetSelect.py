@@ -84,7 +84,7 @@ def test_validate(asset_select: sw.AssetSelect, default_items: List[str]) -> Non
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
-    """Check only the specified types are displayed to the ned user.
+    """Check only the specified types are displayed to the need user.
 
     Args:
         asset_select: a fully defined asset widget
@@ -129,7 +129,7 @@ def test_get_items(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     assert str(gee_user_dir / "image") in asset_select.items
 
     # Test button event
-    # we shoud export an extra asset and check if the new one is here but
+    # we should export an extra asset and check if the new one is here but
     # that is 30 extra seconds so we cannot afford yet
     asset_select.items = []
     asset_select.fire_event("click:prepend", None)

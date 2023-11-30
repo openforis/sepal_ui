@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import ipyvuetify as v
-import pandas as pd
+import pygadm
+import pygaul
 import traitlets as t
 from deprecated.sphinx import versionadded
 from typing_extensions import Self
@@ -43,7 +44,7 @@ class MethodSelect(sw.Select):
         Args:
             methods: a list of methods from the available list (ADMIN0, ADMIN1, ADMIN2, SHAPE, DRAW, POINTS, ASSET)
             map_: link the aoi_view to a custom SepalMap to display the output, default to None
-            gee: wether to bind to ee or not
+            gee: whether to bind to ee or not
         """
         # create the method list
         if methods == "ALL":
@@ -57,12 +58,10 @@ class MethodSelect(sw.Select):
                 k: v for k, v in select_methods.items() if v["type"] == CUSTOM
             }
         elif type(methods) == list:
-
             if any(m[0] == "-" for m in methods) != all(m[0] == "-" for m in methods):
                 raise Exception("You mixed adding and removing, punk")
 
             if methods[0][0] == "-":
-
                 to_remove = [method[1:] for method in methods]
 
                 # Rewrite the methods instead of mutate the class methods
@@ -96,9 +95,8 @@ class MethodSelect(sw.Select):
 
 
 class AdminField(sw.Select):
-
     gee: bool = True
-    "wether or not to depend on earthengine"
+    "whether or not to depend on earthengine"
 
     level: int = -1
     "The admin level of the current field"
@@ -111,12 +109,12 @@ class AdminField(sw.Select):
     ) -> None:
         """An admin level selector.
 
-        It is binded to ee (GAUL 2015) or not (GADM 2021). allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+        It is binded to ee (GAUL 2015) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
             level: The administrative level of the field
             parent: the adminField that deal with the parent admin level of the current selector. used to narrow down the possible options
-            ee: wether to use ee or not (default to True)
+            ee: whether to use ee or not (default to True)
         """
         # save ee state
         self.gee = gee
@@ -144,30 +142,19 @@ class AdminField(sw.Select):
         r"""Update the item list based on the given filter.
 
         Args:
-            filter\_ (str): The code of the parent v_model to filter the current results
+            filter\_: The code of the parent v_model to filter the current results
         """
-        # extract the level list
-        df = (
-            pd.read_parquet(AoiModel.FILE[self.gee])
-            .astype(str)
-            .drop_duplicates(subset=AoiModel.CODE[self.gee].format(self.level))
-            .sort_values(AoiModel.NAME[self.gee].format(self.level))
-        )
-
-        # filter it
-        if filter_:
-            df = df[df[AoiModel.CODE[self.gee].format(self.level - 1)] == filter_]
+        AdmNames = pygaul.AdmNames if self.gee else pygadm.AdmNames
+        df = AdmNames(admin=filter_, content_level=self.level)
+        df = df.sort_values(by=[df.columns[0]])
 
         # formatted as a item list for a select component
-        self.items = [
-            {
-                "text": su.normalize_str(
-                    r[AoiModel.NAME[self.gee].format(self.level)], folder=False
-                ),
-                "value": r[AoiModel.CODE[self.gee].format(self.level)],
-            }
-            for _, r in df.iterrows()
-        ]
+        # first column will be the name, second the code
+        items = []
+        for _, r in df.iterrows():
+            text = su.normalize_str(r.iloc[0], folder=False)
+            items.append({"text": text, "value": str(r.iloc[1])})
+        self.items = items
 
         return self
 
@@ -184,7 +171,6 @@ class AdminField(sw.Select):
 
 
 class AoiView(sw.Card):
-
     # ##########################################################################
     # ###                             widget parameters                      ###
     # ##########################################################################
@@ -202,10 +188,10 @@ class AoiView(sw.Card):
     "The model to create the AOI from the selected parameters"
 
     map_style: Optional[dict] = None
-    "The predifined style of the aoi on the map"
+    "The predefined style of the aoi on the map"
 
     # ##########################################################################
-    # ###                            the embeded widgets                     ###
+    # ###                           the embedded widgets                     ###
     # ##########################################################################
 
     map_: Optional[sm.SepalMap] = None
@@ -268,13 +254,13 @@ class AoiView(sw.Card):
         Args:
             methods: the methods to use in the widget, default to 'ALL'. Available: {'ADMIN0', 'ADMIN1', 'ADMIN2', 'SHAPE', 'DRAW', 'POINTS', 'ASSET', 'ALL'}
             map\_: link the aoi_view to a custom SepalMap to display the output, default to None
-            gee: wether to bind to ee or not
+            gee: whether to bind to ee or not
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
-            map_style: the predifined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completly replace by a fully qualified `style dictionnary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
-        # set ee dependencie
+        # set ee dependency
         self.gee = gee
         self.folder = folder
         if gee is True:
@@ -324,7 +310,7 @@ class AoiView(sw.Card):
             .bind(self.w_method, "method")
         )
 
-        # defint the asset select separately. If no gee is set up we don't want any
+        # define the asset select separately. If no gee is set up we don't want any
         # gee based widget to be requested. If it's the case, application that does not support GEE
         # will crash if the user didn't authenticate
         if self.gee:
@@ -355,15 +341,15 @@ class AoiView(sw.Card):
 
         # js events
         self.w_method.observe(self._activate, "v_model")  # activate widgets
-        self.btn.on_event("click", self._update_aoi)  # load the informations
+        self.btn.on_event("click", self._update_aoi)  # load the information
 
-        # reset te aoi_model
+        # reset the aoi_model
         self.model.clear_attributes()
 
-    @sd.loading_button(debug=True)
+    @sd.loading_button()
     def _update_aoi(self, *args) -> Self:
         """Load the object in the model & update the map (if possible)."""
-        # read the information from the geojson datas
+        # read the information from the geojson data
         if self.map_:
             self.model.geo_json = self.aoi_dc.to_json()
 
@@ -401,10 +387,10 @@ class AoiView(sw.Card):
         # clear and hide the alert
         self.alert.reset()
 
-        # hide the widget so that the user doens't see status changes
+        # hide the widget so that the user doesn't see status changes
         [w.hide() for w in self.components.values()]
 
-        # clear the inputs in a second step as reseting a FileInput can be long
+        # clear the inputs in a second step as resetting a FileInput can be long
         [w.reset() for w in self.components.values()]
 
         # deactivate or activate the dc
@@ -415,12 +401,12 @@ class AoiView(sw.Card):
             else:
                 self.aoi_dc.hide()
 
+            # init the name to the current value
+            now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
+
         # activate the correct widget
         w = next((w for k, w in self.components.items() if k == change["new"]), None)
         w is None or w.show()
-
-        # init the name to the current value
-        now = dt.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.w_draw.v_model = None if change["new"] is None else f"Manual_aoi_{now}"
 
         return

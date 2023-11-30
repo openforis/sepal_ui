@@ -98,7 +98,7 @@ class MenuControl(WidgetControl):
 
         super().__init__(**kwargs)
 
-        # place te menu according to the widget positioning
+        # place the menu according to the widget positioning
         self.update_position(None)
         self.set_size()
 
@@ -168,7 +168,7 @@ class MenuControl(WidgetControl):
 
     def activate(self, *args) -> None:
         """Change the background color of the btn with respect to the status."""
-        # grey is contrasted enought for both ligh and dark theme
+        # grey is contrasted enough for both light and dark theme
         # could be customized further if requested
         bg_color = "gray" if self.menu.v_model is True else color.bg
         self.menu.v_slots[0]["children"].style_ = f"background: {bg_color};"

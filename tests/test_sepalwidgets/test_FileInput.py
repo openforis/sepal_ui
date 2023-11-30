@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import List
 
-import ipyvuetify as v
 import pytest
 from traitlets import Any
 
@@ -91,15 +90,18 @@ def test_on_file_select(root_dir: Path, file_input: sw.FileInput, readme: Path) 
     return
 
 
-def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
+def test_on_reload(
+    file_input: sw.FileInput, tmp_path_factory: pytest.TempPathFactory
+) -> None:
     """Check that updating file content is updated when clicking on reload.
 
     Args:
         file_input: a widget instance
-        tmp_dir: Path to the tmp_dir of the test session
     """
+    tmp_path_dir = tmp_path_factory.mktemp("temp")
+
     # move to the tmp directory
-    file_input._on_file_select({"new": tmp_dir})
+    file_input._on_file_select({"new": tmp_path_dir})
 
     # assert that the file does not exist
     name = "text.txt"
@@ -107,7 +109,7 @@ def test_on_reload(file_input: sw.FileInput, tmp_dir: Path) -> None:
     assert name not in get_names(file_input)
 
     # create the file and reload the widget
-    tmp_file = tmp_dir / name
+    tmp_file = tmp_path_dir / name
     tmp_file.write_text("a test \n")
     file_input._on_reload(None, None, None)
 
@@ -153,7 +155,7 @@ def test_select_file(file_input: sw.FileInput, readme: Path) -> None:
     # assert that the file has been selected
     assert file_input.v_model == str(readme)
 
-    # assert exeption if path is not a file
+    # assert exception if path is not a file
     with pytest.raises(Exception):
         file_input.select_file(readme.parent)
 
@@ -170,9 +172,18 @@ def test_root(file_input: sw.FileInput, root_dir: Path) -> None:
     # set the root to the current folder and reload
     file_input.root = str(root_dir)
     file_input._on_reload()
-    first_title_item = file_input.get_children(klass=v.ListItemTitle)[0]
 
-    assert ".. /" not in first_title_item.children[0]
+    current_items = file_input.file_list
+
+    # Try to go to the parent root folder
+    root_parent = Path(file_input.root).parent
+
+    file_input._on_file_select({"new": root_parent})
+
+    new_items = file_input.file_list
+
+    # Assert that trying to go to the parent root folder does not work
+    assert current_items == new_items
 
     return
 

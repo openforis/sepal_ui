@@ -5,7 +5,7 @@ Contributing guidelines
 
     Remember that if you create modifications that alter the lib standard functioning It will break the applications that use it on the SEPAL app dashboard.
 
-After forking the projet, run the following command to start developing:
+After forking the project, run the following command to start developing:
 
 .. code-block:: console
 
@@ -15,7 +15,7 @@ After forking the projet, run the following command to start developing:
 
 .. warning::
 
-    ``setuptool`` > 60 has changed its editable installation process. If your environment is not suporting it (e.g. SEPAL) use the following line instead:
+    ``setuptool`` > 60 has changed its editable installation process. If your environment is not supporting it (e.g. SEPAL) use the following line instead:
 
         .. code-block:: console
 
@@ -29,7 +29,7 @@ After forking the projet, run the following command to start developing:
 Participate to translation
 --------------------------
 
-The tool is currently tranlated in the following languages:
+The tool is currently translated in the following languages:
 
 .. csv-table::
 
@@ -139,13 +139,13 @@ Create a new release
 
      You need to use the :code:`commitizen` lib to create your release: `<https://commitizen-tools.github.io/commitizen>`_
 
-In the files change the version number by runnning commitizen `bump`:
+In the files change the version number by running commitizen `bump`:
 
 .. code-block:: console
 
     cz bump
 
-It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to sementic versionning thanks to the conventional commit that we use in the lib.
+It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to semantic versioning thanks to the conventional commit that we use in the lib.
 
 It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories if you run the following code, using the version bumped in the previous commit.
 
@@ -166,7 +166,7 @@ Once it's done you need to trigger the rebuild of SEPAL. modify the following `f
 ENV for Planet components
 -------------------------
 
-Sometimes is useful to create enviromental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though they are also skippable.
+Sometimes is useful to create environmental variables to store some data that your workflows will receive (i.e. component testing). For example, to perform the local tests of the :code:`planetapi` sepal module, the :code:`PLANET_API_KEY` and :code:`PLANET_API_CREDENTIALS` env vars are required, even though they are also skippable.
 
 To store a variable in your local session, just type :code:`export=` followed by the var value.
 
@@ -176,13 +176,13 @@ To store a variable in your local session, just type :code:`export=` followed by
 
 .. tip::
 
-    In SEPAL this variable will expire everytime you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
+    In SEPAL this variable will expire every time you start a new session, to create it every session and make it live longer, go to your :code:`home` folder and save the previous line in the :code:`.bash_profile` file.
 
     .. code-block:: console
 
         $ vim .bash_profile
 
-The current enviromental keys and its structure is the following:
+The current environmental keys and its structure is the following:
 
 -   ``PLANET_API_CREDENTIALS='{"username": "user@neim.com", "password": "secure"}'``
 -   ``PLANET_API_KEY="string_planet_api_key"``
@@ -192,7 +192,7 @@ ENV for GEE component
 
 To test/use the Google EarthEngine components, you need to run the `ìnit__ee`` script.
 
-In a local development environment you can fully rely on your own GEE account. simply make sure to run at least once the authentification process from a terminal:
+In a local development environment you can fully rely on your own GEE account. simply make sure to run at least once the authentication process from a terminal:
 
 .. code-block:: console
 

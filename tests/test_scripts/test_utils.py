@@ -92,7 +92,7 @@ def test_get_file_size() -> None:
         stat.return_value.st_size = 0
 
         txt = su.get_file_size("random")
-        assert txt == "0B"
+        assert txt == "0.0 B"
 
     # mock every pow of 1024 to YB
     for i in range(9):
@@ -273,3 +273,94 @@ def test_check_input() -> None:
         su.check_input([])
 
     return
+
+
+def test_get_app_version(repo_dir):
+    """Test if the function gets the pyproject version."""
+    dummy_repo = repo_dir / "dummy_repo"
+    dummy_repo.mkdir(exist_ok=True, parents=True)
+    pyproject_file = dummy_repo / "pyproject.toml"
+
+    # create a temporary pyproject.toml file
+    with open(pyproject_file, "w") as f:
+        f.write("[project]\nversion = '1.0.0'")
+
+    # test the function
+    version = su.get_app_version(dummy_repo)
+    assert version == "1.0.0"
+
+    # remove the temporary file
+    pyproject_file.unlink()
+
+    # test the function with a non-existing pyproject.toml file
+    version = su.get_app_version(dummy_repo)
+    assert version is None
+
+
+def test_get_repo_info(repo_dir):
+    """Test if the function returns repo_owner and repo_name correctly."""
+    # test the function with a known repository URL
+    # Create a temporary .git folder inside the temporary directory
+
+    # repo_dir = Path("delete_mi")
+    git_folder = repo_dir / ".git"
+    git_folder.mkdir(exist_ok=True, parents=True)
+
+    expected_owner = "12rambau"
+    expected_repo = "sepal_ui"
+
+    config = ConfigParser()
+    config.add_section('remote "origin"')
+    config.set(
+        'remote "origin"', "url", f"git@github.com:{expected_owner}/{expected_repo}.git"
+    )
+    with open(git_folder / "config", "w") as f:
+        config.write(f)
+
+    repo_owner, repo_name = su.get_repo_info(repo_folder=repo_dir)
+
+    assert repo_owner == expected_owner
+    assert repo_name == expected_repo
+
+    config.set(
+        'remote "origin"',
+        "url",
+        f"https://github.com/{expected_owner}/{expected_repo}.git",
+    )
+    with open(git_folder / "config", "w") as f:
+        config.write(f)
+
+    repo_owner, repo_name = su.get_repo_info(repo_folder=repo_dir)
+
+    assert repo_owner == expected_owner
+    assert repo_name == expected_repo
+
+    # Test the function with a non-existing matching repository URL
+    config.set('remote "origin"', "url", "toto")
+    with open(git_folder / "config", "w") as f:
+        config.write(f)
+
+    repo_info = su.get_repo_info(repo_folder=repo_dir)
+
+    assert repo_info == ("", "")
+
+
+def test_get_changelog(repo_dir):
+    """Test if the function returns the changelog correctly."""
+    # Create a dummy directory with a changelog file
+
+    # Create a dummy changelog file and write some text in it
+    changelog_file = repo_dir / "CHANGELOG.md"
+    changelog_file.touch()
+    changelog_file.write_text("# Changelog")
+
+    # Test the function
+    changelog = su.get_changelog(repo_folder=repo_dir)
+
+    assert changelog == ("", "# Changelog")
+
+    # assume that this is executed in this git repository
+    release_text, changelog_text = su.get_changelog()
+
+    assert release_text is not None
+    assert changelog_text is not None

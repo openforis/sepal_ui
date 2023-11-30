@@ -38,7 +38,7 @@ class ZoomControl(WidgetControl):
         self.plus.class_list.add("v-zoom-plus")
         self.minus.class_list.add("v-zoom-minus")
 
-        # agregate them in a layout
+        # aggregate them in a layout
         content = sw.Layout(column=True, children=[self.plus, self.minus])
 
         # by default Zoomcontrols will be displayed in the topright corner

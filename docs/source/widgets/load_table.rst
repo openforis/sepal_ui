@@ -32,7 +32,7 @@ the value can be retrieve from the :code:`v_model` trait.
     # will return the value of the widget
     point_file.v_model
 
-    # will be thown when v_model change
+    # will be thrown when v_model change
     point_file.observe(lambda change: print(change['new']))
 
     # bin the value to a io object using an Alert widget

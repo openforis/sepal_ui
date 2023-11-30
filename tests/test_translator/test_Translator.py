@@ -3,7 +3,6 @@
 import json
 from configparser import ConfigParser
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -17,7 +16,7 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
 
     Args:
         translation_folder: the folder where the language keys are stored
-        tmp_config_file: create the config file for the prefered language
+        tmp_config_file: create the config file for the preferred language
     """
     # assert that the test key exist in fr
     translator = Translator(translation_folder, "fr")
@@ -73,7 +72,7 @@ def test_search_key() -> None:
 
 def test_sanitize() -> None:
     """Check that the dict are sanitized by the Translator object."""
-    # a test dict with many embeded numbered list
+    # a test dict with many embedded numbered list
     # but also an already existing list
     test = {
         "a": {"0": "b", "1": "c"},
@@ -161,7 +160,7 @@ def test_key_use() -> None:
 
 
 @pytest.fixture(scope="module")
-def translation_folder() -> Path:
+def translation_folder(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Generate a fully qualified translation folder with limited keys in en, fr and es."""
     # set up the appropriate keys for each language
     keys = {
@@ -171,18 +170,14 @@ def translation_folder() -> Path:
         "es": {"a_key": "Una llave"},
     }
 
-    with TemporaryDirectory() as tmp_dir:
+    message_dir = tmp_path_factory.mktemp("temp") / "message"
+    message_dir.mkdir()
+    for lan, d in keys.items():
+        folder = message_dir / lan
+        folder.mkdir()
+        (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
-        # create the translation files
-        tmp_dir = Path(tmp_dir)
-        for lan, d in keys.items():
-            folder = tmp_dir / lan
-            folder.mkdir()
-            (folder / "locale.json").write_text(json.dumps(d, indent=2))
-
-        yield tmp_dir
-
-    return
+    return message_dir
 
 
 @pytest.fixture(scope="module")

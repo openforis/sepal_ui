@@ -96,7 +96,6 @@ if not version_match or version_match.isdigit():
 html_theme = "pydata_sphinx_theme"
 html_last_updated_fmt = ""
 html_theme_options = {
-    "header_links_before_dropdown": 6,
     "logo": {
         "text": "sepal-ui",
         "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",
@@ -118,11 +117,14 @@ html_theme_options = {
             "icon": "fa-brands fa-python",
         },
     ],
+    "footer_start": ["copyright.html"],
+    "footer_center": ["sphinx-version.html"],
+    "show_version_warning_banner": True,
 }
 html_context = {
     "github_user": "12rambau",
     "github_repo": "sepal_ui",
-    "github_version": "master",
+    "github_version": "main",
     "doc_path": "docs/source",
 }
 

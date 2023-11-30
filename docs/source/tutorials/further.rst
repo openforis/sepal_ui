@@ -6,7 +6,7 @@ In this section you will find some tips on how to maintain your application in t
 Interact with end user
 ----------------------
 
-The End user doesn't know when a new version of the application is released or when a major issue is uncovered. To keep them engage with your application and make sure that it's not missused you must give them insight of what you are doing.
+The End user doesn't know when a new version of the application is released or when a major issue is uncovered. To keep them engage with your application and make sure that it's not misused you must give them insight of what you are doing.
 
 to do so use a banner to display information to the end user. In the :code:`ui.ipynb` file, you can modify the last cell as followed:
 

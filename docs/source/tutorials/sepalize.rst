@@ -75,7 +75,7 @@ The script provide both images and plots. It is available `here <https://code.ea
 
     //#######################################
     //##                                   ##
-    //##      vizualisation parameter      ##
+    //##      visualisation parameter      ##
     //##                                   ##
     //#######################################
 
@@ -336,7 +336,7 @@ We thus need to create a specific function that build a :code:`matplotlib` chart
         elif len(dates) > len(cloud) == len(ndmi):
             dates = dates[1:]
         else:
-            raise Exception(f'The size are all diferent.\n dates: {len(dates)}\n ndmi: {len(ndmi)}\n cloud: {len(cloud)}')
+            raise Exception(f'The size are all different.\n dates: {len(dates)}\n ndmi: {len(ndmi)}\n cloud: {len(cloud)}')
 
         df = pd.DataFrame({'ndmi': ndmi, 'cloud': cloud}, index = dates)
 
@@ -399,7 +399,7 @@ your tile should look like this one :
 
             # construct the Tile with the widget we have initialized
             super().__init__(
-                id_    = "process_widget", # the id will be used to make the Tile appear and disapear
+                id_    = "process_widget", # the id will be used to make the Tile appear and disappear
                 title  = ms.process.title, # the Title will be displayed on the top of the tile
                 inputs = [...] # input list
                 btn    = sw.Btn(),

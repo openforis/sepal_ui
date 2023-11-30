@@ -5,7 +5,6 @@ import os
 import uuid
 from itertools import product
 from pathlib import Path
-from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Optional
 from urllib.request import urlretrieve
 
@@ -30,7 +29,7 @@ except Exception:
 
 @pytest.fixture(scope="session")
 def _alert() -> sw.Alert:
-    """An alert that can be used everywhere to display informations.
+    """An alert that can be used everywhere to display information.
 
     Returns:
         an alert object
@@ -40,7 +39,7 @@ def _alert() -> sw.Alert:
 
 @pytest.fixture(scope="function")
 def alert(_alert: sw.Alert) -> sw.Alert:
-    """An alert that can be used everywhere to display informations.
+    """An alert that can be used everywhere to display information.
 
     Args:
         _alert: the shared alert component
@@ -64,7 +63,7 @@ def file_start() -> str:
     return "https://sepal.io/api/sandbox/jupyter/files/"
 
 
-# -- Acess files from the project ----------------------------------------------
+# -- Access files from the project ---------------------------------------------
 
 # init pyplot with the non interactive backend and use it in the rest of the tests
 matplotlib.use("Agg")
@@ -72,7 +71,7 @@ matplotlib.use("Agg")
 
 @pytest.fixture(scope="session")
 def root_dir() -> Path:
-    """Path to the root dir of the librairy.
+    """Path to the root dir of the library.
 
     Returns:
         the root path
@@ -151,7 +150,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     ee_buffer = ee.Geometry.Point(0, 0).buffer(200).bounds()
     image = image.clipToBoundsAndScale(ee_buffer, scale=30)
 
-    # exports It should take less than 2 minutes unless there are concurent tasks
+    # exports It should take less than 2 minutes unless there are concurrent tasks
     fc = "feature_collection"
     ee.batch.Export.table.toAsset(
         collection=ee_gdf, description=f"{fc}_{_hash}", assetId=str(gee_dir / fc)
@@ -181,11 +180,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     yield gee_dir
 
     # flush the directory and it's content
-    ee.data.deleteAsset(str(subfolder / subfolder_fc))
-    ee.data.deleteAsset(str(subfolder))
-    ee.data.deleteAsset(str(gee_dir / fc))
-    ee.data.deleteAsset(str(gee_dir / rand_image))
-    ee.data.deleteAsset(str(gee_dir))
+    gee.delete_assets(str(gee_dir), False)
 
     return
 
@@ -231,78 +226,48 @@ def image_id() -> str:
 
 
 @pytest.fixture(scope="session")
-def tmp_dir() -> Path:
-    """Creates a temporary local directory to store data.
-
-    Returns:
-        path to to tmp created directory
-    """
-    with TemporaryDirectory() as tmp_dir:
-
-        yield Path(tmp_dir)
-
-    return
-
-
-@pytest.fixture(scope="session")
-def fake_vector() -> Path:
+def fake_vector(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
 
     Returns:
         the path to the tmp vector file
     """
-    with TemporaryDirectory() as tmp_dir:
-        tmp_dir = Path(tmp_dir)
-        link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
-        file = tmp_dir / "gadm41_VAT_0.shp"
-        gpd.read_file(link).to_file(file)
-
-        yield file
-
-    return
+    link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
+    file = tmp_path_factory.mktemp("temp") / "gadm41_VAT_0.shp"
+    gpd.read_file(link).to_file(file)
+    return file
 
 
 @pytest.fixture(scope="session")
-def fake_points() -> Path:
+def fake_points(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake point file the tmp file.
 
     Returns:
         the path to the point file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-        data = "lat,lon,id\n1,1,0\n0,0,1"
-        tmp_file.write_text(data)
-
-        yield tmp_file
-
-    return
+    tmp_file = tmp_path_factory.mktemp("temp") / "fake_point.csv"
+    tmp_file.write_text("lat,lon,id\n1,1,0\n0,0,1")
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def fake_table() -> Path:
+def fake_table(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake table.
 
     Returns:
         the path to the created file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-
-        coloseo = [1, 41.89042582290999, 12.492241627092199]
-        fao = [2, 41.88369224629387, 12.489216069409004]
-        columns = ["id", "lat", "lng"]
-        df = pd.DataFrame([coloseo, fao], columns=columns)
-
-        df.to_csv(tmp_file, index=False)
-
-        yield tmp_file
-
-    return
+    tmp_file = tmp_path_factory.mktemp("temp") / "fake_table.csv"
+    coloseo = [1, 41.89042582290999, 12.492241627092199]
+    fao = [2, 41.88369224629387, 12.489216069409004]
+    columns = ["id", "lat", "lng"]
+    df = pd.DataFrame([coloseo, fao], columns=columns)
+    df.to_csv(tmp_file, index=False)
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def wrong_table(fake_table: Path) -> Path:
+def wrong_table(fake_table: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a wrongly defined table (with 2 columns instead of the minimal 3.
 
     Args:
@@ -311,48 +276,40 @@ def wrong_table(fake_table: Path) -> Path:
     Returns:
         the Path to the created file
     """
-    with NamedTemporaryFile(suffix=".csv") as tmp_file:
-        tmp_file = Path(tmp_file.name)
-        df = pd.read_csv(fake_table).drop(["lng"], axis=1)
-        df.to_csv(tmp_file, index=False)
+    tmp_file = tmp_path_factory.mktemp("temp") / "wrong_table.csv"
+    df = pd.read_csv(fake_table).drop(["lng"], axis=1)
+    df.to_csv(tmp_file, index=False)
 
-        yield tmp_file
-
-    return
+    return tmp_file
 
 
 @pytest.fixture(scope="session")
-def rgb() -> Path:
+def rgb(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the image
     """
-    with NamedTemporaryFile(suffix=".tif") as file:
-        file = Path(file.name)
-        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
-        urlretrieve(link, file)
-
-        yield file
-
-    return
+    file = tmp_path_factory.mktemp("temp") / "rgb.tif"
+    link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/RGB.byte.tif"
+    urlretrieve(link, file)
+    return file
 
 
 @pytest.fixture(scope="session")
-def byte() -> Path:
+def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Add a raster file of the bahamas coming from rasterio test suit.
 
     Returns:
         the path to the byte file
     """
-    with NamedTemporaryFile(suffix=".tif") as file:
-        file = Path(file.name)
-        link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
-        urlretrieve(link, file)
+    file = tmp_path_factory.mktemp("temp") / "byte.tif"
+    link = (
+        "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
+    )
+    urlretrieve(link, file)
 
-        yield file
-
-    return
+    return file
 
 
 # -- Planet credentials --------------------------------------------------------
@@ -378,3 +335,13 @@ def cred() -> list:
     credentials = json.loads(os.getenv("PLANET_API_CREDENTIALS"))
 
     return list(credentials.values())
+
+
+@pytest.fixture(scope="session")
+def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Create a dummy repo directory.
+
+    Returns:
+        Path to the repo dir
+    """
+    return tmp_path_factory.mktemp("repo_dir")
