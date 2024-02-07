@@ -123,7 +123,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
         pytest.skip("Eathengine is not connected")
 
     # create a test folder with a hash name
-    root = ee.data.getAssetRoots()[0]["id"]
+    root = f"projects/{ee.data._cloud_api_user_project}/assets/"
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
 
