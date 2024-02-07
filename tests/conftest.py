@@ -197,7 +197,7 @@ def fake_asset(gee_dir: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def gee_user_dir(gee_dir: Path) -> Path:
-    """Return the path to the gee_dir assets without the project elements.
+    """Return the path to the gee_dir assets.
 
     Args:
         gee_dir: the path to the session defined GEE directory
@@ -205,9 +205,7 @@ def gee_user_dir(gee_dir: Path) -> Path:
     Returns:
         the path to gee_dir
     """
-    legacy_project = Path("projects/earthengine-legacy/assets")
-
-    return gee_dir.relative_to(legacy_project)
+    return gee_dir
 
 
 @pytest.fixture(scope="session")
