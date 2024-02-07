@@ -21,8 +21,9 @@ from sepal_ui.scripts import utils as su
 
 try:
     su.init_ee()
-except Exception:
-    pass  # try to init earthengine. use ee.data._credentials to skip
+except Exception as e:
+    raise e
+    # pass  # try to init earthengine. use ee.data._credentials to skip
 
 # -- a component to fake the display in Ipython --------------------------------
 
