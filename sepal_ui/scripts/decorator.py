@@ -40,7 +40,6 @@ def init_ee() -> None:
     It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
     Otherwise it use the simple Initialize command (asking the user to register if necessary).
     """
-
     if not ee.data._credentials:
         credential_folder_path = Path.home() / ".config" / "earthengine"
         credential_folder_path.mkdir(parents=True, exist_ok=True)

@@ -151,7 +151,6 @@ def delete_assets(asset_id: str, dry_run: bool = True) -> None:
         asset_id: the Id of the asset or a folder
         dry_run: whether or not a dry run should be launched. dry run will only display the files name without deleting them.
     """
-
     # define the action to execute for each asset based on the dry run mode
     def delete(id: str) -> None:
         if dry_run is True:

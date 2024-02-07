@@ -726,7 +726,6 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     def _fill_no_data(self, _: dict) -> None:
         """Fill the items with a no data message if the items are empty."""
-
         # Done in this way because v_slots are not working
         if not self.items:
             self.v_model = None
