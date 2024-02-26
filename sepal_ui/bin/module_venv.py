@@ -67,8 +67,14 @@ def main() -> None:
         "wheel",
         "ipykernel",
         "numpy",
-        "GDAL==3.6.4",
+        "GDAL==3.8.3",
     ]
+
+    # if we are in sepal, install earthengine-api OF fork
+
+    if "sepal-user" in str(Path.cwd()):
+        earthengine_api = "git+https://github.com/openforis/earthengine-api.git@v0.1.384#egg=earthengine-api&subdirectory=python"
+        base_libs.append(earthengine_api)
 
     subprocess.run([str(pip), "install", "--upgrade", "pip"], cwd=Path.cwd())
 
