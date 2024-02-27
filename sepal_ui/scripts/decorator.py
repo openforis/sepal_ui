@@ -59,8 +59,10 @@ def init_ee() -> None:
 
     # Extract the project name from credentials
     _credentials = json.loads(credential_file_path.read_text())
-    project_id = _credentials.get("project_id", _credentials.get("project", None))
-    project_id = project_id or os.environ.get("EARTHENGINE_PROJECT", None)
+    project_id = os.environ.get(
+        "EARTHENGINE_PROJECT",
+        _credentials.get("project_id", _credentials.get("project", None)),
+    )
 
     if not project_id:
         raise NameError(
