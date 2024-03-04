@@ -2,9 +2,6 @@
   "utils": {
     "check_input": {
       "error": "La valeur n'a pas été initialisée"
-    },
-    "ee": {
-      "no_asset_root": ""
     }
   }
 }
