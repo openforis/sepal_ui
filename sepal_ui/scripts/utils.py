@@ -140,33 +140,34 @@ def init_ee() -> None:
     Note:
         As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
-    credential_folder_path = Path.home() / ".config" / "earthengine"
-    credential_file_path = credential_folder_path / "credentials"
+    if not ee.data._credentials:
+        credential_folder_path = Path.home() / ".config" / "earthengine"
+        credential_file_path = credential_folder_path / "credentials"
 
-    if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
+        if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
 
-        # write the token to the appropriate folder
-        ee_token = os.environ["EARTHENGINE_TOKEN"]
-        credential_folder_path.mkdir(parents=True, exist_ok=True)
-        credential_file_path.write_text(ee_token)
+            # write the token to the appropriate folder
+            ee_token = os.environ["EARTHENGINE_TOKEN"]
+            credential_folder_path.mkdir(parents=True, exist_ok=True)
+            credential_file_path.write_text(ee_token)
 
-    # Extract the project name from credentials
-    _credentials = json.loads(credential_file_path.read_text())
-    project_id = os.environ.get(
-        "EARTHENGINE_PROJECT",
-        _credentials.get("project_id", _credentials.get("project", None)),
-    )
-
-    if not project_id:
-        raise NameError(
-            "The project name cannot be detected. "
-            "Please set the EARTHENGINE_PROJECT environment variable. "
-            "Or authenticate using `earthengine set_project project_name`."
+        # Extract the project name from credentials
+        _credentials = json.loads(credential_file_path.read_text())
+        project_id = os.environ.get(
+            "EARTHENGINE_PROJECT",
+            _credentials.get("project_id", _credentials.get("project", None)),
         )
 
-    # if the user is in local development the authentication should
-    # already be available
-    ee.Initialize(project=project_id, http_transport=httplib2.Http())
+        if not project_id:
+            raise NameError(
+                "The project name cannot be detected. "
+                "Please set the EARTHENGINE_PROJECT environment variable. "
+                "Or authenticate using `earthengine set_project project_name`."
+            )
+
+        # if the user is in local development the authentication should
+        # already be available
+        ee.Initialize(project=project_id, http_transport=httplib2.Http())
 
 
 def normalize_str(msg: str, folder: bool = True) -> str:
