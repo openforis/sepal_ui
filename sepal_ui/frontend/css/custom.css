@@ -114,5 +114,17 @@ nav.v-navigation-drawer {
 /* Related with https://github.com/12rambau/sepal_ui/issues/893 */
 #rendered_cells {
   contain: revert !important;
-  background-color: revert !important;
+  padding: 0px !important;
 }
+
+#jp-main-content-panel {
+  contain: revert !important;
+}
+
+.jp-Cell {
+  padding: 0px !important;
+}
+
+/* .vuetify-styles div.v-application--wrap {
+  min-height: 100vh !important;
+} */
