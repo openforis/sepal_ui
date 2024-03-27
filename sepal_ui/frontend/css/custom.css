@@ -125,6 +125,6 @@ nav.v-navigation-drawer {
   padding: 0px !important;
 }
 
-/* .vuetify-styles div.v-application--wrap {
+.special-style {
   min-height: 100vh !important;
-} */
+}
