@@ -163,7 +163,5 @@ fa_css = HTML(
 # create a small hack to remove fontawesome from the html output
 clean_fa_js = Javascript((JS_DIR / "fontawesome.js").read_text())
 
-test = (JS_DIR / "tst.js").read_text()
-ss = HTML(f"""<script type="module">{test}</script>""")
 # display all
-display(sepal_ui_css, fa_css, clean_fa_js, ss)
+display(sepal_ui_css, fa_css, clean_fa_js)
