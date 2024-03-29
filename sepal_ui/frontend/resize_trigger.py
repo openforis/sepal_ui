@@ -18,9 +18,10 @@ class ResizeTrigger(v.VuetifyTemplate):
 
     # load the js file
     js = (Path(__file__).parent / "js/jupyter_resize.js").read_text()
-    template = Unicode("<script>{methods: {jupyter_resize(){%s}}}</script>" % js).tag(
-        sync=True
-    )
+    template = Unicode(
+        "<script class='sepal-ui-script'>{methods: {jupyter_resize(){%s}}}</script>"
+        % js
+    ).tag(sync=True)
     "Unicode: the javascript script to manually trigger the resize event"
 
     def resize(self):
