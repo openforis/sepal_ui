@@ -626,6 +626,7 @@ class App(v.App, SepalWidget):
         bg = v.Overlay(color=color.bg, opacity=1, style_="transition:unset", z_index=-1)
 
         # set default parameters
+        kwargs.setdefault("_metadata", {"mount_id": "content"})
         kwargs.setdefault("v_model", None)
         kwargs["children"] = [bg, *app_children]
 

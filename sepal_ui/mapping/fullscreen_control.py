@@ -73,17 +73,31 @@ class FullScreenControl(WidgetControl):
         # and expand it's display to the full screen
         # "jupyter_embed" reset all the changed parameter
         # both trigger the resize event to force the reload of the Tilelayers
+
+        default = "fullscreen" if self.zoomed else "embed"
+
         self.template = v.VuetifyTemplate(
-            template=(
-                "<script>{methods: {jupyter_embed(){%s}, jupyter_fullscreen(){%s}}}</script>"
-                % (embed, full)
-            )
+            template=f"""
+                <script class='sepal-ui-script'>
+                    // register methods on the window object
+                    window.methods = {{
+                        embed : function embed(){{{embed}}}, 
+                        fullscreen: function fullscreen(){{{full}}}
+                    }}
+                    // Execute the requested method
+                    window.methods['{default}']();
+                </script>
+                <script class='sepal-ui-script'>
+                    {{
+                        methods: {{
+                            jupyter_embed(){{window.methods['embed']()}},
+                            jupyter_fullscreen(){{window.methods['fullscreen']()}}
+                        }}
+                    }}
+                </script>
+            """
         )
         display(self.template)
-
-        # display the map in the requested default state
-        js = full if self.zoomed else embed
-        display(Javascript(js))
 
     def toggle_fullscreen(self, *args) -> None:
         """Toggle fullscreen state.
