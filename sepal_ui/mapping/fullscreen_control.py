@@ -1,13 +1,12 @@
 """Customized control to toggle the fullscreen state of the map."""
 
-from pathlib import Path
 from typing import List, Optional
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
 
-from sepal_ui.mapping.map_btn import MapBtn
 from sepal_ui.frontend.resize_trigger import rt
+from sepal_ui.mapping.map_btn import MapBtn
 
 
 class FullScreenControl(WidgetControl):
@@ -43,7 +42,6 @@ class FullScreenControl(WidgetControl):
             fullapp: either or not the map will be used as the sole widget/tile of an application
             kwargs: any available arguments from a ipyleaflet WidgetControl
         """
-
         # register the required zoom value
         self.zoomed = fullscreen
         self.m = m
