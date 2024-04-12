@@ -60,11 +60,10 @@ class FullScreenControl(WidgetControl):
         # add javascrip behaviour
         self.w_btn.on_event("click", self.toggle_fullscreen)
 
-        (
+        if fullapp:
             self.m.add_class("full-screen-map")
-            if fullapp
-            else self.m.remove_class("full-screen-map")
-        )
+        else:
+            self.m.remove_class("full-screen-map")
 
     def toggle_fullscreen(self, *args) -> None:
         """Toggle fullscreen state.
@@ -78,11 +77,10 @@ class FullScreenControl(WidgetControl):
         # change button icon
         self.w_btn.children[0].children = [self.ICONS[self.zoomed]]
 
-        (
+        if self.zoomed:
             self.m.add_class("full-screen-map")
-            if self.zoomed
-            else self.m.remove_class("full-screen-map")
-        )
+        else:
+            self.m.remove_class("full-screen-map")
 
         rt.resize()
 
