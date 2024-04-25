@@ -60,9 +60,9 @@ def init_ee() -> None:
 
         # Extract the project name from credentials
         _credentials = json.loads(credential_file_path.read_text())
-        project_id = os.environ.get(
-            "EARTHENGINE_PROJECT",
-            _credentials.get("project_id", _credentials.get("project", None)),
+        project_id = os.environ.get("EARTHENGINE_PROJECT", None)
+        project_id = project_id or _credentials.get(
+            "project_id", _credentials.get("project", None)
         )
 
         if not project_id:
@@ -71,6 +71,13 @@ def init_ee() -> None:
                 "Please set the EARTHENGINE_PROJECT environment variable. "
                 "Or authenticate using `earthengine set_project project_name`."
             )
+        # Check if we are using a google service account
+        if _credentials.get("type") == "service_account":
+            ee_user = _credentials.get("client_email")
+            credentials = ee.ServiceAccountCredentials(
+                ee_user, str(credential_file_path)
+            )
+            ee.Initialize(credentials=credentials, http_transport=httplib2.Http())
 
         # if the user is in local development the authentication should
         # already be available
