@@ -152,6 +152,17 @@ class SepalMap(ipl.Map):
         self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
 
+        v.theme.observe(self._on_theme_change, "dark")
+
+    def _on_theme_change(self, _) -> None:
+        """Change the url of the basemaps."""
+        light = "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+        dark = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+
+        for layer in self.layers:
+            if layer.base and layer.url in [light, dark]:
+                layer.url = dark if v.theme.dark is True else light
+
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
         """Remove local layer from memory.

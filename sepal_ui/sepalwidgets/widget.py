@@ -19,7 +19,6 @@ from deprecated.sphinx import versionadded
 from markdown import markdown
 from traitlets import link, observe
 
-from sepal_ui import color
 from sepal_ui.model import Model
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 
@@ -142,8 +141,8 @@ class StateIcon(Tooltip):
 
         # init the states
         default_states = {
-            "valid": ("Valid", color.success),
-            "non_valid": ("Not valid", color.error),
+            "valid": ("Valid", "success"),
+            "non_valid": ("Not valid", "error"),
         }
         self.states = default_states if not states else states
 

@@ -26,7 +26,6 @@ from natsort import humansorted
 from traitlets import link, observe
 from typing_extensions import Self
 
-from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
@@ -254,13 +253,13 @@ class FileInput(v.Flex, SepalWidget):
         p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color=color.menu,
+            background_color="menu",
             color=p_style["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
             dense=True,
-            color=color.menu,
+            color="menu",
             flat=True,
             v_model=True,
             max_height="300px",

@@ -15,7 +15,6 @@ from rasterio.crs import CRS
 from shapely import geometry as sg
 from traitlets import Bool
 
-from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
@@ -64,7 +63,7 @@ class InspectorControl(MenuControl):
         p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
-            background_color=color.menu,
+            background_color="menu",
             color=p_style["color"][v.theme.dark],
         )
 
