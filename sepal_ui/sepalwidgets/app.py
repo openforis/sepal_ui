@@ -24,7 +24,6 @@ from ipywidgets import jsdlink
 from traitlets import link, observe
 from typing_extensions import Self
 
-from sepal_ui import color
 from sepal_ui.frontend.resize_trigger import ResizeTrigger, rt
 from sepal_ui.frontend.styles import get_theme
 from sepal_ui.message import ms
@@ -103,7 +102,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.language_list = v.List(
             dense=True,
             flat=True,
-            color=color.menu,
+            color="menu",
             v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
@@ -212,19 +211,21 @@ class ThemeSelect(v.Btn, SepalWidget):
     def toggle_theme(self, *args) -> None:
         """Toggle the btn icon from dark to light and adapt the configuration file."""
         # use a cycle to go through the themes
+
         theme_cycle = cycle(self.THEME_ICONS.keys())
         next(t for t in theme_cycle if t == self.theme)
         self.theme = next(t for t in theme_cycle)
 
+        v.theme.dark = self.theme == "dark"
+
         # change icon
-        self.color = "info"
         self.children[0].children = [self.THEME_ICONS[self.theme]]
 
         # change the parameter file
         su.set_config("theme", self.theme)
 
-        # trigger other events by changing v_model
-        self.v_model = self.theme
+        # # trigger other events by changing v_model
+        # self.v_model = self.theme
 
         return
 
@@ -257,9 +258,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[
-                v.Icon(class_="white--text", children=["fa-solid fa-ellipsis-v"])
-            ],
+            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -268,8 +267,8 @@ class AppBar(v.AppBar, SepalWidget):
         self.theme = ThemeSelect()
 
         # set the default parameters
-        kwargs.setdefault("color", color.main)
         kwargs.setdefault("class_", "white--text")
+        kwargs.setdefault("color", "main")
         kwargs.setdefault("dense", True)
         kwargs["app"] = True
         kwargs["children"] = [
@@ -336,10 +335,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon = icon if icon else "fa-regular fa-folder"
 
         children = [
-            v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
-            v.ListItemContent(
-                children=[v.ListItemTitle(class_="white--text", children=[title])]
-            ),
+            v.ListItemAction(children=[v.Icon(children=[icon])]),
+            v.ListItemContent(children=[v.ListItemTitle(children=[title])]),
         ]
 
         # set default parameters
@@ -362,7 +359,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         # the other draweritems.
         self.alert_badge = v.ListItemAction(
             children=[
-                v.Icon(children=["fa-solid fa-circle"], x_small=True, color="red")
+                v.Icon(children=["fa-solid fa-circle"], x_small=True, color="error")
             ]
         )
 
@@ -489,7 +486,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         # set default parameters
         kwargs.setdefault("v_model", True)
         kwargs["app"] = True
-        kwargs.setdefault("color", color.darker)
+        kwargs.setdefault("color", "darker")
         kwargs["children"] = children
         kwargs.setdefault("v_slots", v_slots)
 
@@ -540,8 +537,7 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs.setdefault("color", color.main)
-        kwargs.setdefault("class_", "white--text")
+        kwargs.setdefault("color", "main")
         kwargs["app"] = True
         kwargs["children"] = [text]
 
@@ -623,7 +619,7 @@ class App(v.App, SepalWidget):
             app_children.append(self.footer)
 
         # create a negative overlay to force the background color
-        bg = v.Overlay(color=color.bg, opacity=1, style_="transition:unset", z_index=-1)
+        bg = v.Overlay(color="bg", opacity=1, style_="transition:unset", z_index=-1)
 
         # set default parameters
         kwargs.setdefault("_metadata", {"mount_id": "content"})
@@ -643,7 +639,6 @@ class App(v.App, SepalWidget):
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
-        self.appBar.theme.observe(self._theme_info, "v_model")
 
     def show_tile(self, name: str) -> Self:
         """Select the tile to display when the app is launched.
@@ -720,14 +715,6 @@ class App(v.App, SepalWidget):
         """Display information about the locale change."""
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg)
-
-        return
-
-    def _theme_info(self, change: dict) -> None:
-        """Display information about the theme change."""
-        if change["new"] != "":
-            msg = ms.theme.change.format(change["new"])
             self.add_banner(msg)
 
         return
@@ -811,13 +798,14 @@ def VersionCard(repo_folder: str = Path.cwd()) -> Optional[v.Card]:
     w_version = v.Card(
         class_="text-center",
         tile=True,
-        color=color.main,
+        color="main",
         children=[
             v.CardText(
+                class_="white--text",
                 children=[
                     ms.widgets.navdrawer.changelog.version.format(app_version),
                     w_changelog,
-                ]
+                ],
             ),
         ],
     )

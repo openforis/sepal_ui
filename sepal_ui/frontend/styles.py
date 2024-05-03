@@ -2,11 +2,13 @@
 
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict, Tuple
+from typing import Tuple
 
 import ipyvuetify as v
 from IPython.display import HTML, Javascript, display
-from traitlets import Bool, HasTraits, observe
+from ipyvuetify._version import semver
+from ipywidgets import Widget
+from traitlets import Bool, HasTraits, Unicode, observe
 
 import sepal_ui.scripts.utils as su
 from sepal_ui.conf import config
@@ -31,35 +33,6 @@ JS_DIR: Path = Path(__file__).parent / "js"
 # define all the colors that we want to use in the theme
 #
 
-DARK_THEME: Dict[str, str] = {
-    "primary": "#b3842e",
-    "accent": "#a1458e",
-    "secondary": "#324a88",
-    "success": "#3f802a",
-    "info": "#79b1c9",
-    "warning": "#b8721d",
-    "error": "#a63228",
-    "main": "#24221f",  # Are not traits
-    "darker": "#1a1a1a",  # Are not traits
-    "bg": "#121212",  # Are not traits
-    "menu": "#424242",  # Are not traits
-}
-"colors used for the dark theme"
-
-LIGHT_THEME: Dict[str, str] = {
-    "primary": v.theme.themes.light.primary,
-    "accent": v.theme.themes.light.accent,
-    "secondary": v.theme.themes.light.secondary,
-    "success": v.theme.themes.light.success,
-    "info": v.theme.themes.light.info,
-    "warning": v.theme.themes.light.warning,
-    "error": v.theme.themes.light.error,
-    "main": "#2e7d32",
-    "darker": "#005005",
-    "bg": "#FFFFFF",
-    "menu": "#FFFFFF",
-}
-"colors used for the light theme"
 
 TYPES: Tuple[str, ...] = (
     "info",
@@ -70,8 +43,85 @@ TYPES: Tuple[str, ...] = (
     "success",
     "warning",
     "anchor",
+    "main",
+    "darker",
+    "bg",
+    "menu",
 )
 "The different types defined by ipyvuetify"
+
+
+class ThemeColors(Widget):
+
+    _model_name = Unicode("ThemeColorsModel").tag(sync=True)
+
+    _model_module = Unicode("jupyter-vuetify").tag(sync=True)
+
+    _view_module_version = Unicode(semver).tag(sync=True)
+
+    _model_module_version = Unicode(semver).tag(sync=True)
+
+    _theme_name = Unicode().tag(sync=True)
+
+    primary = Unicode().tag(sync=True)
+    secondary = Unicode().tag(sync=True)
+    accent = Unicode().tag(sync=True)
+    error = Unicode().tag(sync=True)
+    info = Unicode().tag(sync=True)
+    success = Unicode().tag(sync=True)
+    warning = Unicode().tag(sync=True)
+    anchor = Unicode(None, allow_none=True).tag(sync=True)
+    main = Unicode().tag(sync=True)
+    bg = Unicode().tag(sync=True)
+    menu = Unicode().tag(sync=True)
+    darker = Unicode().tag(sync=True)
+
+
+dark_theme_colors = ThemeColors(
+    _theme_name="dark",
+    primary="#76591e",
+    secondary="#363e4f",
+    error="#a63228",
+    info="#c5c6c9",
+    success="#3f802a",
+    warning="#b8721d",
+    accent="1a1a1a",
+    anchor="#24221f",
+    main="#24221f",
+    darker="#1a1a1a",
+    bg="#121212",
+    menu="#424242",
+)
+
+light_theme_colors = ThemeColors(
+    _theme_name="light",
+    primary="#b9b9b9",
+    accent=v.theme.themes.light.accent,
+    secondary=v.theme.themes.light.secondary,
+    success=v.theme.themes.light.success,
+    info=v.theme.themes.light.info,
+    warning=v.theme.themes.light.warning,
+    error=v.theme.themes.light.error,
+    main="#2196f3",  # used by appbar and versioncard
+    darker="#ffffff",  # used for the navdrawer
+    bg="#FFFFFF",
+    menu="#FFFFFF",
+)
+
+DARK_THEME = {
+    k: v for k, v in dark_theme_colors.__dict__["_trait_values"].items() if k in TYPES
+}
+"colors used for the dark theme"
+
+LIGHT_THEME = {
+    k: v for k, v in light_theme_colors.__dict__["_trait_values"].items() if k in TYPES
+}
+"colors used for the light theme"
+
+
+# override the default theme with the custom ones
+v.theme.themes.light = light_theme_colors
+v.theme.themes.dark = dark_theme_colors
 
 ################################################################################
 # define classes and method to make the application responsive

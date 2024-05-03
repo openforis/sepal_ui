@@ -7,7 +7,6 @@ from ipyleaflet import Map, WidgetControl
 from traitlets import Bool, Int
 from typing_extensions import Self
 
-from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.mapping.map_btn import MapBtn
 
@@ -170,7 +169,7 @@ class MenuControl(WidgetControl):
         """Change the background color of the btn with respect to the status."""
         # grey is contrasted enough for both light and dark theme
         # could be customized further if requested
-        bg_color = "gray" if self.menu.v_model is True else color.bg
+        bg_color = "gray" if self.menu.v_model is True else "bg"
         self.menu.v_slots[0]["children"].style_ = f"background: {bg_color};"
 
         return
