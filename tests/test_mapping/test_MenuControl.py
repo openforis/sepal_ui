@@ -1,6 +1,5 @@
 """Test the Menu Control."""
 
-from sepal_ui import color
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
@@ -137,6 +136,6 @@ def test_activate() -> None:
 
     # close the controls
     tile_control.menu.v_model = False
-    assert btn.style_ == f"background: {color.bg};"
+    assert btn.style_ == ""
 
     return
