@@ -23,7 +23,7 @@ def test_init(model: LocalModel) -> None:
     # Test with default states
     state_icon = sw.StateIcon(model, "state_value")
 
-    assert state_icon.icon.color == color.success
+    assert state_icon.icon.color == "success"
     assert state_icon.children[0] == "Valid"
 
     # Test with custom states
@@ -48,7 +48,7 @@ def test_swap(model: LocalModel) -> None:
     state_icon = sw.StateIcon(model, "state_value")
     model.state_value = "non_valid"
 
-    assert state_icon.icon.color == color.error
+    assert state_icon.icon.color == "error"
     assert state_icon.children[0] == "Not valid"
 
     # Test raise exception
