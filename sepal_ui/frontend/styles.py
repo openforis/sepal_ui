@@ -8,7 +8,7 @@ import ipyvuetify as v
 from IPython.display import HTML, Javascript, display
 from ipyvuetify._version import semver
 from ipywidgets import Widget
-from traitlets import Bool, HasTraits, Unicode, observe
+from traitlets import Bool, HasTraits, Unicode, link
 
 import sepal_ui.scripts.utils as su
 from sepal_ui.conf import config
@@ -142,47 +142,29 @@ class SepalColor(HasTraits, SimpleNamespace):
     _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
     "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
-    new_colors: dict = {}
-    "Dictionary with name:color structure."
+    def __init__(self) -> None:
+        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme."""
+        link((self, "_dark_theme"), (v.theme, "dark"))
+        v.theme.observe(lambda *x: self.set_colors(), "dark")
 
-    @observe("_dark_theme")
-    def __init__(self, *_, **new_colors) -> None:
-        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
+        self.set_colors()
 
-        Args:
-            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimental)
-        """
-        # set vuetify theme
-        v.theme.dark = self._dark_theme
-
+    def set_colors(self) -> None:
+        """Set the current hexadecimal color in the object."""
         # Get get current theme name
         self.theme_name = "dark" if self._dark_theme else "light"
 
         # Save "new" theme in configuration file
         su.set_config("theme", self.theme_name)
 
-        self.kwargs = DARK_THEME if self._dark_theme else LIGHT_THEME
-        self.kwargs = new_colors or self.kwargs
-
-        # Even if the theme.themes.dark_theme trait could trigger the change on all elms
-        # we have to replace the default values every time:
-        theme = getattr(v.theme.themes, self.theme_name)
-
-        # TODO: Would be awesome to find a way to create traits for the new colors and
-        # assign them here directly
-        [setattr(theme, color_name, color) for color_name, color in self.kwargs.items()]
-
-        # Now instantiate the namespace
-        SimpleNamespace.__init__(self, **self.kwargs)
-        HasTraits.__init__(self)
-
-        return
+        self.colors_dict = DARK_THEME if self._dark_theme else LIGHT_THEME
+        SimpleNamespace.__init__(self, **self.colors_dict)
 
     def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
         s = 60
         html = f"<h3>Current theme: {self.theme_name}</h3><table>"
-        items = {k: v for k, v in self.kwargs.items()}.items()
+        items = {k: v for k, v in self.colors_dict.items()}.items()
 
         for name, color in items:
             c = su.to_colors(color)
