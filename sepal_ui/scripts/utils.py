@@ -13,7 +13,6 @@ from typing import Any, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 import ee
-import httplib2
 import ipyvuetify as v
 import requests
 import tomli
@@ -141,6 +140,7 @@ def init_ee() -> None:
         As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
     if not ee.data._credentials:
+        print("initializing earth engine")
         credential_folder_path = Path.home() / ".config" / "earthengine"
         credential_file_path = credential_folder_path / "credentials"
 
@@ -167,7 +167,7 @@ def init_ee() -> None:
 
         # if the user is in local development the authentication should
         # already be available
-        ee.Initialize(project=project_id, http_transport=httplib2.Http())
+        ee.Initialize(project=project_id)
 
 
 def normalize_str(msg: str, folder: bool = True) -> str:

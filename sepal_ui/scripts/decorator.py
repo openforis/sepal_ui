@@ -18,7 +18,6 @@ from typing import Any, Callable, List, Optional
 from warnings import warn
 
 import ee
-import httplib2
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 
@@ -47,7 +46,6 @@ def init_ee() -> None:
     Note:
         As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
-
     if not ee.data._credentials:
         credential_folder_path = Path.home() / ".config" / "earthengine"
         credential_file_path = credential_folder_path / "credentials"
@@ -75,7 +73,7 @@ def init_ee() -> None:
 
         # if the user is in local development the authentication should
         # already be available
-        ee.Initialize(project=project_id, http_transport=httplib2.Http())
+        ee.Initialize(project=project_id)
 
 
 ################################################################################
