@@ -478,7 +478,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             v_slots = [{"name": "append", "children": [version_card]}]
 
         children = [
-            v.List(dense=True, children=self.items),
+            v.List(dense=True, class_="pa-0", children=self.items),
             v.Divider(),
             v.List(dense=True, children=code_link),
         ]
@@ -797,11 +797,11 @@ def VersionCard(repo_folder: str = Path.cwd()) -> Optional[v.Card]:
 
     w_version = v.Card(
         class_="text-center",
+        height="48px",
         tile=True,
-        color="main",
+        color="accent",
         children=[
             v.CardText(
-                class_="white--text",
                 children=[
                     ms.widgets.navdrawer.changelog.version.format(app_version),
                     w_changelog,
