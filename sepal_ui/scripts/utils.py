@@ -170,10 +170,10 @@ def init_ee() -> None:
             credentials = ee.ServiceAccountCredentials(
                 ee_user, str(credential_file_path)
             )
-            ee.Initialize(credentials=credentials, http_transport=httplib2.Http())
+            ee.Initialize(credentials=credentials)
         # if the user is in local development the authentication should
         # already be available
-        ee.Initialize(project=project_id, http_transport=httplib2.Http())
+        ee.Initialize(project=project_id)
 
 
 def normalize_str(msg: str, folder: bool = True) -> str:
