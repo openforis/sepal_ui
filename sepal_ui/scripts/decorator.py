@@ -18,7 +18,6 @@ from typing import Any, Callable, List, Optional
 from warnings import warn
 
 import ee
-import httplib2
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 

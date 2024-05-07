@@ -13,7 +13,6 @@ from typing import Any, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 import ee
-import httplib2
 import ipyvuetify as v
 import requests
 import tomli
