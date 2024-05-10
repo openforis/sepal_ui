@@ -352,7 +352,7 @@ class DrawerItem(v.ListItem, SepalWidget):
         # cannot be set as a class member because it will be shared with all
         # the other draweritems.
         self.alert_badge = v.ListItemAction(
-            children=[v.Icon(children=["fa-solid fa-circle"], x_small=True, color="red")]
+            children=[v.Icon(children=["fa-solid fa-circle"], x_small=True, color="error")]
         )
 
         if model:
