@@ -38,9 +38,7 @@ def test_kwargs() -> None:
         "align_center": False,
     }
 
-    datepicker = sw.DatePicker(
-        v_model="", layout_kwargs=layout_kwargs, **date_picker_kwargs
-    )
+    datepicker = sw.DatePicker(v_model="", layout_kwargs=layout_kwargs, **date_picker_kwargs)
 
     assert datepicker.date_picker.min == "2018-02-14"
     assert datepicker.date_picker.max == "2021-03-14"

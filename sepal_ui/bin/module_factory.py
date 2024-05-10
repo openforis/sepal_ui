@@ -22,9 +22,7 @@ init()
 parser = argparse.ArgumentParser(description=__doc__, usage="module_factory")
 
 
-def set_default_readme(
-    folder: Path, module_name: str, description: str, url: str
-) -> None:
+def set_default_readme(folder: Path, module_name: str, description: str, url: str) -> None:
     """Write a default README.md file and overwrite the existing one.
 
     Args:
@@ -194,9 +192,7 @@ def main() -> None:
     subprocess.run(["cp", "-r", str(template_dir), str(folder)], cwd=Path.cwd())
 
     # replace the placeholders
-    url = github_url.replace(".git", "").replace(
-        "git@github.com:", "https://github.com/"
-    )
+    url = github_url.replace(".git", "").replace("git@github.com:", "https://github.com/")
 
     set_default_readme(folder, module_name, description, url)
     set_default_about(folder, description)

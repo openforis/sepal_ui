@@ -46,9 +46,7 @@ __all__ = [
 
 
 class LocaleSelect(v.Menu, SepalWidget):
-    COUNTRIES: pd.DataFrame = pd.read_parquet(
-        Path(__file__).parents[1] / "data" / "locale.parquet"
-    )
+    COUNTRIES: pd.DataFrame = pd.read_parquet(Path(__file__).parents[1] / "data" / "locale.parquet")
     "the country list as a df. columns [code, name, flag]"
 
     FLAG: str = "https://flagcdn.com/{}.svg"
@@ -83,9 +81,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         """
         # extract the available language from the translator
         # default to only en-US if no translator is set
-        available_locales = (
-            ["en"] if translator is None else translator.available_locales()
-        )
+        available_locales = ["en"] if translator is None else translator.available_locales()
 
         # extract the language information from the translator
         # if not set default to english
@@ -107,9 +103,7 @@ class LocaleSelect(v.Menu, SepalWidget):
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
             children=[
-                v.ListItemGroup(
-                    children=self._get_country_items(available_locales), v_model=""
-                )
+                v.ListItemGroup(children=self._get_country_items(available_locales), v_model="")
             ],
         )
 
@@ -258,7 +252,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
+            children=[v.Icon(class_="white--text", children=["fa-solid fa-ellipsis-v"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -335,8 +329,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon = icon if icon else "fa-regular fa-folder"
 
         children = [
-            v.ListItemAction(children=[v.Icon(children=[icon])]),
-            v.ListItemContent(children=[v.ListItemTitle(children=[title])]),
+            v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
+            v.ListItemContent(children=[v.ListItemTitle(class_="white--text", children=[title])]),
         ]
 
         # set default parameters
@@ -358,16 +352,12 @@ class DrawerItem(v.ListItem, SepalWidget):
         # cannot be set as a class member because it will be shared with all
         # the other draweritems.
         self.alert_badge = v.ListItemAction(
-            children=[
-                v.Icon(children=["fa-solid fa-circle"], x_small=True, color="error")
-            ]
+            children=[v.Icon(children=["fa-solid fa-circle"], x_small=True, color="red")]
         )
 
         if model:
             if not bind_var:
-                raise Exception(
-                    "You have selected a model, you need a trait to bind with drawer."
-                )
+                raise Exception("You have selected a model, you need a trait to bind with drawer.")
 
             link((model, bind_var), (self, "alert"))
 
@@ -468,9 +458,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             )
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem(
-                ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue
-            )
+            item_bug = DrawerItem(ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue)
             code_link.append(item_bug)
 
         version_card = VersionCard(repo_folder=repo_folder)
@@ -632,9 +620,7 @@ class App(v.App, SepalWidget):
         # display a warning if the set language cannot be reached
         if translator is not None:
             if translator._match is False:
-                msg = ms.locale.fallback.format(
-                    translator._targeted, translator._target
-                )
+                msg = ms.locale.fallback.format(translator._targeted, translator._target)
                 self.add_banner(msg, type_="error")
 
         # add js event

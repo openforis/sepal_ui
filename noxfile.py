@@ -13,7 +13,7 @@ nox.options.sessions = ["lint", "test", "docs"]
 def lint(session):
     """Apply the pre-commits."""
     session.install("pre-commit")
-    session.run("pre-commit", "run", "--a", *session.posargs)
+    session.run("pre-commit", "run", "--all-files", *session.posargs)
 
 
 @nox.session(reuse_venv=True)
@@ -56,9 +56,7 @@ def docs(session):
     # build the api doc files
     templates = "docs/source/_templates/apidoc"
     modules = "docs/source/modules"
-    session.run(
-        "sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui"
-    )
+    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui")
 
     # build the documentation
     source = "docs/source"

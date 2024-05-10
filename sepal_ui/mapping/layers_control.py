@@ -181,10 +181,7 @@ class LayersControl(MenuControl):
         # set the kwargs parameters
         kwargs.setdefault("position", "topright")
         super().__init__(
-            icon_content="fa-solid fa-layer-group",
-            card_content=self.tile,
-            m=m,
-            **kwargs,
+            icon_content="fa-solid fa-layer-group", card_content=self.tile, m=m, **kwargs
         )
 
         # customize the menu to make it look more like a layercontrol
@@ -226,9 +223,7 @@ class LayersControl(MenuControl):
         # the error raised if you delete the last one is a feature
         bases = [lyr for lyr in self.m.layers if lyr.base is True]
         base_rows = []
-        current = next(
-            (lyr for lyr in bases if lyr.visible is True), SimpleNamespace(name=None)
-        )
+        current = next((lyr for lyr in bases if lyr.visible is True), SimpleNamespace(name=None))
         if len(bases) > 0:
             head = [HeaderRow(ms.layer_control.basemap.header)]
             empy_cell = sw.Html(tag="td", children=[" "], attributes={"colspan": 3})

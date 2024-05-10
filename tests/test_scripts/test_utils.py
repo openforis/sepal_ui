@@ -131,9 +131,7 @@ def test_init_ee() -> None:
         assert credentials_filepath.exists()
 
         # read the back up and remove the "project_id" key
-        credentials = json.loads(
-            credentials_filepath.with_suffix(".json.bak").read_text()
-        )
+        credentials = json.loads(credentials_filepath.with_suffix(".json.bak").read_text())
 
         ## 2. Assert when there's no a project associated
         # remove the project_id key if it exists
@@ -361,9 +359,7 @@ def test_get_repo_info(repo_dir):
 
     config = ConfigParser()
     config.add_section('remote "origin"')
-    config.set(
-        'remote "origin"', "url", f"git@github.com:{expected_owner}/{expected_repo}.git"
-    )
+    config.set('remote "origin"', "url", f"git@github.com:{expected_owner}/{expected_repo}.git")
     with open(git_folder / "config", "w") as f:
         config.write(f)
 
