@@ -46,9 +46,7 @@ def write_reqs(file: Union[str, Path]) -> None:
 
     # add the custom libs
     tmp_file = Path.cwd() / "req_tmp.txt"
-    subprocess.run(
-        ["pipreqs", "--savepath", str(tmp_file), str(Path.cwd())], cwd=Path.cwd()
-    )
+    subprocess.run(["pipreqs", "--savepath", str(tmp_file), str(Path.cwd())], cwd=Path.cwd())
 
     # add the libs in the final file
     with file.open("a") as dst:
@@ -79,9 +77,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
     for line in text[idx:]:
         if any(lib in line for lib in libs):
             lib = next(lb for lb in libs if lb in line)
-            print(
-                f"Removing {Style.BRIGHT}{lib}{Style.NORMAL} from reqs, duplicated from default."
-            )
+            print(f"Removing {Style.BRIGHT}{lib}{Style.NORMAL} from reqs, duplicated from default.")
             continue
         final_text.append(line)
 
@@ -113,9 +109,7 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
         # gdal and osgeo are part of pygdal
         # we use a specific version of earthengine in SEPAl, let's stick to it
         if "ee" in line:
-            print(
-                f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui."
-            )
+            print(f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui.")
             continue
         elif any(lib in line for lib in ["osgeo"]):
             print(f"Removing {Style.BRIGHT}'osgeo'{Style.NORMAL} as part of gdal")
@@ -144,9 +138,7 @@ def freeze_sepal_ui(file: Union[str, Path]) -> None:
     text = file.read_text().split("\n")
 
     # search for the sepal_ui line
-    idx, _ = next(
-        (i, il) for i, il in enumerate(text) if "#" not in il and "sepal_ui" in il
-    )
+    idx, _ = next((i, il) for i, il in enumerate(text) if "#" not in il and "sepal_ui" in il)
 
     text[idx] = f"sepal_ui=={sepal_ui.__version__}"
 

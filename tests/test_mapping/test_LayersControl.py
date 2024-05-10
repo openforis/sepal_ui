@@ -130,12 +130,8 @@ def test_change_basemap() -> None:
     m = sm.SepalMap(["HYBRID", "CartoDB.Positron"])
     layer_control = next(c for c in m.controls if isinstance(c, sm.LayersControl))
     layer_rows = layer_control.tile.get_children(klass=sm.BaseRow)
-    carto_row = next(
-        r for r in layer_rows if r.children[0].children[0] == "CartoDB.Positron"
-    )
-    google_row = next(
-        r for r in layer_rows if r.children[0].children[0] == "Google Satellite"
-    )
+    carto_row = next(r for r in layer_rows if r.children[0].children[0] == "CartoDB.Positron")
+    google_row = next(r for r in layer_rows if r.children[0].children[0] == "Google Satellite")
     carto_layer = m.find_layer("CartoDB.Positron", base=True)
     google_layer = m.find_layer("Google Satellite", base=True)
 
