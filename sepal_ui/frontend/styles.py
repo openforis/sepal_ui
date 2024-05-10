@@ -109,14 +109,10 @@ light_theme_colors = ThemeColors(
     menu="#FFFFFF",
 )
 
-DARK_THEME = {
-    k: v for k, v in dark_theme_colors.__dict__["_trait_values"].items() if k in TYPES
-}
+DARK_THEME = {k: v for k, v in dark_theme_colors.__dict__["_trait_values"].items() if k in TYPES}
 "colors used for the dark theme"
 
-LIGHT_THEME = {
-    k: v for k, v in light_theme_colors.__dict__["_trait_values"].items() if k in TYPES
-}
+LIGHT_THEME = {k: v for k, v in light_theme_colors.__dict__["_trait_values"].items() if k in TYPES}
 "colors used for the light theme"
 
 
