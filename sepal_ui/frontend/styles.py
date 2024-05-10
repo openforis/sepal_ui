@@ -2,11 +2,13 @@
 
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Dict, Tuple
+from typing import Tuple
 
 import ipyvuetify as v
 from IPython.display import HTML, Javascript, display
-from traitlets import Bool, HasTraits, observe
+from ipyvuetify._version import semver
+from ipywidgets import Widget
+from traitlets import Bool, HasTraits, Unicode, link
 
 import sepal_ui.scripts.utils as su
 from sepal_ui.conf import config
@@ -31,47 +33,100 @@ JS_DIR: Path = Path(__file__).parent / "js"
 # define all the colors that we want to use in the theme
 #
 
-DARK_THEME: Dict[str, str] = {
-    "primary": "#b3842e",
-    "accent": "#a1458e",
-    "secondary": "#324a88",
-    "success": "#3f802a",
-    "info": "#79b1c9",
-    "warning": "#b8721d",
-    "error": "#a63228",
-    "main": "#24221f",  # Are not traits
-    "darker": "#1a1a1a",  # Are not traits
-    "bg": "#121212",  # Are not traits
-    "menu": "#424242",  # Are not traits
-}
-"colors used for the dark theme"
-
-LIGHT_THEME: Dict[str, str] = {
-    "primary": v.theme.themes.light.primary,
-    "accent": v.theme.themes.light.accent,
-    "secondary": v.theme.themes.light.secondary,
-    "success": v.theme.themes.light.success,
-    "info": v.theme.themes.light.info,
-    "warning": v.theme.themes.light.warning,
-    "error": v.theme.themes.light.error,
-    "main": "#2e7d32",
-    "darker": "#005005",
-    "bg": "#FFFFFF",
-    "menu": "#FFFFFF",
-}
-"colors used for the light theme"
 
 TYPES: Tuple[str, ...] = (
     "info",
     "primary",
+    "primary_contarst",
     "secondary",
+    "secondary_contrast",
     "accent",
     "error",
     "success",
     "warning",
     "anchor",
+    "main",
+    "darker",
+    "bg",
+    "menu",
 )
 "The different types defined by ipyvuetify"
+
+
+class ThemeColors(Widget):
+
+    _model_name = Unicode("ThemeColorsModel").tag(sync=True)
+
+    _model_module = Unicode("jupyter-vuetify").tag(sync=True)
+
+    _view_module_version = Unicode(semver).tag(sync=True)
+
+    _model_module_version = Unicode(semver).tag(sync=True)
+
+    _theme_name = Unicode().tag(sync=True)
+
+    primary = Unicode().tag(sync=True)
+    primary_contrast = Unicode().tag(sync=True)
+    secondary = Unicode().tag(sync=True)
+    secondary_contrast = Unicode().tag(sync=True)
+    accent = Unicode().tag(sync=True)
+    error = Unicode().tag(sync=True)
+    info = Unicode().tag(sync=True)
+    success = Unicode().tag(sync=True)
+    warning = Unicode().tag(sync=True)
+    anchor = Unicode(None, allow_none=True).tag(sync=True)
+    main = Unicode().tag(sync=True)
+    bg = Unicode().tag(sync=True)
+    menu = Unicode().tag(sync=True)
+    darker = Unicode().tag(sync=True)
+
+
+dark_theme_colors = ThemeColors(
+    _theme_name="dark",
+    primary="#76591e",
+    primary_contrast="#bf8f2d",  # a bit lighter than the primary color
+    secondary="#363e4f",
+    secondary_contrast="#5d76ab",
+    error="#a63228",
+    info="#c5c6c9",
+    success="#3f802a",
+    warning="#b8721d",
+    accent="#272727",
+    anchor="#f3f3f3",
+    main="#24221f",
+    darker="#1a1a1a",
+    bg="#121212",
+    menu="#424242",
+)
+
+light_theme_colors = ThemeColors(
+    _theme_name="light",
+    primary="#5BB624",
+    primary_contrast="#76b353",
+    accent="#f3f3f3",
+    anchor="#f3f3f3",
+    secondary="#2199C4",
+    secondary_contrast="#5d76ab",
+    success=v.theme.themes.light.success,
+    info=v.theme.themes.light.info,
+    warning=v.theme.themes.light.warning,
+    error=v.theme.themes.light.error,
+    main="#2196f3",  # used by appbar and versioncard
+    darker="#ffffff",  # used for the navdrawer
+    bg="#FFFFFF",
+    menu="#FFFFFF",
+)
+
+DARK_THEME = {k: v for k, v in dark_theme_colors.__dict__["_trait_values"].items() if k in TYPES}
+"colors used for the dark theme"
+
+LIGHT_THEME = {k: v for k, v in light_theme_colors.__dict__["_trait_values"].items() if k in TYPES}
+"colors used for the light theme"
+
+
+# override the default theme with the custom ones
+v.theme.themes.light = light_theme_colors
+v.theme.themes.dark = dark_theme_colors
 
 ################################################################################
 # define classes and method to make the application responsive
@@ -92,47 +147,29 @@ class SepalColor(HasTraits, SimpleNamespace):
     _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
     "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
-    new_colors: dict = {}
-    "Dictionary with name:color structure."
+    def __init__(self) -> None:
+        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme."""
+        link((self, "_dark_theme"), (v.theme, "dark"))
+        v.theme.observe(lambda *x: self.set_colors(), "dark")
 
-    @observe("_dark_theme")
-    def __init__(self, *_, **new_colors) -> None:
-        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme.
+        self.set_colors()
 
-        Args:
-            **new_colors (optional): the new colors to set in hexadecimal as a dict (experimental)
-        """
-        # set vuetify theme
-        v.theme.dark = self._dark_theme
-
+    def set_colors(self) -> None:
+        """Set the current hexadecimal color in the object."""
         # Get get current theme name
         self.theme_name = "dark" if self._dark_theme else "light"
 
         # Save "new" theme in configuration file
         su.set_config("theme", self.theme_name)
 
-        self.kwargs = DARK_THEME if self._dark_theme else LIGHT_THEME
-        self.kwargs = new_colors or self.kwargs
-
-        # Even if the theme.themes.dark_theme trait could trigger the change on all elms
-        # we have to replace the default values every time:
-        theme = getattr(v.theme.themes, self.theme_name)
-
-        # TODO: Would be awesome to find a way to create traits for the new colors and
-        # assign them here directly
-        [setattr(theme, color_name, color) for color_name, color in self.kwargs.items()]
-
-        # Now instantiate the namespace
-        SimpleNamespace.__init__(self, **self.kwargs)
-        HasTraits.__init__(self)
-
-        return
+        self.colors_dict = DARK_THEME if self._dark_theme else LIGHT_THEME
+        SimpleNamespace.__init__(self, **self.colors_dict)
 
     def _repr_html_(self, *_) -> str:
         """Rich display of the color palette in an HTML frontend."""
         s = 60
         html = f"<h3>Current theme: {self.theme_name}</h3><table>"
-        items = {k: v for k, v in self.kwargs.items()}.items()
+        items = {k: v for k, v in self.colors_dict.items()}.items()
 
         for name, color in items:
             c = su.to_colors(color)
