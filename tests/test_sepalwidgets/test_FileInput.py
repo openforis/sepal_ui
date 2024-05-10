@@ -90,9 +90,7 @@ def test_on_file_select(root_dir: Path, file_input: sw.FileInput, readme: Path) 
     return
 
 
-def test_on_reload(
-    file_input: sw.FileInput, tmp_path_factory: pytest.TempPathFactory
-) -> None:
+def test_on_reload(file_input: sw.FileInput, tmp_path_factory: pytest.TempPathFactory) -> None:
     """Check that updating file content is updated when clicking on reload.
 
     Args:

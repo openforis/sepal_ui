@@ -181,3 +181,6 @@ using = "PEP631:test;dev;doc"
 
 [tool.codespell]
 skip = 'CHANGELOG.md,sepal_ui/message/**/*.json,sepal_ui/data/gaul_iso.json'
+
+[tool.black]
+line-length = 100

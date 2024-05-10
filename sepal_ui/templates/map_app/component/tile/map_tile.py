@@ -14,9 +14,7 @@ class MapTile(sw.Tile):
         # create a map
         self.m = sm.SepalMap(zoom=3)  # to be visible on 4k screens
         self.m.add_control(
-            sm.FullScreenControl(
-                self.m, fullscreen=True, fullapp=True, position="topright"
-            )
+            sm.FullScreenControl(self.m, fullscreen=True, fullapp=True, position="topright")
         )
 
         # create the tile

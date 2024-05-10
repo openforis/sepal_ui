@@ -50,9 +50,7 @@ class AoiControl(MenuControl):
         self.menu.cole_on_content_click = True
 
         # set the size of the card to 0 so that the list controls the widget display
-        self.set_size(
-            min_width="200px", max_width="200px", min_height=None, max_height="300px"
-        )
+        self.set_size(min_width="200px", max_width="200px", min_height=None, max_height="300px")
 
         # add js behaviours
         self.menu.v_slots[0]["children"].on_event("click", self.click_btn)
@@ -74,9 +72,7 @@ class AoiControl(MenuControl):
         return
 
     @sd.need_ee
-    def add_aoi(
-        self, name: str, item: Union[sg.base.BaseGeometry, ee.ComputedObject]
-    ) -> None:
+    def add_aoi(self, name: str, item: Union[sg.base.BaseGeometry, ee.ComputedObject]) -> None:
         """Add an AOI to the list and refresh the list displayed. the AOI will be composed of a name and the bounds of the provided item.
 
         Args:

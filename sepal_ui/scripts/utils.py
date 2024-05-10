@@ -163,9 +163,7 @@ def init_ee() -> None:
         # Check if we are using a google service account
         if _credentials.get("type") == "service_account":
             ee_user = _credentials.get("client_email")
-            credentials = ee.ServiceAccountCredentials(
-                ee_user, str(credential_file_path)
-            )
+            credentials = ee.ServiceAccountCredentials(ee_user, str(credential_file_path))
             ee.Initialize(credentials=credentials)
             ee.data._cloud_api_user_project = project_id
             return
@@ -190,9 +188,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     return re.sub(regex, "_", anyascii(msg))
 
 
-def to_colors(
-    in_color: Union[str, Sequence], out_type: str = "hex"
-) -> Union[str, tuple]:
+def to_colors(in_color: Union[str, Sequence], out_type: str = "hex") -> Union[str, tuple]:
     """Transform any color type into a color in the specified output format.
 
     Available format: [hex]
@@ -278,9 +274,7 @@ def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     return
 
 
-@deprecated(
-    version="2.9.1", reason="This function will be removed in favor of set_config()"
-)
+@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
 def set_config_locale(locale: str) -> None:
     """Set the provided local in the sepal-ui config file.
 
@@ -290,9 +284,7 @@ def set_config_locale(locale: str) -> None:
     return set_config("locale", locale)
 
 
-@deprecated(
-    version="2.9.1", reason="This function will be removed in favor of set_config()"
-)
+@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
 def set_config_theme(theme: str) -> None:
     """Set the provided theme in the sepal-ui config file.
 
@@ -456,9 +448,7 @@ def get_changelog(repo_folder: Pathlike = Path.cwd()) -> str:
     changelog_text, release_text = "", ""
     repo_owner, repo_name = get_repo_info(repo_folder)
 
-    release_url = (
-        f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
-    )
+    release_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
 
     response = requests.get(release_url)
     if all([repo_owner, repo_name]) and response.status_code == 200:

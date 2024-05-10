@@ -41,11 +41,7 @@ def main() -> None:
     test_venv_path = Path.home() / "module-venv"
     if test_venv_path.exists():
         test_envs = pd.DataFrame(
-            list(
-                [f"test {el.name}", str(el)]
-                for el in test_venv_path.glob("[!.]*")
-                if el.is_dir()
-            )
+            list([f"test {el.name}", str(el)] for el in test_venv_path.glob("[!.]*") if el.is_dir())
         )
         venvs = pd.concat([venvs, test_envs])
     venvs = venvs.reset_index(drop=True)
@@ -59,9 +55,7 @@ def main() -> None:
     while not valid:
 
         selection = int(
-            input(
-                f"{Fore.CYAN} Select the venv number you want to activate: \n{Fore.RESET}"
-            )
+            input(f"{Fore.CYAN} Select the venv number you want to activate: \n{Fore.RESET}")
         )
 
         if selection not in venvs.index.unique():
@@ -84,9 +78,7 @@ def main() -> None:
     # The following lines won't be executed because the previous subprocess kill the kernel
 
     # Confirm that we are in the new env
-    result = subprocess.run(
-        ["echo", "$VIRTUAL_ENV"], shell=True, stdout=subprocess.PIPE
-    )
+    result = subprocess.run(["echo", "$VIRTUAL_ENV"], shell=True, stdout=subprocess.PIPE)
 
     print(f"The current env is: {result.stdout!r}")
 

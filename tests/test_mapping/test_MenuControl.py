@@ -8,9 +8,7 @@ from sepal_ui import sepalwidgets as sw
 def test_init() -> None:
     """Init a menu control."""
     # create a tile
-    tile = sw.Tile(
-        "toto", "tutu", inputs=[sw.Slider()], btn=sw.Btn(), alert=sw.Alert().show()
-    )
+    tile = sw.Tile("toto", "tutu", inputs=[sw.Slider()], btn=sw.Btn(), alert=sw.Alert().show())
 
     # create the menu_control
     m = sm.SepalMap()
