@@ -112,3 +112,12 @@ nav.v-navigation-drawer {
   contain: revert !important;
   background-color: revert !important;
 }
+
+.full-screen-map > .leaflet-container {
+  position: fixed !important;
+  width: 100vw;
+  height: calc(100vh - 48px);
+  z-index: 800;
+  bottom: 0;
+  left: 0;
+}
