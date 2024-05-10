@@ -329,8 +329,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon = icon if icon else "fa-regular fa-folder"
 
         children = [
-            v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
-            v.ListItemContent(children=[v.ListItemTitle(class_="white--text", children=[title])]),
+            v.ListItemAction(children=[v.Icon(children=[icon])]),
+            v.ListItemContent(children=[v.ListItemTitle(children=[title])]),
         ]
 
         # set default parameters
