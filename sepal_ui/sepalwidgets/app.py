@@ -252,7 +252,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["fa-solid fa-ellipsis-v"])],
+            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
