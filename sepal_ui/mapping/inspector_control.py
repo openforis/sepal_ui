@@ -1,6 +1,5 @@
 """Customized ``Control`` to display the value of all available layers on a specific pixel."""
 
-import json
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -16,7 +15,6 @@ from shapely import geometry as sg
 from traitlets import Bool
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
@@ -60,11 +58,9 @@ class InspectorControl(MenuControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
             background_color="menu",
-            color=p_style["color"][v.theme.dark],
         )
 
         # set up the content

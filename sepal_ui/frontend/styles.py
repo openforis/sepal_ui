@@ -37,7 +37,9 @@ JS_DIR: Path = Path(__file__).parent / "js"
 TYPES: Tuple[str, ...] = (
     "info",
     "primary",
+    "primary_contarst",
     "secondary",
+    "secondary_contrast",
     "accent",
     "error",
     "success",
@@ -64,7 +66,9 @@ class ThemeColors(Widget):
     _theme_name = Unicode().tag(sync=True)
 
     primary = Unicode().tag(sync=True)
+    primary_contrast = Unicode().tag(sync=True)
     secondary = Unicode().tag(sync=True)
+    secondary_contrast = Unicode().tag(sync=True)
     accent = Unicode().tag(sync=True)
     error = Unicode().tag(sync=True)
     info = Unicode().tag(sync=True)
@@ -80,7 +84,9 @@ class ThemeColors(Widget):
 dark_theme_colors = ThemeColors(
     _theme_name="dark",
     primary="#76591e",
+    primary_contrast="#bf8f2d",  # a bit lighter than the primary color
     secondary="#363e4f",
+    secondary_contrast="#5d76ab",
     error="#a63228",
     info="#c5c6c9",
     success="#3f802a",
@@ -96,9 +102,11 @@ dark_theme_colors = ThemeColors(
 light_theme_colors = ThemeColors(
     _theme_name="light",
     primary="#5BB624",
+    primary_contrast="#76b353",
     accent="#f3f3f3",
     anchor="#f3f3f3",
-    secondary=v.theme.themes.light.secondary,
+    secondary="#2199C4",
+    secondary_contrast="#5d76ab",
     success=v.theme.themes.light.success,
     info=v.theme.themes.light.info,
     warning=v.theme.themes.light.warning,

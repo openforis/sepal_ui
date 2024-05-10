@@ -250,11 +250,9 @@ class FileInput(v.Flex, SepalWidget):
             v_model="",
         )
 
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
             background_color="menu",
-            color=p_style["color"][v.theme.dark],
         )
 
         self.file_list = v.List(
@@ -421,13 +419,13 @@ class FileInput(v.Flex, SepalWidget):
         for el in list_dir:
             if el.is_dir():
                 icon = self.ICON_STYLE[""]["icon"]
-                color = self.ICON_STYLE[""]["color"][v.theme.dark]
+                color = self.ICON_STYLE[""]["color"]
             elif el.suffix in self.ICON_STYLE.keys():
                 icon = self.ICON_STYLE[el.suffix]["icon"]
-                color = self.ICON_STYLE[el.suffix]["color"][v.theme.dark]
+                color = self.ICON_STYLE[el.suffix]["color"]
             else:
                 icon = self.ICON_STYLE["DEFAULT"]["icon"]
-                color = self.ICON_STYLE["DEFAULT"]["color"][v.theme.dark]
+                color = self.ICON_STYLE["DEFAULT"]["color"]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
@@ -454,7 +452,7 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=self.ICON_STYLE["PARENT"]["color"][v.theme.dark],
+                            color=self.ICON_STYLE["PARENT"]["color"],
                             children=[self.ICON_STYLE["PARENT"]["icon"]],
                         )
                     ]

@@ -1,15 +1,12 @@
 """Extend functionalities of the ipyleaflet layer control."""
 
-import json
 from types import SimpleNamespace
 from typing import Optional
 
-import ipyvuetify as v
 from ipyleaflet import GeoJSON, Map, TileLayer
 from ipywidgets import link
 
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
 
@@ -170,11 +167,9 @@ class LayersControl(MenuControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
             background_color="menu",
-            color=p_style["color"][v.theme.dark],
         )
         self.tile = sw.Tile("nested", "")
 
