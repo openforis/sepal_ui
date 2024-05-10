@@ -51,9 +51,7 @@ def test_open_info(plan: dict) -> None:
     assert info_view.v_model == 1
     nicfi_sub.fire_event("click", None)
     assert len(info_view.info_card.children) == 1
-    assert (
-        info_view.info_card.children[0].children[0].children[0] == plan["plan"]["name"]
-    )
+    assert info_view.info_card.children[0].children[0].children[0] == plan["plan"]["name"]
     assert info_view.v_model == 0
 
     # If we click the button two times, it will close the expansion panel

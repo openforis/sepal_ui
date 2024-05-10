@@ -37,9 +37,7 @@ def test_init_ee() -> None:
         assert credentials_filepath.exists()
 
         # read the back up and remove the "project_id" key
-        credentials = json.loads(
-            credentials_filepath.with_suffix(".json.bak").read_text()
-        )
+        credentials = json.loads(credentials_filepath.with_suffix(".json.bak").read_text())
 
         ## 2. Assert when there's no a project associated
         # remove the project_id key if it exists

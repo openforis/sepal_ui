@@ -169,8 +169,6 @@ class MenuControl(WidgetControl):
         """Change the background color of the btn with respect to the status."""
         # grey is contrasted enough for both light and dark theme
         # could be customized further if requested
-        self.menu.v_slots[0]["children"].style_ = (
-            "background: gray;" if self.menu.v_model else ""
-        )
+        self.menu.v_slots[0]["children"].style_ = "background: gray;" if self.menu.v_model else ""
 
         return

@@ -303,9 +303,7 @@ def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
         the path to the byte file
     """
     file = tmp_path_factory.mktemp("temp") / "byte.tif"
-    link = (
-        "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
-    )
+    link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
     urlretrieve(link, file)
 
     return file

@@ -142,9 +142,7 @@ class InspectorControl(MenuControl):
             elif isinstance(lyr, Marker):
                 continue
             else:
-                data = {
-                    ms.inspector_control.info.header: ms.inspector_control.info.text
-                }
+                data = {ms.inspector_control.info.header: ms.inspector_control.info.text}
 
             items.append(
                 {
@@ -213,9 +211,7 @@ class InspectorControl(MenuControl):
             ).getInfo()
 
         else:
-            raise ValueError(
-                f'the layer object is a "{type(ee_obj)}" which is not accepted.'
-            )
+            raise ValueError(f'the layer object is a "{type(ee_obj)}" which is not accepted.')
 
         return pixel_values
 
@@ -275,22 +271,17 @@ class InspectorControl(MenuControl):
             window = rio.windows.from_bounds(*bounds, transform=da.rio.transform())
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
-            pixel_values = {
-                ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)
-            }
+            pixel_values = {ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)}
 
         # if the point is out of the image display None
         else:
             pixel_values = {
-                ms.inspector_control.band.format(i + 1): None
-                for i in range(da.rio.count)
+                ms.inspector_control.band.format(i + 1): None for i in range(da.rio.count)
             }
 
         return pixel_values
 
 
-@deprecated(
-    version="2.15.1", reason="ValueInspector class is now renamed InspectorControl"
-)
+@deprecated(version="2.15.1", reason="ValueInspector class is now renamed InspectorControl")
 class ValueInspector(InspectorControl):
     pass

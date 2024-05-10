@@ -67,9 +67,7 @@ class Tile(v.Layout, SepalWidget):
 
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
 
-        card = v.Card(
-            class_="pa-5", raised=True, xs12=True, children=[self.title] + content
-        )
+        card = v.Card(class_="pa-5", raised=True, xs12=True, children=[self.title] + content)
 
         # set some default parameters
         kwargs["_metadata"] = {"mount_id": id_}

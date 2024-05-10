@@ -133,9 +133,7 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
         aoi_model.get_fields("toto", "toto")
 
     # select the vatican feature in GAUL 2015
-    ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(
-        ee.Filter.eq("ADM0_CODE", "110")
-    )
+    ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq("ADM0_CODE", "110"))
 
     # select the geometry associated with Vatican city (all of it)
     column, field = ("ADM0_CODE", "110")
@@ -148,9 +146,7 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
     return
 
 
-def test_clear_attributes(
-    aoi_model_outputs: List[str], aoi_model_traits: List[str]
-) -> None:
+def test_clear_attributes(aoi_model_outputs: List[str], aoi_model_traits: List[str]) -> None:
     """Remove all attributes from an AoiMOdel.
 
     Args:

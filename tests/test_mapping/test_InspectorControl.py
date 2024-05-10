@@ -70,9 +70,7 @@ def test_read_data() -> None:
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_free_eelayer(
-    world_temp: ee.imagecollection, ee_adm2: ee.FeatureCollection
-) -> None:
+def test_free_eelayer(world_temp: ee.imagecollection, ee_adm2: ee.FeatureCollection) -> None:
     """Check result when clicking on a ee object.
 
     Args:

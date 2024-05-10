@@ -6,11 +6,11 @@
   ".tiff": { "color": "secondary_contrast", "icon": "fa-regular fa-image" },
   ".vrt": { "color": "secondary_contrast", "icon": "fa-regular fa-image" },
   ".shp": {
-    "color": ["secondary_contrast"],
+    "color": "secondary_contrast",
     "icon": "fa-solid fa-vector-square"
   },
   ".geojson": {
-    "color": ["secondary_contrast"],
+    "color": "secondary_contrast",
     "icon": "fa-solid fa-vector-square"
   },
   "DEFAULT": { "color": "anchor", "icon": "fa-regular fa-file" },

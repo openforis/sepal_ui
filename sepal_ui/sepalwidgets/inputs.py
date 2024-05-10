@@ -60,9 +60,7 @@ class DatePicker(v.Layout, SepalWidget):
     disabled: t.Bool = t.Bool(False).tag(sync=True)
     "the disabled status of the Datepicker object"
 
-    def __init__(
-        self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs
-    ) -> None:
+    def __init__(self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs) -> None:
         """Custom input widget to provide a reusable DatePicker.
 
         It allows to choose date as a string in the following format YYYY-MM-DD.
@@ -405,9 +403,7 @@ class FileInput(v.Flex, SepalWidget):
         list_dir = [el for el in folder.glob("*") if not el.name.startswith(".")]
 
         if self.extensions:
-            list_dir = [
-                el for el in list_dir if el.is_dir() or el.suffix in self.extensions
-            ]
+            list_dir = [el for el in list_dir if el.is_dir() or el.suffix in self.extensions]
 
         if folder in self.cache_dirs:
             if self.cache_dirs[folder]["files"] == list_dir:
@@ -429,18 +425,14 @@ class FileInput(v.Flex, SepalWidget):
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
-                v.ListItemContent(
-                    children=[v.ListItemTitle(children=[el.stem + el.suffix])]
-                ),
+                v.ListItemContent(children=[v.ListItemTitle(children=[el.stem + el.suffix])]),
             ]
 
             if el.is_dir():
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
                 file_size = su.get_file_size(el)
-                children.append(
-                    v.ListItemActionText(class_="ml-1", children=[file_size])
-                )
+                children.append(v.ListItemActionText(class_="ml-1", children=[file_size]))
                 file_list.append(v.ListItem(value=str(el), children=children))
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
@@ -587,9 +579,7 @@ class LoadTableField(v.Col, SepalWidget):
 
         if len(df.columns) < 3:
             self._set_v_model("pathname", None)
-            self.fileInput.selected_file.error_messages = (
-                ms.widgets.load_table.too_small
-            )
+            self.fileInput.selected_file.error_messages = ms.widgets.load_table.too_small
             return self
 
         # set the items
@@ -602,8 +592,7 @@ class LoadTableField(v.Col, SepalWidget):
             if "id" in lname:
                 self.IdSelect.v_model = name
             elif any(
-                ext in lname
-                for ext in ["lng", "long", "longitude", "x_coord", "xcoord", "lon"]
+                ext in lname for ext in ["lng", "long", "longitude", "x_coord", "xcoord", "lon"]
             ):
                 self.LngSelect.v_model = name
             elif any(ext in lname for ext in ["lat", "latitude", "y_coord", "ycoord"]):
@@ -687,9 +676,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.asset_info = None
 
         # if folder is not set use the root one
-        self.folder = (
-            str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
-        )
+        self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
         self.types = types
 
         # load the default assets
@@ -781,10 +768,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
-        assets = {
-            k: sorted([e["id"] for e in raw_assets if e["type"] == k])
-            for k in self.types
-        }
+        assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
         for k in self.types:
@@ -932,9 +916,7 @@ class VectorField(v.Col, SepalWidget):
     feature_collection: Optional[ee.FeatureCollection] = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(
-        self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs
-    ) -> None:
+    def __init__(self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs) -> None:
         """A custom input widget to load vector data.
 
         The user will provide a vector file compatible with fiona or a GEE feature collection.
@@ -1008,9 +990,7 @@ class VectorField(v.Col, SepalWidget):
         elif isinstance(self.w_file, AssetSelect):
             self.feature_collection = ee.FeatureCollection(change["new"])
             columns = self.feature_collection.first().getInfo()["properties"]
-            columns = [
-                str(col) for col in columns if col not in ["system:index", "Shape_Area"]
-            ]
+            columns = [str(col) for col in columns if col not in ["system:index", "Shape_Area"]]
 
         # update the columns
         self.w_column.items = self.column_base_items + sorted(set(columns))

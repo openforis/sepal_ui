@@ -61,9 +61,7 @@ class Btn(v.Btn, SepalWidget):
         if "text" in kwargs:
             if isinstance(kwargs["text"], str):
                 msg = kwargs.pop("text")
-                warnings.warn(
-                    '"text" is deprecated, please use "msg" instead', DeprecationWarning
-                )
+                warnings.warn('"text" is deprecated, please use "msg" instead', DeprecationWarning)
         if "icon" in kwargs:
             if isinstance(kwargs["icon"], str):
                 gliph = kwargs.pop("icon")

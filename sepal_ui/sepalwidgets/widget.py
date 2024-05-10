@@ -92,9 +92,7 @@ class CopyToClip(v.VuetifyTemplate):
         # template with js behaviour
         js_dir = Path(__file__).parents[1] / "frontend/js"
         clip = (js_dir / "jupyter_clip.js").read_text()
-        self.template = (
-            "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
-        )
+        self.template = "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
 
         super().__init__()
 
@@ -149,9 +147,7 @@ class StateIcon(Tooltip):
         # Get the first value (states first key) to use as default one
         init_value = self.states[next(iter(self.states))]
 
-        self.icon = v.Icon(
-            children=["fa-solid fa-circle"], color=init_value[1], small=True
-        )
+        self.icon = v.Icon(children=["fa-solid fa-circle"], color=init_value[1], small=True)
 
         super().__init__(self.icon, init_value[0], **kwargs)
 

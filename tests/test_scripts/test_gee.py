@@ -12,9 +12,7 @@ from sepal_ui.scripts import gee
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_wait_for_completion(
-    alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str
-) -> None:
+def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str) -> None:
     """Check we can wait for a task completion.
 
     Args:
