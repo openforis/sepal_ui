@@ -43,6 +43,7 @@ def test_init_ee() -> None:
 
         ## 2. Assert when there's no a project associated
         # remove the project_id key if it exists
+        ee.data._credentials = None
         credentials.pop("project_id", None)
         credentials.pop("project", None)
         if "EARTHENGINE_PROJECT" in os.environ:

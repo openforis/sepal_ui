@@ -3,6 +3,8 @@
 # known bug of rasterio
 import os
 
+from sepal_ui.mapping.fullscreen_control import FullScreenControl
+
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
 if "PROJ_LIB" in list(os.environ.keys()):
@@ -129,6 +131,9 @@ class SepalMap(ipl.Map):
         self.add(LayersControl(self, group=-1))
         self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
         self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
+
+        if kwargs.get("fullscreen_control", False):
+            self.add(FullScreenControl(self))
 
         # specific drawing control
         self.dc = DrawControl(self)
