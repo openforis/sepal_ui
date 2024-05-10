@@ -21,9 +21,7 @@ nest_asyncio.apply()
 
 
 class PlanetModel(Model):
-    SUBS_URL: str = (
-        "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
-    )
+    SUBS_URL: str = "https://api.planet.com/auth/v1/experimental/public/my/subscriptions"
     "The url of the planet API subscription"
 
     credentials: List[str] = []
@@ -59,9 +57,7 @@ class PlanetModel(Model):
         version="3.0",
         reason="credentials member is deprecated, use self.auth._key instead",
     )
-    def init_session(
-        self, credentials: Union[str, List[str]], write_secrets: bool = False
-    ) -> None:
+    def init_session(self, credentials: Union[str, List[str]], write_secrets: bool = False) -> None:
         """Initialize planet client with api key or credentials. It will handle errors.
 
         Args:
@@ -160,9 +156,7 @@ class PlanetModel(Model):
 
         """
         # cast start and end to str
-        start = (
-            datetime.strptime(start, "%Y-%m-%d") if isinstance(start, str) else start
-        )
+        start = datetime.strptime(start, "%Y-%m-%d") if isinstance(start, str) else start
         end = datetime.strptime(end, "%Y-%m-%d") if isinstance(end, str) else end
 
         and_filter = filters.and_filter(
@@ -184,9 +178,7 @@ class PlanetModel(Model):
             So we can keep calling get_items without any change.
             """
             client = DataClient(self.session)
-            items = client.search(
-                item_types, and_filter, name="quick_search", limit=limit
-            )
+            items = client.search(item_types, and_filter, name="quick_search", limit=limit)
             items_list = [item async for item in items]
             return items_list
 

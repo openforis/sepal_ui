@@ -154,9 +154,7 @@ class AoiModel(Model):
         self.gee = gee
         if gee:
             su.init_ee()
-            self.folder = (
-                str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
-            )
+            self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
 
         # set default values
         self.set_default(vector, admin, asset)
@@ -177,22 +175,16 @@ class AoiModel(Model):
         # save the default values
         self.default_vector = vector
         self.default_asset = self.asset_name = str(asset) if asset else None
-        self.asset_json = (
-            {"pathname": asset, "column": "ALL", "value": None} if asset else None
-        )
+        self.asset_json = {"pathname": asset, "column": "ALL", "value": None} if asset else None
         self.default_admin = self.admin = admin
 
         # cast the vector to json
         self.vector_json = (
-            {"pathname": str(vector), "column": "ALL", "value": None}
-            if vector
-            else None
+            {"pathname": str(vector), "column": "ALL", "value": None} if vector else None
         )
 
         # cast the asset to json
-        self.asset_json = (
-            {"pathname": asset, "column": "ALL", "value": None} if asset else None
-        )
+        self.asset_json = {"pathname": asset, "column": "ALL", "value": None} if asset else None
 
         # set the default gdf if possible
         if self.vector_json is not None:
@@ -285,9 +277,7 @@ class AoiModel(Model):
         self.gdf = gpd.GeoDataFrame(
             df,
             crs="EPSG:4326",
-            geometry=gpd.points_from_xy(
-                df[point_json["lng_column"]], df[point_json["lat_column"]]
-            ),
+            geometry=gpd.points_from_xy(df[point_json["lng_column"]], df[point_json["lat_column"]]),
         )
 
         # set the name
@@ -449,9 +439,7 @@ class AoiModel(Model):
         if self.gee:
             aoi_ee = ee.Feature(self.feature_collection.first())
             columns = aoi_ee.propertyNames().getInfo()
-            list_ = [
-                col for col in columns if col not in ["system:index", "Shape_Area"]
-            ]
+            list_ = [col for col in columns if col not in ["system:index", "Shape_Area"]]
         else:
             list_ = list(set(["geometry"]) ^ set(self.gdf.columns.to_list()))
 
@@ -478,9 +466,7 @@ class AoiModel(Model):
 
         return sorted(list_)
 
-    def get_selected(
-        self, column: str, field: str
-    ) -> Union[ee.Feature, gpd.GeoDataFrame]:
+    def get_selected(self, column: str, field: str) -> Union[ee.Feature, gpd.GeoDataFrame]:
         """Select an ee object based on selected column and field.
 
         Args:
@@ -494,9 +480,7 @@ class AoiModel(Model):
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
-            selected_feature = self.feature_collection.filterMetadata(
-                column, "equals", field
-            )
+            selected_feature = self.feature_collection.filterMetadata(column, "equals", field)
         else:
             selected_feature = self.gdf[self.gdf[column] == field]
 

@@ -102,19 +102,13 @@ def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     # check that the list of asset is complete
     assert str(gee_user_dir / "image") in asset_select.items
     assert str(gee_user_dir / "feature_collection") in asset_select.items
-    assert (
-        str(gee_user_dir / "subfolder/subfolder_feature_collection")
-        in asset_select.items
-    )
+    assert str(gee_user_dir / "subfolder/subfolder_feature_collection") in asset_select.items
 
     # set an IMAGE type
     asset_select.types = ["IMAGE"]
     assert str(gee_user_dir / "image") in asset_select.items
     assert str(gee_user_dir / "feature_collection") not in asset_select.items
-    assert (
-        str(gee_user_dir / "subfolder/subfolder_feature_collection")
-        not in asset_select.items
-    )
+    assert str(gee_user_dir / "subfolder/subfolder_feature_collection") not in asset_select.items
 
     # set a type list with a non legit asset type
     asset_select.types = ["IMAGE", "toto"]

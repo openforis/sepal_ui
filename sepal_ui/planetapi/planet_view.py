@@ -62,9 +62,7 @@ class PlanetView(sw.Layout):
         self.btn = btn if btn else sw.Btn("Validate", small=True, class_="mr-1")
         self.alert = alert if alert else sw.Alert()
 
-        self.w_username = sw.TextField(
-            label=ms.planet.widget.username, class_="mr-2", v_model=""
-        )
+        self.w_username = sw.TextField(label=ms.planet.widget.username, class_="mr-2", v_model="")
         self.w_password = sw.PasswordField(label=ms.planet.widget.password)
         self.w_key = sw.PasswordField(label=ms.planet.widget.apikey, v_model="").hide()
         self.w_secret_file = sw.TextField(
@@ -135,9 +133,7 @@ class PlanetView(sw.Layout):
 
     def set_initial_method(self) -> None:
         """Set the initial method to connect to planet lab."""
-        self.w_method.v_model = (
-            "from_file" if self.validate_secret_file() else "credentials"
-        )
+        self.w_method.v_model = "from_file" if self.validate_secret_file() else "credentials"
 
     def reset(self) -> None:
         """Empty credentials fields and restart activation mode."""
