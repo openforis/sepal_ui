@@ -376,17 +376,15 @@ class AoiModel(Model):
 
             # get the ADM0_CODE to get the ISO code
             feature = self.feature_collection.first()
-            iso = json.loads(self.MAPPING.read_text())[str(feature.get("ADM0_CODE").getInfo())]
+            properties = feature.toDictionary(feature.propertyNames()).getInfo()
 
-            names = (
-                (feature.propertyNames().filter(ee.Filter.stringContains("item", "NAME")))
-                .map(lambda col_name: feature.get(col_name))
-                .getInfo()
-            )
+            iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
+            names = [value for prop, value in properties.items() if "NAME" in prop]
 
             # generate the name from the columns
             names = [su.normalize_str(name) for name in names]
             names[0] = iso
+
             self.name = "_".join(names)
 
         else:
