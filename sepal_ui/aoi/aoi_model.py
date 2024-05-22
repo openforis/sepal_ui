@@ -503,9 +503,11 @@ class AoiModel(Model):
 
         if self.gee:
             coords = self.feature_collection.geometry().bounds().coordinates().get(0).getInfo()
-            return [coords[0][0], coords[0][1], coords[3][0], coords[3][1]]
+            bounds = [coords[0][0], coords[0][1], coords[3][0], coords[3][1]]
+        else:
+            bounds = self.gdf.total_bounds.tolist()
 
-        return self.gdf.total_bounds.tolist()
+        return [round(bound, 4) for bound in bounds]
 
     def export_to_asset(self) -> Self:
         """Export the feature_collection as an asset (only for ee model)."""
