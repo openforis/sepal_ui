@@ -23,12 +23,13 @@ init()
 
 # init parser
 parser = argparse.ArgumentParser(description=__doc__, usage="module_venv")
+parser.add_argument("--venv_prefix", default="test", help="Prefix for the virtual environment name")
 
 
 def main() -> None:
     """Launch the venv creation process."""
     # read arguments (there should be none)
-    parser.parse_args()
+    args = parser.parse_args()
 
     # welcome the user
     print(f"{Fore.YELLOW}venv creation interface v10{Fore.RESET}")
@@ -109,8 +110,8 @@ def main() -> None:
         name = Path.cwd().stem
 
     # create the kernel from venv
-    name = f"test-{Path.cwd().stem}"
-    display_name = f"(test) {name}"
+    name = f"{args.venv_prefix}-{Path.cwd().stem}"
+    display_name = f"({args.venv_prefix}) {name}"
     subprocess.run(
         [
             str(python3),
