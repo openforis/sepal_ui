@@ -64,12 +64,7 @@ def main() -> None:
     pip = current_dir_venv / "bin" / "pip"
     python3 = current_dir_venv / "bin" / "python3"
 
-    base_libs = [
-        "wheel",
-        "ipykernel",
-        "numpy",
-        "GDAL==3.8.3",
-    ]
+    base_libs = ["wheel", "ipykernel", "numpy"]
 
     # if we are in sepal, install earthengine-api OF fork
 
@@ -81,6 +76,25 @@ def main() -> None:
 
     for lib in base_libs:
         subprocess.run([str(pip), "install", "--no-cache-dir", lib], cwd=Path.cwd())
+
+    # Default installation of GDAL
+    # If we are installing it as venv (usually in github actions) we need to install gdal as binary
+    gdal_version = "3.8.3"
+    if args.venv_prefix == "test":
+        subprocess.run(
+            [str(pip), "install", "--no-cache-dir", f"GDAL=={gdal_version}"], cwd=Path.cwd()
+        )
+    else:
+        subprocess.run(
+            [
+                str(pip),
+                "install",
+                "--no-cache-dir",
+                "--find-links=https://girder.github.io/large_image_wheels",
+                f"GDAL=={gdal_version}",
+            ],
+            cwd=Path.cwd(),
+        )
 
     # install all the requirements
     req = Path.cwd() / "requirements.txt"
