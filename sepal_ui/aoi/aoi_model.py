@@ -395,7 +395,6 @@ class AoiModel(Model):
             names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
             names[0] = r.GID_0[:3]
             self.name = "_".join(names)
-
         return self
 
     def clear_output(self) -> Self:
@@ -437,7 +436,7 @@ class AoiModel(Model):
         Returns:
             sorted list of column names
         """
-        if self.gdf is None and not self.feature_collection:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
@@ -459,7 +458,7 @@ class AoiModel(Model):
             sorted list of fields value
 
         """
-        if self.gdf is None and not self.feature_collection:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
@@ -480,7 +479,7 @@ class AoiModel(Model):
         Returns:
             The Feature associated with the query
         """
-        if self.gdf is None and not self.feature_collection:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
@@ -496,7 +495,8 @@ class AoiModel(Model):
         Returns:
             minxx, miny, maxx, maxy
         """
-        if self.gdf is None and not self.feature_collection:
+        # use _gdf to evaluate the condition to avoid accessing the gdf property
+        if self._gdf is None and not self.feature_collection:
             raise ValueError(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
@@ -543,7 +543,8 @@ class AoiModel(Model):
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map
         """
-        if self.gdf is None:
+        # Evaluate _gdf to avoid accessing the gdf property and calculate it
+        if self._gdf is None:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         # read the data from geojson and add the name as a property of the shape
@@ -568,6 +569,10 @@ class AoiModel(Model):
     def gdf(self):
         """Get the geodataframe associated with the AOI."""
         if self.gee:
+            if self._gdf is not None:
+                # This happens when it comes from vector or geojson
+                return self._gdf
+
             if not self.feature_collection:
                 return None
 
