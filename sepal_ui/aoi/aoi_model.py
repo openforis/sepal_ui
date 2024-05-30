@@ -543,8 +543,9 @@ class AoiModel(Model):
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map
         """
-        # Evaluate _gdf to avoid accessing the gdf property and calculate it
-        if self._gdf is None:
+        # This function aims to work in the same way in both gee and non-gee mode
+        # It's why we use the gdf property to evaluate the condition
+        if self.gdf is None:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         # read the data from geojson and add the name as a property of the shape
