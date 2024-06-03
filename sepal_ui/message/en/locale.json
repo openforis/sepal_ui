@@ -80,7 +80,8 @@
       "no_draw": "Please draw a shape in the map",
       "no_admlyr": "Select an administrative layer",
       "invalid_code": "The code is not in the database",
-      "no_gdf": "You must set the gdf before interacting with it"
+      "no_gdf": "You must set the gdf before interacting with it",
+      "no_fc": "You have to select a feature collection first"
     }
   },
   "mapping": {

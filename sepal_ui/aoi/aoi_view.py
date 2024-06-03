@@ -349,7 +349,11 @@ class AoiView(sw.Card):
         if self.map_:
             self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
-            self.map_.add_layer(self.model.get_ipygeojson(self.map_style))
+
+            if self.gee:
+                self.map_.add_ee_layer(self.model.feature_collection, {}, "aoi")
+            else:
+                self.map_.add_layer(self.model.get_ipygeojson(self.map_style), "aoi")
 
             self.aoi_dc.hide()
 
