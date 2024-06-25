@@ -80,7 +80,9 @@ def main() -> None:
     # Default installation of GDAL
     # If we are installing it as venv (usually in github actions) we need to install gdal as binary
     gdal_version = "3.8.3"
-    if args.venv_prefix == "test":
+
+    # We assume we are in a github action runner if the path contains "home/runner/"
+    if "home/runner/" not in str(Path.cwd()):
         subprocess.run(
             [str(pip), "install", "--no-cache-dir", f"GDAL=={gdal_version}"], cwd=Path.cwd()
         )
