@@ -121,10 +121,10 @@ def main() -> None:
 
     else:
         entry_point = Path.cwd() / "ui.ipynb"
-        name = Path.cwd().stem
+        name = Path.cwd().name
 
     # create the kernel from venv
-    name = f"{args.venv_prefix}-{Path.cwd().stem}"
+    name = f"{args.venv_prefix}-{Path.cwd().name}"
     display_name = f"({args.venv_prefix}) {name}"
     subprocess.run(
         [
