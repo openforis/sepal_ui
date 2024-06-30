@@ -1,0 +1,6 @@
+{
+  "decorator": {
+    "no_alert": "Vous devriez fournir l'argument `alert` car aucun n'est définit dans l'objet parent",
+    "no_button": "Vous devriez fournir l'argument `button` car auun n'est définit dans l'objet parent"
+  }
+}
