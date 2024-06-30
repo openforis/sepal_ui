@@ -2,6 +2,9 @@
   "utils": {
     "check_input": {
       "error": "La valeur n'a pas été initialisée"
+    },
+    "ee": {
+      "no_asset_root": "Aucun dossier d'Assets n'est disponible avec ces identifiants. Veuillez vérifier votre compte et réessayer."
     }
   }
 }
