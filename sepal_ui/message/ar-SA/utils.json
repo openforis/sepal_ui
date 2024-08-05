@@ -2,6 +2,9 @@
   "utils": {
     "check_input": {
       "error": ""
+    },
+    "ee": {
+      "no_asset_root": ""
     }
   }
 }
