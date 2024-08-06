@@ -78,6 +78,8 @@ def test_get_assets(gee_dir: Path) -> None:
         "subfolder/subfolder_feature_collection",
     ]
 
+    assert len(list_) == len(names)
+
     for item, name in zip(list_, names):
         assert item["name"] == str(gee_dir / name)
 
