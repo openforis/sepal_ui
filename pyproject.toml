@@ -97,6 +97,7 @@ doc = [
     "sphinxcontrib-autoprogram",
     "sphinx-favicon>=1.0.1",
     "tomli",
+    "lxml_html_clean",
 ]
 
 [project.scripts]
