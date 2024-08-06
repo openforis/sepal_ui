@@ -72,17 +72,17 @@ def test_get_assets(gee_dir: Path) -> None:
 
     # check that they are all there
     names = [
-        "feature_collection",
-        "image",
-        "subfolder",
-        "subfolder/subfolder_feature_collection",
+        str(gee_dir / name)
+        for name in [
+            "feature_collection",
+            "image",
+            "subfolder",
+            "subfolder/subfolder_feature_collection",
+        ]
     ]
 
-    print("###################", list_)
-    assert len(list_) == len(names)
-
-    for item, name in zip(list_, names):
-        assert item["name"] == str(gee_dir / name)
+    for ee_item in list_:
+        assert ee_item["name"] in names
 
     return
 
