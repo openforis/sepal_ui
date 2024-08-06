@@ -10,7 +10,7 @@ __pycache__/
 *$py.class
 *[Uu]ntitled*
 
-act_unit.yml
+.github/workflows/act_unit.yml
 
 # C extensions
 *.so
