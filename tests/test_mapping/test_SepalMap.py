@@ -7,7 +7,6 @@ from pathlib import Path
 
 import ee
 import pytest
-from ee.ee_exception import EEException
 from ipyleaflet import GeoJSON
 
 from sepal_ui import mapping as sm
@@ -191,7 +190,7 @@ def test_add_ee_layer_exceptions() -> None:
         )
     )
 
-    with pytest.raises(EEException):
+    with pytest.raises(TypeError):
         map_.addLayer(geometry, {"invalid_propery": "red", "fillColor": None})
 
     return

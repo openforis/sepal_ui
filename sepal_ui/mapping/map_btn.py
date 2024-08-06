@@ -2,7 +2,6 @@
 
 import ipyvuetify as v
 
-from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
 
 
@@ -24,9 +23,7 @@ class MapBtn(v.Btn, sw.SepalWidget):
             content = content[: min(3, len(content))].upper()
 
         # some parameters are overloaded to match the map requirements
-        kwargs["color"] = "text-color"
         kwargs["outlined"] = True
-        kwargs["style_"] = f"background: {color.bg};"
         kwargs["children"] = [content]
         kwargs["icon"] = False
         kwargs.setdefault("class_", "v-map-btn")

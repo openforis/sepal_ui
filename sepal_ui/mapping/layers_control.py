@@ -1,15 +1,12 @@
 """Extend functionalities of the ipyleaflet layer control."""
-import json
+
 from types import SimpleNamespace
 from typing import Optional
 
-import ipyvuetify as v
 from ipyleaflet import GeoJSON, Map, TileLayer
 from ipywidgets import link
 
-from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
 
@@ -82,7 +79,7 @@ class LayerRow(sw.Html):
         """
         # create the checkbox, by default layer are visible
         self.w_checkbox = sw.SimpleCheckbox(
-            v_model=True, small=True, label=layer.name, color=color.primary
+            v_model=True, small=True, label=layer.name, color="primary"
         )
         kwargs = {"style": "width: 10%;", "tag": "td"}
         checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
@@ -128,7 +125,7 @@ class VectorRow(sw.Html):
         """
         # create the checkbox, by default layer are visible
         self.w_checkbox = sw.SimpleCheckbox(
-            v_model=True, small=True, label=layer.name, color=color.primary
+            v_model=True, small=True, label=layer.name, color="primary"
         )
         kwargs = {"style": "width: 10%;", "tag": "td"}
         checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
@@ -170,21 +167,16 @@ class LayersControl(MenuControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
-            background_color=color.menu,
-            color=p_style["color"][v.theme.dark],
+            background_color="menu",
         )
         self.tile = sw.Tile("nested", "")
 
         # set the kwargs parameters
         kwargs.setdefault("position", "topright")
         super().__init__(
-            icon_content="fa-solid fa-layer-group",
-            card_content=self.tile,
-            m=m,
-            **kwargs
+            icon_content="fa-solid fa-layer-group", card_content=self.tile, m=m, **kwargs
         )
 
         # customize the menu to make it look more like a layercontrol
@@ -226,9 +218,7 @@ class LayersControl(MenuControl):
         # the error raised if you delete the last one is a feature
         bases = [lyr for lyr in self.m.layers if lyr.base is True]
         base_rows = []
-        current = next(
-            (lyr for lyr in bases if lyr.visible is True), SimpleNamespace(name=None)
-        )
+        current = next((lyr for lyr in bases if lyr.visible is True), SimpleNamespace(name=None))
         if len(bases) > 0:
             head = [HeaderRow(ms.layer_control.basemap.header)]
             empy_cell = sw.Html(tag="td", children=[" "], attributes={"colspan": 3})

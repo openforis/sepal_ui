@@ -40,12 +40,12 @@ def test_conf() -> None:
 def test_repr_html() -> None:
     """Check the html representation of a color object."""
     # Arrange
-    expected_title_dark = "<h3>Current theme: dark</h3>"
-    expected_dark = "primary</br>#b3842e"
-
     # select dark theme
     color = SepalColor()
     color._dark_theme = True
+
+    expected_title_dark = "<h3>Current theme: dark</h3>"
+    expected_dark = f"primary</br>{color.primary}"
 
     # read the html result and assert that they look like expected
     html = color._repr_html_().__str__()
@@ -53,12 +53,12 @@ def test_repr_html() -> None:
     assert expected_title_dark in html
     assert expected_dark in html
 
-    # same for light theme
-    expected_title_light = "<h3>Current theme: light</h3>"
-    expected_light = "primary</br>#1976D2"
-
     # select light theme
     color._dark_theme = False
+
+    # same for light theme
+    expected_title_light = "<h3>Current theme: light</h3>"
+    expected_light = f"primary</br>{color.primary}"
 
     # read html and assert the values of some produced items
     html = color._repr_html_().__str__()

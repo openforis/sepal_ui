@@ -166,11 +166,7 @@ class SepalWidget(v.VuetifyWidget):
 
             # compare the widget with requirements
             # if no klass is specified, use both vuetifyWidget and Html objects
-            is_klass = (
-                isinstance(w, klass)
-                if klass
-                else isinstance(w, ((v.VuetifyWidget, v.Html)))
-            )
+            is_klass = isinstance(w, klass) if klass else isinstance(w, ((v.VuetifyWidget, v.Html)))
 
             # using "niet" as default so that result is True if attr is Falsy
             # "niet" is very unlikely to be used compared to None, False, "none"...
@@ -204,9 +200,7 @@ class SepalWidget(v.VuetifyWidget):
             new_childrens = new_childrens + children
 
         else:
-            raise ValueError(
-                f"Position '{position}' is not a valid value. Use 'first' or 'last'"
-            )
+            raise ValueError(f"Position '{position}' is not a valid value. Use 'first' or 'last'")
 
         self.children = new_childrens
 
@@ -247,9 +241,7 @@ class Tooltip(v.Tooltip):
         # set some default parameters
         kwargs.setdefault("close_delay", 200)
 
-        self.v_slots = [
-            {"name": "activator", "variable": "tooltip", "children": widget}
-        ]
+        self.v_slots = [{"name": "activator", "variable": "tooltip", "children": widget}]
         widget.v_on = "tooltip.on"
 
         self.children = [tooltip]

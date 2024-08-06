@@ -133,9 +133,7 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
         aoi_model.get_fields("toto", "toto")
 
     # select the vatican feature in GAUL 2015
-    ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(
-        ee.Filter.eq("ADM0_CODE", "110")
-    )
+    ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq("ADM0_CODE", "110"))
 
     # select the geometry associated with Vatican city (all of it)
     column, field = ("ADM0_CODE", "110")
@@ -148,9 +146,7 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
     return
 
 
-def test_clear_attributes(
-    aoi_model_outputs: List[str], aoi_model_traits: List[str]
-) -> None:
+def test_clear_attributes(aoi_model_outputs: List[str], aoi_model_traits: List[str]) -> None:
     """Remove all attributes from an AoiMOdel.
 
     Args:
@@ -337,6 +333,34 @@ def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_from_vector_gee(gee_dir: Path, fake_vector: dict) -> None:
+    """Get an AoiModel from a vector and using GEE.
+
+    Args:
+        gee_dir: the path to the session gee_dir folder (including hash)
+        fake_vector: the path to a vector file
+    """
+    aoi_model = aoi.AoiModel(folder=gee_dir, gee=True)
+
+    # with no pathname
+    with pytest.raises(Exception):
+        aoi_model._from_vector(fake_vector)
+
+    # all params
+    vector = {"pathname": fake_vector, "column": "GID_0", "value": "VAT"}
+    aoi_model._from_vector(vector)
+    assert aoi_model.name == "gadm41_VAT_0_GID_0_VAT"
+
+    # Check that the vector was converted to feature_collection
+    assert aoi_model.feature_collection is not None
+    assert aoi_model.feature_collection.first().toDictionary().values().getInfo() == [
+        "VaticanCity",
+        "VAT",
+    ]
+    assert aoi_model.gdf is not None
+
+
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
 def test_from_geo_json(gee_dir, square: dict) -> None:
     """Get an AoiModel from a geojson (equivalent to draw).
 
@@ -354,6 +378,27 @@ def test_from_geo_json(gee_dir, square: dict) -> None:
     aoi_model.name = "square"
     aoi_model._from_geo_json(square)
     assert aoi_model.name == "square"
+
+    return
+
+
+@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+def test_from_geo_json_gee(gee_dir, square: dict) -> None:
+    """Get an AoiModel from a geojson (equivalent to draw).
+
+    Args:
+        gee_dir: the path to the session gee_dir folder (including hash)
+        square: the geo_interface representation of a quare around vatican
+    """
+    aoi_model = aoi.AoiModel(folder=gee_dir, gee=True)
+
+    # fully qualified square
+    aoi_model.name = "square"
+    aoi_model._from_geo_json(square)
+    assert aoi_model.name == "square"
+
+    # Check the feature collection exists
+    assert aoi_model.feature_collection.getInfo()
 
     return
 

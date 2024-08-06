@@ -154,7 +154,7 @@ class AoiModel(Model):
         self.gee = gee
         if gee:
             su.init_ee()
-            self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
+            self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
 
         # set default values
         self.set_default(vector, admin, asset)
@@ -175,22 +175,16 @@ class AoiModel(Model):
         # save the default values
         self.default_vector = vector
         self.default_asset = self.asset_name = str(asset) if asset else None
-        self.asset_json = (
-            {"pathname": asset, "column": "ALL", "value": None} if asset else None
-        )
+        self.asset_json = {"pathname": asset, "column": "ALL", "value": None} if asset else None
         self.default_admin = self.admin = admin
 
         # cast the vector to json
         self.vector_json = (
-            {"pathname": str(vector), "column": "ALL", "value": None}
-            if vector
-            else None
+            {"pathname": str(vector), "column": "ALL", "value": None} if vector else None
         )
 
         # cast the asset to json
-        self.asset_json = (
-            {"pathname": asset, "column": "ALL", "value": None} if asset else None
-        )
+        self.asset_json = {"pathname": asset, "column": "ALL", "value": None} if asset else None
 
         # set the default gdf if possible
         if self.vector_json is not None:
@@ -255,10 +249,6 @@ class AoiModel(Model):
         # set the feature collection
         self.feature_collection = ee_col
 
-        # create a gdf form the feature_collection
-        features = self.feature_collection.getInfo()["features"]
-        self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
-
         return self
 
     def _from_points(self, point_json: dict) -> Self:
@@ -283,9 +273,7 @@ class AoiModel(Model):
         self.gdf = gpd.GeoDataFrame(
             df,
             crs="EPSG:4326",
-            geometry=gpd.points_from_xy(
-                df[point_json["lng_column"]], df[point_json["lat_column"]]
-            ),
+            geometry=gpd.points_from_xy(df[point_json["lng_column"]], df[point_json["lat_column"]]),
         )
 
         # set the name
@@ -385,21 +373,28 @@ class AoiModel(Model):
         # pygaul needs extra work as ISO codes are not included in the GEE dataset
         if self.gee:
             self.feature_collection = pygaul.AdmItems(admin=admin)
-            features = self.feature_collection.getInfo()["features"]
-            self.gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
-            gaul_country = str(self.gdf.ADM0_CODE.unique()[0])
-            iso = json.loads(self.MAPPING.read_text())[gaul_country]
-            self.gdf["ISO"] = iso
+
+            # get the ADM0_CODE to get the ISO code
+            feature = self.feature_collection.first()
+            properties = feature.toDictionary(feature.propertyNames()).getInfo()
+
+            iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
+            names = [value for prop, value in properties.items() if "NAME" in prop]
+
+            # generate the name from the columns
+            names = [su.normalize_str(name) for name in names]
+            names[0] = iso
+
+            self.name = "_".join(names)
 
         else:
             self.gdf = pygadm.AdmItems(admin=admin)
 
-        # generate the name from the columns
-        r = self.gdf.iloc[0]
-        names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
-        names[0] = r.ISO if self.gee else r.GID_0[:3]
-        self.name = "_".join(names)
-
+            # generate the name from the columns
+            r = self.gdf.iloc[0]
+            names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
+            names[0] = r.GID_0[:3]
+            self.name = "_".join(names)
         return self
 
     def clear_output(self) -> Self:
@@ -441,15 +436,13 @@ class AoiModel(Model):
         Returns:
             sorted list of column names
         """
-        if self.gdf is None:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
             aoi_ee = ee.Feature(self.feature_collection.first())
             columns = aoi_ee.propertyNames().getInfo()
-            list_ = [
-                col for col in columns if col not in ["system:index", "Shape_Area"]
-            ]
+            list_ = [col for col in columns if col not in ["system:index", "Shape_Area"]]
         else:
             list_ = list(set(["geometry"]) ^ set(self.gdf.columns.to_list()))
 
@@ -465,7 +458,7 @@ class AoiModel(Model):
             sorted list of fields value
 
         """
-        if self.gdf is None:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
@@ -476,9 +469,7 @@ class AoiModel(Model):
 
         return sorted(list_)
 
-    def get_selected(
-        self, column: str, field: str
-    ) -> Union[ee.Feature, gpd.GeoDataFrame]:
+    def get_selected(self, column: str, field: str) -> Union[ee.Feature, gpd.GeoDataFrame]:
         """Select an ee object based on selected column and field.
 
         Args:
@@ -488,13 +479,11 @@ class AoiModel(Model):
         Returns:
             The Feature associated with the query
         """
-        if self.gdf is None:
+        if self._gdf is None and not self.feature_collection:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
-            selected_feature = self.feature_collection.filterMetadata(
-                column, "equals", field
-            )
+            selected_feature = self.feature_collection.filterMetadata(column, "equals", field)
         else:
             selected_feature = self.gdf[self.gdf[column] == field]
 
@@ -506,10 +495,17 @@ class AoiModel(Model):
         Returns:
             minxx, miny, maxx, maxy
         """
-        if self.gdf is None:
+        # use _gdf to evaluate the condition to avoid accessing the gdf property
+        if self._gdf is None and not self.feature_collection:
             raise ValueError(ms.aoi_sel.exception.no_gdf)
 
-        return self.gdf.total_bounds.tolist()
+        if self.gee:
+            coords = self.feature_collection.geometry().bounds().coordinates().get(0).getInfo()
+            bounds = [coords[0][0], coords[0][1], coords[3][0], coords[3][1]]
+        else:
+            bounds = self.gdf.total_bounds.tolist()
+
+        return [round(bound, 4) for bound in bounds]
 
     def export_to_asset(self) -> Self:
         """Export the feature_collection as an asset (only for ee model)."""
@@ -547,6 +543,8 @@ class AoiModel(Model):
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map
         """
+        # This function aims to work in the same way in both gee and non-gee mode
+        # It's why we use the gdf property to evaluate the condition
         if self.gdf is None:
             raise Exception(ms.aoi_sel.exception.no_gdf)
 
@@ -567,3 +565,34 @@ class AoiModel(Model):
         self.ipygeojson = GeoJSON(data=data, style=style, name="aoi")
 
         return self.ipygeojson
+
+    @property
+    def gdf(self):
+        """Get the geodataframe associated with the AOI."""
+        if self.gee:
+            if self._gdf is not None:
+                # This happens when it comes from vector or geojson
+                return self._gdf
+
+            if not self.feature_collection:
+                return None
+
+            self._load_gdf()
+
+        return self._gdf
+
+    @gdf.setter
+    def gdf(self, value):
+        """Set the gdf value. Used mainly to reset the gdf value."""
+        self._gdf = value
+
+    def _load_gdf(self):
+        """Return a geodataframe from a feature collection."""
+        features = self.feature_collection.getInfo()["features"]
+        self._gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
+
+        if self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
+
+            gaul_country = str(self._gdf.ADM0_CODE.unique()[0])
+            iso = json.loads(self.MAPPING.read_text())[gaul_country]
+            self._gdf["ISO"] = iso

@@ -3,6 +3,8 @@
 # known bug of rasterio
 import os
 
+from sepal_ui.mapping.fullscreen_control import FullScreenControl
+
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
 if "PROJ_LIB" in list(os.environ.keys()):
@@ -114,9 +116,7 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        default_basemap = (
-            "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
-        )
+        default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
@@ -129,6 +129,9 @@ class SepalMap(ipl.Map):
         self.add(LayersControl(self, group=-1))
         self.add(ipl.AttributionControl(position="bottomleft", prefix="SEPAL"))
         self.add(ipl.ScaleControl(position="bottomleft", imperial=False))
+
+        if kwargs.get("fullscreen_control", False):
+            self.add(FullScreenControl(self))
 
         # specific drawing control
         self.dc = DrawControl(self)
@@ -146,6 +149,17 @@ class SepalMap(ipl.Map):
         # this id should be unique and will be used by mutators to identify this map
         self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
+
+        v.theme.observe(self._on_theme_change, "dark")
+
+    def _on_theme_change(self, _) -> None:
+        """Change the url of the basemaps."""
+        light = "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+        dark = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+
+        for layer in self.layers:
+            if layer.base and layer.url in [light, dark]:
+                layer.url = dark if v.theme.dark is True else light
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
@@ -381,9 +395,7 @@ class SepalMap(ipl.Map):
                 norm = mpc.BoundaryNorm(vals, plot_color.N)
 
             else:
-                plot_color = mpc.LinearSegmentedColormap.from_list(
-                    "custom", hexcodes, N=256
-                )
+                plot_color = mpc.LinearSegmentedColormap.from_list("custom", hexcodes, N=256)
                 norm = mpc.Normalize(vmin=vmin, vmax=vmax)
 
         elif cmap is not None:
@@ -529,9 +541,7 @@ class SepalMap(ipl.Map):
                 # set to_min to 0 and to_max to 1
                 # in the original expression:
                 # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
-                expression = (
-                    "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
-                )
+                expression = "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
 
                 # get the maxs and mins
                 # removing them from the parameter
@@ -542,9 +552,7 @@ class SepalMap(ipl.Map):
                 asset = ee_object
                 for i, band in enumerate(vis_params["bands"]):
                     # adapt the expression
-                    exp = expression.format(
-                        from_min=mins[i], from_max=maxs[i], band=band
-                    )
+                    exp = expression.format(from_min=mins[i], from_max=maxs[i], band=band)
                     asset = asset.addBands(asset.expression(exp), [band], True)
 
                 # set the arguments
@@ -565,9 +573,7 @@ class SepalMap(ipl.Map):
                 ee.featurecollection.FeatureCollection,
             ),
         ):
-            default_vis = json.loads((ss.JSON_DIR / "layer.json").read_text())[
-                "ee_layer"
-            ]
+            default_vis = json.loads((ss.JSON_DIR / "layer.json").read_text())["ee_layer"]
             default_vis.update(color=scolors.primary)
 
             # We want to get all the default styles and only change those whose are
@@ -656,9 +662,7 @@ class SepalMap(ipl.Map):
 
         # build a raw prop list
         raw_prop_list = {
-            p: val
-            for p, val in image.getInfo()["properties"].items()
-            if p.startswith(PREFIX)
+            p: val for p, val in image.getInfo()["properties"].items() if p.startswith(PREFIX)
         }
 
         # decompose each property by its number
@@ -757,13 +761,9 @@ class SepalMap(ipl.Map):
         # apply default coloring for geoJson
         if isinstance(layer, ipl.GeoJSON):
             # define the default values
-            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())[
-                "layer"
-            ]
+            default_style = json.loads((ss.JSON_DIR / "layer.json").read_text())["layer"]
             default_style.update(color=scolors.primary)
-            default_hover_style = json.loads(
-                (ss.JSON_DIR / "layer_hover.json").read_text()
-            )
+            default_hover_style = json.loads((ss.JSON_DIR / "layer_hover.json").read_text())
             default_hover_style.update(color=scolors.primary)
 
             # apply the style depending on the parameters
@@ -848,9 +848,7 @@ class SepalMap(ipl.Map):
             vertical: vertical or horizoal position of the legend
         """
         # Define as class member so it can be accessed from outside.
-        self.legend = LegendControl(
-            legend_dict, title=title, vertical=vertical, position=position
-        )
+        self.legend = LegendControl(legend_dict, title=title, vertical=vertical, position=position)
 
         return self.add(self.legend)
 

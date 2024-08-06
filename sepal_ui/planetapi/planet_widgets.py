@@ -57,9 +57,7 @@ class InfoView(sw.ExpansionPanels):
         self.children = [
             v.ExpansionPanel(
                 children=[
-                    v.ExpansionPanelHeader(
-                        hide_actions=True, children=[v.Flex(children=subs_btn)]
-                    ),
+                    v.ExpansionPanelHeader(hide_actions=True, children=[v.Flex(children=subs_btn)]),
                     v.ExpansionPanelContent(v_model=1, children=[self.info_card]),
                 ]
             )
@@ -194,10 +192,7 @@ class InfoCard(sw.Layout):
         Args:
             subs_group: list of subscriptions belonging to the same category ('nicfi', 'others')
         """
-        content = [
-            v.Card(class_="pa-2", children=self._make_content(sub))
-            for sub in subs_group
-        ]
+        content = [v.Card(class_="pa-2", children=self._make_content(sub)) for sub in subs_group]
 
         self.children = content
 

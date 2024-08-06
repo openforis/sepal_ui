@@ -8,6 +8,7 @@ used for multiple use-case sucha as (but not limited):
 ...
 """
 
+import json
 import os
 import warnings
 from functools import wraps
@@ -17,7 +18,6 @@ from typing import Any, Callable, List, Optional
 from warnings import warn
 
 import ee
-import httplib2
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
 
@@ -34,28 +34,50 @@ from sepal_ui.scripts.warning import SepalWarning
 
 
 def init_ee() -> None:
-    """Initialize earth engine according to the environment.
+    r"""Initialize earth engine according using a token.
 
-    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    THe environment used to run the tests need to have a EARTHENGINE_TOKEN variable.
+    The content of this variable must be the copy of a personal credential file that you can find on your local computer if you already run the earth engine command line tool. See the usage question for a github action example.
+
+    - Windows: ``C:\Users\USERNAME\\.config\\earthengine\\credentials``
+    - Linux: ``/home/USERNAME/.config/earthengine/credentials``
+    - MacOS: ``/Users/USERNAME/.config/earthengine/credentials``
+
+    Note:
+        As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
-    # only do the initialization if the credential are missing
     if not ee.data._credentials:
-        # if the credentials token is asved in the environment use it
-        if "EARTHENGINE_TOKEN" in os.environ:
+        credential_folder_path = Path.home() / ".config" / "earthengine"
+        credential_file_path = credential_folder_path / "credentials"
+
+        if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
+
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
-            credential_folder_path = Path.home() / ".config" / "earthengine"
             credential_folder_path.mkdir(parents=True, exist_ok=True)
-            credential_file_path = credential_folder_path / "credentials"
             credential_file_path.write_text(ee_token)
+
+        # Extract the project name from credentials
+        _credentials = json.loads(credential_file_path.read_text())
+        project_id = _credentials.get("project_id", _credentials.get("project", None))
+
+        if not project_id:
+            raise NameError(
+                "The project name cannot be detected. "
+                "Please set it using `earthengine set_project project_name`."
+            )
+
+        # Check if we are using a google service account
+        if _credentials.get("type") == "service_account":
+            ee_user = _credentials.get("client_email")
+            credentials = ee.ServiceAccountCredentials(ee_user, str(credential_file_path))
+            ee.Initialize(credentials=credentials)
+            ee.data._cloud_api_user_project = project_id
+            return
 
         # if the user is in local development the authentication should
         # already be available
-        ee.Initialize(http_transport=httplib2.Http())
-        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
-
-    return
+        ee.Initialize(project=project_id)
 
 
 ################################################################################
@@ -97,15 +119,10 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) 
                 # Use append msg as several warnings could be triggered
                 if w_list:
                     # split the warning list
-                    w_list_sepal = [
-                        w for w in w_list if isinstance(w.message, SepalWarning)
-                    ]
+                    w_list_sepal = [w for w in w_list if isinstance(w.message, SepalWarning)]
 
                     # display the sepal one
-                    ms_list = [
-                        f"{w.category.__name__}: {w.message.args[0]}"
-                        for w in w_list_sepal
-                    ]
+                    ms_list = [f"{w.category.__name__}: {w.message.args[0]}" for w in w_list_sepal]
                     [alert_.append_msg(ms, type_="warning") for ms in ms_list]
 
                     def custom_showwarning(w):
@@ -257,15 +274,10 @@ def switch(
 
             if widgets_len:
                 # Verify that the input elements are strings
-                wrong_types = [
-                    (w, type(w)) for w in on_widgets if not isinstance(w, str)
-                ]
+                wrong_types = [(w, type(w)) for w in on_widgets if not isinstance(w, str)]
 
                 if len(wrong_types):
-                    errors = [
-                        f"Received:{w_type} for widget: {w}."
-                        for w, w_type in wrong_types
-                    ]
+                    errors = [f"Received:{w_type} for widget: {w}." for w, w_type in wrong_types]
 
                     raise TypeError(
                         f"All on_widgets list elements has to be strings. [{' '.join(errors)}]"
@@ -279,9 +291,7 @@ def switch(
                     )
 
                 def w_assign(bool_targets):
-                    params_targets = [
-                        (p, bool_targets[i]) for i, p in enumerate(params)
-                    ]
+                    params_targets = [(p, bool_targets[i]) for i, p in enumerate(params)]
 
                     for w_name, p_t in product(on_widgets, params_targets):
                         param, target = p_t

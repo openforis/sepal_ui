@@ -1,20 +1,20 @@
-name: Auto Assign to Project(s)
+# name: Auto Assign to Project(s)
 
-on:
-  issues:
-    types: [opened]
-  pull_request:
-    types: [opened]
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# on:
+#   issues:
+#     types: [opened]
+#   pull_request:
+#     types: [opened]
+# env:
+#   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-jobs:
-  assign_one_project:
-    runs-on: ubuntu-latest
-    name: Assign to the kaban Project
-    steps:
-      - name: Assign NEW issues and NEW pull requests to kaban project
-        uses: srggrs/assign-one-project-github-action@1.2.1
-        if: github.event.action == 'opened'
-        with:
-          project: "https://github.com/12rambau/sepal_ui/projects/4"
+# jobs:
+#   assign_one_project:
+#     runs-on: ubuntu-latest
+#     name: Assign to the kaban Project
+#     steps:
+#       - name: Assign NEW issues and NEW pull requests to kaban project
+#         uses: srggrs/assign-one-project-github-action@1.2.1
+#         if: github.event.action == 'opened'
+#         with:
+#           project: "https://github.com/12rambau/sepal_ui/projects/5"

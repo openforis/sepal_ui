@@ -24,7 +24,6 @@ from ipywidgets import jsdlink
 from traitlets import link, observe
 from typing_extensions import Self
 
-from sepal_ui import color
 from sepal_ui.frontend.resize_trigger import ResizeTrigger, rt
 from sepal_ui.frontend.styles import get_theme
 from sepal_ui.message import ms
@@ -47,9 +46,7 @@ __all__ = [
 
 
 class LocaleSelect(v.Menu, SepalWidget):
-    COUNTRIES: pd.DataFrame = pd.read_parquet(
-        Path(__file__).parents[1] / "data" / "locale.parquet"
-    )
+    COUNTRIES: pd.DataFrame = pd.read_parquet(Path(__file__).parents[1] / "data" / "locale.parquet")
     "the country list as a df. columns [code, name, flag]"
 
     FLAG: str = "https://flagcdn.com/{}.svg"
@@ -84,9 +81,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         """
         # extract the available language from the translator
         # default to only en-US if no translator is set
-        available_locales = (
-            ["en"] if translator is None else translator.available_locales()
-        )
+        available_locales = ["en"] if translator is None else translator.available_locales()
 
         # extract the language information from the translator
         # if not set default to english
@@ -103,14 +98,12 @@ class LocaleSelect(v.Menu, SepalWidget):
         self.language_list = v.List(
             dense=True,
             flat=True,
-            color=color.menu,
+            color="menu",
             v_model=True,
             max_height="300px",
             style_="overflow: auto; border-radius: 0 0 0 0;",
             children=[
-                v.ListItemGroup(
-                    children=self._get_country_items(available_locales), v_model=""
-                )
+                v.ListItemGroup(children=self._get_country_items(available_locales), v_model="")
             ],
         )
 
@@ -212,19 +205,21 @@ class ThemeSelect(v.Btn, SepalWidget):
     def toggle_theme(self, *args) -> None:
         """Toggle the btn icon from dark to light and adapt the configuration file."""
         # use a cycle to go through the themes
+
         theme_cycle = cycle(self.THEME_ICONS.keys())
         next(t for t in theme_cycle if t == self.theme)
         self.theme = next(t for t in theme_cycle)
 
+        v.theme.dark = self.theme == "dark"
+
         # change icon
-        self.color = "info"
         self.children[0].children = [self.THEME_ICONS[self.theme]]
 
         # change the parameter file
         su.set_config("theme", self.theme)
 
-        # trigger other events by changing v_model
-        self.v_model = self.theme
+        # # trigger other events by changing v_model
+        # self.v_model = self.theme
 
         return
 
@@ -257,9 +252,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[
-                v.Icon(class_="white--text", children=["fa-solid fa-ellipsis-v"])
-            ],
+            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -268,8 +261,8 @@ class AppBar(v.AppBar, SepalWidget):
         self.theme = ThemeSelect()
 
         # set the default parameters
-        kwargs.setdefault("color", color.main)
         kwargs.setdefault("class_", "white--text")
+        kwargs.setdefault("color", "main")
         kwargs.setdefault("dense", True)
         kwargs["app"] = True
         kwargs["children"] = [
@@ -336,10 +329,8 @@ class DrawerItem(v.ListItem, SepalWidget):
         icon = icon if icon else "fa-regular fa-folder"
 
         children = [
-            v.ListItemAction(children=[v.Icon(class_="white--text", children=[icon])]),
-            v.ListItemContent(
-                children=[v.ListItemTitle(class_="white--text", children=[title])]
-            ),
+            v.ListItemAction(children=[v.Icon(children=[icon])]),
+            v.ListItemContent(children=[v.ListItemTitle(children=[title])]),
         ]
 
         # set default parameters
@@ -361,16 +352,12 @@ class DrawerItem(v.ListItem, SepalWidget):
         # cannot be set as a class member because it will be shared with all
         # the other draweritems.
         self.alert_badge = v.ListItemAction(
-            children=[
-                v.Icon(children=["fa-solid fa-circle"], x_small=True, color="red")
-            ]
+            children=[v.Icon(children=["fa-solid fa-circle"], x_small=True, color="error")]
         )
 
         if model:
             if not bind_var:
-                raise Exception(
-                    "You have selected a model, you need a trait to bind with drawer."
-                )
+                raise Exception("You have selected a model, you need a trait to bind with drawer.")
 
             link((model, bind_var), (self, "alert"))
 
@@ -471,9 +458,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             )
             code_link.append(item_wiki)
         if issue:
-            item_bug = DrawerItem(
-                ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue
-            )
+            item_bug = DrawerItem(ms.widgets.navdrawer.bug, icon="fa-solid fa-bug", href=issue)
             code_link.append(item_bug)
 
         version_card = VersionCard(repo_folder=repo_folder)
@@ -481,7 +466,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
             v_slots = [{"name": "append", "children": [version_card]}]
 
         children = [
-            v.List(dense=True, children=self.items),
+            v.List(dense=True, class_="pa-0", children=self.items),
             v.Divider(),
             v.List(dense=True, children=code_link),
         ]
@@ -489,7 +474,7 @@ class NavDrawer(v.NavigationDrawer, SepalWidget):
         # set default parameters
         kwargs.setdefault("v_model", True)
         kwargs["app"] = True
-        kwargs.setdefault("color", color.darker)
+        kwargs.setdefault("color", "darker")
         kwargs["children"] = children
         kwargs.setdefault("v_slots", v_slots)
 
@@ -540,8 +525,7 @@ class Footer(v.Footer, SepalWidget):
         text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
 
         # set default parameters
-        kwargs.setdefault("color", color.main)
-        kwargs.setdefault("class_", "white--text")
+        kwargs.setdefault("color", "main")
         kwargs["app"] = True
         kwargs["children"] = [text]
 
@@ -623,9 +607,10 @@ class App(v.App, SepalWidget):
             app_children.append(self.footer)
 
         # create a negative overlay to force the background color
-        bg = v.Overlay(color=color.bg, opacity=1, style_="transition:unset", z_index=-1)
+        bg = v.Overlay(color="bg", opacity=1, style_="transition:unset", z_index=-1)
 
         # set default parameters
+        kwargs.setdefault("_metadata", {"mount_id": "content"})
         kwargs.setdefault("v_model", None)
         kwargs["children"] = [bg, *app_children]
 
@@ -635,14 +620,11 @@ class App(v.App, SepalWidget):
         # display a warning if the set language cannot be reached
         if translator is not None:
             if translator._match is False:
-                msg = ms.locale.fallback.format(
-                    translator._targeted, translator._target
-                )
+                msg = ms.locale.fallback.format(translator._targeted, translator._target)
                 self.add_banner(msg, type_="error")
 
         # add js event
         self.appBar.locale.observe(self._locale_info, "value")
-        self.appBar.theme.observe(self._theme_info, "v_model")
 
     def show_tile(self, name: str) -> Self:
         """Select the tile to display when the app is launched.
@@ -719,14 +701,6 @@ class App(v.App, SepalWidget):
         """Display information about the locale change."""
         if change["new"] != "":
             msg = ms.locale.change.format(change["new"])
-            self.add_banner(msg)
-
-        return
-
-    def _theme_info(self, change: dict) -> None:
-        """Display information about the theme change."""
-        if change["new"] != "":
-            msg = ms.theme.change.format(change["new"])
             self.add_banner(msg)
 
         return
@@ -809,14 +783,15 @@ def VersionCard(repo_folder: str = Path.cwd()) -> Optional[v.Card]:
 
     w_version = v.Card(
         class_="text-center",
+        height="48px",
         tile=True,
-        color=color.main,
+        color="accent",
         children=[
             v.CardText(
                 children=[
                     ms.widgets.navdrawer.changelog.version.format(app_version),
                     w_changelog,
-                ]
+                ],
             ),
         ],
     )

@@ -96,9 +96,7 @@ class Alert(v.Alert, SepalWidget):
         self.progress_output = Output()
         # self.progress_bar = None
 
-    def update_progress(
-        self, progress: float, msg: str = "Progress", **tqdm_args
-    ) -> None:
+    def update_progress(self, progress: float, msg: str = "Progress", **tqdm_args) -> None:
         """Update the Alert message with a tqdm progress bar.
 
         .. note::
@@ -338,9 +336,7 @@ class Banner(v.Snackbar, SepalWidget):
         type_ = set_type(type_)
 
         # create the closing btn
-        self.btn_close = v.Btn(
-            small=True, text=True, children=[ms.widgets.banner.close]
-        )
+        self.btn_close = v.Btn(small=True, text=True, children=[ms.widgets.banner.close])
 
         # compute timeout based on the persistent and timeout parameter
         computed_timeout = 0 if persistent is True else self.get_timeout(msg)

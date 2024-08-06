@@ -32,9 +32,7 @@ def test_init() -> None:
     # init with a remove list
     view = aoi.AoiView(["-POINTS"], gee=False)
     assert {"text": ms.aoi_sel.points, "value": "POINTS"} not in view.w_method.items
-    assert (
-        len(view.w_method.items) == len(aoi.AoiModel.METHODS) + 2 - 1
-    )  # 2 headers this time
+    assert len(view.w_method.items) == len(aoi.AoiModel.METHODS) + 2 - 1  # 2 headers this time
 
     # init with a mix of both
     with pytest.raises(Exception):
@@ -161,9 +159,7 @@ def test_update_local_aoi(aoi_local_view: aoi.AoiView) -> None:
         aoi_local_view: an object without gee binding
     """
     # select Vatican
-    item = next(
-        i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City"
-    )
+    item = next(i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City")
     aoi_local_view.w_method.v_model = "ADMIN0"
     aoi_local_view.w_admin_0.v_model = item["value"]
 
@@ -185,9 +181,7 @@ def test_reset(aoi_local_view: aoi.AoiView) -> None:
         aoi_local_view: an object without gee binding
     """
     # select Italy
-    item = next(
-        i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City"
-    )
+    item = next(i for i in aoi_local_view.w_admin_0.items if i["text"] == "Vatican City")
     aoi_local_view.w_method.v_model = "ADMIN0"
     aoi_local_view.w_admin_0.v_model = item["value"]
 

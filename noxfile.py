@@ -3,7 +3,6 @@
 The nox run are build in isolated environment that will be stored in .nox. to force the venv update, remove the .nox/xxx folder.
 """
 
-
 import nox
 
 nox.options.sessions = ["lint", "test", "docs"]
@@ -13,13 +12,22 @@ nox.options.sessions = ["lint", "test", "docs"]
 def lint(session):
     """Apply the pre-commits."""
     session.install("pre-commit")
-    session.run("pre-commit", "run", "--a", *session.posargs)
+    session.run("pre-commit", "run", "--all-files", *session.posargs)
 
 
 @nox.session(reuse_venv=True)
 def test(session):
     """Run all the test using the environment variable of the running machine."""
     session.install(".[test]")
+
+    # if we are in the sepal-venv, force earthengine api fork
+    if "sepal-user" in session.virtualenv.location:
+        session.run(
+            "pip",
+            "install",
+            "git+https://github.com/openforis/earthengine-api.git@v0.1.384#egg=earthengine-api&subdirectory=python",
+        )
+
     test_files = session.posargs or ["tests"]
     session.run("pytest", "--color=yes", "--cov", "--cov-report=xml", *test_files)
 
@@ -56,9 +64,7 @@ def docs(session):
     # build the api doc files
     templates = "docs/source/_templates/apidoc"
     modules = "docs/source/modules"
-    session.run(
-        "sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui"
-    )
+    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui")
 
     # build the documentation
     source = "docs/source"

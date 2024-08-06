@@ -7,6 +7,7 @@ import ee
 import pytest
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.message import ms
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
@@ -24,7 +25,15 @@ def test_init(gee_dir: Path, gee_user_dir: Path) -> None:
 
     # create an asset select with an undefined type
     asset_select = sw.AssetSelect(folder=str(gee_dir), types=["toto"])
-    assert asset_select.items == []
+
+    # zero assets are represented by a disabled item
+    no_asset_item = [
+        {
+            "text": ms.widgets.asset_select.no_assets.format(str(gee_dir)),
+            "disabled": True,
+        }
+    ]
+    assert asset_select.items == no_asset_item
 
     return
 
@@ -93,19 +102,13 @@ def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     # check that the list of asset is complete
     assert str(gee_user_dir / "image") in asset_select.items
     assert str(gee_user_dir / "feature_collection") in asset_select.items
-    assert (
-        str(gee_user_dir / "subfolder/subfolder_feature_collection")
-        in asset_select.items
-    )
+    assert str(gee_user_dir / "subfolder/subfolder_feature_collection") in asset_select.items
 
     # set an IMAGE type
     asset_select.types = ["IMAGE"]
     assert str(gee_user_dir / "image") in asset_select.items
     assert str(gee_user_dir / "feature_collection") not in asset_select.items
-    assert (
-        str(gee_user_dir / "subfolder/subfolder_feature_collection")
-        not in asset_select.items
-    )
+    assert str(gee_user_dir / "subfolder/subfolder_feature_collection") not in asset_select.items
 
     # set a type list with a non legit asset type
     asset_select.types = ["IMAGE", "toto"]

@@ -19,7 +19,6 @@ from deprecated.sphinx import versionadded
 from markdown import markdown
 from traitlets import link, observe
 
-from sepal_ui import color
 from sepal_ui.model import Model
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget, Tooltip
 
@@ -93,9 +92,7 @@ class CopyToClip(v.VuetifyTemplate):
         # template with js behaviour
         js_dir = Path(__file__).parents[1] / "frontend/js"
         clip = (js_dir / "jupyter_clip.js").read_text()
-        self.template = (
-            "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
-        )
+        self.template = "<mytf/>" "<script>{methods: {jupyter_clip(_txt) {%s}}}</script>" % clip
 
         super().__init__()
 
@@ -142,17 +139,15 @@ class StateIcon(Tooltip):
 
         # init the states
         default_states = {
-            "valid": ("Valid", color.success),
-            "non_valid": ("Not valid", color.error),
+            "valid": ("Valid", "success"),
+            "non_valid": ("Not valid", "error"),
         }
         self.states = default_states if not states else states
 
         # Get the first value (states first key) to use as default one
         init_value = self.states[next(iter(self.states))]
 
-        self.icon = v.Icon(
-            children=["fa-solid fa-circle"], color=init_value[1], small=True
-        )
+        self.icon = v.Icon(children=["fa-solid fa-circle"], color=init_value[1], small=True)
 
         super().__init__(self.icon, init_value[0], **kwargs)
 

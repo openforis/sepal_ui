@@ -1,6 +1,7 @@
 """All the helper function of sepal-ui."""
 
 import configparser
+import json
 import math
 import os
 import random
@@ -12,7 +13,6 @@ from typing import Any, Sequence, Tuple, Union
 from urllib.parse import urlparse
 
 import ee
-import httplib2
 import ipyvuetify as v
 import requests
 import tomli
@@ -127,28 +127,50 @@ def get_file_size(filename: Pathlike) -> str:
 
 
 def init_ee() -> None:
-    """Initialize earth engine according to the environment.
+    r"""Initialize earth engine according using a token.
 
-    It will use the creddential file if the EARTHENGINE_TOKEN env variable exist.
-    Otherwise it use the simple Initialize command (asking the user to register if necessary).
+    THe environment used to run the tests need to have a EARTHENGINE_TOKEN variable.
+    The content of this variable must be the copy of a personal credential file that you can find on your local computer if you already run the earth engine command line tool. See the usage question for a github action example.
+
+    - Windows: ``C:\Users\USERNAME\\.config\\earthengine\\credentials``
+    - Linux: ``/home/USERNAME/.config/earthengine/credentials``
+    - MacOS: ``/Users/USERNAME/.config/earthengine/credentials``
+
+    Note:
+        As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
-    # only do the initialization if the credential are missing
     if not ee.data._credentials:
-        # if the credentials token is asved in the environment use it
-        if "EARTHENGINE_TOKEN" in os.environ:
+        credential_folder_path = Path.home() / ".config" / "earthengine"
+        credential_file_path = credential_folder_path / "credentials"
+
+        if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
+
             # write the token to the appropriate folder
             ee_token = os.environ["EARTHENGINE_TOKEN"]
-            credential_folder_path = Path.home() / ".config" / "earthengine"
             credential_folder_path.mkdir(parents=True, exist_ok=True)
-            credential_file_path = credential_folder_path / "credentials"
             credential_file_path.write_text(ee_token)
+
+        # Extract the project name from credentials
+        _credentials = json.loads(credential_file_path.read_text())
+        project_id = _credentials.get("project_id", _credentials.get("project", None))
+
+        if not project_id:
+            raise NameError(
+                "The project name cannot be detected. "
+                "Please set it using `earthengine set_project project_name`."
+            )
+
+        # Check if we are using a google service account
+        if _credentials.get("type") == "service_account":
+            ee_user = _credentials.get("client_email")
+            credentials = ee.ServiceAccountCredentials(ee_user, str(credential_file_path))
+            ee.Initialize(credentials=credentials)
+            ee.data._cloud_api_user_project = project_id
+            return
 
         # if the user is in local development the authentication should
         # already be available
-        ee.Initialize(http_transport=httplib2.Http())
-        assert len(ee.data.getAssetRoots()) > 0, ms.utils.ee.no_asset_root
-
-    return
+        ee.Initialize(project=project_id)
 
 
 def normalize_str(msg: str, folder: bool = True) -> str:
@@ -166,9 +188,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     return re.sub(regex, "_", anyascii(msg))
 
 
-def to_colors(
-    in_color: Union[str, Sequence], out_type: str = "hex"
-) -> Union[str, tuple]:
+def to_colors(in_color: Union[str, Sequence], out_type: str = "hex") -> Union[str, tuple]:
     """Transform any color type into a color in the specified output format.
 
     Available format: [hex]
@@ -254,9 +274,7 @@ def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     return
 
 
-@deprecated(
-    version="2.9.1", reason="This function will be removed in favor of set_config()"
-)
+@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
 def set_config_locale(locale: str) -> None:
     """Set the provided local in the sepal-ui config file.
 
@@ -266,9 +284,7 @@ def set_config_locale(locale: str) -> None:
     return set_config("locale", locale)
 
 
-@deprecated(
-    version="2.9.1", reason="This function will be removed in favor of set_config()"
-)
+@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
 def set_config_theme(theme: str) -> None:
     """Set the provided theme in the sepal-ui config file.
 
@@ -432,9 +448,7 @@ def get_changelog(repo_folder: Pathlike = Path.cwd()) -> str:
     changelog_text, release_text = "", ""
     repo_owner, repo_name = get_repo_info(repo_folder)
 
-    release_url = (
-        f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
-    )
+    release_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
 
     response = requests.get(release_url)
     if all([repo_owner, repo_name]) and response.status_code == 200:

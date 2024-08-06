@@ -21,8 +21,9 @@ from sepal_ui.scripts import utils as su
 
 try:
     su.init_ee()
-except Exception:
-    pass  # try to init earthengine. use ee.data._credentials to skip
+except Exception as e:
+    raise e
+    # pass  # try to init earthengine. use ee.data._credentials to skip
 
 # -- a component to fake the display in Ipython --------------------------------
 
@@ -123,7 +124,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
         pytest.skip("Eathengine is not connected")
 
     # create a test folder with a hash name
-    root = ee.data.getAssetRoots()[0]["id"]
+    root = f"projects/{ee.data._cloud_api_user_project}/assets/"
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
 
@@ -137,7 +138,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     gdf = gpd.GeoDataFrame({"data": data, "geometry": centers}, crs=3857).to_crs(4326)
     ee_gdf = ee.FeatureCollection(gdf.__geo_interface__)
 
-    image = ee.Image.random().multiply(4).byte()
+    image = ee.Image.random(42).multiply(4).byte()
 
     lon = ee.Image.pixelLonLat().select("longitude")
     lat = ee.Image.pixelLonLat().select("latitude")
@@ -180,7 +181,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     yield gee_dir
 
     # flush the directory and it's content
-    gee.delete_assets(str(gee_dir), False)
+    # gee.delete_assets(str(gee_dir), False)
 
     return
 
@@ -197,7 +198,7 @@ def fake_asset(gee_dir: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def gee_user_dir(gee_dir: Path) -> Path:
-    """Return the path to the gee_dir assets without the project elements.
+    """Return the path to the gee_dir assets.
 
     Args:
         gee_dir: the path to the session defined GEE directory
@@ -205,9 +206,7 @@ def gee_user_dir(gee_dir: Path) -> Path:
     Returns:
         the path to gee_dir
     """
-    legacy_project = Path("projects/earthengine-legacy/assets")
-
-    return gee_dir.relative_to(legacy_project)
+    return gee_dir
 
 
 @pytest.fixture(scope="session")
@@ -304,9 +303,7 @@ def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
         the path to the byte file
     """
     file = tmp_path_factory.mktemp("temp") / "byte.tif"
-    link = (
-        "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
-    )
+    link = "https://raw.githubusercontent.com/rasterio/rasterio/master/tests/data/byte.tif"
     urlretrieve(link, file)
 
     return file

@@ -50,13 +50,9 @@ class MethodSelect(sw.Select):
         if methods == "ALL":
             self.methods = select_methods
         elif methods == "ADMIN":
-            self.methods = {
-                k: v for k, v in select_methods.items() if v["type"] == ADMIN
-            }
+            self.methods = {k: v for k, v in select_methods.items() if v["type"] == ADMIN}
         elif methods == "CUSTOM":
-            self.methods = {
-                k: v for k, v in select_methods.items() if v["type"] == CUSTOM
-            }
+            self.methods = {k: v for k, v in select_methods.items() if v["type"] == CUSTOM}
         elif type(methods) == list:
             if any(m[0] == "-" for m in methods) != all(m[0] == "-" for m in methods):
                 raise Exception("You mixed adding and removing, punk")
@@ -65,9 +61,7 @@ class MethodSelect(sw.Select):
                 to_remove = [method[1:] for method in methods]
 
                 # Rewrite the methods instead of mutate the class methods
-                self.methods = {
-                    k: v for k, v in select_methods.items() if k not in to_remove
-                }
+                self.methods = {k: v for k, v in select_methods.items() if k not in to_remove}
 
             else:
                 self.methods = {k: select_methods[k] for k in methods}
@@ -104,9 +98,7 @@ class AdminField(sw.Select):
     parent: Optional[sw.Select] = None
     "The parent adminfield object"
 
-    def __init__(
-        self, level: int, parent: Optional[sw.Select] = None, gee: bool = True
-    ) -> None:
+    def __init__(self, level: int, parent: Optional[sw.Select] = None, gee: bool = True) -> None:
         """An admin level selector.
 
         It is binded to ee (GAUL 2015) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
@@ -124,9 +116,7 @@ class AdminField(sw.Select):
         self.parent = parent
 
         # init an empty widget
-        super().__init__(
-            v_model=None, items=[], clearable=True, label=ms.aoi_sel.adm[level]
-        )
+        super().__init__(v_model=None, items=[], clearable=True, label=ms.aoi_sel.adm[level])
 
         # add js behaviour
         self.parent is None or self.parent.observe(self._update, "v_model")
@@ -333,9 +323,7 @@ class AoiView(sw.Card):
         self.btn = sw.Btn(msg=ms.aoi_sel.btn)
 
         # create the widget
-        self.children = (
-            [self.w_method] + [*self.components.values()] + [self.btn, self.alert]
-        )
+        self.children = [self.w_method] + [*self.components.values()] + [self.btn, self.alert]
 
         super().__init__(**kwargs)
 
@@ -361,7 +349,11 @@ class AoiView(sw.Card):
         if self.map_:
             self.map_.remove_layer("aoi", none_ok=True)
             self.map_.zoom_bounds(self.model.total_bounds())
-            self.map_.add_layer(self.model.get_ipygeojson(self.map_style))
+
+            if self.gee:
+                self.map_.add_ee_layer(self.model.feature_collection, {}, "aoi")
+            else:
+                self.map_.add_layer(self.model.get_ipygeojson(self.map_style), "aoi")
 
             self.aoi_dc.hide()
 

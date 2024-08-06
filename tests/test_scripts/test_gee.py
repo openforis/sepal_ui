@@ -12,9 +12,7 @@ from sepal_ui.scripts import gee
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_wait_for_completion(
-    alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str
-) -> None:
+def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str) -> None:
     """Check we can wait for a task completion.
 
     Args:
@@ -70,18 +68,23 @@ def test_get_assets(gee_dir: Path) -> None:
         gee_dir: gee_dir: the directory where gee files are exported
     """
     # get the assets from the test repository
-    list_ = gee.get_assets(gee_dir)
+    items = gee.get_assets(gee_dir)
+
+    ee_asset_ids = [item["name"] for item in items]
 
     # check that they are all there
-    names = [
-        "feature_collection",
-        "image",
-        "subfolder",
-        "subfolder/subfolder_feature_collection",
+    expected_assets = [
+        str(gee_dir / name)
+        for name in [
+            "feature_collection",
+            "image",
+            "subfolder",
+            "subfolder/subfolder_feature_collection",
+        ]
     ]
 
-    for item, name in zip(list_, names):
-        assert item["name"] == str(gee_dir / name)
+    for expected_asset in expected_assets:
+        assert expected_asset in ee_asset_ids
 
     return
 

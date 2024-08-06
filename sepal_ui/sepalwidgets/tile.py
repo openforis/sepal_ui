@@ -67,9 +67,7 @@ class Tile(v.Layout, SepalWidget):
 
         content = [v.Flex(xs12=True, children=[widget]) for widget in inputs]
 
-        card = v.Card(
-            class_="pa-5", raised=True, xs12=True, children=[self.title] + content
-        )
+        card = v.Card(class_="pa-5", raised=True, xs12=True, children=[self.title] + content)
 
         # set some default parameters
         kwargs["_metadata"] = {"mount_id": id_}
@@ -200,6 +198,16 @@ class TileDisclaimer(Tile):
 
         This tile will have the "about_widget" id and "Disclaimer" title.
         """
+        super().__init__("about_tile", "Disclaimer")
+
+        self.card = v.Card(class_="pa-5", raised=True, xs12=True, children=[])
+        self.set_disclaimer()
+        v.theme.observe(self.set_disclaimer, "dark")
+
+        self.children = [self.card]
+
+    def set_disclaimer(self, _=None) -> List[Markdown]:
+        """Rebuild the disclaimer element when the theme changes."""
         # create the tile content on the fly
         disclaimer = "  \n".join(ms.disclaimer.p)
         disclaimer += "  \n"
@@ -218,6 +226,4 @@ class TileDisclaimer(Tile):
         # close the file
         disclaimer += "</div>"
 
-        content = Markdown(disclaimer)
-
-        super().__init__("about_tile", "Disclaimer", inputs=[content])
+        self.card.children = [self.title] + [Markdown(disclaimer)]

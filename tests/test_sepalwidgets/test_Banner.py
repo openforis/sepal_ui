@@ -69,6 +69,4 @@ def banner() -> sw.Banner:
     Returns:
         the banner object
     """
-    return sw.Banner(
-        msg="dummy message", type_="warning", id_="test_banner", persistent=False
-    )
+    return sw.Banner(msg="dummy message", type_="warning", id_="test_banner", persistent=False)

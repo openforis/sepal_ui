@@ -26,7 +26,6 @@ from natsort import humansorted
 from traitlets import link, observe
 from typing_extensions import Self
 
-from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
@@ -61,9 +60,7 @@ class DatePicker(v.Layout, SepalWidget):
     disabled: t.Bool = t.Bool(False).tag(sync=True)
     "the disabled status of the Datepicker object"
 
-    def __init__(
-        self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs
-    ) -> None:
+    def __init__(self, label: str = "Date", layout_kwargs: Optional[dict] = None, **kwargs) -> None:
         """Custom input widget to provide a reusable DatePicker.
 
         It allows to choose date as a string in the following format YYYY-MM-DD.
@@ -251,16 +248,14 @@ class FileInput(v.Flex, SepalWidget):
             v_model="",
         )
 
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.loading = v.ProgressLinear(
             indeterminate=False,
-            background_color=color.menu,
-            color=p_style["color"][v.theme.dark],
+            background_color="menu",
         )
 
         self.file_list = v.List(
             dense=True,
-            color=color.menu,
+            color="menu",
             flat=True,
             v_model=True,
             max_height="300px",
@@ -408,9 +403,7 @@ class FileInput(v.Flex, SepalWidget):
         list_dir = [el for el in folder.glob("*") if not el.name.startswith(".")]
 
         if self.extensions:
-            list_dir = [
-                el for el in list_dir if el.is_dir() or el.suffix in self.extensions
-            ]
+            list_dir = [el for el in list_dir if el.is_dir() or el.suffix in self.extensions]
 
         if folder in self.cache_dirs:
             if self.cache_dirs[folder]["files"] == list_dir:
@@ -422,28 +415,24 @@ class FileInput(v.Flex, SepalWidget):
         for el in list_dir:
             if el.is_dir():
                 icon = self.ICON_STYLE[""]["icon"]
-                color = self.ICON_STYLE[""]["color"][v.theme.dark]
+                color = self.ICON_STYLE[""]["color"]
             elif el.suffix in self.ICON_STYLE.keys():
                 icon = self.ICON_STYLE[el.suffix]["icon"]
-                color = self.ICON_STYLE[el.suffix]["color"][v.theme.dark]
+                color = self.ICON_STYLE[el.suffix]["color"]
             else:
                 icon = self.ICON_STYLE["DEFAULT"]["icon"]
-                color = self.ICON_STYLE["DEFAULT"]["color"][v.theme.dark]
+                color = self.ICON_STYLE["DEFAULT"]["color"]
 
             children = [
                 v.ListItemAction(children=[v.Icon(color=color, children=[icon])]),
-                v.ListItemContent(
-                    children=[v.ListItemTitle(children=[el.stem + el.suffix])]
-                ),
+                v.ListItemContent(children=[v.ListItemTitle(children=[el.stem + el.suffix])]),
             ]
 
             if el.is_dir():
                 folder_list.append(v.ListItem(value=str(el), children=children))
             else:
                 file_size = su.get_file_size(el)
-                children.append(
-                    v.ListItemActionText(class_="ml-1", children=[file_size])
-                )
+                children.append(v.ListItemActionText(class_="ml-1", children=[file_size]))
                 file_list.append(v.ListItem(value=str(el), children=children))
 
         folder_list = humansorted(folder_list, key=lambda x: x.value)
@@ -455,7 +444,7 @@ class FileInput(v.Flex, SepalWidget):
                 v.ListItemAction(
                     children=[
                         v.Icon(
-                            color=self.ICON_STYLE["PARENT"]["color"][v.theme.dark],
+                            color=self.ICON_STYLE["PARENT"]["color"],
                             children=[self.ICON_STYLE["PARENT"]["icon"]],
                         )
                     ]
@@ -590,9 +579,7 @@ class LoadTableField(v.Col, SepalWidget):
 
         if len(df.columns) < 3:
             self._set_v_model("pathname", None)
-            self.fileInput.selected_file.error_messages = (
-                ms.widgets.load_table.too_small
-            )
+            self.fileInput.selected_file.error_messages = ms.widgets.load_table.too_small
             return self
 
         # set the items
@@ -605,8 +592,7 @@ class LoadTableField(v.Col, SepalWidget):
             if "id" in lname:
                 self.IdSelect.v_model = name
             elif any(
-                ext in lname
-                for ext in ["lng", "long", "longitude", "x_coord", "xcoord", "lon"]
+                ext in lname for ext in ["lng", "long", "longitude", "x_coord", "xcoord", "lon"]
             ):
                 self.LngSelect.v_model = name
             elif any(ext in lname for ext in ["lat", "latitude", "y_coord", "ycoord"]):
@@ -690,7 +676,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         self.asset_info = None
 
         # if folder is not set use the root one
-        self.folder = str(folder) or ee.data.getAssetRoots()[0]["id"]
+        self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
         self.types = types
 
         # load the default assets
@@ -698,6 +684,8 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # Validate the input as soon as the object is instantiated
         self.observe(self._validate, "v_model")
+
+        self.observe(self._fill_no_data, "items")
 
         # set the default parameters
         kwargs.setdefault("v_model", None)
@@ -714,9 +702,25 @@ class AssetSelect(v.Combobox, SepalWidget):
         # load the assets in the combobox
         self._get_items()
 
+        self._fill_no_data({})
+
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
         self.observe(self._get_items, "default_asset")
+
+    def _fill_no_data(self, _: dict) -> None:
+        """Fill the items with a no data message if the items are empty."""
+        # Done in this way because v_slots are not working
+        if not self.items:
+            self.v_model = None
+            self.items = [
+                {
+                    "text": ms.widgets.asset_select.no_assets.format(self.folder),
+                    "disabled": True,
+                }
+            ]
+
+        return
 
     @sd.switch("loading")
     def _validate(self, change: dict) -> None:
@@ -764,10 +768,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # get the list of user asset
         raw_assets = gee.get_assets(self.folder)
-        assets = {
-            k: sorted([e["id"] for e in raw_assets if e["type"] == k])
-            for k in self.types
-        }
+        assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
         for k in self.types:
@@ -915,9 +916,7 @@ class VectorField(v.Col, SepalWidget):
     feature_collection: Optional[ee.FeatureCollection] = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(
-        self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs
-    ) -> None:
+    def __init__(self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs) -> None:
         """A custom input widget to load vector data.
 
         The user will provide a vector file compatible with fiona or a GEE feature collection.
@@ -991,9 +990,7 @@ class VectorField(v.Col, SepalWidget):
         elif isinstance(self.w_file, AssetSelect):
             self.feature_collection = ee.FeatureCollection(change["new"])
             columns = self.feature_collection.first().getInfo()["properties"]
-            columns = [
-                str(col) for col in columns if col not in ["system:index", "Shape_Area"]
-            ]
+            columns = [str(col) for col in columns if col not in ["system:index", "Shape_Area"]]
 
         # update the columns
         self.w_column.items = self.column_base_items + sorted(set(columns))

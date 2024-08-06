@@ -1,6 +1,5 @@
 """Customized ``Control`` to display the value of all available layers on a specific pixel."""
 
-import json
 from pathlib import Path
 from typing import Optional, Sequence, Union
 
@@ -15,9 +14,7 @@ from rasterio.crs import CRS
 from shapely import geometry as sg
 from traitlets import Bool
 
-from sepal_ui import color
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
@@ -61,11 +58,9 @@ class InspectorControl(MenuControl):
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
-        p_style = json.loads((ss.JSON_DIR / "progress_bar.json").read_text())
         self.w_loading = sw.ProgressLinear(
             indeterminate=False,
-            background_color=color.menu,
-            color=p_style["color"][v.theme.dark],
+            background_color="menu",
         )
 
         # set up the content
@@ -147,9 +142,7 @@ class InspectorControl(MenuControl):
             elif isinstance(lyr, Marker):
                 continue
             else:
-                data = {
-                    ms.inspector_control.info.header: ms.inspector_control.info.text
-                }
+                data = {ms.inspector_control.info.header: ms.inspector_control.info.text}
 
             items.append(
                 {
@@ -218,9 +211,7 @@ class InspectorControl(MenuControl):
             ).getInfo()
 
         else:
-            raise ValueError(
-                f'the layer object is a "{type(ee_obj)}" which is not accepted.'
-            )
+            raise ValueError(f'the layer object is a "{type(ee_obj)}" which is not accepted.')
 
         return pixel_values
 
@@ -280,22 +271,17 @@ class InspectorControl(MenuControl):
             window = rio.windows.from_bounds(*bounds, transform=da.rio.transform())
             da_filtered = da.rio.isel_window(window)
             means = da_filtered.mean(axis=(1, 2)).to_numpy()
-            pixel_values = {
-                ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)
-            }
+            pixel_values = {ms.inspector_control.band.format(i + 1): v for i, v in enumerate(means)}
 
         # if the point is out of the image display None
         else:
             pixel_values = {
-                ms.inspector_control.band.format(i + 1): None
-                for i in range(da.rio.count)
+                ms.inspector_control.band.format(i + 1): None for i in range(da.rio.count)
             }
 
         return pixel_values
 
 
-@deprecated(
-    version="2.15.1", reason="ValueInspector class is now renamed InspectorControl"
-)
+@deprecated(version="2.15.1", reason="ValueInspector class is now renamed InspectorControl")
 class ValueInspector(InspectorControl):
     pass
