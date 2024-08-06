@@ -23,7 +23,12 @@
     "navdrawer": {
       "code": "",
       "wiki": "",
-      "bug": ""
+      "bug": "",
+      "changelog": {
+        "version": "",
+        "title": "",
+        "close_btn": ""
+      }
     },
     "asset_select": {
       "types": {
@@ -37,7 +42,8 @@
       "custom": "自定义",
       "no_access": "该输入资产似乎无法访问或者不存在。",
       "wrong_type": "所选资产类型（{}）与授权的资产类型不匹配（{}）。",
-      "placeholder": ""
+      "placeholder": "",
+      "no_assets": ""
     },
     "load_table": {
       "too_small": "提供的文件少于3列。请提供完整的点文件，至少包含ID、经度和纬度列。"
@@ -74,7 +80,8 @@
       "no_draw": "",
       "no_admlyr": "",
       "invalid_code": "",
-      "no_gdf": ""
+      "no_gdf": "",
+      "no_fc": ""
     }
   },
   "mapping": {
@@ -85,13 +92,16 @@
     "exception": {
       "empty": "",
       "invalid": "",
-      "nosubs": ""
+      "nosubs": "",
+      "no_secret_file": ""
     },
     "widget": {
       "username": "",
       "password": "",
       "apikey": "",
+      "store": "",
       "method": {
+        "from_file": "",
         "label": "",
         "credentials": "",
         "api_key": ""
