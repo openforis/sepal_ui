@@ -68,10 +68,12 @@ def test_get_assets(gee_dir: Path) -> None:
         gee_dir: gee_dir: the directory where gee files are exported
     """
     # get the assets from the test repository
-    list_ = gee.get_assets(gee_dir)
+    items = gee.get_assets(gee_dir)
+
+    ee_asset_ids = [item["name"] for item in items]
 
     # check that they are all there
-    names = [
+    expected_assets = [
         str(gee_dir / name)
         for name in [
             "feature_collection",
@@ -81,8 +83,8 @@ def test_get_assets(gee_dir: Path) -> None:
         ]
     ]
 
-    for ee_item in list_:
-        assert ee_item["name"] in names
+    for expected_asset in expected_assets:
+        assert expected_asset in ee_asset_ids
 
     return
 
