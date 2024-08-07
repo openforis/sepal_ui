@@ -16,9 +16,16 @@ build:
     post_install:
       - pip install git+https://github.com/sphinx-doc/sphinx.git
     pre_build:
-      - pip install .[doc]
       - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 
-  # Build documentation in the docs/ directory with Sphinx
-  sphinx:
-    configuration: docs/source/conf.py
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/source/conf.py
+
+# Optionally set the version of Python and requirements required to build your docs
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - doc
