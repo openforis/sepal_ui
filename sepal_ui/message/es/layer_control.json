@@ -1,17 +1,17 @@
 {
   "layer_state": {
-    "loading": "",
-    "complete": ""
+    "loading": "cargando {} capa(s) de {}",
+    "complete": "{} capa(s) cargadas"
   },
   "layer_control": {
     "layer": {
-      "header": ""
+      "header": "Capas"
     },
     "basemap": {
-      "header": ""
+      "header": "Mapas base"
     },
     "vector": {
-      "header": ""
+      "header": "Vectoriales"
     }
   }
 }
