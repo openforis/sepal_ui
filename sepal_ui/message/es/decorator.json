@@ -1,6 +1,6 @@
 {
   "decorator": {
-    "no_alert": "",
-    "no_button": ""
+    "no_alert": "Debes proporcionar el argumento `alert` ya que el padre no tiene uno",
+    "no_button": "Debes proporcionar el argumento `button` ya que el padre no tiene uno"
   }
 }
