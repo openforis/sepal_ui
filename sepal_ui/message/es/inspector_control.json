@@ -1,13 +1,13 @@
 {
   "inspector_control": {
-    "title": "",
-    "landing": "",
+    "title": "Inspector",
+    "landing": "seleccionar un punto",
     "info": {
-      "header": "",
-      "text": ""
+      "header": "info",
+      "text": "este metodo de lectura de datos aun no esta disponible"
     },
-    "band": "",
-    "coords": "",
-    "layers": ""
+    "band": "banda {}",
+    "coords": "Coordenadas (lon, lat) a {} m/px",
+    "layers": "Capas"
   }
 }
