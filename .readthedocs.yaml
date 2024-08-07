@@ -4,21 +4,20 @@
 # Required
 version: 2
 
-jobs:
-  # build with latest available ubuntu version
-  build:
-    os: ubuntu-22.04
-    tools:
-      python: "3.10"
-    jobs:
-      pre_install:
-        - pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
-      # patch deprecated and sphinx version to mimic nox build
-      post_install:
-        - pip install git+https://github.com/sphinx-doc/sphinx.git
-      pre_build:
-        - pip install .[doc]
-        - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
+# build with latest available ubuntu version
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+  jobs:
+    pre_install:
+      - pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
+    # patch deprecated and sphinx version to mimic nox build
+    post_install:
+      - pip install git+https://github.com/sphinx-doc/sphinx.git
+    pre_build:
+      - pip install .[doc]
+      - sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules ./sepal_ui
 
   # Build documentation in the docs/ directory with Sphinx
   sphinx:
