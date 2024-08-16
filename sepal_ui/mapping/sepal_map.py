@@ -50,6 +50,7 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 
 __all__ = ["SepalMap"]
+from ipyleaflet import TileLayer  # noqa: E402
 
 
 class SepalMap(ipl.Map):
@@ -79,6 +80,7 @@ class SepalMap(ipl.Map):
         vinspector: bool = False,
         gee: bool = True,
         statebar: bool = False,
+        solara_basemap_tiles: dict = None,
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -95,6 +97,7 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
+            solara_basemap_tiles: the basemaps to use. If not set, the default basemaps will be used.
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
@@ -106,6 +109,8 @@ class SepalMap(ipl.Map):
         kwargs["attribution_control"] = False
         kwargs["scroll_wheel_zoom"] = True
         kwargs.setdefault("world_copy_jump", True)
+
+        self.basemap_tiles = solara_basemap_tiles or basemap_tiles
 
         # Init the map
         super().__init__(**kwargs)
@@ -624,8 +629,7 @@ class SepalMap(ipl.Map):
 
         return
 
-    @staticmethod
-    def get_basemap_list() -> List[str]:
+    def get_basemap_list(self) -> List[str]:
         """Get the complete list of available basemaps.
 
         This function is intending for development use
@@ -634,7 +638,7 @@ class SepalMap(ipl.Map):
         Returns:
             The list of the basemap names
         """
-        return [k for k in basemap_tiles.keys()]
+        return [k for k in self.basemap_tiles.keys()]
 
     @staticmethod
     def get_viz_params(image: ee.Image) -> dict:
@@ -781,12 +785,12 @@ class SepalMap(ipl.Map):
         Args:
             basemap: Can be one of string from basemaps. Defaults to 'HYBRID'.
         """
-        if basemap not in basemap_tiles.keys():
-            keys = "\n".join(basemap_tiles.keys())
+        if basemap not in self.basemap_tiles.keys():
+            keys = "\n".join(self.basemap_tiles.keys())
             msg = f"Basemap can only be one of the following:\n{keys}"
             raise ValueError(msg)
 
-        self.add_layer(basemap_tiles[basemap])
+        self.add_layer(self.basemap_tiles[basemap])
 
         return
 
