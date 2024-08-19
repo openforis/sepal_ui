@@ -218,3 +218,28 @@ We are using :code:`api-doc` to build the documentation of the lib so if you wan
     sphinx-apidoc --force --module-first --templatedir=docs/source/_templates/apidoc -o docs/source/modules
 
 You can then build the documentation, it will automatically call :code:`autodoc` and :code:`autosummary` during the process.
+
+
+Test the workflows locally
+--------------------------
+
+Test your locally your workflows using `Act <https://github.com/nektos/act>`_.
+
+To pass your secrets to the workflows, create a `secrets.env` file and store the secrets of your custom workflow, for example:
+
+.. code-block:: console
+
+    EARTHENGINE_TOKEN=""
+    PLANET_API_CREDENTIALS=""
+    PLANET_API_KEY=""
+    FIRMS_API_KEY=""
+    EARTHENGINE_SERVICE_ACCOUNT=""
+
+Then run the following command:
+
+.. code-block:: console
+
+    $ gh act --secret-file $ENV_FILE --workflows .github/workflows/unit.yml
+
+You can change the workflow file to test the one you want, if you are only interested in testing some specific jobs, you can use the `--job` flag.
+
