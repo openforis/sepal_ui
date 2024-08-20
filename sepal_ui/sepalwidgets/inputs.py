@@ -676,7 +676,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             kwargs (optional): any parameter from a v.ComboBox.
         """
         self.valid = False
-        # self.asset_info = {}
+        self.asset_info = None
 
         # if folder is not set use the root one
         self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
@@ -774,7 +774,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             items += [{"divider": True}, {"header": header}]
             items += [default for default in self.default_asset]
 
-        # # get the list of user asset
+        # get the list of user asset
         raw_assets = gee_assets or gee.get_assets(self.folder)
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
