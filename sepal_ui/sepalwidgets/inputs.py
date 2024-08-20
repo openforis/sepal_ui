@@ -655,6 +655,9 @@ class AssetSelect(v.Combobox, SepalWidget):
     types: t.List = t.List().tag(sync=True)
     "The list of types accepted by the asset selector. names need to be valid TYPES and changing this value will trigger the reload of the asset items."
 
+    _initial_assets: list = []
+    "_initial_assets: shared class variable to store the initial assets and avoid multiple calls to the GEE API."
+
     @sd.need_ee
     def __init__(
         self,
@@ -700,13 +703,18 @@ class AssetSelect(v.Combobox, SepalWidget):
         super().__init__(**kwargs)
 
         # load the assets in the combobox
-        self._get_items()
+
+        if not self._initial_assets:
+            self._initial_assets.extend(gee.get_assets(self.folder))
+
+        self._get_items(gee_assets=self._initial_assets)
 
         self._fill_no_data({})
-
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
+
         self.observe(self._get_items, "default_asset")
+        self.observe(self._check_types, "types")
 
     def _fill_no_data(self, _: dict) -> None:
         """Fill the items with a no data message if the items are empty."""
@@ -751,7 +759,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         return
 
     @sd.switch("loading", "disabled")
-    def _get_items(self, *args) -> Self:
+    def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
         # init the item list
         items = []
 
@@ -767,7 +775,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             items += [default for default in self.default_asset]
 
         # get the list of user asset
-        raw_assets = gee.get_assets(self.folder)
+        raw_assets = gee_assets or gee.get_assets(self.folder)
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
@@ -783,7 +791,6 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return self
 
-    @observe("types")
     def _check_types(self, change: dict) -> None:
         """Clean the type list, keeping only the valid one."""
         self.v_model = None
