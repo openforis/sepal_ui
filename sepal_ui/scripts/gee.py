@@ -1,17 +1,17 @@
 """All the heleper methods to interface Google Earthengine with sepal-ui."""
 
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import List, Union
 
 import ee
 import ipyvuetify as v
+import nest_asyncio
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
-import nest_asyncio
 
 nest_asyncio.apply()
 
@@ -88,7 +88,15 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-async def list_assets_concurrent(folders):
+async def list_assets_concurrent(folders: list) -> list:
+    """List assets concurrently using ThreadPoolExecutor.
+
+    Args:
+        folders: list of folders to list assets from
+
+    Returns:
+        list of assets for each folder
+    """
     with ThreadPoolExecutor() as executor:
         loop = asyncio.get_running_loop()
         tasks = [
@@ -99,7 +107,16 @@ async def list_assets_concurrent(folders):
         return results
 
 
-async def get_assets_async_concurrent(folder: str) -> list:
+async def get_assets_async_concurrent(folder: str) -> List[dict]:
+    """Get all the assets from the parameter folder. every nested asset will be displayed.
+
+    Args:
+        folder: the initial GEE folder
+
+    Returns:
+        the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
+
+    """
     folder_queue = asyncio.Queue()
     await folder_queue.put(folder)
     asset_list = []
@@ -122,7 +139,6 @@ def get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
-
         folder: the initial GEE folder
         async_: whether or not the function should be executed asynchronously
 
@@ -130,7 +146,6 @@ def get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
 
     """
-
     folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
 
     if async_:
@@ -212,7 +227,6 @@ def delete_assets(asset_id: str, dry_run: bool = True) -> None:
         asset_id: the Id of the asset or a folder
         dry_run: whether or not a dry run should be launched. dry run will only display the files name without deleting them.
     """
-
     # define the action to execute for each asset based on the dry run mode
     def delete(id: str) -> None:
         if dry_run is True:
