@@ -11,6 +11,9 @@ import ipyvuetify as v
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
+import nest_asyncio
+
+nest_asyncio.apply()
 
 
 @sd.need_ee
@@ -131,7 +134,13 @@ def get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
 
     if async_:
-        return asyncio.run(get_assets_async_concurrent(folder))
+        try:
+            return asyncio.run(get_assets_async_concurrent(folder))
+        except Exception as e:
+            # Log the exception for future debugging
+            print(f"Error occurred in get_assets_async_concurrent: {e}")
+            # Fallback to synchronous method
+            return get_assets_sync(folder)
 
     return get_assets_sync(folder)
 
