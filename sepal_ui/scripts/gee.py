@@ -1,6 +1,7 @@
 """All the heleper methods to interface Google Earthengine with sepal-ui."""
 
 import asyncio
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -9,10 +10,12 @@ from typing import List, Union
 import ee
 import ipyvuetify as v
 import nest_asyncio
+import psutil
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 
+# This I have to add because of the error: RuntimeError: This event loop is already running when using jupyter notebook
 nest_asyncio.apply()
 
 
@@ -88,7 +91,7 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-async def list_assets_concurrent(folders: list) -> list:
+async def list_assets_concurrent(folders: list, semaphore: asyncio.Semaphore) -> list:
     """List assets concurrently using ThreadPoolExecutor.
 
     Args:
@@ -97,14 +100,15 @@ async def list_assets_concurrent(folders: list) -> list:
     Returns:
         list of assets for each folder
     """
-    with ThreadPoolExecutor() as executor:
-        loop = asyncio.get_running_loop()
-        tasks = [
-            loop.run_in_executor(executor, ee.data.listAssets, {"parent": folder})
-            for folder in folders
-        ]
-        results = await asyncio.gather(*tasks)
-        return results
+    async with semaphore:
+        with ThreadPoolExecutor() as executor:
+            loop = asyncio.get_running_loop()
+            tasks = [
+                loop.run_in_executor(executor, ee.data.listAssets, {"parent": folder})
+                for folder in folders
+            ]
+            results = await asyncio.gather(*tasks)
+            return results
 
 
 async def get_assets_async_concurrent(folder: str) -> List[dict]:
@@ -121,9 +125,19 @@ async def get_assets_async_concurrent(folder: str) -> List[dict]:
     await folder_queue.put(folder)
     asset_list = []
 
+    # Determine system resources
+    cpu_count = os.cpu_count()
+    available_memory = psutil.virtual_memory().available
+
+    # 50 MB per task
+    max_concurrent_tasks = min(30, cpu_count, available_memory // (50 * 1024 * 1024))
+
+    # Create a semaphore to limit the number of concurrent tasks
+    semaphore = asyncio.Semaphore(max_concurrent_tasks)
+
     while not folder_queue.empty():
         current_folders = [await folder_queue.get() for _ in range(folder_queue.qsize())]
-        assets_groups = await list_assets_concurrent(current_folders)
+        assets_groups = await list_assets_concurrent(current_folders, semaphore)
 
         for assets in assets_groups:
             for asset in assets.get("assets", []):
