@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sepal-ui"
-version = "2.18.1"
+version = "2.20.0"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -36,7 +36,7 @@ dependencies = [
     "geopandas",
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
-    "planet<2.7",
+    "planet",
     "pyarrow",
     "localtileserver>=0.7.0", # first pure rio version
     "pygaul>=0.3.1", # use the class implementation
@@ -131,7 +131,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "2.18.1"
+version = "2.20.0"
 version_files = [
     "pyproject.toml:version",
     "sepal_ui/__init__.py:__version__"
