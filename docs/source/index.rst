@@ -44,4 +44,3 @@ Meet our :doc:`contributor <./start/authors>`.
     widgets/index
     API Content <modules/sepal_ui>
     cli/index
-    changelog
