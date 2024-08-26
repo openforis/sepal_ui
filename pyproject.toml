@@ -88,7 +88,7 @@ test = [
     "tomli",
 ]
 doc = [
-    "sphinx<7",
+    "sphinx @ git+https://github.com/sphinx-doc/sphinx.git",
     "jupyter-sphinx",
     "pydata-sphinx-theme",
     "sphinx-notfound-page",
