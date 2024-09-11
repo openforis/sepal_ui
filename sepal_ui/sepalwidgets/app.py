@@ -8,7 +8,7 @@ Example:
 
         from sepal_ui import sepalwidgets as sw
 
-        sw.LocaleSelect()
+        sw.LocaleSelect()`
 """
 
 from datetime import datetime
@@ -87,6 +87,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         kwargs["v_model"] = False
         kwargs["v_on"] = "x.on"
         kwargs["children"] = [self.locale_icon, code]
+        kwargs["min_width"] = 95
 
         self.btn = v.Btn(**kwargs)
 
@@ -152,7 +153,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
 
         self.btn.children = [self.locale_icon, loc.code]
-        self.btn.color = "info"
+        # self.btn.color = "info"
 
         # change the parameter file
         su.set_config("locale", loc.code)
