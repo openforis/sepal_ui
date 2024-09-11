@@ -125,10 +125,10 @@ class LocaleSelect(v.Menu, SepalWidget):
         Returns:
             the list of country widget to display in the app
         """
-        print(locales)
+        # print(locales)
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-        print(filtered_countries)
+        # print(filtered_countries)
         for r in filtered_countries.itertuples(index=False):
             children = [
                 v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
