@@ -15,10 +15,11 @@ def lint(session):
     session.run("pre-commit", "run", "--all-files", *session.posargs)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=False)
 def test(session):
     """Run all the test using the environment variable of the running machine."""
     session.install(".[test]")
+    session.run("pip", "list")
 
     # if we are in the sepal-venv, force earthengine api fork
     if "sepal-user" in session.virtualenv.location:

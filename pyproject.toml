@@ -33,7 +33,8 @@ dependencies = [
     # read local data
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
-    "geopandas",
+    'geopandas==0.13.2; python_version == "3.8"',
+    'geopandas>=0.14.0; python_version > "3.8"',
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
     "planet",
