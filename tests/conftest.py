@@ -138,7 +138,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     gdf = gpd.GeoDataFrame({"data": data, "geometry": centers}, crs=3857).to_crs(4326)
     ee_gdf = ee.FeatureCollection(gdf.__geo_interface__)
 
-    image = ee.Image.random().multiply(4).byte()
+    image = ee.Image.random(42).multiply(4).byte()
 
     lon = ee.Image.pixelLonLat().select("longitude")
     lat = ee.Image.pixelLonLat().select("latitude")
@@ -181,7 +181,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     yield gee_dir
 
     # flush the directory and it's content
-    gee.delete_assets(str(gee_dir), False)
+    # gee.delete_assets(str(gee_dir), False)
 
     return
 
