@@ -132,7 +132,7 @@ def test_from_raster(rgb: Path) -> None:
     inspector_control = sm.InspectorControl(m)
 
     # check a featurecollection on nodata place
-    data = inspector_control._from_raster(rgb, {"x": 0, "y": 0})
+    data = inspector_control._from_raster(rgb, [0, 0])
     assert data == {"band 1": None, "band 2": None, "band 3": None}
 
     # check the featurecollection on vatican city
