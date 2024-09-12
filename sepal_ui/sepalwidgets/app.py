@@ -8,7 +8,7 @@ Example:
 
         from sepal_ui import sepalwidgets as sw
 
-        sw.LocaleSelect()`
+        sw.LocaleSelect()
 """
 
 from datetime import datetime
