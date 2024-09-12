@@ -14,7 +14,7 @@ Example:
 from datetime import datetime
 from itertools import cycle
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import ipyvuetify as v
 import pandas as pd
@@ -52,13 +52,6 @@ class LocaleSelect(v.Menu, SepalWidget):
     FLAG: str = "https://flagcdn.com/{}.svg"
     "the url of the svg flag images"
 
-    ATTR: Dict[str, str] = {
-        "src": "https://flagcdn.com/gb.svg",
-        "width": "30",
-        "alt": "en-UK",
-    }
-    "the default flag parameter, default to english"
-
     btn: Optional[v.Btn] = None
     "the btn to click when changing language"
 
@@ -87,12 +80,15 @@ class LocaleSelect(v.Menu, SepalWidget):
         # if not set default to english
         code = "en" if translator is None else translator._target
         loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
-        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
+
+        self.locale_icon = v.Icon(class_="mr-2", children=["mdi-translate"])
 
         kwargs.setdefault("small", True)
         kwargs["v_model"] = False
         kwargs["v_on"] = "x.on"
-        kwargs["children"] = [v.Html(tag="img", attributes=attr, class_="mr-1"), code]
+        kwargs["children"] = [self.locale_icon, code]
+        kwargs["min_width"] = 95
+
         self.btn = v.Btn(**kwargs)
 
         self.language_list = v.List(
@@ -130,14 +126,13 @@ class LocaleSelect(v.Menu, SepalWidget):
         Returns:
             the list of country widget to display in the app
         """
+        # print(locales)
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
+        # print(filtered_countries)
         for r in filtered_countries.itertuples(index=False):
-            attr = {**self.ATTR, "src": self.FLAG.format(r.flag), "alt": r.name}
-
             children = [
-                v.ListItemAction(children=[v.Html(tag="img", attributes=attr)]),
-                v.ListItemContent(children=[v.ListItemTitle(children=[r.name])]),
+                v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
                 v.ListItemActionText(children=[r.code]),
             ]
 
@@ -151,16 +146,14 @@ class LocaleSelect(v.Menu, SepalWidget):
         Display the new flag and country code on the widget btn
         change the value in the config file
         """
+        if not change["new"]:
+            return
+
         # get the line in the locale dataframe
         loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
 
-        # change the btn attributes
-        attr = {**self.ATTR, "src": self.FLAG.format(loc.flag), "alt": loc.name}
-        self.btn.children = [
-            v.Html(tag="img", attributes=attr, class_="mr-1"),
-            loc.code,
-        ]
-        self.btn.color = "info"
+        self.btn.children = [self.locale_icon, loc.code]
+        # self.btn.color = "info"
 
         # change the parameter file
         su.set_config("locale", loc.code)
