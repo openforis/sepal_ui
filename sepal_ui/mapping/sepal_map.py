@@ -294,7 +294,9 @@ class SepalMap(ipl.Map):
         color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
 
         da = rioxarray.open_rasterio(image, masked=True)
-        da = da.chunk((1000, 1000))
+        # print
+        print(da)
+        da = da.chunk({"x": 1000, "y": 1000})
 
         multi_band = False
         if len(da.band) > 1 and not isinstance(bands, int):
