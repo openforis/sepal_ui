@@ -22,7 +22,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           python -m build
-          twine upload dist/*
+          twine upload dist/* --verbose
 
       - name: merge in release
         uses: devmasx/merge-branch@master
