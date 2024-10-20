@@ -109,9 +109,14 @@ nav.v-navigation-drawer {
 }
 
 /* Related with https://github.com/12rambau/sepal_ui/issues/893 */
-#rendered_cells {
+#rendered_cells,
+#main {
   contain: revert !important;
   background-color: revert !important;
+}
+
+#jp-main-content-panel {
+  contain: revert !important;
 }
 
 .full-screen-map > .leaflet-container {
