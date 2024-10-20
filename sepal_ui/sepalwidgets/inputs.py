@@ -403,14 +403,14 @@ class FileInput(v.Flex, SepalWidget):
         list_dir = [el for el in folder.glob("*") if not el.name.startswith(".")]
 
         if self.extensions:
-            valid_list_dir = []  # New list to store valid entries
+            valid_list_dir = []
             for el in list_dir:
                 try:
                     if el.is_dir() or el.suffix in self.extensions:
                         valid_list_dir.append(el)
                 except Exception:
                     continue
-            list_dir = valid_list_dir  # Replace the original list with the filtered one
+            list_dir = valid_list_dir
 
         if folder in self.cache_dirs:
             if self.cache_dirs[folder]["files"] == list_dir:
