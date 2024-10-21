@@ -240,13 +240,21 @@ class SepalMap(ipl.Map):
             bounds: coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out: Zoom out the bounding zoom
         """
+        print("zooming")
         # center the map
         minx, miny, maxx, maxy = bounds
         self.fit_bounds([[miny, minx], [maxy, maxx]])
+        print([[miny, minx], [maxy, maxx]])
+        print(self.zoom)
 
         # adapt the zoom level
         zoom_out = (self.zoom - 1) if zoom_out > self.zoom else zoom_out
+        print(zoom_out)
+        print(self.zoom)
+
         self.zoom -= zoom_out
+
+        print(self.zoom)
 
         return self
 
@@ -452,6 +460,7 @@ class SepalMap(ipl.Map):
         opacity: float = 1.0,
         viz_name: str = "",
         key: str = "",
+        use_map_vis: bool = True,
     ) -> None:
         """Customized add_layer method designed for EE objects.
 
@@ -468,6 +477,7 @@ class SepalMap(ipl.Map):
             opacity: the opcity of the layer from 0 to 1, default to 1.
             viz_name: the name of the vizaulization you want to use. default to the first one if existing
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
+            use_map_vis: whether or not to use the map visualization parameters. default to True
         """
         # check the type of the ee object and raise an error if it's not recognized
         if not isinstance(
@@ -494,7 +504,7 @@ class SepalMap(ipl.Map):
             viz_name = viz_name or viz[next(iter(viz))]["name"]
 
         # apply it to vis_params
-        if not vis_params and viz:
+        if not vis_params and viz and use_map_vis:
             # find the viz params in the list
             try:
                 vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
