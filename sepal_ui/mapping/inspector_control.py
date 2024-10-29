@@ -260,7 +260,7 @@ class InspectorControl(MenuControl):
 
         # open the image and unproject it
         da = rioxarray.open_rasterio(raster, masked=True)
-        da = da.chunk((1000, 1000))
+        da = da.chunk({"x": 1000, "y": 1000})
         if da.rio.crs != CRS.from_string("EPSG:4326"):
             da = da.rio.reproject("EPSG:4326")
 

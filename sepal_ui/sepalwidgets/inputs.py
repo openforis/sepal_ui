@@ -403,7 +403,14 @@ class FileInput(v.Flex, SepalWidget):
         list_dir = [el for el in folder.glob("*") if not el.name.startswith(".")]
 
         if self.extensions:
-            list_dir = [el for el in list_dir if el.is_dir() or el.suffix in self.extensions]
+            valid_list_dir = []
+            for el in list_dir:
+                try:
+                    if el.is_dir() or el.suffix in self.extensions:
+                        valid_list_dir.append(el)
+                except Exception:
+                    continue
+            list_dir = valid_list_dir
 
         if folder in self.cache_dirs:
             if self.cache_dirs[folder]["files"] == list_dir:
@@ -774,7 +781,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             items += [{"divider": True}, {"header": header}]
             items += [default for default in self.default_asset]
 
-        # # get the list of user asset
+        # get the list of user asset
         raw_assets = gee_assets or gee.get_assets(self.folder)
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
