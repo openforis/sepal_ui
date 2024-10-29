@@ -31,6 +31,7 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.thread_controller import TaskController
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
@@ -711,10 +712,8 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # load the assets in the combobox
 
-        if not self._initial_assets:
-            self._initial_assets.extend(gee.get_assets(self.folder))
-
-        self._get_items(gee_assets=self._initial_assets)
+        task_controller = TaskController(self._get_items, gee_assets=self._initial_assets)
+        task_controller.start_task()
 
         self._fill_no_data({})
         # add js behaviours
@@ -767,6 +766,9 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     @sd.switch("loading", "disabled")
     def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
+
+        if not self._initial_assets:
+            self._initial_assets.extend(gee.get_assets(self.folder))
         # init the item list
         items = []
 
