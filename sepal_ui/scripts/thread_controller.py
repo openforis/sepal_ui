@@ -1,5 +1,8 @@
+"""Controller for running long-running tasks in a separate thread."""
+
 import threading
-from typing import Callable, Optional, List
+from typing import Callable, List, Optional
+
 import sepal_ui.sepalwidgets as sw
 
 
@@ -15,8 +18,7 @@ class TaskController:
         *function_args,
         **function_kwargs,
     ):
-        """
-        Initializes the TaskController.
+        """Initializes the TaskController.
 
         Args:
             function: The long-running function to execute.
