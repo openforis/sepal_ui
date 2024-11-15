@@ -687,7 +687,6 @@ class AssetSelect(v.Combobox, SepalWidget):
             on_search_input: whether to trigger the search input event. Default to False
             kwargs (optional): any parameter from a v.ComboBox.
         """
-        print("This is mes")
         self.valid = False
         self.asset_info = None
 
