@@ -23,10 +23,10 @@ import pandas as pd
 import traitlets as t
 from deprecated.sphinx import versionadded
 from natsort import humansorted
+from reactivex import operators as ops
+from reactivex.subject import Subject
 from traitlets import link, observe
 from typing_extensions import Self
-from reactivex.subject import Subject
-from reactivex import operators as ops
 
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
