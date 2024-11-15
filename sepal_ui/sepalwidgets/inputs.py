@@ -674,7 +674,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder: Union[str, Path] = "",
         types: List[str] = ["IMAGE", "TABLE"],
         default_asset: Union[str, List[str]] = [],
-        on_search_input: bool = False,
+        on_search_input: bool = True,
         **kwargs,
     ) -> None:
         """Custom widget input to select an asset inside the asset folder of the user.
