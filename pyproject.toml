@@ -48,7 +48,8 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "nest-asyncio", # planet API interaction
-    "rio-tiler<7"
+    "rio-tiler<7",
+    "reactivex"
 ]
 
 [[project.authors]]

@@ -51,7 +51,6 @@ class TaskController:
 
     def start_task(self, *args):
         """Starts the long-running task in a separate thread."""
-        print("Starting task...")
         if self.task_thread is not None and self.task_thread.is_alive():
             # Task is already running
             return
@@ -71,7 +70,6 @@ class TaskController:
             self.task_thread = threading.Thread(target=self._run_task)
             self.task_thread.start()
 
-            print("Task started.")
         except Exception as e:
             print(f"Exception in start_task: {e}")
 
