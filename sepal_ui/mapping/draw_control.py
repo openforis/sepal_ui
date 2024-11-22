@@ -10,7 +10,7 @@ from shapely import geometry as sg
 from sepal_ui import color
 
 
-class DrawControl(ipl.GeomanDrawControl):
+class DrawControl(ipl.DrawControl):
 
     m: Optional[ipl.Map] = None
     "the map on which he drawControl is displayed. It will help control the visibility"
