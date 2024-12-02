@@ -245,7 +245,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
+            children=[v.Icon(children=["fa-solid fa-bars"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -254,7 +254,6 @@ class AppBar(v.AppBar, SepalWidget):
         self.theme = ThemeSelect()
 
         # set the default parameters
-        kwargs.setdefault("class_", "white--text")
         kwargs.setdefault("color", "main")
         kwargs.setdefault("dense", True)
         kwargs["app"] = True
@@ -391,6 +390,10 @@ class DrawerItem(v.ListItem, SepalWidget):
         return self
 
     def _on_click(self, *args) -> Self:
+
+        if self.callback:
+            self.callback()
+
         for tile in self.tiles:
             show = self._metadata["card_id"] == tile._metadata["mount_id"]
             tile.viz = show
