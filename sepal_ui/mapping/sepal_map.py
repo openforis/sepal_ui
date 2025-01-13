@@ -50,7 +50,6 @@ from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.warning import SepalWarning
 
 __all__ = ["SepalMap"]
-from ipyleaflet import TileLayer  # noqa: E402
 
 
 class SepalMap(ipl.Map):
@@ -158,13 +157,20 @@ class SepalMap(ipl.Map):
         v.theme.observe(self._on_theme_change, "dark")
 
     def _on_theme_change(self, _) -> None:
-        """Change the url of the basemaps."""
-        light = "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-        dark = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+        """Change the basemap layer."""
+        light = self.basemap_tiles["CartoDB.Positron"]
+        dark = self.basemap_tiles["CartoDB.DarkMatter"]
 
-        for layer in self.layers:
-            if layer.base and layer.url in [light, dark]:
-                layer.url = dark if v.theme.dark is True else light
+        if v.theme.dark:
+            if light in self.layers:
+                idx = self.layers.index(light)
+                self.remove_layer(light, base=True)
+                self.layers = self.layers[:idx] + (dark,) + self.layers[idx:]
+        else:
+            if dark in self.layers:
+                idx = self.layers.index(dark)
+                self.remove_layer(dark, base=True)
+                self.layers = self.layers[:idx] + (light,) + self.layers[idx:]
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
