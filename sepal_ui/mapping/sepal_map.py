@@ -79,7 +79,7 @@ class SepalMap(ipl.Map):
         vinspector: bool = False,
         gee: bool = True,
         statebar: bool = False,
-        solara_basemap_tiles: dict = None,
+        solara_theme_obj=None,
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -96,7 +96,7 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
-            solara_basemap_tiles: the basemaps to use. If not set, the default basemaps will be used.
+            solara_theme_obj: the solara theme object to link the map to. default to None
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
@@ -109,8 +109,6 @@ class SepalMap(ipl.Map):
         kwargs["scroll_wheel_zoom"] = True
         kwargs.setdefault("world_copy_jump", True)
 
-        self.basemap_tiles = solara_basemap_tiles or basemap_tiles
-
         # Init the map
         super().__init__(**kwargs)
 
@@ -120,7 +118,13 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+        if solara_theme_obj:
+            default_basemap = "CartoDB.DarkMatter" if solara_theme_obj.dark else "CartoDB.Positron"
+            solara_theme_obj.observe(self._on_theme_change, "dark")
+        else:
+            default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+            v.theme.observe(self._on_theme_change, "dark")
+
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
@@ -154,22 +158,25 @@ class SepalMap(ipl.Map):
         self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
 
-        v.theme.observe(self._on_theme_change, "dark")
-
-    def _on_theme_change(self, _) -> None:
+    def _on_theme_change(self, change) -> None:
         """Change the basemap layer."""
-        light = self.basemap_tiles["CartoDB.Positron"]
-        dark = self.basemap_tiles["CartoDB.DarkMatter"]
+        # This is the way to make it work in solara
+        light = eval(str(basemap_tiles["CartoDB.Positron"]))
+        dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
 
-        if v.theme.dark:
-            if light in self.layers:
-                idx = self.layers.index(light)
-                self.remove_layer(light, base=True)
+        layer_names = [layer.name for layer in self.layers]
+
+        if change["new"]:
+            if light.name in layer_names:
+                idx = layer_names.index(light.name)
+                layer = self.layers[idx]
+                self.remove_layer(layer, base=True, none_ok=True)
                 self.layers = self.layers[:idx] + (dark,) + self.layers[idx:]
         else:
-            if dark in self.layers:
-                idx = self.layers.index(dark)
-                self.remove_layer(dark, base=True)
+            if dark.name in layer_names:
+                idx = layer_names.index(dark.name)
+                layer = self.layers[idx]
+                self.remove_layer(layer, base=True, none_ok=True)
                 self.layers = self.layers[:idx] + (light,) + self.layers[idx:]
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
@@ -251,21 +258,14 @@ class SepalMap(ipl.Map):
             bounds: coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out: Zoom out the bounding zoom
         """
-        print("zooming")
         # center the map
         minx, miny, maxx, maxy = bounds
         self.fit_bounds([[miny, minx], [maxy, maxx]])
-        print([[miny, minx], [maxy, maxx]])
-        print(self.zoom)
 
         # adapt the zoom level
         zoom_out = (self.zoom - 1) if zoom_out > self.zoom else zoom_out
-        print(zoom_out)
-        print(self.zoom)
 
         self.zoom -= zoom_out
-
-        print(self.zoom)
 
         return self
 
@@ -656,7 +656,7 @@ class SepalMap(ipl.Map):
         Returns:
             The list of the basemap names
         """
-        return [k for k in self.basemap_tiles.keys()]
+        return [k for k in basemap_tiles.keys()]
 
     @staticmethod
     def get_viz_params(image: ee.Image) -> dict:
@@ -803,12 +803,12 @@ class SepalMap(ipl.Map):
         Args:
             basemap: Can be one of string from basemaps. Defaults to 'HYBRID'.
         """
-        if basemap not in self.basemap_tiles.keys():
-            keys = "\n".join(self.basemap_tiles.keys())
+        if basemap not in basemap_tiles.keys():
+            keys = "\n".join(basemap_tiles.keys())
             msg = f"Basemap can only be one of the following:\n{keys}"
             raise ValueError(msg)
 
-        self.add_layer(self.basemap_tiles[basemap])
+        self.add(eval(str(basemap_tiles[basemap])))
 
         return
 

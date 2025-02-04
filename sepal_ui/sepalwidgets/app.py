@@ -126,10 +126,8 @@ class LocaleSelect(v.Menu, SepalWidget):
         Returns:
             the list of country widget to display in the app
         """
-        # print(locales)
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-        # print(filtered_countries)
         for r in filtered_countries.itertuples(index=False):
             children = [
                 v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
@@ -168,7 +166,7 @@ class ThemeSelect(v.Btn, SepalWidget):
     theme: str = "dark"
     "the current theme of the widget (default to dark)"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, solara_theme_obj=None, **kwargs) -> None:
         """A theme selector for sepal-ui based application.
 
         It displays the currently requested theme (default to dark).
@@ -180,14 +178,19 @@ class ThemeSelect(v.Btn, SepalWidget):
             kwargs: any arguments for a Btn object, children and v_model will be override
         """
         # get the current theme name
-        self.theme = get_theme()
+        if solara_theme_obj:
+            self.solara_theme_obj = solara_theme_obj
+            self.theme = self.solara_theme_obj.name
+        else:
+            self.theme = get_theme()
 
         # set the btn parameters
+        self.theme_icon = v.Icon(children=[self.THEME_ICONS[self.theme]])
         kwargs.setdefault("x_small", True)
         kwargs.setdefault("fab", True)
         kwargs.setdefault("class_", "ml-2")
-        kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
         kwargs["v_model"] = self.theme
+        kwargs["children"] = [self.theme_icon]
 
         # create the btn
         super().__init__(**kwargs)
@@ -203,16 +206,14 @@ class ThemeSelect(v.Btn, SepalWidget):
         next(t for t in theme_cycle if t == self.theme)
         self.theme = next(t for t in theme_cycle)
 
-        v.theme.dark = self.theme == "dark"
+        if self.solara_theme_obj:
+            self.solara_theme_obj.dark = self.theme == "dark"
+        else:
+            v.theme.dark = self.theme == "dark"
+            su.set_config("theme", self.theme)
 
         # change icon
-        self.children[0].children = [self.THEME_ICONS[self.theme]]
-
-        # change the parameter file
-        su.set_config("theme", self.theme)
-
-        # # trigger other events by changing v_model
-        # self.v_model = self.theme
+        self.theme_icon.children = [self.THEME_ICONS[self.theme]]
 
         return
 
@@ -234,6 +235,7 @@ class AppBar(v.AppBar, SepalWidget):
         self,
         title: str = "SEPAL module",
         translator: Optional[Translator] = None,
+        solara_theme_obj=None,
         **kwargs,
     ) -> None:
         """Custom AppBar widget with the provided title using the sepal color framework.
@@ -251,7 +253,7 @@ class AppBar(v.AppBar, SepalWidget):
         self.title = v.ToolbarTitle(children=[title])
 
         self.locale = LocaleSelect(translator=translator)
-        self.theme = ThemeSelect()
+        self.theme = ThemeSelect(solara_theme_obj=solara_theme_obj)
 
         # set the default parameters
         kwargs.setdefault("color", "main")

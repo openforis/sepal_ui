@@ -1,5 +1,8 @@
+"""Script for managing long-running tasks in a separate thread."""
+
 import threading
-from typing import Callable, Optional, List
+from typing import Callable, List, Optional
+
 import sepal_ui.sepalwidgets as sw
 
 
@@ -15,8 +18,7 @@ class TaskController:
         *function_args,
         **function_kwargs,
     ):
-        """
-        Initializes the TaskController.
+        """Initializes the TaskController.
 
         Args:
             function: The long-running function to execute.
@@ -49,7 +51,6 @@ class TaskController:
 
     def start_task(self, *args):
         """Starts the long-running task in a separate thread."""
-        print("Starting task...")
         if self.task_thread is not None and self.task_thread.is_alive():
             # Task is already running
             return
@@ -69,7 +70,6 @@ class TaskController:
             self.task_thread = threading.Thread(target=self._run_task)
             self.task_thread.start()
 
-            print("Task started.")
         except Exception as e:
             print(f"Exception in start_task: {e}")
 
