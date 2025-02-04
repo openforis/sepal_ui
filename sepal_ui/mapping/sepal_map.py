@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
+from ipyleaflet import TileLayer  # noqa: F401 - leave it here, it is used in the eval
 from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
