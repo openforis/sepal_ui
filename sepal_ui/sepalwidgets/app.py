@@ -257,7 +257,7 @@ class AppBar(v.AppBar, SepalWidget):
         """
         self.toggle_button = v.Btn(
             icon=True,
-            children=[v.Icon(children=["fa-solid fa-bars"])],
+            children=[v.Icon(class_="white--text", children=["fa-solid fa-bars"])],
         )
 
         self.title = v.ToolbarTitle(children=[title])
@@ -266,6 +266,7 @@ class AppBar(v.AppBar, SepalWidget):
         self.theme = ThemeSelect(solara_theme_obj=solara_theme_obj)
 
         # set the default parameters
+        kwargs.setdefault("class_", "white--text")
         kwargs.setdefault("color", "main")
         kwargs.setdefault("dense", True)
         kwargs["app"] = True
