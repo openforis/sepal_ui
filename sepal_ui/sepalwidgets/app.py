@@ -187,8 +187,10 @@ class ThemeSelect(v.Btn, SepalWidget):
         Args:
             kwargs: any arguments for a Btn object, children and v_model will be override
         """
+        self.solara_theme_obj = solara_theme_obj
+
         # get the current theme name
-        if solara_theme_obj:
+        if self.solara_theme_obj:
             self.solara_theme_obj = solara_theme_obj
             self.theme = self.solara_theme_obj.name
         else:
