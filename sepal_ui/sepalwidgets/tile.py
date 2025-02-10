@@ -193,7 +193,7 @@ class TileAbout(Tile):
 
 
 class TileDisclaimer(Tile):
-    def __init__(self, solara_theme_obj) -> None:
+    def __init__(self, solara_theme_obj=None) -> None:
         """Create an about tile.
 
         This tile will have the "about_widget" id and "Disclaimer" title.
@@ -201,9 +201,14 @@ class TileDisclaimer(Tile):
         super().__init__("about_tile", "Disclaimer")
 
         self.card = v.Card(class_="pa-5", raised=True, xs12=True, children=[])
-        theme = solara_theme_obj.name
+
+        if solara_theme_obj:
+            theme = solara_theme_obj.name
+            solara_theme_obj.observe(self.set_disclaimer, "name")
+        else:
+            theme = "dark" if v.theme.dark is True else "light"
+
         self.set_disclaimer({"new": theme})
-        solara_theme_obj.observe(self.set_disclaimer, "name")
 
         self.children = [self.card]
 

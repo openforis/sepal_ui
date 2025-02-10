@@ -48,7 +48,9 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "nest-asyncio", # planet API interaction
-    "rio-tiler<7"
+    "rio-tiler<7",
+    "solara", 
+    "ee-client", # to handle multiple gee user sessions
 ]
 
 [[project.authors]]

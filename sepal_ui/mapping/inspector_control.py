@@ -15,6 +15,7 @@ from shapely import geometry as sg
 from traitlets import Bool
 
 from sepal_ui import sepalwidgets as sw
+from sepal_ui.mapping.gee_interface import GEEInterface
 from sepal_ui.mapping.layer import EELayer
 from sepal_ui.mapping.menu_control import MenuControl
 from sepal_ui.message import ms
@@ -187,19 +188,21 @@ class InspectorControl(MenuControl):
         # create a gee point
         ee_point = ee.Geometry.Point(*coords)
 
+        ee_session: GEEInterface = self.m.gee_session
+
         if isinstance(ee_obj, ee.FeatureCollection):
 
             # filter all the value to the point
             features = ee_obj.filterBounds(ee_point)
 
             # if there is none, print non for every property
-            if features.size().getInfo() == 0:
-                cols = ee_obj.first().propertyNames().getInfo()
+            if ee_session.get_info(features.size()).getInfo() == 0:
+                cols = ee_session.get_info(ee_obj.first().propertyNames())
                 pixel_values = {c: None for c in cols if c not in ["system:index"]}
 
             # else simply return all the values of the first element
             else:
-                pixel_values = features.first().toDictionary().getInfo()
+                pixel_values = ee_session.get_info(features.first().toDictionary())
 
         elif isinstance(ee_obj, ee.Image):
 
@@ -208,7 +211,8 @@ class InspectorControl(MenuControl):
                 geometry=ee_point,
                 scale=self.m.get_scale(),
                 reducer=ee.Reducer.mean(),
-            ).getInfo()
+            )
+            pixel_values = ee_session.get_info(pixel_values)
 
         else:
             raise ValueError(f'the layer object is a "{type(ee_obj)}" which is not accepted.')

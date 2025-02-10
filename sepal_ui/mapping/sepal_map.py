@@ -4,6 +4,7 @@
 import os
 
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
+from sepal_ui.mapping.gee_interface import GEEInterface
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -27,6 +28,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
+from eeclient.client import EESession
 from ipyleaflet import TileLayer  # noqa: F401 - leave it here, it is used in the eval
 from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
@@ -81,6 +83,7 @@ class SepalMap(ipl.Map):
         gee: bool = True,
         statebar: bool = False,
         solara_theme_obj=None,
+        gee_session: Optional[EESession] = None,
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -98,6 +101,7 @@ class SepalMap(ipl.Map):
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
             solara_theme_obj: the solara theme object to link the map to. default to None
+            gee_session (optional): a custom EESession object to do gee requests. default to None
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
@@ -115,7 +119,9 @@ class SepalMap(ipl.Map):
 
         # init ee
         self.gee = gee
-        not gee or su.init_ee()
+        if gee:
+            self.gee_session = GEEInterface(session=gee_session)
+            su.init_ee()
 
         # add the basemaps
         self.clear()
@@ -229,7 +235,7 @@ class SepalMap(ipl.Map):
         ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
-        coords = ee_geometry.bounds().coordinates().get(0).getInfo()
+        coords = self.gee_session.get_info(ee_geometry.bounds().coordinates().get(0))
 
         # zoom on these bounds
         return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
@@ -508,7 +514,7 @@ class SepalMap(ipl.Map):
             )
 
         # get the list of viz params
-        viz = self.get_viz_params(ee_object)
+        viz = self.get_viz_params(self.gee_session, ee_object)
 
         # get the requested vizparameters name
         # if non is set use the first one
@@ -633,7 +639,7 @@ class SepalMap(ipl.Map):
             image = obj = ee_object.mosaic()
 
         # create the colored image
-        map_id_dict = ee.Image(image).getMapId(vis_params)
+        map_id_dict = self.gee_session.get_map_id(image, vis_params)
         tile_layer = EELayer(
             ee_object=obj,
             url=map_id_dict["tile_fetcher"].url_format,
@@ -660,7 +666,7 @@ class SepalMap(ipl.Map):
         return [k for k in basemap_tiles.keys()]
 
     @staticmethod
-    def get_viz_params(image: ee.Image) -> dict:
+    def get_viz_params(gee_session: GEEInterface, image: ee.Image) -> dict:
         """Return the vizual parameters that are set in the metadata of the image.
 
         Args:
@@ -680,12 +686,14 @@ class SepalMap(ipl.Map):
             return props
 
         # check that image have properties
-        if "properties" not in image.getInfo():
+        if "properties" not in gee_session.get_info(image):
             return props
 
         # build a raw prop list
         raw_prop_list = {
-            p: val for p, val in image.getInfo()["properties"].items() if p.startswith(PREFIX)
+            p: val
+            for p, val in gee_session.get_info(image)["properties"].items()
+            if p.startswith(PREFIX)
         }
 
         # decompose each property by its number
