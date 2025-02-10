@@ -126,7 +126,7 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
-    "sepal_ui/sepalwidgets/vue/*"
+    "sepalwidgets/vue/*"
 ]
 
 [tool.commitizen]
