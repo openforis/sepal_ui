@@ -155,7 +155,7 @@ ignore = [
 ]
 
 # init file are here to hide the internal structure to the user of the lib
-exclude = ["*/__init__.py", "docs/source/conf.py"]
+exclude = ["*/__init__.py", "docs/source/conf.py", "tests/**/*.yml"]
 
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
