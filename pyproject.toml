@@ -50,7 +50,8 @@ dependencies = [
     "nest-asyncio", # planet API interaction
     "rio-tiler<7",
     "solara", 
-    "ee-client", # to handle multiple gee user sessions
+    "ee-client>=1.1.1", # to handle multiple gee user sessions
+    "colorlog"
 ]
 
 [[project.authors]]
@@ -77,6 +78,7 @@ dev = [
     "jupyter",
     "voila",
     "mypy",
+    "colorlog"
 ]
 test = [
     "pytest",
@@ -88,6 +90,7 @@ test = [
     "nbmake",
     "pytest-regressions",
     "tomli",
+    "colorlog"
 ]
 doc = [
     "sphinx",
