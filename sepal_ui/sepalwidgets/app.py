@@ -406,6 +406,8 @@ class DrawerItem(v.VuetifyTemplate):
         """
         self.tiles = tiles
 
+        return self
+
     def vue_on_click_python(self, data=None) -> Self:
         """Display the appropriate tiles when the item is clicked."""
         self.resize += 1

@@ -9,6 +9,7 @@ import pygadm
 import pygaul
 import traitlets as t
 from deprecated.sphinx import versionadded
+from eeclient.client import EESession
 from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
@@ -235,6 +236,7 @@ class AoiView(sw.Card):
         folder: Union[str, Path] = "",
         model: Optional[AoiModel] = None,
         map_style: Optional[dict] = None,
+        gee_session: Optional[EESession] = None,
         **kwargs,
     ) -> None:
         r"""Versatile card object to deal with the aoi selection.
@@ -305,7 +307,11 @@ class AoiView(sw.Card):
         # will crash if the user didn't authenticate
         if self.gee:
             self.w_asset = sw.VectorField(
-                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+                label=ms.aoi_sel.asset,
+                gee=True,
+                folder=self.folder,
+                types=["TABLE"],
+                gee_session=gee_session,
             )
             self.w_asset.hide()
             self.components["ASSET"] = self.w_asset

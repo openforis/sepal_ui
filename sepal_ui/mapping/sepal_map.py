@@ -4,7 +4,7 @@
 import os
 
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
-from sepal_ui.mapping.gee_interface import GEEInterface
+from sepal_ui.scripts.gee_interface import GEEInterface
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -120,7 +120,7 @@ class SepalMap(ipl.Map):
         # init ee
         self.gee = gee
         if gee:
-            self.gee_session = GEEInterface(session=gee_session)
+            self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 
         # add the basemaps
@@ -235,7 +235,7 @@ class SepalMap(ipl.Map):
         ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
-        coords = self.gee_session.get_info(ee_geometry.bounds().coordinates().get(0))
+        coords = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
 
         # zoom on these bounds
         return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
@@ -514,7 +514,7 @@ class SepalMap(ipl.Map):
             )
 
         # get the list of viz params
-        viz = self.get_viz_params(self.gee_session, ee_object)
+        viz = self.get_viz_params(self.gee_interface, ee_object)
 
         # get the requested vizparameters name
         # if non is set use the first one
@@ -639,7 +639,7 @@ class SepalMap(ipl.Map):
             image = obj = ee_object.mosaic()
 
         # create the colored image
-        map_id_dict = self.gee_session.get_map_id(image, vis_params)
+        map_id_dict = self.gee_interface.get_map_id(image, vis_params)
         tile_layer = EELayer(
             ee_object=obj,
             url=map_id_dict["tile_fetcher"].url_format,
@@ -654,7 +654,8 @@ class SepalMap(ipl.Map):
 
         return
 
-    def get_basemap_list(self) -> List[str]:
+    @staticmethod
+    def get_basemap_list() -> List[str]:
         """Get the complete list of available basemaps.
 
         This function is intending for development use
@@ -666,7 +667,7 @@ class SepalMap(ipl.Map):
         return [k for k in basemap_tiles.keys()]
 
     @staticmethod
-    def get_viz_params(gee_session: GEEInterface, image: ee.Image) -> dict:
+    def get_viz_params(image: ee.Image, gee_session: Optional[GEEInterface] = None) -> dict:
         """Return the vizual parameters that are set in the metadata of the image.
 
         Args:
@@ -675,6 +676,7 @@ class SepalMap(ipl.Map):
         Returns:
             The dictionary of the find properties
         """
+        gee_interface = GEEInterface(session=gee_session)
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
 
@@ -686,13 +688,13 @@ class SepalMap(ipl.Map):
             return props
 
         # check that image have properties
-        if "properties" not in gee_session.get_info(image):
+        if "properties" not in gee_interface.get_info(image):
             return props
 
         # build a raw prop list
         raw_prop_list = {
             p: val
-            for p, val in gee_session.get_info(image)["properties"].items()
+            for p, val in gee_interface.get_info(image)["properties"].items()
             if p.startswith(PREFIX)
         }
 

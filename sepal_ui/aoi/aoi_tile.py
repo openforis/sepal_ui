@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import ipyvuetify as v
+from eeclient.client import EESession
 
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
@@ -30,7 +31,8 @@ class AoiTile(sw.Tile):
         asset: Union[str, Path] = "",
         folder: Union[str, Path] = "",
         map_style: Optional[dict] = None,
-        **kwargs
+        gee_session: Optional[EESession] = None,
+        **kwargs,
     ) -> None:
         """sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation.
 
@@ -57,7 +59,8 @@ class AoiTile(sw.Tile):
             asset=asset,
             folder=folder,
             map_style=map_style,
-            **kwargs
+            gee_session=gee_session,
+            **kwargs,
         )
         self.view.elevation = 0
 

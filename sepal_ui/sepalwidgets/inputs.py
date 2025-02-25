@@ -22,6 +22,7 @@ import ipyvuetify as v
 import pandas as pd
 import traitlets as t
 from deprecated.sphinx import versionadded
+from eeclient.client import EESession
 from natsort import humansorted
 from traitlets import link, observe
 from typing_extensions import Self
@@ -29,8 +30,8 @@ from typing_extensions import Self
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.scripts.thread_controller import TaskController
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
@@ -672,6 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder: Union[str, Path] = "",
         types: List[str] = ["IMAGE", "TABLE"],
         default_asset: Union[str, List[str]] = [],
+        gee_session: Optional[EESession] = None,
         **kwargs,
     ) -> None:
         """Custom widget input to select an asset inside the asset folder of the user.
@@ -683,11 +685,13 @@ class AssetSelect(v.Combobox, SepalWidget):
             types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
             kwargs (optional): any parameter from a v.ComboBox.
         """
+        self._loaded = False
         self.valid = False
+        self.gee_interface = GEEInterface(session=gee_session)
         # self.asset_info = {}
 
         # if folder is not set use the root one
-        self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
+        self.folder = str(folder) or self.gee_interface.get_folder()
         self.types = types
 
         # load the default assets
@@ -748,7 +752,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         if change["new"]:
             # check that the asset can be accessed
             try:
-                self.asset_info = ee.data.getAsset(self.v_model)
+                self.asset_info = self.gee_interface.get_asset(self.v_model)
 
                 # check that the asset has the correct type
                 if self.asset_info["type"] not in self.types:
@@ -767,8 +771,7 @@ class AssetSelect(v.Combobox, SepalWidget):
     @sd.switch("loading", "disabled")
     def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
 
-        if not self._initial_assets:
-            self._initial_assets.extend(gee.get_assets(self.folder))
+        self._loaded = False
         # init the item list
         items = []
 
@@ -784,7 +787,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             items += [default for default in self.default_asset]
 
         # get the list of user asset
-        raw_assets = gee_assets or gee.get_assets(self.folder)
+        raw_assets = gee_assets or self.gee_interface.get_assets(self.folder)
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
@@ -797,6 +800,7 @@ class AssetSelect(v.Combobox, SepalWidget):
                 ]
 
         self.items = items
+        self._loaded = True
 
         return self
 
@@ -932,7 +936,13 @@ class VectorField(v.Col, SepalWidget):
     feature_collection: Optional[ee.FeatureCollection] = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs) -> None:
+    def __init__(
+        self,
+        label: str = ms.widgets.vector.label,
+        gee: bool = False,
+        gee_session: Optional[EESession] = None,
+        **kwargs,
+    ) -> None:
         """A custom input widget to load vector data.
 
         The user will provide a vector file compatible with fiona or a GEE feature collection.
@@ -950,7 +960,9 @@ class VectorField(v.Col, SepalWidget):
         else:
             # Don't care about 'types' arg. It will only work with tables.
             asset_select_kwargs = {"folder": kwargs.pop("folder", None)}
-            self.w_file = AssetSelect(types=["TABLE"], **asset_select_kwargs)
+            self.w_file = AssetSelect(
+                types=["TABLE"], gee_session=gee_session, **asset_select_kwargs
+            )
 
         self.w_column = v.Select(
             _metadata={"name": "column"},
