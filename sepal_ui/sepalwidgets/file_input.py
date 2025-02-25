@@ -87,15 +87,20 @@ class FileInput(v.VuetifyTemplate):
         self, initial_folder: str = "", root: str = "", sepal_client: SepalClient = None, **kwargs
     ):
         super().__init__(**kwargs)
+        logger.debug("FileInput initialized")
 
         self.client = sepal_client
-        self.initial_folder = initial_folder
-        self.current_folder = initial_folder
+        if sepal_client or initial_folder.startswith(str(Path.home())):
+            self.initial_folder = initial_folder
+        else:
+            self.initial_folder = str(Path.home() / initial_folder)
+        logger.debug(f"Initial folder: {self.initial_folder}")
+        self.current_folder = self.initial_folder
         self.root = root if root else "" if sepal_client else str(Path.home())
 
-        if not Path(initial_folder).is_relative_to(self.root):
+        if not Path(self.current_folder).is_relative_to(self.root):
             raise ValueError(
-                f"Initial folder {initial_folder} is not a subdirectory of {self.root}"
+                f"Initial folder {self.current_folder} is not a subdirectory of {self.root}"
             )
 
         self.load_files()
@@ -108,9 +113,9 @@ class FileInput(v.VuetifyTemplate):
         try:
             self.loading = True
 
-            if not Path(self.initial_folder).is_relative_to(self.root):
+            if not Path(self.current_folder).is_relative_to(self.root):
                 raise ValueError(
-                    f"Initial folder {self.initial_folder} is not a subdirectory of {self.root}"
+                    f"Initial folder {self.current_folder} is not a subdirectory of {self.root}"
                 )
 
             if self.client:
