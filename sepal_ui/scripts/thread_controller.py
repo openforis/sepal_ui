@@ -1,4 +1,4 @@
-"""Script for managing long-running tasks in a separate thread."""
+"""Controller for running long-running tasks in a separate thread."""
 
 import threading
 from typing import Callable, List, Optional

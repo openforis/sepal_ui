@@ -24,6 +24,8 @@ import traitlets as t
 from deprecated.sphinx import versionadded
 from eeclient.client import EESession
 from natsort import humansorted
+from reactivex import operators as ops
+from reactivex.subject import Subject
 from traitlets import link, observe
 from typing_extensions import Self
 
@@ -674,6 +676,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         types: List[str] = ["IMAGE", "TABLE"],
         default_asset: Union[str, List[str]] = [],
         gee_session: Optional[EESession] = None,
+        on_search_input: bool = True,
         **kwargs,
     ) -> None:
         """Custom widget input to select an asset inside the asset folder of the user.
@@ -683,6 +686,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             folder: the folder of the user assets
             default_asset: the id of a default asset or a list of defaults
             types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
+            on_search_input: whether to trigger the search input event. Default to False
             kwargs (optional): any parameter from a v.ComboBox.
         """
         self._loaded = False
@@ -725,6 +729,12 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         self.observe(self._get_items, "default_asset")
         self.observe(self._check_types, "types")
+
+        if on_search_input:
+            subject = Subject()
+            debounced = subject.pipe(ops.debounce(0.5))
+            debounced.subscribe(lambda value: setattr(self, "v_model", value or None))
+            self.on_event("update:search-input", lambda w, e, d: subject.on_next(d))
 
     def _fill_no_data(self, _: dict) -> None:
         """Fill the items with a no data message if the items are empty."""
@@ -772,6 +782,8 @@ class AssetSelect(v.Combobox, SepalWidget):
     def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
 
         self._loaded = False
+        if not self._initial_assets:
+            self._initial_assets.extend(self.gee_interface.get_assets(self.folder))
         # init the item list
         items = []
 
