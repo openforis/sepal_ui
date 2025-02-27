@@ -259,7 +259,7 @@ class AoiView(sw.Card):
             su.init_ee()
 
         # get the model
-        self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
+        self.model = model or AoiModel(gee=gee, folder=folder, gee_session=gee_session, **kwargs)
 
         # get the map if filled
         self.map_ = map_
@@ -274,7 +274,7 @@ class AoiView(sw.Card):
         self.w_admin_0 = AdminField(0, gee=gee).get_items()
         self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
         self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector, gee_session=gee_session)
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
 
         # group them together with the same key as the select_method object

@@ -45,7 +45,7 @@ class AoiTile(sw.Tile):
             map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
         # create the map
-        self.map = sm.SepalMap(dc=True, gee=gee)
+        self.map = sm.SepalMap(dc=True, gee=gee, gee_session=gee_session)
         self.map.dc.hide()
 
         # create the view

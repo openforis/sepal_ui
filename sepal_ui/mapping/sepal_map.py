@@ -514,7 +514,7 @@ class SepalMap(ipl.Map):
             )
 
         # get the list of viz params
-        viz = self.get_viz_params(self.gee_interface, ee_object)
+        viz = self.get_viz_params(image=ee_object)
 
         # get the requested vizparameters name
         # if non is set use the first one
@@ -666,8 +666,7 @@ class SepalMap(ipl.Map):
         """
         return [k for k in basemap_tiles.keys()]
 
-    @staticmethod
-    def get_viz_params(image: ee.Image, gee_session: Optional[GEEInterface] = None) -> dict:
+    def get_viz_params(self, image: ee.Image) -> dict:
         """Return the vizual parameters that are set in the metadata of the image.
 
         Args:
@@ -676,7 +675,7 @@ class SepalMap(ipl.Map):
         Returns:
             The dictionary of the find properties
         """
-        gee_interface = GEEInterface(session=gee_session)
+    
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
 
@@ -688,13 +687,13 @@ class SepalMap(ipl.Map):
             return props
 
         # check that image have properties
-        if "properties" not in gee_interface.get_info(image):
+        if "properties" not in self.gee_interface.get_info(image):
             return props
 
         # build a raw prop list
         raw_prop_list = {
             p: val
-            for p, val in gee_interface.get_info(image)["properties"].items()
+            for p, val in self.gee_interface.get_info(image)["properties"].items()
             if p.startswith(PREFIX)
         }
 

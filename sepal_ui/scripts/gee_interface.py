@@ -2,6 +2,7 @@
 
 import asyncio
 from typing import Optional
+# import traceback
 
 import ee
 from eeclient.client import EESession
@@ -18,8 +19,18 @@ class GEEInterface:
         If a session is provided at initialization, custom session-based calls are used.
         Otherwise, the default Earth Engine API methods are invoked.
         """
-        logger.debug("Initializing GEEInterface.")
         self.session = session
+        # Get the caller information
+        # caller = traceback.extract_stack()[-2]  # -2 to get the caller of __init__
+        # file_name, line_no, func_name, _ = caller
+
+        # if self.session:
+        #     project_id = self.session.project_id
+
+        # logger.debug(
+        #     f"Initializing GEEInterface with {'ee_session: ' + project_id if self.session else 'default session'}",
+        #     f" called from {file_name}:{line_no} in {func_name}",
+        # )
 
     def get_info(self, ee_object: ee.ComputedObject, workloadTag=None):
         """Get the info of an Earth Engine object.
