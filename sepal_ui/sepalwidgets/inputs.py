@@ -30,6 +30,7 @@ from traitlets import link, observe
 from typing_extensions import Self
 
 from sepal_ui.frontend import styles as ss
+from sepal_ui.logger.logger import logger
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
@@ -666,9 +667,6 @@ class AssetSelect(v.Combobox, SepalWidget):
     types: t.List = t.List().tag(sync=True)
     "The list of types accepted by the asset selector. names need to be valid TYPES and changing this value will trigger the reload of the asset items."
 
-    _initial_assets: list = []
-    "_initial_assets: shared class variable to store the initial assets and avoid multiple calls to the GEE API."
-
     @sd.need_ee
     def __init__(
         self,
@@ -691,6 +689,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         """
         self._loaded = False
         self.valid = False
+        logger.debug(f"AssetSelect")
         self.gee_interface = GEEInterface(session=gee_session)
         # self.asset_info = {}
 
@@ -720,7 +719,7 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         # load the assets in the combobox
 
-        task_controller = TaskController(self._get_items, gee_assets=self._initial_assets)
+        task_controller = TaskController(self._get_items)
         task_controller.start_task()
 
         self._fill_no_data({})
@@ -782,8 +781,6 @@ class AssetSelect(v.Combobox, SepalWidget):
     def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
 
         self._loaded = False
-        if not self._initial_assets:
-            self._initial_assets.extend(self.gee_interface.get_assets(self.folder))
         # init the item list
         items = []
 
