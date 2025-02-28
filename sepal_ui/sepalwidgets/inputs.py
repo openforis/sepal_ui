@@ -30,7 +30,6 @@ from traitlets import link, observe
 from typing_extensions import Self
 
 from sepal_ui.frontend import styles as ss
-from sepal_ui.logger.logger import logger
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
@@ -689,7 +688,6 @@ class AssetSelect(v.Combobox, SepalWidget):
         """
         self._loaded = False
         self.valid = False
-        logger.debug(f"AssetSelect")
         self.gee_interface = GEEInterface(session=gee_session)
         # self.asset_info = {}
 

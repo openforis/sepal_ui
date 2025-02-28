@@ -51,7 +51,7 @@ dependencies = [
     "rio-tiler<7",
     "solara", 
     "ee-client>=1.1.1", # to handle multiple gee user sessions
-    "colorlog"
+    "colorlog",
     "reactivex"
 ]
 

@@ -1,7 +1,9 @@
 """Test the AssetSelect widget."""
 
+from datetime import time
 from pathlib import Path
 from typing import List
+import time
 
 import ee
 import pytest
@@ -11,15 +13,14 @@ from sepal_ui.message import ms
 
 
 @pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
-def test_init(gee_dir: Path, gee_user_dir: Path) -> None:
+def test_init(gee_dir: Path, gee_user_dir: Path, asset_select: sw.AssetSelect) -> None:
     """Init the widget.
 
     Args:
         gee_dir: the session defined GEE directory
         gee_user_dir: the gee_dir without the project information
     """
-    # create an asset select that points to the folder I created for testing
-    asset_select = sw.AssetSelect(folder=str(gee_dir))
+    # Test the fixture
     assert isinstance(asset_select, sw.AssetSelect)
     assert str(gee_user_dir / "image") in asset_select.items
 
@@ -156,12 +157,13 @@ def default_items() -> List[str]:
 
 @pytest.fixture(scope="function")
 def asset_select(gee_dir: Path) -> sw.AssetSelect:
-    """Create a default assetSelect.
+    asset_select = sw.AssetSelect(folder=str(gee_dir))
+    # Wait for the asset select to finish loading
+    timeout = 5
+    start_time = time.time()
+    while not getattr(asset_select, "_loaded", False):
+        if time.time() - start_time > timeout:
+            raise TimeoutError("AssetSelect did not finish loading in time.")
+        time.sleep(0.1)
 
-    Args:
-        gee_dir: the path to the session defined GEE directory
-
-    Returns:
-        The assertSelected wired to the session folder
-    """
-    return sw.AssetSelect(folder=str(gee_dir))
+    return asset_select

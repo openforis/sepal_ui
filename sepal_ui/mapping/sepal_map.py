@@ -675,7 +675,7 @@ class SepalMap(ipl.Map):
         Returns:
             The dictionary of the find properties
         """
-    
+
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
 
@@ -818,7 +818,7 @@ class SepalMap(ipl.Map):
             msg = f"Basemap can only be one of the following:\n{keys}"
             raise ValueError(msg)
 
-        self.add(eval(str(basemap_tiles[basemap])))
+        self.add_layer(eval(str(basemap_tiles[basemap])))
 
         return
 

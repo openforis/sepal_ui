@@ -424,6 +424,11 @@ class DrawerItem(v.VuetifyTemplate):
 
         return self
 
+    def _on_click(self, *args) -> Self:
+        """Display the appropriate tiles when the item is clicked."""
+        self.vue_on_click_python()
+        return self
+
 
 class NavDrawer(v.NavigationDrawer, SepalWidget):
     items: List[DrawerItem] = []
