@@ -49,6 +49,9 @@ dependencies = [
     "typing-extensions",
     "nest-asyncio", # planet API interaction
     "rio-tiler<7",
+    "solara", 
+    "ee-client>=1.1.1", # to handle multiple gee user sessions
+    "colorlog",
     "reactivex"
 ]
 
@@ -76,6 +79,7 @@ dev = [
     "jupyter",
     "voila",
     "mypy",
+    "colorlog"
 ]
 test = [
     "pytest",
@@ -87,6 +91,7 @@ test = [
     "nbmake",
     "pytest-regressions",
     "tomli",
+    "colorlog"
 ]
 doc = [
     "sphinx",
@@ -125,6 +130,7 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
+    "sepalwidgets/vue/*"
 ]
 
 [tool.commitizen]
