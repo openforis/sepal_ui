@@ -380,7 +380,7 @@ class AoiModel(Model):
 
             # get the ADM0_CODE to get the ISO code
             feature = self.feature_collection.first()
-            properties = feature.toDictionary(feature.propertyNames()).getInfo()
+            properties = self.gee_interface.get_info(feature.toDictionary(feature.propertyNames()))
 
             iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
             names = [value for prop, value in properties.items() if "NAME" in prop]
@@ -467,7 +467,7 @@ class AoiModel(Model):
 
         if self.gee:
             fields = self.feature_collection.distinct(column).aggregate_array(column)
-            list_ = fields.getInfo()
+            list_ = self.gee_interface.get_info(fields)
         else:
             list_ = self.gdf[column].to_list()
 
@@ -504,7 +504,9 @@ class AoiModel(Model):
             raise ValueError(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
-            coords = self.feature_collection.geometry().bounds().coordinates().get(0).getInfo()
+            coords = self.gee_interface.get_info(
+                self.feature_collection.geometry().bounds().coordinates().get(0)
+            )
             bounds = [coords[0][0], coords[0][1], coords[3][0], coords[3][1]]
         else:
             bounds = self.gdf.total_bounds.tolist()
@@ -591,7 +593,7 @@ class AoiModel(Model):
 
     def _load_gdf(self):
         """Return a geodataframe from a feature collection."""
-        features = self.feature_collection.getInfo()["features"]
+        features = self.gee_interface.get_info(self.feature_collection)["features"]
         self._gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         if self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:

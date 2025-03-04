@@ -961,6 +961,9 @@ class VectorField(v.Col, SepalWidget):
             folder: When gee=True, extra args will be used for AssetSelect
             kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
         """
+
+        self.gee_interface = GEEInterface(session=gee_session)
+
         # set the 3 wigets
         if not gee:
             self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
@@ -1024,7 +1027,7 @@ class VectorField(v.Col, SepalWidget):
 
         elif isinstance(self.w_file, AssetSelect):
             self.feature_collection = ee.FeatureCollection(change["new"])
-            columns = self.feature_collection.first().getInfo()["properties"]
+            columns = self.gee_interface.get_info(self.feature_collection.first())["properties"]
             columns = [str(col) for col in columns if col not in ["system:index", "Shape_Area"]]
 
         # update the columns
@@ -1058,10 +1061,8 @@ class VectorField(v.Col, SepalWidget):
             values = self.df[change["new"]].to_list()
 
         elif isinstance(self.w_file, AssetSelect):
-            values = (
-                self.feature_collection.distinct(change["new"])
-                .aggregate_array(change["new"])
-                .getInfo()
+            values = self.gee_interface.get_info(
+                self.feature_collection.distinct(change["new"]).aggregate_array(change["new"])
             )
 
         self.w_value.items = sorted(set(values))

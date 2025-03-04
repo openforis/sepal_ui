@@ -2,6 +2,7 @@
 
 import asyncio
 from typing import Optional
+
 # import traceback
 
 import ee
@@ -110,9 +111,7 @@ class GEEInterface:
             The asset list. Each asset is a dict with 3 keys: 'type', 'name', and 'id'.
         """
         if isinstance(self.session, EESession):
-            assets = asyncio.run(self.session.operations.get_assets_async(folder))
-            logger.debug(f"Got assets: {assets}")
-            return assets
+            return asyncio.run(self.session.operations.get_assets_async(folder))
         else:
             # That function will use ee.data.listAssets() to get the assets.
             # if it fails, it will use the synchronous version of the function.
@@ -130,7 +129,7 @@ class GEEInterface:
             The asset list. Each asset is a dict with 3 keys: 'type', 'name', and 'id'.
         """
         if isinstance(self.session, EESession):
-            return self.session.get_assets_folder()
+            return asyncio.run(self.session.get_assets_folder())
         else:
             return f"projects/{ee.data._cloud_api_user_project}/assets/"
 
