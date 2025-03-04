@@ -1,3 +1,5 @@
+"""Client for interacting with sepal userFiles API."""
+
 import os
 from pathlib import Path, PurePath
 from typing import Any, Dict, List, Literal, Optional
@@ -15,12 +17,11 @@ VERIFY_SSL = not (SEPAL_HOST == "host.docker.internal" or SEPAL_HOST == "danielg
 
 class SepalClient:
     def __init__(self, session_id: str, module_name: str):
-        """
-        Initialize the Sepal HTTP client.
+        """Initialize the Sepal HTTP client.
 
         Args:
-            session_id: The session ID for authentication
-            base_url: The base URL for the API (optional)
+            session_id: The SEPAL session ID for authentication
+            module_name: The name of the module using the client, it creates the module results directory.
         """
         self.module_name = module_name
         self.BASE_REMOTE_PATH = "/home/sepal-user"
@@ -63,8 +64,7 @@ class SepalClient:
     def list_files(
         self, folder: str = "/", extensions: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """
-        List files in a specified folder with optional extension filtering.
+        """List files in a specified folder with optional extension filtering.
 
         Args:
             folder: The folder path to list files from
@@ -77,12 +77,10 @@ class SepalClient:
         return self.rest_call("GET", "listFiles/", params=params)
 
     def get_file(self, file_path: str) -> bytes:
-        """
-        Download a file from the specified folder.
+        """Download a file from the specified folder.
 
         Args:
-            folder: Source folder path
-            filename: Name of the file to download
+            file_path: The file path to download
 
         Returns:
             The file content as bytes
@@ -90,8 +88,7 @@ class SepalClient:
         return self.rest_call("GET", "download/", params={"path": self.sanitize_path(file_path)})
 
     def set_file(self, file_path: str, json_data: str) -> Dict[str, Any]:
-        """
-        Upload a file to the specified folder.
+        """Upload a file to the specified folder.
 
         Args:
             folder: Destination folder path
@@ -111,6 +108,7 @@ class SepalClient:
         )
 
     def sanitize_path(self, file_path: str) -> str:
+        """Sanitize a file path to be relative to the base remote path."""
         path = PurePath(file_path)
         try:
             # Attempt to get a path relative to BASE_REMOTE_PATH

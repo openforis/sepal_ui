@@ -4,7 +4,6 @@ import asyncio
 from typing import Optional
 
 # import traceback
-
 import ee
 from eeclient.client import EESession
 from eeclient.data import MapTileOptions

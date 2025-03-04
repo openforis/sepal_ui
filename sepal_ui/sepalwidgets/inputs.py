@@ -961,7 +961,6 @@ class VectorField(v.Col, SepalWidget):
             folder: When gee=True, extra args will be used for AssetSelect
             kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
         """
-
         self.gee_interface = GEEInterface(session=gee_session)
 
         # set the 3 wigets

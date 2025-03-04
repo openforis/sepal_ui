@@ -1,9 +1,8 @@
 """Test the AssetSelect widget."""
 
-from datetime import time
+import time
 from pathlib import Path
 from typing import List
-import time
 
 import ee
 import pytest
@@ -157,8 +156,9 @@ def default_items() -> List[str]:
 
 @pytest.fixture(scope="function")
 def asset_select(gee_dir: Path) -> sw.AssetSelect:
+    """Create an AssetSelect widget that waits for the asset list to load."""
+    # This is done because the asset list is loaded asynchronously
     asset_select = sw.AssetSelect(folder=str(gee_dir))
-    # Wait for the asset select to finish loading
     timeout = 5
     start_time = time.time()
     while not getattr(asset_select, "_loaded", False):

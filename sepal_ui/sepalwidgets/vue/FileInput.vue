@@ -22,7 +22,7 @@
           clearable
           @click:clear="searchQuery = ''"
           class="mx-3 mt-4"
-          style="margin-bottom: 5px; margin-top: 5px;"
+          style="margin-bottom: 5px; margin-top: 5px"
         ></v-text-field>
 
         <v-progress-linear
@@ -37,13 +37,10 @@
           flat
           dense
           :max-height="300"
-          style="overflow: auto;"
+          style="overflow: auto"
         >
           <!-- Always show the parent item if it exists -->
-          <v-list-item
-            v-if="parentItem"
-            @click="onFileSelect(parentItem)"
-          >
+          <v-list-item v-if="parentItem" @click="onFileSelect(parentItem)">
             <v-list-item-action>
               <v-icon :color="getIconColor(parentItem)">
                 {{ getIconName(parentItem) }}
@@ -72,10 +69,7 @@
               <v-list-item-content>
                 <v-list-item-title>{{ item.name }}</v-list-item-title>
               </v-list-item-content>
-              <v-list-item-action-text
-                class="ml-1"
-                v-if="item.type === 'file'"
-              >
+              <v-list-item-action-text class="ml-1" v-if="item.type === 'file'">
                 {{ formatFileSize(item.size) }}
               </v-list-item-action-text>
             </v-list-item>
@@ -85,7 +79,11 @@
           <v-list-item v-if="!nonParentFiles.length">
             <v-list-item-content class="text-center">
               <v-list-item-title class="font-italic text-grey">
-                {{ searchQuery ? 'No files matching "' + searchQuery + '"' : getEmptyMsg()}}
+                {{
+                  searchQuery
+                    ? 'No files matching "' + searchQuery + '"'
+                    : getEmptyMsg()
+                }}
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -98,15 +96,10 @@
       readonly
       label="Selected file"
       class="ml-2"
-      :error-messages="getErrorMessages""
+      :error-messages="getErrorMessages"
     >
       <template v-slot:append>
-        <v-btn
-          v-if="clearable"
-          icon
-          color="primary"
-          @click.stop="reset"
-        >
+        <v-btn v-if="clearable" icon color="primary" @click.stop="reset">
           <v-icon>fa-solid fa-times</v-icon>
         </v-btn>
         <v-btn icon color="primary" @click.stop="reloadFiles">
@@ -117,80 +110,77 @@
   </v-row>
 </template>
 
+<script>
+export default {
+  name: "FileInput",
 
+  props: {
+    file_list: {
+      type: Array,
+      default: () => [],
+    },
+    current_folder: {
+      type: String,
+      default: "/",
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    label: {
+      type: String,
+      default: "Select File",
+    },
+    value: {
+      type: String,
+      default: "",
+    },
+    clearable: {
+      type: Boolean,
+      default: false,
+    },
+    root: {
+      type: String,
+      default: "/",
+    },
+    reload_files: {
+      type: Number,
+      default: 0,
+    },
+    reset_prop: {
+      type: Number,
+      default: 0,
+    },
+    base_path: {
+      type: String,
+      default: "",
+    },
+    extensions: {
+      type: Array,
+      default: () => [],
+    },
+    error_messages: {
+      type: Array,
+      default: [],
+    },
+  },
 
-  
-  <script>
-  export default {
-    name: 'FileInput',
-  
-    props: {
-      file_list: {
-        type: Array,
-        default: () => []
-      },
-      current_folder: {
-        type: String,
-        default: '/'
-      },
-      loading: {
-        type: Boolean,
-        default: false
-      },
-      label: {
-        type: String,
-        default: 'Select File'
-      },
-      value: {
-        type: String,
-        default: ''
-      },
-      clearable: {
-        type: Boolean,
-        default: false
-      },
-      root: {
-        type: String,
-        default: '/'
-      },
-      reload_files: {
-        type: Number,
-        default: 0
-      },
-      reset_prop: {
-        type: Number,
-        default: 0
-      },
-      base_path: {
-        type: String,
-        default: ''
-      },
-      extensions: {
-        type: Array,
-        default: () => []
-      },
-      error_messages: {
-        type: Array,
-        default: []
-      }
+  data() {
+    return {
+      showFileMenu: false,
+      searchQuery: "",
+    };
+  },
+
+  computed: {
+    filteredFiles() {
+      if (!this.searchQuery) return this.file_list;
+      return this.file_list.filter((file) =>
+        file.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     },
-  
-    data() {
-      return {
-        showFileMenu: false,
-        searchQuery: ''
-      }
-    },
-  
-    computed: {
-      filteredFiles() {
-        if (!this.searchQuery) return this.file_list;
-        return this.file_list.filter(file =>
-          file.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      },
-      parentItem() {
-      return this.filteredFiles.length && this.filteredFiles[0].name === '..'
+    parentItem() {
+      return this.filteredFiles.length && this.filteredFiles[0].name === ".."
         ? this.filteredFiles[0]
         : null;
     },
@@ -204,102 +194,114 @@
     getErrorMessages() {
       return this.error_messages;
     },
+  },
 
-
+  methods: {
+    reloadFiles() {
+      this.reload_files += 1;
     },
-  
-    methods: {
-      reloadFiles() {
-        this.reload_files += 1;
-      },
-      getEmptyMsg() {
-        return this.extensions.length
-          ? `No files with extensions ${this.extensions.join(', ')}`
-          : 'No files available';
-      },
-  
-      reset() {
-        this.value = '';
-        this.error_messages = [];
-        this.reset_prop += 1;
-      },
-  
-      onFileSelect(item) {
-        if (item.type === 'directory') {
-          this.current_folder = item.path;
-        } else {
-          this.value = this.base_path? this.base_path + "/" + item.path : item.path;
-          this.showFileMenu = false;
-        }
-        // Reset search query when a file or folder is clicked
-        this.searchQuery = '';
-      },
-  
-      getFileMetadata(item) {
-        const fileMetadata = {
-            "": { color: "primary_contrast", icon: "fa-regular fa-folder" },
-            ".csv": { color: "secondary_contrast", icon: "fa-solid fa-table" },
-            ".txt": { color: "secondary_contrast", icon: "fa-solid fa-table" },
-            ".tif": { color: "secondary_contrast", icon: "fa-regular fa-image" },
-            ".tiff": { color: "secondary_contrast", icon: "fa-regular fa-image" },
-            ".png": { color: "secondary_contrast", icon: "fa-regular fa-image" },
-            ".vrt": { color: "secondary_contrast", icon: "fa-regular fa-image" },
-            ".shp": { color: "secondary_contrast", icon: "fa-solid fa-vector-square" },
-            ".ipynb": { color: "green", icon: "fa-regular fa-file-code" },
-            ".py": { color: "secondary_contrast", icon: "fa-regular fa-file-code" },
-            ".json": { color: "secondary_contrast", icon: "fa-regular fa-file-code" },
-            ".geojson": { color: "secondary_contrast", icon: "fa-solid fa-vector-square" },
-            ".gpkg": { color: "secondary_contrast", icon: "fa-solid fa-vector-square" },
-            ".pdf": { color: "secondary_contrast", icon: "fa-regular fa-file-pdf" },
-            ".zip": { color: "secondary_contrast", icon: "fa-regular fa-file-archive" },
-            ".log": { color: "secondary_contrast", icon: "fa-regular fa-file-alt" },
-            "DEFAULT": { color: "anchor", icon: "fa-regular fa-file" },
-            "PARENT": { color: "anchor", icon: "fa-regular fa-folder-open" }
-        };
+    getEmptyMsg() {
+      return this.extensions.length
+        ? `No files with extensions ${this.extensions.join(", ")}`
+        : "No files available";
+    },
 
-        if (item.type === 'directory') {
-            return item.name === '..' ? fileMetadata["PARENT"] : fileMetadata[""];
-        }
+    reset() {
+      this.value = "";
+      this.error_messages = [];
+      this.reset_prop += 1;
+    },
 
-        const ext = item.name.slice(item.name.lastIndexOf('.')).toLowerCase();
-        return fileMetadata[ext] || fileMetadata["DEFAULT"];
+    onFileSelect(item) {
+      if (item.type === "directory") {
+        this.current_folder = item.path;
+      } else {
+        this.value = this.base_path
+          ? this.base_path + "/" + item.path
+          : item.path;
+        this.showFileMenu = false;
+      }
+      // Reset search query when a file or folder is clicked
+      this.searchQuery = "";
+    },
+
+    getFileMetadata(item) {
+      const fileMetadata = {
+        "": { color: "primary_contrast", icon: "fa-regular fa-folder" },
+        ".csv": { color: "secondary_contrast", icon: "fa-solid fa-table" },
+        ".txt": { color: "secondary_contrast", icon: "fa-solid fa-table" },
+        ".tif": { color: "secondary_contrast", icon: "fa-regular fa-image" },
+        ".tiff": { color: "secondary_contrast", icon: "fa-regular fa-image" },
+        ".png": { color: "secondary_contrast", icon: "fa-regular fa-image" },
+        ".vrt": { color: "secondary_contrast", icon: "fa-regular fa-image" },
+        ".shp": {
+          color: "secondary_contrast",
+          icon: "fa-solid fa-vector-square",
+        },
+        ".ipynb": { color: "green", icon: "fa-regular fa-file-code" },
+        ".py": { color: "secondary_contrast", icon: "fa-regular fa-file-code" },
+        ".json": {
+          color: "secondary_contrast",
+          icon: "fa-regular fa-file-code",
+        },
+        ".geojson": {
+          color: "secondary_contrast",
+          icon: "fa-solid fa-vector-square",
+        },
+        ".gpkg": {
+          color: "secondary_contrast",
+          icon: "fa-solid fa-vector-square",
+        },
+        ".pdf": { color: "secondary_contrast", icon: "fa-regular fa-file-pdf" },
+        ".zip": {
+          color: "secondary_contrast",
+          icon: "fa-regular fa-file-archive",
+        },
+        ".log": { color: "secondary_contrast", icon: "fa-regular fa-file-alt" },
+        DEFAULT: { color: "anchor", icon: "fa-regular fa-file" },
+        PARENT: { color: "anchor", icon: "fa-regular fa-folder-open" },
+      };
+
+      if (item.type === "directory") {
+        return item.name === ".." ? fileMetadata["PARENT"] : fileMetadata[""];
+      }
+
+      const ext = item.name.slice(item.name.lastIndexOf(".")).toLowerCase();
+      return fileMetadata[ext] || fileMetadata["DEFAULT"];
     },
 
     getIconName(item) {
-        return this.getFileMetadata(item).icon;
+      return this.getFileMetadata(item).icon;
     },
 
     getIconColor(item) {
-        return this.getFileMetadata(item).color;
+      return this.getFileMetadata(item).color;
     },
 
+    getParentName(path) {
+      const parts = path.split("/");
+      return parts[parts.length - 1] || "";
+    },
 
-  
-      getParentName(path) {
-        const parts = path.split('/');
-        return parts[parts.length - 1] || '';
-      },
-  
-      formatFileSize(bytes) {
-        if (!bytes) return '';
-        const units = ['B', 'KB', 'MB', 'GB'];
-        let size = bytes;
-        let unit = 0;
-        while (size >= 1024 && unit < units.length - 1) {
-          size /= 1024;
-          unit++;
-        }
-        return Math.round(size * 100) / 100 + ' ' + units[unit];
-      },
-  
-      resetScroll() {
-        this.$nextTick(() => {
-          if (this.$refs.fileList) {
-            this.$refs.fileList.$el.scrollTop = 0;
-          }
-        });
+    formatFileSize(bytes) {
+      if (!bytes) return "";
+      const units = ["B", "KB", "MB", "GB"];
+      let size = bytes;
+      let unit = 0;
+      while (size >= 1024 && unit < units.length - 1) {
+        size /= 1024;
+        unit++;
       }
-    }
-  }
-  </script>
-  
+      return Math.round(size * 100) / 100 + " " + units[unit];
+    },
+
+    resetScroll() {
+      this.$nextTick(() => {
+        if (this.$refs.fileList) {
+          this.$refs.fileList.$el.scrollTop = 0;
+        }
+      });
+    },
+  },
+};
+</script>

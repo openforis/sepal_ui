@@ -675,7 +675,6 @@ class SepalMap(ipl.Map):
         Returns:
             The dictionary of the find properties
         """
-
         # the constant prefix for SEPAL visualization parameters
         PREFIX = "visualization"
 

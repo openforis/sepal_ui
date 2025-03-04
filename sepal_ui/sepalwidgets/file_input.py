@@ -1,3 +1,5 @@
+"""Custom FileInput widget that leverages vuetify templates and handles both local and remote files (sepal)."""
+
 from pathlib import Path
 from typing import List as ListType
 from typing import Literal, Optional, Union
@@ -86,6 +88,13 @@ class FileInput(v.VuetifyTemplate):
     def __init__(
         self, initial_folder: str = "", root: str = "", sepal_client: SepalClient = None, **kwargs
     ):
+        """Custom widget to select files from the local machine or the sepal server.
+
+        Args:
+            initial_folder: The initial folder to read files from.
+            root: Maximum root directory that can be accessed.
+            sepal_client: Sepal client to access the server.
+        """
         super().__init__(**kwargs)
         logger.debug("FileInput initialized")
 
