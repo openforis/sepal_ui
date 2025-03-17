@@ -29,11 +29,14 @@ class SepalClient:
         self.cookies = {"SEPAL-SESSIONID": session_id}
         self.headers = {"Accept": "application/json"}
 
+        self.results_path = self.create_base_dir()
         # Maybe do a test? and check that the session is valid
         # if not I will get this error:
         # httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://danielg.sepal.io/api/user-files/listFiles/?path=%2F&extensions='
 
-        logger.debug("SEPAL_CLIENT: SepalClient initialized")
+        logger.debug(
+            "SEPAL_CLIENT: SepalClient initialized, with results path: %s", self.results_path
+        )
 
     def rest_call(
         self,
@@ -60,6 +63,17 @@ class SepalClient:
             )
             response.raise_for_status()
             return response.json()
+
+    def create_base_dir(self) -> Path:
+        """Create the base results directory and return the Path object."""
+        results_path = f"{self.BASE_REMOTE_PATH}/module_results/{self.module_name}"
+        self.rest_call(
+            "POST",
+            "createFolder/",
+            params={"path": self.sanitize_path(results_path), "parents": True},
+        )
+
+        return Path(results_path)
 
     def list_files(
         self, folder: str = "/", extensions: Optional[List[str]] = None
@@ -120,16 +134,7 @@ class SepalClient:
 
     def get_remote_dir(self, folder: str, parents: bool = False) -> Path:
         """Create a remote directory and return the Path object."""
-        # First ensure the base module results dir exists
-        # This is a standard location for module results
-        results_path = f"{self.BASE_REMOTE_PATH}/module_results/{self.module_name}"
-        self.rest_call(
-            "POST",
-            "createFolder/",
-            params={"path": self.sanitize_path(results_path), "parents": True},
-        )
-
-        remote_dir = results_path / Path(folder)
+        remote_dir = self.results_path / Path(folder)
         self.rest_call(
             "POST",
             "createFolder/",
