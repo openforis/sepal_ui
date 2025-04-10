@@ -31,6 +31,11 @@ class MapApp(v.VuetifyTemplate):
         )
     ).tag(sync=True)
 
+    def __init__(self, **kwargs):
+        """Instantiate the MapApp class."""
+        kwargs["theme_toggle"] = [ThemeToggle()]
+        super().__init__(**kwargs)
+
 
 class ThemeToggle(v.VuetifyTemplate):
 
