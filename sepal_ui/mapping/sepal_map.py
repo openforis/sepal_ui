@@ -84,6 +84,7 @@ class SepalMap(ipl.Map):
         statebar: bool = False,
         solara_theme_obj=None,
         gee_session: Optional[EESession] = None,
+        fullscreen: bool = False,
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -102,6 +103,7 @@ class SepalMap(ipl.Map):
             statebar: whether or not to display the Statebar in the map
             solara_theme_obj: the solara theme object to link the map to. default to None
             gee_session (optional): a custom EESession object to do gee requests. default to None
+            fullscreen: whether or not to display the map in full screen. default to False
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
         # set the default parameters
@@ -113,6 +115,9 @@ class SepalMap(ipl.Map):
         kwargs["attribution_control"] = False
         kwargs["scroll_wheel_zoom"] = True
         kwargs.setdefault("world_copy_jump", True)
+
+        if fullscreen:
+            self.add_class("full-screen-map")
 
         # Init the map
         super().__init__(**kwargs)
