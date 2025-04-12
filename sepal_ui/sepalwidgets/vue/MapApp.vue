@@ -25,35 +25,34 @@
       permanent
     >
       <div style="display: flex; flex-direction: column; height: 100%">
+        <div class="drawer-header">
+          <div class="app-title">
+            <v-icon class="mr-2">{{
+              app_icon ? app_icon : "mdi-earth"
+            }}</v-icon>
+            <span class="title font-weight-medium">{{ app_title }}</span>
+          </div>
+
+          <v-spacer></v-spacer>
+          <v-btn
+            v-if="!mini"
+            icon
+            @click="togglePin"
+            class="pin-btn"
+            :title="isPinned ? 'Unpin sidebar' : 'Pin sidebar'"
+          >
+            <v-icon small>{{
+              isPinned ? "mdi-pin" : "mdi-pin-outline"
+            }}</v-icon>
+          </v-btn>
+        </div>
+
+        <v-divider class="ma-0 pa-0"></v-divider>
+
         <div
           class="drawer-top"
           style="flex: 1; overflow-y: auto; overflow-x: hidden"
         >
-          <div class="drawer-controls">
-            <v-btn
-              icon
-              @click="toggleDrawer"
-              class="toggle-btn mb-2 ml-1"
-              :title="mini ? 'Expand sidebar' : 'Collapse sidebar'"
-            >
-              <v-icon>{{
-                mini ? "mdi-chevron-right" : "mdi-chevron-left"
-              }}</v-icon>
-            </v-btn>
-
-            <v-btn
-              icon
-              @click="togglePin"
-              class="pin-btn mb-2"
-              :title="isPinned ? 'Unpin sidebar' : 'Pin sidebar'"
-              v-if="!mini"
-            >
-              <v-icon>{{ isPinned ? "mdi-pin" : "mdi-pin-outline" }}</v-icon>
-            </v-btn>
-          </div>
-
-          <v-divider class="ma-0 pa-0"></v-divider>
-
           <!-- steps -->
           <v-list dense class="pa-0 ma-0">
             <v-list-item
@@ -120,7 +119,12 @@
                 <v-list-item-title class="d-flex align-center">
                   Theme configuration
                   <v-spacer></v-spacer>
+                  <slot name="theme-toggle"></slot>
+                  <slot name="language-selector"></slot>
                   <jupyter-widget :widget="theme_toggle[0]"></jupyter-widget>
+                  <jupyter-widget
+                    :widget="language_selector[0]"
+                  ></jupyter-widget>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -128,6 +132,18 @@
         </div>
       </div>
     </v-navigation-drawer>
+
+    <div class="sidebar-controls" :style="{ left: sidebarOffset }">
+      <v-btn
+        tile
+        color="primary"
+        @click="toggleDrawer"
+        class="control-btn mb-2"
+        :title="mini ? 'Expand sidebar' : 'Collapse sidebar'"
+      >
+        <v-icon>{{ mini ? "mdi-menu-right" : "mdi-menu-left" }}</v-icon>
+      </v-btn>
+    </div>
 
     <!-- main Area -->
     <v-main class="transparent-main" @click="handleMainClick"> </v-main>
@@ -150,7 +166,7 @@
 
         <v-divider></v-divider>
 
-        <v-card-text class="dialog-content">
+        <v-card-text class="dialog-content pt-4">
           <jupyter-widget
             v-if="
               activeStep && activeStep.content && activeStep.content.length > 0
@@ -215,6 +231,14 @@ export default {
     dialog_fullscreen: {
       type: Boolean,
       default: false,
+    },
+    app_title: {
+      type: String,
+      default: "SEPAL Module",
+    },
+    app_icon: {
+      type: String,
+      default: "mdi-earth",
     },
   },
 
@@ -412,7 +436,7 @@ export default {
 .drawer-header {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 16px;
   height: 64px;
 }
 
@@ -420,22 +444,30 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.drawer-controls {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 8px 0 8px;
-  width: 100%;
 }
 
-.toggle-btn,
-.pin-btn {
-  background-color: var(
-    --v-secondary-lighten5,
-    rgba(255, 255, 255, 0.1)
-  ) !important;
+/* New sidebar controls styling */
+.sidebar-controls {
+  position: fixed;
+  z-index: 5 !important;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.3s ease;
+  margin-left: -5px;
+}
+
+.control-btn {
+  min-width: 25px !important;
+  padding: 0px !important;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 3px !important;
 }
 
 .dialog-container {
@@ -469,6 +501,7 @@ export default {
 .v-navigation-drawer .v-btn,
 .v-navigation-drawer .v-select {
   pointer-events: auto;
+  transition: transform 0.3s ease;
 }
 
 /* Style active step */
@@ -498,5 +531,10 @@ export default {
 .leaflet-left {
   transition: left 0.3s ease;
   left: var(--drawer-width) !important;
+}
+
+.v-application a {
+  color: inherit;
+  text-decoration: underline;
 }
 </style>

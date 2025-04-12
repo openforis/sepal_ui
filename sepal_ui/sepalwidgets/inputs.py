@@ -883,7 +883,7 @@ class NumberField(v.TextField, SepalWidget):
         # set default params
         kwargs["type"] = "number"
         kwargs.setdefault("append_outer_icon", "fa-solid fa-plus")
-        kwargs.setdefault("prepend_icon", "fa-solid fa-minus")
+        kwargs.setdefault("prepend_icon", "mdi-minus")
         kwargs.setdefault("v_model", 0)
         kwargs.setdefault("readonly", True)
 
