@@ -23,6 +23,7 @@ class MapApp(v.VuetifyTemplate):
     repo_url = Unicode("").tag(sync=True)
     app_title = Unicode("Map Application").tag(sync=True)
     app_icon = Unicode("mdi-earth").tag(sync=True)
+    open_dialog = Bool(False).tag(sync=True)
 
     main_map = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     steps_content = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
@@ -67,13 +68,7 @@ class LocaleSelect(v.VuetifyTemplate):
     ).tag(sync=True)
 
     COUNTRIES: pd.DataFrame = pd.read_parquet(Path(__file__).parents[1] / "data" / "locale.parquet")
-    "the country list as a df. columns [code, name, flag]"
-
-    available_locales = List(
-        [
-            {"code": "en", "name": "English", "flag": "gb"},
-        ]
-    ).tag(sync=True)
+    available_locales = List([{"code": "en", "name": "English", "flag": "gb"}]).tag(sync=True)
     selected_locale = Unicode("en").tag(sync=True)
     value = Unicode().tag(sync=True)
 
