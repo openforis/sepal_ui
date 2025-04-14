@@ -1,7 +1,7 @@
 <!-- Adapted (hard copied) from  https://github.com/widgetti/solara/blob/master/solara/lab/components/theming.vue-->
 <template>
   <v-btn icon @click="countClicks">
-    <v-icon>
+    <v-icon small>
       {{
         this.clicks === 1
           ? this.on_icon

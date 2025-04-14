@@ -92,7 +92,7 @@
         <div class="drawer-bottom" style="padding: 16px 0">
           <v-divider class="mb-4"></v-divider>
           <!-- helper steps -->
-          <v-list class="pa-0 ma-0" dense v-if="!mini">
+          <v-list class="pa-0 ma-0" dense>
             <v-list-item
               v-for="(link, i) in externalLinks"
               :key="`external-${i}`"
@@ -116,15 +116,22 @@
             <!-- configuration drawers -->
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title class="d-flex align-center">
-                  Theme configuration
-                  <v-spacer></v-spacer>
-                  <slot name="theme-toggle"></slot>
-                  <slot name="language-selector"></slot>
-                  <jupyter-widget :widget="theme_toggle[0]"></jupyter-widget>
-                  <jupyter-widget
-                    :widget="language_selector[0]"
-                  ></jupyter-widget>
+                <v-list-item-title
+                  :class="{
+                    'd-flex align-center justify-center': !mini,
+                    'flex-column': mini,
+                  }"
+                >
+                  <div :class="{ 'mb-2': mini }">
+                    <slot name="theme-toggle"></slot>
+                    <jupyter-widget :widget="theme_toggle[0]"></jupyter-widget>
+                  </div>
+                  <div>
+                    <slot name="language-selector"></slot>
+                    <jupyter-widget
+                      :widget="language_selector[0]"
+                    ></jupyter-widget>
+                  </div>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -150,7 +157,7 @@
 
     <!-- dialog for dialog-type steps -->
     <v-dialog
-      v-model="dialogOpen"
+      v-model="open_dialog"
       :width="dialogWidthComputed"
       :fullscreen="dialogFullscreen"
       content-class="dialog-container"
@@ -191,8 +198,10 @@
           <v-btn
             v-for="(action, i) in activeStep.actions"
             :key="`action-${i}`"
-            :color="action.color || 'primary'"
-            :text="action.text !== false"
+            :text="action.cancel ? true : false"
+            :outlined="action.cancel ? true : false"
+            color="primary"
+            small
             @click="handleActionClick(action)"
           >
             {{ action.label }}
@@ -249,7 +258,7 @@ export default {
     collapsedWidth: 60,
     expandedWidth: 320,
     activeStepId: null,
-    dialogOpen: false,
+    open_dialog: false,
   }),
 
   computed: {
@@ -277,7 +286,7 @@ export default {
           url: this.repo_url,
         },
         {
-          title: "Wiki",
+          title: "Documentation",
           icon: "mdi-book-open-page-variant",
           url: `${this.repo_url}/blob/main/doc/en.rst`,
         },
@@ -367,21 +376,24 @@ export default {
 
       // for dialog display type, open the dialog
       if (step.display === "dialog") {
-        this.dialogOpen = true;
+        this.open_dialog = true;
       } else {
         // close dialog when activating non-dialog step
-        this.dialogOpen = false;
+        this.open_dialog = false;
       }
 
       this.$emit("step-activated", step);
     },
 
     closeDialog() {
-      this.dialogOpen = false;
+      this.open_dialog = false;
+      this.activeStepId = null;
     },
 
     handleDialogOutsideClick() {
-      // TODO: implement logic to close dialog when clicking outside
+      if (this.activeStep && this.activeStep.display === "dialog") {
+        this.closeDialog();
+      }
     },
 
     handleActionClick(action) {
@@ -393,11 +405,15 @@ export default {
       if (action.close) {
         this.closeDialog();
       }
+
+      if (action.next) {
+        this.activeStepId = action.next;
+      }
     },
 
     showMainMap() {
       this.activeStepId = null;
-      this.dialogOpen = false;
+      this.open_dialog = false;
       this.$emit("show-main-map");
     },
   },

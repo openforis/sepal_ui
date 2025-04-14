@@ -1,9 +1,16 @@
 <template>
   <div>
-    <v-btn @click="openDialog">
-      <v-icon left>mdi-translate</v-icon>
+    <!-- Main language selector button -->
+    <v-btn
+      depressed
+      @click="openDialog"
+      style="background-color: unset !important"
+    >
+      <v-icon small left>mdi-translate</v-icon>
       {{ currentLanguage }}
     </v-btn>
+
+    <!-- Dialog with language options -->
     <v-dialog v-model="dialogOpen" max-width="400">
       <v-card>
         <v-card-title class="headline d-flex justify-space-between">
@@ -14,12 +21,23 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
+          <v-alert
+            type="info"
+            border="left"
+            colored-border
+            icon="mdi-alert"
+            class="mt-4"
+            >To apply the language settings, you need to refresh the
+            page.</v-alert
+          >
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text>
           <v-list>
             <v-list-item
               v-for="(locale, index) in available_locales"
               :key="index"
               @click="selectLanguage(locale.code)"
-              :class="{ secondary: locale.code === selectedLanguage }"
             >
               <v-list-item-content>
                 <v-list-item-title
@@ -28,16 +46,10 @@
               </v-list-item-content>
 
               <v-list-item-action v-if="locale.code === selectedLanguage">
-                <v-icon color="secondary">mdi-check</v-icon>
+                <v-icon color="primary">mdi-check</v-icon>
               </v-list-item-action>
             </v-list-item>
           </v-list>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-text class="text-center pt-2">
-          <v-alert type="info">
-            To apply the language settings, you need to refresh the page.
-          </v-alert>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -52,6 +64,7 @@ export default {
     available_locales: {
       type: [String, Array, Object],
       required: true,
+      default: () => [{ code: "en", name: "English", flag: "gb" }],
     },
     selected_locale: {
       type: String,
@@ -76,10 +89,10 @@ export default {
 
     available_locales: {
       immediate: true,
-      handler(newLocale) {
+      handler(newCountries) {
         // If there's only one language available, set it as the current language
-        if (newLocale.length === 1) {
-          const onlyLanguage = newLocale[0].code;
+        if (newCountries.length === 1) {
+          const onlyLanguage = newCountries[0].code;
 
           if (this.currentLanguage !== onlyLanguage) {
             this.currentLanguage = onlyLanguage;
@@ -93,14 +106,29 @@ export default {
   },
 
   mounted() {
-    if (this.available_locales && this.available_locales.length > 0) {
-      const firstLocale = this.available_locales[0].code;
-      if (this.currentLanguage !== firstLocale) {
-        this.currentLanguage = firstLocale;
-        this.selectedLanguage = firstLocale;
-        this.$emit("update:selected_locale", firstLocale);
-        this.$emit("language-changed", firstLocale);
-      }
+    // Check if the selected locale exists in available locales
+    const localeExists = this.available_locales.some(
+      (country) => country.code === this.selected_locale
+    );
+
+    if (localeExists) {
+      // If locale exists, update current and selected language
+      this.currentLanguage = this.selected_locale;
+      this.selectedLanguage = this.selected_locale;
+    } else if (this.available_locales.length > 0) {
+      // If locale doesn't exist but we have available locales, use the first one
+      this.currentLanguage = this.available_locales[0].code;
+      this.selectedLanguage = this.available_locales[0].code;
+      // Emit events to update parent component
+      this.$emit("update:selected_locale", this.available_locales[0].code);
+      this.$emit("language-changed", this.available_locales[0].code);
+    } else {
+      // Fallback to 'en' if no locales available
+      const fallbackLocale = "en";
+      this.currentLanguage = fallbackLocale;
+      this.selectedLanguage = fallbackLocale;
+      this.$emit("update:selected_locale", fallbackLocale);
+      this.$emit("language-changed", fallbackLocale);
     }
   },
 
