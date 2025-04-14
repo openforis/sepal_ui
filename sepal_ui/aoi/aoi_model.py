@@ -10,6 +10,7 @@ import pandas as pd
 import pygadm
 import pygaul
 import traitlets as t
+from eeclient.client import EESession
 from ipyleaflet import GeoJSON
 from typing_extensions import Self
 
@@ -17,8 +18,8 @@ from sepal_ui import color
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.model import Model
-from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_interface import GEEInterface
 
 __all__ = ["AoiModel"]
 
@@ -129,6 +130,7 @@ class AoiModel(Model):
         asset: Optional[Union[str, Path]] = None,
         admin: Optional[str] = None,
         folder: Union[str, Path] = "",
+        gee_session: Optional[EESession] = None,
     ) -> None:
         """An Model object dedicated to the sorage and the manipulation of aoi.
 
@@ -143,6 +145,7 @@ class AoiModel(Model):
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if ee==True
             folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
+            gee_session: the Earth Engine session to use for the GEE binding
 
         .. deprecated:: 2.3.2
             'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
@@ -154,7 +157,8 @@ class AoiModel(Model):
         self.gee = gee
         if gee:
             su.init_ee()
-            self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
+            self.gee_interface = GEEInterface(gee_session)
+            self.folder = str(folder) or self.gee_interface.get_folder()
 
         # set default values
         self.set_default(vector, admin, asset)
@@ -376,7 +380,7 @@ class AoiModel(Model):
 
             # get the ADM0_CODE to get the ISO code
             feature = self.feature_collection.first()
-            properties = feature.toDictionary(feature.propertyNames()).getInfo()
+            properties = self.gee_interface.get_info(feature.toDictionary(feature.propertyNames()))
 
             iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
             names = [value for prop, value in properties.items() if "NAME" in prop]
@@ -441,7 +445,7 @@ class AoiModel(Model):
 
         if self.gee:
             aoi_ee = ee.Feature(self.feature_collection.first())
-            columns = aoi_ee.propertyNames().getInfo()
+            columns = self.gee_interface.get_info(aoi_ee.propertyNames())
             list_ = [col for col in columns if col not in ["system:index", "Shape_Area"]]
         else:
             list_ = list(set(["geometry"]) ^ set(self.gdf.columns.to_list()))
@@ -463,7 +467,7 @@ class AoiModel(Model):
 
         if self.gee:
             fields = self.feature_collection.distinct(column).aggregate_array(column)
-            list_ = fields.getInfo()
+            list_ = self.gee_interface.get_info(fields)
         else:
             list_ = self.gdf[column].to_list()
 
@@ -500,7 +504,9 @@ class AoiModel(Model):
             raise ValueError(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
-            coords = self.feature_collection.geometry().bounds().coordinates().get(0).getInfo()
+            coords = self.gee_interface.get_info(
+                self.feature_collection.geometry().bounds().coordinates().get(0)
+            )
             bounds = [coords[0][0], coords[0][1], coords[3][0], coords[3][1]]
         else:
             bounds = self.gdf.total_bounds.tolist()
@@ -515,22 +521,21 @@ class AoiModel(Model):
         self.dst_asset_id = asset_id
 
         # check if the table already exist
-        if asset_id in [a["name"] for a in gee.get_assets(self.folder)]:
+        if self.gee_interface.get_asset(asset_id, not_exists_ok=True):
             return self
 
         # check if the task is running
-        if gee.is_running(asset_name):
+        if self.gee_interface.is_running(asset_name):
             return self
 
         # run the task
         task_config = {
             "collection": self.feature_collection,
             "description": asset_name,
-            "assetId": asset_id,
+            "asset_id": asset_id,
         }
 
-        task = ee.batch.Export.table.toAsset(**task_config)
-        task.start()
+        self.gee_interface.export_table_to_asset(**task_config)
 
         return self
 
@@ -588,7 +593,7 @@ class AoiModel(Model):
 
     def _load_gdf(self):
         """Return a geodataframe from a feature collection."""
-        features = self.feature_collection.getInfo()["features"]
+        features = self.gee_interface.get_info(self.feature_collection)["features"]
         self._gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         if self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:

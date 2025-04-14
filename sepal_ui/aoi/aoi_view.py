@@ -9,6 +9,7 @@ import pygadm
 import pygaul
 import traitlets as t
 from deprecated.sphinx import versionadded
+from eeclient.client import EESession
 from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
@@ -235,6 +236,7 @@ class AoiView(sw.Card):
         folder: Union[str, Path] = "",
         model: Optional[AoiModel] = None,
         map_style: Optional[dict] = None,
+        gee_session: Optional[EESession] = None,
         **kwargs,
     ) -> None:
         r"""Versatile card object to deal with the aoi selection.
@@ -257,7 +259,7 @@ class AoiView(sw.Card):
             su.init_ee()
 
         # get the model
-        self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
+        self.model = model or AoiModel(gee=gee, folder=folder, gee_session=gee_session, **kwargs)
 
         # get the map if filled
         self.map_ = map_
@@ -272,7 +274,7 @@ class AoiView(sw.Card):
         self.w_admin_0 = AdminField(0, gee=gee).get_items()
         self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
         self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
+        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector, gee_session=gee_session)
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
 
         # group them together with the same key as the select_method object
@@ -305,7 +307,11 @@ class AoiView(sw.Card):
         # will crash if the user didn't authenticate
         if self.gee:
             self.w_asset = sw.VectorField(
-                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+                label=ms.aoi_sel.asset,
+                gee=True,
+                folder=self.folder,
+                types=["TABLE"],
+                gee_session=gee_session,
             )
             self.w_asset.hide()
             self.components["ASSET"] = self.w_asset
