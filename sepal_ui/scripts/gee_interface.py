@@ -8,7 +8,7 @@ import ee
 from eeclient.client import EESession
 from eeclient.data import MapTileOptions
 
-from sepal_ui.logger.logger import logger
+from sepal_ui.logger import logger
 from sepal_ui.scripts import gee
 
 

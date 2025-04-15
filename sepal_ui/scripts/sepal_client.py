@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 import httpx
 
-from sepal_ui.logger.logger import logger
+from sepal_ui.logger import logger
 
 SEPAL_HOST = os.getenv("SEPAL_HOST")
 if not SEPAL_HOST:

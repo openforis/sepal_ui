@@ -9,7 +9,7 @@ from natsort import natsorted
 from pydantic import BaseModel
 from traitlets import Bool, Int, List, Unicode
 
-from sepal_ui.logger.logger import logger
+from sepal_ui.logger import logger
 from sepal_ui.scripts.sepal_client import SepalClient
 
 
