@@ -3,8 +3,10 @@
 # known bug of rasterio
 import os
 
+from sepal_ui.logger import logger
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
 from sepal_ui.scripts.gee_interface import GEEInterface
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -82,7 +84,7 @@ class SepalMap(ipl.Map):
         vinspector: bool = False,
         gee: bool = True,
         statebar: bool = False,
-        solara_theme_obj=None,
+        theme_toggle: ThemeToggle = None,
         gee_session: Optional[EESession] = None,
         fullscreen: bool = False,
         **kwargs,
@@ -101,11 +103,13 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
-            solara_theme_obj: the solara theme object to link the map to. default to None
+            theme_toggle: sepal_ui ThemeToggle object
             gee_session (optional): a custom EESession object to do gee requests. default to None
             fullscreen: whether or not to display the map in full screen. default to False
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
         """
+        logger.debug(f"Map initialization with gee: {gee} and session: {gee_session}")
+
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
         kwargs.setdefault("zoom", 2)
@@ -130,9 +134,10 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        if solara_theme_obj:
-            default_basemap = "CartoDB.DarkMatter" if solara_theme_obj.dark else "CartoDB.Positron"
-            solara_theme_obj.observe(self._on_theme_change, "dark")
+        if theme_toggle:
+            default_basemap = "CartoDB.DarkMatter" if theme_toggle.dark else "CartoDB.Positron"
+            theme_toggle.observe(self._on_theme_change, "dark")
+            logger.debug(f"Using solara theme: {theme_toggle.dark}")
         else:
             default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
             v.theme.observe(self._on_theme_change, "dark")
@@ -172,7 +177,7 @@ class SepalMap(ipl.Map):
 
     def _on_theme_change(self, change) -> None:
         """Change the basemap layer."""
-        # This is the way to make it work in solara
+        # This is the way to make it work in solara do not ask me why
         light = eval(str(basemap_tiles["CartoDB.Positron"]))
         dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
 

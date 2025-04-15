@@ -12,13 +12,12 @@ Example:
 """
 
 from datetime import datetime
-from itertools import cycle
 from pathlib import Path
 from typing import Optional
 
 import ipyvuetify as v
 import pandas as pd
-from deprecated.sphinx import versionadded, versionchanged
+from deprecated.sphinx import deprecated, versionadded, versionchanged
 from ipywidgets import DOMWidget, jsdlink
 from ipywidgets.widgets.widget import widget_serialization
 from traitlets import (
@@ -35,12 +34,12 @@ from traitlets import (
 )
 from typing_extensions import Self
 
-from sepal_ui.frontend.styles import get_theme
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.translator import Translator
 
@@ -169,65 +168,19 @@ class LocaleSelect(v.Menu, SepalWidget):
         return
 
 
-class ThemeSelect(v.Btn, SepalWidget):
-    THEME_ICONS: dict = {"dark": "fa-solid fa-moon", "light": "fa-solid fa-sun"}
-    "the dictionnry of icons to use for each theme (used as keys)"
+@deprecated(
+    version="3.0.0", reason="This class will be renamed to ThemeToggle in v3.2.0 for better clarity"
+)
+class ThemeSelect(v.VuetifyTemplate):
+    template_file = Unicode(str(Path(__file__).parents[1] / "sepalwidgets/vue/Theming.vue")).tag(
+        sync=True
+    )
 
-    theme: str = "dark"
-    "the current theme of the widget (default to dark)"
-
-    def __init__(self, solara_theme_obj=None, **kwargs) -> None:
-        """A theme selector for sepal-ui based application.
-
-        It displays the currently requested theme (default to dark).
-        When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
-
-        .. versionadded:: 2.7.0
-
-        Args:
-            kwargs: any arguments for a Btn object, children and v_model will be override
-        """
-        self.solara_theme_obj = solara_theme_obj
-
-        # get the current theme name
-        if self.solara_theme_obj:
-            self.solara_theme_obj = solara_theme_obj
-            self.theme = self.solara_theme_obj.name
-        else:
-            self.theme = get_theme()
-
-        # set the btn parameters
-        self.theme_icon = v.Icon(children=[self.THEME_ICONS[self.theme]])
-        kwargs.setdefault("x_small", True)
-        kwargs.setdefault("fab", True)
-        kwargs.setdefault("class_", "ml-2")
-        kwargs["v_model"] = self.theme
-        kwargs["children"] = [self.theme_icon]
-
-        # create the btn
-        super().__init__(**kwargs)
-
-        # add some js events
-        self.on_event("click", self.toggle_theme)
-
-    def toggle_theme(self, *args) -> None:
-        """Toggle the btn icon from dark to light and adapt the configuration file."""
-        # use a cycle to go through the themes
-
-        theme_cycle = cycle(self.THEME_ICONS.keys())
-        next(t for t in theme_cycle if t == self.theme)
-        self.theme = next(t for t in theme_cycle)
-
-        if self.solara_theme_obj:
-            self.solara_theme_obj.dark = self.theme == "dark"
-        else:
-            v.theme.dark = self.theme == "dark"
-            su.set_config("theme", self.theme)
-
-        # change icon
-        self.theme_icon.children = [self.THEME_ICONS[self.theme]]
-
-        return
+    dark = Bool(None, allow_none=True).tag(sync=True)
+    enable_auto = Bool(True).tag(sync=True)
+    on_icon = Unicode("mdi-weather-night").tag(sync=True)
+    off_icon = Unicode("mdi-weather-sunny").tag(sync=True)
+    auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -247,7 +200,7 @@ class AppBar(v.AppBar, SepalWidget):
         self,
         title: str = "SEPAL module",
         translator: Optional[Translator] = None,
-        solara_theme_obj=None,
+        theme_toggle: ThemeToggle = None,
         **kwargs,
     ) -> None:
         """Custom AppBar widget with the provided title using the sepal color framework.
@@ -265,7 +218,7 @@ class AppBar(v.AppBar, SepalWidget):
         self.title = v.ToolbarTitle(children=[title])
 
         self.locale = LocaleSelect(translator=translator)
-        self.theme = ThemeSelect(solara_theme_obj=solara_theme_obj)
+        self.theme = theme_toggle or ThemeToggle()
 
         # set the default parameters
         kwargs.setdefault("class_", "white--text")
@@ -538,7 +491,7 @@ class Footer(v.Footer, SepalWidget):
             text: the text to display in the future
             kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
         """
-        text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
+        text = text if text != "" else "SEPAL \u00a9 {}".format(datetime.today().year)
 
         # set default parameters
         kwargs.setdefault("color", "main")

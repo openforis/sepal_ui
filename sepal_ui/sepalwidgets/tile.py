@@ -20,6 +20,7 @@ from typing_extensions import Self
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 from sepal_ui.sepalwidgets.widget import Markdown
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
@@ -193,7 +194,7 @@ class TileAbout(Tile):
 
 
 class TileDisclaimer(Tile):
-    def __init__(self, solara_theme_obj=None) -> None:
+    def __init__(self, theme_toggle: ThemeToggle = None) -> None:
         """Create an about tile.
 
         This tile will have the "about_widget" id and "Disclaimer" title.
@@ -202,9 +203,8 @@ class TileDisclaimer(Tile):
 
         self.card = v.Card(class_="pa-5", raised=True, xs12=True, children=[])
 
-        if solara_theme_obj:
-            theme = solara_theme_obj.name
-            solara_theme_obj.observe(self.set_disclaimer, "name")
+        if theme_toggle:
+            theme_toggle.observe(self.set_disclaimer, "dark")
         else:
             theme = "dark" if v.theme.dark is True else "light"
 
@@ -224,7 +224,7 @@ class TileDisclaimer(Tile):
             ("http://www.openforis.org", "open-foris.png", "openforis_logo"),
             ("https://sepal.io", "sepal.png", "sepal_logo"),
         ]
-        theme = change["new"]
+        theme = "dark" if change["new"] == "dark" else "light"
         url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
         for href, src, alt in logo_list:
             disclaimer += f'<a href="{href}"><img src="{url}/{src}" alt="{alt}" height="100" class="ma-3"/></a>'
