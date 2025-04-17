@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from pathlib import Path
 
 import colorlog
 
@@ -13,7 +14,13 @@ RESET = "\033[0m"
 
 
 class CustomLogger:
-    def __init__(self, name: str, level: int = logging.DEBUG, module_color: str = BLUE_BG):
+    def __init__(
+        self,
+        name: str,
+        level: int = logging.DEBUG,
+        module_color: str = BLUE_BG,
+        log_file: str | Path | None = None,
+    ):
         """Initialize a custom logger with colored output.
 
         Args:
@@ -40,6 +47,17 @@ class CustomLogger:
         )
         console_handler.setFormatter(console_formatter)
         self.logger.addHandler(console_handler)
+
+        # Add file handler if log_file is specified
+        if log_file:
+            log_file = Path(log_file)
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setLevel(level)
+            file_formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            file_handler.setFormatter(file_formatter)
+            self.logger.addHandler(file_handler)
 
     def message_to_string(self, *messages: str) -> str:
         """Convert a list of messages to a single string."""
