@@ -98,6 +98,7 @@
               :key="`external-${i}`"
               :href="link.url"
               target="_blank"
+              class="link-item"
               link
             >
               <v-list-item-icon>
@@ -552,5 +553,10 @@ export default {
 .v-application a {
   color: inherit;
   text-decoration: underline;
+}
+
+.link-item {
+  color: inherit;
+  text-decoration: none !important;
 }
 </style>
