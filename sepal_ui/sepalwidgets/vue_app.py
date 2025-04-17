@@ -41,10 +41,11 @@ class MapApp(v.VuetifyTemplate):
         )
     ).tag(sync=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, theme_toggle: "ThemeToggle" = None, **kwargs):
         """Instantiate the MapApp class."""
-        kwargs["theme_toggle"] = [ThemeToggle()]
-        kwargs["language_selector"] = [LocaleSelect()]
+        self.theme_toggle = theme_toggle
+
+        kwargs["language_selector"] = kwargs.get("language_selector", [LocaleSelect()])
         super().__init__(**kwargs)
 
 
@@ -57,7 +58,7 @@ class ThemeToggle(v.VuetifyTemplate):
     dark = Bool(None, allow_none=True).tag(sync=True)
     enable_auto = Bool(True).tag(sync=True)
     on_icon = Unicode("mdi-weather-night").tag(sync=True)
-    off_icon = Unicode("mdi-weather-sunny").tag(sync=True)
+    off_icon = Unicode("mdi-white-balance-sunny").tag(sync=True)
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
 
