@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import ipyvuetify as v
+from eeclient.client import EESession
 
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
@@ -30,7 +31,8 @@ class AoiTile(sw.Tile):
         asset: Union[str, Path] = "",
         folder: Union[str, Path] = "",
         map_style: Optional[dict] = None,
-        **kwargs
+        gee_session: Optional[EESession] = None,
+        **kwargs,
     ) -> None:
         """sw.Tile tailored for the selection of an aoi. it is meant to be used with the aoi. it can be bound to EarthEngine (GAUl 2015 administrative definition) or stay with the GADM Python implementation.
 
@@ -43,7 +45,7 @@ class AoiTile(sw.Tile):
             map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
         """
         # create the map
-        self.map = sm.SepalMap(dc=True, gee=gee)
+        self.map = sm.SepalMap(dc=True, gee=gee, gee_session=gee_session)
         self.map.dc.hide()
 
         # create the view
@@ -57,7 +59,8 @@ class AoiTile(sw.Tile):
             asset=asset,
             folder=folder,
             map_style=map_style,
-            **kwargs
+            gee_session=gee_session,
+            **kwargs,
         )
         self.view.elevation = 0
 
