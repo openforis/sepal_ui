@@ -207,8 +207,7 @@ class TileDisclaimer(Tile):
             theme_toggle.observe(self.set_disclaimer, "dark")
         else:
             theme = "dark" if v.theme.dark is True else "light"
-
-        self.set_disclaimer({"new": theme})
+            self.set_disclaimer({"new": theme})
 
         self.children = [self.card]
 
