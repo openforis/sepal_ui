@@ -1,10 +1,10 @@
 {
   "utils": {
     "check_input": {
-      "error": ""
+      "error": "El valor no se ha inicializado"
     },
     "ee": {
-      "no_asset_root": ""
+      "no_asset_root": "No hay un folder de assets disponible con estas credenciales. Por favor revise su cuenta e intentelo de nuevo."
     }
   }
 }

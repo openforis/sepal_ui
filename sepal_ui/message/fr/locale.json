@@ -101,8 +101,8 @@
       "apikey": "Clé API PlanetLab",
       "store": "",
       "method": {
-        "label": "Méthode d'accès",
         "from_file": "",
+        "label": "Méthode d'accès",
         "credentials": "Identifiants",
         "api_key": "Clé API PlanetLab"
       }
