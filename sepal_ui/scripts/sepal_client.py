@@ -1,7 +1,7 @@
 """Client for interacting with sepal userFiles API."""
 
 import os
-from pathlib import Path, PurePath
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Literal, Optional
 
 import httpx
@@ -64,8 +64,8 @@ class SepalClient:
             response.raise_for_status()
             return response.json()
 
-    def create_base_dir(self) -> Path:
-        """Create the base results directory and return the Path object."""
+    def create_base_dir(self) -> PurePosixPath:
+        """Create the base results directory and return the PurePosixPath object."""
         results_path = f"{self.BASE_REMOTE_PATH}/module_results/{self.module_name}"
         self.rest_call(
             "POST",
@@ -73,7 +73,7 @@ class SepalClient:
             params={"path": self.sanitize_path(results_path), "parents": True},
         )
 
-        return Path(results_path)
+        return PurePosixPath(results_path)
 
     def list_files(
         self, folder: str = "/", extensions: Optional[List[str]] = None
@@ -121,24 +121,26 @@ class SepalClient:
             data=data,
         )
 
-    def sanitize_path(self, file_path: str) -> str:
+    def sanitize_path(self, file_path: str | Path) -> str:
         """Sanitize a file path to be relative to the base remote path."""
-        path = PurePath(file_path)
+        path = PurePosixPath(str(file_path))
+        base_path = PurePosixPath(self.BASE_REMOTE_PATH)
+
         try:
             # Attempt to get a path relative to BASE_REMOTE_PATH
-            relative_path = path.relative_to(self.BASE_REMOTE_PATH)
+            relative_path = path.relative_to(base_path)
         except ValueError:
             # If file_path isn't under BASE_REMOTE_PATH, keep it as is
             relative_path = path
         return str(relative_path).strip("/")
 
-    def get_remote_dir(self, folder: str, parents: bool = False) -> Path:
-        """Create a remote directory and return the Path object."""
-        remote_dir = self.results_path / Path(folder)
+    def get_remote_dir(self, folder: str, parents: bool = False) -> PurePosixPath:
+        """Create a remote directory and return the PurePosixPath object."""
+        remote_dir = PurePosixPath(self.results_path) / PurePosixPath(folder)
         self.rest_call(
             "POST",
             "createFolder/",
             params={"path": self.sanitize_path(remote_dir), "parents": parents},
         )
 
-        return Path(remote_dir)
+        return remote_dir
