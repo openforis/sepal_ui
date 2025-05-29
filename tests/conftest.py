@@ -4,7 +4,7 @@ import json
 import os
 import uuid
 from itertools import product
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Optional
 from urllib.request import urlretrieve
 
@@ -125,7 +125,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
 
     # create a test folder with a hash name
     root = f"projects/{ee.data._cloud_api_user_project}/assets/"
-    gee_dir = Path(root) / f"sepal-ui-{_hash}"
+    gee_dir = PurePosixPath(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
 
     # create a subfolder
