@@ -77,6 +77,7 @@ class FileInput(v.VuetifyTemplate):
     label = Unicode("Select a file").tag(sync=True)
     value = Unicode().tag(sync=True)
     v_model = Unicode().tag(sync=True)
+    file = Unicode().tag(sync=True)
     clearable = Bool(True).tag(sync=True)
     error_messages = List([]).tag(sync=True)
 
@@ -116,6 +117,7 @@ class FileInput(v.VuetifyTemplate):
         self.observe(self.load_files, "current_folder")
         self.observe(self.load_files, "reload_files")
         self.observe(lambda chg: setattr(self, "v_model", chg["new"]), "value")
+        self.observe(lambda chg: setattr(self, "file", chg["new"]), "value")
 
     def load_files(self, *_):
         """Load the files in the current folder."""
