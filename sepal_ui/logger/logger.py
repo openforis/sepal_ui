@@ -1,87 +1,50 @@
-"""Custom logger with colored output for SEPAL-UI."""
+"""Logging configuration for the Sepal UI project.
+
+To use this logging configuration, set the environment variable
+SEPALUI_LOG_CFG to the path of the logging configuration file.
+The repo has a sample configuration file in the root directory.
+
+"""
 
 import logging
-import sys
+import logging.config
+import os
 from pathlib import Path
 
-import colorlog
+import tomli
 
-# ANSI background color codes
-BLUE_BG = "\033[44m"
-PURPLE_BG = "\033[45m"
-YELLOW_BG = "\033[43m"
-RESET = "\033[0m"
+# Create a logger for the sepalui module
+logger = logging.getLogger("sepalui")
 
 
-class CustomLogger:
-    def __init__(
-        self,
-        name: str,
-        level: int = logging.DEBUG,
-        module_color: str = BLUE_BG,
-        log_file: str | Path | None = None,
-    ):
-        """Initialize a custom logger with colored output.
+def setup_logging():
+    """Set up logging configuration from a TOML file.
 
-        Args:
-            name: The name of the logger, will be displayed on each log message.
-            level: The logging level.
-            module_color: The background color of the module name.
-        """
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
+    The configuration file path can be set using the SEPALUI_LOG_CFG environment variable.
+    If the file does not exist, a NullHandler is added to the logger.
+    If the file exists, it is loaded and the logging configuration is applied.
+    """
+    cfg_path = (
+        os.getenv("SEPALUI_LOG_CFG") or Path(__file__).parent.parent.parent / "logging_config.toml"
+    )
 
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
+    cfg_path = Path(cfg_path)
 
-        format_str = f"%(log_color)s%(asctime)s - {module_color}%(name)s{RESET} - %(levelname)s - %(message)s"
-        console_formatter = colorlog.ColoredFormatter(
-            format_str,
-            log_colors={
-                "DEBUG": "cyan",
-                "INFO": "green",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "bold_red",
-            },
-        )
-        console_handler.setFormatter(console_formatter)
-        self.logger.addHandler(console_handler)
+    if not cfg_path.exists():
+        sepalui_logger = logging.getLogger("sepalui")
+        for handler in sepalui_logger.handlers[:]:
+            sepalui_logger.removeHandler(handler)
+        sepalui_logger.addHandler(logging.NullHandler())
+        return
 
-        # Add file handler if log_file is specified
-        if log_file:
-            log_file = Path(log_file)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(level)
-            file_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            file_handler.setFormatter(file_formatter)
-            self.logger.addHandler(file_handler)
+    if not cfg_path.is_file():
+        raise FileNotFoundError(f"Logging config not found at {cfg_path}")
 
-    def message_to_string(self, *messages: str) -> str:
-        """Convert a list of messages to a single string."""
-        return " ".join(str(msg) for msg in messages)
+    with cfg_path.open("rb") as f:
+        cfg = tomli.load(f)
 
-    def debug(self, *messages: str):
-        """Log a debug."""
-        self.logger.debug(self.message_to_string(*messages))
-
-    def info(self, *messages: str):
-        """Logs out an infomessage."""
-        self.logger.info(self.message_to_string(*messages))
-
-    def warning(self, *messages: str):
-        """Logs out a warning."""
-        self.logger.warning(self.message_to_string(*messages))
-
-    def error(self, *messages: str):
-        """Logs out an error."""
-        self.logger.error(self.message_to_string(*messages))
-
-    def critical(self, *messages: str):
-        """Logs out a critical error."""
-        self.logger.critical(self.message_to_string(*messages))
+    logging.config.dictConfig(cfg)
 
 
-logger = CustomLogger("SEPAL-UI", module_color=YELLOW_BG)
+# Call setup_logging to configure the logger when this module is imported
+setup_logging()

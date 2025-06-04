@@ -40,7 +40,7 @@ class SepalClient:
         # httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://danielg.sepal.io/api/user-files/listFiles/?path=%2F&extensions='
 
         logger.debug(
-            "SEPAL_CLIENT: SepalClient initialized, with results path: %s", self.results_path
+            f"SEPAL_CLIENT: SepalClient initialized, with results path: {self.results_path}"
         )
 
     def rest_call(
