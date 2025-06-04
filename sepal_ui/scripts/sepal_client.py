@@ -8,12 +8,6 @@ import httpx
 
 from sepal_ui.logger import logger
 
-SEPAL_HOST = os.getenv("SEPAL_HOST")
-if not SEPAL_HOST:
-    raise ValueError("SEPAL_HOST environment variable not set")
-
-VERIFY_SSL = not (SEPAL_HOST == "host.docker.internal" or SEPAL_HOST == "danielg.sepal.io")
-
 
 class SepalClient:
     def __init__(self, session_id: str, module_name: str):
@@ -25,7 +19,18 @@ class SepalClient:
         """
         self.module_name = module_name
         self.BASE_REMOTE_PATH = "/home/sepal-user"
-        self.base_url = f"https://{SEPAL_HOST}/api/user-files"
+
+        # Get SEPAL_HOST environment variable
+        self.sepal_host = os.getenv("SEPAL_HOST")
+        if not self.sepal_host:
+            raise ValueError("SEPAL_HOST environment variable not set")
+
+        # Determine SSL verification based on host
+        self.verify_ssl = not (
+            self.sepal_host == "host.docker.internal" or self.sepal_host == "danielg.sepal.io"
+        )
+
+        self.base_url = f"https://{self.sepal_host}/api/user-files"
         self.cookies = {"SEPAL-SESSIONID": session_id}
         self.headers = {"Accept": "application/json"}
 
@@ -50,7 +55,7 @@ class SepalClient:
         """Helper method to make HTTP requests."""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
-        with httpx.Client(verify=VERIFY_SSL) as client:
+        with httpx.Client(verify=self.verify_ssl) as client:
             response = client.request(
                 method=method,
                 url=url,
