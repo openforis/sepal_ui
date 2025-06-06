@@ -75,7 +75,7 @@ class SepalClient:
         self.rest_call(
             "POST",
             "createFolder/",
-            params={"path": self.sanitize_path(results_path), "parents": True},
+            params={"path": self.sanitize_path(results_path), "recursive": True},
         )
 
         return PurePosixPath(results_path)
@@ -145,7 +145,7 @@ class SepalClient:
         self.rest_call(
             "POST",
             "createFolder/",
-            params={"path": self.sanitize_path(remote_dir), "parents": parents},
+            params={"path": self.sanitize_path(remote_dir), "recursive": parents},
         )
 
         return remote_dir
