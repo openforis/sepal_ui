@@ -13,7 +13,7 @@ Example:
 
 import warnings
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import ipyvuetify as v
 import traitlets as t
@@ -22,9 +22,10 @@ from traitlets import observe
 from typing_extensions import Self
 
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_task import GEETask
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
-__all__ = ["Btn", "DownloadBtn"]
+__all__ = ["Btn", "DownloadBtn", "TaskButton"]
 
 
 class Btn(v.Btn, SepalWidget):
@@ -166,4 +167,130 @@ class DownloadBtn(v.Btn, SepalWidget):
         name = None if str(path) == "#" else Path(path).name
         self.attributes = {"download": name}
 
+        return self
+
+
+class TaskButton(v.VuetifyTemplate):
+    """Custom toggle button using a to start and cancel a task."""
+
+    original_text = t.Unicode("Start Task").tag(sync=True)
+    cancel_text = t.Unicode("Cancel").tag(sync=True)
+    original_color = t.Unicode("primary").tag(sync=True)
+    cancel_color = t.Unicode("error").tag(sync=True)
+    original_icon = t.Unicode("").tag(sync=True)
+    cancel_icon = t.Unicode("mdi-close").tag(sync=True)
+    is_running = t.Bool(False).tag(sync=True)
+    show_loading = t.Bool(True).tag(sync=True)
+    disabled = t.Bool(False).tag(sync=True)
+
+    # Size properties
+    small = t.Bool(False).tag(sync=True)
+    x_small = t.Bool(False).tag(sync=True)
+    large = t.Bool(False).tag(sync=True)
+    x_large = t.Bool(False).tag(sync=True)
+
+    template_file = t.Unicode(str(Path(__file__).parent / "vue/TaskButton.vue")).tag(sync=True)
+
+    def __init__(
+        self,
+        label: str = "Start Task",
+        cancel_text: str = "Cancel",
+        original_color: str = "primary",
+        cancel_color: str = "error",
+        original_icon: str = "",
+        cancel_icon: str = "mdi-close",
+        show_loading: bool = True,
+        small: bool = False,
+        x_small: bool = False,
+        large: bool = False,
+        x_large: bool = False,
+        **kwargs,
+    ):
+        """Initialize the TaskButton with Vue component.
+
+        Args:
+            label: Initial button text
+            cancel_text: Text to show when task is running
+            original_color: Button color when not running
+            cancel_color: Button color when running
+            original_icon: Icon when not running
+            cancel_icon: Icon when running
+            show_loading: Whether to show loading spinner when running
+            small: Make button small
+            x_small: Make button extra small
+            large: Make button large
+            x_large: Make button extra large
+            **kwargs: Additional VuetifyTemplate arguments
+        """
+        # Task management
+        self._task_factory: Optional[Callable[[], GEETask[Any]]] = None
+        self._start_args = ()
+        self._start_kwargs = {}
+        self._task: Optional[GEETask[Any]] = None
+
+        # Set initial properties
+        self.original_text = label
+        self.cancel_text = cancel_text
+        self.original_color = original_color
+        self.cancel_color = cancel_color
+        self.original_icon = original_icon
+        self.cancel_icon = cancel_icon
+        self.show_loading = show_loading
+        self.small = small
+        self.x_small = x_small
+        self.large = large
+        self.x_large = x_large
+
+        super().__init__(**kwargs)
+
+    def vue_on_click_python(self, *args):
+        """Handle button click from Vue component."""
+        if self.is_running:
+            self._on_cancel()
+        else:
+            self._on_start()
+
+    def configure(
+        self,
+        task_factory: Callable[[], GEETask[Any]],
+        start_args: tuple = (),
+        start_kwargs: dict = None,
+    ):
+        """Provide (or update) the factory and args for the task anytime before starting."""
+        self._task_factory = task_factory
+        self._start_args = start_args
+        self._start_kwargs = start_kwargs or {}
+
+    def _on_start(self):
+        """Start the task and update UI to cancel mode."""
+        if not self._task_factory:
+            raise RuntimeError("TaskButton not configured with a task_factory")
+
+        self._task = self._task_factory()
+        self.is_running = True
+
+        original_on_finally = self._task._finally_callback
+
+        def combined_on_finally():
+            if original_on_finally:
+                original_on_finally()
+            self._on_finally()
+
+        self._task._finally_callback = combined_on_finally
+
+        self._task.start(*self._start_args, **self._start_kwargs)
+
+    def _on_cancel(self):
+        """Cancel the running task."""
+        if self._task:
+            self._task.cancel()
+
+    def _on_finally(self):
+        """Reset UI to original state - always runs at the end."""
+        self.is_running = False
+        self._task = None
+
+    @property
+    def children(self):
+        """Expose the Vue component itself."""
         return self

@@ -131,6 +131,7 @@ class AoiModel(Model):
         admin: Optional[str] = None,
         folder: Union[str, Path] = "",
         gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
     ) -> None:
         """An Model object dedicated to the sorage and the manipulation of aoi.
 
@@ -145,19 +146,34 @@ class AoiModel(Model):
             admin: the administrative code of the default selection. Need to be GADM if ee==False and GAUL 2015 if ee==True.
             asset: the default asset. Can only work if ee==True
             folder: the init GEE asset folder where the asset selector should start looking (debugging purpose)
-            gee_session: the Earth Engine session to use for the GEE binding
+            gee_session: the Earth Engine session to use for the GEE binding (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
 
         .. deprecated:: 2.3.2
             'asset_name' will be used as variable to store 'ASSET' method info. To get the destination saved asset id, please use 'dst_asset_id' variable.
 
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
         super().__init__()
+
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
 
         # the ee retated information
         self.gee = gee
         if gee:
             su.init_ee()
-            self.gee_interface = GEEInterface(gee_session)
+            if gee_interface:
+                self.gee_interface = gee_interface
+            else:
+                self.gee_interface = GEEInterface(gee_session)
             self.folder = str(folder) or self.gee_interface.get_folder()
 
         # set default values

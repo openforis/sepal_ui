@@ -673,6 +673,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         types: List[str] = ["IMAGE", "TABLE"],
         default_asset: Union[str, List[str]] = [],
         gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
         on_search_input: bool = True,
         **kwargs,
     ) -> None:
@@ -683,12 +684,31 @@ class AssetSelect(v.Combobox, SepalWidget):
             folder: the folder of the user assets
             default_asset: the id of a default asset or a list of defaults
             types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
+            gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             on_search_input: whether to trigger the search input event. Default to False
             kwargs (optional): any parameter from a v.ComboBox.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
         self._loaded = False
         self.valid = False
-        self.gee_interface = GEEInterface(session=gee_session)
+        # Use provided gee_interface or create new one from session
+        if gee_interface:
+            self.gee_interface = gee_interface
+        else:
+            self.gee_interface = GEEInterface(session=gee_session)
         # self.asset_info = {}
 
         # if folder is not set use the root one
@@ -948,6 +968,7 @@ class VectorField(v.Col, SepalWidget):
         label: str = ms.widgets.vector.label,
         gee: bool = False,
         gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
         **kwargs,
     ) -> None:
         """A custom input widget to load vector data.
@@ -959,9 +980,28 @@ class VectorField(v.Col, SepalWidget):
             label: the label of the file input field, default to 'vector file'.
             gee: whether to use GEE assets or local vectors.
             folder: When gee=True, extra args will be used for AssetSelect
+            gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
-        self.gee_interface = GEEInterface(session=gee_session)
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
+        # Use provided gee_interface or create new one from session
+        if gee_interface:
+            self.gee_interface = gee_interface
+        else:
+            self.gee_interface = GEEInterface(session=gee_session)
 
         # set the 3 wigets
         if not gee:
@@ -969,9 +1009,14 @@ class VectorField(v.Col, SepalWidget):
         else:
             # Don't care about 'types' arg. It will only work with tables.
             asset_select_kwargs = {"folder": kwargs.pop("folder", None)}
-            self.w_file = AssetSelect(
-                types=["TABLE"], gee_session=gee_session, **asset_select_kwargs
-            )
+            if gee_interface:
+                self.w_file = AssetSelect(
+                    types=["TABLE"], gee_interface=gee_interface, **asset_select_kwargs
+                )
+            else:
+                self.w_file = AssetSelect(
+                    types=["TABLE"], gee_session=gee_session, **asset_select_kwargs
+                )
 
         self.w_column = v.Select(
             _metadata={"name": "column"},

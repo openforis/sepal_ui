@@ -1,7 +1,6 @@
 """All the heleper methods to interface Google Earthengine with sepal-ui."""
 
 import asyncio
-import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -9,14 +8,10 @@ from typing import List, Union
 
 import ee
 import ipyvuetify as v
-import nest_asyncio
-import psutil
+from deprecated.sphinx import deprecated
 
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
-
-# This I have to add because of the error: RuntimeError: This event loop is already running when using jupyter notebook
-nest_asyncio.apply()
 
 
 @sd.need_ee
@@ -91,8 +86,16 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-async def list_assets_concurrent(folders: list, semaphore: asyncio.Semaphore) -> list:
+@deprecated(
+    reason="This function is no longer required. Use GEEInterface.get_assets() instead for better performance and resource management.",
+    version="3.2.0",
+    category=DeprecationWarning,
+)
+async def _list_assets_concurrent(folders: list, semaphore: asyncio.Semaphore) -> list:
     """List assets concurrently using ThreadPoolExecutor.
+
+    .. deprecated:: 3.2.0
+        This function is deprecated. Use GEEInterface.get_assets() instead.
 
     Args:
         folders: list of folders to list assets from
@@ -111,8 +114,20 @@ async def list_assets_concurrent(folders: list, semaphore: asyncio.Semaphore) ->
             return results
 
 
-async def get_assets_async_concurrent(folder: str) -> List[dict]:
+# Deprecated alias - use GEEInterface.get_assets() instead
+list_assets_concurrent = _list_assets_concurrent
+
+
+@deprecated(
+    reason="Use GEEInterface.get_assets() instead for better performance and resource management.",
+    version="3.2.0",
+    category=DeprecationWarning,
+)
+async def get_assets_async_concurrent(folder: str, gee_interface=None) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
+
+    .. deprecated:: 3.2.0
+        This function is deprecated. Use GEEInterface.get_assets() instead.
 
     Args:
         folder: the initial GEE folder
@@ -121,36 +136,25 @@ async def get_assets_async_concurrent(folder: str) -> List[dict]:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
 
     """
-    folder_queue = asyncio.Queue()
-    await folder_queue.put(folder)
-    asset_list = []
+    if not gee_interface:
+        from sepal_ui.scripts.gee_interface import GEEInterface
 
-    # Determine system resources
-    cpu_count = os.cpu_count()
-    available_memory = psutil.virtual_memory().available
+        gee_interface = GEEInterface()
 
-    # 50 MB per task
-    max_concurrent_tasks = min(30, cpu_count, available_memory // (50 * 1024 * 1024))
-
-    # Create a semaphore to limit the number of concurrent tasks
-    semaphore = asyncio.Semaphore(max_concurrent_tasks)
-
-    while not folder_queue.empty():
-        current_folders = [await folder_queue.get() for _ in range(folder_queue.qsize())]
-        assets_groups = await list_assets_concurrent(current_folders, semaphore)
-
-        for assets in assets_groups:
-            for asset in assets.get("assets", []):
-                asset_list.append({"type": asset["type"], "name": asset["name"], "id": asset["id"]})
-                if asset["type"] == "FOLDER":
-                    await folder_queue.put(asset["name"])
-
-    return asset_list
+    return await gee_interface.get_assets_async(folder)
 
 
+@deprecated(
+    reason="Use GEEInterface.get_assets() instead for better performance and resource management.",
+    version="3.2.0",
+    category=DeprecationWarning,
+)
 @sd.need_ee
-def get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
+def _get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
+
+    .. deprecated:: 3.2.0
+        This function is deprecated. Use GEEInterface.get_assets() instead.
 
     Args:
         folder: the initial GEE folder
@@ -162,20 +166,11 @@ def get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     """
     folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
 
-    if async_:
-        try:
-            return asyncio.run(get_assets_async_concurrent(folder))
-        except Exception as e:
-            # Log the exception for future debugging
-            print(f"Error occurred in get_assets_async_concurrent: {e}")
-            # Fallback to synchronous method
-            return get_assets_sync(folder)
-
-    return get_assets_sync(folder)
+    return _get_assets_sync(folder)
 
 
 @sd.need_ee
-def get_assets_sync(folder: Union[str, Path] = "") -> List[dict]:
+def _get_assets_sync(folder: Union[str, Path] = "") -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
     Args:
@@ -200,31 +195,57 @@ def get_assets_sync(folder: Union[str, Path] = "") -> List[dict]:
     return _recursive_get(folder, asset_list)
 
 
+# Deprecated alias - use GEEInterface.get_assets() instead
+get_assets = _get_assets
+
+
+@deprecated(
+    reason="Use GEEInterface.get_asset() with not_exists_ok=True instead. "
+    "The 'asset_name' and 'folder' parameters are deprecated. Use 'asset_id' directly.",
+    version="3.2.0",
+    category=DeprecationWarning,
+)
 @sd.need_ee
-def is_asset(asset_name: str, folder: Union[str, Path] = "") -> bool:
+def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: str = None) -> bool:
     """Check if the asset already exist in the user asset folder.
 
     Args:
-        asset_descripsion: the descripsion of the asset
-        folder: the folder of the glad assets
+        asset_name: [DEPRECATED] the name of the asset (use asset_id instead)
+        folder: [DEPRECATED] the folder of the assets (use full asset_id instead)
+        asset_id: the complete asset ID (e.g., 'projects/your-project/assets/folder/asset_name')
 
     Returns:
-        true if already in folder
+        true if asset exists, false otherwise
     """
-    # get the folder
-    folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
+    # Handle backward compatibility
+    if asset_id is None:
+        if asset_name is None:
+            raise ValueError("Either 'asset_id' or 'asset_name' must be provided")
 
-    # get all the assets
-    asset_list = get_assets(folder)
+        # Check if asset_name already contains the full path
+        if asset_name.startswith("projects/"):
+            asset_id = asset_name
+        else:
+            # Construct asset_id from legacy parameters
+            folder = str(folder)
+            if folder and not folder.startswith("projects/"):
+                # If folder doesn't start with 'projects/', assume it's a relative path
+                folder = f"projects/{ee.data._cloud_api_user_project}/assets/{folder}"
+            elif not folder:
+                # If no folder provided, use default
+                folder = f"projects/{ee.data._cloud_api_user_project}/assets/"
 
-    # search for asset existence
-    exist = False
-    for asset in asset_list:
-        if asset_name == asset["name"]:
-            exist = True
-            break
+            # Ensure folder ends with '/' for proper concatenation
+            if not folder.endswith("/"):
+                folder += "/"
+            asset_id = folder + asset_name
 
-    return exist
+    # Use GEEInterface to check if asset exists
+    from sepal_ui.scripts.gee_interface import GEEInterface
+
+    with GEEInterface() as gee_interface:
+        result = gee_interface.get_asset(asset_id, not_exists_ok=True)
+        return result is not None
 
 
 @sd.need_ee
