@@ -9,8 +9,9 @@ from natsort import natsorted
 from pydantic import BaseModel
 from traitlets import Bool, Int, List, Unicode
 
-from sepal_ui.logger import logger
+from sepal_ui.logger import log
 from sepal_ui.scripts.sepal_client import SepalClient
+from sepal_ui.sepalwidgets.widget import SepalWidget
 
 
 class FileDetails(BaseModel):
@@ -60,13 +61,13 @@ def get_remote_files(sepal_client, folder: str = "/", extensions=None, cache_dir
         return ListDirectoryResponse.model_validate(response).sorted()
 
     except Exception as error:
-        logger.error(f"Failed to list files: {error}")
+        log.error(f"Failed to list files: {error}")
         folder_list = []
 
     return folder_list
 
 
-class FileInput(v.VuetifyTemplate):
+class FileInput(v.VuetifyTemplate, SepalWidget):
 
     template_file = Unicode(str(Path(__file__).parent / "vue/FileInput.vue")).tag(sync=True)
 
@@ -97,14 +98,18 @@ class FileInput(v.VuetifyTemplate):
             sepal_client: Sepal client to access the server.
         """
         super().__init__(**kwargs)
-        logger.debug("FileInput initialized")
+
+        self.initial_folder = str(initial_folder)
+        self.root = str(root)
+
+        log.debug("FileInput initialized")
 
         self.client = sepal_client
         if sepal_client or initial_folder.startswith(str(Path.home())):
             self.initial_folder = initial_folder
         else:
             self.initial_folder = str(Path.home() / initial_folder)
-        logger.debug(f"Initial folder: {self.initial_folder}")
+        log.debug(f"Initial folder: {self.initial_folder}")
         self.current_folder = self.initial_folder
         self.root = root if root else "" if sepal_client else str(Path.home())
 
@@ -151,7 +156,7 @@ class FileInput(v.VuetifyTemplate):
             self.file_list = file_list.model_dump()["files"]
 
         except Exception as error:
-            logger.error(f"Failed to load files: {error}")
+            log.error(f"Failed to load files: {error}")
         finally:
             self.loading = False
 

@@ -2,11 +2,11 @@
 
 import os
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import httpx
 
-from sepal_ui.logger import logger
+from sepal_ui.logger import log
 
 
 class SepalClient:
@@ -39,9 +39,7 @@ class SepalClient:
         # if not I will get this error:
         # httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://danielg.sepal.io/api/user-files/listFiles/?path=%2F&extensions='
 
-        logger.debug(
-            f"SEPAL_CLIENT: SepalClient initialized, with results path: {self.results_path}"
-        )
+        log.debug(f"SEPAL_CLIENT: SepalClient initialized, with results path: {self.results_path}")
 
     def rest_call(
         self,
@@ -51,8 +49,9 @@ class SepalClient:
         data: Optional[str] = None,
         json: Optional[Dict[str, Any]] = None,
         files: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Helper method to make HTTP requests."""
+        parse_json: bool = True,
+    ) -> Union[Dict[str, Any], bytes]:
+        """Make HTTP requests and handle JSON/binary responses."""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
         with httpx.Client(verify=self.verify_ssl) as client:
@@ -67,7 +66,11 @@ class SepalClient:
                 data=data,
             )
             response.raise_for_status()
-            return response.json()
+
+            if parse_json:
+                return response.json()
+            else:
+                return response.content
 
     def create_base_dir(self) -> PurePosixPath:
         """Create the base results directory and return the PurePosixPath object."""
@@ -95,16 +98,22 @@ class SepalClient:
         params = {"path": folder, "extensions": ",".join(extensions or [])}
         return self.rest_call("GET", "listFiles/", params=params)
 
-    def get_file(self, file_path: str) -> bytes:
+    def get_file(self, file_path: str, parse_json=False) -> bytes:
         """Download a file from the specified folder.
 
         Args:
             file_path: The file path to download
+            parse_json: If True, parse the response as JSON; otherwise return raw bytes
 
         Returns:
             The file content as bytes
         """
-        return self.rest_call("GET", "download/", params={"path": self.sanitize_path(file_path)})
+        return self.rest_call(
+            "GET",
+            "download/",
+            params={"path": self.sanitize_path(file_path)},
+            parse_json=parse_json,
+        )
 
     def set_file(self, file_path: str, json_data: str) -> Dict[str, Any]:
         """Upload a file to the specified folder.
@@ -126,26 +135,30 @@ class SepalClient:
             data=data,
         )
 
-    def sanitize_path(self, file_path: str | Path) -> str:
+    def sanitize_path(self, file_path: Union[str, Path]) -> PurePosixPath:
         """Sanitize a file path to be relative to the base remote path."""
-        path = PurePosixPath(str(file_path))
-        base_path = PurePosixPath(self.BASE_REMOTE_PATH)
+        p = PurePosixPath(str(file_path))
+        base = PurePosixPath(self.BASE_REMOTE_PATH)
 
-        try:
-            # Attempt to get a path relative to BASE_REMOTE_PATH
-            relative_path = path.relative_to(base_path)
-        except ValueError:
-            # If file_path isn't under BASE_REMOTE_PATH, keep it as is
-            relative_path = path
-        return str(relative_path).strip("/")
+        if p.is_absolute():
+            try:
+                rel = p.relative_to(base)
+            except ValueError:
+                raise ValueError(f"sanitize_path: expected absolute under {base!r}, got {p!r}")
+            if ".." in rel.parts:
+                raise ValueError(f"sanitize_path: path traversal detected: {p!r}")
+            return rel
 
-    def get_remote_dir(self, folder: str, parents: bool = False) -> PurePosixPath:
-        """Create a remote directory and return the PurePosixPath object."""
-        remote_dir = PurePosixPath(self.results_path) / PurePosixPath(folder)
+        if ".." in p.parts:
+            raise ValueError(f"sanitize_path: path traversal detected: {p!r}")
+        return p
+
+    def get_remote_dir(self, folder: Union[str, Path], parents: bool = False) -> PurePosixPath:
+        """Create a remote directory and return its sanitized path."""
+        sanitized_folder = self.sanitize_path(folder)
         self.rest_call(
             "POST",
             "createFolder/",
-            params={"path": self.sanitize_path(remote_dir), "recursive": parents},
+            params={"path": sanitized_folder, "recursive": parents},
         )
-
-        return remote_dir
+        return sanitized_folder
