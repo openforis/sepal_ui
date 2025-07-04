@@ -3,7 +3,10 @@
 # known bug of rasterio
 import os
 
-from sepal_ui.logger import logger
+from sepal_ui.mapping.bounds import (
+    compute_center,
+    compute_zoom_for_bounds,
+)
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
 from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.sepalwidgets.vue_app import ThemeToggle
@@ -56,6 +59,10 @@ from sepal_ui.scripts.warning import SepalWarning
 
 __all__ = ["SepalMap"]
 
+import logging
+
+log = logging.getLogger("sepalui.mapping")
+
 
 class SepalMap(ipl.Map):
     # ##########################################################################
@@ -86,7 +93,9 @@ class SepalMap(ipl.Map):
         statebar: bool = False,
         theme_toggle: ThemeToggle = None,
         gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
         fullscreen: bool = False,
+        map_id: str = "",
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -104,11 +113,27 @@ class SepalMap(ipl.Map):
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
             theme_toggle: sepal_ui ThemeToggle object
-            gee_session (optional): a custom EESession object to do gee requests. default to None
+            gee_session (optional): a custom EESession object to do gee requests. default to None (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             fullscreen: whether or not to display the map in full screen. default to False
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
-        logger.debug(f"Map initialization with gee: {gee} and session: {gee_session}")
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
+        log.debug(
+            f"Map initialization with gee: {gee} and session: {gee_session} and interface: {gee_interface}"
+        )
 
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
@@ -123,13 +148,15 @@ class SepalMap(ipl.Map):
         if fullscreen:
             self.add_class("full-screen-map")
 
-        # Init the map
         super().__init__(**kwargs)
 
         # init ee
         self.gee = gee
         if gee:
-            self.gee_interface = GEEInterface(session=gee_session)
+            if gee_interface:
+                self.gee_interface = gee_interface
+            else:
+                self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 
         # add the basemaps
@@ -137,7 +164,7 @@ class SepalMap(ipl.Map):
         if theme_toggle:
             default_basemap = "CartoDB.DarkMatter" if theme_toggle.dark else "CartoDB.Positron"
             theme_toggle.observe(self._on_theme_change, "dark")
-            logger.debug(f"Using solara theme: {theme_toggle.dark}")
+            log.debug(f"Using solara theme: {theme_toggle.dark}")
         else:
             default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
             v.theme.observe(self._on_theme_change, "dark")
@@ -172,7 +199,7 @@ class SepalMap(ipl.Map):
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
-        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
+        self._id = map_id or "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
 
     def _on_theme_change(self, change) -> None:
@@ -695,35 +722,50 @@ class SepalMap(ipl.Map):
         if not isinstance(image, ee.Image):
             return props
 
-        # check that image have properties
-        if "properties" not in self.gee_interface.get_info(image):
+        log.debug("Getting viz params for image")
+
+        try:
+            # Get property names and filter only visualization properties
+            prop_names = image.propertyNames()
+            viz_props = prop_names.filter(ee.Filter.stringStartsWith("item", PREFIX))
+
+            # Check if there are any visualization properties
+            if self.gee_interface.get_info(viz_props.sizJe()) == 0:
+                log.warning("Image has no visualization properties, returning empty viz params")
+                return props
+
+            # Get only the visualization properties as a dictionary
+            viz_dict = image.toDictionary(viz_props)
+            raw_prop_list = self.gee_interface.get_info(viz_dict)
+
+            log.debug(f"Found {len(raw_prop_list)} viz params")
+
+            # If no properties were found, return empty props
+            if not raw_prop_list:
+                return props
+
+            # decompose each property by its number
+            # and gather the properties in a sub dictionary
+            for p, val in raw_prop_list.items():
+                # extract the number and create the sub-dict
+                _, number, name = p.split("_")
+                props.setdefault(number, {})
+
+                # modify the values according to prop key
+                if isinstance(val, str):
+                    if name in ["bands", "palette", "labels"]:
+                        val = val.split(",")
+                    elif name in ["max", "min", "values"]:
+                        val = [float(i) for i in val.split(",")]
+                    elif name in ["inverted"]:
+                        val = [bool(strtobool(i)) for i in val.split(",")]
+
+                # set the value
+                props[number][name] = val
+
+        except Exception as e:
+            log.warning(f"Error getting visualization parameters: {str(e)}")
             return props
-
-        # build a raw prop list
-        raw_prop_list = {
-            p: val
-            for p, val in self.gee_interface.get_info(image)["properties"].items()
-            if p.startswith(PREFIX)
-        }
-
-        # decompose each property by its number
-        # and gather the properties in a sub dictionary
-        for p, val in raw_prop_list.items():
-            # extract the number and create the sub-dict
-            _, number, name = p.split("_")
-            props.setdefault(number, {})
-
-            # modify the values according to prop key
-            if isinstance(val, str):
-                if name in ["bands", "palette", "labels"]:
-                    val = val.split(",")
-                elif name in ["max", "min", "values"]:
-                    val = [float(i) for i in val.split(",")]
-                elif name in ["inverted"]:
-                    val = [bool(strtobool(i)) for i in val.split(",")]
-
-            # set the value
-            props[number][name] = val
 
         for i in props.keys():
             if "type" in props[i]:
@@ -873,6 +915,41 @@ class SepalMap(ipl.Map):
 
         return layer
 
+    def fit_bounds(self, bounds):
+        """Abstract method to fit the map to the given bounds."""
+        # I've done this because the native ipyleaflet fit bounds method uses
+        # awaitables that create conflicts with solara.
+        # Also I don't like the way it zooms by levels
+
+        center = compute_center(bounds)
+        self.center = center
+
+        # 2) Determine map width in pixels
+        width = None
+        log.debug(f"getting map width from layout: {self.layout}")
+        if hasattr(self, "layout"):
+            width = getattr(self.layout, "width", None)
+            log.debug(f"map width from layout: {width}")
+        try:
+            log.debug(f"getting map width from width: {width}")
+            map_width_px = int(width)
+        except (TypeError, ValueError) as e:
+            log.debug(f"Error: {width}, {e}")
+            map_width_px = 1024
+
+        log.debug(f"map width in pixels: {map_width_px}")
+
+        zoom = (
+            compute_zoom_for_bounds(
+                bounds,
+                map_width_px,
+                min_zoom=getattr(self, "min_zoom", None),
+                max_zoom=getattr(self, "max_zoom", None),
+            )
+            + 1
+        )
+        self.zoom = zoom
+
     def add_legend(
         self,
         title: str = ms.mapping.legend,
@@ -893,9 +970,9 @@ class SepalMap(ipl.Map):
 
         return self.add(self.legend)
 
-    # ##########################################################################
-    # ###                overwrite geemap calls                              ###
-    # ##########################################################################
+        # ##########################################################################
+        # ###                overwrite geemap calls                              ###
+        # ##########################################################################
 
     setCenter = set_center
     centerObject = zoom_ee_object
