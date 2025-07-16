@@ -13,15 +13,14 @@ from pathlib import Path
 
 import tomli
 
-# Create a logger for the sepalui module
-logger = logging.getLogger("sepalui")
+log = logging.getLogger("sepalui")
 
 
 def setup_logging():
     """Set up logging configuration from a TOML file.
 
     The configuration file path can be set using the SEPALUI_LOG_CFG environment variable.
-    If the file does not exist, a NullHandler is added to the logger.
+    If the file does not exist, a NullHandler is added to the log
     If the file exists, it is loaded and the logging configuration is applied.
     """
     cfg_path = (
@@ -31,10 +30,9 @@ def setup_logging():
     cfg_path = Path(cfg_path)
 
     if not cfg_path.exists():
-        sepalui_logger = logging.getLogger("sepalui")
-        for handler in sepalui_logger.handlers[:]:
-            sepalui_logger.removeHandler(handler)
-        sepalui_logger.addHandler(logging.NullHandler())
+        for handler in log.handlers[:]:
+            log.removeHandler(handler)
+        log.addHandler(logging.NullHandler())
         return
 
     if not cfg_path.is_file():
@@ -46,5 +44,4 @@ def setup_logging():
     logging.config.dictConfig(cfg)
 
 
-# Call setup_logging to configure the logger when this module is imported
 setup_logging()
