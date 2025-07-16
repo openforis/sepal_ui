@@ -1,3 +1,3 @@
 """Logger module for SEPAL UI."""
 
-from .logger import logger  # noqa: I
+from .logger import log  # noqa: I
