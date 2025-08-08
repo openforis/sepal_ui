@@ -298,3 +298,14 @@ def delete_assets(asset_id: str, dry_run: bool = True) -> None:
     delete(asset_id)
 
     return
+
+
+@sd.need_ee
+def get_task(task_id):
+    """Get task."""
+    tasks_list = ee.batch.Task.list()
+    for task in tasks_list:
+        if task.id == task_id:
+            return task
+
+    raise Exception(f"The task id {task_id} doesn't exist in your tasks.")

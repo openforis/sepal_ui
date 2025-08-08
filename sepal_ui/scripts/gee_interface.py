@@ -9,6 +9,9 @@ import ee
 from eeclient.client import EESession
 from eeclient.data import MapTileOptions
 from eeclient.export.image import ImageFileFormat
+from eeclient.export.table import TableFileFormat
+from eeclient.helpers import get_sepal_headers_from_auth
+from eeclient.tasks import Task
 
 from sepal_ui.logger import log
 from sepal_ui.scripts import gee
@@ -16,12 +19,16 @@ from sepal_ui.scripts.gee_task import GEETask, R, TaskState
 
 
 class GEEInterface:
-    def __init__(self, session: Optional[EESession] = None):
+    def __init__(self, session: Optional[EESession] = None, use_sepal_headers=False):
         """A unified interface for Earth Engine operations.
 
         If a session is provided at initialization, custom EESession-based calls are used.
         Otherwise, the default Earth Engine API methods are invoked.
         """
+        if use_sepal_headers:
+            sepal_headers = get_sepal_headers_from_auth()
+            session = EESession(sepal_headers)
+
         self.session = session
         self._closed = False
 
@@ -62,28 +69,36 @@ class GEEInterface:
 
             task.observe(_err, names="state")
 
-        task.observe(
-            lambda change: log.debug(f"Task {task.key} state changed to {change}"),
-        )
-
         return task
 
     def _log_thread_info(self, operation: str) -> None:
         """Log information about current thread context for debugging."""
-        current_thread = threading.current_thread()
-        main_thread = threading.main_thread()
+        threading.current_thread()
+        threading.main_thread()
+        # log.debug(
+        #     f"[{operation}] Current thread: {current_thread.name} (ID: {current_thread.ident})"
+        # )
+        # log.debug(f"[{operation}] Main thread: {main_thread.name} (ID: {main_thread.ident})")
         log.debug(
-            f"[{operation}] Current thread: {current_thread.name} (ID: {current_thread.ident})"
-        )
-        log.debug(f"[{operation}] Main thread: {main_thread.name} (ID: {main_thread.ident})")
-        log.debug(
-            f"[{operation}] GEE thread: {self._async_thread.name} (ID: {self._async_thread.ident})"
+            f"[{operation}] GEEIterface ID: {id(self)} || GEE thread: {self._async_thread.name} (ID: {self._async_thread.ident})"
         )
 
     def _run_async_blocking(self, coro: asyncio.coroutine, timeout: Optional[float] = 305.0) -> Any:
         """Schedule `coro` in our private loop, block until done."""
         if self._closed:
             raise RuntimeError("GEEInterface is closed")
+
+        # Check for potential deadlock: if we're already running in the GEE async thread,
+        # calling run_coroutine_threadsafe on the same loop will deadlock
+        current_thread = threading.current_thread()
+        if current_thread.ident == self._async_thread.ident:
+            raise RuntimeError(
+                f"Deadlock detected: Cannot call blocking GEEInterface method from within "
+                f"an async function running on the same event loop. "
+                f"Current thread: {current_thread.name} (ID: {current_thread.ident}) "
+                f"is the same as GEE async thread: {self._async_thread.name} (ID: {self._async_thread.ident}). "
+                f"Use the async version of this method instead (e.g., get_info_async instead of get_info)."
+            )
 
         operation = str(coro).split("(")[0].split(".")[-1] if "(" in str(coro) else str(coro)
         self._log_thread_info(f"STARTING {operation}")
@@ -204,12 +219,55 @@ class GEEInterface:
             task.start()
             return task
 
+    async def export_table_to_drive_async(
+        self,
+        collection,
+        file_format: TableFileFormat,
+        filename_prefix: str = "",
+        folder: Optional[str] = None,
+        description: str = "myExportTableTask",
+        selectors: Optional[list] = None,
+        max_vertices: Optional[int] = None,
+        priority: Optional[int] = None,
+    ):
+        """Asynchronously export a FeatureCollection to Google Drive."""
+        if self.session:
+            return await self.session.export.table_to_drive_async(
+                collection=collection,
+                filename_prefix=filename_prefix,
+                file_format=file_format,
+                folder=folder,
+                description=description,
+                selectors=selectors,
+                max_vertices=max_vertices,
+                priority=priority,
+            )
+        else:
+            task = ee.batch.Export.table.toDrive(
+                collection=collection,
+                description=description,
+                fileNamePrefix=filename_prefix,
+                fileFormat=file_format,
+                folder=folder,
+                selectors=selectors,
+                maxVertices=max_vertices,
+                priority=priority,
+            )
+            task.start()
+            return task
+
     async def is_running_async(self, name: str) -> bool:
         """Asynchronously check if a task is running by its name."""
         if self.session:
             task = await self.session.tasks.get_task_by_name_async(name)
             return bool(task and task["state"] in ("RUNNING", "READY"))
         return await asyncio.to_thread(gee.is_running, name)
+
+    async def get_task_async(self, task_id: str) -> Optional[Task]:
+        """Asynchronously get a task by its ID."""
+        if self.session:
+            return await self.session.tasks.get_task_async(task_id)
+        return await asyncio.to_thread(gee.get_task, task_id)
 
     async def create_folder_async(self, folder_path: str) -> Dict:
         """Asynchronously create a folder in Earth Engine assets."""
@@ -321,6 +379,8 @@ class GEEInterface:
             task.start()
             return task
 
+    # From here on, methods are blocking versions that run the async methods synchronously
+
     def get_info(
         self,
         ee_object: ee.ComputedObject = None,
@@ -358,6 +418,10 @@ class GEEInterface:
         """Get the assets folder path, blocking until done."""
         return self._run_async_blocking(self.get_folder_async())
 
+    def get_task(self, task_id: str) -> Optional[Task]:
+        """Get a task by its ID, blocking until done."""
+        return self._run_async_blocking(self.get_task_async(task_id))
+
     def export_table_to_asset(
         self,
         collection: ee.FeatureCollection,
@@ -372,6 +436,31 @@ class GEEInterface:
             self.export_table_to_asset_async(
                 collection=collection,
                 asset_id=asset_id,
+                description=description,
+                selectors=selectors,
+                max_vertices=max_vertices,
+                priority=priority,
+            )
+        )
+
+    def export_table_to_drive(
+        self,
+        collection,
+        fileFormat: TableFileFormat,  # camelCase to match earthengine API
+        fileNamePrefix: str = "",
+        folder: Optional[str] = None,
+        description: str = "myExportTableTask",
+        selectors: Optional[list] = None,
+        max_vertices: Optional[int] = None,
+        priority: Optional[int] = None,
+    ) -> str:
+        """Export a FeatureCollection to Google Drive, blocking until done."""
+        return self._run_async_blocking(
+            self.export_table_to_drive_async(
+                collection=collection,
+                filename_prefix=fileNamePrefix,
+                file_format=fileFormat,
+                folder=folder,
                 description=description,
                 selectors=selectors,
                 max_vertices=max_vertices,
@@ -459,7 +548,7 @@ class GEEInterface:
             return
 
         self._closed = True
-        log.debug("Closing GEEInterface...")
+        log.debug(f"Closing GEEInterface... {id(self)}")
 
         try:
             if hasattr(self, "_sync_loop") and self._async_loop.is_running():

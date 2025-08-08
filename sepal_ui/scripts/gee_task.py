@@ -1,6 +1,8 @@
 """Task management utilities for GEE operations."""
 
 import asyncio
+import logging
+import threading
 import traceback
 from enum import Enum
 from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar
@@ -8,10 +10,10 @@ from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar
 import traitlets
 from traitlets import Bool, Float, HasTraits, Instance, Unicode, observe
 
-from sepal_ui.logger import log as logger
-
 # Type variable for generic result type
 R = TypeVar("R")
+
+log = logging.getLogger("sepalui.scripts.gee_task")
 
 
 class TaskState(Enum):
@@ -76,12 +78,16 @@ class GEETask(HasTraits, Generic[R]):
         self.error = None
         self.result = None
         self.progress = 0.0
-        self.message = f"Starting task {self.key}"
+        self.message = f"Starting task '{self.key}'"
 
         # Schedule execution
         future = asyncio.run_coroutine_threadsafe(self._run(*args, **kwargs), self.loop)
         self._future = future
         return future
+
+    def _log_thread_info(self, operation: str, current_thread: threading.Thread) -> None:
+        """Log information about current thread context for debugging."""
+        log.debug(f"[{operation}] GEE thread: {current_thread.name} (ID: {current_thread.ident})")
 
     async def _run(self, *args, **kwargs) -> None:
         """Run the user-provided coroutine, handling state transitions and exceptions."""
@@ -91,6 +97,15 @@ class GEETask(HasTraits, Generic[R]):
 
             self.state = TaskState.RUNNING
             self.message = f"{self.key}: running"
+
+            _async_thread = threading.current_thread()
+
+            operation = (
+                str(self.function).split("(")[0].split(".")[-1]
+                if "(" in str(self.function)
+                else str(self.function)
+            )
+            self._log_thread_info(f"STARTING {operation}", _async_thread)
 
             # Execute the user-provided coroutine
             result = await self.function(*args, **kwargs)
@@ -103,15 +118,15 @@ class GEETask(HasTraits, Generic[R]):
         except asyncio.CancelledError:
             self.message = f"{self.key}: cancelled"
             self.state = TaskState.CANCELLED
-            logger.info(f"Task {self.key} cancelled by user")
 
         except Exception as e:
+            log.error(f"Error in task {self.key}: {e}")
+            tb = traceback.format_exc()
+            log.debug(tb)
+
             self.error = e
             self.message = f"{self.key}: error {e}"
             self.state = TaskState.ERROR
-            logger.error(f"Error in task {self.key}: {e}")
-            tb = traceback.format_exc()
-            logger.debug(tb)
 
         finally:
             # Clean up future pointer
@@ -121,8 +136,8 @@ class GEETask(HasTraits, Generic[R]):
                 try:
                     self._finally_callback()
                 except Exception as e:
-                    logger.error(f"Final callback for task {self.key} raised: {e}")
-                    logger.debug(traceback.format_exc())
+                    log.error(f"Final callback for task {self.key} raised: {e}")
+                    log.debug(traceback.format_exc())
 
     def cancel(self) -> None:
         """Cancel the running task."""
