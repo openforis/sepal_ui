@@ -170,7 +170,7 @@ class DownloadBtn(v.Btn, SepalWidget):
         return self
 
 
-class TaskButton(v.VuetifyTemplate):
+class TaskButton(v.VuetifyTemplate, SepalWidget):
     """Custom toggle button using a to start and cancel a task."""
 
     original_text = t.Unicode("Start Task").tag(sync=True)
@@ -188,6 +188,7 @@ class TaskButton(v.VuetifyTemplate):
     x_small = t.Bool(False).tag(sync=True)
     large = t.Bool(False).tag(sync=True)
     x_large = t.Bool(False).tag(sync=True)
+    block = t.Bool(False).tag(sync=True)
 
     template_file = t.Unicode(str(Path(__file__).parent / "vue/TaskButton.vue")).tag(sync=True)
 
@@ -204,6 +205,7 @@ class TaskButton(v.VuetifyTemplate):
         x_small: bool = False,
         large: bool = False,
         x_large: bool = False,
+        block: bool = False,
         **kwargs,
     ):
         """Initialize the TaskButton with Vue component.
@@ -220,6 +222,7 @@ class TaskButton(v.VuetifyTemplate):
             x_small: Make button extra small
             large: Make button large
             x_large: Make button extra large
+            block: Make button full width (block-level)
             **kwargs: Additional VuetifyTemplate arguments
         """
         # Task management
@@ -240,6 +243,7 @@ class TaskButton(v.VuetifyTemplate):
         self.x_small = x_small
         self.large = large
         self.x_large = x_large
+        self.block = block
 
         super().__init__(**kwargs)
 
@@ -289,8 +293,3 @@ class TaskButton(v.VuetifyTemplate):
         """Reset UI to original state - always runs at the end."""
         self.is_running = False
         self._task = None
-
-    @property
-    def children(self):
-        """Expose the Vue component itself."""
-        return self

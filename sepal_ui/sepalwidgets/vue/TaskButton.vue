@@ -8,6 +8,7 @@
     :x-small="x_small"
     :large="large"
     :x-large="x_large"
+    :block="block"
     ref="button"
   >
     <!-- Custom loading spinner when running -->
@@ -85,6 +86,10 @@ export default {
       default: false,
     },
     x_large: {
+      type: Boolean,
+      default: false,
+    },
+    block: {
       type: Boolean,
       default: false,
     },
