@@ -12,6 +12,7 @@ Example:
 """
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Optional, Union
@@ -34,9 +35,12 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.thread_controller import TaskController
+from sepal_ui.scripts.gee_task import GEETask
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+
+log = logging.getLogger("sepalui.sepalwidgets.inputs")
+
 
 __all__ = [
     "DatePicker",
@@ -666,6 +670,9 @@ class AssetSelect(v.Combobox, SepalWidget):
     types: t.List = t.List().tag(sync=True)
     "The list of types accepted by the asset selector. names need to be valid TYPES and changing this value will trigger the reload of the asset items."
 
+    _loaded = t.Bool(False).tag(sync=True)
+    "Whether the asset items have been loaded or not"
+
     @sd.need_ee
     def __init__(
         self,
@@ -675,6 +682,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         gee_session: Optional[EESession] = None,
         gee_interface: Optional[GEEInterface] = None,
         on_search_input: bool = True,
+        test: bool = False,
         **kwargs,
     ) -> None:
         """Custom widget input to select an asset inside the asset folder of the user.
@@ -687,6 +695,7 @@ class AssetSelect(v.Combobox, SepalWidget):
             gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
             gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             on_search_input: whether to trigger the search input event. Default to False
+            test: whether to enable debug logging for this instance. Default to False
             kwargs (optional): any parameter from a v.ComboBox.
 
         Raises:
@@ -695,6 +704,8 @@ class AssetSelect(v.Combobox, SepalWidget):
         .. versionadded:: 3.0.0
             Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        self.test = test
+        log.debug(f"INITIALIZING AssetSelect {id(self)}")
         # Validate input parameters
         if gee_session and gee_interface:
             raise ValueError(
@@ -735,11 +746,8 @@ class AssetSelect(v.Combobox, SepalWidget):
         # create the widget
         super().__init__(**kwargs)
 
-        # load the assets in the combobox
-
-        task_controller = TaskController(self._get_items)
-        task_controller.start_task()
-
+        self._tasks: dict[str, GEETask] = {}
+        self._configure_tasks()
         self._fill_no_data({})
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
@@ -752,6 +760,45 @@ class AssetSelect(v.Combobox, SepalWidget):
             debounced = subject.pipe(ops.debounce(0.5))
             debounced.subscribe(lambda value: setattr(self, "v_model", value or None))
             self.on_event("update:search-input", lambda w, e, d: subject.on_next(d))
+
+        # Start the initial task only if no default_asset is set
+        # If default_asset is set, the observer will trigger _get_items
+        if not self.default_asset:
+            self._get_items()
+
+    def _configure_tasks(self) -> None:
+        def on_finally_get_items(*args):
+            self.loading = False
+            self.disabled = False
+
+        def on_finally_validate(*args):
+            # Reset loading state after validation
+            self.loading = False
+
+        self._tasks["get_items"] = self.gee_interface.create_task(
+            func=self._get_items_async,
+            key="get_items",
+            on_error=lambda x: self.alert.add_msg(f"Failed to add layer. {x}", type_="error"),
+            on_finally=on_finally_get_items,
+        )
+
+        self._tasks["validate"] = self.gee_interface.create_task(
+            func=self._validate_async,
+            key="validate",
+            on_error=lambda x: self._on_validation_error(x),
+            on_finally=on_finally_validate,
+        )
+
+    def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
+        """Start the get_items task, canceling any currently running task."""
+        # If task is already running, cancel it first
+        if self._tasks["get_items"].is_running:
+            log.debug(f"[{id(self)}] Canceling running get_items task to start new request")
+            self._tasks["get_items"].cancel()
+
+        self._tasks["get_items"].start(gee_assets=gee_assets)
+
+        return self
 
     def _fill_no_data(self, _: dict) -> None:
         """Fill the items with a no data message if the items are empty."""
@@ -767,54 +814,110 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return
 
-    @sd.switch("loading")
     def _validate(self, change: dict) -> None:
-        """Validate the selected asset. Throw an error message if is not accessible or not in the type list."""
+        """Validate the selected asset. Trigger async validation task."""
+        if change["new"]:
+            # Set loading state before starting validation
+            self.loading = True
+            # Start async validation task
+            self._tasks["validate"].start(asset_id=change["new"])
+        else:
+            # Clear validation state when no asset is selected
+            self.error_messages = None
+            self.valid = True
+            self.error = False
+            self.asset_info = {}
+
+    async def _validate_async(self, *args, asset_id: str = None) -> None:
+        """Asynchronously validate the selected asset."""
+        if not asset_id:
+            return
+
+        # Clear previous error messages
         self.error_messages = None
 
-        # trim the current value
-        if isinstance(self.v_model, str):
-            self.v_model = self.v_model.strip()
+        # Trim the asset ID
+        asset_id = asset_id.strip() if isinstance(asset_id, str) else asset_id
 
-        if change["new"]:
-            # check that the asset can be accessed
-            try:
-                self.asset_info = self.gee_interface.get_asset(self.v_model)
+        try:
+            # Get asset info asynchronously
+            self.asset_info = await self.gee_interface.get_asset_async(asset_id)
 
-                # check that the asset has the correct type
-                if self.asset_info["type"] not in self.types:
-                    self.error_messages = ms.widgets.asset_select.wrong_type.format(
-                        self.asset_info["type"], ",".join(self.types)
-                    )
+            # Check that the asset has the correct type
+            if self.asset_info["type"] not in self.types:
+                self.error_messages = ms.widgets.asset_select.wrong_type.format(
+                    self.asset_info["type"], ",".join(self.types)
+                )
 
-            except Exception:
-                self.error_messages = ms.widgets.asset_select.no_access
+        except Exception:
+            self.error_messages = ms.widgets.asset_select.no_access
+            self.asset_info = {}
 
-            self.valid = self.error_messages is None
-            self.error = self.error_messages is not None
+        # Update validation state
+        self.valid = self.error_messages is None
+        self.error = self.error_messages is not None
 
-        return
+        log.debug(f"After validating the v_model is {self.v_model} for {self.__class__.__name__}")
 
-    @sd.switch("loading", "disabled")
-    def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
+    def _on_validation_error(self, error: Exception) -> None:
+        """Handle validation errors."""
+        self.error_messages = ms.widgets.asset_select.no_access
+        self.valid = False
+        self.error = True
+        self.asset_info = {}
+        # Loading will be reset by on_finally_validate
+
+    # @sd.switch("loading", "disabled")
+    async def _get_items_async(self, *args, gee_assets: List[dict] = None) -> Self:
+
+        log.debug(f"[{id(self)}] running_get_items_async")
 
         self._loaded = False
+        self.loading = True
+        self.disabled = True
         # init the item list
         items = []
 
+        def get_log_text(init):
+            return "from __init__" if init else "from default_asset"
+
+        from_init = True
+        text = get_log_text(from_init)
+
         # add the default values if needed
         if self.default_asset:
+
+            from_init = False
+            text = get_log_text(from_init)
+
+            log.debug(
+                f"[{id(self)}] {text} || There's default asset to add {self.default_asset} for {self.__class__.__name__}"
+            )
             if isinstance(self.default_asset, str):
                 self.default_asset = [self.default_asset]
 
+            # Set the default asset - validation will be handled by the observer
             self.v_model = self.default_asset[0]
 
             header = ms.widgets.asset_select.custom
             items += [{"divider": True}, {"header": header}]
             items += [default for default in self.default_asset]
 
+            log.debug(
+                f"[{id(self)}] >>>>>>> Default asset set to {self.v_model} for {self.__class__.__name__}"
+            )
+
+        log.debug(
+            f"[{id(self)}] {text} || About to get the assets, current v_model is {self.v_model}"
+        )
+
         # get the list of user asset
-        raw_assets = gee_assets or self.gee_interface.get_assets(self.folder)
+        raw_assets = gee_assets or await self.gee_interface.get_assets_async(self.folder)
+
+        log.debug(
+            f"[{id(self)}] {text} || [[[{id(self)} ]]]Already awaited for get_assets_async, current v_model is {self.v_model}"
+        )
+
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
@@ -826,13 +929,22 @@ class AssetSelect(v.Combobox, SepalWidget):
                     *assets[k],
                 ]
 
+        log.debug(
+            f"[{id(self)}] {text} || Assets loaded: {len(items)} items for {self.__class__.__name__} and v_model is {self.v_model}"
+        )
+
         self.items = items
         self._loaded = True
+
+        log.debug(
+            f"[{id(self)}] {text} || Default v_model set to {self.v_model} for {self.__class__.__name__}"
+        )
 
         return self
 
     def _check_types(self, change: dict) -> None:
         """Clean the type list, keeping only the valid one."""
+        log.debug("Checking types for AssetSelect")
         self.v_model = None
 
         # check the type
