@@ -10,7 +10,7 @@ from sepal_ui.logger import log
 
 
 class SepalClient:
-    def __init__(self, session_id: str, module_name: str):
+    def __init__(self, session_id: str, module_name: str, sepal_host: Optional[str] = None):
         """Initialize the Sepal HTTP client.
 
         Args:
@@ -21,7 +21,7 @@ class SepalClient:
         self.BASE_REMOTE_PATH = "/home/sepal-user"
 
         # Get SEPAL_HOST environment variable
-        self.sepal_host = os.getenv("SEPAL_HOST")
+        self.sepal_host = sepal_host or os.getenv("SEPAL_HOST")
         if not self.sepal_host:
             raise ValueError("SEPAL_HOST environment variable not set")
 
@@ -115,25 +115,37 @@ class SepalClient:
             parse_json=parse_json,
         )
 
-    def set_file(self, file_path: str, json_data: str) -> Dict[str, Any]:
-        """Upload a file to the specified folder.
+    def set_file(self, file_path: str, content: Union[str, bytes]) -> Dict[str, Any]:
+        """Upload any content (text or binary) via multipart/form-data.
 
         Args:
-            folder: Destination folder path
-            file_content: The file content as bytes
-            file_path: Name for the uploaded file
+            file_path: The path where the file will be saved on the server
+            content: The content to upload, can be a string or bytes
 
-        Returns:
-            Dict containing the API response
         """
-        data = {"file": json_data}
+        # ensure we have bytes
+        if isinstance(content, str):
+            payload = content.encode("utf-8")
+        else:
+            payload = content
 
-        return self.rest_call(
-            "POST",
-            "setFile/",
-            params={"path": self.sanitize_path(file_path)},
-            data=data,
-        )
+        params = {"path": self.sanitize_path(file_path)}
+
+        # pick MIME by extension
+        ext = Path(file_path).suffix.lower()
+        mime_map = {
+            ".json": "application/json",
+            ".csv": "text/csv",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".xls": "application/vnd.ms-excel",
+            ".tif": "image/tiff",
+            ".tiff": "image/tiff",
+        }
+        mime = mime_map.get(ext, "application/octet-stream")
+
+        files = {"file": (Path(file_path).name, payload, mime)}
+
+        return self.rest_call("POST", "setFile/", params=params, files=files)
 
     def sanitize_path(self, file_path: Union[str, Path]) -> PurePosixPath:
         """Sanitize a file path to be relative to the base remote path."""
