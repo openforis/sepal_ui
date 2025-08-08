@@ -24,11 +24,23 @@ class MapApp(v.VuetifyTemplate):
     app_title = Unicode("Map Application").tag(sync=True)
     app_icon = Unicode("mdi-earth").tag(sync=True)
     open_dialog = Bool(False).tag(sync=True)
+    dialog_width = Int(800).tag(sync=True)
+    right_panel_open = Bool(False).tag(sync=True)
 
     main_map = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
-    steps_content = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     theme_toggle = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     language_selector = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
+
+    # Remove old extra_content - replaced by extra_content_data
+    extra_content_config = Dict(
+        {
+            "title": Unicode(),
+            "icon": Unicode(),
+            "width": Int(),
+            "description": Unicode(),
+            "toggle_icon": Unicode(),
+        }
+    ).tag(sync=True)
 
     steps_data = List(
         Dict(
@@ -37,9 +49,23 @@ class MapApp(v.VuetifyTemplate):
                 "name": Unicode(),
                 "icon": Unicode(),
                 "display": Unicode(),
+                "right_panel_action": Unicode(),
+                "content": List(Instance(DOMWidget)),
             }
         )
-    ).tag(sync=True)
+    ).tag(sync=True, **widget_serialization)
+
+    extra_content_data = List(
+        Dict(
+            {
+                "title": Unicode(),
+                "icon": Unicode(),
+                "content": List(Instance(DOMWidget)),
+                "divider": Bool(),
+                "description": Unicode(),
+            }
+        )
+    ).tag(sync=True, **widget_serialization)
 
     def __init__(self, theme_toggle: "ThemeToggle" = None, **kwargs):
         """Instantiate the MapApp class."""

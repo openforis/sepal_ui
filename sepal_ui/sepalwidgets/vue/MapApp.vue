@@ -1,5 +1,10 @@
 <template>
-  <v-app :style="{ '--drawer-width': sidebarOffset }">
+  <v-app
+    :style="{
+      '--drawer-width': sidebarOffset,
+      '--right-panel-width': rightPanelOffset,
+    }"
+  >
     <div
       v-if="main_map && main_map.length > 0"
       id="map-container"
@@ -12,6 +17,11 @@
     <div
       v-if="activeStep && activeStep.display === 'step'"
       class="step-content-container"
+      :style="{
+        right: right_panel_open
+          ? (extra_content_config.width || 300) + 'px'
+          : '0px',
+      }"
     >
       <jupyter-widget :widget="activeStep.content"></jupyter-widget>
     </div>
@@ -73,7 +83,13 @@
               v-for="(step, i) in steps"
               :key="`step-${i}`"
               @click="activateStep(step)"
-              :class="{ 'active-step': activeStepId === step.id }"
+              :class="{
+                'active-step':
+                  activeStepId === step.id && step.content_enabled !== false,
+                'right-panel-trigger':
+                  rightPanelTriggerStepId === step.id && right_panel_open,
+              }"
+              :data-step-id="step.id"
             >
               <v-list-item-icon>
                 <v-icon class="mb-1">{{
@@ -140,6 +156,124 @@
         </div>
       </div>
     </v-navigation-drawer>
+
+    <!-- Right side panel for extra content -->
+    <v-navigation-drawer
+      v-if="isExtraContentAvailable"
+      v-model="right_panel_open"
+      :width="extra_content_config.width || 300"
+      app
+      right
+      class="right-panel"
+      hide-overlay
+    >
+      <div style="display: flex; flex-direction: column; height: 100%">
+        <div class="drawer-header">
+          <div class="app-title">
+            <v-icon class="mr-2">{{
+              extra_content_config.icon || "mdi-widgets"
+            }}</v-icon>
+            <span class="title font-weight-medium">{{
+              extra_content_config.title || "Extra Content"
+            }}</span>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn
+            icon
+            @click="toggleRightPanel"
+            class="pin-btn"
+            title="Close panel"
+          >
+            <v-icon small>mdi-close</v-icon>
+          </v-btn>
+        </div>
+
+        <!-- Main panel description -->
+        <div
+          v-if="extra_content_config.description"
+          class="panel-description pa-3"
+        >
+          <p class="body-2 ma-0 text--secondary">
+            {{ extra_content_config.description }}
+          </p>
+        </div>
+
+        <v-divider class="ma-0 pa-0"></v-divider>
+
+        <div
+          class="drawer-top"
+          style="flex: 1; overflow-y: auto; overflow-x: hidden"
+        >
+          <div class="pa-4">
+            <div
+              v-for="(section, sectionIndex) in extra_content_data"
+              :key="`section-${sectionIndex}`"
+              class="mb-4"
+            >
+              <!-- Section header if title/icon provided -->
+              <div
+                v-if="section.title || section.icon"
+                class="section-header mb-3"
+              >
+                <div class="d-flex align-center">
+                  <v-icon v-if="section.icon" small class="mr-2">{{
+                    section.icon
+                  }}</v-icon>
+                  <span
+                    v-if="section.title"
+                    class="subtitle-2 font-weight-medium"
+                    >{{ section.title }}</span
+                  >
+                </div>
+              </div>
+
+              <!-- Section description -->
+              <div v-if="section.description" class="section-description mb-3">
+                <p class="body-2 ma-0 text--secondary">
+                  {{ section.description }}
+                </p>
+              </div>
+
+              <!-- Section content widgets -->
+              <div
+                v-for="(widget, widgetIndex) in section.content"
+                :key="`section-${sectionIndex}-widget-${widgetIndex}`"
+                class="mb-3"
+              >
+                <jupyter-widget :widget="widget"></jupyter-widget>
+              </div>
+
+              <!-- Optional divider -->
+              <v-divider
+                v-if="
+                  section.divider &&
+                  sectionIndex < extra_content_data.length - 1
+                "
+                class="mt-4"
+              ></v-divider>
+            </div>
+          </div>
+        </div>
+      </div>
+    </v-navigation-drawer>
+
+    <!-- Right panel toggle tab -->
+    <div
+      v-if="isExtraContentAvailable && !right_panel_open"
+      class="right-panel-tab"
+    >
+      <v-btn
+        tile
+        color="secondary"
+        @click="toggleRightPanel"
+        class="control-btn"
+        title="Show extra content"
+      >
+        <v-icon>{{
+          extra_content_config.toggle_icon || "mdi-chevron-left"
+        }}</v-icon>
+      </v-btn>
+    </div>
 
     <div class="sidebar-controls" :style="{ left: sidebarOffset }">
       <v-btn
@@ -226,9 +360,23 @@ export default {
       type: Array,
       default: () => [],
     },
-    steps_content: {
+    extra_content_config: {
+      type: Object,
+      default: () => ({
+        title: "Extra Content",
+        icon: "mdi-widgets",
+        width: 300,
+        description: "",
+        toggle_icon: "mdi-chevron-left",
+      }),
+    },
+    extra_content_data: {
       type: Array,
       default: () => [],
+    },
+    right_panel_open: {
+      type: Boolean,
+      default: false,
     },
     repo_url: {
       type: String,
@@ -260,14 +408,12 @@ export default {
     expandedWidth: 320,
     activeStepId: null,
     open_dialog: false,
+    rightPanelTriggerStepId: null, // Track which step triggered the right panel
   }),
 
   computed: {
     steps() {
-      return this.steps_data.map((step, index) => ({
-        ...step,
-        content: this.steps_content[index],
-      }));
+      return this.steps_data;
     },
 
     activeStep() {
@@ -277,6 +423,19 @@ export default {
 
     sidebarOffset() {
       return this.mini ? this.collapsedWidth + "px" : this.expandedWidth + "px";
+    },
+
+    rightPanelOffset() {
+      const width = this.extra_content_config.width || 300;
+      return this.right_panel_open ? width + "px" : "0px";
+    },
+
+    hasExtraContent() {
+      return this.extra_content_data && this.extra_content_data.length > 0;
+    },
+
+    isExtraContentAvailable() {
+      return this.hasExtraContent;
     },
 
     externalLinks() {
@@ -325,6 +484,38 @@ export default {
         this.dialogFullscreen = newValue;
       },
     },
+
+    hasExtraContent: {
+      immediate: true,
+      handler(newValue) {
+        // Close panel if no extra content available
+        if (!newValue) {
+          this.right_panel_open = false;
+        }
+      },
+    },
+
+    right_panel_open: {
+      immediate: true,
+      handler(newValue) {
+        // Close any open dialogs when right panel opens
+        if (newValue && this.open_dialog) {
+          this.open_dialog = false;
+          this.activeStepId = null;
+        }
+      },
+    },
+
+    open_dialog: {
+      immediate: true,
+      handler(newValue) {
+        // Close right panel when any dialog opens
+        if (newValue && this.right_panel_open) {
+          this.right_panel_open = false;
+          this.rightPanelTriggerStepId = null;
+        }
+      },
+    },
   },
 
   mounted() {
@@ -333,6 +524,8 @@ export default {
     if (this.steps.length > 0) {
       this.activeStepId = null;
     }
+
+    // Panel state is now controlled by the right_panel_open prop
   },
 
   beforeDestroy() {
@@ -346,6 +539,13 @@ export default {
 
     toggleDrawer() {
       this.mini = !this.mini;
+    },
+
+    toggleRightPanel() {
+      this.right_panel_open = !this.right_panel_open;
+      if (!this.right_panel_open) {
+        this.rightPanelTriggerStepId = null;
+      }
     },
 
     togglePin() {
@@ -373,17 +573,46 @@ export default {
     },
 
     activateStep(step) {
-      this.activeStepId = step.id;
-
-      // for dialog display type, open the dialog
-      if (step.display === "dialog") {
-        this.open_dialog = true;
-      } else {
-        // close dialog when activating non-dialog step
-        this.open_dialog = false;
+      // Always handle right panel actions first
+      if (step.right_panel_action) {
+        switch (step.right_panel_action) {
+          case "open":
+            this.right_panel_open = true;
+            this.rightPanelTriggerStepId = step.id;
+            break;
+          case "close":
+            this.right_panel_open = false;
+            this.rightPanelTriggerStepId = null;
+            break;
+          case "toggle":
+            this.right_panel_open = !this.right_panel_open;
+            if (this.right_panel_open) {
+              this.rightPanelTriggerStepId = step.id;
+            } else {
+              this.rightPanelTriggerStepId = null;
+            }
+            break;
+        }
       }
 
-      this.$emit("step-activated", step);
+      // Only change step content if step has content (not empty array)
+      if (step.content && step.content.length > 0) {
+        this.activeStepId = step.id;
+
+        // for dialog display type, open the dialog (watcher will close right panel if needed)
+        if (step.display === "dialog") {
+          this.open_dialog = true;
+        } else {
+          // close dialog when activating non-dialog step
+          this.open_dialog = false;
+        }
+
+        this.$emit("step-activated", step);
+      } else {
+        // For action-only steps (no content), provide visual feedback without changing content
+        this.provideStepFeedback(step);
+        this.$emit("step-action", step);
+      }
     },
 
     closeDialog() {
@@ -416,6 +645,20 @@ export default {
       this.activeStepId = null;
       this.open_dialog = false;
       this.$emit("show-main-map");
+    },
+
+    provideStepFeedback(step) {
+      // Add a temporary visual feedback for action-only steps
+      // This could be enhanced with animations or other visual cues
+      const stepElement = document.querySelector(`[data-step-id="${step.id}"]`);
+      if (stepElement) {
+        stepElement.style.transition = "background-color 0.2s ease";
+        stepElement.style.backgroundColor =
+          "var(--v-primary-lighten4, rgba(0, 0, 0, 0.1))";
+        setTimeout(() => {
+          stepElement.style.backgroundColor = "";
+        }, 200);
+      }
     },
   },
 };
@@ -526,6 +769,12 @@ export default {
   background-color: var(--v-primary-lighten4, rgba(0, 0, 0, 0.1));
 }
 
+/* Style step that triggered the right panel */
+.right-panel-trigger {
+  background-color: var(--v-secondary-lighten4, rgba(0, 0, 0, 0.08));
+  border-left: 3px solid var(--v-secondary-base, #1976d2);
+}
+
 /* override sepal-ui default css */
 .full-screen-map > .leaflet-container {
   position: fixed !important;
@@ -550,6 +799,11 @@ export default {
   left: var(--drawer-width) !important;
 }
 
+.leaflet-right {
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  right: var(--right-panel-width) !important;
+}
+
 .v-application a {
   color: inherit;
   text-decoration: underline;
@@ -558,5 +812,71 @@ export default {
 .link-item {
   color: inherit;
   text-decoration: none !important;
+}
+
+/* Right panel styles */
+.right-panel {
+  z-index: 5 !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.right-panel .v-navigation-drawer__content {
+  transition: none !important;
+}
+
+.right-panel .section-header {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--v-divider-base, rgba(0, 0, 0, 0.12));
+  margin-bottom: 12px;
+}
+
+/* Description styling for both main panel and sections */
+.panel-description {
+  background-color: var(--v-background-lighten1, rgba(0, 0, 0, 0.05));
+  border-radius: 4px;
+}
+
+.section-description {
+  padding-left: 16px;
+  margin-top: 8px;
+}
+
+/* Right panel toggle tab */
+.right-panel-tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 6 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.right-panel-tab .control-btn {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 3px 0 0 3px !important;
+}
+
+/* Remove old right panel controls styles since we're using the tab approach */
+.right-panel-controls {
+  display: none;
+}
+
+/* Update step content container to account for right panel */
+.step-content-container {
+  position: fixed;
+  top: 0;
+  left: var(--drawer-width);
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-color: var(--v-background-base, #f5f5f5);
+  padding: 16px;
+  transition: left 0.3s ease, right 0.3s ease;
 }
 </style>
