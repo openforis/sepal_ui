@@ -8,6 +8,7 @@ from sepal_ui.mapping.bounds import (
     compute_zoom_for_bounds,
 )
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
+from sepal_ui.mapping.visualization import get_viz_params, get_viz_params_async
 from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 
@@ -20,8 +21,6 @@ import json
 import math
 import random
 import string
-import warnings
-from distutils.util import strtobool
 from pathlib import Path
 from typing import List, Optional, Sequence, Union, cast
 
@@ -55,7 +54,6 @@ from sepal_ui.mapping.zoom_control import ZoomControl
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.warning import SepalWarning
 
 __all__ = ["SepalMap"]
 
@@ -132,7 +130,7 @@ class SepalMap(ipl.Map):
             )
 
         log.debug(
-            f"Map initialization with gee: {gee} and session: {gee_session} and interface: {gee_interface}"
+            f"Map initialization with gee: {gee} and session: {gee_session} and interface: {gee_interface} ID: {id(gee_interface)}"
         )
 
         # set the default parameters
@@ -405,20 +403,6 @@ class SepalMap(ipl.Map):
 
         return layer
 
-    @deprecated(version="2.8.0", reason="use dc methods instead")
-    def show_dc(self) -> Self:
-        """Show the drawing control on the map."""
-        self.dc.show()
-
-        return self
-
-    @deprecated(version="2.8.0", reason="use dc methods instead")
-    def hide_dc(self) -> Self:
-        """Hide the drawing control of the map."""
-        self.dc.hide()
-
-        return self
-
     def add_colorbar(
         self,
         colors: list,
@@ -534,149 +518,80 @@ class SepalMap(ipl.Map):
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
             use_map_vis: whether or not to use the map visualization parameters. default to True
         """
-        # check the type of the ee object and raise an error if it's not recognized
-        if not isinstance(
+        # get the visualization parameters
+        image, obj, vis_params = get_viz_params(
+            self.gee_interface,
             ee_object,
-            (
-                ee.Image,
-                ee.ImageCollection,
-                ee.FeatureCollection,
-                ee.Feature,
-                ee.Geometry,
-            ),
-        ):
-            raise AttributeError(
-                "\n\nThe image argument in 'addLayer' function must be an instance of "
-                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
-            )
-
-        # get the list of viz params
-        viz = self.get_viz_params(image=ee_object)
-
-        # get the requested vizparameters name
-        # if non is set use the first one
-        if viz:
-            viz_name = viz_name or viz[next(iter(viz))]["name"]
-
-        # apply it to vis_params
-        if not vis_params and viz and use_map_vis:
-            # find the viz params in the list
-            try:
-                vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
-            except StopIteration:
-                raise ValueError(
-                    f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
-                )
-
-            # invert the bands if needed
-            inverted = vis_params.pop("inverted", None)
-            if inverted is not None:
-                # get the index of the bands that need to be inverted
-                index_list = [i for i, v in enumerate(inverted) if v is True]
-
-                # multiply everything by -1
-                for i in index_list:
-                    min_ = vis_params["min"][i]
-                    max_ = vis_params["max"][i]
-                    vis_params["min"][i] = max_
-                    vis_params["max"][i] = min_
-
-            # specific case of categorical images
-            # Pad the palette when using non-consecutive values
-            # instead of remapping or using sldStyle
-            # to preserve the class values in the image, for inspection
-            if vis_params["type"] == "categorical":
-                colors = vis_params["palette"]
-                values = vis_params["values"]
-                min_ = min(values)
-                max_ = max(values)
-
-                # set up a black palette of correct length
-                palette = ["#000000"] * (max_ - min_ + 1)
-
-                # replace the values within the palette
-                for i, val in enumerate(values):
-                    palette[val - min_] = colors[i]
-
-                # adapt the vizparams
-                vis_params["palette"] = palette
-                vis_params["min"] = min_
-                vis_params["max"] = max_
-
-            # specific case of hsv
-            elif vis_params["type"] == "hsv":
-                # set to_min to 0 and to_max to 1
-                # in the original expression:
-                # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
-                expression = "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
-
-                # get the maxs and mins
-                # removing them from the parameter
-                mins = vis_params.pop("min")
-                maxs = vis_params.pop("max")
-
-                # create the rgb bands
-                asset = ee_object
-                for i, band in enumerate(vis_params["bands"]):
-                    # adapt the expression
-                    exp = expression.format(from_min=mins[i], from_max=maxs[i], band=band)
-                    asset = asset.addBands(asset.expression(exp), [band], True)
-
-                # set the arguments
-                ee_object = asset.select(vis_params["bands"]).hsvToRgb()
-                vis_params["bands"] = ["red", "green", "blue"]
+            vis_params=vis_params,
+            viz_name=viz_name,
+            use_map_vis=use_map_vis,
+        )
 
         # create the layer based on these new values
         if not name:
             layer_count = len(self.layers)
             name = "Layer " + str(layer_count + 1)
 
-        # force cast to featureCollection if needed
-        if isinstance(
-            ee_object,
-            (
-                ee.geometry.Geometry,
-                ee.feature.Feature,
-                ee.featurecollection.FeatureCollection,
-            ),
-        ):
-            default_vis = json.loads((ss.JSON_DIR / "layer.json").read_text())["ee_layer"]
-            default_vis.update(color=scolors.primary)
-
-            # We want to get all the default styles and only change those whose are
-            # in the provided visualization.
-            default_vis.update(vis_params)
-
-            vis_params = default_vis
-
-            features = ee.FeatureCollection(ee_object)
-            const_image = ee.Image.constant(0.5)
-
-            try:
-                image_fill = features.style(**vis_params).updateMask(const_image)
-                image_outline = features.style(**vis_params)
-
-            except AttributeError:
-                # Raise a more understandable error
-                raise AttributeError(
-                    "You can only use the following styles: 'color', 'pointSize', "
-                    "'pointShape', 'width', 'fillColor', 'styleProperty', "
-                    "'neighborhood', 'lineType'"
-                )
-
-            image = image_fill.blend(image_outline)
-            obj = features
-
-        # use directly the ee object if Image
-        elif isinstance(ee_object, ee.image.Image):
-            image = obj = ee_object
-
-        # use mosaicing if the ee_object is a ImageCollection
-        elif isinstance(ee_object, ee.imagecollection.ImageCollection):
-            image = obj = ee_object.mosaic()
-
         # create the colored image
         map_id_dict = self.gee_interface.get_map_id(image, vis_params)
+        tile_layer = EELayer(
+            ee_object=obj,
+            url=map_id_dict["tile_fetcher"].url_format,
+            attribution="Google Earth Engine",
+            name=name,
+            opacity=opacity,
+            visible=shown,
+            max_zoom=24,
+        )
+
+        self.add_layer(tile_layer, key=key)
+
+        return
+
+    async def add_ee_layer_async(
+        self,
+        ee_object: ee.ComputedObject,
+        vis_params: dict = {},
+        name: str = "",
+        shown: bool = True,
+        opacity: float = 1.0,
+        viz_name: str = "",
+        key: str = "",
+        use_map_vis: bool = True,
+    ) -> None:
+        """Customized add_layer method designed for EE objects.
+
+        Copy the addLayer method from geemap to read and guess the vizaulization
+        parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and visualization metadata exist, SepalMap will use
+        them automatically.
+
+        Args:
+            ee_object: the ee OBject to draw on the map
+            vis_params: the visualization parameters set as in GEE
+            name: the name of the layer
+            shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity: the opcity of the layer from 0 to 1, default to 1.
+            viz_name: the name of the vizaulization you want to use. default to the first one if existing
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
+            use_map_vis: whether or not to use the map visualization parameters. default to True
+        """
+        # get the visualization parameters
+        image, obj, vis_params = await get_viz_params_async(
+            self.gee_interface,
+            ee_object,
+            vis_params=vis_params,
+            viz_name=viz_name,
+            use_map_vis=use_map_vis,
+        )
+
+        # create the layer based on these new values
+        if not name:
+            layer_count = len(self.layers)
+            name = "Layer " + str(layer_count + 1)
+
+        # create the colored image
+        map_id_dict = await self.gee_interface.get_map_id_async(image, vis_params)
         tile_layer = EELayer(
             ee_object=obj,
             url=map_id_dict["tile_fetcher"].url_format,
@@ -703,91 +618,6 @@ class SepalMap(ipl.Map):
         """
         return [k for k in basemap_tiles.keys()]
 
-    def get_viz_params(self, image: ee.Image) -> dict:
-        """Return the vizual parameters that are set in the metadata of the image.
-
-        Args:
-            image: the image to analyse
-
-        Returns:
-            The dictionary of the find properties
-        """
-        # the constant prefix for SEPAL visualization parameters
-        PREFIX = "visualization"
-
-        # init the property list
-        props = {}
-
-        # check image type
-        if not isinstance(image, ee.Image):
-            return props
-
-        log.debug("Getting viz params for image")
-
-        try:
-            # Get property names and filter only visualization properties
-            prop_names = image.propertyNames()
-            viz_props = prop_names.filter(ee.Filter.stringStartsWith("item", PREFIX))
-
-            # Check if there are any visualization properties
-            if self.gee_interface.get_info(viz_props.sizJe()) == 0:
-                log.warning("Image has no visualization properties, returning empty viz params")
-                return props
-
-            # Get only the visualization properties as a dictionary
-            viz_dict = image.toDictionary(viz_props)
-            raw_prop_list = self.gee_interface.get_info(viz_dict)
-
-            log.debug(f"Found {len(raw_prop_list)} viz params")
-
-            # If no properties were found, return empty props
-            if not raw_prop_list:
-                return props
-
-            # decompose each property by its number
-            # and gather the properties in a sub dictionary
-            for p, val in raw_prop_list.items():
-                # extract the number and create the sub-dict
-                _, number, name = p.split("_")
-                props.setdefault(number, {})
-
-                # modify the values according to prop key
-                if isinstance(val, str):
-                    if name in ["bands", "palette", "labels"]:
-                        val = val.split(",")
-                    elif name in ["max", "min", "values"]:
-                        val = [float(i) for i in val.split(",")]
-                    elif name in ["inverted"]:
-                        val = [bool(strtobool(i)) for i in val.split(",")]
-
-                # set the value
-                props[number][name] = val
-
-        except Exception as e:
-            log.warning(f"Error getting visualization parameters: {str(e)}")
-            return props
-
-        for i in props.keys():
-            if "type" in props[i]:
-                # categorical values need to be cast to int
-                if props[i]["type"] == "categorical":
-                    props[i]["values"] = [int(val) for val in props[i]["values"]]
-            else:
-                # if no "type" is provided guess it from the different parameters gathered
-                if len(props[i]["bands"]) == 1:
-                    props[i]["type"] = "continuous"
-                elif len(props[i]["bands"]) == 3:
-                    props[i]["type"] = "rgb"
-                else:
-                    warnings.warn(
-                        "the embed viz properties are incomplete or badly set, "
-                        "please review our documentation",
-                        SepalWarning,
-                    )
-                    props = {}
-
-        return props
-
     def remove_layer(
         self, key: Union[ipl.Layer, int, str], base: bool = False, none_ok: bool = False
     ) -> None:
@@ -808,19 +638,24 @@ class SepalMap(ipl.Map):
 
         return
 
-    def remove_all(self, base: bool = False) -> None:
+    def remove_all(self, base: bool = False, keep_names: Optional[list[str]] = None) -> None:
         """Remove all the layers from the maps.
 
         If base is set to True, the basemaps are removed as well.
 
         Args:
             base: whether or not the basemaps should be removed, default to False
+            keep_names: if set, will keep the layers with these names
         """
         # filter out the basemaps if base == False
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
 
         # remove them using the layer objects as keys
-        [self.remove_layer(layer, base) for layer in layers]
+        [
+            self.remove_layer(layer, base)
+            for layer in layers
+            if not keep_names or layer.name not in keep_names
+        ]
 
         return
 
