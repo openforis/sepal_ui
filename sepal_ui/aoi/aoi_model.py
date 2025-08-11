@@ -85,6 +85,9 @@ class AoiModel(Model):
     name: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
     "The name of the file to create (used only in drawn shaped)"
 
+    object_set: t.Int = t.Int(0, allow_none=True).tag(sync=True)
+    "An integer that is incremented each time the object is set.."
+
     # ###########################################################################
     # ###                           model parameters                          ###
     # ###########################################################################
@@ -242,6 +245,8 @@ class AoiModel(Model):
             self._from_asset(self.asset_json)
         else:
             raise Exception(ms.aoi_sel.exception.no_inputs)
+
+        self.object_set += 1
 
         return self
 
