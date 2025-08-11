@@ -10,7 +10,8 @@ from .utils import (
     get_current_drive_interface,
     get_current_gee_interface,
     get_current_sepal_client,
-    get_session_info,
+    get_current_session_info,
+    get_sessions_overview,
     setup_theme_colors,
 )
 
@@ -20,6 +21,7 @@ __all__ = [
     "get_current_drive_interface",
     "get_current_gee_interface",
     "get_current_sepal_client",
-    "get_session_info",
+    "get_current_session_info",
+    "get_sessions_overview",
     "setup_theme_colors",
 ]
