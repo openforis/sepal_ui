@@ -85,7 +85,7 @@ class AoiModel(Model):
     name: t.Unicode = t.Unicode(None, allow_none=True).tag(sync=True)
     "The name of the file to create (used only in drawn shaped)"
 
-    object_set: t.Int = t.Int(0, allow_none=True).tag(sync=True)
+    object_set: t.Int = t.Int(0).tag(sync=True)
     "An integer that is incremented each time the object is set.."
 
     # ###########################################################################
@@ -445,7 +445,7 @@ class AoiModel(Model):
         asset = self.default_asset
 
         # delete all the traits
-        [setattr(self, attr, None) for attr in self.trait_names()]
+        [setattr(self, attr, None) for attr in self.trait_names() if attr not in ["object_set"]]
 
         # reset the outputs
         self.clear_output()
