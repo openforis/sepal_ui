@@ -25,9 +25,9 @@
       "wiki": "Wiki",
       "bug": "Reportar error",
       "changelog": {
-        "version": "",
-        "title": "",
-        "close_btn": ""
+        "version": "Versión: {}",
+        "title": "Registro de cambios",
+        "close_btn": "Cerrar"
       }
     },
     "asset_select": {
@@ -42,8 +42,8 @@
       "custom": "Personalizado",
       "no_access": "Parece que no tienes acceso al asset seleccionado o este no existe.",
       "wrong_type": "El tipo del asset seleccionado: ({}), no coincide con ninguno de los tipos permitidos por el widget: ({}).",
-      "placeholder": "",
-      "no_assets": ""
+      "placeholder": "projects/{project}/assets/asset_name",
+      "no_assets": "No se encontraron assets en: '{}'"
     },
     "load_table": {
       "too_small": "El archivo ingresado contiene menos de 3 columnas. Por favor, selecciona un archivo de puntos completo con al menos las columnas de ID, latitud y longitud."
@@ -71,38 +71,38 @@
     "btn": "Usar selección",
     "complete": "El AOI ha sido seleccionada",
     "exception": {
-      "no_inputs": "",
-      "no_asset": "",
-      "no_value": "",
-      "incomplete": "",
-      "no_file": "",
-      "duplicate_key": "",
-      "no_draw": "",
-      "no_admlyr": "",
-      "invalid_code": "",
-      "no_gdf": "",
-      "no_fc": ""
+      "no_inputs": "Por favor llene todas las entradas antes de validar el AOI",
+      "no_asset": "Por favor, seleccione un \"asset\".",
+      "no_value": "Seleccione un valor",
+      "incomplete": "Todos los campos son obligatorios.",
+      "no_file": "Por favor seleccione un archivo",
+      "duplicate_key": "Una llave está duplicada en su selección. Por favor, seleccione diferentes columnas para los parámetros de latitud, longitud e Id",
+      "no_draw": "Por favor, dibuje una figura en el mapa",
+      "no_admlyr": "Seleccione una capa administrativa",
+      "invalid_code": "El código no está en la base de datos",
+      "no_gdf": "Debe establecer el gdf antes de interactuar con él",
+      "no_fc": "Tienes que seleccionar una feature collection primero"
     }
   },
   "mapping": {
     "no_image": "El archivo de imagen no existe",
-    "legend": ""
+    "legend": "Leyenda"
   },
   "planet": {
     "exception": {
       "empty": "Por favor completa todos los campos",
       "invalid": "Correo electrónico o contraseña inválidos",
       "nosubs": "Tus credenciales no tienen asociada ninguna suscripción válida de Planet.",
-      "no_secret_file": ""
+      "no_secret_file": "El archivo de credenciales no existe, utilice un método diferente de inicio de sesión."
     },
     "widget": {
       "username": "Nombre de usuario",
       "password": "Contraseña",
       "apikey": "API key",
-      "store": "",
+      "store": "Recordar las credenciales en la sesión.",
       "method": {
+        "from_file": "Desde credenciales guardadas",
         "label": "Método de inicio de sesión",
-        "from_file": "",
         "credentials": "Credenciales",
         "api_key": "API key"
       }
@@ -217,9 +217,9 @@
   },
   "disclaimer": {
     "p": {
-      "0": "",
-      "1": "",
-      "2": ""
+      "0": "Los desarrolladores declinan toda responsabilidad por errores o deficiencias en la base de datos o software o en la documentación que lo acompaña para el mantenimiento y actualización de programas así como por cualquier daño que pueda derivarse de ellos.",
+      "1": "Los desarrolladores también declina cualquier responsabilidad por la actualización de los datos y no asume ninguna responsabilidad por errores y omisiones en los datos proporcionados.",
+      "2": "Sin embargo, se pide amablemente a los usuarios que informen de cualquier error o deficiencia en este producto a los desarrolladores."
     }
   }
 }
