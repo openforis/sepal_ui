@@ -130,7 +130,9 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
-    "sepalwidgets/vue/*"
+    "sepalwidgets/vue/*",
+    "solara/common/assets/*"
+
 ]
 
 [tool.commitizen]
