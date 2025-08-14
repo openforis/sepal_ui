@@ -3,6 +3,8 @@
 
 ee_private_key.json
 warnings.txt
+logging_config.toml
+.github/instructions/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

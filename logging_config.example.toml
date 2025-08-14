@@ -1,0 +1,45 @@
+version = 1
+disable_existing_loggers = false
+
+# ─── FORMATTERS ──────────────────────────────────────────────
+[formatters.colored_sepalui]
+"()"      = "colorlog.ColoredFormatter"
+format    = "%(log_color)s%(asctime)s - \u001b[44m%(name)s\u001b[0m - %(levelname)s - %(message)s"
+datefmt   = "%Y-%m-%d %H:%M:%S"
+
+[formatters.colored_sepalui.log_colors]
+DEBUG     = "cyan"
+INFO      = "green"
+WARNING   = "yellow"
+ERROR     = "red"
+CRITICAL  = "bold_red"
+
+
+# ─── HANDLERS ────────────────────────────────────────────────
+
+[handlers.file]
+class     = "logging.FileHandler"
+level     = "DEBUG"
+formatter = "colored_sepalui"
+filename  = "sepalui.log"
+mode      = "a"
+
+[handlers.notebook]
+class     = "logging.StreamHandler"
+level     = "DEBUG"
+formatter = "colored_sepalui"
+stream    = "ext://sys.stderr"
+
+
+# ─── LOGGERS ────────────────────────────────────────────────
+
+[loggers.sepalui]
+level     = "DEBUG"
+handlers  = ["file", "notebook"]
+propagate = false
+
+
+# ─── ROOT ───────────────────────────────────────────────────
+[root]
+level    = "WARNING"
+handlers = []
