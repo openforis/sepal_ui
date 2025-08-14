@@ -14,11 +14,6 @@
   box-shadow: none;
 }
 
-/* remove extra padding on top of the content
-main.v-content {
-  padding-top: 0px !important;
-} */
-
 .v-alert__wrapper .progress {
   background-color: transparent;
 }
@@ -31,7 +26,7 @@ header.v-app-bar {
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
   max-width: 100% !important;
-  z-index: 801 !important;
+  /* z-index: 902 !important; */
 }
 
 /* make sure navigation drawers are always visible when they exist */

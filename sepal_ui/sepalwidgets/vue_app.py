@@ -23,8 +23,8 @@ class MapApp(v.VuetifyTemplate):
     repo_url = Unicode("").tag(sync=True)
     app_title = Unicode("Map Application").tag(sync=True)
     app_icon = Unicode("mdi-earth").tag(sync=True)
-    open_dialog = Bool(False).tag(sync=True)
     dialog_width = Int(800).tag(sync=True)
+    dialog_fullscreen = Bool(False).tag(sync=True)
     right_panel_open = Bool(False).tag(sync=True)
 
     main_map = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
@@ -51,6 +51,8 @@ class MapApp(v.VuetifyTemplate):
                 "display": Unicode(),
                 "right_panel_action": Unicode(),
                 "content": List(Instance(DOMWidget)),
+                "content_enabled": Bool(),
+                "actions": List(),
             }
         )
     ).tag(sync=True, **widget_serialization)

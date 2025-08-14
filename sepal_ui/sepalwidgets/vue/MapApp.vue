@@ -31,6 +31,7 @@
       :mini-variant="mini"
       :mini-variant-width="collapsedWidth"
       :width="expandedWidth"
+      :class="{ 'drawer-disabled': drawerDisabled }"
       app
       permanent
     >
@@ -259,7 +260,7 @@
 
     <!-- Right panel toggle tab -->
     <div
-      v-if="isExtraContentAvailable && !right_panel_open"
+      v-if="isExtraContentAvailable && !right_panel_open && !drawerDisabled"
       class="right-panel-tab"
     >
       <v-btn
@@ -398,6 +399,14 @@ export default {
       type: String,
       default: "mdi-earth",
     },
+    theme_toggle: {
+      type: Array,
+      default: () => [],
+    },
+    language_selector: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   data: () => ({
@@ -408,7 +417,7 @@ export default {
     expandedWidth: 320,
     activeStepId: null,
     open_dialog: false,
-    rightPanelTriggerStepId: null, // Track which step triggered the right panel
+    rightPanelTriggerStepId: null,
   }),
 
   computed: {
@@ -459,8 +468,6 @@ export default {
     },
 
     dialogWidthComputed() {
-      // get dialog width based on prop and viewport
-      // Ensure dialog width doesn't exceed viewport minus sidebar
       const viewportWidth = window.innerWidth;
       const sidebarWidth = this.mini ? this.collapsedWidth : this.expandedWidth;
       const maxDialogWidth = viewportWidth - sidebarWidth - 40;
@@ -475,30 +482,31 @@ export default {
 
       return Math.min(maxDialogWidth, this.dialog_width || 800);
     },
+
+    dialogFullscreen() {
+      return this.dialog_fullscreen;
+    },
+
+    drawerDisabled() {
+      return this.open_dialog;
+    },
   },
 
   watch: {
-    dialog_fullscreen: {
-      immediate: true,
-      handler(newValue) {
-        this.dialogFullscreen = newValue;
-      },
-    },
-
     hasExtraContent: {
       immediate: true,
       handler(newValue) {
         // Close panel if no extra content available
-        if (!newValue) {
+        if (!newValue && this.right_panel_open) {
           this.right_panel_open = false;
         }
       },
     },
 
+    // Watch for right panel opening - close dialogs
     right_panel_open: {
       immediate: true,
       handler(newValue) {
-        // Close any open dialogs when right panel opens
         if (newValue && this.open_dialog) {
           this.open_dialog = false;
           this.activeStepId = null;
@@ -506,10 +514,10 @@ export default {
       },
     },
 
+    // Watch for dialog opening - close right panel
     open_dialog: {
       immediate: true,
       handler(newValue) {
-        // Close right panel when any dialog opens
         if (newValue && this.right_panel_open) {
           this.right_panel_open = false;
           this.rightPanelTriggerStepId = null;
@@ -520,12 +528,6 @@ export default {
 
   mounted() {
     window.addEventListener("resize", this.handleResize);
-
-    if (this.steps.length > 0) {
-      this.activeStepId = null;
-    }
-
-    // Panel state is now controlled by the right_panel_open prop
   },
 
   beforeDestroy() {
@@ -543,6 +545,7 @@ export default {
 
     toggleRightPanel() {
       this.right_panel_open = !this.right_panel_open;
+
       if (!this.right_panel_open) {
         this.rightPanelTriggerStepId = null;
       }
@@ -550,12 +553,6 @@ export default {
 
     togglePin() {
       this.isPinned = !this.isPinned;
-    },
-
-    expandIfMini() {
-      if (this.mini) {
-        this.mini = false;
-      }
     },
 
     handleMapClick() {
@@ -573,7 +570,12 @@ export default {
     },
 
     activateStep(step) {
-      // Always handle right panel actions first
+      // Don't allow step activation if drawer is disabled (dialog is open)
+      if (this.drawerDisabled) {
+        return;
+      }
+
+      // Handle right panel actions first
       if (step.right_panel_action) {
         switch (step.right_panel_action) {
           case "open":
@@ -595,21 +597,21 @@ export default {
         }
       }
 
-      // Only change step content if step has content (not empty array)
+      // Only change step content if step has content
       if (step.content && step.content.length > 0) {
         this.activeStepId = step.id;
 
-        // for dialog display type, open the dialog (watcher will close right panel if needed)
+        // For dialog display type, open the dialog
         if (step.display === "dialog") {
           this.open_dialog = true;
         } else {
-          // close dialog when activating non-dialog step
+          // Close dialog when activating non-dialog step
           this.open_dialog = false;
         }
 
         this.$emit("step-activated", step);
       } else {
-        // For action-only steps (no content), provide visual feedback without changing content
+        // For action-only steps, provide visual feedback
         this.provideStepFeedback(step);
         this.$emit("step-action", step);
       }
@@ -642,6 +644,11 @@ export default {
     },
 
     showMainMap() {
+      // Don't allow if drawer is disabled (dialog is open)
+      if (this.drawerDisabled) {
+        return;
+      }
+
       this.activeStepId = null;
       this.open_dialog = false;
       this.$emit("show-main-map");
@@ -684,7 +691,7 @@ export default {
   z-index: 0;
   background-color: var(--v-background-base, #f5f5f5);
   padding: 16px;
-  transition: left 0.3s ease;
+  transition: left 0.3s ease, right 0.3s ease;
 }
 
 .transparent-main {
@@ -816,7 +823,7 @@ export default {
 
 /* Right panel styles */
 .right-panel {
-  z-index: 5 !important;
+  /* z-index: 5 !important; */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -862,21 +869,13 @@ export default {
   border-radius: 3px 0 0 3px !important;
 }
 
-/* Remove old right panel controls styles since we're using the tab approach */
-.right-panel-controls {
-  display: none;
+/* Disabled drawer when dialog is open */
+.drawer-disabled {
+  pointer-events: none !important;
+  /* opacity: 0.6 !important; */
 }
 
-/* Update step content container to account for right panel */
-.step-content-container {
-  position: fixed;
-  top: 0;
-  left: var(--drawer-width);
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  background-color: var(--v-background-base, #f5f5f5);
-  padding: 16px;
-  transition: left 0.3s ease, right 0.3s ease;
+.drawer-disabled .v-list-item {
+  pointer-events: none !important;
 }
 </style>
