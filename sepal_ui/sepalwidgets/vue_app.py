@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import List as TypingList
 from typing import Optional
 
 import ipyvuetify as v
@@ -21,26 +22,44 @@ class MapApp(v.VuetifyTemplate):
     )
 
     repo_url = Unicode("").tag(sync=True)
+    docs_url = Unicode("").tag(sync=True)
     app_title = Unicode("Map Application").tag(sync=True)
     app_icon = Unicode("mdi-earth").tag(sync=True)
     dialog_width = Int(800).tag(sync=True)
     dialog_fullscreen = Bool(False).tag(sync=True)
-    right_panel_open = Bool(False).tag(sync=True)
 
     main_map = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     theme_toggle = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     language_selector = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
+    right_panel = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
+
+    # Right panel state tracking
+    right_panel_open = Bool(False).tag(sync=True)
+    right_panel_width = Int(300).tag(sync=True)
 
     # Remove old extra_content - replaced by extra_content_data
     extra_content_config = Dict(
-        {
-            "title": Unicode(),
-            "icon": Unicode(),
-            "width": Int(),
-            "description": Unicode(),
-            "toggle_icon": Unicode(),
+        default_value={
+            "title": "Extra Content",
+            "icon": "mdi-widgets",
+            "width": 300,
+            "description": "",
+            "toggle_icon": "mdi-chevron-left",
         }
     ).tag(sync=True)
+
+    extra_content_data = List(
+        Dict(
+            {
+                "title": Unicode(),
+                "icon": Unicode(),
+                "content": List(Instance(DOMWidget)),
+                "divider": Bool(),
+                "description": Unicode(),
+            }
+        ),
+        default_value=[],
+    ).tag(sync=True, **widget_serialization)
 
     steps_data = List(
         Dict(
@@ -53,28 +72,79 @@ class MapApp(v.VuetifyTemplate):
                 "content": List(Instance(DOMWidget)),
                 "content_enabled": Bool(),
                 "actions": List(),
+                "width": Int(),
+                "height": Int(),
             }
         )
     ).tag(sync=True, **widget_serialization)
 
-    extra_content_data = List(
-        Dict(
-            {
-                "title": Unicode(),
-                "icon": Unicode(),
-                "content": List(Instance(DOMWidget)),
-                "divider": Bool(),
-                "description": Unicode(),
-            }
-        )
-    ).tag(sync=True, **widget_serialization)
+    # Initial step configuration
+    initial_step = Int(allow_none=True).tag(sync=True)
 
-    def __init__(self, theme_toggle: "ThemeToggle" = None, **kwargs):
+    def __init__(
+        self,
+        theme_toggle: "ThemeToggle" = None,
+        right_panel: "RightPanel | TypingList[RightPanel]" = None,
+        initial_step: Optional[int] = None,
+        **kwargs,
+    ):
         """Instantiate the MapApp class."""
         self.theme_toggle = theme_toggle
 
+        # Handle right panel - extract from list if provided as list
+        if isinstance(right_panel, list) and len(right_panel) > 0:
+            right_panel = right_panel[0]
+
+        # Handle right panel - create if not provided but extra content is specified
+        if right_panel is None and (
+            kwargs.get("extra_content_data") or kwargs.get("extra_content_config")
+        ):
+            # Create right panel from legacy extra_content parameters
+            config = kwargs.get("extra_content_config", {})
+            content_data = kwargs.get("extra_content_data", [])
+
+            right_panel = RightPanel(config=config, content_data=content_data)
+
+        kwargs["right_panel"] = [right_panel] if right_panel else []
+
+        # Set up right panel state tracking
+        if right_panel:
+            kwargs["right_panel_open"] = right_panel.is_open
+            kwargs["right_panel_width"] = right_panel.config.get("width", 300)
+
         kwargs["language_selector"] = kwargs.get("language_selector", [LocaleSelect()])
+
+        # Handle initial step configuration
+        if initial_step is not None:
+            kwargs["initial_step"] = initial_step
+
         super().__init__(**kwargs)
+
+        # Set up right panel state observation after initialization
+        if right_panel:
+            right_panel.observe(self._on_right_panel_change, "is_open")
+            right_panel.observe(self._on_right_panel_config_change, "config")
+
+    def vue_handle_right_panel_action(self, action):
+        """Handle right panel actions from step activation."""
+        if self.right_panel and len(self.right_panel) > 0:
+            panel = self.right_panel[0]
+            if action == "open":
+                panel.is_open = True
+            elif action == "close":
+                panel.is_open = False
+            elif action == "toggle":
+                panel.is_open = not panel.is_open
+
+    def _on_right_panel_change(self, change):
+        """Update the right panel state when it changes."""
+        self.right_panel_open = change["new"]
+
+    def _on_right_panel_config_change(self, change):
+        """Update the right panel width when config changes."""
+        new_config = change["new"]
+        if "width" in new_config:
+            self.right_panel_width = new_config["width"]
 
 
 class ThemeToggle(v.VuetifyTemplate):
@@ -88,6 +158,47 @@ class ThemeToggle(v.VuetifyTemplate):
     on_icon = Unicode("mdi-weather-night").tag(sync=True)
     off_icon = Unicode("mdi-white-balance-sunny").tag(sync=True)
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
+
+
+class RightPanel(v.VuetifyTemplate):
+
+    template_file = Unicode(str(Path(__file__).parents[1] / "sepalwidgets/vue/RightPanel.vue")).tag(
+        sync=True
+    )
+
+    is_open = Bool(False).tag(sync=True)
+    disabled = Bool(False).tag(sync=True)
+
+    config = Dict(
+        default_value={
+            "title": "Extra Content",
+            "icon": "mdi-widgets",
+            "width": 300,
+            "description": "",
+            "toggle_icon": "mdi-chevron-left",
+        }
+    ).tag(sync=True)
+
+    content_data = List(
+        Dict(
+            {
+                "title": Unicode(),
+                "icon": Unicode(),
+                "content": List(Instance(DOMWidget)),
+                "divider": Bool(),
+                "description": Unicode(),
+            }
+        ),
+        default_value=[],
+    ).tag(sync=True, **widget_serialization)
+
+    def __init__(self, **kwargs):
+        """Initialize RightPanel with event handlers."""
+        super().__init__(**kwargs)
+
+    def vue_panel_state_changed(self, state):
+        """Handle panel state changes from Vue component."""
+        self.is_open = state
 
 
 class LocaleSelect(v.VuetifyTemplate):

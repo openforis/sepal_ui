@@ -3,6 +3,7 @@
     :style="{
       '--drawer-width': sidebarOffset,
       '--right-panel-width': rightPanelOffset,
+      '--right-panel-open': rightPanelOpen ? '1' : '0',
     }"
   >
     <div
@@ -17,11 +18,7 @@
     <div
       v-if="activeStep && activeStep.display === 'step'"
       class="step-content-container"
-      :style="{
-        right: right_panel_open
-          ? (extra_content_config.width || 300) + 'px'
-          : '0px',
-      }"
+      :class="{ 'right-panel-open': rightPanelOpen }"
     >
       <jupyter-widget :widget="activeStep.content"></jupyter-widget>
     </div>
@@ -67,6 +64,7 @@
           <!-- steps -->
           <v-list dense class="pa-0 ma-0">
             <v-list-item
+              v-if="main_map && main_map.length > 0"
               @click="showMainMap"
               :class="{ 'active-step': !activeStepId }"
             >
@@ -87,8 +85,6 @@
               :class="{
                 'active-step':
                   activeStepId === step.id && step.content_enabled !== false,
-                'right-panel-trigger':
-                  rightPanelTriggerStepId === step.id && right_panel_open,
               }"
               :data-step-id="step.id"
             >
@@ -158,123 +154,11 @@
       </div>
     </v-navigation-drawer>
 
-    <!-- Right side panel for extra content -->
-    <v-navigation-drawer
-      v-if="isExtraContentAvailable"
-      v-model="right_panel_open"
-      :width="extra_content_config.width || 300"
-      app
-      right
-      class="right-panel"
-      hide-overlay
-    >
-      <div style="display: flex; flex-direction: column; height: 100%">
-        <div class="drawer-header">
-          <div class="app-title">
-            <v-icon class="mr-2">{{
-              extra_content_config.icon || "mdi-widgets"
-            }}</v-icon>
-            <span class="title font-weight-medium">{{
-              extra_content_config.title || "Extra Content"
-            }}</span>
-          </div>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon
-            @click="toggleRightPanel"
-            class="pin-btn"
-            title="Close panel"
-          >
-            <v-icon small>mdi-close</v-icon>
-          </v-btn>
-        </div>
-
-        <!-- Main panel description -->
-        <div
-          v-if="extra_content_config.description"
-          class="panel-description pa-3"
-        >
-          <p class="body-2 ma-0 text--secondary">
-            {{ extra_content_config.description }}
-          </p>
-        </div>
-
-        <v-divider class="ma-0 pa-0"></v-divider>
-
-        <div
-          class="drawer-top"
-          style="flex: 1; overflow-y: auto; overflow-x: hidden"
-        >
-          <div class="pa-4">
-            <div
-              v-for="(section, sectionIndex) in extra_content_data"
-              :key="`section-${sectionIndex}`"
-              class="mb-4"
-            >
-              <!-- Section header if title/icon provided -->
-              <div
-                v-if="section.title || section.icon"
-                class="section-header mb-3"
-              >
-                <div class="d-flex align-center">
-                  <v-icon v-if="section.icon" small class="mr-2">{{
-                    section.icon
-                  }}</v-icon>
-                  <span
-                    v-if="section.title"
-                    class="subtitle-2 font-weight-medium"
-                    >{{ section.title }}</span
-                  >
-                </div>
-              </div>
-
-              <!-- Section description -->
-              <div v-if="section.description" class="section-description mb-3">
-                <p class="body-2 ma-0 text--secondary">
-                  {{ section.description }}
-                </p>
-              </div>
-
-              <!-- Section content widgets -->
-              <div
-                v-for="(widget, widgetIndex) in section.content"
-                :key="`section-${sectionIndex}-widget-${widgetIndex}`"
-                class="mb-3"
-              >
-                <jupyter-widget :widget="widget"></jupyter-widget>
-              </div>
-
-              <!-- Optional divider -->
-              <v-divider
-                v-if="
-                  section.divider &&
-                  sectionIndex < extra_content_data.length - 1
-                "
-                class="mt-4"
-              ></v-divider>
-            </div>
-          </div>
-        </div>
-      </div>
-    </v-navigation-drawer>
-
-    <!-- Right panel toggle tab -->
-    <div
-      v-if="isExtraContentAvailable && !right_panel_open && !drawerDisabled"
-      class="right-panel-tab"
-    >
-      <v-btn
-        tile
-        color="secondary"
-        @click="toggleRightPanel"
-        class="control-btn"
-        title="Show extra content"
-      >
-        <v-icon>{{
-          extra_content_config.toggle_icon || "mdi-chevron-left"
-        }}</v-icon>
-      </v-btn>
-    </div>
+    <!-- Right Panel Component -->
+    <jupyter-widget
+      v-if="right_panel && right_panel.length > 0"
+      :widget="right_panel[0]"
+    ></jupyter-widget>
 
     <div class="sidebar-controls" :style="{ left: sidebarOffset }">
       <v-btn
@@ -295,7 +179,9 @@
     <v-dialog
       v-model="open_dialog"
       :width="dialogWidthComputed"
+      :height="dialogHeightComputed"
       :fullscreen="dialogFullscreen"
+      :overlay="true"
       content-class="dialog-container"
       @click:outside="handleDialogOutsideClick"
     >
@@ -375,13 +261,25 @@ export default {
       type: Array,
       default: () => [],
     },
+    right_panel: {
+      type: Array,
+      default: () => [],
+    },
     right_panel_open: {
       type: Boolean,
       default: false,
     },
+    right_panel_width: {
+      type: Number,
+      default: 300,
+    },
     repo_url: {
       type: String,
       default: "https://github.com/sepal-contrib/",
+    },
+    docs_url: {
+      type: String,
+      default: "",
     },
     dialog_width: {
       type: [String, Number],
@@ -407,6 +305,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    initial_step: {
+      type: Number,
+      default: null,
+    },
   },
 
   data: () => ({
@@ -417,7 +319,6 @@ export default {
     expandedWidth: 320,
     activeStepId: null,
     open_dialog: false,
-    rightPanelTriggerStepId: null,
   }),
 
   computed: {
@@ -435,16 +336,11 @@ export default {
     },
 
     rightPanelOffset() {
-      const width = this.extra_content_config.width || 300;
-      return this.right_panel_open ? width + "px" : "0px";
+      return this.right_panel_width + "px";
     },
 
-    hasExtraContent() {
-      return this.extra_content_data && this.extra_content_data.length > 0;
-    },
-
-    isExtraContentAvailable() {
-      return this.hasExtraContent;
+    rightPanelOpen() {
+      return this.right_panel_open;
     },
 
     externalLinks() {
@@ -457,7 +353,7 @@ export default {
         {
           title: "Documentation",
           icon: "mdi-book-open-page-variant",
-          url: `${this.repo_url}/blob/main/doc/en.rst`,
+          url: this.docs_url || `${this.repo_url}/blob/main/doc/en.rst`,
         },
         {
           title: "Report Bug",
@@ -472,15 +368,39 @@ export default {
       const sidebarWidth = this.mini ? this.collapsedWidth : this.expandedWidth;
       const maxDialogWidth = viewportWidth - sidebarWidth - 40;
 
-      if (
-        typeof this.dialog_width === "string" &&
-        this.dialog_width.includes("%")
-      ) {
-        const percentage = parseInt(this.dialog_width, 10) / 100;
+      // Check if active step has a specific width
+      let targetWidth = this.dialog_width;
+      if (this.activeStep && this.activeStep.width) {
+        targetWidth = this.activeStep.width;
+      }
+
+      if (typeof targetWidth === "string" && targetWidth.includes("%")) {
+        const percentage = parseInt(targetWidth, 10) / 100;
         return Math.min(maxDialogWidth, viewportWidth * percentage);
       }
 
-      return Math.min(maxDialogWidth, this.dialog_width || 800);
+      return Math.min(maxDialogWidth, targetWidth || 800);
+    },
+
+    dialogHeightComputed() {
+      // Check if active step has a specific height
+      if (this.activeStep && this.activeStep.height) {
+        const viewportHeight = window.innerHeight;
+        const maxDialogHeight = viewportHeight - 80; // Leave some margin
+
+        if (
+          typeof this.activeStep.height === "string" &&
+          this.activeStep.height.includes("%")
+        ) {
+          const percentage = parseInt(this.activeStep.height, 10) / 100;
+          return Math.min(maxDialogHeight, viewportHeight * percentage);
+        }
+
+        return Math.min(maxDialogHeight, this.activeStep.height);
+      }
+
+      // Return null if no height is specified (let dialog auto-size)
+      return null;
     },
 
     dialogFullscreen() {
@@ -493,41 +413,35 @@ export default {
   },
 
   watch: {
-    hasExtraContent: {
+    // Watch for steps data changes to auto-activate first step when no main map
+    steps_data: {
       immediate: true,
-      handler(newValue) {
-        // Close panel if no extra content available
-        if (!newValue && this.right_panel_open) {
-          this.right_panel_open = false;
-        }
+      handler() {
+        this.autoActivateFirstStepIfNeeded();
       },
     },
 
-    // Watch for right panel opening - close dialogs
-    right_panel_open: {
+    // Watch for main_map changes to handle auto-activation
+    main_map: {
       immediate: true,
-      handler(newValue) {
-        if (newValue && this.open_dialog) {
-          this.open_dialog = false;
-          this.activeStepId = null;
-        }
+      handler() {
+        this.autoActivateFirstStepIfNeeded();
       },
     },
 
-    // Watch for dialog opening - close right panel
-    open_dialog: {
+    // Watch for initial_step changes
+    initial_step: {
       immediate: true,
-      handler(newValue) {
-        if (newValue && this.right_panel_open) {
-          this.right_panel_open = false;
-          this.rightPanelTriggerStepId = null;
-        }
+      handler() {
+        this.autoActivateFirstStepIfNeeded();
       },
     },
   },
 
   mounted() {
     window.addEventListener("resize", this.handleResize);
+    // Auto-activate first step if no main map
+    this.autoActivateFirstStepIfNeeded();
   },
 
   beforeDestroy() {
@@ -541,14 +455,6 @@ export default {
 
     toggleDrawer() {
       this.mini = !this.mini;
-    },
-
-    toggleRightPanel() {
-      this.right_panel_open = !this.right_panel_open;
-
-      if (!this.right_panel_open) {
-        this.rightPanelTriggerStepId = null;
-      }
     },
 
     togglePin() {
@@ -569,6 +475,12 @@ export default {
       }
     },
 
+    handleRightPanelAction(action) {
+      // Call Python method to handle right panel state
+      // Note: Python method is vue_handle_right_panel_action, called without 'vue_' prefix
+      this.handle_right_panel_action(action);
+    },
+
     activateStep(step) {
       // Don't allow step activation if drawer is disabled (dialog is open)
       if (this.drawerDisabled) {
@@ -577,24 +489,7 @@ export default {
 
       // Handle right panel actions first
       if (step.right_panel_action) {
-        switch (step.right_panel_action) {
-          case "open":
-            this.right_panel_open = true;
-            this.rightPanelTriggerStepId = step.id;
-            break;
-          case "close":
-            this.right_panel_open = false;
-            this.rightPanelTriggerStepId = null;
-            break;
-          case "toggle":
-            this.right_panel_open = !this.right_panel_open;
-            if (this.right_panel_open) {
-              this.rightPanelTriggerStepId = step.id;
-            } else {
-              this.rightPanelTriggerStepId = null;
-            }
-            break;
-        }
+        this.handleRightPanelAction(step.right_panel_action);
       }
 
       // Only change step content if step has content
@@ -667,6 +562,67 @@ export default {
         }, 200);
       }
     },
+
+    autoActivateFirstStepIfNeeded() {
+      // Check if initial_step is specified
+      if (this.initial_step !== null && !this.activeStepId) {
+        const initialStep = this.steps.find(
+          (step) => step.id === this.initial_step
+        );
+        if (
+          initialStep &&
+          initialStep.content &&
+          initialStep.content.length > 0 &&
+          initialStep.content_enabled !== false &&
+          (initialStep.display === "step" || initialStep.display === "dialog")
+        ) {
+          this.$nextTick(() => {
+            this.activeStepId = initialStep.id;
+
+            // If it's a dialog step, open the dialog
+            if (initialStep.display === "dialog") {
+              this.open_dialog = true;
+            }
+
+            this.$emit("step-auto-activated", initialStep);
+          });
+          return;
+        }
+      }
+
+      // Only auto-activate if:
+      // 1. No main map is available
+      // 2. No step is currently active
+      // 3. There are steps available
+      // 4. No initial_step was specified or it wasn't found
+      const hasMainMap = this.main_map && this.main_map.length > 0;
+      const hasSteps = this.steps && this.steps.length > 0;
+
+      if (!hasMainMap && !this.activeStepId && hasSteps) {
+        // Find the first step with content that can be displayed
+        const firstStepWithContent = this.steps.find(
+          (step) =>
+            step.content &&
+            step.content.length > 0 &&
+            step.content_enabled !== false &&
+            (step.display === "step" || step.display === "dialog")
+        );
+
+        if (firstStepWithContent) {
+          // Use a small delay to ensure the component is fully mounted
+          this.$nextTick(() => {
+            this.activeStepId = firstStepWithContent.id;
+
+            // If it's a dialog step, open the dialog
+            if (firstStepWithContent.display === "dialog") {
+              this.open_dialog = true;
+            }
+
+            this.$emit("step-auto-activated", firstStepWithContent);
+          });
+        }
+      }
+    },
   },
 };
 </script>
@@ -692,6 +648,11 @@ export default {
   background-color: var(--v-background-base, #f5f5f5);
   padding: 16px;
   transition: left 0.3s ease, right 0.3s ease;
+}
+
+/* When right panel is open, adjust step content */
+.step-content-container.right-panel-open {
+  right: var(--right-panel-width);
 }
 
 .transparent-main {
@@ -738,9 +699,7 @@ export default {
 }
 
 .dialog-container {
-  z-index: 1000 !important;
-  position: relative;
-  margin-left: var(--drawer-width);
+  z-index: 1010 !important;
 }
 
 .dialog-card {
@@ -749,6 +708,7 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  margin: 0 auto !important;
 }
 
 .dialog-content {
@@ -776,12 +736,6 @@ export default {
   background-color: var(--v-primary-lighten4, rgba(0, 0, 0, 0.1));
 }
 
-/* Style step that triggered the right panel */
-.right-panel-trigger {
-  background-color: var(--v-secondary-lighten4, rgba(0, 0, 0, 0.08));
-  border-left: 3px solid var(--v-secondary-base, #1976d2);
-}
-
 /* override sepal-ui default css */
 .full-screen-map > .leaflet-container {
   position: fixed !important;
@@ -792,13 +746,38 @@ export default {
   left: 0;
 }
 
-.v-dialog--active {
-  position: relative !important;
-}
-
 /* v-dialog overlay should be below our dialog but above other elements */
 .v-overlay__scrim {
-  z-index: 999 !important;
+  z-index: 1005 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Ensure dialog overlay covers navigation drawer and right panel */
+.v-application .v-overlay--active .v-overlay__scrim {
+  z-index: 1005 !important;
+}
+
+Reduce
+  navigation
+  drawer
+  z-index
+  when
+  dialog
+  is
+  open
+  .v-application
+  .v-navigation-drawer {
+  z-index: 1002 !important;
+}
+
+/* Ensure right panel is below dialog overlay */
+.v-application .jupyter-widget {
+  position: relative;
+  z-index: 1001 !important;
 }
 
 .leaflet-left {
@@ -807,8 +786,8 @@ export default {
 }
 
 .leaflet-right {
-  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  right: var(--right-panel-width) !important;
+  transition: right 0.3s ease;
+  right: calc(var(--right-panel-width) * var(--right-panel-open)) !important;
 }
 
 .v-application a {
@@ -819,54 +798,6 @@ export default {
 .link-item {
   color: inherit;
   text-decoration: none !important;
-}
-
-/* Right panel styles */
-.right-panel {
-  /* z-index: 5 !important; */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.right-panel .v-navigation-drawer__content {
-  transition: none !important;
-}
-
-.right-panel .section-header {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--v-divider-base, rgba(0, 0, 0, 0.12));
-  margin-bottom: 12px;
-}
-
-/* Description styling for both main panel and sections */
-.panel-description {
-  background-color: var(--v-background-lighten1, rgba(0, 0, 0, 0.05));
-  border-radius: 4px;
-}
-
-.section-description {
-  padding-left: 16px;
-  margin-top: 8px;
-}
-
-/* Right panel toggle tab */
-.right-panel-tab {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  z-index: 6 !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.right-panel-tab .control-btn {
-  min-width: 40px !important;
-  min-height: 40px !important;
-  padding: 8px !important;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border-radius: 3px 0 0 3px !important;
 }
 
 /* Disabled drawer when dialog is open */
