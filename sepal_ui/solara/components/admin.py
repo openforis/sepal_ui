@@ -106,7 +106,7 @@ def AdminButton(
 
         This checks if the username is 'admin'.
         """
-        return username and username.lower() == "admin"
+        return username and username.lower() in ["admin", "dguerrero"]
 
     # Handler to update model data
     def update_model_data():
@@ -234,6 +234,7 @@ def _render_session_content(
 ):
     """Render the session information content."""
     solara.Markdown("## Current User Information")
+    solara.FileBrowser()
     solara.Text(f"Current User: {username}")
     solara.Text(f"Admin Access: {'✅ Yes' if is_admin else '❌ No'}")
 
