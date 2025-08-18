@@ -29,11 +29,6 @@ header.v-app-bar {
   /* z-index: 902 !important; */
 }
 
-/* make sure navigation drawers are always visible when they exist */
-nav.v-navigation-drawer {
-  z-index: 900 !important;
-}
-
 /* create extra position for the leaflet map controls */
 .leaflet-center {
   left: 50%;
@@ -43,7 +38,7 @@ nav.v-navigation-drawer {
 .leaflet-middle {
   top: 50%;
   position: absolute;
-  z-index: 1000;
+  z-index: 600;
   pointer-events: none;
   transform: translate(0%, -50%);
 }
