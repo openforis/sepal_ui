@@ -560,6 +560,30 @@ class AoiModel(Model):
 
         return self
 
+    async def export_to_asset_async(self) -> Self:
+        """Export the feature_collection as an asset (only for ee model)."""
+        asset_name = self.ASSET_SUFFIX + self.name
+        asset_id = str(Path(self.folder, asset_name))
+
+        self.dst_asset_id = asset_id
+
+        # check if the table already exist
+        if self.gee_interface.get_asset(asset_id, not_exists_ok=True):
+            return self
+
+        # check if the task is running
+        if self.gee_interface.is_running(asset_name):
+            return self
+
+        # run the task
+        task_config = {
+            "collection": self.feature_collection,
+            "description": asset_name,
+            "asset_id": asset_id,
+        }
+
+        await self.gee_interface.export_table_to_asset_async(**task_config)
+
     def get_ipygeojson(self, style: Optional[dict] = None) -> GeoJSON:
         """Converts current geopandas object into ipyleaflet GeoJSON.
 
