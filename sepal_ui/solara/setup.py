@@ -11,6 +11,8 @@ from typing import List, Optional, Union
 import solara
 import solara.server.settings
 
+from .asset_merger import create_merged_assets_directory
+
 logger = logging.getLogger("sepalui.solara.setup")
 
 DEFAULT_FONT_AWESOME = "/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
@@ -62,6 +64,9 @@ def setup_solara_server(
     - sepal_ui common assets (CSS, JS)
     - No kernel timeout ("0s") (helps to kill sessions once the page is closed)
 
+    If extra asset locations are provided, this function will merge all CSS and JS
+    files into combined files to ensure they are all properly served by Solara.
+
     Args:
         extra_asset_locations: Additional asset locations to serve beyond sepal_ui's common assets
 
@@ -70,27 +75,28 @@ def setup_solara_server(
 
     solara.server.settings.assets.fontawesome_path = DEFAULT_FONT_AWESOME
     solara.server.settings.kernel.cull_timeout = DEFAULT_CULL_TIMEOUT
-    # Configure asset locations
 
-    asset_locations = []
-
-    # Always include sepal_ui's common assets
+    # Get sepal_ui common assets
     sepal_common_assets = Path(__file__).parent / "common" / "assets"
-    if sepal_common_assets.exists():
-        asset_locations.append(str(sepal_common_assets))
-        logger.debug(f"Added sepal_ui common assets: {sepal_common_assets}")
-    else:
+    if not sepal_common_assets.exists():
         logger.warning(f"sepal_ui common assets directory not found: {sepal_common_assets}")
+        return
 
-    # Add user-specified extra asset locations
-    if extra_asset_locations:
-        for location in extra_asset_locations:
-            asset_locations.append(str(location))
-            logger.debug(f"Added extra asset location: {location}")
+    # If no extra locations, just use sepal_ui common assets
+    if not extra_asset_locations:
+        logger.debug("No extra asset locations specified, using sepal_ui common assets only")
+        solara.server.settings.assets.extra_locations = [str(sepal_common_assets)]
+        logger.debug(f"Asset location set to: {sepal_common_assets}")
+    else:
+        # Convert extra locations to Path objects
+        extra_paths = [Path(loc) for loc in extra_asset_locations]
+        logger.debug(f"Extra asset locations: {[str(p) for p in extra_paths]}")
 
-    # Set the asset locations (only if we have any)
-    if asset_locations:
-        solara.server.settings.assets.extra_locations = asset_locations
-        logger.debug(f"Total asset locations configured: {len(asset_locations)}")
+        # Create merged assets directory
+        merged_assets_dir = create_merged_assets_directory(sepal_common_assets, extra_paths)
+
+        # Set the merged assets location
+        solara.server.settings.assets.extra_locations = [str(merged_assets_dir)]
+        logger.debug(f"Asset location set to merged directory: {merged_assets_dir}")
 
     logger.info("Solara server configuration completed successfully")
