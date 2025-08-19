@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sepal-ui"
-version = "2.22.1"
+version = "3.0.0"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -49,6 +49,9 @@ dependencies = [
     "typing-extensions",
     "nest-asyncio", # planet API interaction
     "rio-tiler<7",
+    "solara", 
+    "ee-client>=1.5.0", # to handle multiple gee user sessions
+    "colorlog",
     "reactivex"
 ]
 
@@ -76,6 +79,7 @@ dev = [
     "jupyter",
     "voila",
     "mypy",
+    "colorlog"
 ]
 test = [
     "pytest",
@@ -87,6 +91,7 @@ test = [
     "nbmake",
     "pytest-regressions",
     "tomli",
+    "colorlog"
 ]
 doc = [
     "sphinx",
@@ -125,7 +130,9 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
-    "tempaltes/**/.*"
+    "sepalwidgets/vue/*",
+    "solara/common/assets/*"
+
 ]
 
 [tool.commitizen]
@@ -133,7 +140,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "2.22.1"
+version = "3.0.0"
 version_files = [
     "pyproject.toml:version",
     "sepal_ui/__init__.py:__version__"

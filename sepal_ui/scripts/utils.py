@@ -417,12 +417,35 @@ def get_repo_info(repo_folder: Pathlike = Path.cwd()) -> Tuple[str, str]:
     """Get the repository name and owner from the git config file."""
     config = configparser.ConfigParser()
     git_config_path = Path(repo_folder) / ".git/config"
-    config.read(git_config_path)
 
+    # Handle case when git config has duplicate options
     try:
-        remote_url = config.get('remote "origin"', "url")
-    except (configparser.NoSectionError, configparser.NoOptionError):
-        return "", ""
+        config.read(git_config_path)
+    except configparser.DuplicateOptionError:
+        if not git_config_path.exists():
+            return "", ""
+
+        remote_url = ""
+        in_origin_section = False
+
+        with open(git_config_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line == '[remote "origin"]':
+                    in_origin_section = True
+                elif line.startswith("[") and in_origin_section:
+                    in_origin_section = False
+                elif in_origin_section and line.startswith("url = "):
+                    remote_url = line.split("url = ")[1]
+                    break
+
+        if not remote_url:
+            return "", ""
+    else:
+        try:
+            remote_url = config.get('remote "origin"', "url")
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            return "", ""
 
     # Check if URL is likely SSH
     if "git@" in remote_url:
