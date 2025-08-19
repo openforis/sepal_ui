@@ -3,13 +3,14 @@
 This module provides a complete example of a map-based application built with Solara
 and SEPAL UI components, including AOI selection, map visualization, and admin tools.
 """
+
 import logging
 
+import ipyvuetify as v
 import solara
 from component.model import AppModel
 from solara.lab.components.theming import theme
 
-from sepal_ui.aoi import AoiView
 from sepal_ui.mapping import SepalMap
 from sepal_ui.scripts.utils import init_ee
 from sepal_ui.sepalwidgets.vue_app import MapApp, ThemeToggle
@@ -17,7 +18,6 @@ from sepal_ui.solara import (
     get_current_drive_interface,
     get_current_gee_interface,
     get_current_sepal_client,
-    get_current_session_info,
     setup_sessions,
     setup_solara_server,
     setup_theme_colors,
@@ -25,31 +25,27 @@ from sepal_ui.solara import (
 )
 from sepal_ui.solara.components.admin import AdminButton
 
-logger = logging.getLogger("map_app")
+logger = logging.getLogger("SEPALUI.map_app")
 logger.debug(">>>>>>>>>>> Starting MAP APP example application <<<<<<<<<<")
 init_ee()
 
-# Setup Solara server configuration (mandatory settings + optional extra assets)
 setup_solara_server()  # or setup_solara_server(extra_asset_locations=["./my_assets/"])
 
 
 @solara.lab.on_kernel_start
-def init_gee():
-    """Initialize Google Earth Engine and setup sessions on kernel start.
-
-    Returns:
-        The result of setup_sessions() call.
-    """
+def on_kernel_start():
+    """Set up sessions management for Solara applications."""
     return setup_sessions()
 
 
 @solara.component
 @with_sepal_sessions(module_name="sdg_indicators/15.4.2")
 def Page():
-    """Main page component for the map application.
+    """Main application page component for the Solara map application.
 
-    Creates and renders the complete map application interface including
-    theme controls, map widget, AOI selection, and admin tools.
+    This component sets up the main user interface including theme configuration,
+    map visualization, AOI selection tools, and administrative features.
+    The page is configured with SEPAL sessions for SDG indicators module 15.4.2.
     """
     setup_theme_colors()
     theme_toggle = ThemeToggle()
@@ -58,46 +54,60 @@ def Page():
     gee_interface = get_current_gee_interface()
     get_current_drive_interface()
     get_current_sepal_client()
-    username = get_current_session_info()["username"]
 
     # Just a model to store the app name
     model = AppModel()
 
     solara_admin = AdminButton(
-        username,
         model,
         logger_instance=logger,
     )
 
     # Main map widget
     map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_toggle=theme_toggle)
-    aoi_view = AoiView(
-        gee_interface=gee_interface,
-        map_=map_,
-    )
 
-    some_widget = solara.Text("This is a placeholder for the main content of the map application.")
+    aoi_view = v.Card(
+        children=[
+            v.CardTitle(children=["Area of Interest Selection"]),
+            v.CardText(children=["Select your area of interest on the map."]),
+            v.Btn(children=["Select AOI"], color="primary"),
+        ]
+    )
 
     steps_data = [
         {
             "id": 2,
             "name": "AOI Selection",
             "icon": "mdi-map-marker-check",
+            "display": "step",
+            "content": aoi_view,
+        },
+        {
+            "id": 3,
+            "name": "AOI Selection",
+            "icon": "mdi-map-marker-check",
             "display": "dialog",
             "content": aoi_view,
         },
         {
-            "id": 2,
+            "id": 4,
+            "name": "Map View",
+            "icon": "mdi-map",
+            "display": "step",
+            "content": map_,
+        },
+        {
+            "id": 5,
             "name": "Sidebar panel",
             "icon": "mdi-view-dashboard",
-            "display": "dialog",
+            "display": "step",
             "content": [],
             "right_panel_action": "toggle",  # "open", "close", "toggle", or None
         },
     ]
 
     # This is for the secondary panel
-    extra_content_config = {
+    right_panel_config = {
         "title": "Results",
         "icon": "mdi-image-filter-hdr",
         "width": 400,
@@ -105,32 +115,27 @@ def Page():
         "toggle_icon": "mdi-chart-line",
     }
 
-    extra_content_data = [
+    # We can use solara components here!
+    right_panel_content_with_solara = [
         {
             "title": "Visualize and export layers",
             "icon": "mdi-layers",
-            "content": [some_widget],
+            "content": [solara.Text("This is a Solara component.")],
             "description": "To add layers to the map, you will first need to select the area of interest and the years in the 3. Indicator settings step.",
         },
+        {
+            "content": [solara_admin],
+        },
     ]
-
-    if username == "admin":
-        extra_content_data.append(
-            {
-                "title": "Admin",
-                "icon": "mdi-shield-account",
-                "content": [solara_admin],
-                "description": "Admin tools for development and troubleshooting.",
-            }
-        )
 
     MapApp.element(
         app_title="My test App",
         app_icon="mdi-image-filter-hdr",
         main_map=[map_],
         steps_data=steps_data,
-        extra_content_config=extra_content_config,
-        extra_content_data=extra_content_data,
+        right_panel_config=right_panel_config,
+        right_panel_content=right_panel_content_with_solara,
+        right_panel_open=True,
         theme_toggle=[theme_toggle],
         dialog_width=750,
     )
