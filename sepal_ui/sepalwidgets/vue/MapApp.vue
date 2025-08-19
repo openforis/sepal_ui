@@ -247,7 +247,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    extra_content_config: {
+    right_panel_config: {
       type: Object,
       default: () => ({
         title: "Extra Content",
@@ -257,7 +257,7 @@ export default {
         toggle_icon: "mdi-chevron-left",
       }),
     },
-    extra_content_data: {
+    right_panel_content: {
       type: Array,
       default: () => [],
     },
@@ -761,16 +761,8 @@ export default {
   z-index: 1005 !important;
 }
 
-Reduce
-  navigation
-  drawer
-  z-index
-  when
-  dialog
-  is
-  open
-  .v-application
-  .v-navigation-drawer {
+/* Reduce navigation drawer z-index when dialog is open */
+.v-application .v-navigation-drawer {
   z-index: 1002 !important;
 }
 

@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import List as TypingList
 from typing import Optional
 
 import ipyvuetify as v
@@ -21,10 +20,11 @@ class MapApp(v.VuetifyTemplate):
         sync=True
     )
 
-    repo_url = Unicode("").tag(sync=True)
-    docs_url = Unicode("").tag(sync=True)
     app_title = Unicode("Map Application").tag(sync=True)
     app_icon = Unicode("mdi-earth").tag(sync=True)
+    repo_url = Unicode("").tag(sync=True)
+    docs_url = Unicode("").tag(sync=True)
+
     dialog_width = Int(800).tag(sync=True)
     dialog_fullscreen = Bool(False).tag(sync=True)
 
@@ -37,8 +37,8 @@ class MapApp(v.VuetifyTemplate):
     right_panel_open = Bool(False).tag(sync=True)
     right_panel_width = Int(300).tag(sync=True)
 
-    # Remove old extra_content - replaced by extra_content_data
-    extra_content_config = Dict(
+    # Right panel configuration
+    right_panel_config = Dict(
         default_value={
             "title": "Extra Content",
             "icon": "mdi-widgets",
@@ -48,7 +48,7 @@ class MapApp(v.VuetifyTemplate):
         }
     ).tag(sync=True)
 
-    extra_content_data = List(
+    right_panel_content = List(
         Dict(
             {
                 "title": Unicode(),
@@ -78,32 +78,28 @@ class MapApp(v.VuetifyTemplate):
         )
     ).tag(sync=True, **widget_serialization)
 
-    # Initial step configuration
     initial_step = Int(allow_none=True).tag(sync=True)
 
     def __init__(
         self,
         theme_toggle: "ThemeToggle" = None,
-        right_panel: "RightPanel | TypingList[RightPanel]" = None,
         initial_step: Optional[int] = None,
         **kwargs,
     ):
         """Instantiate the MapApp class."""
         self.theme_toggle = theme_toggle
 
-        # Handle right panel - extract from list if provided as list
-        if isinstance(right_panel, list) and len(right_panel) > 0:
-            right_panel = right_panel[0]
-
-        # Handle right panel - create if not provided but extra content is specified
-        if right_panel is None and (
-            kwargs.get("extra_content_data") or kwargs.get("extra_content_config")
-        ):
-            # Create right panel from legacy extra_content parameters
-            config = kwargs.get("extra_content_config", {})
-            content_data = kwargs.get("extra_content_data", [])
+        # Create right panel from parameters if content or config is provided
+        right_panel = None
+        if kwargs.get("right_panel_content") or kwargs.get("right_panel_config"):
+            config = kwargs.get("right_panel_config", {})
+            content_data = kwargs.get("right_panel_content", [])
 
             right_panel = RightPanel(config=config, content_data=content_data)
+
+            # Check if right_panel_open was specified and apply it
+            if "right_panel_open" in kwargs:
+                right_panel.is_open = kwargs["right_panel_open"]
 
         kwargs["right_panel"] = [right_panel] if right_panel else []
 
