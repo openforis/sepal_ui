@@ -77,9 +77,7 @@ def get_sessions_overview() -> dict:
 
 
 @solara.component
-def AdminButton(
-    username: str, model: Optional[Any] = None, logger_instance: Optional[logging.Logger] = None
-):
+def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.Logger] = None):
     """A button component that's only visible to admin users and opens a session dialog.
 
     Args:
@@ -100,6 +98,8 @@ def AdminButton(
 
     model_data, set_model_data = solara.use_state("")
     active_tab, set_active_tab = solara.use_state(0)
+
+    username = get_current_session_info()["username"]
 
     def is_admin_user() -> bool:
         """Check if the current user has admin privileges.
@@ -162,9 +162,10 @@ def AdminButton(
 
     # Create the admin button
     solara.Button(
-        label="Admin: View Sessions",
+        label="Admin panel",
         on_click=open_dialog,
-        color="warning",
+        color="primary",
+        small=True,
         icon_name="mdi-shield-account",
     )
 
