@@ -761,11 +761,6 @@ export default {
   z-index: 1005 !important;
 }
 
-/* Reduce navigation drawer z-index when dialog is open */
-.v-application .v-navigation-drawer {
-  z-index: 1002 !important;
-}
-
 /* Ensure right panel is below dialog overlay */
 .v-application .jupyter-widget {
   position: relative;
