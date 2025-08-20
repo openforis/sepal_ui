@@ -125,7 +125,7 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
-    "tempaltes/**/.*"
+    "templates/**/.*"
 ]
 
 [tool.commitizen]
