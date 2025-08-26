@@ -1,7 +1,7 @@
 """Administrative components for session and model management in Solara applications."""
 
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import reacton.ipyvuetify as v
 import solara
@@ -77,26 +77,36 @@ def get_sessions_overview() -> dict:
 
 
 @solara.component
-def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.Logger] = None):
+def AdminButton(
+    models: Optional[Union[Any, list[Any]]] = None, logger_instance: Optional[logging.Logger] = None
+):
     """A button component that's only visible to admin users and opens a session dialog.
 
     Args:
-        username: The current user's username (pass this from your page)
-        model: Optional traitlets model to display in the dialog
+        models: Single traitlets model or list of traitlets models to display in the dialog
         logger_instance: Optional logger instance to use for debug logging
 
     Usage:
         from admin_session_dialog import AdminButton
 
-        # In your Page component:
-        AdminButton(username=username, model=my_model, logger_instance=my_logger)
+        # Single model (backwards compatible):
+        AdminButton(models=my_model, logger_instance=my_logger)
+
+        # Multiple models:
+        AdminButton(models=[my_model1, my_model2], logger_instance=my_logger)
+
+        # No models:
+        AdminButton(logger_instance=my_logger)
+
+        # Old style still works:
+        AdminButton(models=my_model)
     """
     dialog_open, set_dialog_open = solara.use_state(False)
 
     session_info, set_session_info = solara.use_state({})
     sessions_overview, set_sessions_overview = solara.use_state({})
 
-    model_data, set_model_data = solara.use_state("")
+    models_data, set_models_data = solara.use_state([])
     active_tab, set_active_tab = solara.use_state(0)
 
     username = get_current_session_info()["username"]
@@ -108,25 +118,56 @@ def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.L
         """
         return username and username.lower() in ["admin", "dguerrero"]
 
+    def normalize_models() -> list[Any]:
+        """Normalize the models input to always return a list."""
+        if models is None:
+            return []
+        elif isinstance(models, list):
+            return models
+        else:
+            # Single model case - wrap in a list
+            return [models]
+
     # Handler to update model data
-    def update_model_data():
-        if model is not None:
+    def update_models_data():
+        normalized_models = normalize_models()
+
+        if len(normalized_models) > 0:
             try:
                 import pprint
 
-                # Use the model's export_data method to get structured data
-                model_data_dict = model.export_data()
-                formatted_str = pprint.pformat(model_data_dict, width=80, depth=3)
-                set_model_data(formatted_str)
+                models_data_list = []
+                for i, model in enumerate(normalized_models):
+                    try:
+                        # Use the model's export_data method to get structured data
+                        model_data_dict = model.export_data()
+                        formatted_str = pprint.pformat(model_data_dict, width=80, depth=3)
+                        models_data_list.append(
+                            {"index": i, "type": type(model).__name__, "data": formatted_str}
+                        )
+                    except Exception as e:
+                        try:
+                            model_str = repr(model)
+                            models_data_list.append(
+                                {"index": i, "type": type(model).__name__, "data": model_str}
+                            )
+                        except Exception:
+                            models_data_list.append(
+                                {
+                                    "index": i,
+                                    "type": type(model).__name__,
+                                    "data": f"Error getting model data: {str(e)}",
+                                }
+                            )
+
+                set_models_data(models_data_list)
 
             except Exception as e:
-                try:
-                    model_str = repr(model)
-                    set_model_data(model_str)
-                except Exception:
-                    set_model_data(f"Error getting model data: {str(e)}")
+                set_models_data(
+                    [{"index": 0, "type": "Error", "data": f"Error processing models: {str(e)}"}]
+                )
         else:
-            set_model_data("No model provided")
+            set_models_data([])
 
     def open_dialog():
         current_info = get_current_session_info()
@@ -135,26 +176,36 @@ def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.L
         set_session_info(current_info)
         set_sessions_overview(overview)
 
-        update_model_data()
+        update_models_data()
 
         set_dialog_open(True)
 
     def close_dialog():
         set_dialog_open(False)
 
-    def debug_log_model():
+    def debug_log_models():
         active_logger = logger_instance if logger_instance is not None else logger
-        active_logger.debug(f"{model}")
+        normalized_models = normalize_models()
+
+        if len(normalized_models) > 0:
+            for i, model in enumerate(normalized_models):
+                active_logger.debug(f"Model {i}: {model}")
+        else:
+            active_logger.debug("No models provided")
 
     # Only render the button if user is admin
     if not is_admin_user():
         return
 
-    # Create the debug button (only if model is provided)
-    if model is not None:
+    # Create the debug button (only if models are provided)
+    normalized_models_for_button = normalize_models()
+    if len(normalized_models_for_button) > 0:
+        button_label = (
+            "Debug: Log Model" if len(normalized_models_for_button) == 1 else "Debug: Log Models"
+        )
         solara.Button(
-            label="Debug: Log Model",
-            on_click=debug_log_model,
+            label=button_label,
+            on_click=debug_log_models,
             color="info",
             icon_name="mdi-bug",
             outlined=True,
@@ -173,16 +224,21 @@ def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.L
         v_model=dialog_open, on_v_model=set_dialog_open, max_width="900px", scrollable=True
     ):
         with solara.v.Card():
-            solara.v.CardTitle(children=["Admin: Session & Model Information"])
+            solara.v.CardTitle(children=["Admin: Session & Models Information"])
 
             with solara.v.CardText():
                 with v.Tabs(v_model=active_tab, on_v_model=set_active_tab):
-                    v.Tab(children=["Model Data"])
+                    # Dynamic tab label based on number of models
+                    model_count = len(normalize_models())
+                    if model_count == 1:
+                        v.Tab(children=["Model Data"])
+                    else:
+                        v.Tab(children=["Models Data"])
                     v.Tab(children=["Session Info"])
 
                 with v.TabsItems(v_model=active_tab, on_v_model=set_active_tab):
                     with v.TabItem():
-                        _render_model_content(model, model_data, update_model_data)
+                        _render_model_content(normalize_models(), models_data, update_models_data)
 
                     with v.TabItem():
                         _render_session_content(
@@ -200,34 +256,53 @@ def AdminButton(model: Optional[Any] = None, logger_instance: Optional[logging.L
                 solara.Button(label="Close", on_click=close_dialog, color="primary")
 
 
-def _render_model_content(model: Optional[Any], model_data: str, update_model_data: callable):
+def _render_model_content(
+    normalized_models: list[Any], models_data: list, update_models_data: callable
+):
     """Render the model information content."""
-    solara.Markdown("## Model Data")
+    solara.Markdown("## Models Data")
 
-    if model is not None:
+    if len(normalized_models) > 0:
         # Add update button at the top
         with solara.Row():
-            solara.Text(f"Model Type: {type(model).__name__}")
+            if len(normalized_models) == 1:
+                solara.Text(f"Model Type: {type(normalized_models[0]).__name__}")
+            else:
+                solara.Text(f"Total Models: {len(normalized_models)}")
             solara.v.Spacer()
             solara.Button(
-                label="Update Model Data",
-                on_click=update_model_data,
+                label="Update Models Data",
+                on_click=update_models_data,
                 color="primary",
                 icon_name="mdi-refresh",
                 outlined=True,
             )
 
-        solara.Markdown("### Model Representation:")
+        solara.Markdown("### Models Representation:")
 
-        with solara.v.Card(outlined=True):
-            with solara.v.CardText():
-                solara.Preformatted(
-                    model_data,
-                    style="background-color: #f5f5f5; padding: 16px; font-family: monospace;",
-                )
+        # Display each model's data
+        for model_info in models_data:
+            model_index = model_info.get("index", 0)
+            model_type = model_info.get("type", "Unknown")
+            model_data = model_info.get("data", "No data available")
+
+            # Only show index if there are multiple models
+            if len(normalized_models) > 1:
+                solara.Markdown(f"#### Model {model_index + 1} ({model_type})")
+            else:
+                solara.Markdown(f"#### {model_type}")
+
+            with solara.v.Card(outlined=True):
+                with solara.v.CardText():
+                    solara.Preformatted(
+                        model_data,
+                        style="background-color: #f5f5f5; padding: 16px; font-family: monospace;",
+                    )
     else:
-        solara.Text("No model provided")
-        solara.Text("Pass a traitlets model to the AdminButton component to see its data here.")
+        solara.Text("No models provided")
+        solara.Text(
+            "Pass a traitlets model or list of models to the AdminButton component to see their data here."
+        )
 
 
 def _render_session_content(
