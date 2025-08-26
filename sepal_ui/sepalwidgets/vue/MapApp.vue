@@ -31,6 +31,7 @@
       :class="{ 'drawer-disabled': drawerDisabled }"
       app
       permanent
+      stateless
     >
       <div style="display: flex; flex-direction: column; height: 100%">
         <div class="drawer-header">
@@ -319,6 +320,8 @@ export default {
     expandedWidth: 320,
     activeStepId: null,
     open_dialog: false,
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
   }),
 
   computed: {
@@ -364,7 +367,8 @@ export default {
     },
 
     dialogWidthComputed() {
-      const viewportWidth = window.innerWidth;
+      // Use reactive windowWidth instead of directly accessing window.innerWidth
+      const viewportWidth = this.windowWidth;
       const sidebarWidth = this.mini ? this.collapsedWidth : this.expandedWidth;
       const maxDialogWidth = viewportWidth - sidebarWidth - 40;
 
@@ -385,7 +389,8 @@ export default {
     dialogHeightComputed() {
       // Check if active step has a specific height
       if (this.activeStep && this.activeStep.height) {
-        const viewportHeight = window.innerHeight;
+        // Use reactive windowHeight instead of directly accessing window.innerHeight
+        const viewportHeight = this.windowHeight;
         const maxDialogHeight = viewportHeight - 80; // Leave some margin
 
         if (
@@ -450,6 +455,9 @@ export default {
 
   methods: {
     handleResize() {
+      // Update reactive window dimensions
+      this.windowWidth = window.innerWidth;
+      this.windowHeight = window.innerHeight;
       this.$forceUpdate();
     },
 

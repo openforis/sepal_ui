@@ -7,6 +7,7 @@
       :width="config.width || 300"
       app
       right
+      stateless
       class="right-panel"
       hide-overlay
     >
