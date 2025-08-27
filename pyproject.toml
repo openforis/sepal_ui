@@ -132,7 +132,7 @@ sepal_ui = [
     "templates/**/*",
     "sepalwidgets/vue/*",
     "solara/common/assets/*"
-
+    "templates/**/.*"
 ]
 
 [tool.commitizen]
