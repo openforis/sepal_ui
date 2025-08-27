@@ -37,6 +37,7 @@ class AoiControl(MenuControl):
         # set some default parameters
         kwargs.setdefault("position", "topright")
         kwargs["m"] = m
+        self.map_ = m
 
         # create a list
         self.aoi_list = sw.ListItemGroup(children=[], v_model="")
@@ -82,7 +83,9 @@ class AoiControl(MenuControl):
         if isinstance(item, ee.ComputedObject):
             # extract bounds from ee_object
             ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
-            bl, br, tr, tl, _ = ee_geometry.bounds().coordinates().get(0).getInfo()
+            bl, br, tr, tl, _ = self.map_.gee_interface.get_info(
+                ee_geometry.bounds().coordinates().get(0)
+            )
             bounds = (*bl, *tr)
 
         elif isinstance(item, sg.base.BaseGeometry):

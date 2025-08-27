@@ -22,7 +22,7 @@ class Model(HasTraits):
 
     def __repr__(self) -> str:
         """Method to represent the Model objects as a string."""
-        data = [f"{k}={val}" for k, val in self.export_data().items()]
+        data = [f"{k}={repr(val)}" for k, val in self.export_data().items()]
         args = ", ".join(data).strip()
 
         return f"{self.__class__.__name__}({args})"

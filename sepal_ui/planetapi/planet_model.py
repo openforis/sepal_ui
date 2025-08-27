@@ -4,7 +4,6 @@ import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
-import nest_asyncio
 import planet.data_filter as filters
 import traitlets as t
 from deprecated.sphinx import deprecated
@@ -15,9 +14,6 @@ from planet.http import Session
 
 from sepal_ui.message import ms
 from sepal_ui.model import Model
-
-# known problem https://github.com/jupyter/notebook/issues/3397
-nest_asyncio.apply()
 
 
 class PlanetModel(Model):

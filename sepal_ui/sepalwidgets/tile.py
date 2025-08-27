@@ -20,6 +20,7 @@ from typing_extensions import Self
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 from sepal_ui.sepalwidgets.widget import Markdown
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
@@ -193,7 +194,7 @@ class TileAbout(Tile):
 
 
 class TileDisclaimer(Tile):
-    def __init__(self) -> None:
+    def __init__(self, theme_toggle: ThemeToggle = None) -> None:
         """Create an about tile.
 
         This tile will have the "about_widget" id and "Disclaimer" title.
@@ -201,12 +202,16 @@ class TileDisclaimer(Tile):
         super().__init__("about_tile", "Disclaimer")
 
         self.card = v.Card(class_="pa-5", raised=True, xs12=True, children=[])
-        self.set_disclaimer()
-        v.theme.observe(self.set_disclaimer, "dark")
+
+        if theme_toggle:
+            theme_toggle.observe(self.set_disclaimer, "dark")
+        else:
+            theme = "dark" if v.theme.dark is True else "light"
+            self.set_disclaimer({"new": theme})
 
         self.children = [self.card]
 
-    def set_disclaimer(self, _=None) -> List[Markdown]:
+    def set_disclaimer(self, change) -> List[Markdown]:
         """Rebuild the disclaimer element when the theme changes."""
         # create the tile content on the fly
         disclaimer = "  \n".join(ms.disclaimer.p)
@@ -218,7 +223,7 @@ class TileDisclaimer(Tile):
             ("http://www.openforis.org", "open-foris.png", "openforis_logo"),
             ("https://sepal.io", "sepal.png", "sepal_logo"),
         ]
-        theme = "dark" if v.theme.dark is True else "light"
+        theme = "dark" if change["new"] == "dark" else "light"
         url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
         for href, src, alt in logo_list:
             disclaimer += f'<a href="{href}"><img src="{url}/{src}" alt="{alt}" height="100" class="ma-3"/></a>'
