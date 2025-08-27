@@ -131,7 +131,7 @@ sepal_ui = [
     "frontend/**/*",
     "templates/**/*",
     "sepalwidgets/vue/*",
-    "solara/common/assets/*"
+    "solara/common/assets/*",
     "templates/**/.*"
 ]
 
