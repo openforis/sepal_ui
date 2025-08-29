@@ -20,6 +20,7 @@ __all__ = [
     "get_current_sepal_client",
     "get_current_session_info",
     "get_sessions_overview",
+    "setup_sessions",
     "setup_solara_server",
     "setup_theme_colors",
     "with_sepal_sessions",

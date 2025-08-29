@@ -190,7 +190,7 @@ class SessionManager:
         return self._sessions.copy()
 
 
-def _setup_sessions() -> Callable:
+def setup_sessions() -> Callable:
     """Set up sessions management for Solara applications.
 
     This function should be called with the @solara.lab.on_kernel_start decorator
