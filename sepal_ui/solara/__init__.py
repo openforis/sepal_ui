@@ -12,6 +12,7 @@ from .utils import (
     get_current_sepal_client,
     get_current_session_info,
     get_sessions_overview,
+    setup_sessions,
 )
 
 __all__ = [
