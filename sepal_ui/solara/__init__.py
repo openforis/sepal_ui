@@ -5,6 +5,7 @@ including session management, decorators, and interface utilities.
 """
 
 from .decorators import with_sepal_sessions
+from .session_manager import setup_sessions
 from .setup import setup_solara_server, setup_theme_colors
 from .utils import (
     get_current_drive_interface,
@@ -12,7 +13,6 @@ from .utils import (
     get_current_sepal_client,
     get_current_session_info,
     get_sessions_overview,
-    setup_sessions,
 )
 
 __all__ = [
