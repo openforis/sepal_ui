@@ -5,13 +5,10 @@ to perform Google Drive operations such as file listing, downloading, and deleti
 """
 
 import io
-import json
 import logging
-import time
 from pathlib import Path
 from typing import Optional
 
-import requests
 from apiclient import discovery
 from eeclient.sepal_credential_mixin import SepalCredentialMixin
 from google.oauth2.credentials import Credentials
@@ -38,121 +35,15 @@ class GDriveInterface(SepalCredentialMixin):
         Raises:
             ValueError: If credentials file not found or no access token available.
         """
-        if sepal_headers:
-            super().__init__(sepal_headers)
-
-        else:
-            # Fallback to hardcoded file credentials
-            home_path = Path.home()
-            credentials_file = (
-                ".config/earthengine/credentials"
-                if "sepal-user" in home_path.name
-                else ".config/earthengine/sepal_credentials"
-            )
-            credentials_path = home_path / credentials_file
-
-            if not credentials_path.exists():
-                raise ValueError(f"Credentials file not found at {credentials_path}")
-
-            credentials_data = json.loads(credentials_path.read_text())
-            self.access_token = credentials_data.get("access_token")
-            self.project_id = credentials_data.get("project_id")
-            self.expiry_date = credentials_data.get("access_token_expiry_date", 0)
-            self.user = "local_user"
-
-            # No SEPAL session info for file-based credentials
-            self.sepal_session_id = None
-            self.sepal_host = None
-            self.sepal_api_download_url = None
-            self.verify_ssl = True
-
-            if not self.access_token:
-                raise ValueError("No access token available")
+        super().__init__(sepal_headers)
 
         self._service = None
         self.logger = logging.getLogger(f"eeclient.gdrive.{self.user}")
 
-    def is_expired(self) -> bool:
-        """Returns if a token is about to expire."""
-        if not self.expiry_date:
-            return True
-        return (self.expiry_date / 1000) - time.time() < 60
-
-    def needs_credentials_refresh(self) -> bool:
-        """Returns if credentials need to be refreshed (missing or expired)."""
-        return not self.access_token or self.is_expired()
-
     def refresh_credentials(self) -> None:
         """Refresh credentials synchronously by calling SEPAL API or re-reading file."""
-        if self.sepal_host and self.sepal_session_id and self.sepal_api_download_url:
-            # Use SEPAL API to refresh
-            self.logger.debug("Token expired, refreshing credentials via SEPAL API...")
-
-            cookies: dict[str, str] = {"SEPAL-SESSIONID": self.sepal_session_id}
-
-            try:
-                response = requests.get(
-                    self.sepal_api_download_url,
-                    cookies=cookies,
-                    verify=self.verify_ssl,
-                    timeout=30,
-                )
-
-                if response.status_code == 200:
-                    credentials_data = response.json()
-
-                    # Update credentials directly from response
-                    self.access_token = credentials_data.get("access_token")
-                    self.expiry_date = credentials_data.get("access_token_expiry_date", 0)
-                    self.project_id = credentials_data.get("project_id")
-
-                    # Force service recreation
-                    self._service = None
-
-                    self.logger.debug("Successfully refreshed credentials via SEPAL API")
-                else:
-                    raise Exception(f"Failed to refresh credentials: {response.status_code}")
-
-            except Exception as e:
-                self.logger.error(f"Error refreshing credentials via SEPAL API: {e}")
-                raise
-        else:
-            # Re-read credentials file (system may have updated it)
-            self.logger.debug("Token expired, re-reading credentials file...")
-
-            try:
-                home_path = Path.home()
-                credentials_file = (
-                    ".config/earthengine/credentials"
-                    if "sepal-user" in home_path.name
-                    else ".config/earthengine/sepal_credentials"
-                )
-                credentials_path = home_path / credentials_file
-
-                if not credentials_path.exists():
-                    raise ValueError(f"Credentials file not found at {credentials_path}")
-
-                credentials_data = json.loads(credentials_path.read_text())
-                old_token = self.access_token
-
-                # Update credentials from file
-                self.access_token = credentials_data.get("access_token")
-                self.project_id = credentials_data.get("project_id")
-                self.expiry_date = credentials_data.get("access_token_expiry_date", 0)
-
-                if not self.access_token:
-                    raise ValueError("No access token found in credentials file")
-
-                # Force service recreation if token changed
-                if old_token != self.access_token:
-                    self._service = None
-                    self.logger.debug("Successfully refreshed credentials from file")
-                else:
-                    self.logger.debug("Credentials file read, but token unchanged")
-
-            except Exception as e:
-                self.logger.error(f"Error refreshing credentials from file: {e}")
-                raise
+        self.set_credentials_sync()
+        self._service = None
 
     @property
     def service(self):

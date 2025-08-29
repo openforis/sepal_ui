@@ -3,6 +3,7 @@
 import asyncio
 import threading
 import traceback
+from pathlib import Path
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 import ee
@@ -274,6 +275,8 @@ class GEEInterface:
         if self.session:
             return await self.session.operations.create_folder_async(folder_path)
         else:
+            asset_path = await self.get_folder_async()
+            folder_path = str(Path(asset_path) / folder_path)
             return await asyncio.to_thread(ee.data.createAsset, {"type": "FOLDER"}, folder_path)
 
     async def export_image_to_asset_async(

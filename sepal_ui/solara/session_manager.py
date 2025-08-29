@@ -29,6 +29,9 @@ class SessionManager:
     This class manages the lifecycle of sessions across different Solara applications,
     providing a centralized way to handle session creation, retrieval, and cleanup for
     GEE interfaces, SepalClient and GDriveInterface.
+
+    Note: Do not instantiate this class directly. Use the @with_sepal_sessions
+    decorator or the utility functions in sepal_ui.solara.utils instead.
     """
 
     _instance = None
@@ -47,6 +50,11 @@ class SessionManager:
         if not hasattr(self, "_initialized"):
             self._initialized = True
             self._sessions = {}
+
+    @classmethod
+    def is_initialized(cls) -> bool:
+        """Check if the SessionManager has been initialized."""
+        return cls._instance is not None and hasattr(cls._instance, "_initialized")
 
     def get_kernel_id(self) -> str:
         """Get the current kernel ID."""
@@ -98,17 +106,6 @@ class SessionManager:
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
         )
 
-    def get_current_sepal_client(self, kernel_id: Optional[str] = None) -> Optional[SepalClient]:
-        """Get the SepalClient for the current kernel session.
-
-        Args:
-            kernel_id: The kernel ID to get client for. If None, uses current kernel.
-
-        Returns:
-            SepalClient instance or None if session not available.
-        """
-        return self.get_session_component("sepal_client", kernel_id)
-
     def cleanup_session(self, kernel_id: str) -> None:
         """Clean up a session for the given kernel ID.
 
@@ -126,30 +123,6 @@ class SessionManager:
 
             del self._sessions[kernel_id]
             logger.debug(f"Session cleaned up for kernel {kernel_id}")
-
-    def get_current_gee_interface(self, kernel_id: Optional[str] = None) -> Optional[GEEInterface]:
-        """Get the GEE interface for the current kernel session.
-
-        Args:
-            kernel_id: The kernel ID to get interface for. If None, uses current kernel.
-
-        Returns:
-            GEEInterface instance or None if session not available.
-        """
-        return self.get_session_component("gee_interface", kernel_id)
-
-    def get_current_drive_interface(
-        self, kernel_id: Optional[str] = None
-    ) -> Optional[GDriveInterface]:
-        """Get the Drive interface for the current kernel session.
-
-        Args:
-            kernel_id: The kernel ID to get interface for. If None, uses current kernel.
-
-        Returns:
-            GDriveInterface instance or None if session not available.
-        """
-        return self.get_session_component("drive_interface", kernel_id)
 
     def get_session_component(
         self, component_name: str, kernel_id: Optional[str] = None
@@ -179,12 +152,45 @@ class SessionManager:
 
         return session.get(component_name)
 
+    def get_session_info(self, kernel_id: Optional[str] = None) -> dict:
+        """Get session information for a specific kernel.
+
+        Args:
+            kernel_id: The kernel ID to get info for. If None, uses current kernel.
+
+        Returns:
+            Dictionary with session information.
+        """
+        if kernel_id is None:
+            kernel_id = self.get_kernel_id()
+
+        current_session = self._sessions.get(kernel_id)
+
+        if current_session is None:
+            return {
+                "kernel_id": kernel_id,
+                "username": None,
+                "has_gee_interface": False,
+                "has_sepal_client": False,
+                "has_drive_interface": False,
+                "session_ready": False,
+            }
+
+        return {
+            "kernel_id": kernel_id,
+            "username": current_session.get("username"),
+            "has_gee_interface": current_session.get("gee_interface") is not None,
+            "has_sepal_client": current_session.get("sepal_client") is not None,
+            "has_drive_interface": current_session.get("drive_interface") is not None,
+            "session_ready": current_session.get("gee_interface") is not None,
+        }
+
     def list_sessions(self) -> Dict[str, Dict[str, Any]]:
         """Get all active sessions."""
         return self._sessions.copy()
 
 
-def setup_sessions() -> Callable:
+def _setup_sessions() -> Callable:
     """Set up sessions management for Solara applications.
 
     This function should be called with the @solara.lab.on_kernel_start decorator
