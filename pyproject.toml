@@ -50,7 +50,7 @@ dependencies = [
     "nest-asyncio", # planet API interaction
     "rio-tiler<7",
     "solara", 
-    "ee-client>=2.2.0", # to handle multiple gee user sessions
+    "ee-client>=2.2.1", # to handle multiple gee user sessions
     "colorlog",
     "reactivex"
 ]

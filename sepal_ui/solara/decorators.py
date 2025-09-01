@@ -69,10 +69,8 @@ def with_sepal_sessions(
                 if error_handler:
                     error_handler(e)
                 else:
-                    solara.Error(
-                        "Authentication required: Please authenticate via sepal. "
-                        "See https://docs.sepal.io/en/latest/setup/gee.html for more information."
-                    )
+                    with solara.Error():
+                        solara.Markdown(e.message)
                 return
 
             except Exception as e:
@@ -80,7 +78,8 @@ def with_sepal_sessions(
                 if error_handler:
                     error_handler(e)
                 else:
-                    solara.Error(f"An error has occurred: {e}")
+                    with solara.Error():
+                        solara.Markdown(f"An error has occurred: {e}")
                 return
 
         return wrapper
