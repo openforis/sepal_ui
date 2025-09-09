@@ -65,6 +65,16 @@ class SepalClient:
                 files=files,
                 data=data,
             )
+
+            # Handle 409 Conflict for createFolder and setFile endpoints
+            # This means the resource already exists and cannot be overwritten
+            if response.status_code == 409 and endpoint.rstrip("/") in ["createFolder", "setFile"]:
+                log.debug(
+                    f"Resource already exists for {endpoint} (409 Conflict) - continuing normally"
+                )
+                # Return empty dict for JSON responses or empty bytes for binary
+                return {} if parse_json else b""
+
             response.raise_for_status()
 
             if parse_json:
@@ -115,12 +125,15 @@ class SepalClient:
             parse_json=parse_json,
         )
 
-    def set_file(self, file_path: str, content: Union[str, bytes]) -> Dict[str, Any]:
+    def set_file(
+        self, file_path: str, content: Union[str, bytes], overwrite: bool = False
+    ) -> Dict[str, Any]:
         """Upload any content (text or binary) via multipart/form-data.
 
         Args:
             file_path: The path where the file will be saved on the server
             content: The content to upload, can be a string or bytes
+            overwrite: If True, allows overwriting existing files on the server
 
         """
         # ensure we have bytes
@@ -129,7 +142,7 @@ class SepalClient:
         else:
             payload = content
 
-        params = {"path": self.sanitize_path(file_path)}
+        params = {"path": self.sanitize_path(file_path), "overwrite": str(overwrite).lower()}
 
         # pick MIME by extension
         ext = Path(file_path).suffix.lower()
