@@ -310,6 +310,14 @@ export default {
       type: Number,
       default: null,
     },
+    current_step: {
+      type: Number,
+      default: null,
+    },
+    step_open: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data: () => ({
@@ -441,6 +449,35 @@ export default {
         this.autoActivateFirstStepIfNeeded();
       },
     },
+
+    // Watch for current_step changes from Python
+    current_step(newValue) {
+      if (newValue !== null && newValue !== this.activeStepId) {
+        const step = this.steps.find((s) => s.id === newValue);
+        if (step) {
+          this.activeStepId = newValue;
+          if (step.display === "dialog") {
+            this.open_dialog = true;
+          }
+        }
+      } else if (newValue === null && this.activeStepId !== null) {
+        this.activeStepId = null;
+        this.open_dialog = false;
+      }
+    },
+
+    // Watch for step_open changes from Python
+    step_open(newValue) {
+      if (!newValue && this.open_dialog) {
+        this.open_dialog = false;
+      } else if (
+        newValue &&
+        this.activeStep &&
+        this.activeStep.display === "dialog"
+      ) {
+        this.open_dialog = true;
+      }
+    },
   },
 
   mounted() {
@@ -512,6 +549,9 @@ export default {
           this.open_dialog = false;
         }
 
+        // Call Python method to sync step state
+        this.handle_step_activation(step.id);
+
         this.$emit("step-activated", step);
       } else {
         // For action-only steps, provide visual feedback
@@ -523,6 +563,9 @@ export default {
     closeDialog() {
       this.open_dialog = false;
       this.activeStepId = null;
+
+      // Call Python method to sync step deactivation
+      this.handle_step_deactivation();
     },
 
     handleDialogOutsideClick() {
@@ -543,6 +586,8 @@ export default {
 
       if (action.next) {
         this.activeStepId = action.next;
+        // Call Python method to sync step activation
+        this.handle_step_activation(action.next);
       }
     },
 
@@ -554,6 +599,10 @@ export default {
 
       this.activeStepId = null;
       this.open_dialog = false;
+
+      // Call Python method to sync step deactivation
+      this.handle_step_deactivation();
+
       this.$emit("show-main-map");
     },
 
