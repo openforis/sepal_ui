@@ -252,7 +252,7 @@ class Tooltip(v.Tooltip):
         super().__init__(**kwargs)
 
 
-class Dialog(v.VuetifyTemplate):
+class Dialog(v.VuetifyTemplate, SepalWidget):
     """Custom Dialog that triggers a window resize event."""
 
     children = t.List(t.Union([t.Instance(DOMWidget), t.Unicode()])).tag(
