@@ -1,7 +1,7 @@
 """Model object dedicated to AOI selection."""
 
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Dict, List, Optional, Tuple, Union
 
 import ee
@@ -510,7 +510,7 @@ class AoiModel(Model):
     def export_to_asset(self) -> Self:
         """Export the feature_collection as an asset (only for ee model)."""
         asset_name = self.ASSET_SUFFIX + self.name
-        asset_id = str(Path(self.folder, asset_name))
+        asset_id = str(PurePosixPath(self.folder, asset_name))
 
         self.dst_asset_id = asset_id
 
