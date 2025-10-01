@@ -115,6 +115,8 @@ class GEETask(HasTraits, Generic[R]):
             self.state = TaskState.FINISHED
             self.message = f"{self.key}: completed successfully"
 
+            return result
+
         except asyncio.CancelledError:
             self.message = f"{self.key}: cancelled"
             self.state = TaskState.CANCELLED

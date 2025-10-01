@@ -138,6 +138,17 @@ class GEEInterface:
             log.error(f"Failed to get info for EE object: {type(e).__name__}: {e}")
             raise
 
+    async def get_info_batch_async(self, ee_objects: List[ee.ComputedObject]) -> List:
+        """Asynchronously get info for multiple Earth Engine objects in batch."""
+        tasks = [self.get_info_async(obj) for obj in ee_objects]
+        return await asyncio.gather(*tasks, return_exceptions=True)
+
+    def get_info_batch(
+        self, ee_objects: List[ee.ComputedObject], timeout: Optional[float] = 305.0
+    ) -> List:
+        """Synchronously get info for multiple Earth Engine objects in batch."""
+        return self._run_async_blocking(self.get_info_batch_async(ee_objects), timeout)
+
     async def get_map_id_async(
         self,
         ee_image: ee.Image,

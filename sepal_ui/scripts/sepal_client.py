@@ -10,12 +10,21 @@ from sepal_ui.logger import log
 
 
 class SepalClient:
-    def __init__(self, session_id: str, module_name: str, sepal_host: Optional[str] = None):
+    def __init__(
+        self,
+        session_id: str,
+        module_name: str,
+        sepal_host: Optional[str] = None,
+        create_base_dir: bool = True,
+    ):
         """Initialize the Sepal HTTP client.
 
         Args:
             session_id: The SEPAL session ID for authentication
-            module_name: The name of the module using the client, it creates the module results directory.
+            module_name: The name of the module using the client, it creates the module results
+                directory if create_base_dir is True.
+            sepal_host: Optional SEPAL host, if None uses SEPAL_HOST environment variable
+            create_base_dir: If True, creates the base results directory for the module
         """
         self.module_name = module_name
         self.BASE_REMOTE_PATH = "/home/sepal-user"
@@ -34,7 +43,8 @@ class SepalClient:
         self.cookies = {"SEPAL-SESSIONID": session_id}
         self.headers = {"Accept": "application/json"}
 
-        self.results_path = self.create_base_dir()
+        if create_base_dir:
+            self.results_path = self.create_base_dir()
         # Maybe do a test? and check that the session is valid
         # if not I will get this error:
         # httpx.HTTPStatusError: Client error '401 Unauthorized' for url 'https://danielg.sepal.io/api/user-files/listFiles/?path=%2F&extensions='
@@ -85,11 +95,19 @@ class SepalClient:
     def create_base_dir(self) -> PurePosixPath:
         """Create the base results directory and return the PurePosixPath object."""
         results_path = f"{self.BASE_REMOTE_PATH}/module_results/{self.module_name}"
-        self.rest_call(
-            "POST",
-            "createFolder/",
-            params={"path": self.sanitize_path(results_path), "recursive": True},
-        )
+        try:
+            self.rest_call(
+                "POST",
+                "createFolder/",
+                params={"path": self.sanitize_path(results_path), "recursive": True},
+            )
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 403:
+                log.debug(
+                    f"Folder already exists: {results_path} (403 Forbidden) - continuing normally"
+                )
+            else:
+                raise
 
         return PurePosixPath(results_path)
 
