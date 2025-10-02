@@ -6,11 +6,13 @@ and SEPAL UI components, including AOI selection, map visualization, and admin t
 
 import logging
 
+import ee
 import ipyvuetify as v
 import solara
 from component.model import AppModel
 from solara.lab.components.theming import theme
 
+import sepal_ui.sepalwidgets as sw
 from sepal_ui.mapping import SepalMap
 from sepal_ui.scripts.utils import init_ee
 from sepal_ui.sepalwidgets.vue_app import MapApp, ThemeToggle
@@ -36,6 +38,25 @@ setup_solara_server()  # or setup_solara_server(extra_asset_locations=["./my_ass
 def on_kernel_start():
     """Set up sessions management for Solara applications."""
     return setup_sessions()
+
+
+def get_map():
+    """Create and configure the main map with sample Earth Engine data."""
+    polygons = ee.FeatureCollection(
+        [
+            ee.Feature(ee.Geometry.Rectangle([-74.15, 4.77, -74.10, 4.72]), {"name": "Tile A"}),
+            ee.Feature(ee.Geometry.Rectangle([-74.09, 4.77, -74.04, 4.72]), {"name": "Tile B"}),
+        ]
+    )
+    s2 = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterBounds(polygons)
+        .filterDate("2024-01-01", "2024-12-31")
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 10))
+        .median()
+    )
+
+    return s2.normalizedDifference(["B8", "B4"]).rename("NDVI")
 
 
 @solara.component
@@ -65,6 +86,7 @@ def Page():
 
     # Main map widget
     map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_toggle=theme_toggle)
+    map_.center = [4.75, -74.12]
 
     aoi_view = v.Card(
         children=[
@@ -74,31 +96,47 @@ def Page():
         ]
     )
 
+    async def _get_maps():
+        """Compute the restoration maps."""
+        map_.center = [4.75, -74.12]
+        map_.zoom = 5
+        map_.remove_all()
+        await map_.add_ee_layer_async(get_map())
+        map_.zoom = 12
+
+    def remove_all_layers():
+        map_.zoom = 5
+        map_.center = [4.75, -74.12]
+        map_.remove_all()
+
+    btn_compute = sw.TaskButton("add layer", small=True, block=True)
+    btn_remove = sw.Btn("remove all layers", small=True, block=True)
+
+    btn_remove.on_event("click", lambda *args: remove_all_layers())
+
+    def create_compute_maps_task():
+        return gee_interface.create_task(func=_get_maps, key="compute_all_maps")
+
+    btn_compute.configure(task_factory=create_compute_maps_task)
+
     steps_data = [
         {
             "id": 2,
-            "name": "AOI Selection",
+            "name": "AOI Selection as step",
             "icon": "mdi-map-marker-check",
             "display": "step",
             "content": aoi_view,
         },
         {
             "id": 3,
-            "name": "AOI Selection",
+            "name": "AOI Selection as dialog",
             "icon": "mdi-map-marker-check",
             "display": "dialog",
             "content": aoi_view,
         },
         {
-            "id": 4,
-            "name": "Map View",
-            "icon": "mdi-map",
-            "display": "step",
-            "content": map_,
-        },
-        {
             "id": 5,
-            "name": "Sidebar panel",
+            "name": "Toggle sidebar panel",
             "icon": "mdi-view-dashboard",
             "display": "step",
             "content": [],
@@ -124,7 +162,7 @@ def Page():
             "description": "To add layers to the map, you will first need to select the area of interest and the years in the 3. Indicator settings step.",
         },
         {
-            "content": [solara_admin],
+            "content": [solara_admin, btn_remove, btn_compute],
         },
     ]
 

@@ -35,15 +35,15 @@ def with_sepal_sessions(
         Decorator function.
 
     Example:
-        ```python
-        @with_sepal_sessions(module_name="my.module")
-        def Page():
-            gee_interface = get_current_gee_interface()
-            sepal_client = get_current_sepal_client()
+        .. code-block:: python
 
-            # Your component logic here
-            solara.Markdown("GEE interface is ready!")
-        ```
+            @with_sepal_sessions(module_name="my.module")
+            def Page():
+                gee_interface = get_current_gee_interface()
+                sepal_client = get_current_sepal_client()
+
+                # Your component logic here
+                solara.Markdown("GEE interface is ready!")
     """
 
     def decorator(component_func: Callable[..., Any]) -> Callable[..., Any]:
