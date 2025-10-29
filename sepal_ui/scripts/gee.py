@@ -1,20 +1,48 @@
 """All the heleper methods to interface Google Earthengine with sepal-ui."""
 
 import asyncio
+import json
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
+from functools import wraps
 from pathlib import Path
-from typing import List, Union
+from typing import Any, Callable, List, Union
 
 import ee
 import ipyvuetify as v
-from deprecated.sphinx import deprecated
+from deprecated.sphinx import deprecated, versionadded
 
 from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
 
 
-@sd.need_ee
+@versionadded(version="3.0", reason="moved from utils to a dedicated module")
+def need_ee(func: Callable) -> Any:
+    """Decorator to execute check if the object require EE binding.
+
+    Trigger an exception if the connection is not possible.
+
+    Args:
+        func: the object on which the decorator is applied
+
+    Returns:
+        The return statement of the decorated method
+    """
+
+    @wraps(func)
+    def wrapper_ee(*args, **kwargs):
+        # try to connect to ee
+        try:
+            init_ee()
+        except Exception:
+            raise Exception("This function needs an Earth Engine authentication")
+
+        return func(*args, **kwargs)
+
+    return wrapper_ee
+
+
+@need_ee
 def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> str:
     """Wait until the selected process is finished. Display some output information.
 
@@ -49,7 +77,7 @@ def wait_for_completion(task_descripsion: str, widget_alert: v.Alert = None) -> 
     return state
 
 
-@sd.need_ee
+@need_ee
 def is_task(task_descripsion: str) -> ee.batch.Task:
     """Search for the described task in the user Task list return None if nothing is found.
 
@@ -68,7 +96,7 @@ def is_task(task_descripsion: str) -> ee.batch.Task:
     return current_task
 
 
-@sd.need_ee
+@need_ee
 def is_running(task_descripsion: str) -> ee.batch.Task:
     """Search for the described task in the user Task list return None if nothing is currently running.
 
@@ -149,7 +177,7 @@ async def get_assets_async_concurrent(folder: str, gee_interface=None) -> List[d
     version="3.2.0",
     category=DeprecationWarning,
 )
-@sd.need_ee
+@need_ee
 def _get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
@@ -169,7 +197,7 @@ def _get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
     return _get_assets_sync(folder)
 
 
-@sd.need_ee
+@need_ee
 def _get_assets_sync(folder: Union[str, Path] = "") -> List[dict]:
     """Get all the assets from the parameter folder. every nested asset will be displayed.
 
@@ -205,7 +233,7 @@ get_assets = _get_assets
     version="3.2.0",
     category=DeprecationWarning,
 )
-@sd.need_ee
+@need_ee
 def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: str = None) -> bool:
     """Check if the asset already exist in the user asset folder.
 
@@ -248,7 +276,7 @@ def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: st
         return result is not None
 
 
-@sd.need_ee
+@need_ee
 def delete_assets(asset_id: str, dry_run: bool = True) -> None:
     """Delete the selected asset and all its content.
 
@@ -300,7 +328,7 @@ def delete_assets(asset_id: str, dry_run: bool = True) -> None:
     return
 
 
-@sd.need_ee
+@need_ee
 def get_task(task_id):
     """Get task."""
     tasks_list = ee.batch.Task.list()
@@ -309,3 +337,50 @@ def get_task(task_id):
             return task
 
     raise Exception(f"The task id {task_id} doesn't exist in your tasks.")
+
+
+def init_ee() -> None:
+    r"""Initialize earth engine according using a token.
+
+    THe environment used to run the tests need to have a EARTHENGINE_TOKEN variable.
+    The content of this variable must be the copy of a personal credential file that you can find on your local computer if you already run the earth engine command line tool. See the usage question for a github action example.
+
+    - Windows: ``C:\Users\USERNAME\\.config\\earthengine\\credentials``
+    - Linux: ``/home/USERNAME/.config/earthengine/credentials``
+    - MacOS: ``/Users/USERNAME/.config/earthengine/credentials``
+
+    Note:
+        As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
+    """
+    if not ee.data.is_initialized():
+        credential_folder_path = Path.home() / ".config" / "earthengine"
+        credential_file_path = credential_folder_path / "credentials"
+
+        if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
+
+            # write the token to the appropriate folder
+            ee_token = os.environ["EARTHENGINE_TOKEN"]
+            credential_folder_path.mkdir(parents=True, exist_ok=True)
+            credential_file_path.write_text(ee_token)
+
+        # Extract the project name from credentials
+        _credentials = json.loads(credential_file_path.read_text())
+        project_id = _credentials.get("project_id", _credentials.get("project", None))
+
+        if not project_id:
+            raise NameError(
+                "The project name cannot be detected. "
+                "Please set it using `earthengine set_project project_name`."
+            )
+
+        # Check if we are using a google service account
+        if _credentials.get("type") == "service_account":
+            ee_user = _credentials.get("client_email")
+            credentials = ee.ServiceAccountCredentials(ee_user, str(credential_file_path))
+            ee.Initialize(credentials=credentials)
+            ee.data._cloud_api_user_project = project_id
+            return
+
+        # if the user is in local development the authentication should
+        # already be available
+        ee.Initialize(project=project_id)
