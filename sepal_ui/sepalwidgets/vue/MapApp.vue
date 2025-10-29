@@ -48,10 +48,10 @@
             icon
             @click="togglePin"
             class="pin-btn"
-            :title="isPinned ? 'Unpin sidebar' : 'Pin sidebar'"
+            :title="is_pinned ? 'Unpin sidebar' : 'Pin sidebar'"
           >
             <v-icon small>{{
-              isPinned ? "mdi-pin" : "mdi-pin-outline"
+              is_pinned ? "mdi-pin" : "mdi-pin-outline"
             }}</v-icon>
           </v-btn>
         </div>
@@ -318,12 +318,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    is_pinned: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   data: () => ({
     drawer: true,
     mini: false,
-    isPinned: true,
     collapsedWidth: 60,
     expandedWidth: 320,
     activeStepId: null,
@@ -503,7 +506,7 @@ export default {
     },
 
     togglePin() {
-      this.isPinned = !this.isPinned;
+      this.$emit("update:is_pinned", !this.is_pinned);
     },
 
     handleMapClick() {
@@ -515,7 +518,7 @@ export default {
     },
 
     collapseIfNotPinned() {
-      if (!this.isPinned && !this.mini) {
+      if (!this.is_pinned && !this.mini) {
         this.mini = true;
       }
     },

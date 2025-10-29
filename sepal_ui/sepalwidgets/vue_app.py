@@ -40,6 +40,9 @@ class MapApp(v.VuetifyTemplate):
     right_panel_open = Bool(False).tag(sync=True)
     right_panel_width = Int(300).tag(sync=True)
 
+    # Left sidebar state tracking
+    is_pinned = Bool(True).tag(sync=True)
+
     # Right panel configuration
     right_panel_config = Dict(
         default_value={
@@ -238,7 +241,7 @@ class MapApp(v.VuetifyTemplate):
         self.current_step = step_id
         self.step_open = True
 
-    def vue_handle_step_deactivation(self):
+    def vue_handle_step_deactivation(self, *args):
         """Handle step deactivation from Vue component."""
         self.current_step = None
         self.step_open = False
