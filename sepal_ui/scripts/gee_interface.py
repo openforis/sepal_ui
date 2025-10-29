@@ -84,7 +84,7 @@ class GEEInterface:
             f"[{operation}] GEEIterface ID: {id(self)} || GEE thread: {self._async_thread.name} (ID: {self._async_thread.ident})"
         )
 
-    def _run_async_blocking(self, coro: asyncio.coroutine, timeout: Optional[float] = 305.0) -> Any:
+    def _run_async_blocking(self, coro: Coroutine, timeout: Optional[float] = 305.0) -> Any:
         """Schedule `coro` in our private loop, block until done."""
         if self._closed:
             raise RuntimeError("GEEInterface is closed")

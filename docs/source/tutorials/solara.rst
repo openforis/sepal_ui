@@ -37,7 +37,7 @@ First, create and activate a conda environment for your development:
 
     # Create a new conda environment with Python 3.10
     conda create -n pysepal_dev python=3.10 pip jupyter -y
-    
+
     # Activate the environment
     conda activate pysepal_dev
 
@@ -51,7 +51,7 @@ Instead of installing directly from GitHub, we recommend cloning the repository 
     # Clone the sepal_ui repository (solara3 branch)
     git clone -b solara3 https://github.com/openforis/sepal_ui.git
     cd sepal_ui
-    
+
     # Install in development mode (editable installation)
     pip install -e .
 
@@ -66,7 +66,7 @@ This development installation approach:
 📚 Understanding Architecture
 =============================
 
-Building PySepal applications starts with internalizing that every line of your code executes in a shared, long‑lived server process that is simultaneously serving many users. There is no private desktop sandbox: multiple browser sessions will trigger the same Python module state, and any global singleton you create could accidentally leak context from one user to another. 
+Building PySepal applications starts with internalizing that every line of your code executes in a shared, long‑lived server process that is simultaneously serving many users. There is no private desktop sandbox: multiple browser sessions will trigger the same Python module state, and any global singleton you create could accidentally leak context from one user to another.
 
 To create PySepal applications, it's crucial to understand key concepts that enable multi-user, server-deployed applications. Applications deployed on the Solara server need to handle multiple users simultaneously, each with their own authentication and data access context.
 
@@ -116,7 +116,7 @@ Asynchronous vs Blocking Methods
 """""""""""""""""""""""""""""""""
 
 * **Choose the right variant**: Use async methods (``*_async``) when in async code or orchestrating multiple concurrent calls. Use blocking methods for simpler, sequential operations that do not take too long.
-* **One interface per session**: In multi-user apps, always create one ``GEEInterface`` per user session, you can use the `SessionManager session_manager`_ helpers to do this automatically.
+* **One interface per session**: In multi-user apps, always create one ``GEEInterface`` per user session, you can use the session_manager_ helpers to do this automatically.
 * **Watch for deadlock warnings**: If you get a deadlock warning, you're calling a blocking method from the interface's async thread—switch to the ``*_async`` method.
 
 *To explore GEEInterface capabilities, check the* `GEE Interface notebook`_ *below.*
@@ -184,7 +184,7 @@ Start Jupyter Lab and run these notebooks from ``sepal_ui/notebooks``:
    Run these notebooks and experiment with the code before proceeding to build your own applications. The concepts demonstrated in these notebooks form the foundation of all PySepal applications.
 
 Testing Solara Templates
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 Create a ``.env`` file in the ``sepal_ui`` root directory:
 
 .. code-block:: properties
@@ -204,20 +204,20 @@ The repository also includes ready-to-run Solara application templates:
 
     # Navigate back to the main sepal_ui directory
     cd /path/to/sepal_ui
-    
+
     # Make the run script executable
     chmod +x run_solara.sh
-    
+
     # Test the basic file input example
     ./run_solara.sh sepal_ui/templates/solara/solara_map_app/simple_app.py --port 8900
-    
+
     # Test the map application template
     ./run_solara.sh sepal_ui/templates/solara/solara_map_app/app.py --port 8901
 
 The ``run_solara.sh`` script automatically:
 
 - Loads environment variables from your ``.env`` file
-- Sets up proper SEPAL authentication variables  
+- Sets up proper SEPAL authentication variables
 - Configures Solara server settings
 - Launches your application with the correct port configuration
 
@@ -268,14 +268,14 @@ Here's the basic structure for a Solara-based SEPAL application:
 
         # Set up SEPAL theme colors
         setup_theme_colors()
-        
+
         # Get SEPAL interfaces (they can be obtained from anywhere in your app)
         gee_interface = get_current_gee_interface()
         sepal_client = get_current_sepal_client()
-        
+
         # Your application content here
         solara.Markdown("# Welcome to Your SEPAL Application")
-        
+
         # Add your components
         FileInput.element(sepal_client=sepal_client)
 
@@ -328,18 +328,18 @@ Complete Map Application Example
     @with_sepal_sessions(module_name="your_map_module")
     def Page():
         setup_theme_colors()
-        
+
         # Theme toggle for dark/light mode
         theme_toggle = ThemeToggle()
-        
+
         # Get SEPAL interfaces
         gee_interface = get_current_gee_interface()
         sepal_client = get_current_sepal_client()
-        
+
         # Create the main map
         map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_toggle=theme_toggle)
         map_.center = [4.75, -74.12]  # Set initial center
-        
+
         # Create UI components for map interactions
         aoi_selector = v.Card(
             children=[
@@ -348,7 +348,7 @@ Complete Map Application Example
                 v.Btn(children=["Select AOI"], color="primary"),
             ]
         )
-        
+
         # Define steps for the sidebar
         steps_data = [
             {
@@ -366,7 +366,7 @@ Complete Map Application Example
                 "content": v.Card(children=[v.CardText(children=["Processing options here"])]),
             },
         ]
-        
+
         # Configuration for the right panel
         right_panel_config = {
             "title": "Results",
@@ -375,7 +375,7 @@ Complete Map Application Example
             "description": "View and export your results.",
             "toggle_icon": "mdi-chart-line",
         }
-        
+
         # Right panel content with controls
         right_panel_content = [
             {
@@ -387,7 +387,7 @@ Complete Map Application Example
                 ],
             },
         ]
-        
+
         # Create the complete map application
         MapApp.element(
             app_title="Your Map Application",
@@ -411,7 +411,7 @@ If everything is set up correctly, your map application should launch successful
     :alt: Map application in light theme
     :align: center
 
-        
+
 
 MapApp Component Features
 ~~~~~~~~~~~~~~~~~~~~~~~~~
