@@ -16,6 +16,20 @@ from deprecated.sphinx import deprecated, versionadded
 from sepal_ui.message import ms
 
 
+def get_ee_project() -> str:
+    """Get the current Earth Engine project ID.
+
+    Returns:
+        The project ID (e.g., 'ee-username').
+    """
+    if not ee.data.is_initialized():
+        raise RuntimeError("Earth Engine is not initialized. Call init_ee() first.")
+
+    config = ee.data.getProjectConfig()
+    # Extract project ID from 'projects/PROJECT_ID/config' format
+    return config["name"].split("/")[1]
+
+
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
 def need_ee(func: Callable) -> Any:
     """Decorator to execute check if the object require EE binding.
@@ -192,7 +206,7 @@ def _get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
 
     """
-    folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
+    folder = str(folder) or f"projects/{get_ee_project()}/assets/"
 
     return _get_assets_sync(folder)
 
@@ -258,10 +272,10 @@ def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: st
             folder = str(folder)
             if folder and not folder.startswith("projects/"):
                 # If folder doesn't start with 'projects/', assume it's a relative path
-                folder = f"projects/{ee.data._cloud_api_user_project}/assets/{folder}"
+                folder = f"projects/{get_ee_project()}/assets/{folder}"
             elif not folder:
                 # If no folder provided, use default
-                folder = f"projects/{ee.data._cloud_api_user_project}/assets/"
+                folder = f"projects/{get_ee_project()}/assets/"
 
             # Ensure folder ends with '/' for proper concatenation
             if not folder.endswith("/"):
@@ -377,8 +391,7 @@ def init_ee() -> None:
         if _credentials.get("type") == "service_account":
             ee_user = _credentials.get("client_email")
             credentials = ee.ServiceAccountCredentials(ee_user, str(credential_file_path))
-            ee.Initialize(credentials=credentials)
-            ee.data._cloud_api_user_project = project_id
+            ee.Initialize(credentials=credentials, project=project_id)
             return
 
         # if the user is in local development the authentication should

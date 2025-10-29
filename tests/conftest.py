@@ -23,7 +23,7 @@ try:
     su.init_ee()
 except Exception as e:
     raise e
-    # pass  # try to init earthengine. use ee.data._credentials to skip
+    # pass  # try to init earthengine. use ee.data.is_initialized() to skip
 
 # -- a component to fake the display in Ipython --------------------------------
 
@@ -120,11 +120,12 @@ def gee_dir(_hash: str) -> Optional[Path]:
     Returns:
         the path to the gee dir inside user folder
     """
-    if not ee.data._credentials:
-        pytest.skip("Eathengine is not connected")
+    if not ee.data.is_initialized():
+        pytest.skip("Earthengine is not connected")
 
     # create a test folder with a hash name
-    root = f"projects/{ee.data._cloud_api_user_project}/assets/"
+    project_id = ee.data.getProjectConfig()["name"].split("/")[1]
+    root = f"projects/{project_id}/assets/"
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
 
