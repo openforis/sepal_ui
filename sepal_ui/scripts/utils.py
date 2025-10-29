@@ -139,7 +139,7 @@ def init_ee() -> None:
     Note:
         As all init method of pytest-gee, this method will fallback to a regular ``ee.Initialize()`` if the environment variable is not found e.g. on your local computer.
     """
-    if not ee.data._credentials:
+    if not ee.data.is_initialized():
         credential_folder_path = Path.home() / ".config" / "earthengine"
         credential_file_path = credential_folder_path / "credentials"
 
