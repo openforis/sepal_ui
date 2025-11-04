@@ -47,10 +47,9 @@ dependencies = [
     "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
-    "nest-asyncio", # planet API interaction
     "rio-tiler<7",
     "solara", 
-    "ee-client>=2.2.1", # to handle multiple gee user sessions
+    "ee-client>=2.5.0", # supports caching
     "colorlog",
     "reactivex"
 ]
@@ -148,6 +147,11 @@ version_files = [
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+markers = [
+    "integration: marks tests as integration tests that require external services (deselect with '-m \"not integration\"')",
+    "planet: marks tests that require Planet API credentials",
+    "gee: marks tests that require Google Earth Engine authentication",
+]
 
 [tool.ruff]
 ignore-init-module-imports = true
