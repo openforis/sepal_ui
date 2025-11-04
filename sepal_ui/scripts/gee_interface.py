@@ -198,7 +198,7 @@ class GEEInterface:
         """Asynchronously get the assets folder path."""
         if self.session:
             return await self.session.get_assets_folder()
-        return f"projects/{ee.data._cloud_api_user_project}/assets/"
+        return f"projects/{gee.get_ee_project()}/assets/"
 
     async def export_table_to_asset_async(
         self,
