@@ -20,20 +20,14 @@ PREFIX = "visualization"
 
 
 async def get_viz_params_async(
-    gee_interface: GEEInterface,
     ee_object: ee.ComputedObject,
-    vis_params: dict,
-    viz_name: str,
-    use_map_vis=True,
+    gee_interface: Optional[GEEInterface] = None,
 ) -> tuple:
     """Asynchronously retrieve and process visualization parameters for a given Earth Engine object.
 
     Args:
-        gee_interface: The GEE interface to use for fetching properties.
         ee_object: The Earth Engine object (Image, FeatureCollection, etc.) to process.
-        vis_params: Visualization parameters to apply.
-        viz_name: Name of the visualization parameters to retrieve.
-        use_map_vis: Whether to use map visualization parameters.
+        gee_interface: The GEE interface to use for fetching properties. If not provided, a new instance will be created.
 
     Returns:
         A tuple containing the processed image, object, and visualization parameters.
@@ -45,39 +39,23 @@ async def get_viz_params_async(
 
     props = {}
 
+    if gee_interface is None:
+        gee_interface = GEEInterface()
+
     raw_prop_list = await get_props_list_async(gee_interface, ee_object)
 
-    viz = process_props(raw_prop_list, props)
-
-    # get the requested vizparameters name
-    # if non is set use the first one
-    if viz:
-        viz_name = viz_name or viz[next(iter(viz))]["name"]
-
-    return process_vis_params(
-        ee_object,
-        viz=viz,
-        vis_params=vis_params,
-        use_map_vis=use_map_vis,
-        viz_name=viz_name,
-    )
+    return process_props(raw_prop_list, props)
 
 
 def get_viz_params(
-    gee_interface: GEEInterface,
     ee_object: ee.ComputedObject,
-    vis_params: dict,
-    viz_name: str,
-    use_map_vis=True,
+    gee_interface: Optional[GEEInterface] = None,
 ) -> tuple:
     """Retrieve and process visualization parameters for a given Earth Engine object.
 
     Args:
-        gee_interface: The GEE interface to use for fetching properties.
         ee_object: The Earth Engine object (Image, FeatureCollection, etc.) to process.
-        vis_params: Visualization parameters to apply.
-        viz_name: Name of the visualization parameters to retrieve.
-        use_map_vis: Whether to use map visualization parameters.
+        gee_interface: The GEE interface to use for fetching properties. If not provided, a new instance will be created.
 
     Returns:
         A tuple containing the processed image, object, and visualization parameters.
@@ -89,22 +67,11 @@ def get_viz_params(
 
     props = {}
 
+    if gee_interface is None:
+        gee_interface = GEEInterface()
+
     raw_prop_list = get_props_list(gee_interface, ee_object)
-
-    viz = process_props(raw_prop_list, props)
-
-    # get the requested vizparameters name
-    # if non is set use the first one
-    if viz:
-        viz_name = viz_name or viz[next(iter(viz))]["name"]
-
-    return process_vis_params(
-        ee_object,
-        viz=viz,
-        vis_params=vis_params,
-        use_map_vis=use_map_vis,
-        viz_name=viz_name,
-    )
+    return process_props(raw_prop_list, props)
 
 
 def get_props_list(gee_interface: GEEInterface, ee_object: ee.ComputedObject) -> list:
@@ -131,7 +98,6 @@ def get_props_list(gee_interface: GEEInterface, ee_object: ee.ComputedObject) ->
         log.warning("Image has no visualization properties, returning empty viz params")
         return []
 
-    # Get only the visualization properties as a dictionary
     viz_dict = ee_object.toDictionary(viz_props)
     raw_prop_list = gee_interface.get_info(viz_dict)
 
@@ -225,8 +191,8 @@ def process_props(raw_prop_list: Optional[list], props: dict = {}) -> dict:
 
 def process_vis_params(
     ee_object: ee.ComputedObject,
-    viz: dict,
     vis_params: dict,
+    viz: dict,
     use_map_vis: bool,
     viz_name: str = None,
 ) -> tuple:
@@ -234,8 +200,8 @@ def process_vis_params(
 
     Args:
         ee_object: The Earth Engine object (Image, FeatureCollection, etc.) to process.
-        viz: The visualization properties dictionary.
         vis_params: The visualization parameters to apply.
+        viz: The visualization properties dictionary.
         use_map_vis: Whether to use map visualization parameters.
         viz_name: Name of the visualization parameters to retrieve.
 
@@ -357,6 +323,7 @@ def process_vis_params(
     elif isinstance(ee_object, ee.imagecollection.ImageCollection):
         image = obj = ee_object.mosaic()
 
+    log.debug(f"Returning image with vis_params: {vis_params}")
     return image, obj, vis_params
 
 

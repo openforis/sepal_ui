@@ -8,7 +8,11 @@ from sepal_ui.mapping.bounds import (
     compute_zoom_for_bounds,
 )
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
-from sepal_ui.mapping.visualization import get_viz_params, get_viz_params_async
+from sepal_ui.mapping.visualization import (
+    get_viz_params,
+    get_viz_params_async,
+    process_vis_params,
+)
 from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 
@@ -490,6 +494,36 @@ class SepalMap(ipl.Map):
 
         return
 
+    @staticmethod
+    @deprecated(
+        version="3.0.0",
+        reason="Use sepal_ui.mapping.visualization.get_viz_params() directly instead. This wrapper is maintained for backward compatibility.",
+    )
+    def get_viz_params(
+        ee_object: ee.ComputedObject,
+        gee_interface: Optional[GEEInterface] = None,
+    ) -> tuple:
+        """Get visualization parameters for an Earth Engine object.
+
+        This is a convenience wrapper around the visualization module helper.
+        Maintained for backward compatibility.
+
+        .. deprecated:: 3.0.0
+            Use :func:`sepal_ui.mapping.visualization.get_viz_params` directly instead.
+            This static method wrapper will be removed in version 4.0.0.
+
+        Args:
+            ee_object: The Earth Engine object to visualize.
+            gee_interface: Optional GEEInterface instance (creates one if not provided).
+
+        Returns:
+            Tuple of (image, object, vis_params).
+        """
+        return get_viz_params(
+            ee_object,
+            gee_interface=gee_interface,
+        )
+
     def add_ee_layer(
         self,
         ee_object: ee.ComputedObject,
@@ -520,13 +554,15 @@ class SepalMap(ipl.Map):
             use_map_vis: whether or not to use the map visualization parameters. default to True
             autocenter: whether or not to center the map on the layer. default to False
         """
-        # get the visualization parameters
-        image, obj, vis_params = get_viz_params(
-            self.gee_interface,
+        # get the own visualization parameters
+        map_own_visualization = get_viz_params(ee_object, gee_interface=self.gee_interface)
+
+        image, obj, vis_params = process_vis_params(
             ee_object,
             vis_params=vis_params,
-            viz_name=viz_name,
+            viz=map_own_visualization,
             use_map_vis=use_map_vis,
+            viz_name=viz_name,
         )
 
         # create the layer based on these new values
@@ -582,13 +618,18 @@ class SepalMap(ipl.Map):
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
             use_map_vis: whether or not to use the map visualization parameters. default to True
         """
-        # get the visualization parameters
-        image, obj, vis_params = await get_viz_params_async(
-            self.gee_interface,
+        # get the own visualization parameters
+        map_own_visualization = await get_viz_params_async(
+            ee_object,
+            gee_interface=self.gee_interface,
+        )
+
+        image, obj, vis_params = process_vis_params(
             ee_object,
             vis_params=vis_params,
-            viz_name=viz_name,
+            viz=map_own_visualization,
             use_map_vis=use_map_vis,
+            viz_name=viz_name,
         )
 
         # create the layer based on these new values

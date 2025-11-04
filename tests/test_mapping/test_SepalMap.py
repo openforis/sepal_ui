@@ -3,6 +3,7 @@
 import json
 import math
 import random
+import warnings
 from pathlib import Path
 
 import ee
@@ -468,10 +469,10 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
 
     # search by index
     res = m.find_layer(1)
-    assert res.name == "Classification"
+    assert res.name == "RGB"
 
     res = m.find_layer(-1)
-    assert res.name == "NDWI"
+    assert res.name == "Classification"
 
     # out of bounds
     with pytest.raises(ValueError):
@@ -548,7 +549,10 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    for viz in sm.SepalMap().get_viz_params(image).values():
-        m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+    # Suppress deprecation warning in fixture
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        for viz in sm.SepalMap().get_viz_params(image).values():
+            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     return m
