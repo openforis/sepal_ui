@@ -182,6 +182,15 @@ class ThemeSelect(v.VuetifyTemplate):
     off_icon = Unicode("mdi-weather-sunny").tag(sync=True)
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
+    def fire_event(self, event: str, data: Any) -> None:
+        """Fire a custom event to the frontend.
+
+        Args:
+            event: The event name
+            data: The event data
+        """
+        self.send({"method": "fire_button", "args": []})
+
 
 class AppBar(v.AppBar, SepalWidget):
     toogle_button: Optional[v.Btn]

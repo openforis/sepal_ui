@@ -115,6 +115,9 @@ export default {
         window.matchMedia("(prefers-color-scheme: dark)").matches
       );
     },
+    jupyter_fire_button(event, data) {
+      this.countClicks();
+    },
   },
   watch: {
     clicks() {
