@@ -18,6 +18,7 @@ from shapely import geometry as sg
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_interface import GEEInterface
 
 try:
     su.init_ee()
@@ -343,3 +344,13 @@ def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
         Path to the repo dir
     """
     return tmp_path_factory.mktemp("repo_dir")
+
+
+@pytest.fixture(scope="session")
+def gee_interface() -> GEEInterface:
+    """Create a GeeInterface instance for testing.
+
+    Returns:
+        An instance of GeeInterface
+    """
+    return GEEInterface()

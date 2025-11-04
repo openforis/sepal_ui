@@ -35,7 +35,7 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.gee_task import GEETask
+from sepal_ui.scripts.gee_task import GEETask, TaskState
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 
@@ -767,13 +767,17 @@ class AssetSelect(v.Combobox, SepalWidget):
             self._get_items()
 
     def _configure_tasks(self) -> None:
-        def on_finally_get_items(*args):
-            self.loading = False
-            self.disabled = False
+        def on_finally_get_items():
+            # Only reset loading states if task wasn't cancelled
+            # If cancelled, a new task is likely running and should manage its own state
+            if self._tasks["get_items"].state != TaskState.CANCELLED:
+                self.loading = False
+                self.disabled = False
 
-        def on_finally_validate(*args):
-            # Reset loading state after validation
-            self.loading = False
+        def on_finally_validate():
+            # Only reset loading state if task wasn't cancelled
+            if self._tasks["validate"].state != TaskState.CANCELLED:
+                self.loading = False
 
         self._tasks["get_items"] = self.gee_interface.create_task(
             func=self._get_items_async,
@@ -791,6 +795,11 @@ class AssetSelect(v.Combobox, SepalWidget):
 
     def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
         """Start the get_items task, canceling any currently running task."""
+        # Set loading state immediately to signal that work is starting
+        self._loaded = False
+        self.loading = True
+        self.disabled = True
+
         # If task is already running, cancel it first
         if self._tasks["get_items"].is_running:
             log.debug(f"[{id(self)}] Canceling running get_items task to start new request")
@@ -896,17 +905,21 @@ class AssetSelect(v.Combobox, SepalWidget):
             if isinstance(self.default_asset, str):
                 self.default_asset = [self.default_asset]
 
-            # Set the default asset - validation will be handled by the observer
-            self.v_model = self.default_asset[0]
+            filtered_defaults = []
+            for default in self.default_asset:
+                try:
+                    asset_info = await self.gee_interface.get_asset_async(default)
+                    if asset_info["type"] in self.types:
+                        filtered_defaults.append(default)
+                except Exception:
+                    pass
 
-            header = ms.widgets.asset_select.custom
-            items += [{"divider": True}, {"header": header}]
-            items += [default for default in self.default_asset]
+            if filtered_defaults:
+                self.v_model = filtered_defaults[0]
 
-            log.debug(
-                f"[{id(self)}] >>>>>>> Default asset set to {self.v_model} for {self.__class__.__name__}"
-            )
-
+                header = ms.widgets.asset_select.custom
+                items += [{"divider": True}, {"header": header}]
+                items += filtered_defaults
         log.debug(
             f"[{id(self)}] {text} || About to get the assets, current v_model is {self.v_model}"
         )
