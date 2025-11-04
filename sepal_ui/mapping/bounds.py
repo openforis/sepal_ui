@@ -23,6 +23,11 @@ def compute_zoom_for_bounds(bounds, map_width_px=1024, min_zoom=None, max_zoom=N
     span_y = abs(max_y - min_y)
     span = max(span_x, span_y)
 
+    if span == 0:
+        # Return the maximum zoom level for a point
+        zoom = max_zoom if max_zoom is not None else 18
+        return zoom
+
     # Compute meters per pixel
     resolution = span / map_width_px
 
