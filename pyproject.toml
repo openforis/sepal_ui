@@ -12,11 +12,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     # building widgets
     "tomli",
@@ -32,7 +32,7 @@ dependencies = [
     # read local data
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
-    'geopandas>=0.14.0; python_version > "3.8"',
+    "geopandas>=0.14.0",
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
     "planet",
