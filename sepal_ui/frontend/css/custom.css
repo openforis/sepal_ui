@@ -31,7 +31,7 @@ header.v-app-bar {
 /* set the menu_content on top of the map when it's set to fullscreen */
 .v-menu__content {
   max-width: 100% !important;
-  /* z-index: 902 !important; */
+  z-index: 902 !important; /* This is important for showing selects on top of the map */
 }
 
 /* create extra position for the leaflet map controls */
