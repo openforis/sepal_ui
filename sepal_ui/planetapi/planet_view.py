@@ -196,4 +196,17 @@ class PlanetView(sw.Layout):
 
         self.planet_model.init_session(credentials, write_secrets=self.w_store.v_model)
 
+        # Check if the user has active subscriptions and show feedback
+        if self.planet_model.authenticated:
+            if self.planet_model.active:
+                self.alert.add_msg(
+                    "Successfully connected to Planet API with active subscriptions!",
+                    type_="success",
+                )
+            else:
+                self.alert.add_msg(
+                    "Connected to Planet API but no active subscriptions found. Check the subscription list below.",
+                    type_="warning",
+                )
+
         return

@@ -35,8 +35,8 @@ class PlanetModel(Model):
     def _run_async(self, coro):
         """Run an async coroutine safely.
 
-        This method handles the event loop lifecycle properly to avoid
-        "Event loop is closed" errors when running multiple async operations.
+        This method handles running async code in both regular Python and
+        environments with an already running event loop (like Jupyter/Voila).
 
         Args:
             coro: The coroutine to run
@@ -45,19 +45,26 @@ class PlanetModel(Model):
             The result of the coroutine
         """
         try:
-            loop = asyncio.get_event_loop()
+            # Check if there's already a running loop (Jupyter/Voila)
+            loop = asyncio.get_running_loop()
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(asyncio.run, coro)
+                return future.result()
+
         except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
 
-        if loop.is_closed():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            if loop.is_closed():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
 
-        try:
             return loop.run_until_complete(coro)
-        finally:
-            pass
 
     def __init__(self, credentials: Union[str, List[str]] = "") -> None:
         """Planet model helper to connect planet API client and perform requests.
