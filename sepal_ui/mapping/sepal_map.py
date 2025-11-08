@@ -249,6 +249,24 @@ class SepalMap(ipl.Map):
 
         return self
 
+    def show_dc(self) -> Self:
+        """Show the drawing control on the map.
+
+        Returns:
+            Self for method chaining
+        """
+        self.dc.show()
+        return self
+
+    def hide_dc(self) -> Self:
+        """Hide the drawing control of the map.
+
+        Returns:
+            Self for method chaining
+        """
+        self.dc.hide()
+        return self
+
     def set_center(self, lon: float, lat: float, zoom: int = -1) -> None:
         """Centers the map view at a given coordinates with the given zoom level.
 
