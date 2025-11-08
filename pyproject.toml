@@ -35,7 +35,7 @@ dependencies = [
     "geopandas>=0.14.0",
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
-    "planet",
+    "planet>=2.0,<3.0",
     "pyarrow",
     "localtileserver>=0.7.0", # first pure rio version
     "pygaul>=0.3.1", # use the class implementation
@@ -147,11 +147,6 @@ version_files = [
 
 [tool.pytest.ini_options]
 testpaths = "tests"
-markers = [
-    "integration: marks tests as integration tests that require external services (deselect with '-m \"not integration\"')",
-    "planet: marks tests that require Planet API credentials",
-    "gee: marks tests that require Google Earth Engine authentication",
-]
 
 [tool.ruff]
 ignore-init-module-imports = true

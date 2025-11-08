@@ -337,6 +337,27 @@ def cred() -> list:
 
 
 @pytest.fixture(scope="session")
+def has_active_planet_subscription(planet_key: str) -> bool:
+    """Check if the current credentials have active Planet subscriptions.
+
+    Returns:
+        True if there are active subscriptions, False otherwise
+    """
+    if not planet_key:
+        return False
+
+    try:
+        from sepal_ui.planetapi import PlanetModel
+
+        model = PlanetModel(planet_key)
+        # Try to get subscriptions - if it fails or returns empty, no active subs
+        subs = model.get_subscriptions()
+        return len(subs) > 0
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="session")
 def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a dummy repo directory.
 
