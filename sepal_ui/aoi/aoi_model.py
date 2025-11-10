@@ -413,7 +413,7 @@ class AoiModel(Model):
             self.name = "_".join(names)
 
         else:
-            self.gdf = pygadm.AdmItems(admin=admin)
+            self.gdf = pygadm.Items(admin=admin)
 
             # generate the name from the columns
             r = self.gdf.iloc[0]
@@ -600,7 +600,14 @@ class AoiModel(Model):
 
         # read the data from geojson and add the name as a property of the shape
         # useful when handler are added from ipyleaflet
-        data = json.loads(self.gdf.to_json())
+        # Convert to regular GeoDataFrame to avoid issues with pygadm subclasses
+        # This is necessary because pygadm 0.5.3 has a bug with pandas 2.3+ where
+        # the __init__ method contains a DataFrame comparison that fails during
+        # geopandas' internal to_json() process. Converting to plain GeoDataFrame
+        # first avoids triggering the buggy pygadm constructor.
+        # See: https://github.com/12rambau/pygadm/issues/81
+        gdf = gpd.GeoDataFrame(self.gdf)
+        data = json.loads(gdf.to_json())
         for f in data["features"]:
             f["properties"]["name"] = self.name
 
