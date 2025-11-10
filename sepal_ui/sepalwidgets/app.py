@@ -11,6 +11,7 @@ Example:
         sw.LocaleSelect()
 """
 
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -42,6 +43,8 @@ from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.translator import Translator
+
+logger = logging.getLogger("sepalui.app")
 
 __all__ = [
     "AppBar",
@@ -182,14 +185,30 @@ class ThemeSelect(v.VuetifyTemplate):
     off_icon = Unicode("mdi-weather-sunny").tag(sync=True)
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
-    def fire_event(self, event: str, data: Any) -> None:
-        """Fire a custom event to the frontend.
+    def __init__(self):
+        """Initialize the ThemeSelect widget and set default theme configuration."""
+        super().__init__()
+        theme = "dark" if self.dark else "light"
+        su.set_config("theme", theme)
 
-        Args:
-            event: The event name
-            data: The event data
+    @observe("dark")
+    def _on_dark_change(self, change):
+        """Observer for dark trait changes - saves to config file.
+
+        This is called when the Vue component syncs the dark value back to Python.
         """
-        self.send({"method": "fire_button", "args": []})
+        logger.info(f"🔍 OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
+        theme = "dark" if change["new"] else "light"
+        su.set_config("theme", theme)
+        logger.info(f"💾 Config file updated to: {theme}")
+
+    def toggle_theme(self) -> None:
+        """Toggle between dark and light theme and save to config.
+
+        This method can be used for testing or programmatic theme switching
+        without relying on the Vue frontend.
+        """
+        self.dark = not self.dark
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -624,7 +643,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\\_ and persistent parameters")
     def add_banner(
         self,
         msg: str = "",
