@@ -8,7 +8,7 @@ from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init() -> None:
     """Check the init of a layer control on a standard map."""
     # create a map with 1 layer (the basemap)
@@ -28,7 +28,7 @@ def test_init() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_layer() -> None:
     """Check that adding a layer refresh the layer control."""
     m = sm.SepalMap()
@@ -53,7 +53,7 @@ def test_add_layer() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_basemaps() -> None:
     """Check that multiple basempas can be displayed at the same time."""
     m = sm.SepalMap()
@@ -71,7 +71,7 @@ def test_add_basemaps() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_change_alpha() -> None:
     """Check that alpha channel can be changed."""
     m = sm.SepalMap()
@@ -96,7 +96,7 @@ def test_change_alpha() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_select() -> None:
     """Check that layers can be selected and deselected preserving the alpha value."""
     m = sm.SepalMap()
@@ -124,7 +124,7 @@ def test_select() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_change_basemap() -> None:
     """Check that besmap can be changed and that user can select 2 at a time."""
     m = sm.SepalMap(["HYBRID", "CartoDB.Positron"])
@@ -156,7 +156,7 @@ def test_change_basemap() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_ungrouped() -> None:
     """Check that layer control can be displayed at the same time with other menus."""
     m = sm.SepalMap(["HYBRID", "CartoDB.Positron"], vinspector=True)

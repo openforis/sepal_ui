@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sepal-ui"
-version = "2.22.1"
+version = "3.0.0"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -12,11 +12,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     # building widgets
     "tomli",
@@ -32,10 +32,10 @@ dependencies = [
     # read local data
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
-    'geopandas>=0.14.0; python_version > "3.8"',
+    "geopandas>=0.14.0",
     "matplotlib",
     "jupyter-server-proxy", # required for localtileserver
-    "planet",
+    "planet>=2.0,<3.0",
     "pyarrow",
     "localtileserver>=0.7.0", # first pure rio version
     "pygaul>=0.3.1", # use the class implementation
@@ -47,8 +47,10 @@ dependencies = [
     "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
-    "nest-asyncio", # planet API interaction
     "rio-tiler<7",
+    "solara", 
+    "ee-client>=2.5.0", # supports caching
+    "colorlog",
     "reactivex"
 ]
 
@@ -76,6 +78,7 @@ dev = [
     "jupyter",
     "voila",
     "mypy",
+    "colorlog"
 ]
 test = [
     "pytest",
@@ -87,6 +90,7 @@ test = [
     "nbmake",
     "pytest-regressions",
     "tomli",
+    "colorlog"
 ]
 doc = [
     "sphinx",
@@ -125,6 +129,8 @@ sepal_ui = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
+    "sepalwidgets/vue/*",
+    "solara/common/assets/*",
     "templates/**/.*"
 ]
 
@@ -133,7 +139,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "2.22.1"
+version = "3.0.0"
 version_files = [
     "pyproject.toml:version",
     "sepal_ui/__init__.py:__version__"

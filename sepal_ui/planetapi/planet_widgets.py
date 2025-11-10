@@ -52,12 +52,24 @@ class InfoView(sw.ExpansionPanels):
             for label in BTNS.keys()
         ]
 
+        # Add a warning chip for no active subscriptions
+        self.no_subs_chip = sw.Chip(
+            children=["No active subscriptions"],
+            color="error",
+            x_small=True,
+            class_="mr-2",
+            label=True,
+        ).hide()
+
         self.info_card = InfoCard().hide()
 
         self.children = [
             v.ExpansionPanel(
                 children=[
-                    v.ExpansionPanelHeader(hide_actions=True, children=[v.Flex(children=subs_btn)]),
+                    v.ExpansionPanelHeader(
+                        hide_actions=True,
+                        children=[v.Flex(children=subs_btn + [self.no_subs_chip])],
+                    ),
                     v.ExpansionPanelContent(v_model=1, children=[self.info_card]),
                 ]
             )
@@ -103,16 +115,31 @@ class InfoView(sw.ExpansionPanels):
         if not change["new"]:
             self.v_model = 1
             [self._turn_btn(btn_id, False) for btn_id in BTNS.keys()]
+            self.no_subs_chip.hide()
             return
 
+        has_active = False
         for plan_type in BTNS.keys():
+            plan_has_active = False
             for subs in self.model.subscriptions[plan_type]:
                 plan = subs.get("plan")
                 # Turn on if at least one of them is True
-                state = True if plan.get("state") else False
+                state = True if plan.get("state") == "active" else False
                 self._turn_btn(plan_type, state)
                 if state:
+                    plan_has_active = True
+                    has_active = True
                     break
+
+            # If no active subscription found, turn off the button
+            if not plan_has_active:
+                self._turn_btn(plan_type, False)
+
+        # Show/hide the warning chip based on whether there are any active subscriptions
+        if has_active:
+            self.no_subs_chip.hide()
+        else:
+            self.no_subs_chip.show()
 
         return
 

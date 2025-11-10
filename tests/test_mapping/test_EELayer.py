@@ -6,7 +6,7 @@ import pytest
 from sepal_ui import mapping as sm
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init() -> None:
     """Init a EELyer and check members."""
     # create a point gee layer (easier to check)

@@ -1,0 +1,170 @@
+/*******************************************************************************
+ * Customization of the provided css from the different libs used by sepal_ui
+ */
+
+/* replace the map panel elements on top */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 2 !important;
+}
+
+/* remove the shadow from the widgets on the maps */
+.leaflet-widgetcontrol {
+  box-shadow: none;
+}
+
+.v-alert__wrapper .progress {
+  background-color: transparent;
+}
+
+/* set the bar on top of the map (800) when set to fullscreen */
+header.v-app-bar {
+  z-index: 800 !important;
+}
+
+/* set the menu_content on top of the map when it's set to fullscreen */
+.v-menu__content {
+  max-width: 100% !important;
+  /* z-index: 902 !important; */
+}
+
+/* create extra position for the leaflet map controls */
+.leaflet-center {
+  left: 50%;
+  transform: translate(-50%, 0%);
+}
+
+.leaflet-middle {
+  top: 50%;
+  position: absolute;
+  z-index: 600;
+  pointer-events: none;
+  transform: translate(0%, -50%);
+}
+
+.leaflet-center.leaflet-middle {
+  transform: translate(-50%, -50%);
+}
+
+/* create extra classes to customize the layer_control table */
+.v-no-hover:hover {
+  background-color: transparent !important;
+}
+
+.v-no-border tbody tr td,
+.v-no-border tbody tr th {
+  border: none !important;
+}
+
+/* extra css rules to make the messages disappear beneath the SimpleSlider */
+.v-no-messages .v-messages {
+  display: none;
+}
+
+.v-no-messages .v-input__slot {
+  margin-bottom: 0;
+}
+
+/* specific css for the btn placed on maps */
+.v-btn.v-size--default.v-map-btn:not(.v-btn--round) {
+  padding: 0px;
+  min-width: 0px;
+  width: 30px;
+  height: 30px;
+}
+
+/* add specific css for the zoom btn of the map */
+.v-btn.v-zoom-plus {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.v-btn.v-zoom-minus {
+  margin-top: -1px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* css rules for fullscreen menus */
+.v-card.v-menu-fullscreen {
+  width: calc(100vw - 80px);
+  height: calc(100vh - 20px);
+}
+
+/* hide the disclaimer message placed on top of the ui notebook
+ * the message will be displayed until the css is loaded */
+#loading-app {
+  display: none !important;
+}
+
+/* Related with https://github.com/12rambau/sepal_ui/issues/893 */
+#rendered_cells,
+#main {
+  contain: revert !important;
+  background-color: revert !important;
+}
+
+#jp-main-content-panel {
+  contain: revert !important;
+}
+
+.full-screen-map > .leaflet-container {
+  position: fixed !important;
+  width: 100vw;
+  height: calc(100vh - 48px);
+  z-index: 800;
+  bottom: 0;
+  left: 0;
+}
+
+/* To make it work in solara */
+
+.v-content .v-content {
+  padding: 0px !important;
+}
+
+.theme--dark.v-navigation-drawer {
+  background-color: #1a1a1a !important;
+}
+
+.theme--dark .solara-content-main {
+  background-color: #121212 !important;
+}
+
+.leaflet-control-container .v-application--wrap {
+  min-height: revert !important;
+}
+
+.aoi_map .jupyter-widgets.leaflet-widgets {
+  height: 89vh;
+  margin: 0 !important;
+}
+
+.results_map .jupyter-widgets.leaflet-widgets {
+  height: 89vh;
+  margin: 0 !important;
+}
+
+.leaflet-sbs-divider,
+.leaflet-sbs-range {
+  z-index: 201 !important;
+}
+
+.leaflet-sbs-divider,
+.leaflet-sbs-range {
+  z-index: 201 !important;
+}
+
+.theme--light .v-toolbar {
+  background-color: #2196f3 !important;
+  border-color: #2196f3 !important;
+}
+
+header.theme--light.v-app-bar .v-btn.v-btn--icon {
+  color: white !important;
+}
+
+header.theme--light.v-app-bar.v-toolbar.v-sheet {
+  color: white !important;
+}

@@ -12,6 +12,7 @@ Example:
 """
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Optional, Union
@@ -22,6 +23,7 @@ import ipyvuetify as v
 import pandas as pd
 import traitlets as t
 from deprecated.sphinx import versionadded
+from eeclient.client import EESession
 from natsort import humansorted
 from reactivex import operators as ops
 from reactivex.subject import Subject
@@ -31,11 +33,14 @@ from typing_extensions import Self
 from sepal_ui.frontend import styles as ss
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.thread_controller import TaskController
+from sepal_ui.scripts.gee_interface import GEEInterface
+from sepal_ui.scripts.gee_task import GEETask, TaskState
 from sepal_ui.sepalwidgets.btn import Btn
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+
+log = logging.getLogger("sepalui.sepalwidgets.inputs")
+
 
 __all__ = [
     "DatePicker",
@@ -665,8 +670,8 @@ class AssetSelect(v.Combobox, SepalWidget):
     types: t.List = t.List().tag(sync=True)
     "The list of types accepted by the asset selector. names need to be valid TYPES and changing this value will trigger the reload of the asset items."
 
-    _initial_assets: list = []
-    "_initial_assets: shared class variable to store the initial assets and avoid multiple calls to the GEE API."
+    _loaded = t.Bool(False).tag(sync=True)
+    "Whether the asset items have been loaded or not"
 
     @sd.need_ee
     def __init__(
@@ -674,7 +679,10 @@ class AssetSelect(v.Combobox, SepalWidget):
         folder: Union[str, Path] = "",
         types: List[str] = ["IMAGE", "TABLE"],
         default_asset: Union[str, List[str]] = [],
+        gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
         on_search_input: bool = True,
+        test: bool = False,
         **kwargs,
     ) -> None:
         """Custom widget input to select an asset inside the asset folder of the user.
@@ -684,14 +692,38 @@ class AssetSelect(v.Combobox, SepalWidget):
             folder: the folder of the user assets
             default_asset: the id of a default asset or a list of defaults
             types: the list of asset type you want to display to the user. type need to be from: ['IMAGE', 'FOLDER', 'IMAGE_COLLECTION', 'TABLE','ALGORITHM']. Default to 'IMAGE' & 'TABLE'
+            gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             on_search_input: whether to trigger the search input event. Default to False
+            test: whether to enable debug logging for this instance. Default to False
             kwargs (optional): any parameter from a v.ComboBox.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        self.test = test
+        log.debug(f"INITIALIZING AssetSelect {id(self)}")
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
+        self._loaded = False
         self.valid = False
-        self.asset_info = None
+        # Use provided gee_interface or create new one from session
+        if gee_interface:
+            self.gee_interface = gee_interface
+        else:
+            self.gee_interface = GEEInterface(session=gee_session)
+        # self.asset_info = {}
 
         # if folder is not set use the root one
-        self.folder = str(folder) or f"projects/{ee.data._cloud_api_user_project}/assets/"
+        self.folder = str(folder) or self.gee_interface.get_folder()
         self.types = types
 
         # load the default assets
@@ -714,11 +746,8 @@ class AssetSelect(v.Combobox, SepalWidget):
         # create the widget
         super().__init__(**kwargs)
 
-        # load the assets in the combobox
-
-        task_controller = TaskController(self._get_items, gee_assets=self._initial_assets)
-        task_controller.start_task()
-
+        self._tasks: dict[str, GEETask] = {}
+        self._configure_tasks()
         self._fill_no_data({})
         # add js behaviours
         self.on_event("click:prepend", self._get_items)
@@ -731,6 +760,54 @@ class AssetSelect(v.Combobox, SepalWidget):
             debounced = subject.pipe(ops.debounce(0.5))
             debounced.subscribe(lambda value: setattr(self, "v_model", value or None))
             self.on_event("update:search-input", lambda w, e, d: subject.on_next(d))
+
+        # Start the initial task only if no default_asset is set
+        # If default_asset is set, the observer will trigger _get_items
+        if not self.default_asset:
+            self._get_items()
+
+    def _configure_tasks(self) -> None:
+        def on_finally_get_items():
+            # Only reset loading states if task wasn't cancelled
+            # If cancelled, a new task is likely running and should manage its own state
+            if self._tasks["get_items"].state != TaskState.CANCELLED:
+                self.loading = False
+                self.disabled = False
+
+        def on_finally_validate():
+            # Only reset loading state if task wasn't cancelled
+            if self._tasks["validate"].state != TaskState.CANCELLED:
+                self.loading = False
+
+        self._tasks["get_items"] = self.gee_interface.create_task(
+            func=self._get_items_async,
+            key="get_items",
+            on_error=lambda x: self.alert.add_msg(f"Failed to add layer. {x}", type_="error"),
+            on_finally=on_finally_get_items,
+        )
+
+        self._tasks["validate"] = self.gee_interface.create_task(
+            func=self._validate_async,
+            key="validate",
+            on_error=lambda x: self._on_validation_error(x),
+            on_finally=on_finally_validate,
+        )
+
+    def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
+        """Start the get_items task, canceling any currently running task."""
+        # Set loading state immediately to signal that work is starting
+        self._loaded = False
+        self.loading = True
+        self.disabled = True
+
+        # If task is already running, cancel it first
+        if self._tasks["get_items"].is_running:
+            log.debug(f"[{id(self)}] Canceling running get_items task to start new request")
+            self._tasks["get_items"].cancel()
+
+        self._tasks["get_items"].start(gee_assets=gee_assets)
+
+        return self
 
     def _fill_no_data(self, _: dict) -> None:
         """Fill the items with a no data message if the items are empty."""
@@ -746,55 +823,114 @@ class AssetSelect(v.Combobox, SepalWidget):
 
         return
 
-    @sd.switch("loading")
     def _validate(self, change: dict) -> None:
-        """Validate the selected asset. Throw an error message if is not accessible or not in the type list."""
+        """Validate the selected asset. Trigger async validation task."""
+        if change["new"]:
+            # Set loading state before starting validation
+            self.loading = True
+            # Start async validation task
+            self._tasks["validate"].start(asset_id=change["new"])
+        else:
+            # Clear validation state when no asset is selected
+            self.error_messages = None
+            self.valid = True
+            self.error = False
+            self.asset_info = {}
+
+    async def _validate_async(self, *args, asset_id: str = None) -> None:
+        """Asynchronously validate the selected asset."""
+        if not asset_id:
+            return
+
+        # Clear previous error messages
         self.error_messages = None
 
-        # trim the current value
-        if isinstance(self.v_model, str):
-            self.v_model = self.v_model.strip()
+        # Trim the asset ID
+        asset_id = asset_id.strip() if isinstance(asset_id, str) else asset_id
 
-        if change["new"]:
-            # check that the asset can be accessed
-            try:
-                self.asset_info = ee.data.getAsset(self.v_model)
+        try:
+            # Get asset info asynchronously
+            self.asset_info = await self.gee_interface.get_asset_async(asset_id)
 
-                # check that the asset has the correct type
-                if self.asset_info["type"] not in self.types:
-                    self.error_messages = ms.widgets.asset_select.wrong_type.format(
-                        self.asset_info["type"], ",".join(self.types)
-                    )
+            # Check that the asset has the correct type
+            if self.asset_info["type"] not in self.types:
+                self.error_messages = ms.widgets.asset_select.wrong_type.format(
+                    self.asset_info["type"], ",".join(self.types)
+                )
 
-            except Exception:
-                self.error_messages = ms.widgets.asset_select.no_access
+        except Exception:
+            self.error_messages = ms.widgets.asset_select.no_access
+            self.asset_info = {}
 
-            self.valid = self.error_messages is None
-            self.error = self.error_messages is not None
+        # Update validation state
+        self.valid = self.error_messages is None
+        self.error = self.error_messages is not None
 
-        return
+        log.debug(f"After validating the v_model is {self.v_model} for {self.__class__.__name__}")
 
-    @sd.switch("loading", "disabled")
-    def _get_items(self, *args, gee_assets: List[dict] = None) -> Self:
+    def _on_validation_error(self, error: Exception) -> None:
+        """Handle validation errors."""
+        self.error_messages = ms.widgets.asset_select.no_access
+        self.valid = False
+        self.error = True
+        self.asset_info = {}
+        # Loading will be reset by on_finally_validate
 
-        if not self._initial_assets:
-            self._initial_assets.extend(gee.get_assets(self.folder))
+    # @sd.switch("loading", "disabled")
+    async def _get_items_async(self, *args, gee_assets: List[dict] = None) -> Self:
+
+        log.debug(f"[{id(self)}] running_get_items_async")
+
+        self._loaded = False
+        self.loading = True
+        self.disabled = True
         # init the item list
         items = []
 
+        def get_log_text(init):
+            return "from __init__" if init else "from default_asset"
+
+        from_init = True
+        text = get_log_text(from_init)
+
         # add the default values if needed
         if self.default_asset:
+
+            from_init = False
+            text = get_log_text(from_init)
+
+            log.debug(
+                f"[{id(self)}] {text} || There's default asset to add {self.default_asset} for {self.__class__.__name__}"
+            )
             if isinstance(self.default_asset, str):
                 self.default_asset = [self.default_asset]
 
-            self.v_model = self.default_asset[0]
+            filtered_defaults = []
+            for default in self.default_asset:
+                try:
+                    asset_info = await self.gee_interface.get_asset_async(default)
+                    if asset_info["type"] in self.types:
+                        filtered_defaults.append(default)
+                except Exception:
+                    pass
 
-            header = ms.widgets.asset_select.custom
-            items += [{"divider": True}, {"header": header}]
-            items += [default for default in self.default_asset]
+            if filtered_defaults:
+                self.v_model = filtered_defaults[0]
+
+                header = ms.widgets.asset_select.custom
+                items += [{"divider": True}, {"header": header}]
+                items += filtered_defaults
+        log.debug(
+            f"[{id(self)}] {text} || About to get the assets, current v_model is {self.v_model}"
+        )
 
         # get the list of user asset
-        raw_assets = gee_assets or gee.get_assets(self.folder)
+        raw_assets = gee_assets or await self.gee_interface.get_assets_async(self.folder)
+
+        log.debug(
+            f"[{id(self)}] {text} || [[[{id(self)} ]]]Already awaited for get_assets_async, current v_model is {self.v_model}"
+        )
+
         assets = {k: sorted([e["id"] for e in raw_assets if e["type"] == k]) for k in self.types}
 
         # sort the assets by types
@@ -806,12 +942,22 @@ class AssetSelect(v.Combobox, SepalWidget):
                     *assets[k],
                 ]
 
+        log.debug(
+            f"[{id(self)}] {text} || Assets loaded: {len(items)} items for {self.__class__.__name__} and v_model is {self.v_model}"
+        )
+
         self.items = items
+        self._loaded = True
+
+        log.debug(
+            f"[{id(self)}] {text} || Default v_model set to {self.v_model} for {self.__class__.__name__}"
+        )
 
         return self
 
     def _check_types(self, change: dict) -> None:
         """Clean the type list, keeping only the valid one."""
+        log.debug("Checking types for AssetSelect")
         self.v_model = None
 
         # check the type
@@ -882,7 +1028,7 @@ class NumberField(v.TextField, SepalWidget):
         # set default params
         kwargs["type"] = "number"
         kwargs.setdefault("append_outer_icon", "fa-solid fa-plus")
-        kwargs.setdefault("prepend_icon", "fa-solid fa-minus")
+        kwargs.setdefault("prepend_icon", "mdi-minus")
         kwargs.setdefault("v_model", 0)
         kwargs.setdefault("readonly", True)
 
@@ -942,7 +1088,14 @@ class VectorField(v.Col, SepalWidget):
     feature_collection: Optional[ee.FeatureCollection] = None
     "ee.FeatureCollection: the selected featureCollection"
 
-    def __init__(self, label: str = ms.widgets.vector.label, gee: bool = False, **kwargs) -> None:
+    def __init__(
+        self,
+        label: str = ms.widgets.vector.label,
+        gee: bool = False,
+        gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
+        **kwargs,
+    ) -> None:
         """A custom input widget to load vector data.
 
         The user will provide a vector file compatible with fiona or a GEE feature collection.
@@ -952,15 +1105,43 @@ class VectorField(v.Col, SepalWidget):
             label: the label of the file input field, default to 'vector file'.
             gee: whether to use GEE assets or local vectors.
             folder: When gee=True, extra args will be used for AssetSelect
+            gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             kwargs: any parameter from a v.Col. if set, 'children' will be overwritten.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
+        # Use provided gee_interface or create new one from session
+        if gee_interface:
+            self.gee_interface = gee_interface
+        else:
+            self.gee_interface = GEEInterface(session=gee_session)
+
         # set the 3 wigets
         if not gee:
             self.w_file = FileInput([".shp", ".geojson", ".gpkg", ".kml"], label=label)
         else:
             # Don't care about 'types' arg. It will only work with tables.
             asset_select_kwargs = {"folder": kwargs.pop("folder", None)}
-            self.w_file = AssetSelect(types=["TABLE"], **asset_select_kwargs)
+            if gee_interface:
+                self.w_file = AssetSelect(
+                    types=["TABLE"], gee_interface=gee_interface, **asset_select_kwargs
+                )
+            else:
+                self.w_file = AssetSelect(
+                    types=["TABLE"], gee_session=gee_session, **asset_select_kwargs
+                )
 
         self.w_column = v.Select(
             _metadata={"name": "column"},
@@ -1015,7 +1196,7 @@ class VectorField(v.Col, SepalWidget):
 
         elif isinstance(self.w_file, AssetSelect):
             self.feature_collection = ee.FeatureCollection(change["new"])
-            columns = self.feature_collection.first().getInfo()["properties"]
+            columns = self.gee_interface.get_info(self.feature_collection.first())["properties"]
             columns = [str(col) for col in columns if col not in ["system:index", "Shape_Area"]]
 
         # update the columns
@@ -1049,10 +1230,8 @@ class VectorField(v.Col, SepalWidget):
             values = self.df[change["new"]].to_list()
 
         elif isinstance(self.w_file, AssetSelect):
-            values = (
-                self.feature_collection.distinct(change["new"])
-                .aggregate_array(change["new"])
-                .getInfo()
+            values = self.gee_interface.get_info(
+                self.feature_collection.distinct(change["new"]).aggregate_array(change["new"])
             )
 
         self.w_value.items = sorted(set(values))

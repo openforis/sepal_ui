@@ -1,0 +1,8 @@
+services:
+  pysepal_map:
+    ports:
+      - "8766:8766" # each app has to use a different port
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      SEPAL_HOST: "host.docker.internal"

@@ -22,7 +22,7 @@ def test_init_ee() -> None:
     try:
         # Reset credentials to force the initialization
         # It can be initiated from different imports
-        ee.data._credentials = None
+        ee.data.reset()
 
         # Get the credentials path
 
@@ -41,7 +41,7 @@ def test_init_ee() -> None:
 
         ## 2. Assert when there's no a project associated
         # remove the project_id key if it exists
-        ee.data._credentials = None
+        ee.data.reset()
         credentials.pop("project_id", None)
         credentials.pop("project", None)
         if "EARTHENGINE_PROJECT" in os.environ:
