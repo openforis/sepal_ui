@@ -3,7 +3,6 @@
 import json
 import logging
 import warnings
-from distutils.util import strtobool
 from typing import Optional
 
 import ee
@@ -14,6 +13,38 @@ from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.scripts.warning import SepalWarning
 
 log = logging.getLogger("sepalui.mapping.visualization")
+
+
+def _strtobool(val: str) -> bool:
+    """Convert a string representation of truth to True or False.
+
+    This function replaces the deprecated distutils.util.strtobool.
+
+    Args:
+        val: A string representation of a boolean value. Accepts:
+             - "true", "false" (case insensitive)
+             - "yes", "no" (case insensitive)
+             - "1", "0"
+             - "on", "off" (case insensitive)
+             - Empty string defaults to False
+
+    Returns:
+        The boolean value represented by the string.
+
+    Raises:
+        ValueError: If the string cannot be converted to a boolean.
+    """
+    if not val:  # Handle empty strings
+        return False
+
+    val = val.lower()
+    if val in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif val in ("n", "no", "f", "false", "off", "0"):
+        return False
+    else:
+        raise ValueError(f"invalid truth value {val!r}")
+
 
 PREFIX = "visualization"
 """the constant prefix for SEPAL visualization parameters"""
@@ -162,7 +193,7 @@ def process_props(raw_prop_list: Optional[list], props: dict = {}) -> dict:
             elif name in ["max", "min", "values"]:
                 val = [float(i) for i in val.split(",")]
             elif name in ["inverted"]:
-                val = [bool(strtobool(i)) for i in val.split(",")]
+                val = [bool(_strtobool(i)) for i in val.split(",")]
 
         # set the value
         props[number][name] = val

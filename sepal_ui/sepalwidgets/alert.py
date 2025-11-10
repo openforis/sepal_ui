@@ -35,7 +35,7 @@ __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 class Divider(v.Divider, SepalWidget):
 
     type_: t.Unicode = t.Unicode("").tag(sync=True)
-    "Added type\_ trait to specify the current color of the divider"
+    "Added type\\_ trait to specify the current color of the divider"
 
     def __init__(self, class_: str = "", **kwargs) -> None:
         r"""A custom Divider with the ability to dynamically change color.

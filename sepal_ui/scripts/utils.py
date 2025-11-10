@@ -135,7 +135,7 @@ def normalize_str(msg: str, folder: bool = True) -> str:
     Returns:
         the modified str
     """
-    regex = "[^a-zA-Z\d\-\_]" if folder else "[^a-zA-Z\d\-\_\ ']"
+    regex = r"[^a-zA-Z\d\-_]" if folder else r"[^a-zA-Z\d\-_ ']"
 
     return re.sub(regex, "_", anyascii(msg))
 

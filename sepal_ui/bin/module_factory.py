@@ -10,10 +10,41 @@ import argparse
 import json
 import re
 import subprocess
-from distutils.util import strtobool
 from pathlib import Path
 
 from colorama import Fore, init
+
+
+def _strtobool(val: str) -> bool:
+    """Convert a string representation of truth to True or False.
+
+    This function replaces the deprecated distutils.util.strtobool.
+
+    Args:
+        val: A string representation of a boolean value. Accepts:
+             - "true", "false" (case insensitive)
+             - "yes", "no" (case insensitive)
+             - "1", "0"
+             - "on", "off" (case insensitive)
+             - Empty string defaults to False
+
+    Returns:
+        The boolean value represented by the string.
+
+    Raises:
+        ValueError: If the string cannot be converted to a boolean.
+    """
+    if not val:  # Handle empty strings
+        return False
+
+    val = val.lower()
+    if val in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif val in ("n", "no", "f", "false", "off", "0"):
+        return False
+    else:
+        raise ValueError(f"invalid truth value {val!r}")
+
 
 # init colors for all plateforms
 init()
@@ -177,7 +208,7 @@ def main() -> None:
     # default to a panel application
     question = f"{Fore.CYAN}Do you need a fullscreen application [n]? \n{Fore.RESET}"
     type_ = input(question)
-    branch = "map_app" if bool(strtobool(type_)) is True else "panel_app"
+    branch = "map_app" if _strtobool(type_) else "panel_app"
 
     # adapt the name of the module to remove any special characters and spaces
     normalized_name = re.sub("[^a-zA-Z\d\-\_]", "_", module_name)
