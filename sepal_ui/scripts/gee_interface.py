@@ -323,21 +323,34 @@ class GEEInterface:
                 crs_transform=crs_transform,
             )
         else:
-            task = ee.batch.Export.image.toAsset(
-                image=image,
-                assetId=asset_id,
-                description=description,
-                maxPixels=max_pixels,
-                grid=grid,
-                requestId=request_id,
-                workloadTag=workload_tag,
-                priority=priority,
-                region=region,
-                scale=scale,
-                crs=crs,
-                crsTransform=crs_transform,
-                pyramidPolicy=pyramid_policy,
-            )
+            # Build kwargs dict with only non-None values
+            kwargs = {
+                "image": image,
+                "assetId": asset_id,
+                "description": description,
+            }
+            if max_pixels is not None:
+                kwargs["maxPixels"] = max_pixels
+            if grid is not None:
+                kwargs["grid"] = grid
+            if request_id is not None:
+                kwargs["requestId"] = request_id
+            if workload_tag is not None:
+                kwargs["workloadTag"] = workload_tag
+            if priority is not None:
+                kwargs["priority"] = priority
+            if region is not None:
+                kwargs["region"] = region
+            if scale is not None:
+                kwargs["scale"] = scale
+            if crs is not None:
+                kwargs["crs"] = crs
+            if crs_transform is not None:
+                kwargs["crsTransform"] = crs_transform
+            if pyramid_policy is not None:
+                kwargs["pyramidPolicy"] = pyramid_policy
+
+            task = ee.batch.Export.image.toAsset(**kwargs)
             task.start()
             return task
 

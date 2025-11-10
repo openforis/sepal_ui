@@ -375,3 +375,45 @@ def gee_interface() -> GEEInterface:
         An instance of GeeInterface
     """
     return GEEInterface()
+
+
+@pytest.fixture(scope="session")
+def has_sepal_credentials() -> bool:
+    """Check if SEPAL credentials are available.
+
+    Returns:
+        True if all SEPAL credentials are set, False otherwise
+    """
+    sepal_user = os.getenv("SEPAL_USER")
+    sepal_password = os.getenv("SEPAL_PASSWORD")
+    sepal_host = os.getenv("SEPAL_HOST")
+    return all([sepal_user, sepal_password, sepal_host])
+
+
+@pytest.fixture(scope="session")
+def gee_interface_with_sepal() -> Optional[GEEInterface]:
+    """Create a GEEInterface instance with SEPAL headers for testing.
+
+    Returns:
+        An instance of GEEInterface with SEPAL session, or None if credentials are not available
+    """
+    sepal_user = os.getenv("SEPAL_USER")
+    sepal_password = os.getenv("SEPAL_PASSWORD")
+    sepal_host = os.getenv("SEPAL_HOST")
+
+    if not all([sepal_user, sepal_password, sepal_host]):
+        return None
+
+    try:
+        from eeclient.client import EESession
+        from eeclient.helpers import get_sepal_headers_from_auth
+
+        sepal_headers = get_sepal_headers_from_auth(sepal_user, sepal_password, sepal_host)
+        session = EESession(sepal_headers)
+        return GEEInterface(session=session)
+    except Exception as e:
+        import traceback
+
+        print(f"\n[ERROR] Failed to create GEEInterface with SEPAL: {e}")
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
+        return None
