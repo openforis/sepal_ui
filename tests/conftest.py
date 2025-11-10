@@ -18,12 +18,13 @@ from shapely import geometry as sg
 import sepal_ui.sepalwidgets as sw
 from sepal_ui.scripts import gee
 from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_interface import GEEInterface
 
 try:
     su.init_ee()
 except Exception as e:
     raise e
-    # pass  # try to init earthengine. use ee.data._credentials to skip
+    # pass  # try to init earthengine. use ee.data.is_initialized() to skip
 
 # -- a component to fake the display in Ipython --------------------------------
 
@@ -120,11 +121,12 @@ def gee_dir(_hash: str) -> Optional[Path]:
     Returns:
         the path to the gee dir inside user folder
     """
-    if not ee.data._credentials:
-        pytest.skip("Eathengine is not connected")
+    if not ee.data.is_initialized():
+        pytest.skip("Earthengine is not connected")
 
     # create a test folder with a hash name
-    root = f"projects/{ee.data._cloud_api_user_project}/assets/"
+    project_id = ee.data.getProjectConfig()["name"].split("/")[1]
+    root = f"projects/{project_id}/assets/"
     gee_dir = Path(root) / f"sepal-ui-{_hash}"
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
 
@@ -335,6 +337,27 @@ def cred() -> list:
 
 
 @pytest.fixture(scope="session")
+def has_active_planet_subscription(planet_key: str) -> bool:
+    """Check if the current credentials have active Planet subscriptions.
+
+    Returns:
+        True if there are active subscriptions, False otherwise
+    """
+    if not planet_key:
+        return False
+
+    try:
+        from sepal_ui.planetapi import PlanetModel
+
+        model = PlanetModel(planet_key)
+        # Try to get subscriptions - if it fails or returns empty, no active subs
+        subs = model.get_subscriptions()
+        return len(subs) > 0
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="session")
 def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a dummy repo directory.
 
@@ -342,3 +365,55 @@ def repo_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
         Path to the repo dir
     """
     return tmp_path_factory.mktemp("repo_dir")
+
+
+@pytest.fixture(scope="session")
+def gee_interface() -> GEEInterface:
+    """Create a GeeInterface instance for testing.
+
+    Returns:
+        An instance of GeeInterface
+    """
+    return GEEInterface()
+
+
+@pytest.fixture(scope="session")
+def has_sepal_credentials() -> bool:
+    """Check if SEPAL credentials are available.
+
+    Returns:
+        True if all SEPAL credentials are set, False otherwise
+    """
+    sepal_user = os.getenv("SEPAL_USER")
+    sepal_password = os.getenv("SEPAL_PASSWORD")
+    sepal_host = os.getenv("SEPAL_HOST")
+    return all([sepal_user, sepal_password, sepal_host])
+
+
+@pytest.fixture(scope="session")
+def gee_interface_with_sepal() -> Optional[GEEInterface]:
+    """Create a GEEInterface instance with SEPAL headers for testing.
+
+    Returns:
+        An instance of GEEInterface with SEPAL session, or None if credentials are not available
+    """
+    sepal_user = os.getenv("SEPAL_USER")
+    sepal_password = os.getenv("SEPAL_PASSWORD")
+    sepal_host = os.getenv("SEPAL_HOST")
+
+    if not all([sepal_user, sepal_password, sepal_host]):
+        return None
+
+    try:
+        from eeclient.client import EESession
+        from eeclient.helpers import get_sepal_headers_from_auth
+
+        sepal_headers = get_sepal_headers_from_auth(sepal_user, sepal_password, sepal_host)
+        session = EESession(sepal_headers)
+        return GEEInterface(session=session)
+    except Exception as e:
+        import traceback
+
+        print(f"\n[ERROR] Failed to create GEEInterface with SEPAL: {e}")
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
+        return None

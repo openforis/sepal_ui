@@ -12,6 +12,7 @@ env:
   EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
   EARTHENGINE_SERVICE_ACCOUNT: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
   EARTHENGINE_PROJECT: ${{ secrets.EARTHENGINE_PROJECT }}
+  SEPAL_HOST: ${{ secrets.SEPAL_HOST }}
 
 jobs:
   lint:
@@ -41,12 +42,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
         include:
           - os: macos-latest # macos test
-            python-version: "3.10"
+            python-version: "3.11"
           - os: windows-latest # windows test
-            python-version: "3.10"
+            python-version: "3.11"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}

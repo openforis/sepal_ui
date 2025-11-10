@@ -2,13 +2,14 @@
 
 from datetime import datetime as dt
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 import ipyvuetify as v
 import pygadm
 import pygaul
 import traitlets as t
 from deprecated.sphinx import versionadded
+from eeclient.client import EESession
 from typing_extensions import Self
 
 import sepal_ui.sepalwidgets as sw
@@ -17,6 +18,9 @@ from sepal_ui.aoi.aoi_model import AoiModel
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
+
+if TYPE_CHECKING:
+    from sepal_ui.scripts.gee_interface import GEEInterface
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN
@@ -134,7 +138,7 @@ class AdminField(sw.Select):
         Args:
             filter\_: The code of the parent v_model to filter the current results
         """
-        AdmNames = pygaul.AdmNames if self.gee else pygadm.AdmNames
+        AdmNames = pygaul.AdmNames if self.gee else pygadm.Names
         df = AdmNames(admin=filter_, content_level=self.level)
         df = df.sort_values(by=[df.columns[0]])
 
@@ -235,6 +239,8 @@ class AoiView(sw.Card):
         folder: Union[str, Path] = "",
         model: Optional[AoiModel] = None,
         map_style: Optional[dict] = None,
+        gee_session: Optional[EESession] = None,
+        gee_interface: Optional["GEEInterface"] = None,
         **kwargs,
     ) -> None:
         r"""Versatile card object to deal with the aoi selection.
@@ -249,7 +255,22 @@ class AoiView(sw.Card):
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
             map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
         # set ee dependency
         self.gee = gee
         self.folder = folder
@@ -257,7 +278,9 @@ class AoiView(sw.Card):
             su.init_ee()
 
         # get the model
-        self.model = model or AoiModel(gee=gee, folder=folder, **kwargs)
+        self.model = model or AoiModel(
+            gee=gee, folder=folder, gee_session=gee_session, gee_interface=gee_interface, **kwargs
+        )
 
         # get the map if filled
         self.map_ = map_
@@ -272,7 +295,9 @@ class AoiView(sw.Card):
         self.w_admin_0 = AdminField(0, gee=gee).get_items()
         self.w_admin_1 = AdminField(1, self.w_admin_0, gee=gee)
         self.w_admin_2 = AdminField(2, self.w_admin_1, gee=gee)
-        self.w_vector = sw.VectorField(label=ms.aoi_sel.vector)
+        self.w_vector = sw.VectorField(
+            label=ms.aoi_sel.vector, gee_session=gee_session, gee_interface=gee_interface
+        )
         self.w_points = sw.LoadTableField(label=ms.aoi_sel.points)
 
         # group them together with the same key as the select_method object
@@ -305,7 +330,12 @@ class AoiView(sw.Card):
         # will crash if the user didn't authenticate
         if self.gee:
             self.w_asset = sw.VectorField(
-                label=ms.aoi_sel.asset, gee=True, folder=self.folder, types=["TABLE"]
+                label=ms.aoi_sel.asset,
+                gee=True,
+                folder=self.folder,
+                types=["TABLE"],
+                gee_session=gee_session,
+                gee_interface=gee_interface,
             )
             self.w_asset.hide()
             self.components["ASSET"] = self.w_asset

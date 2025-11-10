@@ -1,6 +1,7 @@
 """Test the GEE methods."""
 
 import time
+import warnings
 from pathlib import Path
 
 import ee
@@ -11,7 +12,7 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import gee
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str) -> None:
     """Check we can wait for a task completion.
 
@@ -45,7 +46,7 @@ def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _ha
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_task(fake_task: str) -> None:
     """Check a name is a task.
 
@@ -60,15 +61,16 @@ def test_is_task(fake_task: str) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_assets(gee_dir: Path) -> None:
-    """Check the assets are existing in the gee_dir folder.
+    """Check the assets are existing in the gee_dir folder and test deprecation warning.
 
     Args:
         gee_dir: gee_dir: the directory where gee files are exported
     """
-    # get the assets from the test repository
-    items = gee.get_assets(gee_dir)
+    # get the assets from the test repository (should show deprecation warning)
+    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_assets"):
+        items = gee.get_assets(gee_dir)
 
     ee_asset_ids = [item["name"] for item in items]
 
@@ -89,25 +91,41 @@ def test_get_assets(gee_dir: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_asset(gee_dir: Path) -> None:
-    """Check if the asset exist.
+    """Check if the asset exist and test deprecation warnings.
 
     Args:
         gee_dir: gee_dir: the directory where gee files are exported
     """
-    # real asset
-    res = gee.is_asset(str(gee_dir / "image"), gee_dir)
-    assert res is True
+    # Test with legacy parameters (should show deprecation warning)
+    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
+        res = gee.is_asset(str(gee_dir / "image"), gee_dir)
+        assert res is True
 
-    # fake asset
-    res = gee.is_asset(str(gee_dir / "toto"), gee_dir)
-    assert res is False
+    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
+        res = gee.is_asset(str(gee_dir / "toto"), gee_dir)
+        assert res is False
+
+    # Test with new asset_id parameter (should still show deprecation warning)
+    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
+        res = gee.is_asset(asset_id=str(gee_dir / "image"))
+        assert res is True
+
+    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
+        res = gee.is_asset(asset_id=str(gee_dir / "fake_asset"))
+        assert res is False
+
+    # Test error when no parameters provided
+    with pytest.raises(ValueError, match="Either 'asset_id' or 'asset_name' must be provided"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            gee.is_asset()
 
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_running(fake_task: str) -> None:
     """Check if a task can be monitored.
 

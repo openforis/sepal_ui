@@ -2,21 +2,7 @@
     _self: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144642_48_2262
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144642_48_2262/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_144642_48_2262/thumb
-  _permissions:
-  - assets.basic_analytic_4b:download
-  - assets.basic_analytic_4b_rpc:download
-  - assets.basic_analytic_4b_xml:download
-  - assets.basic_analytic_8b:download
-  - assets.basic_analytic_8b_xml:download
-  - assets.basic_udm2:download
-  - assets.ortho_analytic_4b:download
-  - assets.ortho_analytic_4b_sr:download
-  - assets.ortho_analytic_4b_xml:download
-  - assets.ortho_analytic_8b:download
-  - assets.ortho_analytic_8b_sr:download
-  - assets.ortho_analytic_8b_xml:download
-  - assets.ortho_udm2:download
-  - assets.ortho_visual:download
+  _permissions: []
   assets:
   - basic_analytic_4b
   - basic_analytic_4b_rpc
@@ -80,21 +66,7 @@
     _self: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144640_20_2262
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_144640_20_2262/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_144640_20_2262/thumb
-  _permissions:
-  - assets.basic_analytic_4b:download
-  - assets.basic_analytic_4b_rpc:download
-  - assets.basic_analytic_4b_xml:download
-  - assets.basic_analytic_8b:download
-  - assets.basic_analytic_8b_xml:download
-  - assets.basic_udm2:download
-  - assets.ortho_analytic_4b:download
-  - assets.ortho_analytic_4b_sr:download
-  - assets.ortho_analytic_4b_xml:download
-  - assets.ortho_analytic_8b:download
-  - assets.ortho_analytic_8b_sr:download
-  - assets.ortho_analytic_8b_xml:download
-  - assets.ortho_udm2:download
-  - assets.ortho_visual:download
+  _permissions: []
   assets:
   - basic_analytic_4b
   - basic_analytic_4b_rpc
@@ -158,21 +130,7 @@
     _self: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153326_24_227b
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153326_24_227b/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_153326_24_227b/thumb
-  _permissions:
-  - assets.basic_analytic_4b:download
-  - assets.basic_analytic_4b_rpc:download
-  - assets.basic_analytic_4b_xml:download
-  - assets.basic_analytic_8b:download
-  - assets.basic_analytic_8b_xml:download
-  - assets.basic_udm2:download
-  - assets.ortho_analytic_4b:download
-  - assets.ortho_analytic_4b_sr:download
-  - assets.ortho_analytic_4b_xml:download
-  - assets.ortho_analytic_8b:download
-  - assets.ortho_analytic_8b_sr:download
-  - assets.ortho_analytic_8b_xml:download
-  - assets.ortho_udm2:download
-  - assets.ortho_visual:download
+  _permissions: []
   assets:
   - basic_analytic_4b
   - basic_analytic_4b_rpc
@@ -236,21 +194,7 @@
     _self: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153323_87_227b
     assets: https://api.planet.com/data/v1/item-types/PSScene/items/20201118_153323_87_227b/assets/
     thumbnail: https://tiles.planet.com/data/v1/item-types/PSScene/items/20201118_153323_87_227b/thumb
-  _permissions:
-  - assets.basic_analytic_4b:download
-  - assets.basic_analytic_4b_rpc:download
-  - assets.basic_analytic_4b_xml:download
-  - assets.basic_analytic_8b:download
-  - assets.basic_analytic_8b_xml:download
-  - assets.basic_udm2:download
-  - assets.ortho_analytic_4b:download
-  - assets.ortho_analytic_4b_sr:download
-  - assets.ortho_analytic_4b_xml:download
-  - assets.ortho_analytic_8b:download
-  - assets.ortho_analytic_8b_sr:download
-  - assets.ortho_analytic_8b_xml:download
-  - assets.ortho_udm2:download
-  - assets.ortho_visual:download
+  _permissions: []
   assets:
   - basic_analytic_4b
   - basic_analytic_4b_rpc

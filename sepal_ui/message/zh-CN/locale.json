@@ -101,8 +101,8 @@
       "apikey": "",
       "store": "",
       "method": {
-        "label": "",
         "from_file": "",
+        "label": "",
         "credentials": "",
         "api_key": ""
       }

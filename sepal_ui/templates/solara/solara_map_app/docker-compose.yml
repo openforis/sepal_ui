@@ -1,0 +1,31 @@
+services:
+  pysepal_map:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        - GIT_COMMIT=${GIT_COMMIT:-""}
+    image: "openforis/pysepal_map"
+    container_name: pysepal_map
+    volumes:
+      - "${EE_CREDENTIALS_PATH:-${HOME}/.config/earthengine/credentials}:/root/.config/earthengine/credentials"
+    environment:
+      SEPAL_HOST: "${SEPAL_HOST}"
+      FORWARDED_ALLOW_IPS: "*"
+      SOLARA_THEME_SHOW_BANNER: "False"
+      SOLARA_TEST: "${SOLARA_TEST:-false}"
+      LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER:-}"
+      LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD:-}"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8765"]
+      timeout: 60s
+      interval: 1s
+      retries: 60
+    networks:
+      - sepal
+    restart: always
+    labels:
+      org.opencontainers.image.source: https://github.com/sepal-contrib/pysepal_map
+
+networks:
+  sepal:
+    external: true

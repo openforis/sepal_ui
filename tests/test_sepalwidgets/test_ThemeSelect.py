@@ -31,8 +31,9 @@ def test_change_theme(theme_select: sw.ThemeSelect) -> None:
     themes = ["dark", "light"]
     dark_theme = True if get_theme() == "dark" else False
 
-    # change value
-    theme_select.fire_event("click", None)
+    # change value using toggle_theme method (fire_event doesn't work in test environment)
+    theme_select.toggle_theme()
+
     config = ConfigParser()
     config.read(config_file)
     assert "sepal-ui" in config.sections()

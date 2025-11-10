@@ -3,6 +3,7 @@
 import json
 import math
 import random
+import warnings
 from pathlib import Path
 
 import ee
@@ -79,7 +80,7 @@ def test_set_center() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def zoom_ee_object() -> None:
     """Check we can zoom on a GEE object."""
     # init objects
@@ -167,7 +168,7 @@ def test_add_colorbar() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_exceptions() -> None:
     """Check exceptions are raised on ee_layer method."""
     map_ = sm.SepalMap()
@@ -196,7 +197,7 @@ def test_add_ee_layer_exceptions() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer(image_id: str) -> None:
     """Add a GEE layer on the map.
 
@@ -208,7 +209,7 @@ def test_add_ee_layer(image_id: str) -> None:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    for viz in sm.SepalMap.get_viz_params(image).values():
+    for viz in sm.SepalMap().get_viz_params(image).values():
         m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     assert len(m.layers) == 6
@@ -263,7 +264,7 @@ def test_get_basemap_list() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_viz_params(image_id: str) -> None:
     """Check I identify all the viz parameter from Daniel W. asset.
 
@@ -271,7 +272,7 @@ def test_get_viz_params(image_id: str) -> None:
         image_id: the AssetId of the GEE image
     """
     image = ee.Image(image_id)
-    res = sm.SepalMap.get_viz_params(image)
+    res = sm.SepalMap().get_viz_params(image)
 
     expected = {
         "1": {
@@ -321,7 +322,7 @@ def test_get_viz_params(image_id: str) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove a specific layer from the map.
 
@@ -344,7 +345,7 @@ def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_all(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove all layers from the map.
 
@@ -447,7 +448,7 @@ def test_get_scale():
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Find a layer in a map.
 
@@ -468,10 +469,10 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
 
     # search by index
     res = m.find_layer(1)
-    assert res.name == "Classification"
+    assert res.name == "RGB"
 
     res = m.find_layer(-1)
-    assert res.name == "NDWI"
+    assert res.name == "Classification"
 
     # out of bounds
     with pytest.raises(ValueError):
@@ -516,7 +517,7 @@ def test_zoom_raster(byte: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     """Add a legend to the map.
 
@@ -548,7 +549,10 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    for viz in sm.SepalMap.get_viz_params(image).values():
-        m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+    # Suppress deprecation warning in fixture
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        for viz in sm.SepalMap().get_viz_params(image).values():
+            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     return m

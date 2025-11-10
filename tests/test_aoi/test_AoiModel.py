@@ -34,7 +34,7 @@ def test_init_no_ee(fake_vector: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init_ee(gee_dir: Path) -> None:
     """Init an AoiMOdel with GEE.
 
@@ -80,7 +80,7 @@ def test_init_ee(gee_dir: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_columns(test_model: aoi.AoiModel, data_regression) -> None:
     """Get the columns from a selected geometry.
 
@@ -100,7 +100,7 @@ def test_get_columns(test_model: aoi.AoiModel, data_regression) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_fields(test_model: aoi.AoiModel) -> None:
     """Get fields from a selected geometry.
 
@@ -120,7 +120,7 @@ def test_get_fields(test_model: aoi.AoiModel) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_selected(test_model: aoi.AoiModel) -> None:
     """Get fields from a selected geometry.
 
@@ -196,7 +196,7 @@ def test_clear_attributes(aoi_model_outputs: List[str], aoi_model_traits: List[s
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
     """Check that total bounds of the vatican are as expected.
 
@@ -214,7 +214,7 @@ def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_clear_output(test_model: aoi.AoiModel, aoi_model_outputs: List[str]) -> None:
     """Clear all output from a AoiModel.
 
@@ -250,7 +250,7 @@ def test_set_object() -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_admin(gee_dir: Path) -> None:
     """Get an AoiMOdel from an admin value.
 
@@ -270,7 +270,7 @@ def test_from_admin(gee_dir: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_point(fake_points: Path, gee_dir: Path) -> None:
     """Get an AoiModel from point file.
 
@@ -300,7 +300,7 @@ def test_from_point(fake_points: Path, gee_dir: Path) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
     """Get an AoiModel from a vector.
 
@@ -332,7 +332,7 @@ def test_from_vector(gee_dir: Path, fake_vector: dict) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_vector_gee(gee_dir: Path, fake_vector: dict) -> None:
     """Get an AoiModel from a vector and using GEE.
 
@@ -360,7 +360,7 @@ def test_from_vector_gee(gee_dir: Path, fake_vector: dict) -> None:
     assert aoi_model.gdf is not None
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_geo_json(gee_dir, square: dict) -> None:
     """Get an AoiModel from a geojson (equivalent to draw).
 
@@ -382,7 +382,7 @@ def test_from_geo_json(gee_dir, square: dict) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_geo_json_gee(gee_dir, square: dict) -> None:
     """Get an AoiModel from a geojson (equivalent to draw).
 
@@ -403,7 +403,7 @@ def test_from_geo_json_gee(gee_dir, square: dict) -> None:
     return
 
 
-@pytest.mark.skipif(not ee.data._credentials, reason="GEE is not set")
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_from_asset(gee_dir: Path) -> Path:
     """Get an AoiModel from gee assets.
 

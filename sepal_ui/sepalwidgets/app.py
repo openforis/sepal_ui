@@ -11,28 +11,40 @@ Example:
         sw.LocaleSelect()
 """
 
+import logging
 from datetime import datetime
-from itertools import cycle
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import ipyvuetify as v
 import pandas as pd
-import traitlets as t
-from deprecated.sphinx import versionadded, versionchanged
-from ipywidgets import jsdlink
-from traitlets import link, observe
+from deprecated.sphinx import deprecated, versionadded, versionchanged
+from ipywidgets import DOMWidget, jsdlink
+from ipywidgets.widgets.widget import widget_serialization
+from traitlets import (
+    Any,
+    Bool,
+    Dict,
+    Instance,
+    Int,
+    List,
+    Unicode,
+    Union,
+    link,
+    observe,
+)
 from typing_extensions import Self
 
-from sepal_ui.frontend.resize_trigger import ResizeTrigger, rt
-from sepal_ui.frontend.styles import get_theme
 from sepal_ui.message import ms
 from sepal_ui.model import Model
 from sepal_ui.scripts import utils as su
 from sepal_ui.sepalwidgets.alert import Banner
 from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 from sepal_ui.sepalwidgets.widget import Markdown
 from sepal_ui.translator import Translator
+
+logger = logging.getLogger("sepalui.app")
 
 __all__ = [
     "AppBar",
@@ -126,10 +138,8 @@ class LocaleSelect(v.Menu, SepalWidget):
         Returns:
             the list of country widget to display in the app
         """
-        # print(locales)
         country_list = []
         filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-        # print(filtered_countries)
         for r in filtered_countries.itertuples(index=False):
             children = [
                 v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
@@ -161,60 +171,44 @@ class LocaleSelect(v.Menu, SepalWidget):
         return
 
 
-class ThemeSelect(v.Btn, SepalWidget):
-    THEME_ICONS: dict = {"dark": "fa-solid fa-moon", "light": "fa-solid fa-sun"}
-    "the dictionnry of icons to use for each theme (used as keys)"
+@deprecated(
+    version="3.0.0", reason="This class will be renamed to ThemeToggle in v3.2.0 for better clarity"
+)
+class ThemeSelect(v.VuetifyTemplate):
+    template_file = Unicode(str(Path(__file__).parents[1] / "sepalwidgets/vue/Theming.vue")).tag(
+        sync=True
+    )
 
-    theme: str = "dark"
-    "the current theme of the widget (default to dark)"
+    dark = Bool(None, allow_none=True).tag(sync=True)
+    enable_auto = Bool(True).tag(sync=True)
+    on_icon = Unicode("mdi-weather-night").tag(sync=True)
+    off_icon = Unicode("mdi-weather-sunny").tag(sync=True)
+    auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
-    def __init__(self, **kwargs) -> None:
-        """A theme selector for sepal-ui based application.
+    def __init__(self):
+        """Initialize the ThemeSelect widget and set default theme configuration."""
+        super().__init__()
+        theme = "dark" if self.dark else "light"
+        su.set_config("theme", theme)
 
-        It displays the currently requested theme (default to dark).
-        When value is changed, the sepal-ui config file is updated. It is designed to be used in a AppBar component.
+    @observe("dark")
+    def _on_dark_change(self, change):
+        """Observer for dark trait changes - saves to config file.
 
-        .. versionadded:: 2.7.0
-
-        Args:
-            kwargs: any arguments for a Btn object, children and v_model will be override
+        This is called when the Vue component syncs the dark value back to Python.
         """
-        # get the current theme name
-        self.theme = get_theme()
+        logger.info(f"🔍 OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
+        theme = "dark" if change["new"] else "light"
+        su.set_config("theme", theme)
+        logger.info(f"💾 Config file updated to: {theme}")
 
-        # set the btn parameters
-        kwargs.setdefault("x_small", True)
-        kwargs.setdefault("fab", True)
-        kwargs.setdefault("class_", "ml-2")
-        kwargs["children"] = [v.Icon(children=[self.THEME_ICONS[self.theme]])]
-        kwargs["v_model"] = self.theme
+    def toggle_theme(self) -> None:
+        """Toggle between dark and light theme and save to config.
 
-        # create the btn
-        super().__init__(**kwargs)
-
-        # add some js events
-        self.on_event("click", self.toggle_theme)
-
-    def toggle_theme(self, *args) -> None:
-        """Toggle the btn icon from dark to light and adapt the configuration file."""
-        # use a cycle to go through the themes
-
-        theme_cycle = cycle(self.THEME_ICONS.keys())
-        next(t for t in theme_cycle if t == self.theme)
-        self.theme = next(t for t in theme_cycle)
-
-        v.theme.dark = self.theme == "dark"
-
-        # change icon
-        self.children[0].children = [self.THEME_ICONS[self.theme]]
-
-        # change the parameter file
-        su.set_config("theme", self.theme)
-
-        # # trigger other events by changing v_model
-        # self.v_model = self.theme
-
-        return
+        This method can be used for testing or programmatic theme switching
+        without relying on the Vue frontend.
+        """
+        self.dark = not self.dark
 
 
 class AppBar(v.AppBar, SepalWidget):
@@ -234,6 +228,7 @@ class AppBar(v.AppBar, SepalWidget):
         self,
         title: str = "SEPAL module",
         translator: Optional[Translator] = None,
+        theme_toggle: ThemeToggle = None,
         **kwargs,
     ) -> None:
         """Custom AppBar widget with the provided title using the sepal color framework.
@@ -251,7 +246,7 @@ class AppBar(v.AppBar, SepalWidget):
         self.title = v.ToolbarTitle(children=[title])
 
         self.locale = LocaleSelect(translator=translator)
-        self.theme = ThemeSelect()
+        self.theme = theme_toggle or ThemeToggle()
 
         # set the default parameters
         kwargs.setdefault("class_", "white--text")
@@ -279,11 +274,16 @@ class AppBar(v.AppBar, SepalWidget):
         return self
 
 
-class DrawerItem(v.ListItem, SepalWidget):
-    rt: Optional[ResizeTrigger] = None
-    "The trigger to resize maps and other javascript object when jumping from a tile to another"
+class DrawerItem(v.VuetifyTemplate):
 
-    alert: t.Bool = t.Bool(False).tag(sync=True)
+    href = Union([Unicode(), Dict()], default_value=None, allow_none=True).tag(sync=True)
+    input_value = Any(None, allow_none=True).tag(sync=True)
+    link = Bool(None, allow_none=True).tag(sync=True)
+    target = Unicode(None, allow_none=True).tag(sync=True)
+    resize = Int().tag(sync=True)
+    _metadata = Dict(default_value=None, allow_none=True).tag(sync=True)
+
+    alert = Bool().tag(sync=True)
     "Trait to control visibility of an alert in the drawer item"
 
     alert_badge: Optional[v.ListItemAction] = None
@@ -291,6 +291,9 @@ class DrawerItem(v.ListItem, SepalWidget):
 
     tiles: Optional[List[v.Card]] = None
     "the cards of the application"
+
+    children = List(Union([Instance(DOMWidget), Unicode()])).tag(sync=True, **widget_serialization)
+    template_file = Unicode(str(Path(__file__).parent / "vue/DrawerItem.vue")).tag(sync=True)
 
     def __init__(
         self,
@@ -316,9 +319,6 @@ class DrawerItem(v.ListItem, SepalWidget):
             bind_var: required when model is selected. Trait to link with 'alert' self trait parameter
             kwargs (optional): any parameter from a v.ListItem. If set, '_metadata', 'target', 'link' and 'children' will be overwritten.
         """
-        # set the resizetrigger
-        self.rt = rt
-
         icon = icon if icon else "fa-regular fa-folder"
 
         children = [
@@ -386,17 +386,16 @@ class DrawerItem(v.ListItem, SepalWidget):
             tiles: the list of all the available tiles in the app
         """
         self.tiles = tiles
-        self.on_event("click", self._on_click)
 
         return self
 
-    def _on_click(self, *args) -> Self:
+    def vue_on_click_python(self, data=None) -> Self:
+        """Display the appropriate tiles when the item is clicked."""
+        self.resize += 1
+
         for tile in self.tiles:
             show = self._metadata["card_id"] == tile._metadata["mount_id"]
             tile.viz = show
-
-        # trigger the resize event
-        self.rt.resize()
 
         # change the current item status
         self.input_value = True
@@ -404,6 +403,11 @@ class DrawerItem(v.ListItem, SepalWidget):
         # Remove notification
         self.remove_notif()
 
+        return self
+
+    def _on_click(self, *args) -> Self:
+        """Display the appropriate tiles when the item is clicked."""
+        self.vue_on_click_python()
         return self
 
 
@@ -515,7 +519,7 @@ class Footer(v.Footer, SepalWidget):
             text: the text to display in the future
             kwargs (optional): any parameter from a v.Footer. If set ['app', 'children'] will be overwritten.
         """
-        text = text if text != "" else "SEPAL \u00A9 {}".format(datetime.today().year)
+        text = text if text != "" else "SEPAL \u00a9 {}".format(datetime.today().year)
 
         # set default parameters
         kwargs.setdefault("color", "main")
@@ -639,7 +643,7 @@ class App(v.App, SepalWidget):
         return self
 
     @versionadded(version="2.4.1", reason="New end user interaction method")
-    @versionchanged(version="2.7.1", reason="new id\_ and persistent parameters")
+    @versionchanged(version="2.7.1", reason="new id\\_ and persistent parameters")
     def add_banner(
         self,
         msg: str = "",

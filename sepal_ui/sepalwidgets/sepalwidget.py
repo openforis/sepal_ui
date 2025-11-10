@@ -12,15 +12,18 @@ Example:
 """
 
 import warnings
+from pathlib import Path
 from typing import List, Optional, Type, Union
 
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import versionadded
+from ipywidgets import DOMWidget
+from ipywidgets.widgets.widget import widget_serialization
 from traitlets import observe
 from typing_extensions import Self
 
-__all__ = ["SepalWidget", "Tooltip"]
+__all__ = ["SepalWidget", "Tooltip", "Dialog"]
 
 
 class SepalWidget(v.VuetifyWidget):
@@ -247,3 +250,30 @@ class Tooltip(v.Tooltip):
         self.children = [tooltip]
 
         super().__init__(**kwargs)
+
+
+class Dialog(v.VuetifyTemplate, SepalWidget):
+    """Custom Dialog that triggers a window resize event."""
+
+    children = t.List(t.Union([t.Instance(DOMWidget), t.Unicode()])).tag(
+        sync=True, **widget_serialization
+    )
+
+    template_file = t.Unicode(str(Path(__file__).parent / "vue/Dialog.vue")).tag(sync=True)
+    show = t.Bool(False).tag(sync=True)
+    max_width = t.Union([t.Unicode(), t.Float()], default_value=None, allow_none=True).tag(
+        sync=True
+    )
+    min_width = t.Union([t.Unicode(), t.Float()], default_value=None, allow_none=True).tag(
+        sync=True
+    )
+    persistent = t.Bool(False).tag(sync=True)
+    retain_focus = t.Bool(False).tag(sync=True)
+
+    def open_dialog(self, *_):
+        """Open dialog."""
+        self.show = True
+
+    def close_dialog(self, *_):
+        """Close dialog."""
+        self.show = False

@@ -3,7 +3,18 @@
 # known bug of rasterio
 import os
 
+from sepal_ui.mapping.bounds import (
+    compute_center,
+    compute_zoom_for_bounds,
+)
 from sepal_ui.mapping.fullscreen_control import FullScreenControl
+from sepal_ui.mapping.visualization import (
+    get_viz_params,
+    get_viz_params_async,
+    process_vis_params,
+)
+from sepal_ui.scripts.gee_interface import GEEInterface
+from sepal_ui.sepalwidgets.vue_app import ThemeToggle
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -14,8 +25,6 @@ import json
 import math
 import random
 import string
-import warnings
-from distutils.util import strtobool
 from pathlib import Path
 from typing import List, Optional, Sequence, Union, cast
 
@@ -27,6 +36,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rioxarray
 from deprecated.sphinx import deprecated
+from eeclient.client import EESession
+from ipyleaflet import TileLayer  # noqa: F401 - leave it here, it is used in the eval
 from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
@@ -47,9 +58,12 @@ from sepal_ui.mapping.zoom_control import ZoomControl
 from sepal_ui.message import ms
 from sepal_ui.scripts import decorator as sd
 from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.warning import SepalWarning
 
 __all__ = ["SepalMap"]
+
+import logging
+
+log = logging.getLogger("sepalui.mapping")
 
 
 class SepalMap(ipl.Map):
@@ -79,6 +93,11 @@ class SepalMap(ipl.Map):
         vinspector: bool = False,
         gee: bool = True,
         statebar: bool = False,
+        theme_toggle: ThemeToggle = None,
+        gee_session: Optional[EESession] = None,
+        gee_interface: Optional[GEEInterface] = None,
+        fullscreen: bool = False,
+        map_id: str = "",
         **kwargs,
     ) -> None:
         """Custom Map object design to build application.
@@ -95,8 +114,29 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
+            theme_toggle: sepal_ui ThemeToggle object
+            gee_session (optional): a custom EESession object to do gee requests. default to None (deprecated in favor of gee_interface)
+            gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
+            fullscreen: whether or not to display the map in full screen. default to False
             kwargs (optional): any parameter from a ipyleaflet.Map. if set, 'ee_initialize' will be overwritten.
+
+        Raises:
+            ValueError: if both gee_session and gee_interface are provided
+
+        .. versionadded:: 3.0.0
+            Added gee_interface parameter for sharing GEEInterface instances across components.
         """
+        # Validate input parameters
+        if gee_session and gee_interface:
+            raise ValueError(
+                "Cannot provide both gee_session and gee_interface. "
+                "Use gee_interface for shared instances or gee_session for component-specific sessions."
+            )
+
+        log.debug(
+            f"Map initialization with gee: {gee} and session: {gee_session} and interface: {gee_interface} ID: {id(gee_interface)}"
+        )
+
         # set the default parameters
         kwargs.setdefault("center", [0, 0])
         kwargs.setdefault("zoom", 2)
@@ -107,16 +147,30 @@ class SepalMap(ipl.Map):
         kwargs["scroll_wheel_zoom"] = True
         kwargs.setdefault("world_copy_jump", True)
 
-        # Init the map
+        if fullscreen:
+            self.add_class("full-screen-map")
+
         super().__init__(**kwargs)
 
         # init ee
         self.gee = gee
-        not gee or su.init_ee()
+        if gee:
+            if gee_interface:
+                self.gee_interface = gee_interface
+            else:
+                self.gee_interface = GEEInterface(session=gee_session)
+            su.init_ee()
 
         # add the basemaps
         self.clear()
-        default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+        if theme_toggle:
+            default_basemap = "CartoDB.DarkMatter" if theme_toggle.dark else "CartoDB.Positron"
+            theme_toggle.observe(self._on_theme_change, "dark")
+            log.debug(f"Using solara theme: {theme_toggle.dark}")
+        else:
+            default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+            v.theme.observe(self._on_theme_change, "dark")
+
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
@@ -147,19 +201,29 @@ class SepalMap(ipl.Map):
 
         # create a proxy ID to the element
         # this id should be unique and will be used by mutators to identify this map
-        self._id = "".join(random.choice(string.ascii_lowercase) for i in range(6))
+        self._id = map_id or "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
 
-        v.theme.observe(self._on_theme_change, "dark")
+    def _on_theme_change(self, change) -> None:
+        """Change the basemap layer."""
+        # This is the way to make it work in solara do not ask me why
+        light = eval(str(basemap_tiles["CartoDB.Positron"]))
+        dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
 
-    def _on_theme_change(self, _) -> None:
-        """Change the url of the basemaps."""
-        light = "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-        dark = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+        layer_names = [layer.name for layer in self.layers]
 
-        for layer in self.layers:
-            if layer.base and layer.url in [light, dark]:
-                layer.url = dark if v.theme.dark is True else light
+        if change["new"]:
+            if light.name in layer_names:
+                idx = layer_names.index(light.name)
+                layer = self.layers[idx]
+                self.remove_layer(layer, base=True, none_ok=True)
+                self.layers = self.layers[:idx] + (dark,) + self.layers[idx:]
+        else:
+            if dark.name in layer_names:
+                idx = layer_names.index(dark.name)
+                layer = self.layers[idx]
+                self.remove_layer(layer, base=True, none_ok=True)
+                self.layers = self.layers[:idx] + (light,) + self.layers[idx:]
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
@@ -183,6 +247,24 @@ class SepalMap(ipl.Map):
         """
         self.remove_layer(-1)
 
+        return self
+
+    def show_dc(self) -> Self:
+        """Show the drawing control on the map.
+
+        Returns:
+            Self for method chaining
+        """
+        self.dc.show()
+        return self
+
+    def hide_dc(self) -> Self:
+        """Hide the drawing control of the map.
+
+        Returns:
+            Self for method chaining
+        """
+        self.dc.hide()
         return self
 
     def set_center(self, lon: float, lat: float, zoom: int = -1) -> None:
@@ -210,7 +292,7 @@ class SepalMap(ipl.Map):
         ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
 
         # extract bounds from ee_object
-        coords = ee_geometry.bounds().coordinates().get(0).getInfo()
+        coords = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
 
         # zoom on these bounds
         return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
@@ -240,21 +322,14 @@ class SepalMap(ipl.Map):
             bounds: coordinates corners as minx, miny, maxx, maxy in EPSG:4326
             zoom_out: Zoom out the bounding zoom
         """
-        print("zooming")
         # center the map
         minx, miny, maxx, maxy = bounds
         self.fit_bounds([[miny, minx], [maxy, maxx]])
-        print([[miny, minx], [maxy, maxx]])
-        print(self.zoom)
 
         # adapt the zoom level
         zoom_out = (self.zoom - 1) if zoom_out > self.zoom else zoom_out
-        print(zoom_out)
-        print(self.zoom)
 
         self.zoom -= zoom_out
-
-        print(self.zoom)
 
         return self
 
@@ -350,20 +425,6 @@ class SepalMap(ipl.Map):
 
         return layer
 
-    @deprecated(version="2.8.0", reason="use dc methods instead")
-    def show_dc(self) -> Self:
-        """Show the drawing control on the map."""
-        self.dc.show()
-
-        return self
-
-    @deprecated(version="2.8.0", reason="use dc methods instead")
-    def hide_dc(self) -> Self:
-        """Hide the drawing control of the map."""
-        self.dc.hide()
-
-        return self
-
     def add_colorbar(
         self,
         colors: list,
@@ -451,7 +512,103 @@ class SepalMap(ipl.Map):
 
         return
 
+    @staticmethod
+    @deprecated(
+        version="3.0.0",
+        reason="Use sepal_ui.mapping.visualization.get_viz_params() directly instead. This wrapper is maintained for backward compatibility.",
+    )
+    def get_viz_params(
+        ee_object: ee.ComputedObject,
+        gee_interface: Optional[GEEInterface] = None,
+    ) -> tuple:
+        """Get visualization parameters for an Earth Engine object.
+
+        This is a convenience wrapper around the visualization module helper.
+        Maintained for backward compatibility.
+
+        .. deprecated:: 3.0.0
+            Use :func:`sepal_ui.mapping.visualization.get_viz_params` directly instead.
+            This static method wrapper will be removed in version 4.0.0.
+
+        Args:
+            ee_object: The Earth Engine object to visualize.
+            gee_interface: Optional GEEInterface instance (creates one if not provided).
+
+        Returns:
+            Tuple of (image, object, vis_params).
+        """
+        return get_viz_params(
+            ee_object,
+            gee_interface=gee_interface,
+        )
+
     def add_ee_layer(
+        self,
+        ee_object: ee.ComputedObject,
+        vis_params: dict = {},
+        name: str = "",
+        shown: bool = True,
+        opacity: float = 1.0,
+        viz_name: str = "",
+        key: str = "",
+        use_map_vis: bool = True,
+        autocenter: bool = False,
+    ) -> None:
+        """Customized add_layer method designed for EE objects.
+
+        Copy the addLayer method from geemap to read and guess the vizaulization
+        parameters the same way as in SEPAL recipes.
+        If the vizparams are empty and visualization metadata exist, SepalMap will use
+        them automatically.
+
+        Args:
+            ee_object: the ee OBject to draw on the map
+            vis_params: the visualization parameters set as in GEE
+            name: the name of the layer
+            shown: either to show the layer or not, default to true (it is bugged in ipyleaflet)
+            opacity: the opcity of the layer from 0 to 1, default to 1.
+            viz_name: the name of the vizaulization you want to use. default to the first one if existing
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
+            use_map_vis: whether or not to use the map visualization parameters. default to True
+            autocenter: whether or not to center the map on the layer. default to False
+        """
+        # get the own visualization parameters
+        map_own_visualization = get_viz_params(ee_object, gee_interface=self.gee_interface)
+
+        image, obj, vis_params = process_vis_params(
+            ee_object,
+            vis_params=vis_params,
+            viz=map_own_visualization,
+            use_map_vis=use_map_vis,
+            viz_name=viz_name,
+        )
+
+        # create the layer based on these new values
+        if not name:
+            layer_count = len(self.layers)
+            name = "Layer " + str(layer_count + 1)
+
+        # create the colored image
+        map_id_dict = self.gee_interface.get_map_id(image, vis_params)
+        tile_layer = EELayer(
+            ee_object=obj,
+            url=map_id_dict["tile_fetcher"].url_format,
+            attribution="Google Earth Engine",
+            name=name,
+            opacity=opacity,
+            visible=shown,
+            max_zoom=24,
+        )
+
+        if autocenter:
+            bounds = self.gee_interface.get_info(ee_object.bounds().coordinates().get(0))
+            self.zoom_bounds((*bounds[0], *bounds[2]))
+
+        self.add_layer(tile_layer, key=key)
+
+        return
+
+    async def add_ee_layer_async(
         self,
         ee_object: ee.ComputedObject,
         vis_params: dict = {},
@@ -479,149 +636,27 @@ class SepalMap(ipl.Map):
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
             use_map_vis: whether or not to use the map visualization parameters. default to True
         """
-        # check the type of the ee object and raise an error if it's not recognized
-        if not isinstance(
+        # get the own visualization parameters
+        map_own_visualization = await get_viz_params_async(
             ee_object,
-            (
-                ee.Image,
-                ee.ImageCollection,
-                ee.FeatureCollection,
-                ee.Feature,
-                ee.Geometry,
-            ),
-        ):
-            raise AttributeError(
-                "\n\nThe image argument in 'addLayer' function must be an instance of "
-                "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
-            )
+            gee_interface=self.gee_interface,
+        )
 
-        # get the list of viz params
-        viz = self.get_viz_params(ee_object)
-
-        # get the requested vizparameters name
-        # if non is set use the first one
-        if viz:
-            viz_name = viz_name or viz[next(iter(viz))]["name"]
-
-        # apply it to vis_params
-        if not vis_params and viz and use_map_vis:
-            # find the viz params in the list
-            try:
-                vis_params = next(i for p, i in viz.items() if i["name"] == viz_name)
-            except StopIteration:
-                raise ValueError(
-                    f"the provided viz_name ({viz_name}) cannot be found in the image metadata"
-                )
-
-            # invert the bands if needed
-            inverted = vis_params.pop("inverted", None)
-            if inverted is not None:
-                # get the index of the bands that need to be inverted
-                index_list = [i for i, v in enumerate(inverted) if v is True]
-
-                # multiply everything by -1
-                for i in index_list:
-                    min_ = vis_params["min"][i]
-                    max_ = vis_params["max"][i]
-                    vis_params["min"][i] = max_
-                    vis_params["max"][i] = min_
-
-            # specific case of categorical images
-            # Pad the palette when using non-consecutive values
-            # instead of remapping or using sldStyle
-            # to preserve the class values in the image, for inspection
-            if vis_params["type"] == "categorical":
-                colors = vis_params["palette"]
-                values = vis_params["values"]
-                min_ = min(values)
-                max_ = max(values)
-
-                # set up a black palette of correct length
-                palette = ["#000000"] * (max_ - min_ + 1)
-
-                # replace the values within the palette
-                for i, val in enumerate(values):
-                    palette[val - min_] = colors[i]
-
-                # adapt the vizparams
-                vis_params["palette"] = palette
-                vis_params["min"] = min_
-                vis_params["max"] = max_
-
-            # specific case of hsv
-            elif vis_params["type"] == "hsv":
-                # set to_min to 0 and to_max to 1
-                # in the original expression:
-                # 'to_min + (v - from_min) * (to_max - to_min) / (from_max - from_min)'
-                expression = "{band} = (b('{band}') - {from_min}) / ({from_max} - {from_min})"
-
-                # get the maxs and mins
-                # removing them from the parameter
-                mins = vis_params.pop("min")
-                maxs = vis_params.pop("max")
-
-                # create the rgb bands
-                asset = ee_object
-                for i, band in enumerate(vis_params["bands"]):
-                    # adapt the expression
-                    exp = expression.format(from_min=mins[i], from_max=maxs[i], band=band)
-                    asset = asset.addBands(asset.expression(exp), [band], True)
-
-                # set the arguments
-                ee_object = asset.select(vis_params["bands"]).hsvToRgb()
-                vis_params["bands"] = ["red", "green", "blue"]
+        image, obj, vis_params = process_vis_params(
+            ee_object,
+            vis_params=vis_params,
+            viz=map_own_visualization,
+            use_map_vis=use_map_vis,
+            viz_name=viz_name,
+        )
 
         # create the layer based on these new values
         if not name:
             layer_count = len(self.layers)
             name = "Layer " + str(layer_count + 1)
 
-        # force cast to featureCollection if needed
-        if isinstance(
-            ee_object,
-            (
-                ee.geometry.Geometry,
-                ee.feature.Feature,
-                ee.featurecollection.FeatureCollection,
-            ),
-        ):
-            default_vis = json.loads((ss.JSON_DIR / "layer.json").read_text())["ee_layer"]
-            default_vis.update(color=scolors.primary)
-
-            # We want to get all the default styles and only change those whose are
-            # in the provided visualization.
-            default_vis.update(vis_params)
-
-            vis_params = default_vis
-
-            features = ee.FeatureCollection(ee_object)
-            const_image = ee.Image.constant(0.5)
-
-            try:
-                image_fill = features.style(**vis_params).updateMask(const_image)
-                image_outline = features.style(**vis_params)
-
-            except AttributeError:
-                # Raise a more understandable error
-                raise AttributeError(
-                    "You can only use the following styles: 'color', 'pointSize', "
-                    "'pointShape', 'width', 'fillColor', 'styleProperty', "
-                    "'neighborhood', 'lineType'"
-                )
-
-            image = image_fill.blend(image_outline)
-            obj = features
-
-        # use directly the ee object if Image
-        elif isinstance(ee_object, ee.image.Image):
-            image = obj = ee_object
-
-        # use mosaicing if the ee_object is a ImageCollection
-        elif isinstance(ee_object, ee.imagecollection.ImageCollection):
-            image = obj = ee_object.mosaic()
-
         # create the colored image
-        map_id_dict = ee.Image(image).getMapId(vis_params)
+        map_id_dict = await self.gee_interface.get_map_id_async(image, vis_params)
         tile_layer = EELayer(
             ee_object=obj,
             url=map_id_dict["tile_fetcher"].url_format,
@@ -648,75 +683,6 @@ class SepalMap(ipl.Map):
         """
         return [k for k in basemap_tiles.keys()]
 
-    @staticmethod
-    def get_viz_params(image: ee.Image) -> dict:
-        """Return the vizual parameters that are set in the metadata of the image.
-
-        Args:
-            image: the image to analyse
-
-        Returns:
-            The dictionary of the find properties
-        """
-        # the constant prefix for SEPAL visualization parameters
-        PREFIX = "visualization"
-
-        # init the property list
-        props = {}
-
-        # check image type
-        if not isinstance(image, ee.Image):
-            return props
-
-        # check that image have properties
-        if "properties" not in image.getInfo():
-            return props
-
-        # build a raw prop list
-        raw_prop_list = {
-            p: val for p, val in image.getInfo()["properties"].items() if p.startswith(PREFIX)
-        }
-
-        # decompose each property by its number
-        # and gather the properties in a sub dictionary
-        for p, val in raw_prop_list.items():
-            # extract the number and create the sub-dict
-            _, number, name = p.split("_")
-            props.setdefault(number, {})
-
-            # modify the values according to prop key
-            if isinstance(val, str):
-                if name in ["bands", "palette", "labels"]:
-                    val = val.split(",")
-                elif name in ["max", "min", "values"]:
-                    val = [float(i) for i in val.split(",")]
-                elif name in ["inverted"]:
-                    val = [bool(strtobool(i)) for i in val.split(",")]
-
-            # set the value
-            props[number][name] = val
-
-        for i in props.keys():
-            if "type" in props[i]:
-                # categorical values need to be cast to int
-                if props[i]["type"] == "categorical":
-                    props[i]["values"] = [int(val) for val in props[i]["values"]]
-            else:
-                # if no "type" is provided guess it from the different parameters gathered
-                if len(props[i]["bands"]) == 1:
-                    props[i]["type"] = "continuous"
-                elif len(props[i]["bands"]) == 3:
-                    props[i]["type"] = "rgb"
-                else:
-                    warnings.warn(
-                        "the embed viz properties are incomplete or badly set, "
-                        "please review our documentation",
-                        SepalWarning,
-                    )
-                    props = {}
-
-        return props
-
     def remove_layer(
         self, key: Union[ipl.Layer, int, str], base: bool = False, none_ok: bool = False
     ) -> None:
@@ -737,19 +703,24 @@ class SepalMap(ipl.Map):
 
         return
 
-    def remove_all(self, base: bool = False) -> None:
+    def remove_all(self, base: bool = False, keep_names: Optional[list[str]] = None) -> None:
         """Remove all the layers from the maps.
 
         If base is set to True, the basemaps are removed as well.
 
         Args:
             base: whether or not the basemaps should be removed, default to False
+            keep_names: if set, will keep the layers with these names
         """
         # filter out the basemaps if base == False
         layers = self.layers if base else [lyr for lyr in self.layers if not lyr.base]
 
         # remove them using the layer objects as keys
-        [self.remove_layer(layer, base) for layer in layers]
+        [
+            self.remove_layer(layer, base)
+            for layer in layers
+            if not keep_names or layer.name not in keep_names
+        ]
 
         return
 
@@ -798,7 +769,7 @@ class SepalMap(ipl.Map):
             msg = f"Basemap can only be one of the following:\n{keys}"
             raise ValueError(msg)
 
-        self.add_layer(basemap_tiles[basemap])
+        self.add_layer(eval(str(basemap_tiles[basemap])))
 
         return
 
@@ -844,6 +815,41 @@ class SepalMap(ipl.Map):
 
         return layer
 
+    def fit_bounds(self, bounds):
+        """Abstract method to fit the map to the given bounds."""
+        # I've done this because the native ipyleaflet fit bounds method uses
+        # awaitables that create conflicts with solara.
+        # Also I don't like the way it zooms by levels
+
+        center = compute_center(bounds)
+        self.center = center
+
+        # 2) Determine map width in pixels
+        width = None
+        log.debug(f"getting map width from layout: {self.layout}")
+        if hasattr(self, "layout"):
+            width = getattr(self.layout, "width", None)
+            log.debug(f"map width from layout: {width}")
+        try:
+            log.debug(f"getting map width from width: {width}")
+            map_width_px = int(width)
+        except (TypeError, ValueError) as e:
+            log.debug(f"Error: {width}, {e}")
+            map_width_px = 1024
+
+        log.debug(f"map width in pixels: {map_width_px}")
+
+        zoom = (
+            compute_zoom_for_bounds(
+                bounds,
+                map_width_px,
+                min_zoom=getattr(self, "min_zoom", None),
+                max_zoom=getattr(self, "max_zoom", None),
+            )
+            + 1
+        )
+        self.zoom = zoom
+
     def add_legend(
         self,
         title: str = ms.mapping.legend,
@@ -864,9 +870,9 @@ class SepalMap(ipl.Map):
 
         return self.add(self.legend)
 
-    # ##########################################################################
-    # ###                overwrite geemap calls                              ###
-    # ##########################################################################
+        # ##########################################################################
+        # ###                overwrite geemap calls                              ###
+        # ##########################################################################
 
     setCenter = set_center
     centerObject = zoom_ee_object
