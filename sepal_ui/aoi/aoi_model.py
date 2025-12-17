@@ -250,6 +250,38 @@ class AoiModel(Model):
 
         return self
 
+    async def async_set_object(self, method: str = "") -> Self:
+        """Async version: Set the object (gdf/featurecollection) based on the model inputs.
+
+        The method can be manually overwritten by setting the ``method`` parameter.
+        Uses async operations for GADM data downloads.
+
+        Args:
+            method: a model loading method
+        """
+        # clear the model output if existing
+        self.clear_output()
+
+        # overwrite self.method
+        self.method = method or self.method
+
+        if self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
+            await self._async_from_admin(self.admin)
+        elif self.method == "POINTS":
+            self._from_points(self.point_json)
+        elif self.method == "SHAPE":
+            self._from_vector(self.vector_json)
+        elif self.method == "DRAW":
+            self._from_geo_json(self.geo_json)
+        elif self.method == "ASSET":
+            self._from_asset(self.asset_json)
+        else:
+            raise Exception(ms.aoi_sel.exception.no_inputs)
+
+        self.object_set += 1
+
+        return self
+
     def _from_asset(self, asset_json: dict) -> Self:
         """Set the ee.FeatureCollection output from an existing asset."""
         if not (asset_json["pathname"]):
@@ -414,6 +446,43 @@ class AoiModel(Model):
 
         else:
             self.gdf = pygadm.Items(admin=admin)
+
+            # generate the name from the columns
+            r = self.gdf.iloc[0]
+            names = [su.normalize_str(r[c]) for c in self.gdf.columns if "NAME" in c]
+            names[0] = r.GID_0[:3]
+            self.name = "_".join(names)
+        return self
+
+    async def _async_from_admin(self, admin: str) -> Self:
+        """Async version: Set the object according to the given an administrative code in the GADM/GAUL codes.
+
+        Args:
+            admin: the admin code corresponding to FAO GAUl (if gee) or GADM
+        """
+        if not admin:
+            raise Exception(ms.aoi_sel.exception.no_admlyr)
+
+        # get the data from either the pygaul or the pygadm libs
+        # pygaul needs extra work as ISO codes are not included in the GEE dataset
+        if self.gee:
+            self.feature_collection = pygaul.AdmItems(admin=admin)
+
+            # get the ADM0_CODE to get the ISO code
+            feature = self.feature_collection.first()
+            properties = self.gee_interface.get_info(feature.toDictionary(feature.propertyNames()))
+
+            iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
+            names = [value for prop, value in properties.items() if "NAME" in prop]
+
+            # generate the name from the columns
+            names = [su.normalize_str(name) for name in names]
+            names[0] = iso
+
+            self.name = "_".join(names)
+
+        else:
+            self.gdf = await pygadm.AsyncItems.create(admin=admin)
 
             # generate the name from the columns
             r = self.gdf.iloc[0]
