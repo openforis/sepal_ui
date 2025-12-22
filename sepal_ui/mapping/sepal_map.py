@@ -618,6 +618,7 @@ class SepalMap(ipl.Map):
         viz_name: str = "",
         key: str = "",
         use_map_vis: bool = True,
+        autocenter: bool = False,
     ) -> None:
         """Customized add_layer method designed for EE objects.
 
@@ -635,6 +636,7 @@ class SepalMap(ipl.Map):
             viz_name: the name of the vizaulization you want to use. default to the first one if existing
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
             use_map_vis: whether or not to use the map visualization parameters. default to True
+            autocenter: whether or not to center the map on the layer. default to False
         """
         # get the own visualization parameters
         map_own_visualization = await get_viz_params_async(
@@ -666,6 +668,12 @@ class SepalMap(ipl.Map):
             visible=shown,
             max_zoom=24,
         )
+
+        if autocenter:
+            bounds = await self.gee_interface.get_info_async(
+                ee_object.bounds().coordinates().get(0)
+            )
+            self.zoom_bounds((*bounds[0], *bounds[2]))
 
         self.add_layer(tile_layer, key=key)
 
