@@ -26,7 +26,7 @@ __all__ = [
 ]
 
 # Path to GAUL -> ISO-3 mapping file
-GAUL_ISO_MAPPING: Path = Path(__file__).parents[2] / "data" / "gaul_iso.json"
+GAUL_ISO_MAPPING: Path = Path(__file__).parents[3] / "data" / "gaul_iso.json"
 
 # Simple in-process cache to avoid repeating expensive admin lookups.
 # Keyed by (gee, level, parent_code).
