@@ -1,0 +1,318 @@
+"""Administrative boundary selection processing.
+
+Functions for selecting and processing administrative boundaries using
+FAO GAUL 2024 data (both WFS for non-GEE and sat-io asset for GEE).
+"""
+
+import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import geopandas as gpd
+import httpx
+import pandas as pd
+import pygaul
+
+from sepal_ui.message import ms
+from sepal_ui.scripts import utils as su
+from sepal_ui.scripts.gee_interface import GEEInterface
+from sepal_ui.solara.components.aoi.aoi_result import AoiResult
+
+# Path to GAUL -> ISO-3 mapping file
+GAUL_ISO_MAPPING: Path = Path(__file__).parents[3] / "data" / "gaul_iso.json"
+
+# FAO GAUL WFS Configuration
+FAO_WFS_BASE_URL = "https://data.apps.fao.org/map/gsrv/gsrv1/gaul/wfs"
+
+# FAO GAUL WFS layers (same as WMS)
+FAO_GAUL_LAYERS = {
+    0: "gaul:gaul_2024_l0",
+    1: "gaul:g2024_2023_1",
+    2: "gaul:g2024_2023_2",
+}
+
+_WFS_GEOMETRY_CACHE: Dict[str, gpd.GeoDataFrame] = {}
+_WFS_BOUNDS_CACHE: Dict[str, tuple] = {}
+
+
+def _build_wfs_params(
+    layer: str, level: int, admin_code: str, extra_params: Optional[Dict[str, str]] = None
+) -> Dict[str, str]:
+    """Build common WFS request parameters."""
+    params = {
+        "service": "WFS",
+        "version": "2.0.0",
+        "request": "GetFeature",
+        "typeName": layer,
+        "outputFormat": "application/json",
+        "srsName": "EPSG:4326",
+        "CQL_FILTER": f"gaul{level}_code={admin_code}",
+    }
+    if extra_params:
+        params.update(extra_params)
+    return params
+
+
+def _fetch_admin_names_from_pygaul(level: int, parent_code: Optional[str] = None) -> pd.DataFrame:
+    """Fetch administrative names from pygaul's local parquet file.
+
+    Args:
+        level: Administrative level (0, 1, or 2)
+        parent_code: Parent admin code for filtering (e.g., "62" for Colombia)
+
+    Returns:
+        DataFrame with columns [gaul{level}_name, gaul{level}_code]
+    """
+    df = pygaul.Names(admin=parent_code if parent_code else None, content_level=level)
+    return df.sort_values(by=[df.columns[0]]) if not df.empty else df
+
+
+async def _fetch_wfs_geometry_async(level: int, admin_code: str) -> gpd.GeoDataFrame:
+    """Fetch administrative geometry from FAO WFS asynchronously.
+
+    Uses the appropriate GAUL 2024 WFS layer for each level:
+    - Level 0: gaul:gaul_2024_l0 (272 countries)
+    - Level 1: gaul:g2024_2023_1
+    - Level 2: gaul:g2024_2023_2
+
+    Args:
+        level: Administrative level (0, 1, or 2)
+        admin_code: The admin code to fetch
+
+    Returns:
+        GeoDataFrame with the geometry
+    """
+    cache_key = f"wfs_{level}_{admin_code}"
+    if cache_key in _WFS_GEOMETRY_CACHE:
+        return _WFS_GEOMETRY_CACHE[cache_key]
+
+    layer = FAO_GAUL_LAYERS[level]
+    params = _build_wfs_params(layer, level, admin_code)
+
+    async with httpx.AsyncClient(timeout=120) as client:
+        response = await client.get(FAO_WFS_BASE_URL, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+    if not data.get("features"):
+        raise ValueError(f"No features found for gaul{level}_code={admin_code}")
+
+    gdf = gpd.GeoDataFrame.from_features(data["features"], crs="EPSG:4326")
+
+    _WFS_GEOMETRY_CACHE[cache_key] = gdf
+    return gdf
+
+
+async def fetch_admin_bounds_async(level: int, admin_code: str) -> tuple:
+    """Fetch bounding box for an admin boundary from FAO WFS.
+
+    This fetches only the bbox without the full geometry, making it faster
+    for zoom operations. The bbox is cached for subsequent calls.
+
+    Args:
+        level: Administrative level (0, 1, or 2)
+        admin_code: The admin code to fetch bounds for
+
+    Returns:
+        Tuple of (minx, miny, maxx, maxy) in EPSG:4326
+
+    Example:
+        ```python
+        from sepal_ui.solara.components.aoi import fetch_admin_bounds_async
+
+        bounds = await fetch_admin_bounds_async(level=0, admin_code="62")
+        map_.zoom_bounds(bounds)
+        ```
+    """
+    cache_key = f"bounds_{level}_{admin_code}"
+    if cache_key in _WFS_BOUNDS_CACHE:
+        return _WFS_BOUNDS_CACHE[cache_key]
+
+    layer = FAO_GAUL_LAYERS[level]
+    # Request only non-geometry properties to reduce payload
+    # The bbox is still included in the response metadata
+    params = _build_wfs_params(
+        layer, level, admin_code, {"propertyName": f"gaul{level}_code,gaul{level}_name"}
+    )
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(FAO_WFS_BASE_URL, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+    # bbox is at feature level when using propertyName (geometry excluded)
+    features = data.get("features", [])
+    if not features or "bbox" not in features[0]:
+        raise ValueError(f"No bbox found for gaul{level}_code={admin_code}")
+
+    bounds = tuple(features[0]["bbox"])
+
+    _WFS_BOUNDS_CACHE[cache_key] = bounds
+    return bounds
+
+
+def fetch_admin_items(
+    level: int,
+    parent_code: str = "",
+) -> List[Dict[str, str]]:
+    """Fetch administrative region items for dropdown selection.
+
+    Retrieves a list of administrative regions at the specified level,
+    optionally filtered by a parent region code.
+
+    Uses pygaul's local GAUL 2024 parquet file for instant lookups (~1ms).
+
+    Args:
+        level: Administrative level (0, 1, or 2)
+        parent_code: Parent admin code to filter results. Empty string for level 0.
+
+    Returns:
+        List of dicts with 'text' (display name) and 'value' (admin code) keys.
+
+    Example:
+        ```python
+        from sepal_ui.solara.components.aoi import fetch_admin_items
+
+        # Get all countries (instant from local parquet)
+        countries = fetch_admin_items(level=0)
+
+        # Get regions within Colombia (code 62 in GAUL 2024)
+        regions = fetch_admin_items(level=1, parent_code="62")
+        ```
+    """
+    df = _fetch_admin_names_from_pygaul(level, parent_code or None)
+
+    name_col = df.columns[0]  # gaul{level}_name
+    code_col = df.columns[1]  # gaul{level}_code
+
+    item_list = []
+    for _, r in df.iterrows():
+        text = su.normalize_str(r[name_col], folder=False)
+        item_list.append({"text": text, "value": str(r[code_col])})
+
+    return item_list
+
+
+async def process_admin(
+    method: str,
+    admin_code: str,
+    gee: bool = True,
+    gee_interface: Optional[Any] = None,
+) -> AoiResult:
+    """Process administrative boundary selection.
+
+    Fetches the geometry for the given administrative code using either
+    Earth Engine (sat-io GAUL 2024 asset) or FAO GAUL 2024 WFS service.
+
+    Both modes use the same GAUL 2024 codes from pygaul's local parquet.
+
+    Args:
+        method: The admin method ("ADMIN0", "ADMIN1", or "ADMIN2")
+        admin_code: The administrative code to fetch (GAUL 2024 code)
+        gee: If True, use Earth Engine with sat-io's GAUL 2024 asset.
+             If False, use FAO GAUL 2024 WFS service.
+        gee_interface: Optional GEEInterface for Earth Engine operations
+
+    Returns:
+        AoiResult with the administrative boundary data
+
+    Raises:
+        ValueError: If admin_code is empty or invalid
+
+    Example:
+        ```python
+        from sepal_ui.solara.components.aoi import process_admin
+
+        # Select Colombia (non-GEE, using FAO WFS)
+        result = await process_admin("ADMIN0", "62", gee=False)
+
+        # Select Colombia (GEE, using sat-io asset)
+        result = await process_admin("ADMIN0", "62", gee=True)
+        ```
+    """
+    if not admin_code:
+        raise ValueError(ms.aoi_sel.exception.no_admlyr)
+
+    if method not in ["ADMIN0", "ADMIN1", "ADMIN2"]:
+        raise ValueError(f"Invalid admin method: {method}")
+
+    level = int(method[-1])  # Extract level from method name
+
+    if gee:
+        # Initialize Earth Engine
+        su.init_ee()
+
+        # Use provided interface or create a new one
+        interface = gee_interface or GEEInterface()
+
+        # Use pygaul.Items to get the feature collection (handles all the EE logic)
+        feature_collection = pygaul.Items(admin=admin_code)
+
+        # Get properties for naming (async call)
+        feature = feature_collection.first()
+        properties = await interface.get_info_async(feature.toDictionary(feature.propertyNames()))
+
+        # Build name from ISO code and admin names
+        # GAUL 2024 uses: iso3_code, gaul0_name, gaul1_name, gaul2_name
+        iso = properties.get("iso3_code", "")
+        if not iso or iso.startswith("x"):  # 'x' prefix means disputed/unknown
+            iso_mapping = json.loads(GAUL_ISO_MAPPING.read_text())
+            gaul0_code = str(properties.get("gaul0_code", ""))
+            iso = iso_mapping.get(gaul0_code, "UNK")
+
+        # Collect admin names from all levels up to current
+        names = [iso]
+        for lvl in range(1, level + 1):
+            name_col = f"gaul{lvl}_name"
+            if name_col in properties and properties.get(name_col):
+                names.append(su.normalize_str(properties[name_col]))
+
+        name = "_".join(names)
+
+        return AoiResult(
+            method=method,
+            name=name,
+            gdf=None,  # Lazy - users can use get_gdf_async() if needed
+            feature_collection=feature_collection,
+            admin=admin_code,
+            gee=True,
+        )
+
+    else:
+
+        # Get admin info from pygaul's full parquet (includes iso3_code)
+        full_df = pygaul._df()
+        code_col = f"gaul{level}_code"
+        admin_rows = full_df[full_df[code_col] == str(admin_code)]
+
+        if admin_rows.empty:
+            raise ValueError(f"Admin code {admin_code} not found in GAUL 2024")
+
+        # Get first row for name building
+        row = admin_rows.iloc[0]
+
+        # Build name from ISO code and admin names
+        iso = row.get("iso3_code", "")
+        if not iso or (isinstance(iso, str) and iso.startswith("x")):
+            # Fall back to mapping file
+            iso_mapping = json.loads(GAUL_ISO_MAPPING.read_text())
+            gaul0_code = str(row.get("gaul0_code", ""))
+            iso = iso_mapping.get(gaul0_code, "UNK")
+
+        # Collect admin names from all levels up to current
+        names = [iso]
+        for lvl in range(1, level + 1):
+            name_col = f"gaul{lvl}_name"
+            if name_col in full_df.columns and row.get(name_col):
+                names.append(su.normalize_str(row[name_col]))
+
+        name = "_".join(names)
+
+        return AoiResult(
+            method=method,
+            name=name,
+            gdf=None,  # Lazy - users can use AoiResult.get_gdf_async() when needed
+            feature_collection=None,
+            admin=admin_code,
+            gee=False,
+        )

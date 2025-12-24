@@ -13,6 +13,8 @@ __pycache__/
 *[Uu]ntitled*
 
 .github/workflows/act_unit.yml
+guides/
+legacy/
 
 # C extensions
 *.so

@@ -31,12 +31,16 @@ from deprecated.sphinx import versionadded
 from sepal_ui import mapping as sm
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
-
-from .aoi_processing import (
-    AoiResult,
+from sepal_ui.solara.components.aoi.admin import (
+    fetch_admin_bounds_async,
     fetch_admin_items,
     process_admin,
-    process_draw,
+)
+from sepal_ui.solara.components.aoi.aoi_result import AoiResult
+from sepal_ui.solara.components.aoi.draw import process_draw
+from sepal_ui.solara.components.aoi.wms_utils import (
+    WMS_PREVIEW_LAYER_NAME,
+    create_wms_preview_layer,
 )
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
@@ -136,6 +140,7 @@ def MethodSelect(
 def AdminLevelSelector(
     method: str,
     gee: bool = True,
+    map_: Optional[sm.SepalMap] = None,
     value: Union[str, solara.Reactive[Optional[str]]] = None,
     on_value: Optional[Callable[[Optional[str]], None]] = None,
 ):
@@ -145,9 +150,13 @@ def AdminLevelSelector(
     only the final selected admin code. Provides a stable render tree regardless
     of the method (ADMIN0, ADMIN1, ADMIN2).
 
+    When a map is provided and gee=False, shows a WMS preview of the selected
+    admin boundary on the map immediately after selection.
+
     Args:
         method: The admin method ("ADMIN0", "ADMIN1", or "ADMIN2")
-        gee: Whether to use Earth Engine (GAUL) or local (GADM)
+        gee: Whether to use Earth Engine (GAUL) or FAO WFS (local)
+        map_: Optional SepalMap to display WMS preview (only for gee=False)
         value: The final selected admin code (output only)
         on_value: Callback when the final admin code changes
 
@@ -159,10 +168,12 @@ def AdminLevelSelector(
         @solara.component
         def MyApp():
             admin_code = solara.use_reactive(None)
+            my_map = sm.SepalMap()
 
             AdminLevelSelector(
                 method="ADMIN1",
                 gee=False,
+                map_=my_map,
                 value=admin_code,
             )
 
@@ -183,21 +194,34 @@ def AdminLevelSelector(
     items_1 = solara.use_reactive([])
     items_2 = solara.use_reactive([])
 
+    # Loading states for async fetches
+    loading_0 = solara.use_reactive(False)
+    loading_1 = solara.use_reactive(False)
+    loading_2 = solara.use_reactive(False)
+
     # Determine target level from method
     target_level = {"ADMIN0": 0, "ADMIN1": 1, "ADMIN2": 2}.get(method, 0)
 
-    # Load level 0 items on mount
-    def load_level_0():
-        items = fetch_admin_items(level=0, parent_code="", gee=gee)
-        items_0.set(items)
+    # Async task to load level 0 items
+    async def _load_level_0():
+        loading_0.set(True)
+        try:
+            items = fetch_admin_items(level=0, parent_code="")
+            items_0.set(items)
+        finally:
+            loading_0.set(False)
 
-    solara.use_effect(load_level_0, [gee])
+    solara.lab.use_task(_load_level_0, dependencies=[], raise_error=False)
 
-    # Load level 1 items when level 0 changes
-    def load_level_1():
+    # Async task to load level 1 items
+    async def _load_level_1():
         if level_0.value and target_level >= 1:
-            items = fetch_admin_items(level=1, parent_code=level_0.value, gee=gee)
-            items_1.set(items)
+            loading_1.set(True)
+            try:
+                items = fetch_admin_items(level=1, parent_code=level_0.value)
+                items_1.set(items)
+            finally:
+                loading_1.set(False)
         else:
             items_1.set([])
         # Reset downstream
@@ -205,19 +229,31 @@ def AdminLevelSelector(
         level_2.set(None)
         items_2.set([])
 
-    solara.use_effect(load_level_1, [level_0.value, target_level])
+    solara.lab.use_task(
+        _load_level_1,
+        dependencies=[level_0.value, target_level],
+        raise_error=False,
+    )
 
-    # Load level 2 items when level 1 changes
-    def load_level_2():
+    # Async task to load level 2 items
+    async def _load_level_2():
         if level_1.value and target_level >= 2:
-            items = fetch_admin_items(level=2, parent_code=level_1.value, gee=gee)
-            items_2.set(items)
+            loading_2.set(True)
+            try:
+                items = fetch_admin_items(level=2, parent_code=level_1.value)
+                items_2.set(items)
+            finally:
+                loading_2.set(False)
         else:
             items_2.set([])
         # Reset downstream
         level_2.set(None)
 
-    solara.use_effect(load_level_2, [level_1.value, target_level])
+    solara.lab.use_task(
+        _load_level_2,
+        dependencies=[level_1.value, target_level],
+        raise_error=False,
+    )
 
     # Update output value when target level selection changes
     def update_output():
@@ -239,6 +275,7 @@ def AdminLevelSelector(
             v_model=level_0.value,
             clearable=True,
             dense=True,
+            loading=loading_0.value,
             on_v_model=level_0.set,
         ):
             pass
@@ -251,6 +288,7 @@ def AdminLevelSelector(
                 v_model=level_1.value,
                 clearable=True,
                 dense=True,
+                loading=loading_1.value,
                 disabled=not level_0.value,
                 on_v_model=level_1.set,
             ):
@@ -264,6 +302,7 @@ def AdminLevelSelector(
                 v_model=level_2.value,
                 clearable=True,
                 dense=True,
+                loading=loading_2.value,
                 disabled=not level_1.value,
                 on_v_model=level_2.set,
             ):
@@ -400,9 +439,9 @@ def AoiView(
 
         # Update the map if available
         if map_ and result:
-            # Clear existing AOI layers
+            # Clear existing AOI layers and WMS preview
             for layer in list(map_.layers):
-                if hasattr(layer, "name") and layer.name == "aoi":
+                if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
                     map_.remove_layer(layer)
 
             # Add new AOI layer
@@ -410,11 +449,28 @@ def AoiView(
                 await map_.add_ee_layer_async(
                     result.feature_collection, map_style or {}, "aoi", autocenter=True
                 )
+            elif result.admin is not None:
+                # For admin boundaries (non-GEE), use WMS layer and zoom to bounds
+                level = int(method[-1])  # Extract level from method name (ADMIN0 -> 0)
+                wms_layer = create_wms_preview_layer(
+                    level=level,
+                    admin_code=result.admin,
+                    name="aoi",
+                )
+                map_.add_layer(wms_layer)
+
+                # Fetch bounds async and zoom to the feature
+                bounds = await fetch_admin_bounds_async(level=level, admin_code=result.admin)
+                map_.zoom_bounds(bounds)
             elif result.gdf is not None:
+                # For drawn shapes or other methods with GDF, use GeoJSON
                 from sepal_ui.mapping import get_ipygeojson
 
                 geojson_layer = get_ipygeojson(result.gdf, result.name, map_style)
                 map_.add_layer(geojson_layer, "aoi")
+
+                # Zoom to the GeoDataFrame bounds
+                map_.zoom_bounds(result.gdf.total_bounds)
 
         # Update reactive value
         reactive_value.set(result)
@@ -465,10 +521,10 @@ def AoiView(
             draw_name.set("")
             alert_message.set("")
 
-            # Clear AOI layer from map
+            # Clear AOI layer and WMS preview from map
             if map_:
                 for layer in list(map_.layers):
-                    if hasattr(layer, "name") and layer.name == "aoi":
+                    if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
                         map_.remove_layer(layer)
 
             # Handle DrawControl
@@ -496,7 +552,7 @@ def AoiView(
             if map_:
                 try:
                     for layer in list(map_.layers):
-                        if hasattr(layer, "name") and layer.name == "aoi":
+                        if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
                             map_.remove_layer(layer)
                 except Exception:
                     pass
@@ -508,6 +564,13 @@ def AoiView(
                             map_.remove_control(aoi_dc)
                     except Exception:
                         pass
+
+                # Reset map to default center (Bogota) and zoom
+                try:
+                    map_.center = (4.6097, -74.0817)  # Bogota, Colombia
+                    map_.zoom = 10
+                except Exception:
+                    pass
 
         return cleanup
 
@@ -528,6 +591,7 @@ def AoiView(
             AdminLevelSelector(
                 method=selected_method.value,
                 gee=gee,
+                map_=map_,
                 value=admin_code,
             )
 
