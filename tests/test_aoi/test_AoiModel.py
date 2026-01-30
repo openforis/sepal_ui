@@ -73,7 +73,8 @@ def test_init_ee(gee_dir: Path) -> None:
     assert aoi_model.name == "feature_collection_data_0"
 
     # with a default admin
-    admin = "110"  # GAUL Vatican city
+    # GAUL 2024 code for Holy See - codes may change between dataset versions
+    admin = "307"
     aoi_model = aoi.AoiModel(admin=admin, folder=gee_dir)
     assert aoi_model.name == "VAT"
 
@@ -112,10 +113,10 @@ def test_get_fields(test_model: aoi.AoiModel) -> None:
         aoi_model = aoi.AoiModel()
         aoi_model.get_fields("toto")
 
-    # init
-    column = "ADM0_CODE"
+    # init (GAUL 2024 uses lowercase column names)
+    column = "gaul0_code"
     res = test_model.get_fields(column)
-    assert res == [110]
+    assert res == [307]
 
     return
 
@@ -132,11 +133,14 @@ def test_get_selected(test_model: aoi.AoiModel) -> None:
         aoi_model = aoi.AoiModel()
         aoi_model.get_fields("toto", "toto")
 
-    # select the vatican feature in GAUL 2015
-    ee_vat = ee.FeatureCollection("FAO/GAUL/2015/level0").filter(ee.Filter.eq("ADM0_CODE", "110"))
+    # select the vatican feature in GAUL 2024 (test_model uses pygaul which is GAUL 2024)
+    # Asset path: projects/sat-io/open-datasets/FAO/GAUL/GAUL_2024_L0
+    ee_vat = ee.FeatureCollection("projects/sat-io/open-datasets/FAO/GAUL/GAUL_2024_L0").filter(
+        ee.Filter.eq("gaul0_code", 307)
+    )
 
-    # select the geometry associated with Vatican city (all of it)
-    column, field = ("ADM0_CODE", "110")
+    # select the geometry associated with Vatican city (all of it) using GAUL 2024 column names
+    column, field = ("gaul0_code", 307)
     feature = test_model.get_selected(column, field)
 
     # assert they are the same
@@ -263,8 +267,8 @@ def test_from_admin(gee_dir: Path) -> None:
     with pytest.raises(Exception):
         aoi_model._from_admin(0)
 
-    # test france
-    aoi_model._from_admin("110")
+    # GAUL 2024 code for Holy See - codes may change between dataset versions
+    aoi_model._from_admin("307")
     assert aoi_model.name == "VAT"
 
     return
@@ -469,7 +473,7 @@ def square() -> dict:
 
 @pytest.fixture(scope="function")
 def test_model(gee_dir: Path) -> aoi.AoiModel:
-    """Create a test AoiModel based on GEE using Vatican.
+    """Create a test AoiModel based on GEE using Holy See (Vatican).
 
     Args:
         gee_dir: the path to the session gee_dir folder (including hash)
@@ -477,7 +481,9 @@ def test_model(gee_dir: Path) -> aoi.AoiModel:
     Returns:
         the model object
     """
-    admin = "110"  # vatican city (smalest adm0 feature)
+    # GAUL 2024 code for Holy See (Vatican) - smallest adm0 feature, ideal for fast tests
+    # Note: GAUL codes may change between dataset versions (was 110 in GAUL 2015)
+    admin = "307"
     return aoi.AoiModel(admin=admin, folder=gee_dir)
 
 

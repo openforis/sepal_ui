@@ -389,22 +389,27 @@ class AoiModel(Model):
         """Set the object according to the given an administrative code in the GADM/GAUL codes.
 
         Args:
-            admin: the admin code corresponding to FAO GAUl (if gee) or GADM
+            admin: the admin code corresponding to FAO GAUL (if gee) or GADM
         """
         if not admin:
             raise Exception(ms.aoi_sel.exception.no_admlyr)
 
         # get the data from either the pygaul or the pygadm libs
-        # pygaul needs extra work as ISO codes are not included in the GEE dataset
         if self.gee:
-            self.feature_collection = pygaul.AdmItems(admin=admin)
+            self.feature_collection = pygaul.Items(admin=admin)
 
-            # get the ADM0_CODE to get the ISO code
+            # get the iso3_code directly from GAUL 2024 dataset
             feature = self.feature_collection.first()
             properties = self.gee_interface.get_info(feature.toDictionary(feature.propertyNames()))
 
-            iso = json.loads(self.MAPPING.read_text())[str(properties.get("ADM0_CODE"))]
-            names = [value for prop, value in properties.items() if "NAME" in prop]
+            # GAUL 2024 includes iso3_code directly, fallback to mapping for disputed areas
+            iso = properties.get("iso3_code", "")
+            if not iso or iso.startswith("x"):  # 'x' prefix means disputed/unknown
+                gaul0_code = str(properties.get("gaul0_code", ""))
+                iso = json.loads(self.MAPPING.read_text()).get(gaul0_code, "UNK")
+
+            # GAUL 2024 uses lowercase column names: gaul0_name, gaul1_name, gaul2_name
+            names = [value for prop, value in properties.items() if "_name" in prop]
 
             # generate the name from the columns
             names = [su.normalize_str(name) for name in names]
@@ -649,7 +654,9 @@ class AoiModel(Model):
         self._gdf = gpd.GeoDataFrame.from_features(features).set_crs(epsg=4326)
 
         if self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
-
-            gaul_country = str(self._gdf.ADM0_CODE.unique()[0])
-            iso = json.loads(self.MAPPING.read_text())[gaul_country]
+            # GAUL 2024 includes iso3_code directly, fallback to mapping for disputed areas
+            iso = self._gdf.iso3_code.unique()[0] if "iso3_code" in self._gdf.columns else None
+            if not iso or (isinstance(iso, str) and iso.startswith("x")):
+                gaul_country = str(self._gdf.gaul0_code.unique()[0])
+                iso = json.loads(self.MAPPING.read_text()).get(gaul_country, "UNK")
             self._gdf["ISO"] = iso
