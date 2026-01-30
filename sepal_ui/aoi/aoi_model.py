@@ -404,7 +404,9 @@ class AoiModel(Model):
 
             # GAUL 2024 includes iso3_code directly, fallback to mapping for disputed areas
             iso = properties.get("iso3_code", "")
-            if not iso or iso.startswith("x"):  # 'x' prefix means disputed/unknown
+            if not iso or (
+                isinstance(iso, str) and iso.startswith("x")
+            ):  # 'x' prefix means disputed/unknown
                 gaul0_code = str(properties.get("gaul0_code", ""))
                 iso = json.loads(self.MAPPING.read_text()).get(gaul0_code, "UNK")
 

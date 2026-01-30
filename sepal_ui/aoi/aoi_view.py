@@ -105,7 +105,7 @@ class AdminField(sw.Select):
     def __init__(self, level: int, parent: Optional[sw.Select] = None, gee: bool = True) -> None:
         """An admin level selector.
 
-        It is binded to ee (GAUL 2015) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+        It is binded to ee (GAUL 2024) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
             level: The administrative level of the field
