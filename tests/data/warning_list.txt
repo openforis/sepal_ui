@@ -1,2 +1,2 @@
-ERROR: Document or section may not begin with a transition.
+WARNING: Document or section may not begin with a transition. [docutils]
 WARNING: document isn't included in any toctree

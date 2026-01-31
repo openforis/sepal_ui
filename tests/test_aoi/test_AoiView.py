@@ -65,8 +65,8 @@ def test_init_ee(gee_dir: Path) -> None:
     view = aoi.AoiView(folder=gee_dir)
     assert isinstance(view, aoi.AoiView)
 
-    # test model name when using view
-    view = aoi.AoiView(admin="110", folder=gee_dir)
+    # GAUL 2024 code for Holy See - codes may change between dataset versions
+    view = aoi.AoiView(admin="307", folder=gee_dir)
     assert view.model.name == "VAT"
 
     return
@@ -79,9 +79,9 @@ def test_admin_ee(gee_dir: Path) -> None:
     Args:
         gee_dir: the session gee directory where assets are saved
     """
-    # test if admin0 is in Gaul
+    # test if admin0 is in Gaul (GAUL 2024 uses gaul0_code)
     view = aoi.AoiView(folder=gee_dir)
-    first_gaul_item = {"text": "Abyei", "value": "102"}
+    first_gaul_item = {"text": "Abyei", "value": "100"}
     assert first_gaul_item == view.w_admin_0.items[0]
 
     return
