@@ -11,6 +11,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *[Uu]ntitled*
+guides/
+*legacy*
 
 .github/workflows/act_unit.yml
 

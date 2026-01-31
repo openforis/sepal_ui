@@ -105,7 +105,7 @@ class AdminField(sw.Select):
     def __init__(self, level: int, parent: Optional[sw.Select] = None, gee: bool = True) -> None:
         """An admin level selector.
 
-        It is binded to ee (GAUL 2015) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
+        It is binded to ee (GAUL 2024) or not (GADM). Allows to select administrative codes taking into account the administrative parent code and displaying humanly readable administrative names.
 
         Args:
             level: The administrative level of the field
@@ -138,7 +138,7 @@ class AdminField(sw.Select):
         Args:
             filter\_: The code of the parent v_model to filter the current results
         """
-        AdmNames = pygaul.AdmNames if self.gee else pygadm.Names
+        AdmNames = pygaul.Names if self.gee else pygadm.Names
         df = AdmNames(admin=filter_, content_level=self.level)
         df = df.sort_values(by=[df.columns[0]])
 
