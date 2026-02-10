@@ -21,7 +21,6 @@ Usage:
             print(f"Selected: {aoi.value.name}")
 """
 
-from pathlib import Path
 from typing import Callable, Dict, List, Optional, Union
 
 import reacton.ipyvuetify as rv
@@ -29,6 +28,7 @@ import solara
 from deprecated.sphinx import versionadded
 
 from sepal_ui import mapping as sm
+from sepal_ui.mapping import get_ipygeojson
 from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.solara.components.aoi.admin import (
@@ -140,7 +140,6 @@ def MethodSelect(
 def AdminLevelSelector(
     method: str,
     gee: bool = True,
-    map_: Optional[sm.SepalMap] = None,
     value: Union[str, solara.Reactive[Optional[str]]] = None,
     on_value: Optional[Callable[[Optional[str]], None]] = None,
 ):
@@ -149,9 +148,6 @@ def AdminLevelSelector(
     Manages internal state for cascading admin levels (0, 1, 2) and exposes
     only the final selected admin code. Provides a stable render tree regardless
     of the method (ADMIN0, ADMIN1, ADMIN2).
-
-    When a map is provided and gee=False, shows a WMS preview of the selected
-    admin boundary on the map immediately after selection.
 
     Args:
         method: The admin method ("ADMIN0", "ADMIN1", or "ADMIN2")
@@ -319,7 +315,6 @@ def AoiView(
     methods: Union[str, List[str]] = "ALL",
     map_: Optional[sm.SepalMap] = None,
     gee: bool = True,
-    folder: Union[str, Path] = "",
     map_style: Optional[dict] = None,
 ):
     """Solara-native component for AOI (Area of Interest) selection.
@@ -336,7 +331,6 @@ def AoiView(
         methods: Methods to enable ('ALL', 'ADMIN', 'CUSTOM', or list of method names)
         map_: Link to a SepalMap instance for drawing and display
         gee: Whether to bind to Earth Engine
-        folder: Folder name used in GEE components
         map_style: Custom style for AOI display on map
 
     Example:
@@ -422,17 +416,22 @@ def AoiView(
                 geo_json=features,
                 name=draw_name.value,
                 gee=gee,
-                folder=folder,
             )
 
         elif method == "SHAPE":
-            raise NotImplementedError("SHAPE method not yet implemented")
+            raise ValueError(
+                "The SHAPE method is not available yet. Please choose another AOI method."
+            )
 
         elif method == "POINTS":
-            raise NotImplementedError("POINTS method not yet implemented")
+            raise ValueError(
+                "The POINTS method is not available yet. Please choose another AOI method."
+            )
 
         elif method == "ASSET":
-            raise NotImplementedError("ASSET method not yet implemented")
+            raise ValueError(
+                "The ASSET method is not available yet. Please choose another AOI method."
+            )
 
         else:
             raise ValueError("Please select a method")
@@ -464,10 +463,8 @@ def AoiView(
                 map_.zoom_bounds(bounds)
             elif result.gdf is not None:
                 # For drawn shapes or other methods with GDF, use GeoJSON
-                from sepal_ui.mapping import get_ipygeojson
-
                 geojson_layer = get_ipygeojson(result.gdf, result.name, map_style)
-                map_.add_layer(geojson_layer, "aoi")
+                map_.add_layer(geojson_layer, key="aoi")
 
                 # Zoom to the GeoDataFrame bounds
                 map_.zoom_bounds(result.gdf.total_bounds)
@@ -555,6 +552,7 @@ def AoiView(
                         if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
                             map_.remove_layer(layer)
                 except Exception:
+                    # Silently ignore errors during cleanup - layer may already be removed
                     pass
 
                 if aoi_dc:
@@ -563,14 +561,11 @@ def AoiView(
                         if aoi_dc in map_.controls:
                             map_.remove_control(aoi_dc)
                     except Exception:
+                        # Silently ignore errors during cleanup - control may already be removed
                         pass
 
-                # Reset map to default center (Bogota) and zoom
-                try:
-                    map_.center = (4.6097, -74.0817)  # Bogota, Colombia
-                    map_.zoom = 10
-                except Exception:
-                    pass
+                # Note: We intentionally do NOT reset map center/zoom on unmount
+                # to avoid surprising side effects for host apps that own the map state
 
         return cleanup
 

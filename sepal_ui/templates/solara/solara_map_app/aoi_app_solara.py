@@ -164,6 +164,12 @@ def AoiWithoutGEE():
 def ComparisonExample():
     """Side-by-side comparison of the value/on_value pattern."""
     aoi_data = solara.use_reactive(None)
+    aoi_loading = solara.use_reactive(False)
+    gee_flag = True
+    sepal_map = solara.use_memo(
+        lambda: sm.SepalMap(zoom=2, center=[0, 0], gee=gee_flag),
+        [gee_flag],
+    )
 
     with solara.Column(style="padding: 20px; gap: 20px;"):
         solara.Markdown("## Solara Pattern: value/on_value")
@@ -192,6 +198,19 @@ def ComparisonExample():
             """
         )
 
+        # Two-column layout with AoiView and Map
+        with solara.Columns([1, 1], style="gap: 20px;"):
+            with solara.Column():
+                AoiView(
+                    value=aoi_data,
+                    loading=aoi_loading,
+                    methods="ADMIN",
+                    map_=sepal_map,
+                    gee=gee_flag,
+                )
+            with solara.Card("Map View"):
+                solara.display(sepal_map)
+
         if aoi_data.value:
             solara.Success(f"✓ AOI selected: {aoi_data.value.method}")
 
@@ -204,19 +223,6 @@ def ComparisonExample():
                 solara.Markdown(f"- `bounds`: {aoi_data.value.bounds}")
                 solara.Markdown(f"- `admin`: {aoi_data.value.admin}")
                 solara.Markdown(f"- `gee`: {aoi_data.value.gee}")
-
-
-def _format_aoi_info(aoi_data: AoiResult) -> str:
-    """Helper to format AOI info for display."""
-    if not aoi_data:
-        return ""
-
-    method = aoi_data.method or "Unknown"
-    area = None
-
-    if area:
-        return f"**Method:** {method} | **Area:** {area:.2f} ha"
-    return f"**Method:** {method}"
 
 
 def _format_aoi_info_gadm(aoi_data: AoiResult) -> str:

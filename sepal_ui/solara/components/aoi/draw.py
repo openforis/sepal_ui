@@ -4,8 +4,7 @@ Functions for processing geometries drawn on the map using DrawControl.
 """
 
 from datetime import datetime as dt
-from pathlib import Path
-from typing import Dict, Union
+from typing import Dict
 
 import geopandas as gpd
 
@@ -18,7 +17,6 @@ def process_draw(
     geo_json: Dict,
     name: str = "",
     gee: bool = True,
-    folder: Union[str, Path] = "",
 ) -> AoiResult:
     """Process a drawn geometry from map interaction.
 
@@ -28,7 +26,6 @@ def process_draw(
         geo_json: GeoJSON dict with 'features' key from DrawControl.get_data()
         name: Optional name for the AOI. If empty, generates timestamp-based name.
         gee: If True, create Earth Engine FeatureCollection
-        folder: Folder for GEE asset export (only used if gee=True)
 
     Returns:
         AoiResult with the drawn geometry
