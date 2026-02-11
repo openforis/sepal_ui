@@ -7,18 +7,11 @@ from typing import Any
 
 from ipyleaflet import WMSLayer
 
-# FAO GAUL WMS Configuration
-FAO_WMS_BASE_URL = "https://data.apps.fao.org/map/gsrv/gsrv1/gaul/wms"
-
-# FAO GAUL WMS layers
-FAO_GAUL_LAYERS = {
-    0: "gaul:gaul_2024_l0",
-    1: "gaul:g2024_2023_1",
-    2: "gaul:g2024_2023_2",
-}
-
-# WMS preview layer name constant
-WMS_PREVIEW_LAYER_NAME = "aoi_wms_preview"
+from sepal_ui.solara.components.aoi.constants import (
+    FAO_GAUL_LAYERS,
+    FAO_WMS_BASE_URL,
+    WMS_PREVIEW_LAYER_NAME,
+)
 
 
 def create_wms_preview_layer(

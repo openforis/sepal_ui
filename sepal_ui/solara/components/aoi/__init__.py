@@ -1,24 +1,11 @@
 """Solara components for Area of Interest (AOI) selection and management."""
 
-# Core result dataclass
-# Admin processing
 from .admin import fetch_admin_bounds_async, fetch_admin_items, process_admin
 from .aoi_result import AoiResult
-
-# UI components
 from .aoi_view import AdminLevelSelector, AoiView, MethodSelect
-
-# Draw processing
+from .constants import FAO_GAUL_LAYERS, FAO_WMS_BASE_URL, WMS_PREVIEW_LAYER_NAME
 from .draw import process_draw
-
-# WMS utilities
-from .wms_utils import (
-    FAO_GAUL_LAYERS,
-    FAO_WMS_BASE_URL,
-    WMS_PREVIEW_LAYER_NAME,
-    create_wms_preview_layer,
-    remove_wms_preview_layer,
-)
+from .wms_utils import create_wms_preview_layer, remove_wms_preview_layer
 
 __all__ = [
     # Core dataclass

@@ -17,19 +17,10 @@ from sepal_ui.message import ms
 from sepal_ui.scripts import utils as su
 from sepal_ui.scripts.gee_interface import GEEInterface
 from sepal_ui.solara.components.aoi.aoi_result import AoiResult
+from sepal_ui.solara.components.aoi.constants import FAO_GAUL_LAYERS, FAO_WFS_BASE_URL
 
 # Path to GAUL -> ISO-3 mapping file
 GAUL_ISO_MAPPING: Path = Path(__file__).parents[3] / "data" / "gaul_iso.json"
-
-# FAO GAUL WFS Configuration
-FAO_WFS_BASE_URL = "https://data.apps.fao.org/map/gsrv/gsrv1/gaul/wfs"
-
-# FAO GAUL WFS layers (same as WMS)
-FAO_GAUL_LAYERS = {
-    0: "gaul:gaul_2024_l0",
-    1: "gaul:g2024_2023_1",
-    2: "gaul:g2024_2023_2",
-}
 
 _WFS_GEOMETRY_CACHE: Dict[str, gpd.GeoDataFrame] = {}
 _WFS_BOUNDS_CACHE: Dict[str, tuple] = {}
@@ -201,8 +192,9 @@ async def process_admin(
 ) -> AoiResult:
     """Process administrative boundary selection.
 
-    Fetches the geometry for the given administrative code using either
-    Earth Engine (sat-io GAUL 2024 asset) or FAO GAUL 2024 WFS service.
+    Configures an administrative boundary selection using either Earth Engine
+    (sat-io GAUL 2024 asset) or FAO GAUL 2024 WFS service. The geometry is
+    fetched lazily - use `AoiResult.get_gdf_async()` to retrieve it when needed.
 
     Both modes use the same GAUL 2024 codes from pygaul's local parquet.
 
@@ -214,7 +206,7 @@ async def process_admin(
         gee_interface: Optional GEEInterface for Earth Engine operations
 
     Returns:
-        AoiResult with the administrative boundary data
+        AoiResult with gdf=None (geometry fetched lazily via get_gdf_async())
 
     Raises:
         ValueError: If admin_code is empty or invalid
@@ -225,6 +217,9 @@ async def process_admin(
 
         # Select Colombia (non-GEE, using FAO WFS)
         result = await process_admin("ADMIN0", "62", gee=False)
+
+        # Fetch geometry when needed
+        gdf = await result.get_gdf_async()
 
         # Select Colombia (GEE, using sat-io asset)
         result = await process_admin("ADMIN0", "62", gee=True)
