@@ -81,6 +81,7 @@ dev = [
 ]
 test = [
     "pytest",
+    "pytest-asyncio",
     "pytest-sugar",
     "pytest-icdiff",
     "pytest-cov",
