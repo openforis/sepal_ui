@@ -5,6 +5,7 @@ import math
 import random
 import warnings
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import ee
 import pytest
@@ -538,6 +539,112 @@ def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     # just test that is a Legend, the rest is tested by Legend
     assert isinstance(ee_map_with_layers.legend, LegendControl)
     assert ee_map_with_layers.legend.legend_dict == legend_dict
+
+    return
+
+
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+def test_add_ee_layer_autocenter_sync() -> None:
+    """Test that autocenter calls zoom_bounds with expected bbox in sync add_ee_layer."""
+    # Arrange
+    m = sm.SepalMap()
+    ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
+
+    # Mock the bounds coordinates that would be returned by EE
+    # bounds().coordinates().get(0) returns [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny], [minx, miny]]
+    mock_bounds = [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]]
+
+    # Mock gee_interface methods
+    m.gee_interface.get_info = MagicMock(return_value=mock_bounds)
+    m.gee_interface.get_map_id = MagicMock(
+        return_value={"tile_fetcher": MagicMock(url_format="http://test")}
+    )
+
+    # Mock zoom_bounds to track if it's called
+    with patch.object(m, "zoom_bounds") as mock_zoom_bounds:
+        # Act
+        m.add_ee_layer(ee_object, autocenter=True, name="test_layer")
+
+        # Assert - zoom_bounds should be called with the expected bbox
+        mock_zoom_bounds.assert_called_once_with((-180, -90, 180, 90))
+
+    return
+
+
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+@pytest.mark.asyncio
+async def test_add_ee_layer_autocenter_async() -> None:
+    """Test that autocenter calls zoom_bounds with expected bbox in async add_ee_layer_async."""
+    # Arrange
+    m = sm.SepalMap()
+    ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
+
+    # Mock the bounds coordinates that would be returned by EE
+    # bounds().coordinates().get(0) returns [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny], [minx, miny]]
+    mock_bounds = [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]]
+
+    # Mock gee_interface async methods
+    m.gee_interface.get_info_async = AsyncMock(return_value=mock_bounds)
+    m.gee_interface.get_map_id_async = AsyncMock(
+        return_value={"tile_fetcher": MagicMock(url_format="http://test")}
+    )
+
+    # Mock zoom_bounds to track if it's called
+    with patch.object(m, "zoom_bounds") as mock_zoom_bounds:
+        # Act
+        await m.add_ee_layer_async(ee_object, autocenter=True, name="test_layer")
+
+        # Assert - zoom_bounds should be called with the expected bbox
+        mock_zoom_bounds.assert_called_once_with((-180, -90, 180, 90))
+
+    return
+
+
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+def test_add_ee_layer_no_autocenter_sync() -> None:
+    """Test that zoom_bounds is not called when autocenter=False in sync add_ee_layer."""
+    # Arrange
+    m = sm.SepalMap()
+    ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
+
+    # Mock gee_interface methods
+    m.gee_interface.get_info = MagicMock(return_value=[])
+    m.gee_interface.get_map_id = MagicMock(
+        return_value={"tile_fetcher": MagicMock(url_format="http://test")}
+    )
+
+    # Mock zoom_bounds to track if it's called
+    with patch.object(m, "zoom_bounds") as mock_zoom_bounds:
+        # Act
+        m.add_ee_layer(ee_object, autocenter=False, name="test_layer")
+
+        # Assert - zoom_bounds should NOT be called
+        mock_zoom_bounds.assert_not_called()
+
+    return
+
+
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+@pytest.mark.asyncio
+async def test_add_ee_layer_no_autocenter_async() -> None:
+    """Test that zoom_bounds is not called when autocenter=False in async add_ee_layer_async."""
+    # Arrange
+    m = sm.SepalMap()
+    ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
+
+    # Mock gee_interface async methods
+    m.gee_interface.get_info_async = AsyncMock(return_value=[])
+    m.gee_interface.get_map_id_async = AsyncMock(
+        return_value={"tile_fetcher": MagicMock(url_format="http://test")}
+    )
+
+    # Mock zoom_bounds to track if it's called
+    with patch.object(m, "zoom_bounds") as mock_zoom_bounds:
+        # Act
+        await m.add_ee_layer_async(ee_object, autocenter=False, name="test_layer")
+
+        # Assert - zoom_bounds should NOT be called
+        mock_zoom_bounds.assert_not_called()
 
     return
 
