@@ -168,3 +168,10 @@ header.theme--light.v-app-bar .v-btn.v-btn--icon {
 header.theme--light.v-app-bar.v-toolbar.v-sheet {
   color: white !important;
 }
+
+/* Apply filter to FAO GAUL WMS tiles in dark theme for better visibility
+ * FAO's WMS uses dark borders which are hard to see on dark basemaps.
+ * This inverts colors and enhances contrast for better visibility. */
+.theme--dark .leaflet-tile-pane img[src*="gaul/wms"] {
+  filter: invert(1) hue-rotate(180deg) brightness(1.3) contrast(1.5);
+}
