@@ -152,7 +152,6 @@ def AdminLevelSelector(
     Args:
         method: The admin method ("ADMIN0", "ADMIN1", or "ADMIN2")
         gee: Whether to use Earth Engine (GAUL) or FAO WFS (local)
-        map_: Optional SepalMap to display WMS preview (only for gee=False)
         value: The final selected admin code (output only)
         on_value: Callback when the final admin code changes
 
@@ -164,12 +163,10 @@ def AdminLevelSelector(
         @solara.component
         def MyApp():
             admin_code = solara.use_reactive(None)
-            my_map = sm.SepalMap()
 
             AdminLevelSelector(
                 method="ADMIN1",
                 gee=False,
-                map_=my_map,
                 value=admin_code,
             )
 
@@ -338,7 +335,6 @@ def AoiView(
         @solara.component
         def MyApp():
             aoi = solara.use_reactive(None)
-            my_map = sm.SepalMap()
 
             with solara.Column():
                 AoiView(value=aoi, map_=my_map, gee=False)
@@ -586,7 +582,6 @@ def AoiView(
             AdminLevelSelector(
                 method=selected_method.value,
                 gee=gee,
-                map_=map_,
                 value=admin_code,
             )
 
