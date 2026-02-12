@@ -36,20 +36,20 @@ def get_ipygeojson(
         ValueError: If the GeoDataFrame is None or empty.
 
     Example:
-        ```python
-        import geopandas as gpd
-        from sepal_ui.mapping import get_ipygeojson, SepalMap
+        .. code-block:: python
 
-        # Create a simple GeoDataFrame
-        gdf = gpd.read_file("my_shapefile.shp")
+            import geopandas as gpd
+            from sepal_ui.mapping import get_ipygeojson, SepalMap
 
-        # Create the GeoJSON layer
-        geojson_layer = get_ipygeojson(gdf, name="my_layer")
+            # Create a simple GeoDataFrame
+            gdf = gpd.read_file("my_shapefile.shp")
 
-        # Add to map
-        m = SepalMap()
-        m.add_layer(geojson_layer)
-        ```
+            # Create the GeoJSON layer
+            geojson_layer = get_ipygeojson(gdf, name="my_layer")
+
+            # Add to map
+            m = SepalMap()
+            m.add_layer(geojson_layer)
     """
     if gdf is None or gdf.empty:
         raise ValueError("GeoDataFrame cannot be None or empty")
