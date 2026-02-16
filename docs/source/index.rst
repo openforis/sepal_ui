@@ -3,6 +3,11 @@
 Sepal_ui
 --------
 
+.. warning::
+
+    `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
+    Keep using `sepal-ui` for now, and plan migration to `pysepal` as the new canonical package name.
+
 --------------------------------------------------------------------------------
 
 Currently translated in the following languages:

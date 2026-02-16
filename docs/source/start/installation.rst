@@ -1,6 +1,11 @@
 Installation
 ============
 
+.. warning::
+
+   `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
+   This page documents the current package while migration is in progress.
+
 .. note::
 
    The Sepal environment is up to date with the latest stable version of :code:`sepal_ui`.
