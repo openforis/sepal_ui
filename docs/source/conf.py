@@ -13,9 +13,26 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 #
 import os
 import sys
+import warnings
 from datetime import datetime
 from pathlib import Path
 from urllib.request import urlretrieve
+
+warnings.filterwarnings(
+    "ignore",
+    message="The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'.*",
+    category=DeprecationWarning,
+)
+
+# jupyter_sphinx executes code in kernels, where DeprecationWarning can be shown as stderr.
+# Propagate the same filter to child kernel processes used during doc builds.
+doc_warning_filter = (
+    "ignore:The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'.*:"
+    "DeprecationWarning"
+)
+os.environ["PYTHONWARNINGS"] = ",".join(
+    [doc_warning_filter, os.environ.get("PYTHONWARNINGS", "")]
+).strip(",")
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
