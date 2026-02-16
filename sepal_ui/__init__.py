@@ -12,7 +12,7 @@ from sepal_ui.frontend.styles import get_theme as get_theme
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "3.1.1"
+__version__ = "3.2.0"
 
 warnings.warn(
     (
