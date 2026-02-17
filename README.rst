@@ -3,6 +3,11 @@
 Sepal_ui
 --------
 
+.. warning::
+
+    `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
+    This release is maintained for compatibility while migration work is completed.
+
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg?logo=opensourceinitiative&logoColor=white
     :target: https://opensource.org/licenses/MIT
     :alt: License: MIT
@@ -97,4 +102,3 @@ If you want to contribute you can fork the project in you own repository and the
 If you consider working with us, please follow the `contributing guidelines <CONTRIBUTING.rst>`__.
 
 Meet our `contributor <AUTHORS.rst>`__.
-

@@ -3,6 +3,8 @@
 ``sepal_ui`` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing ``ipyvuetify`` library and will help developer to easily create interface for their workflows. By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 """
 
+import warnings
+
 from sepal_ui.conf import config as config
 from sepal_ui.conf import config_file as config_file
 from sepal_ui.frontend.styles import SepalColor
@@ -10,7 +12,16 @@ from sepal_ui.frontend.styles import get_theme as get_theme
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "3.1.1"
+__version__ = "3.2.0"
+
+warnings.warn(
+    (
+        "The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'. "
+        "This is a transition release; please plan migration to 'pysepal' in upcoming releases."
+    ),
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 color = SepalColor()
 'color: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'
