@@ -1,7 +1,35 @@
 """Check the warnings from doc builds."""
 
+import re
 import sys
 from pathlib import Path
+
+_SEPAL_DEPRECATION_RE = re.compile(r"The 'sepal_ui' package is deprecated")
+
+
+def _filter_deprecation_blocks(lines: list[str]) -> list[str]:
+    """Remove 'Cell printed to stderr' warning blocks caused by the sepal_ui deprecation notice.
+
+    jupyter_sphinx captures kernel stderr and emits it as multi-line Sphinx
+    warnings.  Each block starts with ``WARNING: Cell printed to stderr:``
+    and continues with indented/empty lines until the next ``WARNING:`` or EOF.
+    We drop entire blocks that contain the sepal_ui deprecation message.
+    """
+    blocks: list[list[str]] = []
+    for line in lines:
+        if "WARNING:" in line:
+            blocks.append([line])
+        elif blocks:
+            blocks[-1].append(line)
+
+    kept: list[str] = []
+    for block in blocks:
+        block_text = "\n".join(block)
+        if "Cell printed to stderr" in block[0] and _SEPAL_DEPRECATION_RE.search(block_text):
+            continue  # drop the entire block
+        kept.extend(block)
+
+    return kept
 
 
 def check_warnings(file: Path) -> int:
@@ -21,7 +49,8 @@ def check_warnings(file: Path) -> int:
     # find the file where all the known warnings are stored
     warning_file = Path(__file__).parent / "data" / "warning_list.txt"
 
-    test_warnings = file.read_text().strip().split("\n")
+    raw_lines = [w for w in file.read_text().strip().split("\n") if w.strip()]
+    test_warnings = _filter_deprecation_blocks(raw_lines)
     ref_warnings = warning_file.read_text().strip().split("\n")
 
     print(
