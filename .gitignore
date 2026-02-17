@@ -5,6 +5,7 @@ ee_private_key.json
 warnings.txt
 logging_config.toml
 .github/instructions/
+CLAUDE.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
