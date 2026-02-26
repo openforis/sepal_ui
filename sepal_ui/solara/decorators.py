@@ -59,7 +59,12 @@ def with_sepal_sessions(
             # Try to create session and handle errors
             try:
                 session_manager = SessionManager()
-                session_manager.create_session(module_name=module_name)
+                session_ready = session_manager.create_session(module_name=module_name)
+
+                if not session_ready:
+                    if show_loading:
+                        solara.Info(waiting_message)
+                    return
 
                 # Session is ready, call the component
                 return component_func(*args, **kwargs)

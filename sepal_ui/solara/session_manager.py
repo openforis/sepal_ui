@@ -61,7 +61,7 @@ class SessionManager:
         # Solara provides a way to get the current kernel context
         return id(solara.server.kernel_context.get_current_context().kernel)
 
-    def create_session(self, module_name: str = "default") -> None:
+    def create_session(self, module_name: str = "default") -> bool:
         """Create a new session with all the interfaces for the given kernel ID.
 
         Args:
@@ -71,13 +71,19 @@ class SessionManager:
         Raises:
             EEClientError: For authentication-related errors.
             Exception: For other validation or connection errors.
+
+        Returns:
+            bool: True if the session is ready, False if headers are not ready yet.
         """
         current_headers = headers.value
         kernel_id = self.get_kernel_id()
 
+        if kernel_id in self._sessions:
+            return True
+
         if current_headers is None:
             logger.warning(f"Headers not available yet for kernel {kernel_id}")
-            return
+            return False
 
         logger.debug(f"Creating session for kernel {kernel_id}")
 
@@ -105,6 +111,7 @@ class SessionManager:
         logger.debug(
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
         )
+        return True
 
     def cleanup_session(self, kernel_id: str) -> None:
         """Clean up a session for the given kernel ID.
