@@ -190,7 +190,7 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,sepal_ui/message/**/*.json,sepal_ui/data/gaul_iso.json'
+skip = 'CHANGELOG.md,pysepal/message/**/*.json,pysepal/data/gaul_iso.json'
 
 [tool.black]
 line-length = 100
