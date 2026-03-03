@@ -14,12 +14,12 @@ from rasterio.crs import CRS
 from shapely import geometry as sg
 from traitlets import Bool
 
+from pysepal import sepalwidgets as sw
 from pysepal.mapping.layer import EELayer
 from pysepal.mapping.menu_control import MenuControl
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts.gee_interface import GEEInterface
-from sepal_ui import sepalwidgets as sw
 
 
 class InspectorControl(MenuControl):

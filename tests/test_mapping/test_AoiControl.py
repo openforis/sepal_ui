@@ -7,7 +7,7 @@ import pytest
 from box import Box
 from shapely import geometry as sg
 
-from sepal_ui import mapping as sm
+from pysepal import mapping as sm
 
 
 def test_init() -> None:

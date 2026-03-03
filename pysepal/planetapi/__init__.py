@@ -7,7 +7,7 @@ Every module content can be called directly from the package.
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import planetapi
+        from pysepal import planetapi
 
         planetapi.PlanetView()
 """

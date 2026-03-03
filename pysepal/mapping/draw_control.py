@@ -7,7 +7,7 @@ import geopandas as gpd
 import ipyleaflet as ipl
 from shapely import geometry as sg
 
-from sepal_ui import color
+from pysepal import color
 
 
 class DrawControl(ipl.DrawControl):

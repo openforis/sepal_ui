@@ -2,9 +2,9 @@
 
 import pytest
 
+from pysepal import sepalwidgets as sw
 from pysepal.frontend.styles import TYPES
 from pysepal.scripts.warning import SepalWarning
-from sepal_ui import sepalwidgets as sw
 
 
 def test_init() -> None:

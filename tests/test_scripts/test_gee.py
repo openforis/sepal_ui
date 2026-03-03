@@ -7,9 +7,9 @@ from pathlib import Path
 import ee
 import pytest
 
+from pysepal import sepalwidgets as sw
 from pysepal.message import ms
 from pysepal.scripts import gee
-from sepal_ui import sepalwidgets as sw
 
 
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")

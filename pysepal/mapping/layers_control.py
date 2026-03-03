@@ -6,9 +6,9 @@ from typing import Optional
 from ipyleaflet import GeoJSON, Map, TileLayer
 from ipywidgets import link
 
+from pysepal import sepalwidgets as sw
 from pysepal.mapping.menu_control import MenuControl
 from pysepal.message import ms
-from sepal_ui import sepalwidgets as sw
 
 
 class HeaderRow(sw.Html):

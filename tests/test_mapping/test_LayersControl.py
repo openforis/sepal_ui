@@ -3,9 +3,9 @@
 import ee
 import pytest
 
-from sepal_ui import aoi
-from sepal_ui import mapping as sm
-from sepal_ui import sepalwidgets as sw
+from pysepal import aoi
+from pysepal import mapping as sm
+from pysepal import sepalwidgets as sw
 
 
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")

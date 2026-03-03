@@ -6,8 +6,8 @@ import traitlets as t
 from ipyleaflet import Map, WidgetControl
 from traitlets import observe
 
+from pysepal import sepalwidgets as sw
 from pysepal.message import ms
-from sepal_ui import sepalwidgets as sw
 
 
 class LayerStateControl(WidgetControl):

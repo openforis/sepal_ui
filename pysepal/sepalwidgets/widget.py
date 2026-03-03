@@ -5,7 +5,7 @@ Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is 
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import sepalwidgets as sw
+        from pysepal import sepalwidgets as sw
 
         sw.CopyToClip()
 """

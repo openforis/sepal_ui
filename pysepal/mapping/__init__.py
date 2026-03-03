@@ -10,7 +10,7 @@ Every module content can be called directly from the package.
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import mapping as sm
+        from pysepal import mapping as sm
 
         sm.SepalMap(gee=False)
 """

@@ -3,8 +3,8 @@ from typing import Optional
 
 from ipyleaflet import Map, WidgetControl
 
+from pysepal import sepalwidgets as sw
 from pysepal.mapping.map_btn import MapBtn
-from sepal_ui import sepalwidgets as sw
 
 
 class ZoomControl(WidgetControl):

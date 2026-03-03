@@ -6,7 +6,7 @@ All the content of this modules is included in the parent ``sepal_ui.sepalwidget
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import sepalwidgets as sw
+        from pysepal import sepalwidgets as sw
 
         sw.Alert().show()
 """
@@ -22,12 +22,12 @@ from tqdm.notebook import tqdm
 from traitlets import directional_link, link, observe
 from typing_extensions import Self
 
+from pysepal import color
 from pysepal.frontend.styles import TYPES
 from pysepal.message import ms
 from pysepal.scripts import utils as su
 from pysepal.scripts.utils import set_type
 from pysepal.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui import color
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 

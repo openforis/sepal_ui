@@ -13,11 +13,11 @@ from eeclient.client import EESession
 from typing_extensions import Self
 
 import pysepal.sepalwidgets as sw
+from pysepal import mapping as sm
 from pysepal.aoi.aoi_model import AoiModel
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts import utils as su
-from sepal_ui import mapping as sm
 
 if TYPE_CHECKING:
     from pysepal.scripts.gee_interface import GEEInterface

@@ -4,9 +4,9 @@ from configparser import ConfigParser
 
 import pytest
 
+from pysepal import sepalwidgets as sw
 from pysepal.conf import config_file
 from pysepal.frontend.styles import get_theme
-from sepal_ui import sepalwidgets as sw
 
 
 def test_init(theme_select: sw.ThemeSelect) -> None:

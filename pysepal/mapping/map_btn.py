@@ -2,7 +2,7 @@
 
 import ipyvuetify as v
 
-from sepal_ui import sepalwidgets as sw
+from pysepal import sepalwidgets as sw
 
 
 class MapBtn(v.Btn, sw.SepalWidget):

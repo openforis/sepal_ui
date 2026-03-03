@@ -7,10 +7,10 @@ from typing import Optional
 
 import ee
 
+from pysepal import color as scolors
 from pysepal.frontend import styles as ss
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.warning import SepalWarning
-from sepal_ui import color as scolors
 
 log = logging.getLogger("sepalui.mapping.visualization")
 

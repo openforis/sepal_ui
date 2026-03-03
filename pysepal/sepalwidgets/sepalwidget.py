@@ -6,7 +6,7 @@ All the content of this modules is included in the parent ``sepal_ui.sepalwidget
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import sepalwidgets as sw
+        from pysepal import sepalwidgets as sw
 
         sw.Tooltip(widget=sw.Btn(), tooltip="tooltip")
 """

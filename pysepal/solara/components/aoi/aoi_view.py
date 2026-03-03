@@ -27,6 +27,7 @@ import reacton.ipyvuetify as rv
 import solara
 from deprecated.sphinx import versionadded
 
+from pysepal import mapping as sm
 from pysepal.mapping import get_ipygeojson
 from pysepal.message import ms
 from pysepal.scripts import utils as su
@@ -41,7 +42,6 @@ from pysepal.solara.components.aoi.wms_utils import (
     WMS_PREVIEW_LAYER_NAME,
     create_wms_preview_layer,
 )
-from sepal_ui import mapping as sm
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
 

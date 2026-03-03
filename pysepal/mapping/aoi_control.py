@@ -7,9 +7,9 @@ import ipyvuetify as v
 from ipyleaflet import Map
 from shapely import geometry as sg
 
+from pysepal import sepalwidgets as sw
 from pysepal.mapping.menu_control import MenuControl
 from pysepal.scripts import decorator as sd
-from sepal_ui import sepalwidgets as sw
 
 
 class AoiControl(MenuControl):

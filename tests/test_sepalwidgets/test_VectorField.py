@@ -5,7 +5,7 @@ from pathlib import Path
 import ee
 import pytest
 
-from sepal_ui import sepalwidgets as sw
+from pysepal import sepalwidgets as sw
 
 
 def test_init() -> None:

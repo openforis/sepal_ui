@@ -9,9 +9,9 @@ import ee
 import ipyvuetify as v
 import pytest
 
+from pysepal import sepalwidgets as sw
 from pysepal.scripts import decorator as sd
 from pysepal.scripts.warning import SepalWarning
-from sepal_ui import sepalwidgets as sw
 
 
 def test_init_ee() -> None:

@@ -44,6 +44,8 @@ from matplotlib import colors as mpc
 from rasterio.crs import CRS
 from typing_extensions import Self
 
+from pysepal import color as scolors
+from pysepal import sepalwidgets as sw
 from pysepal.frontend import styles as ss
 from pysepal.mapping.basemaps import basemap_tiles
 from pysepal.mapping.draw_control import DrawControl
@@ -56,8 +58,6 @@ from pysepal.mapping.zoom_control import ZoomControl
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts import utils as su
-from sepal_ui import color as scolors
-from sepal_ui import sepalwidgets as sw
 
 __all__ = ["SepalMap"]
 

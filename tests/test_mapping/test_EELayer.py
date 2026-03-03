@@ -3,7 +3,7 @@
 import ee
 import pytest
 
-from sepal_ui import mapping as sm
+from pysepal import mapping as sm
 
 
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")

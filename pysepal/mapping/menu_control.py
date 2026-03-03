@@ -7,8 +7,8 @@ from ipyleaflet import Map, WidgetControl
 from traitlets import Bool, Int
 from typing_extensions import Self
 
+from pysepal import sepalwidgets as sw
 from pysepal.mapping.map_btn import MapBtn
-from sepal_ui import sepalwidgets as sw
 
 
 class MenuControl(WidgetControl):

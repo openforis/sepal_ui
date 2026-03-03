@@ -4,8 +4,8 @@ import ipyvuetify as v
 import pytest
 from traitlets import Bool
 
+from pysepal import sepalwidgets as sw
 from pysepal.model import Model
-from sepal_ui import sepalwidgets as sw
 
 
 class LocalModel(Model):

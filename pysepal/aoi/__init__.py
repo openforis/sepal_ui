@@ -7,7 +7,7 @@ Every module content can be called directly from the package.
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import aoi
+        from pysepal import aoi
 
         aoi.AoiTile(gee=False)
 """

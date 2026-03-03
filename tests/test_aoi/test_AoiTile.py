@@ -5,7 +5,7 @@ from pathlib import Path
 import ee
 import pytest
 
-from sepal_ui import aoi
+from pysepal import aoi
 
 
 def test_init() -> None:

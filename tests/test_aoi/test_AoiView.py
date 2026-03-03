@@ -5,9 +5,9 @@ from pathlib import Path
 import ee
 import pytest
 
+from pysepal import aoi
 from pysepal.mapping import SepalMap
 from pysepal.message import ms
-from sepal_ui import aoi
 
 
 def test_init() -> None:

@@ -7,7 +7,7 @@ Everything module content can be called directly from the package.
 Example:
     .. jupyter-execute::
 
-        from sepal_ui import sepalwidgets as sw
+        from pysepal import sepalwidgets as sw
 
         sw.Btn()
 """

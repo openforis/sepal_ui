@@ -6,8 +6,8 @@ from typing import Optional
 import geopandas as gpd
 from ipyleaflet import GeoJSON
 
+from pysepal import color
 from pysepal.frontend import styles as ss
-from sepal_ui import color
 
 __all__ = ["get_ipygeojson"]
 

@@ -13,11 +13,11 @@ import ipyvuetify as v
 import pytest
 from shapely import geometry as sg
 
+from pysepal import sepalwidgets as sw
 from pysepal.conf import config_file
 from pysepal.frontend.styles import TYPES
 from pysepal.scripts import utils as su
 from pysepal.scripts.warning import SepalWarning
-from sepal_ui import sepalwidgets as sw
 
 
 def test_hide_component() -> None:
