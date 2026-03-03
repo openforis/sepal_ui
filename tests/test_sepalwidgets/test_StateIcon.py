@@ -3,9 +3,9 @@
 import pytest
 from traitlets import Unicode
 
-import sepal_ui.sepalwidgets as sw
+import pysepal.sepalwidgets as sw
+from pysepal.model import Model
 from sepal_ui import color
-from sepal_ui.model import Model
 
 
 class LocalModel(Model):

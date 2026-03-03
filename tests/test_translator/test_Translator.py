@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from sepal_ui.conf import config_file
-from sepal_ui.message import ms
-from sepal_ui.translator import Translator
+from pysepal.conf import config_file
+from pysepal.message import ms
+from pysepal.translator import Translator
 
 
 def test_init(translation_folder: Path, tmp_config_file: Path) -> None:

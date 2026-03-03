@@ -4,8 +4,8 @@ from datetime import datetime
 
 from traitlets import Any
 
+from pysepal.model import Model
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.model import Model
 
 
 def test_init() -> None:

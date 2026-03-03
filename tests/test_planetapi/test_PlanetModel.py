@@ -8,7 +8,7 @@ import planet
 import pytest
 from pytest import FixtureRequest
 
-from sepal_ui.planetapi import PlanetModel
+from pysepal.planetapi import PlanetModel
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")

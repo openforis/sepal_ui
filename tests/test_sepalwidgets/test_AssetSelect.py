@@ -7,8 +7,8 @@ from typing import Callable, List
 import ee
 import pytest
 
+from pysepal.message import ms
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.message import ms
 
 
 def wait_for_async(asset_select: sw.AssetSelect, action: Callable, timeout: float = 10) -> None:

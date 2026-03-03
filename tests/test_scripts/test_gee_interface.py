@@ -6,7 +6,7 @@ from typing import Optional
 import ee
 import pytest
 
-from sepal_ui.scripts.gee_interface import GEEInterface
+from pysepal.scripts.gee_interface import GEEInterface
 
 
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
