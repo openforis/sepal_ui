@@ -188,7 +188,7 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}sepal-ui module factory{Fore.RESET}")
+    print(f"{Fore.YELLOW}pysepal module factory{Fore.RESET}")
 
     print("Initializing module creation by setting up your module parameters")
     print("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
