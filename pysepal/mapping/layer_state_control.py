@@ -4,9 +4,10 @@ from typing import Optional
 
 import traitlets as t
 from ipyleaflet import Map, WidgetControl
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.message import ms
 from traitlets import observe
+
+from pysepal.message import ms
+from sepal_ui import sepalwidgets as sw
 
 
 class LayerStateControl(WidgetControl):

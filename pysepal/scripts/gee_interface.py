@@ -13,9 +13,10 @@ from eeclient.export.image import ImageFileFormat
 from eeclient.export.table import TableFileFormat
 from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.tasks import Task
-from sepal_ui.logger import log
-from sepal_ui.scripts import gee
-from sepal_ui.scripts.gee_task import GEETask, R, TaskState
+
+from pysepal.logger import log
+from pysepal.scripts import gee
+from pysepal.scripts.gee_task import GEETask, R, TaskState
 
 
 class GEEInterface:

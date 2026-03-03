@@ -3,18 +3,18 @@
 # known bug of rasterio
 import os
 
-from sepal_ui.mapping.bounds import (
+from pysepal.mapping.bounds import (
     compute_center,
     compute_zoom_for_bounds,
 )
-from sepal_ui.mapping.fullscreen_control import FullScreenControl
-from sepal_ui.mapping.visualization import (
+from pysepal.mapping.fullscreen_control import FullScreenControl
+from pysepal.mapping.visualization import (
     get_viz_params,
     get_viz_params_async,
     process_vis_params,
 )
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.sepalwidgets.vue_app import ThemeToggle
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.sepalwidgets.vue_app import ThemeToggle
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -42,21 +42,22 @@ from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
+from typing_extensions import Self
+
+from pysepal.frontend import styles as ss
+from pysepal.mapping.basemaps import basemap_tiles
+from pysepal.mapping.draw_control import DrawControl
+from pysepal.mapping.inspector_control import InspectorControl
+from pysepal.mapping.layer import EELayer
+from pysepal.mapping.layer_state_control import LayerStateControl
+from pysepal.mapping.layers_control import LayersControl
+from pysepal.mapping.legend_control import LegendControl
+from pysepal.mapping.zoom_control import ZoomControl
+from pysepal.message import ms
+from pysepal.scripts import decorator as sd
+from pysepal.scripts import utils as su
 from sepal_ui import color as scolors
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.frontend import styles as ss
-from sepal_ui.mapping.basemaps import basemap_tiles
-from sepal_ui.mapping.draw_control import DrawControl
-from sepal_ui.mapping.inspector_control import InspectorControl
-from sepal_ui.mapping.layer import EELayer
-from sepal_ui.mapping.layer_state_control import LayerStateControl
-from sepal_ui.mapping.layers_control import LayersControl
-from sepal_ui.mapping.legend_control import LegendControl
-from sepal_ui.mapping.zoom_control import ZoomControl
-from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts import utils as su
-from typing_extensions import Self
 
 __all__ = ["SepalMap"]
 

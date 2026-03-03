@@ -5,7 +5,8 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import httpx
-from sepal_ui.logger import log
+
+from pysepal.logger import log
 
 
 class SepalClient:

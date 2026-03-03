@@ -11,8 +11,9 @@ from planet import DataClient
 from planet.auth import Auth
 from planet.exceptions import NoPermission
 from planet.http import Session
-from sepal_ui.message import ms
-from sepal_ui.model import Model
+
+from pysepal.message import ms
+from pysepal.model import Model
 
 
 class PlanetModel(Model):

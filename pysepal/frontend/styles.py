@@ -5,12 +5,13 @@ from types import SimpleNamespace
 from typing import Tuple
 
 import ipyvuetify as v
-import sepal_ui.scripts.utils as su
 from IPython.display import HTML, Javascript, display
 from ipyvuetify._version import semver
 from ipywidgets import Widget
-from sepal_ui.conf import config
 from traitlets import Bool, HasTraits, Unicode, link
+
+import pysepal.scripts.utils as su
+from pysepal.conf import config
 
 ################################################################################
 # access the folders where style information is stored (layers, widgets)

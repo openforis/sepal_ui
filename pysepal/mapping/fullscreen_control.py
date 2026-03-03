@@ -4,8 +4,9 @@ from typing import List, Optional
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
-from sepal_ui.frontend.resize_trigger import rt
-from sepal_ui.mapping.map_btn import MapBtn
+
+from pysepal.frontend.resize_trigger import rt
+from pysepal.mapping.map_btn import MapBtn
 
 
 class FullScreenControl(WidgetControl):

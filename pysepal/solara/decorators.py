@@ -10,8 +10,9 @@ from typing import Any, Callable, Optional
 
 import solara
 from eeclient.exceptions import EEClientError
-from sepal_ui.solara.session_manager import SessionManager
 from solara.lab import headers
+
+from pysepal.solara.session_manager import SessionManager
 
 logger = logging.getLogger("sepalui.solara.decorators")
 

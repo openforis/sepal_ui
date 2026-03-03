@@ -5,8 +5,9 @@ from typing import Optional
 
 import geopandas as gpd
 import ipyleaflet as ipl
-from sepal_ui import color
 from shapely import geometry as sg
+
+from sepal_ui import color
 
 
 class DrawControl(ipl.DrawControl):

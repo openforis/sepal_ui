@@ -4,11 +4,11 @@ Can be accessed as:
 
 .. code-block::
 
-    from sepal_ui.message import ms
+    from pysepal.message import ms
 """
 
 from pathlib import Path
 
-from sepal_ui.translator import Translator
+from pysepal.translator import Translator
 
 ms = Translator(Path(__file__).parent)

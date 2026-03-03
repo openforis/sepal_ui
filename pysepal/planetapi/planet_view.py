@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Optional
 
 import ipyvuetify as v
-import sepal_ui.sepalwidgets as sw
-from sepal_ui.message import ms
-from sepal_ui.planetapi.planet_model import PlanetModel
-from sepal_ui.planetapi.planet_widgets import InfoView
-from sepal_ui.scripts.decorator import loading_button
+
+import pysepal.sepalwidgets as sw
+from pysepal.message import ms
+from pysepal.planetapi.planet_model import PlanetModel
+from pysepal.planetapi.planet_widgets import InfoView
+from pysepal.scripts.decorator import loading_button
 
 
 class PlanetView(sw.Layout):

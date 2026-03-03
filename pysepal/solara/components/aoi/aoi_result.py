@@ -31,7 +31,7 @@ class AoiResult:
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import process_admin
+        from pysepal.solara.components.aoi import process_admin
 
         result = await process_admin("ADMIN1", "3431", gee=False)
         print(f"Selected: {result.name}")
@@ -69,7 +69,7 @@ class AoiResult:
         # For admin methods, fetch from WFS
         if self.admin is not None and self.method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
             # Import here to avoid circular dependency (admin.py imports AoiResult)
-            from sepal_ui.solara.components.aoi.admin import _fetch_wfs_geometry_async
+            from pysepal.solara.components.aoi.admin import _fetch_wfs_geometry_async
 
             level = int(self.method[-1])
             return await _fetch_wfs_geometry_async(level, self.admin)

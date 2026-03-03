@@ -11,14 +11,15 @@ import rioxarray
 from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON, Map, Marker
 from rasterio.crs import CRS
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.mapping.layer import EELayer
-from sepal_ui.mapping.menu_control import MenuControl
-from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts.gee_interface import GEEInterface
 from shapely import geometry as sg
 from traitlets import Bool
+
+from pysepal.mapping.layer import EELayer
+from pysepal.mapping.menu_control import MenuControl
+from pysepal.message import ms
+from pysepal.scripts import decorator as sd
+from pysepal.scripts.gee_interface import GEEInterface
+from sepal_ui import sepalwidgets as sw
 
 
 class InspectorControl(MenuControl):

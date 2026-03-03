@@ -2,8 +2,9 @@
 
 This module defines the AppModel class that stores application state and configuration.
 """
-from sepal_ui.model import Model
 from traitlets import Unicode
+
+from pysepal.model import Model
 
 
 class AppModel(Model):

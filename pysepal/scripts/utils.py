@@ -13,16 +13,17 @@ from urllib.parse import urlparse
 import ee
 import ipyvuetify as v
 import requests
-import sepal_ui
 import tomli
 from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
 from matplotlib import colors as c
-from sepal_ui.conf import config, config_file
-from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts.gee import init_ee  # noqa: F401 - backward compatibility
-from sepal_ui.scripts.warning import SepalWarning
+
+import pysepal
+from pysepal.conf import config, config_file
+from pysepal.message import ms
+from pysepal.scripts import decorator as sd
+from pysepal.scripts.gee import init_ee  # noqa: F401 - backward compatibility
+from pysepal.scripts.warning import SepalWarning
 
 # Types
 Pathlike = Union[str, Path]
@@ -37,7 +38,7 @@ def hide_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Returns:
         the widget
     """
-    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
+    if isinstance(widget, pysepal.sepalwidgets.sepalwidget.SepalWidget):
         widget.hide()
 
     elif "d-none" not in str(widget.class_):
@@ -55,7 +56,7 @@ def show_component(widget: v.VuetifyWidget) -> v.VuetifyWidget:
     Returns:
         the widget
     """
-    if isinstance(widget, sepal_ui.sepalwidgets.sepalwidget.SepalWidget):
+    if isinstance(widget, pysepal.sepalwidgets.sepalwidget.SepalWidget):
         widget.show()
 
     elif "d-none" in str(widget.class_):
@@ -258,7 +259,7 @@ def set_type(color: str) -> str:
         a pre-defined material color
 
     """
-    from sepal_ui.frontend.styles import TYPES
+    from pysepal.frontend.styles import TYPES
 
     if color not in TYPES:
         warnings.warn(
@@ -456,8 +457,8 @@ def get_changelog(repo_folder: Pathlike = Path.cwd()) -> str:
 #
 
 # fmt: off
-catch_errors = deprecated(version='3.0', reason="use sepal_ui.scripts.decorator.catch_errors instead")(sd.catch_errors)
-need_ee = deprecated(version='3.0', reason="use sepal_ui.scripts.decorator.need_ee instead")(sd.need_ee)
-loading_button = deprecated(version='3.0', reason="use sepal_ui.scripts.decorator.need_ee instead")(sd.loading_button)
-switch = deprecated(version='3.0', reason="use sepal_ui.scripts.decorator.switch instead")(sd.switch)
+catch_errors = deprecated(version='3.0', reason="use pysepal.scripts.decorator.catch_errors instead")(sd.catch_errors)
+need_ee = deprecated(version='3.0', reason="use pysepal.scripts.decorator.need_ee instead")(sd.need_ee)
+loading_button = deprecated(version='3.0', reason="use pysepal.scripts.decorator.need_ee instead")(sd.loading_button)
+switch = deprecated(version='3.0', reason="use pysepal.scripts.decorator.switch instead")(sd.switch)
 # fmt: on

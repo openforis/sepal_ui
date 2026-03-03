@@ -18,11 +18,12 @@ from typing import Any, Callable, Optional, Union
 import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import deprecated
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.gee_task import GEETask
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from traitlets import observe
 from typing_extensions import Self
+
+from pysepal.scripts import utils as su
+from pysepal.scripts.gee_task import GEETask
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Btn", "DownloadBtn", "TaskButton"]
 

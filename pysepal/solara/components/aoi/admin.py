@@ -12,11 +12,12 @@ import geopandas as gpd
 import httpx
 import pandas as pd
 import pygaul
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.solara.components.aoi.aoi_result import AoiResult
-from sepal_ui.solara.components.aoi.constants import FAO_GAUL_LAYERS, FAO_WFS_BASE_URL
+
+from pysepal.message import ms
+from pysepal.scripts import utils as su
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.solara.components.aoi.aoi_result import AoiResult
+from pysepal.solara.components.aoi.constants import FAO_GAUL_LAYERS, FAO_WFS_BASE_URL
 
 # Path to GAUL -> ISO-3 mapping file
 GAUL_ISO_MAPPING: Path = Path(__file__).parents[3] / "data" / "gaul_iso.json"
@@ -108,7 +109,7 @@ async def fetch_admin_bounds_async(level: int, admin_code: str) -> tuple:
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import fetch_admin_bounds_async
+        from pysepal.solara.components.aoi import fetch_admin_bounds_async
 
         bounds = await fetch_admin_bounds_async(level=0, admin_code="62")
         map_.zoom_bounds(bounds)
@@ -161,7 +162,7 @@ def fetch_admin_items(
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import fetch_admin_items
+        from pysepal.solara.components.aoi import fetch_admin_items
 
         # Get all countries (instant from local parquet)
         countries = fetch_admin_items(level=0)
@@ -212,7 +213,7 @@ async def process_admin(
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import process_admin
+        from pysepal.solara.components.aoi import process_admin
 
         # Select Colombia (non-GEE, using FAO WFS)
         result = await process_admin("ADMIN0", "62", gee=False)

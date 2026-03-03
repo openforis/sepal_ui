@@ -1,8 +1,8 @@
 """A demo tile showing some of the most frequent widgets available in the sepal_ui library."""
 
 import ipyvuetify as v
-import sepal_ui.sepalwidgets as sw
-from sepal_ui.mapping.sepal_map import SepalMap
+import pysepal.sepalwidgets as sw
+from pysepal.mapping.sepal_map import SepalMap
 
 
 class WidgetTile(sw.Card):

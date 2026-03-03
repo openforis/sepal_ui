@@ -5,10 +5,11 @@ from typing import Optional, Union
 import ee
 import ipyvuetify as v
 from ipyleaflet import Map
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.mapping.menu_control import MenuControl
-from sepal_ui.scripts import decorator as sd
 from shapely import geometry as sg
+
+from pysepal.mapping.menu_control import MenuControl
+from pysepal.scripts import decorator as sd
+from sepal_ui import sepalwidgets as sw
 
 
 class AoiControl(MenuControl):

@@ -7,19 +7,20 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Union
 import ipyvuetify as v
 import pygadm
 import pygaul
-import sepal_ui.sepalwidgets as sw
 import traitlets as t
 from deprecated.sphinx import versionadded
 from eeclient.client import EESession
-from sepal_ui import mapping as sm
-from sepal_ui.aoi.aoi_model import AoiModel
-from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts import utils as su
 from typing_extensions import Self
 
+import pysepal.sepalwidgets as sw
+from pysepal.aoi.aoi_model import AoiModel
+from pysepal.message import ms
+from pysepal.scripts import decorator as sd
+from pysepal.scripts import utils as su
+from sepal_ui import mapping as sm
+
 if TYPE_CHECKING:
-    from sepal_ui.scripts.gee_interface import GEEInterface
+    from pysepal.scripts.gee_interface import GEEInterface
 
 CUSTOM = AoiModel.CUSTOM
 ADMIN = AoiModel.ADMIN

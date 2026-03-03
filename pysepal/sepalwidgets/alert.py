@@ -18,15 +18,16 @@ import ipyvuetify as v
 import traitlets as t
 from deprecated.sphinx import deprecated
 from ipywidgets import Output
-from sepal_ui import color
-from sepal_ui.frontend.styles import TYPES
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.utils import set_type
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from tqdm.notebook import tqdm
 from traitlets import directional_link, link, observe
 from typing_extensions import Self
+
+from pysepal.frontend.styles import TYPES
+from pysepal.message import ms
+from pysepal.scripts import utils as su
+from pysepal.scripts.utils import set_type
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
+from sepal_ui import color
 
 __all__ = ["Divider", "Alert", "StateBar", "Banner"]
 

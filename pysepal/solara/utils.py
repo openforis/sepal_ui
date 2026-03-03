@@ -8,9 +8,10 @@ import logging
 from typing import Optional
 
 from eeclient.client import EESession
-from sepal_ui.scripts.drive_interface import GDriveInterface
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.sepal_client import SepalClient
+
+from pysepal.scripts.drive_interface import GDriveInterface
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.scripts.sepal_client import SepalClient
 
 from .session_manager import SessionManager
 

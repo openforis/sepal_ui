@@ -5,8 +5,9 @@ demonstrating file input functionality and session management.
 """
 
 import solara
-from sepal_ui.sepalwidgets.file_input import FileInput
-from sepal_ui.solara import (
+
+from pysepal.sepalwidgets.file_input import FileInput
+from pysepal.solara import (
     get_current_gee_interface,
     get_current_sepal_client,
     setup_sessions,

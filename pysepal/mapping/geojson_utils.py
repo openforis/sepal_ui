@@ -5,8 +5,9 @@ from typing import Optional
 
 import geopandas as gpd
 from ipyleaflet import GeoJSON
+
+from pysepal.frontend import styles as ss
 from sepal_ui import color
-from sepal_ui.frontend import styles as ss
 
 __all__ = ["get_ipygeojson"]
 
@@ -38,7 +39,7 @@ def get_ipygeojson(
         .. code-block:: python
 
             import geopandas as gpd
-            from sepal_ui.mapping import get_ipygeojson, SepalMap
+            from pysepal.mapping import get_ipygeojson, SepalMap
 
             # Create a simple GeoDataFrame
             gdf = gpd.read_file("my_shapefile.shp")

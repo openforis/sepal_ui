@@ -12,14 +12,14 @@ Example:
         sw.Btn()
 """
 
-from sepal_ui.sepalwidgets.sepal_ipyvuetify import *  # noqa: I
+from pysepal.sepalwidgets.sepal_ipyvuetify import *  # noqa: I
 
 # import and/or overwrite with our customized widgets
-from sepal_ui.sepalwidgets.sepalwidget import *
-from sepal_ui.sepalwidgets.alert import *
-from sepal_ui.sepalwidgets.app import *
-from sepal_ui.sepalwidgets.btn import *
-from sepal_ui.sepalwidgets.inputs import *
-from sepal_ui.sepalwidgets.tile import *
-from sepal_ui.sepalwidgets.widget import *
-from sepal_ui.sepalwidgets.radio import *
+from pysepal.sepalwidgets.sepalwidget import *
+from pysepal.sepalwidgets.alert import *
+from pysepal.sepalwidgets.app import *
+from pysepal.sepalwidgets.btn import *
+from pysepal.sepalwidgets.inputs import *
+from pysepal.sepalwidgets.tile import *
+from pysepal.sepalwidgets.widget import *
+from pysepal.sepalwidgets.radio import *

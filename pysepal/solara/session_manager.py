@@ -14,10 +14,11 @@ import solara.server.kernel_context
 from eeclient.client import EESession
 from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.models import SepalHeaders
-from sepal_ui.scripts.drive_interface import GDriveInterface
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.sepal_client import SepalClient
 from solara.lab import headers
+
+from pysepal.scripts.drive_interface import GDriveInterface
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.scripts.sepal_client import SepalClient
 
 logger = logging.getLogger("sepalui.session_manager")
 

@@ -8,13 +8,15 @@ import logging
 
 import ee
 import ipyvuetify as v
-import sepal_ui.sepalwidgets as sw
 import solara
 from component.model import AppModel
-from sepal_ui.mapping import SepalMap
-from sepal_ui.scripts.utils import init_ee
-from sepal_ui.sepalwidgets.vue_app import MapApp, ThemeToggle
-from sepal_ui.solara import (
+from solara.lab.components.theming import theme
+
+import pysepal.sepalwidgets as sw
+from pysepal.mapping import SepalMap
+from pysepal.scripts.utils import init_ee
+from pysepal.sepalwidgets.vue_app import MapApp, ThemeToggle
+from pysepal.solara import (
     get_current_drive_interface,
     get_current_gee_interface,
     get_current_sepal_client,
@@ -23,8 +25,7 @@ from sepal_ui.solara import (
     setup_theme_colors,
     with_sepal_sessions,
 )
-from sepal_ui.solara.components.admin import AdminButton
-from solara.lab.components.theming import theme
+from pysepal.solara.components.admin import AdminButton
 
 logger = logging.getLogger("SEPALUI.map_app")
 logger.debug(">>>>>>>>>>> Starting MAP APP example application <<<<<<<<<<")

@@ -3,7 +3,7 @@
 Example:
     .. jupyter-execute::
 
-        from sepal_ui.scripts import utils as su
+        from pysepal.scripts import utils as su
 
         su.random_string(5)
 """

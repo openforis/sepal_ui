@@ -12,7 +12,8 @@ from typing import Any, Callable, List, Union
 import ee
 import ipyvuetify as v
 from deprecated.sphinx import deprecated, versionadded
-from sepal_ui.message import ms
+
+from pysepal.message import ms
 
 
 def get_ee_project() -> str:
@@ -178,7 +179,7 @@ async def get_assets_async_concurrent(folder: str, gee_interface=None) -> List[d
 
     """
     if not gee_interface:
-        from sepal_ui.scripts.gee_interface import GEEInterface
+        from pysepal.scripts.gee_interface import GEEInterface
 
         gee_interface = GEEInterface()
 
@@ -282,7 +283,7 @@ def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: st
             asset_id = folder + asset_name
 
     # Use GEEInterface to check if asset exists
-    from sepal_ui.scripts.gee_interface import GEEInterface
+    from pysepal.scripts.gee_interface import GEEInterface
 
     with GEEInterface() as gee_interface:
         result = gee_interface.get_asset(asset_id, not_exists_ok=True)

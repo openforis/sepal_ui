@@ -2,13 +2,14 @@
 
 from typing import Optional, Union
 
-import sepal_ui.sepalwidgets as sw
 import traitlets as t
 from ipyleaflet import WidgetControl
 from ipywidgets import HTML
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
 from traitlets import observe
+
+import pysepal.sepalwidgets as sw
+from pysepal.message import ms
+from pysepal.scripts import utils as su
 
 
 class LegendControl(WidgetControl):

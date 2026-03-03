@@ -21,14 +21,6 @@ import pandas as pd
 from deprecated.sphinx import deprecated, versionadded, versionchanged
 from ipywidgets import DOMWidget, jsdlink
 from ipywidgets.widgets.widget import widget_serialization
-from sepal_ui.message import ms
-from sepal_ui.model import Model
-from sepal_ui.scripts import utils as su
-from sepal_ui.sepalwidgets.alert import Banner
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.sepalwidgets.vue_app import ThemeToggle
-from sepal_ui.sepalwidgets.widget import Markdown
-from sepal_ui.translator import Translator
 from traitlets import (
     Any,
     Bool,
@@ -42,6 +34,15 @@ from traitlets import (
     observe,
 )
 from typing_extensions import Self
+
+from pysepal.message import ms
+from pysepal.model import Model
+from pysepal.scripts import utils as su
+from pysepal.sepalwidgets.alert import Banner
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
+from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.sepalwidgets.widget import Markdown
+from pysepal.translator import Translator
 
 logger = logging.getLogger("sepalui.app")
 

@@ -9,9 +9,10 @@ import ipyvuetify as v
 import pandas as pd
 from ipywidgets import DOMWidget, jsdlink, link
 from ipywidgets.widgets.widget import widget_serialization
-from sepal_ui.scripts import utils as su
-from sepal_ui.translator import Translator
 from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode
+
+from pysepal.scripts import utils as su
+from pysepal.translator import Translator
 
 logger = logging.getLogger("sepalui.vue_app")
 

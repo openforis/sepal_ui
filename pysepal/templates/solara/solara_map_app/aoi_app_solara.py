@@ -15,14 +15,14 @@ sepal_ui$ ./run_solara.sh sepal_ui/templates/solara/solara_map_app/aoi_app_solar
 """
 
 import solara
-from sepal_ui import mapping as sm
-from sepal_ui.solara import (
+
+from pysepal.solara import (
     setup_sessions,
     setup_solara_server,
     setup_theme_colors,
 )
-from sepal_ui.solara.components.aoi import AoiResult, AoiView
-from sepal_ui.solara.components.notifications import (
+from pysepal.solara.components.aoi import AoiResult, AoiView
+from pysepal.solara.components.notifications import (
     NotificationsHost,
     error,
     info,
@@ -30,6 +30,7 @@ from sepal_ui.solara.components.notifications import (
     success,
     warning,
 )
+from sepal_ui import mapping as sm
 
 setup_solara_server(extra_asset_locations=[])
 

@@ -8,10 +8,11 @@ import ipyvuetify as v
 import solara
 from natsort import natsorted
 from pydantic import BaseModel
-from sepal_ui.logger import log
-from sepal_ui.scripts.sepal_client import SepalClient
-from sepal_ui.sepalwidgets.widget import SepalWidget
 from traitlets import Bool, Int, List, Unicode
+
+from pysepal.logger import log
+from pysepal.scripts.sepal_client import SepalClient
+from pysepal.sepalwidgets.widget import SepalWidget
 
 
 class FileDetails(BaseModel):

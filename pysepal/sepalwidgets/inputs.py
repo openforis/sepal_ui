@@ -27,16 +27,17 @@ from eeclient.client import EESession
 from natsort import humansorted
 from reactivex import operators as ops
 from reactivex.subject import Subject
-from sepal_ui.frontend import styles as ss
-from sepal_ui.message import ms
-from sepal_ui.scripts import decorator as sd
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.gee_task import GEETask, TaskState
-from sepal_ui.sepalwidgets.btn import Btn
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from traitlets import link, observe
 from typing_extensions import Self
+
+from pysepal.frontend import styles as ss
+from pysepal.message import ms
+from pysepal.scripts import decorator as sd
+from pysepal.scripts import utils as su
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.scripts.gee_task import GEETask, TaskState
+from pysepal.sepalwidgets.btn import Btn
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
 
 log = logging.getLogger("sepalui.sepalwidgets.inputs")
 

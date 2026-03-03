@@ -8,7 +8,8 @@ from typing import List, Tuple, Union
 import pandas as pd
 from box import Box
 from deprecated.sphinx import deprecated, versionadded
-from sepal_ui.conf import config_file
+
+from pysepal.conf import config_file
 
 
 class Translator(Box):

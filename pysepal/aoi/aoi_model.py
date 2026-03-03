@@ -12,13 +12,14 @@ import pygaul
 import traitlets as t
 from eeclient.client import EESession
 from ipyleaflet import GeoJSON
-from sepal_ui import color
-from sepal_ui.frontend import styles as ss
-from sepal_ui.message import ms
-from sepal_ui.model import Model
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.gee_interface import GEEInterface
 from typing_extensions import Self
+
+from pysepal.frontend import styles as ss
+from pysepal.message import ms
+from pysepal.model import Model
+from pysepal.scripts import utils as su
+from pysepal.scripts.gee_interface import GEEInterface
+from sepal_ui import color
 
 __all__ = ["AoiModel"]
 

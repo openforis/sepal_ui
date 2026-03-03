@@ -32,9 +32,7 @@ def disclaimer() -> str:
 def imports() -> str:
     """Return the import statements."""
     return (
-        "import ipyvuetify as v\n"
-        "from sepal_ui.sepalwidgets.sepalwidget import SepalWidget\n"
-        "\n"
+        "import ipyvuetify as v\n" "from pysepal.sepalwidgets.sepalwidget import SepalWidget\n" "\n"
     )
 
 

@@ -7,9 +7,10 @@ from datetime import datetime as dt
 from typing import Dict
 
 import geopandas as gpd
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from sepal_ui.solara.components.aoi.aoi_result import AoiResult
+
+from pysepal.message import ms
+from pysepal.scripts import utils as su
+from pysepal.solara.components.aoi.aoi_result import AoiResult
 
 
 def process_draw(
@@ -34,7 +35,7 @@ def process_draw(
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import process_draw
+        from pysepal.solara.components.aoi import process_draw
 
         # From DrawControl
         features = draw_control.get_data()

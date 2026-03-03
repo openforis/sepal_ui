@@ -7,7 +7,8 @@ last update: 2022-12-29
 """
 
 import ipyvuetify as v
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
+
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
 
 
 class Html(v.Html, SepalWidget):

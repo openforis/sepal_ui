@@ -5,7 +5,8 @@ from typing import Any, Optional, Union
 
 import reacton.ipyvuetify as v
 import solara
-from sepal_ui.solara.session_manager import SessionManager
+
+from pysepal.solara.session_manager import SessionManager
 
 logger = logging.getLogger("sepalui.admin")
 

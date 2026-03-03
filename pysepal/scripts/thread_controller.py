@@ -3,7 +3,7 @@
 import threading
 from typing import Callable, List, Optional
 
-import sepal_ui.sepalwidgets as sw
+import pysepal.sepalwidgets as sw
 
 
 class TaskController:

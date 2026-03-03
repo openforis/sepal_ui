@@ -15,12 +15,13 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import ipyvuetify as v
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
-from sepal_ui.sepalwidgets.vue_app import ThemeToggle
-from sepal_ui.sepalwidgets.widget import Markdown
 from typing_extensions import Self
+
+from pysepal.message import ms
+from pysepal.scripts import utils as su
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
+from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.sepalwidgets.widget import Markdown
 
 __all__ = ["Tile", "TileAbout", "TileDisclaimer"]
 
@@ -47,7 +48,7 @@ class Tile(v.Layout, SepalWidget):
     ) -> None:
         """Custom Layout widget for the sepal UI framework.
 
-        It is an helper to build a consistent tiling system. Tile objects are indeed compatible with the other classes from sepal_ui.
+        It is an helper to build a consistent tiling system. Tile objects are indeed compatible with the other classes from pysepal.
 
         Args:
             id_: the tile id that will be written in its mount_id _metadata attribute

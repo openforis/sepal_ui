@@ -4,8 +4,9 @@ The radio from ipyvuetify cannot be used as stand alone elements like checkboxes
 """
 
 import ipyvuetify as v
-from sepal_ui.sepalwidgets.sepalwidget import SepalWidget
 from traitlets import Bool, observe
+
+from pysepal.sepalwidgets.sepalwidget import SepalWidget
 
 __all__ = ["Radio", "RadioGroup"]
 

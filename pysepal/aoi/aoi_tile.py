@@ -5,10 +5,11 @@ from typing import List, Optional, Union
 
 import ipyvuetify as v
 from eeclient.client import EESession
+
+from pysepal.aoi.aoi_view import AoiView
+from pysepal.message import ms
 from sepal_ui import mapping as sm
 from sepal_ui import sepalwidgets as sw
-from sepal_ui.aoi.aoi_view import AoiView
-from sepal_ui.message import ms
 
 __all__ = ["AoiTile"]
 

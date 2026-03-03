@@ -4,7 +4,7 @@ This module provides pure Solara components for AOI selection following modern
 Solara patterns with value/on_value parameters.
 
 Usage:
-    from sepal_ui.solara.components.aoi import AoiView, AoiResult
+    from pysepal.solara.components.aoi import AoiView, AoiResult
 
     @solara.component
     def MyApp():
@@ -26,21 +26,22 @@ from typing import Callable, Dict, List, Optional, Union
 import reacton.ipyvuetify as rv
 import solara
 from deprecated.sphinx import versionadded
-from sepal_ui import mapping as sm
-from sepal_ui.mapping import get_ipygeojson
-from sepal_ui.message import ms
-from sepal_ui.scripts import utils as su
-from sepal_ui.solara.components.aoi.admin import (
+
+from pysepal.mapping import get_ipygeojson
+from pysepal.message import ms
+from pysepal.scripts import utils as su
+from pysepal.solara.components.aoi.admin import (
     fetch_admin_bounds_async,
     fetch_admin_items,
     process_admin,
 )
-from sepal_ui.solara.components.aoi.aoi_result import AoiResult
-from sepal_ui.solara.components.aoi.draw import process_draw
-from sepal_ui.solara.components.aoi.wms_utils import (
+from pysepal.solara.components.aoi.aoi_result import AoiResult
+from pysepal.solara.components.aoi.draw import process_draw
+from pysepal.solara.components.aoi.wms_utils import (
     WMS_PREVIEW_LAYER_NAME,
     create_wms_preview_layer,
 )
+from sepal_ui import mapping as sm
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
 

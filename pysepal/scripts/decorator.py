@@ -16,9 +16,10 @@ from warnings import warn
 
 import ipyvuetify as v
 from deprecated.sphinx import versionadded
-from sepal_ui.message import ms
-from sepal_ui.scripts.gee import init_ee, need_ee  # noqa: F401 - backward compatibility
-from sepal_ui.scripts.warning import SepalWarning
+
+from pysepal.message import ms
+from pysepal.scripts.gee import init_ee, need_ee  # noqa: F401 - backward compatibility
+from pysepal.scripts.warning import SepalWarning
 
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")

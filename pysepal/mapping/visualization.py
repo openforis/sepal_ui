@@ -6,10 +6,11 @@ import warnings
 from typing import Optional
 
 import ee
+
+from pysepal.frontend import styles as ss
+from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.scripts.warning import SepalWarning
 from sepal_ui import color as scolors
-from sepal_ui.frontend import styles as ss
-from sepal_ui.scripts.gee_interface import GEEInterface
-from sepal_ui.scripts.warning import SepalWarning
 
 log = logging.getLogger("sepalui.mapping.visualization")
 

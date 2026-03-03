@@ -4,10 +4,11 @@ from typing import Optional, Union
 
 import ipyvuetify as v
 from ipyleaflet import Map, WidgetControl
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.mapping.map_btn import MapBtn
 from traitlets import Bool, Int
 from typing_extensions import Self
+
+from pysepal.mapping.map_btn import MapBtn
+from sepal_ui import sepalwidgets as sw
 
 
 class MenuControl(WidgetControl):

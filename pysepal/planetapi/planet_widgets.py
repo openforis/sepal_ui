@@ -4,9 +4,10 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 import ipyvuetify as v
-import sepal_ui.sepalwidgets as sw
-from sepal_ui.planetapi.planet_model import PlanetModel
 from typing_extensions import Self
+
+import pysepal.sepalwidgets as sw
+from pysepal.planetapi.planet_model import PlanetModel
 
 # key_name: [label, [non_active_color, active_color]]
 BTNS: dict = {

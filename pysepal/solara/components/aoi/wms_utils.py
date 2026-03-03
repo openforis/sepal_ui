@@ -6,7 +6,8 @@ Helper functions for creating and managing WMS preview layers on maps.
 from typing import Any
 
 from ipyleaflet import WMSLayer
-from sepal_ui.solara.components.aoi.constants import (
+
+from pysepal.solara.components.aoi.constants import (
     FAO_GAUL_LAYERS,
     FAO_WMS_BASE_URL,
     WMS_PREVIEW_LAYER_NAME,
@@ -33,7 +34,7 @@ def create_wms_preview_layer(
 
     Example:
         ```python
-        from sepal_ui.solara.components.aoi import create_wms_preview_layer
+        from pysepal.solara.components.aoi import create_wms_preview_layer
 
         # Create preview layer for Colombia
         layer = create_wms_preview_layer(level=0, admin_code="62")
