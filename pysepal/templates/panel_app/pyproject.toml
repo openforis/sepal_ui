@@ -1,7 +1,7 @@
 [project]
 version = "1.1.1"
 
-[sepal-ui]
+[pysepal]
 init-notebook = "ui.ipynb"
 
 [tool.ruff]

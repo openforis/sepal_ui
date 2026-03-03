@@ -1,4 +1,4 @@
-[sepal-ui]
+[pysepal]
 init-notebook = "ui.ipynb"
 
 [tool.ruff]
