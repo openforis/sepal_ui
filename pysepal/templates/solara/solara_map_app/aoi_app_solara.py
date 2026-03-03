@@ -9,13 +9,14 @@ to run this
 
 ```bash
 
-sepal_ui$ ./run_solara.sh sepal_ui/templates/solara/solara_map_app/aoi_app_solara.py --port 8900
+pysepal$ ./run_solara.sh pysepal/templates/solara/solara_map_app/aoi_app_solara.py --port 8900
 
 ```
 """
 
 import solara
 
+from pysepal import mapping as sm
 from pysepal.solara import (
     setup_sessions,
     setup_solara_server,
@@ -30,7 +31,6 @@ from pysepal.solara.components.notifications import (
     success,
     warning,
 )
-from sepal_ui import mapping as sm
 
 setup_solara_server(extra_asset_locations=[])
 

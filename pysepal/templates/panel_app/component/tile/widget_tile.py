@@ -1,4 +1,4 @@
-"""A demo tile showing some of the most frequent widgets available in the sepal_ui library."""
+"""A demo tile showing some of the most frequent widgets available in the pysepal library."""
 
 import ipyvuetify as v
 import pysepal.sepalwidgets as sw
@@ -7,7 +7,7 @@ from pysepal.mapping.sepal_map import SepalMap
 
 class WidgetTile(sw.Card):
     def __init__(self):
-        """A demo tile showing all the widgets available in the sepal_ui library."""
+        """A demo tile showing all the widgets available in the pysepal library."""
         # create the card
         super().__init__(row=True, wrap=True, _metadata={"mount_id": "widget_tile"})
 
