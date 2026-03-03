@@ -18,9 +18,10 @@ import subprocess
 from pathlib import Path
 from typing import Union
 
-import sepal_ui
 import tomli
 from colorama import Fore, Style, init
+
+import pysepal
 
 # init colors for all plateforms
 init()
@@ -64,7 +65,7 @@ def clean_dulpicate(file: Union[str, Path]) -> None:
         file: the requirements file
     """
     # already available libs
-    libs = ["jupyter", "voila", "tomli", "sepal_ui"]
+    libs = ["jupyter", "voila", "tomli", "pysepal", "sepal_ui"]
 
     file = Path(file)
     text = file.read_text().split("\n")
@@ -128,7 +129,7 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
 
 
 def freeze_sepal_ui(file: Union[str, Path]) -> None:
-    """Set the sepal version to the currently used sepal-ui version.
+    """Set the sepal version to the currently used pysepal version.
 
     Args:
         file: the requirements file
@@ -136,15 +137,19 @@ def freeze_sepal_ui(file: Union[str, Path]) -> None:
     file = Path(file)
     text = file.read_text().split("\n")
 
-    # search for the sepal_ui line
-    idx, _ = next((i, il) for i, il in enumerate(text) if "#" not in il and "sepal_ui" in il)
+    # search for the pysepal or sepal_ui line
+    idx, _ = next(
+        (i, il)
+        for i, il in enumerate(text)
+        if "#" not in il and ("pysepal" in il or "sepal_ui" in il)
+    )
 
-    text[idx] = f"sepal_ui=={sepal_ui.__version__}"
+    text[idx] = f"pysepal=={pysepal.__version__}"
 
     file.write_text("\n".join(text))
 
     print(
-        f"sepal_ui version have been freezed to  {Style.BRIGHT}{sepal_ui.__version__}{Style.NORMAL}"
+        f"pysepal version have been freezed to  {Style.BRIGHT}{pysepal.__version__}{Style.NORMAL}"
     )
 
     return
@@ -182,13 +187,17 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}sepal-ui module deployment tool{Fore.RESET}")
+    print(f"{Fore.YELLOW}pysepal module deployment tool{Fore.RESET}")
 
     print("Export the env configuration of your module...")
 
     # check that the local folder is a module folder
     try:
-        tomli.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+        _cfg = tomli.load("pyproject.toml")
+        try:
+            _cfg["pysepal"]["init-notebook"]
+        except KeyError:
+            _cfg["sepal-ui"]["init-notebook"]
     except FileNotFoundError as e:
         raise Exception(f"{Fore.RED}This module folder has no pyproject.toml ({e})")
 
