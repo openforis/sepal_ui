@@ -20,14 +20,14 @@ from urllib.request import urlretrieve
 
 warnings.filterwarnings(
     "ignore",
-    message="The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'.*",
+    message="The 'sepal_ui' package is deprecated and has been renamed to 'pysepal'.*",
     category=DeprecationWarning,
 )
 
 # jupyter_sphinx executes code in kernels, where DeprecationWarning can be shown as stderr.
 # Propagate the same filter to child kernel processes used during doc builds.
 doc_warning_filter = (
-    "ignore:The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'.*:"
+    "ignore:The 'sepal_ui' package is deprecated and has been renamed to 'pysepal'.*:"
     "DeprecationWarning"
 )
 os.environ["PYTHONWARNINGS"] = ",".join(
@@ -36,9 +36,9 @@ os.environ["PYTHONWARNINGS"] = ",".join(
 
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../.."))
-sys.path.insert(0, os.path.abspath("../../sepal_ui/bin"))
+sys.path.insert(0, os.path.abspath("../../pysepal/bin"))
 
-from sepal_ui import __author__, __version__  # noqa: E402
+from pysepal import __author__, __version__  # noqa: E402
 
 package_path = os.path.abspath("../..")
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
@@ -49,7 +49,7 @@ DOC_DIR = Path(__file__).parent
 # -- Project information -------------------------------------------------------
 
 # General information about the project.
-project = "sepal-ui"
+project = "pysepal"
 copyright = f"2020-{datetime.now().year}, the sepal development team"
 author = __author__
 
@@ -114,7 +114,7 @@ html_theme = "pydata_sphinx_theme"
 html_last_updated_fmt = ""
 html_theme_options = {
     "logo": {
-        "text": "sepal-ui",
+        "text": "pysepal",
         "image_light": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_light.png",
         "image_dark": "https://raw.githubusercontent.com/openforis/sepal-doc/main/docs/source/_images/logo_dark.png",
     },
