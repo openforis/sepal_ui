@@ -65,7 +65,7 @@ def docs(session):
     # build the api doc files
     templates = "docs/source/_templates/apidoc"
     modules = "docs/source/modules"
-    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui")
+    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "pysepal")
 
     # build the documentation
     source = "docs/source"
@@ -80,7 +80,7 @@ def docs(session):
 def mypy(session):
     """Run a mypy check of the lib."""
     session.install(".[dev]")
-    test_files = session.posargs or ["sepal_ui"]
+    test_files = session.posargs or ["pysepal"]
     session.run(
         "mypy",
         "--scripts-are-modules",

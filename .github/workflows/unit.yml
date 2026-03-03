@@ -104,6 +104,6 @@ jobs:
       - name: Install dependencies
         run: python -m pip install .[test]
       - name: build the template panel application
-        run: pytest --nbmake sepal_ui/templates/panel_app/ui.ipynb
+        run: pytest --nbmake pysepal/templates/panel_app/ui.ipynb
       - name: build the template map application
-        run: pytest --nbmake sepal_ui/templates/map_app/ui.ipynb
+        run: pytest --nbmake pysepal/templates/map_app/ui.ipynb
