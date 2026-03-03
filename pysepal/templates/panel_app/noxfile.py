@@ -17,7 +17,11 @@ def lint(session):
 @nox.session(reuse_venv=True)
 def app(session):
     """Run the application."""
-    init_notebook = tomli.load("pyproject.toml")["sepal-ui"]["init-notebook"]
+    _cfg = tomli.load("pyproject.toml")
+    try:
+        init_notebook = _cfg["pysepal"]["init-notebook"]
+    except KeyError:
+        init_notebook = _cfg["sepal-ui"]["init-notebook"]
     session.install("-r", "requirements.txt")
     session.run("jupyter", "trust", init_notebook)
     session.run("voila", "--debug", init_notebook)
