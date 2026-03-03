@@ -44,7 +44,7 @@ from root execute the following command:
 
    .. code-block:: console
 
-      /usr/local/lib/python3.6/dist-packages/sepal_ui/bin/module_factory
+      /usr/local/lib/python3.6/dist-packages/pysepal/bin/module_factory
 
 
 It will launch the creation script of the module factory.
@@ -59,7 +59,7 @@ It will launch the creation script of the module factory.
    ##################################
 
    Welcome in the module factory interface.
-   This interface will help you building a dashboard app based on the sepal_ui library
+   This interface will help you building a dashboard app based on the pysepal library
    Please read the documentation of the library before launching this script
 
 

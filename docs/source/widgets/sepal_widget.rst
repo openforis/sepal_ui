@@ -10,7 +10,7 @@ Overview
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -40,7 +40,7 @@ Hide the component by changing its class.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -73,7 +73,7 @@ Show the component by changing its class.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -106,7 +106,7 @@ remove the :code:`v_model` of the component and replace it by :code:`None`.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -125,4 +125,4 @@ remove the :code:`v_model` of the component and replace it by :code:`None`.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.SepalWidget>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.sepalwidget.SepalWidget>`__.

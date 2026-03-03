@@ -4,14 +4,14 @@ Tile
 Overview
 --------
 
-:code:`Tile` is a widget Layout. It's the core element of any sepal_ui app. It inherits from the :code:`SepalWidget` class.
+:code:`Tile` is a widget Layout. It's the core element of any pysepal app. It inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Card` ipyvuetify class can be used to complement it.
 
 .. jupyter-execute::
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -29,7 +29,7 @@ Any argument from the original :code:`Card` ipyvuetify class can be used to comp
 
 .. tip::
 
-    The best way to use the tiles in an sepal_ui framework is to use :code:`Tile` as an abstract tile and build specific Tiles adapted to your need in the :code:`component/tile` package.
+    The best way to use the tiles in a pysepal framework is to use :code:`Tile` as an abstract tile and build specific Tiles adapted to your need in the :code:`component/tile` package.
     Everything is shown following this `tutorial <../tutorials/add-tile.html>`_.
 
 Methods
@@ -44,7 +44,7 @@ Prepare the tile to be used as a nested component in a tile. The elevation will 
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -70,7 +70,7 @@ Replace the current content of the tile with the provided inputs. it will keep t
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -96,7 +96,7 @@ Replace the current title and activate it. If no title is provided, the title is
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -122,7 +122,7 @@ Return the current title of the tile
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -148,7 +148,7 @@ Display only the widgets that are part of the input_list. the widget_list is the
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
 
     # correct colors for the documentation
@@ -169,4 +169,4 @@ Display only the widgets that are part of the input_list. the widget_list is the
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.tile.Tile>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.tile.Tile>`__.

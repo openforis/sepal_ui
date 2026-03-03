@@ -4,7 +4,7 @@ What are the :code:`Model` object and how to use them ?
 Philosophy
 ----------
 
-When we started to develop the :code:`sepal_ui` framework we face the input and output storage problem. Python is a very versatile language but base variable are not mutable objects. It means that if a value is manipulated inside a function, the changes won't be kept outside this very functions.
+When we started to develop the :code:`pysepal` framework we face the input and output storage problem. Python is a very versatile language but base variable are not mutable objects. It means that if a value is manipulated inside a function, the changes won't be kept outside this very functions.
 the concept is easier to grasp with a simple example
 
 .. code-block:: python
@@ -40,7 +40,7 @@ a default model could look like
 
 .. code-block:: python
 
-    from sepal_ui import model
+    from pysepal import model
     from traitlets import Any # other types are available but Any can digest anything
 
     class CustomIo(model.Model): # the model class embed some useful function as 'export', 'import' and 'bind'
@@ -66,7 +66,7 @@ in a model component, I create my custom :code:`Model`.
 
     # component/io/my_model.py
 
-    from sepal_ui import model
+    from pysepal import model
     from traitlets import Any
 
     class MyModel(model.Model)
@@ -97,8 +97,8 @@ This function will modify the value of the :code:`my_model.output` trait.
     # component/tile/my_tile.py
 
     import ipyvuetify as v
-    from sepal_ui import sepalwidgets as sw
-    from sepal_ui.scripts.utils import loading_button
+    from pysepal import sepalwidgets as sw
+    from pysepal.scripts.utils import loading_button
 
     from component.scripts import *
 
@@ -172,7 +172,7 @@ You can add it in a debugging cell at the very beginning of the :code:`my_ui.ipy
     # my_ui.ipynb
 
     # for debug only
-    from sepal_ui import aoi
+    from pysepal import aoi
 
     aoi_tile = aoi.Aoitile(asset = 'users/yourself/anAsset')
 
@@ -195,7 +195,7 @@ e.g: with the :code:`AoiIo.total_bounds` method, you can get the AOI bounding bo
 
 .. code-block:: python
 
-    from sepal_ui import aoi
+    from pysepal import aoi
     aoi_model = aoi.AoiModel(asset = 'users/yourself/anAsset')
     bb = aoi_model.total_bounds()
 
@@ -206,7 +206,7 @@ In our previous example the double function is not a very useful scripts. instea
 
     # component/io/my_model.py
 
-    from sepal_ui import model
+    from pysepal import model
     from traitlets import Any
 
     class MyModel(model.Model)

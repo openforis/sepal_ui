@@ -32,15 +32,15 @@ Standard environment
     pygdal==3.4.0
     pyproj<3.0.0
 
-    # The base lib to run any sepal_ui based app
+    # The base lib to run any pysepal based app
     # Don't forget to fix it to a specific version when you're app is ready
-    sepal_ui
+    pysepal
 
 The first three libraries are compiling tools that are usually required for common Python libraries, comment them only if you are sure that none of your libraries are using them.
 
 The :code:`pygdal` and :code:`pyproj` libraries are working on top of the PROJ and GDAL C++ libraries that are already installed in SEPAL. The version suggested here is aligned with the current SEPAL release. If you need a specific version please let us know by sending us a request in the `issue tracker of the SEPAL repository <https://github.com/openforis/sepal/issues>`__.
 
-sepal_ui is off course a mandatory requirement.
+pysepal is off course a mandatory requirement.
 
 Customize the env
 ^^^^^^^^^^^^^^^^^
@@ -52,13 +52,13 @@ To customize this environment add any libraries that are useful for your module.
     $ cd <my_module_path>
     $ module_deploy
 
-    sepal-ui module deployment tool
+    pysepal module deployment tool
     Export the env configuration of your module...
     INFO: Successfully saved requirements file in /home/prambaud/modules/sepal_ui_template/req_tmp.txt
-    Removing sepal_ui from reqs, duplicated from default.
-    Removing earthengine_api from reqs, included in sepal_ui.
-    Removing ee from reqs, included in sepal_ui.
-    sepal_ui version have been freezed to  2.0.6
+    Removing pysepal from reqs, duplicated from default.
+    Removing earthengine_api from reqs, included in pysepal.
+    Removing ee from reqs, included in pysepal.
+    pysepal version have been freezed to  2.0.6
 
     The requirements.txt file have been updated.
     The tool does not cover every possible configuration so don't forget to check the final file before pushing to release
@@ -69,7 +69,7 @@ To customize this environment add any libraries that are useful for your module.
 
     .. code-block::
 
-        git+https://github.com/12rambau/sepal_ui.git#egg=sepal_ui
+        git+https://github.com/12rambau/sepal_ui.git#egg=pysepal
 
     with everything after "git+" being the https link to the repository and "egg=" the name used by the lib in your file. If you want to know more about this method please refer to `this blog post <https://codeinthehole.com/tips/using-pip-and-requirementstxt-to-install-from-the-head-of-a-github-branch/>`_.
 
@@ -96,7 +96,7 @@ As mentioned at the end of the command you should test your environment in SEPAL
     Installed kernelspec <kernel_name> in ~/module_venv/<module_name>
     The test venv have been created, it can be find in the kernel list as "<display_name>". It has automatically been added to the entry point of the application: ui.ipynb
 
-By running this script from a module directory, sepal-ui have created a venv folder where you'll be able to manage all the apps venv. In this folder a ven have been created under the name of the GitHub repository. This venv have been filled with basics libs :code:`wheel`, :code:`Cython` and :code:`ipykernel` + all the libs set in the :code:`requirements.txt` file. This venv is accessible in Jypter under the name: "(test) <module_name>" and can be used to reproduce the behaviour of the module in the production environment.
+By running this script from a module directory, pysepal have created a venv folder where you'll be able to manage all the apps venv. In this folder a ven have been created under the name of the GitHub repository. This venv have been filled with basics libs :code:`wheel`, :code:`Cython` and :code:`ipykernel` + all the libs set in the :code:`requirements.txt` file. This venv is accessible in Jypter under the name: "(test) <module_name>" and can be used to reproduce the behaviour of the module in the production environment.
 
 .. tip::
 

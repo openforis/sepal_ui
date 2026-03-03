@@ -11,11 +11,11 @@ the tile cod is the following :
 
     import time
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     import ipyvuetify as v
     from component.message import ms
-    from sepal_ui.scripts import utils as su
-    from sepal_ui.scripts import decorator as sd
+    from pysepal.scripts import utils as su
+    from pysepal.scripts import decorator as sd
 
     class MyTile(sw.Tile):
 

@@ -7,7 +7,7 @@ Sepal tries to be as inclusive as possible. To do so the platform is translated 
 
     English, Français, Español
 
-To reflect the diversity of language available, :code:`sepal_ui` embed an translator tool and help you manage your messages for different languages.
+To reflect the diversity of language available, :code:`pysepal` embed an translator tool and help you manage your messages for different languages.
 
 
 Update the main dictionary
@@ -112,7 +112,7 @@ If your application is part of the OpenForis initiative and hosted on SEPAL, you
 
 .. note::
 
-    The :code:`sepal-ui` keys for built-in components are managed on this application.
+    The :code:`pysepal` keys for built-in components are managed on this application.
 
 .. image:: ../_image/tutorials/translate-app/pontoon.png
 
@@ -171,7 +171,7 @@ Open the :code:`component/message/test_translation.ipynb` notebook. change the :
     # component/message/test_translation.ipynb
 
     from pathlib import Path
-    from sepal_ui.translator import Translator
+    from pysepal.translator import Translator
 
     # select the language you want to test
     locale = 'fr'

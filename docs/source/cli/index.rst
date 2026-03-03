@@ -3,7 +3,7 @@ CLI
 
     command line tool
 
-:code:`sepal-ui` provides several command line utilities that will help the developer to manipulate its applications and environment.
+:code:`pysepal` provides several command line utilities that will help the developer to manipulate its applications and environment.
 
 .. autoprogram:: module_deploy:parser
    :prog: module_deploy
