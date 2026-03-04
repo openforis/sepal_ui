@@ -27,7 +27,7 @@ The source of pysepal can be installed from the `GitHub repo <https://github.com
 
 .. code-block:: bash
 
-   python -m pip install git+git://github.com/openforis/pysepal.git#egg=pysepal
+   python -m pip install git+https://github.com/openforis/pysepal.git#egg=pysepal
 
 For local development
 ---------------------
