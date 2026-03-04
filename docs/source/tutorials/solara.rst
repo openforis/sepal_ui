@@ -48,9 +48,9 @@ Instead of installing directly from GitHub, we recommend cloning the repository 
 
 .. code-block:: bash
 
-    # Clone the sepal_ui repository (solara3 branch)
-    git clone -b solara3 https://github.com/openforis/sepal_ui.git
-    cd sepal_ui
+    # Clone the pysepal repository (solara3 branch)
+    git clone -b solara3 https://github.com/openforis/pysepal.git
+    cd pysepal
 
     # Install in development mode (editable installation)
     pip install -e .
@@ -149,11 +149,11 @@ Before building your own application, explore the provided notebooks and templat
 
 **Example Notebooks**
 
-Start Jupyter Lab and run these notebooks from ``sepal_ui/notebooks``:
+Start Jupyter Lab and run these notebooks from ``pysepal/notebooks``:
 
 .. code-block:: bash
 
-    cd sepal_ui/notebooks
+    cd pysepal/notebooks
     jupyter lab
 
 .. _SEPAL Client notebook:
@@ -185,7 +185,7 @@ Start Jupyter Lab and run these notebooks from ``sepal_ui/notebooks``:
 
 Testing Solara Templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-Create a ``.env`` file in the ``sepal_ui`` root directory:
+Create a ``.env`` file in the ``pysepal`` root directory:
 
 .. code-block:: properties
 
@@ -202,8 +202,8 @@ The repository also includes ready-to-run Solara application templates:
     # Activate conda environment
     conda activate pysepal_dev
 
-    # Navigate back to the main sepal_ui directory
-    cd /path/to/sepal_ui
+    # Navigate back to the main pysepal directory
+    cd /path/to/pysepal
 
     # Make the run script executable
     chmod +x run_solara.sh

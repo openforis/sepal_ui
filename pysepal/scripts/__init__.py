@@ -1,4 +1,4 @@
-"""Gather all the scripts used to support the sepal-ui interface (widgets and map).
+"""Gather all the scripts used to support the pysepal interface (widgets and map).
 
 Example:
     .. jupyter-execute::

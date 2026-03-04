@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Customization of the provided css from the different libs used by sepal_ui
+ * Customization of the provided css from the different libs used by pysepal
  */
 
 /* replace the map panel elements on top */
@@ -103,7 +103,7 @@ header.v-app-bar {
   display: none !important;
 }
 
-/* Related with https://github.com/12rambau/sepal_ui/issues/893 */
+/* Related with https://github.com/openforis/pysepal/issues/893 */
 #rendered_cells,
 #main {
   contain: revert !important;

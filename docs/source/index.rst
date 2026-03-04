@@ -1,12 +1,12 @@
 .. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal_header.png
 
-Sepal_ui
---------
+pysepal
+-------
 
-.. warning::
+.. note::
 
-    `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
-    Keep using `sepal-ui` for now, and plan migration to `pysepal` as the new canonical package name.
+    `sepal-ui` has been renamed to `pysepal`. The old import path ``import sepal_ui`` still
+    works via a compatibility shim but will be removed in a future release.
 
 --------------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ Demo apps can be launched on Heroku following these links:
 
 We are happy to receive feedback and we welcome any kind of contribution.
 
-.. image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/sepal_ui_demo.gif
+.. image:: https://raw.githubusercontent.com/openforis/pysepal/main/docs/source/_image/sepal_ui_demo.gif
 
 Contribute
 ----------

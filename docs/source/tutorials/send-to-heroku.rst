@@ -12,16 +12,16 @@ This tutorial has been inspired by This `pythonforundergradengineers <https://py
 
 .. note::
 
-    This methodology has been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/12rambau/sepal_ui_template/tree/heroku>`__.
+    This methodology has been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/openforis/sepal_ui_template/tree/heroku>`__.
 
 .. warning::
 
-    -   Heroku is a cloud hosting platform where deploying an app on a public account is free. If you prefer to use your favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
+    -   Heroku is a cloud hosting platform where deploying an app on a public account is free. If you prefer to use your favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/openforis/pysepal/issues>`__ if you are experiencing difficulties.
     -   The web platform offered by Heroku has very limited computation power. Please consider deploying on `SEPAL <https://sepal.io/>`_ if you require powerful computation resources.
 
 .. danger::
 
-    As of now, the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/12rambau/sepal_ui/issues/336>`__ has been opened, have a look if you require this feature.
+    As of now, the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/openforis/pysepal/issues/336>`__ has been opened, have a look if you require this feature.
 
 Set up the app
 --------------

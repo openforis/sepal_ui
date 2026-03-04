@@ -224,7 +224,7 @@ class TileDisclaimer(Tile):
             ("https://sepal.io", "sepal.png", "sepal_logo"),
         ]
         theme = "dark" if change["new"] == "dark" else "light"
-        url = f"https://raw.githubusercontent.com/12rambau/sepal_ui/master/sepal_ui/frontend/images/{theme}"
+        url = f"https://raw.githubusercontent.com/openforis/pysepal/main/pysepal/frontend/images/{theme}"
         for href, src, alt in logo_list:
             disclaimer += f'<a href="{href}"><img src="{url}/{src}" alt="{alt}" height="100" class="ma-3"/></a>'
 

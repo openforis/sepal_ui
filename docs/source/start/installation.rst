@@ -1,10 +1,10 @@
 Installation
 ============
 
-.. warning::
+.. note::
 
-   `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
-   This page documents the current package while migration is in progress.
+   `sepal-ui` has been renamed to `pysepal`. The old import path ``import sepal_ui`` still
+   works via a compatibility shim but will be removed in a future release.
 
 .. note::
 
@@ -23,17 +23,17 @@ Use pip to install from `Pypi <https://pypi.org/project/pysepal/>`_:
 From source
 -----------
 
-The source of pysepal can be installed from the `GitHub repo <https://github.com/12rambau/sepal_ui>`_:
+The source of pysepal can be installed from the `GitHub repo <https://github.com/openforis/pysepal>`_:
 
 .. code-block:: bash
 
-   python -m pip install git+git://github.com/12rambau/sepal_ui.git#egg=pysepal
+   python -m pip install git+git://github.com/openforis/pysepal.git#egg=pysepal
 
 For local development
 ---------------------
 
 .. code-block:: bash
 
-   git clone https://github.com/12rambau/sepal_ui.git
-   cd sepal_ui/
+   git clone https://github.com/openforis/pysepal.git
+   cd pysepal/
    pip install -e .
