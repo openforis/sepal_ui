@@ -1,12 +1,12 @@
 Tooltip
 =======
 
-In sepal-ui we have two ways to set tooltips to the widgets. The first one is the built-in :code:`sepalwidget.set_tooltip()` method available for all widgets, and the external one called :code:`sw.Tooltip(*args)`, depending on your needs you'll be probably more in favor in one than the other.
+In pysepal we have two ways to set tooltips to the widgets. The first one is the built-in :code:`sepalwidget.set_tooltip()` method available for all widgets, and the external one called :code:`sw.Tooltip(*args)`, depending on your needs you'll be probably more in favor in one than the other.
 
 
 Built-in
 --------
-Built-in tooltip is a new feature supported by :code:`sepal_ui>=2.9.0`. This integration makes possible to easily wrap a widget with a tooltip. Due to all sepal widgets are inheriting from the base :code:`sepal_ui.sepalwidget` class, it is possible to call the :code:`set_tooltip()` method from any component.
+Built-in tooltip is a new feature supported by :code:`pysepal>=2.9.0`. This integration makes possible to easily wrap a widget with a tooltip. Due to all sepal widgets are inheriting from the base :code:`pysepal.sepalwidget` class, it is possible to call the :code:`set_tooltip()` method from any component.
 
 Calling this method will store the tooltip view as a parameter of the widget (called :code:`with_tooltip`), it means that if you want to display the tooltip you'll have to use this element i.e. :code:`widget.with_tooltip`. As the widget now is activated and handled by the tooltip, it won't be longer displayed by itself (i.e. :code:`widget` will be invisible).
 
@@ -16,7 +16,7 @@ Remember that, even though the widget is wrapped by the tooltip, the widget meth
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -37,18 +37,18 @@ Remember that, even though the widget is wrapped by the tooltip, the widget meth
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.SepalWidget.set_tooltip>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.sepalwidget.SepalWidget.set_tooltip>`__.
 
 External
 --------
 
-The external :code:`Tooltip` is a custom widget to provide easy to use tooltip in the sepal_ui framework. We are based on the Vuetify web structure so the design of the tooltip design can be surprising for users coming from different platform. Here the tooltip is the main widget, and it owns the widget it describes. Here is an example for a :code:`Btn`.
+The external :code:`Tooltip` is a custom widget to provide easy to use tooltip in the pysepal framework. We are based on the Vuetify web structure so the design of the tooltip design can be surprising for users coming from different platform. Here the tooltip is the main widget, and it owns the widget it describes. Here is an example for a :code:`Btn`.
 
 .. jupyter-execute::
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -60,4 +60,4 @@ The external :code:`Tooltip` is a custom widget to provide easy to use tooltip i
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.sepalwidget.Tooltip>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.sepalwidget.Tooltip>`__.

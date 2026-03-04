@@ -6,7 +6,7 @@ Deploy on the web
     :target: https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html
     :width: 100 %
 
-First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`sepal-ui` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__.
+First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`pysepal` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__.
 
 This tutorial has been inspired by This `pythonforundergradengineers <https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html>`__ article.
 
@@ -53,7 +53,7 @@ Using as parameters:
     ##################################
 
     Welcome to the module factory interface.
-    This interface will help you build a dashboard app based on the sepal_ui library
+    This interface will help you build a dashboard app based on the pysepal library
     Please read the documentation of the library before launching this script
 
 
@@ -105,9 +105,9 @@ You will get the following file:
     GDAL==3.0.4
     pyproj<3.0.0
 
-    # the base lib to run any sepal_ui based app
+    # the base lib to run any pysepal based app
     # don't forget to fix it to a specific version when you're app is ready
-    sepal_ui==2.4.0
+    pysepal==2.4.0
 
 
     # custom libs
@@ -135,9 +135,9 @@ The :code:`requirements.txt` file created with the :code:`model_deploy` command 
     pybind11
     pre-commit
 
-    # the base lib to run any sepal_ui based app
+    # the base lib to run any pysepal based app
     # don't forget to fix it to a specific version when you're app is ready
-    sepal_ui==2.4.0
+    pysepal==2.4.0
 
 
     # custom libs
@@ -206,6 +206,6 @@ At the very bottom of your build log, you'll find the web URL that renders your 
 
 .. important::
 
-    Congratulation you've built your first :code:`sepal-ui` based app on Heroku!
+    Congratulation you've built your first :code:`pysepal` based app on Heroku!
 
 

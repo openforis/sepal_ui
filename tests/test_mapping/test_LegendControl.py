@@ -2,7 +2,7 @@
 
 import re
 
-from sepal_ui.mapping import LegendControl
+from pysepal.mapping import LegendControl
 
 
 def test_init() -> None:

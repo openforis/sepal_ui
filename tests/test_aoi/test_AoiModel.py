@@ -7,7 +7,7 @@ import ee
 import pytest
 from traitlets import Dict, Unicode
 
-from sepal_ui import aoi
+from pysepal import aoi
 
 
 def test_init_no_ee(fake_vector: Path) -> None:

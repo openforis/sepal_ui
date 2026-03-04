@@ -1,6 +1,6 @@
 """Test the style assets (colors and folders)."""
 
-from sepal_ui.frontend import styles as ss
+from pysepal.frontend import styles as ss
 
 
 def test_folders() -> None:

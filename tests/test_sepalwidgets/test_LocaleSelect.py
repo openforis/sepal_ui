@@ -2,8 +2,8 @@
 
 from configparser import ConfigParser
 
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.conf import config_file
+from pysepal import sepalwidgets as sw
+from pysepal.conf import config_file
 
 
 def test_init() -> None:

@@ -6,7 +6,7 @@ Getting started
     `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
     New projects should track migration updates and adopt `pysepal` when available.
 
-:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
+:code:`pysepal` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and a demo apps can be launched on Heroku following these links:

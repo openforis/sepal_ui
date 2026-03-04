@@ -15,10 +15,10 @@ import pandas as pd
 import pytest
 from shapely import geometry as sg
 
-import sepal_ui.sepalwidgets as sw
-from sepal_ui.scripts import gee
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.gee_interface import GEEInterface
+import pysepal.sepalwidgets as sw
+from pysepal.scripts import gee
+from pysepal.scripts import utils as su
+from pysepal.scripts.gee_interface import GEEInterface
 
 try:
     su.init_ee()
@@ -347,7 +347,7 @@ def has_active_planet_subscription(planet_key: str) -> bool:
         return False
 
     try:
-        from sepal_ui.planetapi import PlanetModel
+        from pysepal.planetapi import PlanetModel
 
         model = PlanetModel(planet_key)
         # Try to get subscriptions - if it fails or returns empty, no active subs

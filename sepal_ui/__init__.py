@@ -1,27 +1,77 @@
-"""wrapper for ipyvuetify widgets to unify the display of voila dashboards in the SEPAL plateform.
+"""Backward-compatibility shim: redirects all sepal_ui imports to pysepal.
 
-``sepal_ui`` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing ``ipyvuetify`` library and will help developer to easily create interface for their workflows. By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
+This package is deprecated. Use ``import pysepal`` instead.
 """
 
+import importlib
+import importlib.abc
+import importlib.machinery
+import importlib.util
+import sys
 import warnings
-
-from sepal_ui.conf import config as config
-from sepal_ui.conf import config_file as config_file
-from sepal_ui.frontend.styles import SepalColor
-from sepal_ui.frontend.styles import get_theme as get_theme
-
-__author__ = """Pierrick Rambaud"""
-__email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "3.2.0"
 
 warnings.warn(
     (
-        "The 'sepal_ui' package is deprecated and will be renamed to 'pysepal'. "
-        "This is a transition release; please plan migration to 'pysepal' in upcoming releases."
+        "The 'sepal_ui' package is deprecated and has been renamed to 'pysepal'. "
+        "Please update your imports: 'import pysepal' / 'from pysepal import ...'."
     ),
     DeprecationWarning,
     stacklevel=2,
 )
 
-color = SepalColor()
-'color: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'
+
+class _SepalUiFinder(importlib.abc.MetaPathFinder):
+    """Redirect ``sepal_ui.*`` imports to ``pysepal.*``."""
+
+    _active = set()
+
+    def find_spec(self, fullname, path, target=None):
+        if not fullname.startswith("sepal_ui."):
+            return None
+        # Prevent re-entrant calls while resolving the same name
+        if fullname in self._active:
+            return None
+        self._active.add(fullname)
+        try:
+            new_name = fullname.replace("sepal_ui", "pysepal", 1)
+            spec = importlib.util.find_spec(new_name)
+            if spec is None:
+                return None
+            # Create a spec that loads the pysepal module but registers under sepal_ui name
+            return importlib.machinery.ModuleSpec(
+                fullname,
+                _SepalUiLoader(new_name),
+                origin=spec.origin,
+                is_package=spec.submodule_search_locations is not None,
+            )
+        finally:
+            self._active.discard(fullname)
+
+
+class _SepalUiLoader(importlib.abc.Loader):
+    """Load pysepal module and alias it under sepal_ui name."""
+
+    def __init__(self, real_name):
+        self._real_name = real_name
+
+    def create_module(self, spec):
+        return None  # use default module creation
+
+    def exec_module(self, module):
+        real_mod = importlib.import_module(self._real_name)
+        # Replace the module in sys.modules with the real one
+        sys.modules[module.__name__] = real_mod
+        module.__dict__.update(real_mod.__dict__)
+
+
+sys.meta_path.insert(0, _SepalUiFinder())
+
+
+def __getattr__(name):
+    """Lazily forward attribute access to pysepal to avoid circular imports."""
+    import pysepal
+
+    try:
+        return getattr(pysepal, name)
+    except AttributeError:
+        raise AttributeError(f"module 'sepal_ui' has no attribute {name!r}")

@@ -11,10 +11,10 @@ import ee
 import pytest
 from ipyleaflet import GeoJSON
 
-from sepal_ui import mapping as sm
-from sepal_ui.frontend import styles as ss
-from sepal_ui.frontend.styles import get_theme
-from sepal_ui.mapping.legend_control import LegendControl
+from pysepal import mapping as sm
+from pysepal.frontend import styles as ss
+from pysepal.frontend.styles import get_theme
+from pysepal.mapping.legend_control import LegendControl
 
 # create a seed so that we can check values
 random.seed(42)

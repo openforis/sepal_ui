@@ -209,10 +209,10 @@ The repository also includes ready-to-run Solara application templates:
     chmod +x run_solara.sh
 
     # Test the basic file input example
-    ./run_solara.sh sepal_ui/templates/solara/solara_map_app/simple_app.py --port 8900
+    ./run_solara.sh pysepal/templates/solara/solara_map_app/simple_app.py --port 8900
 
     # Test the map application template
-    ./run_solara.sh sepal_ui/templates/solara/solara_map_app/app.py --port 8901
+    ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
 
 The ``run_solara.sh`` script automatically:
 
@@ -237,13 +237,13 @@ Here's the basic structure for a Solara-based SEPAL application:
 
 .. code-block:: python
 
-    # this code can be found at: sepal_ui/templates/solara/solara_map_app/simple_app.py
+    # this code can be found at: pysepal/templates/solara/solara_map_app/simple_app.py
 
     from pathlib import Path
     import solara
 
-    from sepal_ui.sepalwidgets.file_input import FileInput
-    from sepal_ui.solara import (
+    from pysepal.sepalwidgets.file_input import FileInput
+    from pysepal.solara import (
         setup_sessions,
         with_sepal_sessions,
         get_current_gee_interface,
@@ -297,16 +297,16 @@ Complete Map Application Example
 
 .. code-block:: python
 
-    # this code can be found at: sepal_ui/templates/solara/solara_map_app/app.py
+    # this code can be found at: pysepal/templates/solara/solara_map_app/app.py
 
     import logging
     import ipyvuetify as v
     import solara
     import ee
 
-    from sepal_ui.mapping import SepalMap
-    from sepal_ui.sepalwidgets.vue_app import MapApp, ThemeToggle
-    from sepal_ui.solara import (
+    from pysepal.mapping import SepalMap
+    from pysepal.sepalwidgets.vue_app import MapApp, ThemeToggle
+    from pysepal.solara import (
         get_current_drive_interface,
         get_current_gee_interface,
         get_current_sepal_client,
@@ -315,8 +315,8 @@ Complete Map Application Example
         setup_theme_colors,
         with_sepal_sessions,
     )
-    from sepal_ui.solara.components.admin import AdminButton
-    import sepal_ui.sepalwidgets as sw
+    from pysepal.solara.components.admin import AdminButton
+    import pysepal.sepalwidgets as sw
 
     setup_solara_server()
 

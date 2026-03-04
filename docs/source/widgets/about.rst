@@ -12,7 +12,7 @@ In the following example we create a fake file on the fly and use it to display 
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     from pathlib import Path
 
     # correct colors for the documentation
@@ -35,4 +35,4 @@ In the following example we create a fake file on the fly and use it to display 
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.tile.TileAbout>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.tile.TileAbout>`__.

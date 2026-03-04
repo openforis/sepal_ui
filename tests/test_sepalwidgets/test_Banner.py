@@ -2,7 +2,7 @@
 
 import pytest
 
-import sepal_ui.sepalwidgets as sw
+import pysepal.sepalwidgets as sw
 
 
 def test_init() -> None:

@@ -20,7 +20,7 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 
 --------------------------------------------------------------------------------
 
-:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
+:code:`pysepal` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
 Demo apps can be launched on Heroku following these links:
@@ -47,5 +47,5 @@ Meet our :doc:`contributor <./start/authors>`.
     start/index
     tutorials/index
     widgets/index
-    API Content <modules/sepal_ui>
+    API Content <modules/pysepal>
     cli/index

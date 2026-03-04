@@ -11,7 +11,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -35,7 +35,7 @@ Manually select a file from it's path. No verification on the extension is perfo
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     from pathlib import Path
 
     # correct colors for the documentation
@@ -60,7 +60,7 @@ Clear the File selection and move to the root folder if something was selected.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
     from pathlib import Path
 
     # correct colors for the documentation
@@ -78,4 +78,4 @@ Clear the File selection and move to the root folder if something was selected.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.FileInput>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.inputs.FileInput>`__.
