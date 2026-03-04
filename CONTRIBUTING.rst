@@ -9,8 +9,8 @@ After forking the project, run the following command to start developing:
 
 .. code-block:: console
 
-    $ git clone https://github.com/<github id>/sepal_ui.git
-    $ cd sepal_ui
+    $ git clone https://github.com/<github id>/pysepal.git
+    $ cd pysepal
     $ pip install -e .[dev]
 
 .. warning::
@@ -43,7 +43,7 @@ Develop within the project
 
 Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
-.. figure:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/branching_system.png
+.. figure:: https://raw.githubusercontent.com/openforis/pysepal/main/docs/source/_image/branching_system.png
     :alt: the Git branching model
 
     The git branching model
@@ -145,7 +145,7 @@ In the files change the version number by running commitizen `bump`:
 
     cz bump
 
-It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to semantic versioning thanks to the conventional commit that we use in the lib.
+It should modify for you the version number in :code:`pysepal/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to semantic versioning thanks to the conventional commit that we use in the lib.
 
 It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories if you run the following code, using the version bumped in the previous commit.
 
@@ -159,9 +159,9 @@ Then push the current :code:`main` branch to the :code:`release` branch. You can
 
     The target branch of the new release is :code:`release` not :code:`main`.
 
-The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://pypi.org/project/sepal-ui/>`_.
+The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://pypi.org/project/pysepal/>`_.
 
-Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically.
+Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_pysepal.sh>`_ with the latest version number and the rebuild will start automatically.
 
 ENV for Planet components
 -------------------------
@@ -211,7 +211,7 @@ Open the credentials file and copy its content. On the **GitHub Actions** page, 
 Build the API documentation files
 ---------------------------------
 
-We are using :code:`api-doc` to build the documentation of the lib so if you want to see the API related documentation in your local build you need to run the following lines from the :code:`sepal_ui` folder:
+We are using :code:`api-doc` to build the documentation of the lib so if you want to see the API related documentation in your local build you need to run the following lines from the :code:`pysepal` folder:
 
 .. code-block:: console
 

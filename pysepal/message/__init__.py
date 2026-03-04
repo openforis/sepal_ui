@@ -1,4 +1,4 @@
-"""Initialization of the ``Translator`` used in the sepal-ui.
+"""Initialization of the ``Translator`` used in pysepal.
 
 Can be accessed as:
 

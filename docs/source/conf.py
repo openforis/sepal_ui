@@ -125,12 +125,12 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/12rambau/sepal_ui",
+            "url": "https://github.com/openforis/pysepal",
             "icon": "fa-brands fa-github",
         },
         {
             "name": "Pypi",
-            "url": "https://pypi.org/project/sepal-ui/",
+            "url": "https://pypi.org/project/pysepal/",
             "icon": "fa-brands fa-python",
         },
     ],
@@ -139,8 +139,8 @@ html_theme_options = {
     "show_version_warning_banner": True,
 }
 html_context = {
-    "github_user": "12rambau",
-    "github_repo": "sepal_ui",
+    "github_user": "openforis",
+    "github_repo": "pysepal",
     "github_version": "main",
     "doc_path": "docs/source",
 }

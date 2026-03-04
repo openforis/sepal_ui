@@ -65,8 +65,8 @@ file = "README.rst"
 content-type = "text/x-rst"
 
 [project.urls]
-Homepage = "https://github.com/12rambau/sepal_ui"
-Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.tar.gz"
+Homepage = "https://github.com/openforis/pysepal"
+Download = "https://github.com/openforis/pysepal/archive/v_${metadata:version}.tar.gz"
 
 [project.optional-dependencies]
 dev = [

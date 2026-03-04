@@ -7,4 +7,4 @@ Panel app
 
 .. tip::
 
-    Please open an issue on their repository : https://github.com/12rambau/sepal_ui/issues/new
+    Please open an issue on their repository : https://github.com/openforis/pysepal/issues/new
