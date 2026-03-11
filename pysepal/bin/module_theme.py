@@ -2,7 +2,7 @@
 
 """Script to manually change the used theme.
 
-This script will update the parameters shared between all sepal-ui based modules.
+This script will update the parameters shared between all pysepal based modules.
 The "theme" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
 """
 
@@ -26,7 +26,7 @@ def check_theme(theme: str) -> bool:
         theme: the theme name
 
     Returns:
-        True if the theme is covered by sepal-ui
+        True if the theme is covered by pysepal
     """
     themes = ["dark", "light"]
 
@@ -39,7 +39,7 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}sepal-ui module theme selection{Fore.RESET}")
+    print(f"{Fore.YELLOW}pysepal module theme selection{Fore.RESET}")
 
     # select a language
     is_theme = False

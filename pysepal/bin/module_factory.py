@@ -149,7 +149,7 @@ def set_module_name_doc(folder: Path, url: str, module_name: str) -> None:
 
         text = text.replace("Module_name", module_name)
         text = text.replace("===========", "=" * len(module_name))
-        text = text.replace("https://github.com/12rambau/sepal_ui", url)
+        text = text.replace("https://github.com/openforis/pysepal", url)
 
         with file.open("w") as f:
             f.write(text)
@@ -173,7 +173,7 @@ def set_drawer_link(folder: Path, url: str) -> None:
         ui_content = f.read()
 
     # replace the target strings
-    ui_content = ui_content.replace("https://github.com/12rambau/sepal_ui", url)
+    ui_content = ui_content.replace("https://github.com/openforis/pysepal", url)
 
     # write everything down again
     with ui.open("w") as f:

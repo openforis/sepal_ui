@@ -2,7 +2,7 @@
 
 """Script to manually change the used theme.
 
-This script will update the parameters shared between all sepal-ui based modules.
+This script will update the parameters shared between all pysepal based modules.
 The "language" parameter will be changed to the selected one. Any running application will need to be restarted to use this modification
 """
 
@@ -42,7 +42,7 @@ def main() -> None:
     parser.parse_args()
 
     # welcome the user
-    print(f"{Fore.YELLOW}sepal-ui localisation script{Fore.RESET}")
+    print(f"{Fore.YELLOW}pysepal localisation script{Fore.RESET}")
 
     # select a language
     is_locale = False

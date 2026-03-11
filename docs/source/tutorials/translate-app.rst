@@ -108,7 +108,7 @@ Update the translated dictionaries
 Automatic
 ^^^^^^^^^
 
-If your application is part of the OpenForis initiative and hosted on SEPAL, you can request to add your project to the **Pontoon** application list. Pontoon is an open-source translation solution that will deal with the trouble of creating the files and keep the keys updated. To learn more, please see their `documentation <https://mozilla-l10n.github.io/localizer-documentation/tools/pontoon/>`__. From the developer's side you'll need to add the folder corresponding to the language you want to support and open a request for a new project in our `issue tracker <https://github.com/12rambau/sepal_ui/issues/new/choose>`__.
+If your application is part of the OpenForis initiative and hosted on SEPAL, you can request to add your project to the **Pontoon** application list. Pontoon is an open-source translation solution that will deal with the trouble of creating the files and keep the keys updated. To learn more, please see their `documentation <https://mozilla-l10n.github.io/localizer-documentation/tools/pontoon/>`__. From the developer's side you'll need to add the folder corresponding to the language you want to support and open a request for a new project in our `issue tracker <https://github.com/openforis/pysepal/issues/new/choose>`__.
 
 .. note::
 

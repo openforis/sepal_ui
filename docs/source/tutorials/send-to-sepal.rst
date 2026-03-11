@@ -69,7 +69,7 @@ To customize this environment add any libraries that are useful for your module.
 
     .. code-block::
 
-        git+https://github.com/12rambau/sepal_ui.git#egg=pysepal
+        git+https://github.com/openforis/pysepal.git#egg=pysepal
 
     with everything after "git+" being the https link to the repository and "egg=" the name used by the lib in your file. If you want to know more about this method please refer to `this blog post <https://codeinthehole.com/tips/using-pip-and-requirementstxt-to-install-from-the-head-of-a-github-branch/>`_.
 

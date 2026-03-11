@@ -1,12 +1,12 @@
 .. image:: https://raw.githubusercontent.com/openforis/sepal-doc/master/docs/source/_images/sepal_header.png
 
-Sepal_ui
---------
+pysepal
+-------
 
-.. warning::
+.. note::
 
-    `sepal-ui` is in deprecation transition and will be renamed to `pysepal`.
-    This release is maintained for compatibility while migration work is completed.
+    `sepal-ui` has been renamed to `pysepal`. The old import path ``import sepal_ui`` still
+    works via a compatibility shim but will be removed in a future release.
 
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg?logo=opensourceinitiative&logoColor=white
     :target: https://opensource.org/licenses/MIT
@@ -32,28 +32,28 @@ Sepal_ui
     :target: https://sepal-ui.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. image:: https://img.shields.io/pypi/v/sepal-ui?color=orange&logo=pypi&logoColor=white
-    :target: https://pypi.org/project/sepal-ui/
+.. image:: https://img.shields.io/pypi/v/pysepal?color=orange&logo=pypi&logoColor=white
+    :target: https://pypi.org/project/pysepal/
     :alt: PyPI version
 
-.. image:: https://img.shields.io/conda/vn/conda-forge/sepal-ui?color=orange&logo=anaconda&logoColor=white
-    :target: https://anaconda.org/conda-forge/sepal-ui
+.. image:: https://img.shields.io/conda/vn/conda-forge/pysepal?color=orange&logo=anaconda&logoColor=white
+    :target: https://anaconda.org/conda-forge/pysepal
     :alt: Conda Version
 
-.. image:: https://img.shields.io/pypi/pyversions/sepal-ui?color=orange&logo=python&logoColor=white
-   :target: https://pypi.org/project/sepal-ui/
+.. image:: https://img.shields.io/pypi/pyversions/pysepal?color=orange&logo=python&logoColor=white
+   :target: https://pypi.org/project/pysepal/
    :alt: supported Python version
 
-.. image:: https://img.shields.io/github/actions/workflow/status/12rambau/sepal_ui/unit.yml?logo=github&logoColor=white
-    :target: https://github.com/12rambau/sepal_ui/actions/workflows/unit.yml
+.. image:: https://img.shields.io/github/actions/workflow/status/openforis/pysepal/unit.yml?logo=github&logoColor=white
+    :target: https://github.com/openforis/pysepal/actions/workflows/unit.yml
     :alt: build
 
-.. image:: https://img.shields.io/codeclimate/maintainability/12rambau/sepal_ui?logo=codeclimate&logoColor=white
-    :target: https://codeclimate.com/github/12rambau/sepal_ui/maintainability
+.. image:: https://img.shields.io/codeclimate/maintainability/openforis/pysepal?logo=codeclimate&logoColor=white
+    :target: https://codeclimate.com/github/openforis/pysepal/maintainability
     :alt: Maintainability
 
-.. image:: https://img.shields.io/codecov/c/github/12rambau/sepal_ui?logo=codecov&logoColor=white
-    :target: https://codecov.io/gh/12rambau/sepal_ui
+.. image:: https://img.shields.io/codecov/c/github/openforis/pysepal?logo=codecov&logoColor=white
+    :target: https://codecov.io/gh/openforis/pysepal
     :alt: Test Coverage
 
 --------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 
 --------------------------------------------------------------------------------
 
-:code:`sepal_ui` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
+:code:`pysepal` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
 By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links:
@@ -89,10 +89,10 @@ We are happy to receive feedback and we welcome any kind of contribution.
 | |map-app| | |panel-app| |
 +-----------+-------------+
 
-.. |map-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-map-app.png
+.. |map-app| image:: https://raw.githubusercontent.com/openforis/pysepal/main/docs/source/_image/demo-map-app.png
     :width: 100%
 
-.. |panel-app| image:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/demo-panel-app.png
+.. |panel-app| image:: https://raw.githubusercontent.com/openforis/pysepal/main/docs/source/_image/demo-panel-app.png
     :width: 100%
 
 Contribute

@@ -148,7 +148,7 @@ class SepalColor(HasTraits, SimpleNamespace):
     "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
 
     def __init__(self) -> None:
-        """Custom simple name space to store and access to the sepal_ui colors and with a magic method to display theme."""
+        """Custom simple name space to store and access to the pysepal colors and with a magic method to display theme."""
         link((self, "_dark_theme"), (v.theme, "dark"))
         v.theme.observe(lambda *x: self.set_colors(), "dark")
 
@@ -189,7 +189,7 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
-# load custom styling of sepal_ui
+# load custom styling of pysepal
 sepal_ui_css = HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>")
 
 # load fa-6

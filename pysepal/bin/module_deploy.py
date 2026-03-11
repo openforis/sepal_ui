@@ -8,7 +8,7 @@ file using the versions used in the current local installation.
 Some troubleshouting are handled by the script:
 -  the earthengine-api will be forced to use the openforis fork to be compatible with SEPAL
 -  pyproj and pygdal version will be forced to the version set in SEPAl as well
--  sepal-ui version will be bound to the one available when calling the script
+-  pysepal version will be bound to the one available when calling the script
 Once the file have been created, please check it manually and make sure that there are no visible issues. PLease report any incompatibility to the developer
 so that they can be added to the troubleshoot function.
 """
@@ -109,14 +109,14 @@ def clean_troubleshouting(file: Union[str, Path]) -> None:
         # gdal and osgeo are part of pygdal
         # we use a specific version of earthengine in SEPAl, let's stick to it
         if "ee" in line:
-            print(f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in sepal_ui.")
+            print(f"Removing {Style.BRIGHT}ee{Style.NORMAL} from reqs, included in pysepal.")
             continue
         elif any(lib in line for lib in ["osgeo"]):
             print(f"Removing {Style.BRIGHT}'osgeo'{Style.NORMAL} as part of gdal")
             line = "gdal"
         elif "earthengine-api" in line:
             print(
-                f"Removing {Style.BRIGHT}earthengine_api{Style.NORMAL} from reqs, included in sepal_ui."
+                f"Removing {Style.BRIGHT}earthengine_api{Style.NORMAL} from reqs, included in pysepal."
             )
             continue
 
