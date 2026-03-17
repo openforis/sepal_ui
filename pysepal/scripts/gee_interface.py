@@ -578,9 +578,9 @@ class GEEInterface:
         log.debug(f"Closing GEEInterface... {id(self)}")
 
         try:
-            if hasattr(self, "_sync_loop") and self._async_loop.is_running():
+            if hasattr(self, "_async_loop") and self._async_loop.is_running():
                 self._async_loop.call_soon_threadsafe(self._async_loop.stop)
-                if hasattr(self, "_sync_thread") and self._async_thread.is_alive():
+                if hasattr(self, "_async_thread") and self._async_thread.is_alive():
                     self._async_thread.join(timeout=5.0)
                     if self._async_thread.is_alive():
                         log.warning("Background thread did not stop within timeout")

@@ -72,8 +72,14 @@ class SessionManager:
             EEClientError: For authentication-related errors.
             Exception: For other validation or connection errors.
         """
-        current_headers = headers.value
         kernel_id = self.get_kernel_id()
+
+        # Skip if a session already exists for this kernel (idempotent)
+        if kernel_id in self._sessions:
+            logger.debug(f"Session already exists for kernel {kernel_id}, skipping creation")
+            return
+
+        current_headers = headers.value
 
         if current_headers is None:
             logger.warning(f"Headers not available yet for kernel {kernel_id}")
