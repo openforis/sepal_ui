@@ -59,7 +59,7 @@ class SessionManager:
     def get_kernel_id(self) -> str:
         """Get the current kernel ID."""
         # Solara provides a way to get the current kernel context
-        return id(solara.server.kernel_context.get_current_context().kernel)
+        return str(id(solara.server.kernel_context.get_current_context().kernel))
 
     def create_session(self, module_name: str = "default") -> None:
         """Create a new session with all the interfaces for the given kernel ID.
