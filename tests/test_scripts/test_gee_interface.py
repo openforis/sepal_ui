@@ -194,10 +194,14 @@ def test_close(gee_interface: GEEInterface) -> None:
     # Create a new interface for this test
     interface = GEEInterface()
     assert not interface._closed
+    assert interface._async_thread.is_alive()
+    assert interface._async_loop.is_running()
 
     # Close it
     interface.close()
     assert interface._closed
+    assert not interface._async_thread.is_alive()
+    assert interface._async_loop.is_closed()
 
     # Calling close again should be safe
     interface.close()
