@@ -46,8 +46,12 @@ def _get_fallback_drive_interface() -> GDriveInterface:
 def get_current_gee_interface() -> GEEInterface:
     """Returns the GEE interface for the current kernel session.
 
-    If session manager is not initialized, returns a shared fallback GEEInterface
-    with an EESession without headers.
+    If session manager is not initialized (e.g. running in a notebook),
+    returns a shared fallback GEEInterface with an EESession without headers.
+
+    Raises:
+        RuntimeError: If session manager is initialized but no session exists
+            for the current kernel (indicates a missing @with_sepal_sessions decorator).
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
@@ -55,7 +59,12 @@ def get_current_gee_interface() -> GEEInterface:
         if interface is not None:
             return interface
 
-    # Fallback: return shared GEEInterface with EESession without headers
+        raise RuntimeError(
+            "Session manager is active but no session exists for the current kernel. "
+            "Ensure your Page component is decorated with @with_sepal_sessions."
+        )
+
+    # Fallback only for non-Solara contexts (notebooks, scripts)
     return _get_fallback_gee_interface()
 
 
@@ -76,8 +85,12 @@ def get_current_sepal_client() -> Optional[SepalClient]:
 def get_current_drive_interface() -> GDriveInterface:
     """Returns Drive interface for the current kernel session.
 
-    If session manager is not initialized, returns a shared fallback GDriveInterface
-    without headers.
+    If session manager is not initialized (e.g. running in a notebook),
+    returns a shared fallback GDriveInterface without headers.
+
+    Raises:
+        RuntimeError: If session manager is initialized but no session exists
+            for the current kernel (indicates a missing @with_sepal_sessions decorator).
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
@@ -85,7 +98,12 @@ def get_current_drive_interface() -> GDriveInterface:
         if interface is not None:
             return interface
 
-    # Fallback: return shared GDriveInterface without headers
+        raise RuntimeError(
+            "Session manager is active but no session exists for the current kernel. "
+            "Ensure your Page component is decorated with @with_sepal_sessions."
+        )
+
+    # Fallback only for non-Solara contexts (notebooks, scripts)
     return _get_fallback_drive_interface()
 
 
