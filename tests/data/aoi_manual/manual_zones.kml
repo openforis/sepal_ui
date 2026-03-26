@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>manual_zones</name>
+    <Placemark>
+      <name>ridge_zone</name>
+      <ExtendedData>
+        <Data name="zone_group">
+          <value>upland</value>
+        </Data>
+        <Data name="priority">
+          <value>high</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -72.92,6.98,0 -72.92,7.08,0 -72.80,7.08,0 -72.80,6.98,0 -72.92,6.98,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark>
+      <name>valley_zone</name>
+      <ExtendedData>
+        <Data name="zone_group">
+          <value>lowland</value>
+        </Data>
+        <Data name="priority">
+          <value>medium</value>
+        </Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -72.76,6.88,0 -72.76,6.98,0 -72.64,6.98,0 -72.64,6.88,0 -72.76,6.88,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>
