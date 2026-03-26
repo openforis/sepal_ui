@@ -48,7 +48,7 @@ from pysepal import color as scolors
 from pysepal import sepalwidgets as sw
 from pysepal.frontend import styles as ss
 from pysepal.mapping.basemaps import basemap_tiles
-from pysepal.mapping.draw_control import DrawControl
+from pysepal.mapping.draw_control import GeomanDrawControl
 from pysepal.mapping.inspector_control import InspectorControl
 from pysepal.mapping.layer import EELayer
 from pysepal.mapping.layer_state_control import LayerStateControl
@@ -65,6 +65,42 @@ import logging
 
 log = logging.getLogger("sepalui.mapping")
 
+DEFAULT_MAP_WIDTH_PX = 1024
+
+
+def _resolve_map_width_px(width, fallback: int = DEFAULT_MAP_WIDTH_PX) -> tuple[int, bool]:
+    """Resolve a widget layout width value to an absolute pixel width."""
+    if width is None:
+        return fallback, True
+
+    if isinstance(width, str):
+        width = width.strip()
+        if not width:
+            return fallback, True
+        if width.endswith("%"):
+            return fallback, True
+        if width.endswith("px"):
+            width = width[:-2].strip()
+
+    try:
+        width_px = int(float(width))
+    except (TypeError, ValueError):
+        return fallback, True
+
+    return (width_px, False) if width_px > 0 else (fallback, True)
+
+
+def _is_expected_map_width_fallback(width) -> bool:
+    """Return True when falling back from the layout width is expected."""
+    if width is None:
+        return True
+
+    if isinstance(width, str):
+        width = width.strip()
+        return not width or width.endswith("%")
+
+    return False
+
 
 class SepalMap(ipl.Map):
     # ##########################################################################
@@ -77,7 +113,7 @@ class SepalMap(ipl.Map):
     v_inspector: Optional[InspectorControl] = None
     "The value inspector of the map"
 
-    dc: Optional[DrawControl] = None
+    dc: Optional[GeomanDrawControl] = None
     "The drawing control of the map"
 
     _id: str = ""
@@ -188,7 +224,7 @@ class SepalMap(ipl.Map):
             self.add(FullScreenControl(self))
 
         # specific drawing control
-        self.dc = DrawControl(self)
+        self.dc = GeomanDrawControl(self)
         not dc or self.add(self.dc)
 
         # specific v_inspector
@@ -833,17 +869,14 @@ class SepalMap(ipl.Map):
         self.center = center
 
         # 2) Determine map width in pixels
-        width = None
-        log.debug(f"getting map width from layout: {self.layout}")
-        if hasattr(self, "layout"):
-            width = getattr(self.layout, "width", None)
-            log.debug(f"map width from layout: {width}")
-        try:
-            log.debug(f"getting map width from width: {width}")
-            map_width_px = int(width)
-        except (TypeError, ValueError) as e:
-            log.debug(f"Error: {width}, {e}")
-            map_width_px = 1024
+        width = getattr(getattr(self, "layout", None), "width", None)
+
+        map_width_px, used_fallback = _resolve_map_width_px(width)
+        if used_fallback and not _is_expected_map_width_fallback(width):
+            log.debug(
+                f"map width {width!r} is unavailable or not an absolute pixel value; "
+                f"using fallback {map_width_px}px"
+            )
 
         log.debug(f"map width in pixels: {map_width_px}")
 
