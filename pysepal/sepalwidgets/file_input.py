@@ -1,11 +1,14 @@
-"""Custom FileInput widget that leverages vuetify templates and handles both local and remote files (sepal)."""
+"""Custom FileInput widget that leverages vuetify templates and handles both local and remote files (sepal).
+
+Note: FileInputComponent has moved to pysepal.solara.components.inputs.file_input.
+Importing it from this module is deprecated.
+"""
 
 from pathlib import Path
-from typing import Callable, Literal, Optional, Union
 from typing import List as ListType
+from typing import Literal, Optional, Union
 
 import ipyvuetify as v
-import solara
 from natsort import natsorted
 from pydantic import BaseModel
 from traitlets import Bool, Int, List, Unicode
@@ -202,91 +205,18 @@ class FileInput(v.VuetifyTemplate, SepalWidget):
         self.value = str(file_path)
 
 
-@solara.component
-def FileInputComponent(
-    initial_folder: str = "",
-    root: str = "",
-    sepal_client: Optional[SepalClient] = None,
-    extensions: List[str] = [],
-    label: str = "Select a file",
-    clearable: bool = True,
-    value: Union[str, solara.Reactive[str]] = "",
-    on_value: Optional[Callable[[str], None]] = None,
-):
-    """Solara component wrapper for FileInput widget.
+def __getattr__(name: str):
+    if name == "FileInputComponent":
+        import warnings
 
-    Args:
-        initial_folder: The initial folder to read files from.
-        root: Maximum root directory that can be accessed.
-        sepal_client: Sepal client to access the server.
-        extensions: List of file extensions to filter by.
-        label: Label for the file selection button.
-        clearable: Whether to show a clear button.
-        value: Current selected file path (can be reactive).
-        on_value: Callback function when value changes.
+        warnings.warn(
+            "FileInputComponent has moved to pysepal.solara.components.inputs.file_input. "
+            "Importing from pysepal.sepalwidgets.file_input is deprecated and will be "
+            "removed in a future version.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from pysepal.solara.components.inputs.file_input import FileInputComponent
 
-    Returns:
-        FileInput element configured as a Solara component.
-    """
-    # Use solara.use_reactive to handle both reactive and plain values
-    reactive_value = solara.use_reactive(value, on_value)
-    del value, on_value
-
-    # Track if we're currently syncing to avoid infinite loops
-    is_syncing = solara.use_ref(False)
-
-    root = root if root else "" if sepal_client else str(Path.home())
-
-    # Create the FileInput element
-    file_input = FileInput.element(
-        initial_folder=initial_folder,
-        root=root,
-        sepal_client=sepal_client,
-        extensions=extensions,
-        label=label,
-        clearable=clearable,
-        value=reactive_value.value,
-        on_v_model=lambda v: None,  # Set up later
-    )
-
-    # Wire up the widget after it's created
-    def setup_widget():
-        real_widget = solara.get_widget(file_input)
-        if real_widget is None:
-            return
-
-        # Set initial value
-        if reactive_value.value and real_widget.v_model != reactive_value.value:
-            real_widget.v_model = reactive_value.value
-
-        # Set up the v_model change handler
-        def on_widget_change(change):
-            if not is_syncing.current:
-                is_syncing.current = True
-                reactive_value.set(change["new"])
-                is_syncing.current = False
-
-        real_widget.observe(on_widget_change, "v_model")
-
-        # Clean up observer on unmount
-        return lambda: real_widget.unobserve(on_widget_change, "v_model")
-
-    solara.use_effect(setup_widget, [])
-
-    # Sync reactive value changes back to the widget
-    def sync_to_widget():
-        if is_syncing.current:
-            return
-
-        real_widget = solara.get_widget(file_input)
-        if real_widget is None:
-            return
-
-        if real_widget.v_model != reactive_value.value:
-            is_syncing.current = True
-            real_widget.v_model = reactive_value.value
-            is_syncing.current = False
-
-    solara.use_effect(sync_to_widget, [reactive_value.value])
-
-    return file_input
+        return FileInputComponent
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
