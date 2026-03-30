@@ -637,8 +637,14 @@ class SepalMap(ipl.Map):
         )
 
         if autocenter:
-            bounds = self.gee_interface.get_info(ee_object.bounds().coordinates().get(0))
-            self.zoom_bounds((*bounds[0], *bounds[2]))
+            try:
+                ee_geometry = (
+                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
+                )
+                bounds = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
+                self.zoom_bounds((*bounds[0], *bounds[2]))
+            except Exception:
+                log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
         self.add_layer(tile_layer, key=key)
 
@@ -706,10 +712,16 @@ class SepalMap(ipl.Map):
         )
 
         if autocenter:
-            bounds = await self.gee_interface.get_info_async(
-                ee_object.bounds().coordinates().get(0)
-            )
-            self.zoom_bounds((*bounds[0], *bounds[2]))
+            try:
+                ee_geometry = (
+                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
+                )
+                bounds = await self.gee_interface.get_info_async(
+                    ee_geometry.bounds().coordinates().get(0)
+                )
+                self.zoom_bounds((*bounds[0], *bounds[2]))
+            except Exception:
+                log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
         self.add_layer(tile_layer, key=key)
 
