@@ -8,6 +8,7 @@ used for multiple use-case sucha as (but not limited):
 ...
 """
 
+import logging
 import warnings
 from functools import wraps
 from itertools import product
@@ -21,16 +22,32 @@ from pysepal.message import ms
 from pysepal.scripts.gee import init_ee, need_ee  # noqa: F401 - backward compatibility
 from pysepal.scripts.warning import SepalWarning
 
+_decorator_logger = logging.getLogger(__name__)
+
+
+def _get_notification_bus():
+    """Try to get the current notification bus. Returns None if unavailable."""
+    try:
+        from pysepal.solara.notifications.bus import get_current_bus
+
+        return get_current_bus()
+    except ImportError:
+        return None
+
 
 @versionadded(version="3.0", reason="moved from utils to a dedicated module")
-def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) -> Any:
-    """Decorator to execute try/except sentence and catch errors in the alert message.
+def catch_errors(func=None, alert: Optional[v.Alert] = None, debug: Optional[bool] = None) -> Any:
+    """Decorator to execute try/except sentence and catch errors.
 
-    If debug is True then the error is raised anyway.
+    When alert= is provided or self.alert exists, uses legacy alert widget behavior.
+    Otherwise, publishes to the notification bus (if mounted).
+
+    Supports both @catch_errors and @catch_errors(alert=...) syntax.
 
     Args:
-        alert: Alert to display errors
-        debug: Whether to raise the error or not, default to false
+        func: The decorated function (when used without parentheses)
+        alert: Alert to display errors (legacy, optional)
+        debug: Deprecated, will be removed in v3.2
 
     Returns:
         The return statement of the decorated method
@@ -41,28 +58,59 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) 
     def decorator_alert_error(func):
         @wraps(func)
         def wrapper_alert_error(self, *args, **kwargs):
-            # Change name of variable to assign it again in this scope
-            # check if alert exist in the parent object if alert is not set manually
-            assert hasattr(self, "alert") or alert, ms.decorator.no_alert
-            alert_ = self.alert if not alert else alert
-            alert_.reset()
+            # Resolve alert: explicit param > self.alert > None
+            alert_ = alert if alert else getattr(self, "alert", None)
 
-            # try to execute the method
+            # If we have a legacy alert widget, use old behavior
+            if alert_ is not None:
+                alert_.reset()
+                value = None
+                try:
+                    with warnings.catch_warnings(record=True) as w_list:
+                        value = func(self, *args, **kwargs)
+
+                    if w_list:
+                        w_list_sepal = [w for w in w_list if isinstance(w.message, SepalWarning)]
+                        ms_list = [
+                            f"{w.category.__name__}: {w.message.args[0]}" for w in w_list_sepal
+                        ]
+                        [alert_.append_msg(ms, type_="warning") for ms in ms_list]
+
+                        def custom_showwarning(w):
+                            return warnings.showwarning(
+                                message=w.message,
+                                category=w.category,
+                                filename=w.filename,
+                                lineno=w.lineno,
+                                line=w.line,
+                            )
+
+                        [custom_showwarning(w) for w in w_list]
+
+                except Exception as e:
+                    alert_.add_msg(f"{e}", type_="error")
+                    raise e
+
+                return value
+
+            # No legacy alert — use notification bus
+            bus = _get_notification_bus()
             value = None
             try:
-                # Catch warnings in the process function
                 with warnings.catch_warnings(record=True) as w_list:
                     value = func(self, *args, **kwargs)
 
-                # Check if there are warnings in the function and append them
-                # Use append msg as several warnings could be triggered
-                if w_list:
-                    # split the warning list
-                    w_list_sepal = [w for w in w_list if isinstance(w.message, SepalWarning)]
+                if w_list and bus is not None:
+                    from pysepal.solara.notifications.state import Toast, ToastType
 
-                    # display the sepal one
-                    ms_list = [f"{w.category.__name__}: {w.message.args[0]}" for w in w_list_sepal]
-                    [alert_.append_msg(ms, type_="warning") for ms in ms_list]
+                    w_list_sepal = [w for w in w_list if isinstance(w.message, SepalWarning)]
+                    for w in w_list_sepal:
+                        bus.add_toast(
+                            Toast(
+                                message=f"{w.category.__name__}: {w.message.args[0]}",
+                                type=ToastType.WARNING,
+                            )
+                        )
 
                     def custom_showwarning(w):
                         return warnings.showwarning(
@@ -76,13 +124,21 @@ def catch_errors(alert: Optional[v.Alert] = None, debug: Optional[bool] = None) 
                     [custom_showwarning(w) for w in w_list]
 
             except Exception as e:
-                alert_.add_msg(f"{e}", type_="error")
+                if bus is not None:
+                    from pysepal.solara.notifications.state import Toast, ToastType
+
+                    bus.add_toast(Toast(message=str(e), type=ToastType.ERROR))
+                else:
+                    _decorator_logger.error(f"Unhandled error (no alert or bus): {e}")
                 raise e
 
             return value
 
         return wrapper_alert_error
 
+    # Support both @catch_errors and @catch_errors(alert=...)
+    if func is not None:
+        return decorator_alert_error(func)
     return decorator_alert_error
 
 
