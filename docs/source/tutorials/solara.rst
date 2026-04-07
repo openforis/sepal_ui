@@ -97,9 +97,9 @@ GEEInterface Wrapper
 
 To bridge the gap between traditional Earth Engine development (single-user) and multi-user SEPAL applications, we created the ``GEEInterface`` wrapper. This wrapper provides a unified API that seamlessly handles both single-user and multi-user deployments, using ee-client internally for multi-user scenarios.
 
-The advantage of ``GEEInterface`` lies in its dual-mode architecture. When developing locally, initialize it without any session parameter—it uses the standard ``ee`` module after ``ee.Initialize()``. When deployed to SEPAL with multiple users, pass an ``EESession`` or set ``use_sepal_headers=True`` to switch to the async ``ee-client`` flow, ensuring each user gets isolated credentials.
+The advantage of ``GEEInterface`` lies in its dual-mode architecture. When developing locally, initialize it without any session parameter—it uses the standard ``ee`` module after ``ee.Initialize()``. When deployed to SEPAL with multiple users, pass an ``EESession`` to switch to the async ``ee-client`` flow, ensuring each user gets isolated credentials. In pysepal Solara apps this is the default: ``SessionManager`` builds ``EESession(sepal_headers=...)`` and exposes a session-backed ``GEEInterface`` through ``get_current_gee_interface()``.
 
-The interface maintains its own event loop thread to handle async Earth Engine operations while providing a synchronous API. When you call ``get_info()`` or ``get_map_id()``, it runs the async version in its event loop and blocks until complete. For async contexts, use the ``*_async`` variants directly. The interface includes safety checks to prevent deadlocks—if you call a blocking method from its own thread, it raises a clear error.
+The interface maintains its own event loop thread to support blocking bridge methods such as ``get_info()`` or ``get_map_id()``. In SessionManager-backed Solara code, prefer the ``*_async`` variants directly and keep those coroutines on Solara's current loop, typically via ``solara.lab.use_task(..., prefer_threaded=False)``. Do not introduce a separate async getter for new Solara code.
 
 Common Operations
 """""""""""""""""
@@ -110,13 +110,14 @@ The ``GEEInterface`` supports all the essential Earth Engine operations you need
 * **Map visualization**: Call ``get_map_id()`` to obtain map tile descriptors that you can use to display Earth Engine imagery in maps.
 * **Export operations**: Launch exports of images or tables to Earth Engine assets or Google Drive, with full control over format, region, scale, and other parameters.
 * **Task management**: Check whether a task is running with ``is_running()``, retrieve task details with ``get_task()``, and monitor long-running operations.
-* **Progress tracking**: For operations that may take time, wrap them in ``create_task()`` to observe progress updates and surface real-time status information in your user interface.
+* **Progress tracking**: In new Solara apps, prefer ``solara.lab.use_task(..., prefer_threaded=False)`` with the ``*_async`` methods. ``create_task()`` remains available for legacy bridge flows.
 
 Asynchronous vs Blocking Methods
 """""""""""""""""""""""""""""""""
 
-* **Choose the right variant**: Use async methods (``*_async``) when in async code or orchestrating multiple concurrent calls. Use blocking methods for simpler, sequential operations that do not take too long.
+* **Choose the right variant**: In SessionManager-backed Solara apps, use async methods (``*_async``) by default. Reserve blocking methods for simpler legacy or non-Solara code paths.
 * **One interface per session**: In multi-user apps, always create one ``GEEInterface`` per user session, you can use the session_manager_ helpers to do this automatically.
+* **Solara event-loop rule**: If you wrap GEE work in ``solara.lab.use_task``, set ``prefer_threaded=False`` so the coroutine stays on Solara's current loop instead of hopping to a per-task thread loop.
 * **Watch for deadlock warnings**: If you get a deadlock warning, you're calling a blocking method from the interface's async thread—switch to the ``*_async`` method.
 
 *To explore GEEInterface capabilities, check the* `GEE Interface notebook`_ *below.*
