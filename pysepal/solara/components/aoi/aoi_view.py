@@ -568,6 +568,9 @@ def AoiView(
 
     solara.use_effect(_cleanup, [id(map_) if map_ else None])
 
+    # Prepare task button props (called unconditionally to satisfy hooks validator)
+    btn_props = use_task_button(task, on_start=start_process)
+
     # Render
     with solara.Column(classes="mx-0 px-0"):
         # Method selector
@@ -611,7 +614,6 @@ def AoiView(
 
         # Action buttons
         if selected_method.value:
-            btn_props = use_task_button(task, on_start=start_process)
             TaskButtonComponent(
                 label="Select AOI",
                 **btn_props,
