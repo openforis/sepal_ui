@@ -25,7 +25,7 @@ class AoiResult:
         method: Selection method used (e.g., "ADMIN0", "ADMIN1", "ADMIN2", "DRAW")
         name: Human-readable name for the AOI (e.g., "COL_Cundinamarca")
         gdf: GeoDataFrame with the geometry (None for admin methods - use get_gdf_async())
-        feature_collection: ee.FeatureCollection for GEE workflows (None otherwise)
+        feature_collection: ee.ComputedObject for GEE workflows (FeatureCollection, Image, etc.; None otherwise)
         admin: Admin code for admin methods (None for other methods)
         gee: Whether this result was created with GEE binding
 
@@ -44,7 +44,7 @@ class AoiResult:
     method: str
     name: str
     gdf: Optional[gpd.GeoDataFrame] = field(default=None, repr=False)
-    feature_collection: Optional[Any] = field(default=None, repr=False)  # ee.FeatureCollection
+    feature_collection: Optional[Any] = field(default=None, repr=False)  # ee.ComputedObject
     admin: Optional[str] = None
     gee: bool = False
 
