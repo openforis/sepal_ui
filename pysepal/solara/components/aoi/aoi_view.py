@@ -42,6 +42,7 @@ from pysepal.solara.components.aoi.wms_utils import (
     WMS_PREVIEW_LAYER_NAME,
     create_wms_preview_layer,
 )
+from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
 
@@ -610,26 +611,13 @@ def AoiView(
 
         # Action buttons
         if selected_method.value:
-            is_loading = reactive_loading.value or task.pending
-            with solara.Column():
-                solara.Button(
-                    "Select AOI",
-                    on_click=start_process,
-                    disabled=is_loading,
-                    loading=is_loading,
-                    color="primary",
-                    block=True,
-                    small=True,
-                )
-                if is_loading:
-                    solara.Button(
-                        "Cancel",
-                        on_click=task.cancel,
-                        color="error",
-                        outlined=True,
-                        block=True,
-                        small=True,
-                    )
+            btn_props = use_task_button(task, on_start=start_process)
+            TaskButtonComponent(
+                label="Select AOI",
+                **btn_props,
+                small=True,
+                block=True,
+            )
 
         # Alert display
         if alert_message.value:
