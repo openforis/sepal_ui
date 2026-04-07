@@ -23,13 +23,9 @@ from pysepal.solara import (
     setup_theme_colors,
 )
 from pysepal.solara.components.aoi import AoiResult, AoiView
-from pysepal.solara.components.notifications import (
-    NotificationsHost,
-    error,
-    info,
-    log,
-    success,
-    warning,
+from pysepal.solara.notifications import (
+    NotificationProvider,
+    notify,
 )
 
 setup_solara_server(extra_asset_locations=[])
@@ -249,50 +245,42 @@ def Page():
     selected_tab = solara.use_reactive(0)
 
     with solara.Column(style="padding: 20px; gap: 20px;"):
-        # Notifications Host - mount once at the top of your app
-        NotificationsHost(
-            floating_button_position="bottom-right",
-            toast_timeout_ms=4000,
-        )
+        # Notification system - mount once at the top of your app
+        NotificationProvider()
 
         # Header
         solara.Markdown("# AOI Selection - Solara-Native Pattern")
         solara.Markdown("Modern value/on_value pattern following guides/2_creating_solara_apps.md")
 
         # Notification Demo Section
-        with solara.Card("🔔 Notification Demo", elevation=1):
+        with solara.Card("Notification Demo", elevation=1):
             solara.Markdown(
-                "Test the floating notification system. Click the bell icon "
-                "in the bottom-right corner to see notification history."
+                "Test the floating notification system. "
+                "Toasts appear top-right, task progress bottom-left."
             )
             with solara.Row(style="gap: 8px; flex-wrap: wrap;"):
                 solara.Button(
                     "Success",
-                    on_click=lambda: success("Operation completed successfully!", title="Success"),
+                    on_click=lambda: notify("Operation completed successfully!", type="success"),
                     color="success",
                     outlined=True,
                 )
                 solara.Button(
                     "Info",
-                    on_click=lambda: info("Here is some useful information.", title="Info"),
+                    on_click=lambda: notify("Here is some useful information.", type="info"),
                     color="info",
                     outlined=True,
                 )
                 solara.Button(
                     "Warning",
-                    on_click=lambda: warning("Please check your configuration.", title="Warning"),
+                    on_click=lambda: notify("Please check your configuration.", type="warning"),
                     color="warning",
                     outlined=True,
                 )
                 solara.Button(
                     "Error",
-                    on_click=lambda: error("Something went wrong!", title="Error"),
+                    on_click=lambda: notify("Something went wrong!", type="error"),
                     color="error",
-                    outlined=True,
-                )
-                solara.Button(
-                    "Log (no toast)",
-                    on_click=lambda: log("Background process completed", title="System"),
                     outlined=True,
                 )
 

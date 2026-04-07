@@ -47,6 +47,7 @@ from pysepal.solara.components.inputs.asset_select import AssetSelectComponent
 from pysepal.solara.components.inputs.point_selector import PointsSelectorComponent
 from pysepal.solara.components.inputs.vector_selector import VectorSelectorComponent
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
+from pysepal.solara.notifications import use_notifications
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
 
@@ -388,16 +389,8 @@ def AoiView(
     asset_data = solara.use_reactive(None)  # Output from AssetSelectComponent
     asset_loading = solara.use_reactive(False)  # AssetSelectComponent loading state
 
-    # UI state
-    alert_message = solara.use_reactive("")
-    alert_type = solara.use_reactive("info")
-
-    # Reset alert on mount
-    def reset_alert_on_mount():
-        alert_message.set("")
-        alert_type.set("info")
-
-    solara.use_effect(reset_alert_on_mount, [])  # Empty deps = runs once on mount
+    # Notification system (replaces embedded alert)
+    notifications = use_notifications()
 
     # Register clear callback for external use
     def _register_clear():
@@ -518,27 +511,21 @@ def AoiView(
     def handle_task_state():
         if task.pending:
             reactive_loading.set(True)
-            alert_message.set("Processing AOI...")
-            alert_type.set("info")
         elif task.finished:
             reactive_loading.set(False)
             if task.value:
-                alert_message.set(task.value)
-                alert_type.set("success")
+                notifications.success(task.value)
         elif task.error:
             reactive_loading.set(False)
-            alert_message.set(f"Error: {str(task.exception)}")
-            alert_type.set("error")
+            notifications.error(f"Error: {str(task.exception)}")
         elif task.cancelled:
             reactive_loading.set(False)
-            alert_message.set("Process cancelled")
-            alert_type.set("info")
+            notifications.info("Process cancelled")
 
     solara.use_effect(handle_task_state, [task.pending, task.finished, task.error, task.cancelled])
 
     def start_process():
         """Trigger the background process."""
-        alert_message.set("")
         reactive_loading.set(True)
         task()
 
@@ -549,7 +536,6 @@ def AoiView(
             reactive_value.set(None)
             admin_code.set(None)
             draw_name.set("")
-            alert_message.set("")
 
             # Clear AOI layer and WMS preview from map
             if map_:
@@ -577,7 +563,6 @@ def AoiView(
             # garbage collected when the component unmounts.
 
             reactive_loading.set(False)
-            alert_message.set("")
 
             if map_:
                 try:
@@ -669,14 +654,3 @@ def AoiView(
                 small=True,
                 block=True,
             )
-
-        # Alert display
-        if alert_message.value:
-            if alert_type.value == "success":
-                solara.Success(alert_message.value)
-            elif alert_type.value == "error":
-                solara.Error(alert_message.value)
-            elif alert_type.value == "warning":
-                solara.Warning(alert_message.value)
-            else:
-                solara.Info(alert_message.value)
