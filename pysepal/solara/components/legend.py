@@ -17,6 +17,9 @@ Usage:
 """
 
 from dataclasses import dataclass, field
+from typing import Callable, Optional
+
+import solara
 
 
 @dataclass
@@ -42,3 +45,25 @@ class LegendData:
 
     gradients: list[GradientEntry] = field(default_factory=list)
     items: list[DiscreteEntry] = field(default_factory=list)
+
+
+@solara.component_vue("Legend.vue")
+def LegendComponent(
+    legend_data: dict = {},
+    visible: bool = True,
+    collapsed: bool = False,
+    on_collapsed: Optional[Callable[[bool], None]] = None,
+):
+    """Floating map legend overlay.
+
+    Renders at bottom-center of the viewport over the map area.
+    Supports gradient bars and discrete color chips.
+
+    Args:
+        legend_data: Serialized LegendData (use dataclasses.asdict).
+            Empty dict or missing keys = nothing rendered.
+        visible: Show/hide the entire legend.
+        collapsed: Collapsed state (icon pill only).
+        on_collapsed: Callback when user toggles collapse.
+    """
+    pass
