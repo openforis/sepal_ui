@@ -14,21 +14,19 @@ class TestNotify:
     def teardown_method(self):
         _buses.clear()
 
-    @patch("pysepal.solara.notifications.globals._get_kernel_id", return_value="k1")
     @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="k1")
-    def test_notify_publishes_toast(self, mock_bus_kid, mock_globals_kid):
+    def test_notify_publishes_toast(self, mock_bus_kid):
         from pysepal.solara.notifications.bus import create_bus
         from pysepal.solara.notifications.globals import notify
 
         bus = create_bus()
-        notify("hello", type="success")
+        notify("hello", type_="success")
         assert len(bus.toasts.value) == 1
         assert bus.toasts.value[0].message == "hello"
         assert bus.toasts.value[0].type == ToastType.SUCCESS
 
-    @patch("pysepal.solara.notifications.globals._get_kernel_id", return_value="k1")
     @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="k1")
-    def test_notify_default_type_is_info(self, mock_bus_kid, mock_globals_kid):
+    def test_notify_default_type_is_info(self, mock_bus_kid):
         from pysepal.solara.notifications.bus import create_bus
         from pysepal.solara.notifications.globals import notify
 
@@ -40,12 +38,11 @@ class TestNotify:
         from pysepal.solara.notifications.globals import notify
 
         with caplog.at_level(logging.WARNING):
-            notify("hello", type="error")
+            notify("hello", type_="error")
         assert "NotificationProvider" in caplog.text
 
-    @patch("pysepal.solara.notifications.globals._get_kernel_id", return_value="k1")
     @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="k1")
-    def test_track_task_context_manager(self, mock_bus_kid, mock_globals_kid):
+    def test_track_task_context_manager(self, mock_bus_kid):
         from pysepal.solara.notifications.bus import create_bus
         from pysepal.solara.notifications.globals import track_task
 

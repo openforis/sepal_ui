@@ -89,6 +89,18 @@ class TestNotificationBusToasts:
         errors = [t for t in self.bus.toasts.value if t.type == ToastType.ERROR]
         assert len(errors) == MAX_TOAST_QUEUE
 
+    def test_queue_limit_caps_errors_when_exceeding_max(self):
+        # Add more errors than MAX_TOAST_QUEUE allows
+        for i in range(MAX_TOAST_QUEUE + 10):
+            self.bus.add_toast(
+                Toast(message=f"err-{i}", type=ToastType.ERROR, created_at=time.time() + i)
+            )
+        # Total must never exceed MAX_TOAST_QUEUE, even if all are errors
+        assert len(self.bus.toasts.value) <= MAX_TOAST_QUEUE
+        # Should keep the newest errors (highest created_at)
+        messages = [t.message for t in self.bus.toasts.value]
+        assert f"err-{MAX_TOAST_QUEUE + 9}" in messages
+
 
 class TestNotificationBusTasks:
     def setup_method(self):

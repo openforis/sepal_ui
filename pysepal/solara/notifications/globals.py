@@ -17,34 +17,24 @@ _TYPE_MAP = {
 }
 
 
-def _get_kernel_id() -> Optional[str]:
-    """Get kernel ID, returning None if not in Solara context."""
-    try:
-        import solara.server.kernel_context
-
-        return str(id(solara.server.kernel_context.get_current_context().kernel))
-    except Exception:
-        return None
-
-
-def notify(message: str, type: str = "info") -> None:
+def notify(message: str, type_: str = "info") -> None:
     """Publish a toast notification from anywhere (non-component code).
 
     If no NotificationProvider is mounted, logs a warning and drops the message.
 
     Args:
         message: The notification text.
-        type: One of "success", "info", "warning", "error".
+        type_: One of "success", "info", "warning", "error".
     """
     bus = get_current_bus()
     if bus is None:
         logger.warning(
             "notify() called without a mounted NotificationProvider. "
-            f"Dropped: {type}={message!r}"
+            f"Dropped: {type_}={message!r}"
         )
         return
 
-    toast_type = _TYPE_MAP.get(type, ToastType.INFO)
+    toast_type = _TYPE_MAP.get(type_, ToastType.INFO)
     bus.add_toast(Toast(message=message, type=toast_type))
 
 

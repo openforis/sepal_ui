@@ -10,24 +10,25 @@ logger = logging.getLogger(__name__)
 
 
 @solara.component
-def NotificationProvider(progress_style: str = "pill"):
+def NotificationProvider():
     """Root notification component. Place once at app top level.
 
-    Creates a kernel-scoped NotificationBus and renders the notification UI
-    (ToastStack + TaskProgressPill or TaskProgressStrip).
-
-    Args:
-        progress_style: "pill" (default, floating pill) or "strip" (bottom bar, deferred).
+    Creates a kernel-scoped NotificationBus and renders the notification UI.
+    Toasts float top-right. Task pill floats bottom-right, tracking the
+    MapApp right panel via CSS variables (--right-panel-width, --right-panel-open).
     """
-    from .task_pill import TaskProgressPill
-    from .toast_stack import ToastStack
+    from .notification_ui import NotificationUIBridge
 
-    # Create bus on first render, cleanup on unmount
+    # bus_ready is not read directly, but set_bus_ready(True) triggers a
+    # re-render so get_current_bus() below picks up the newly created bus.
+    bus_ready, set_bus_ready = solara.use_state(False)
+
     def setup_bus():
         bus = get_current_bus()
         if bus is None:
-            bus = create_bus()
+            create_bus()
             logger.debug("NotificationProvider: created bus")
+        set_bus_ready(True)
 
         def on_cleanup():
             cleanup_bus()
@@ -41,6 +42,4 @@ def NotificationProvider(progress_style: str = "pill"):
     if bus is None:
         return
 
-    ToastStack(bus=bus)
-    if progress_style == "pill":
-        TaskProgressPill(bus=bus)
+    NotificationUIBridge(bus=bus)
