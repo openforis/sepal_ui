@@ -8,6 +8,7 @@ from pysepal.solara.notifications.bus import (
     DEDUP_WINDOW_SECONDS,
     MAX_TOAST_QUEUE,
     NotificationBus,
+    _bus_refcounts,
     _buses,
     cleanup_bus,
     create_bus,
@@ -161,9 +162,11 @@ class TestNotificationBusThreadSafety:
 class TestKernelRegistry:
     def setup_method(self):
         _buses.clear()
+        _bus_refcounts.clear()
 
     def teardown_method(self):
         _buses.clear()
+        _bus_refcounts.clear()
 
     @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
     def test_create_and_get_bus(self, mock_kid):
@@ -189,4 +192,27 @@ class TestKernelRegistry:
 
     def test_get_bus_returns_none_without_kernel_context(self):
         # No mock, so _get_kernel_id() will fail
+        assert get_current_bus() is None
+
+    @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
+    def test_create_bus_reuses_existing(self, mock_kid):
+        """Double create_bus returns the same bus instance."""
+        bus1 = create_bus()
+        bus2 = create_bus()
+        assert bus1 is bus2
+
+    @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
+    def test_refcount_prevents_premature_removal(self, mock_kid):
+        """cleanup_bus only removes bus when refcount reaches 0."""
+        create_bus()
+        create_bus()  # refcount = 2
+        cleanup_bus()  # refcount = 1
+        assert get_current_bus() is not None
+        cleanup_bus()  # refcount = 0
+        assert get_current_bus() is None
+
+    @patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
+    def test_cleanup_without_create_is_noop(self, mock_kid):
+        """cleanup_bus on a non-existent kernel is a safe no-op."""
+        cleanup_bus()  # Should not raise
         assert get_current_bus() is None

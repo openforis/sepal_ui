@@ -138,6 +138,54 @@ class TestTaskTracker:
         assert self.bus.tasks.value[0].status == TaskStatus.FAILED
         assert self.bus.tasks.value[0].error_message == "manual fail"
 
+    def test_exception_after_explicit_complete_overrides_to_failed(self):
+        """If user calls complete() then an exception is raised, task becomes FAILED."""
+        with pytest.raises(RuntimeError, match="late error"):
+            with self.notifier.track("Processing") as task:
+                task.complete("All done")
+                raise RuntimeError("late error")
+        t = self.bus.tasks.value[0]
+        assert t.status == TaskStatus.FAILED
+        assert t.error_message == "late error"
+        # Error toast published
+        assert any(
+            toast.type == ToastType.ERROR and toast.message == "late error"
+            for toast in self.bus.toasts.value
+        )
+
+    def test_exception_after_explicit_cancel_does_not_override(self):
+        """If user calls cancel() then an exception is raised, task stays CANCELLED."""
+        with pytest.raises(RuntimeError):
+            with self.notifier.track("Processing") as task:
+                task.cancel()
+                raise RuntimeError("post-cancel error")
+        assert self.bus.tasks.value[0].status == TaskStatus.CANCELLED
+
+    def test_completed_at_set_on_explicit_complete(self):
+        """complete() sets the completed_at timestamp."""
+        with self.notifier.track("Processing") as task:
+            task.complete()
+        t = self.bus.tasks.value[0]
+        assert t.completed_at is not None
+        assert t.completed_at > 0
+
+    def test_completed_at_set_on_auto_complete(self):
+        """Auto-complete via __exit__ sets completed_at."""
+        with self.notifier.track("Processing"):
+            pass
+        t = self.bus.tasks.value[0]
+        assert t.completed_at is not None
+        assert t.completed_at > 0
+
+    def test_completed_at_none_on_failure(self):
+        """Failed tasks should not have completed_at set."""
+        with pytest.raises(ValueError):
+            with self.notifier.track("Processing"):
+                raise ValueError("boom")
+        t = self.bus.tasks.value[0]
+        assert t.status == TaskStatus.FAILED
+        assert t.completed_at is None
+
 
 class TestNoopNotifier:
     def test_noop_toast_methods(self):

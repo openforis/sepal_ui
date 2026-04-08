@@ -34,6 +34,35 @@ def task_summary_text(count: int) -> str:
     return f"{count} tasks running"
 
 
+def pill_label(tasks: list[TrackedTask], count: int) -> str:
+    """Generate a rich label for the collapsed pill showing latest step."""
+    if count == 0:
+        # Show last finished task briefly
+        finished = [t for t in tasks if t.status in {TaskStatus.COMPLETED, TaskStatus.FAILED}]
+        if finished:
+            last = finished[-1]
+            status = "Done" if last.status == TaskStatus.COMPLETED else "Failed"
+            return f"{last.title} — {status}"
+        return ""
+
+    # Find the most recent running task
+    running = [t for t in tasks if t.status == TaskStatus.RUNNING]
+    if not running:
+        return task_summary_text(count)
+
+    current = running[-1]
+    prefix = current.title
+    if current.milestones:
+        last_step = current.milestones[-1].message
+        label = f"{prefix} — {last_step}"
+    else:
+        label = f"{prefix}..."
+
+    if count > 1:
+        label += f" (+{count - 1} more)"
+    return label
+
+
 @solara.component
 def MilestoneTimeline(milestones: tuple[TaskMilestone, ...]):
     """Render a task's milestone history as a timeline."""
@@ -101,54 +130,99 @@ def TaskCard(task: TrackedTask):
                     MilestoneTimeline(milestones=task.milestones)
 
 
+_POSITION_PRESETS = {
+    "bottom-right": "bottom: 16px; right: 16px;",
+    "bottom-left": "bottom: 16px; left: 16px;",
+    "map-bottom-right": (
+        "bottom: 16px; "
+        "right: calc(var(--right-panel-width, 0px) * var(--right-panel-open, 0) + 16px); "
+        "transition: right 0.3s ease;"
+    ),
+}
+
+
 @solara.component
-def TaskProgressPill(bus: NotificationBus):
+def TaskProgressPill(bus: NotificationBus, position: str = "bottom-right"):
     """Floating pill showing active task count, expandable to detail panel."""
     tasks = bus.tasks.value
     count = active_task_count(tasks)
     expanded, set_expanded = solara.use_state(False)
 
-    # Filter out tasks to display (active + recently finished)
-    display_tasks = [
-        t
-        for t in tasks
-        if t.status in ACTIVE_STATUSES or t.status in {TaskStatus.FAILED, TaskStatus.CANCELLED}
-    ]
+    # Stable callbacks (avoid lambda recreation)
+    def expand():
+        set_expanded(True)
 
-    # Nothing to show
-    if not display_tasks and count == 0:
-        return
+    def collapse():
+        set_expanded(False)
 
-    summary = task_summary_text(count)
+    # Filter tasks to display (all non-idle tasks)
+    display_tasks = [t for t in tasks if t.status != TaskStatus.PENDING]
 
+    # Auto-remove completed tasks after per-task fade delay
+    def cleanup_completed():
+        import threading
+        import time
+
+        def _cleanup():
+            while True:
+                time.sleep(1)
+                now = time.time()
+                for t in bus.tasks.value:
+                    if (
+                        t.status == TaskStatus.COMPLETED
+                        and t.completed_at is not None
+                        and now - t.completed_at >= COMPLETED_FADE_SECONDS
+                    ):
+                        bus.remove_task(t.id)
+                # Stop polling once no completed tasks remain
+                if not any(t.status == TaskStatus.COMPLETED for t in bus.tasks.value):
+                    break
+
+        if any(t.status == TaskStatus.COMPLETED for t in tasks):
+            timer = threading.Thread(target=_cleanup, daemon=True)
+            timer.start()
+
+    solara.use_effect(
+        cleanup_completed, [len([t for t in tasks if t.status == TaskStatus.COMPLETED])]
+    )
+
+    has_tasks = len(display_tasks) > 0 or count > 0
+    label = pill_label(tasks, count)
+
+    # Resolve position CSS
+    pos_css = _POSITION_PRESETS.get(position, position)
+
+    # Always render the container (stable tree), hide via CSS
     with solara.Div(
-        style={
-            "position": "fixed",
-            "bottom": "16px",
-            "left": "16px",
-            "z-index": "1000",
-            "pointer-events": "auto",
-        },
+        style_=(
+            f"position: fixed; {pos_css} z-index: 1000; max-width: 500px; "
+            f"pointer-events: {'auto' if has_tasks else 'none'}; "
+            f"opacity: {'0.92' if has_tasks else '0'}; "
+            "transition: opacity 0.3s;"
+        ),
     ):
         if not expanded:
-            # Collapsed pill
-            rv.Btn(
-                rounded=True,
-                color="primary",
-                dark=True,
-                small=True,
-                children=[
+            # Collapsed pill with live step info
+            children = []
+            if count > 0:
+                children.append(
                     rv.ProgressCircular(
                         indeterminate=True,
                         size=16,
                         width=2,
                         class_="mr-2",
                     )
-                    if count > 0
-                    else None,
-                    summary or f"{len(display_tasks)} task(s)",
-                ],
-                on_click=lambda *_: set_expanded(True),
+                )
+            children.append(label or f"{len(display_tasks)} task(s)")
+
+            rv.Btn(
+                rounded=True,
+                color="primary",
+                dark=True,
+                small=True,
+                children=children,
+                on_click=lambda *_: expand(),
+                style_="text-transform: none; letter-spacing: normal;",
             )
         else:
             # Expanded detail panel
@@ -164,7 +238,7 @@ def TaskProgressPill(bus: NotificationBus):
                             icon=True,
                             small=True,
                             children=[rv.Icon(children=["mdi-close"])],
-                            on_click=lambda *_: set_expanded(False),
+                            on_click=lambda *_: collapse(),
                         )
                 with rv.CardText():
                     if not display_tasks:

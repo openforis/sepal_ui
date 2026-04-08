@@ -47,10 +47,12 @@ class NotificationBus:
 
             current.append(toast)
 
-            # Enforce queue limit: drop oldest non-errors first
+            # Enforce queue limit: drop oldest non-errors first, then oldest errors
             if len(current) > MAX_TOAST_QUEUE:
                 errors = [t for t in current if t.type == ToastType.ERROR]
                 non_errors = [t for t in current if t.type != ToastType.ERROR]
+                # Cap errors themselves so total never exceeds MAX_TOAST_QUEUE
+                errors = errors[-MAX_TOAST_QUEUE:]
                 keep_non_errors = max(0, MAX_TOAST_QUEUE - len(errors))
                 non_errors = non_errors[-keep_non_errors:] if keep_non_errors else []
                 current = errors + non_errors
@@ -83,6 +85,7 @@ class NotificationBus:
 # --- Kernel-scoped bus registry (matches SessionManager pattern) ---
 
 _buses: Dict[str, NotificationBus] = {}
+_bus_refcounts: Dict[str, int] = {}
 _registry_lock = threading.Lock()
 
 
@@ -102,19 +105,41 @@ def get_current_bus() -> Optional[NotificationBus]:
 
 
 def create_bus() -> NotificationBus:
-    """Create and register a NotificationBus for the current kernel."""
+    """Get or create a NotificationBus for the current kernel.
+
+    If a bus already exists for this kernel, reuse it and increment
+    the reference count. This prevents remounts or double-mounts
+    from invalidating active notifiers.
+    """
     kernel_id = _get_kernel_id()
-    bus = NotificationBus()
     with _registry_lock:
+        existing = _buses.get(kernel_id)
+        if existing is not None:
+            _bus_refcounts[kernel_id] = _bus_refcounts.get(kernel_id, 1) + 1
+            logger.debug(
+                f"Reusing NotificationBus for kernel {kernel_id} "
+                f"(refcount={_bus_refcounts[kernel_id]})"
+            )
+            return existing
+        bus = NotificationBus()
         _buses[kernel_id] = bus
+        _bus_refcounts[kernel_id] = 1
     logger.debug(f"Created NotificationBus for kernel {kernel_id}")
     return bus
 
 
 def cleanup_bus() -> None:
-    """Remove the NotificationBus for the current kernel."""
+    """Decrement refcount for the current kernel's bus; remove when it reaches 0."""
     kernel_id = _get_kernel_id()
     with _registry_lock:
-        removed = _buses.pop(kernel_id, None)
-    if removed:
-        logger.debug(f"Cleaned up NotificationBus for kernel {kernel_id}")
+        count = _bus_refcounts.get(kernel_id, 0)
+        if count <= 1:
+            _buses.pop(kernel_id, None)
+            _bus_refcounts.pop(kernel_id, None)
+            logger.debug(f"Cleaned up NotificationBus for kernel {kernel_id}")
+        else:
+            _bus_refcounts[kernel_id] = count - 1
+            logger.debug(
+                f"Decremented NotificationBus refcount for kernel {kernel_id} "
+                f"(refcount={_bus_refcounts[kernel_id]})"
+            )

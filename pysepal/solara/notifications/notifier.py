@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import time
 from typing import Optional
 
 from .bus import NotificationBus
@@ -57,7 +58,11 @@ class TaskTracker:
         if self._finished:
             return
         self._finished = True
-        changes = {"status": TaskStatus.COMPLETED, "progress": 1.0}
+        changes = {
+            "status": TaskStatus.COMPLETED,
+            "progress": 1.0,
+            "completed_at": time.time(),
+        }
         if message:
             current = self._get_task()
             if current:
@@ -136,12 +141,31 @@ class _TaskTrackerContextManager(TaskTracker):
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
         if self._finished:
-            # Already explicitly completed/failed/cancelled
+            # Already explicitly completed/failed/cancelled.
+            # But if there's an exception AND the task wasn't already
+            # FAILED or CANCELLED, override to FAILED so the error is visible.
+            if exc_type is not None:
+                current = self._get_task()
+                if current and current.status not in (
+                    TaskStatus.FAILED,
+                    TaskStatus.CANCELLED,
+                ):
+                    self._bus.update_task(
+                        self._task_id,
+                        status=TaskStatus.FAILED,
+                        error_message=str(exc_val),
+                        completed_at=None,
+                    )
+                    self._bus.add_toast(Toast(message=str(exc_val), type=ToastType.ERROR))
             return False  # Re-raise if exception
 
         if exc_type is None:
             self._finished = True
-            self._bus.update_task(self._task_id, status=TaskStatus.COMPLETED)
+            self._bus.update_task(
+                self._task_id,
+                status=TaskStatus.COMPLETED,
+                completed_at=time.time(),
+            )
         elif issubclass(exc_type, asyncio.CancelledError):
             self.cancel()
             return False  # Re-raise CancelledError
