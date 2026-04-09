@@ -24,16 +24,16 @@ class TestToastType:
 
 class TestToastTimeoutDefaults:
     def test_success_timeout(self):
-        assert TOAST_TIMEOUT_DEFAULTS[ToastType.SUCCESS] == 5.0
+        assert TOAST_TIMEOUT_DEFAULTS[ToastType.SUCCESS] == 3.0
 
     def test_info_timeout(self):
-        assert TOAST_TIMEOUT_DEFAULTS[ToastType.INFO] == 5.0
+        assert TOAST_TIMEOUT_DEFAULTS[ToastType.INFO] == 3.0
 
     def test_warning_timeout(self):
-        assert TOAST_TIMEOUT_DEFAULTS[ToastType.WARNING] == 10.0
+        assert TOAST_TIMEOUT_DEFAULTS[ToastType.WARNING] == 3.0
 
-    def test_error_no_timeout(self):
-        assert TOAST_TIMEOUT_DEFAULTS[ToastType.ERROR] is None
+    def test_error_timeout(self):
+        assert TOAST_TIMEOUT_DEFAULTS[ToastType.ERROR] == 3.0
 
 
 class TestTaskStatus:
@@ -61,15 +61,15 @@ class TestToast:
 
     def test_effective_timeout_uses_default(self):
         toast = Toast(message="ok", type=ToastType.SUCCESS)
-        assert toast.effective_timeout() == 5.0
+        assert toast.effective_timeout() == 3.0
 
     def test_effective_timeout_uses_explicit(self):
         toast = Toast(message="ok", type=ToastType.SUCCESS, timeout=20.0)
         assert toast.effective_timeout() == 20.0
 
-    def test_effective_timeout_error_is_none(self):
+    def test_effective_timeout_error_uses_default(self):
         toast = Toast(message="bad", type=ToastType.ERROR)
-        assert toast.effective_timeout() is None
+        assert toast.effective_timeout() == 3.0
 
     def test_unique_ids(self):
         t1 = Toast(message="a")
