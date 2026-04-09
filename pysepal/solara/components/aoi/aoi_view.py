@@ -48,6 +48,7 @@ from pysepal.solara.components.inputs.point_selector import PointsSelectorCompon
 from pysepal.solara.components.inputs.vector_selector import VectorSelectorComponent
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 from pysepal.solara.notifications import use_notifications
+from pysepal.solara.utils import get_current_gee_interface
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
 
@@ -404,96 +405,117 @@ def AoiView(
                 points_data.set(None)
                 asset_data.set(None)
                 reactive_value.set(None)
-                alert_message.set("")
 
             clear_ref.current = clear
 
     solara.use_effect(_register_clear, [])
 
+    # Track the current task in the notification system
+    task_tracker_ref = solara.use_ref(None)
+
     async def process_aoi() -> str:
         """Process the selected AOI."""
         method = selected_method.value
+        tracker = notifications.track(f"Processing AOI ({method})")
+        task_tracker_ref.current = tracker
+        tracker.__enter__()
 
-        if method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
-            if not admin_code.value:
-                raise ValueError(f"Please select a {method} region")
+        # Get session-backed GEE interface (uses EESession async methods)
+        gee_interface = get_current_gee_interface() if gee else None
 
-            result = await process_admin(
-                method=method,
-                admin_code=admin_code.value,
-                gee=gee,
-                gee_interface=get_current_gee_interface(),
-            )
+        try:
+            tracker.step("Validating input...")
 
-        elif method == "DRAW":
-            if aoi_dc is None:
-                raise ValueError("No DrawControl available")
+            if method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
+                if not admin_code.value:
+                    raise ValueError(f"Please select a {method} region")
 
-            features = aoi_dc.get_data()
-            if not features:
-                raise ValueError("No drawn features found. Please draw an area on the map.")
-
-            result = process_draw(
-                geo_json=features,
-                name=draw_name.value,
-                gee=gee,
-            )
-
-        elif method == "SHAPE":
-            raise ValueError(
-                "The SHAPE method is not available yet. Please choose another AOI method."
-            )
-
-        elif method == "POINTS":
-            raise ValueError(
-                "The POINTS method is not available yet. Please choose another AOI method."
-            )
-
-        elif method == "ASSET":
-            raise ValueError(
-                "The ASSET method is not available yet. Please choose another AOI method."
-            )
-
-        else:
-            raise ValueError("Please select a method")
-
-        # Update the map if available
-        if map_ and result:
-            # Clear existing AOI layers and WMS preview
-            for layer in list(map_.layers):
-                if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
-                    map_.remove_layer(layer)
-
-            # Add new AOI layer
-            if gee and result.feature_collection:
-                await map_.add_ee_layer_async(
-                    result.feature_collection, map_style or {}, "aoi", autocenter=True
+                tracker.step(f"Fetching {method} boundaries...")
+                result = await process_admin(
+                    method=method,
+                    admin_code=admin_code.value,
+                    gee=gee,
+                    gee_interface=gee_interface,
                 )
-            elif result.admin is not None:
-                # For admin boundaries (non-GEE), use WMS layer and zoom to bounds
-                level = int(method[-1])  # Extract level from method name (ADMIN0 -> 0)
-                wms_layer = create_wms_preview_layer(
-                    level=level,
-                    admin_code=result.admin,
-                    name="aoi",
+
+            elif method == "DRAW":
+                if aoi_dc is None:
+                    raise ValueError("No DrawControl available")
+
+                features = aoi_dc.get_data()
+                if not features:
+                    raise ValueError("No drawn features found. Please draw an area on the map.")
+
+                tracker.step("Processing drawn features...")
+                result = process_draw(
+                    geo_json=features,
+                    name=draw_name.value,
+                    gee=gee,
                 )
-                map_.add_layer(wms_layer)
 
-                # Fetch bounds async and zoom to the feature
-                bounds = await fetch_admin_bounds_async(level=level, admin_code=result.admin)
-                map_.zoom_bounds(bounds)
-            elif result.gdf is not None:
-                # For drawn shapes or other methods with GDF, use GeoJSON
-                geojson_layer = get_ipygeojson(result.gdf, result.name, map_style)
-                map_.add_layer(geojson_layer, key="aoi")
+            elif method == "SHAPE":
+                raise ValueError(
+                    "The SHAPE method is not available yet. Please choose another AOI method."
+                )
 
-                # Zoom to the GeoDataFrame bounds
-                map_.zoom_bounds(result.gdf.total_bounds)
+            elif method == "POINTS":
+                raise ValueError(
+                    "The POINTS method is not available yet. Please choose another AOI method."
+                )
 
-        # Update reactive value
-        reactive_value.set(result)
+            elif method == "ASSET":
+                raise ValueError(
+                    "The ASSET method is not available yet. Please choose another AOI method."
+                )
 
-        return ms.aoi_sel.complete
+            else:
+                raise ValueError("Please select a method")
+
+            # Update the map if available
+            if map_ and result:
+                tracker.step("Updating map...")
+
+                # Clear existing AOI layers and WMS preview
+                for layer in list(map_.layers):
+                    if hasattr(layer, "name") and layer.name in [
+                        "aoi",
+                        WMS_PREVIEW_LAYER_NAME,
+                    ]:
+                        map_.remove_layer(layer)
+
+                # Add new AOI layer
+                if gee and result.feature_collection:
+                    await map_.add_ee_layer_async(
+                        result.feature_collection,
+                        map_style or {},
+                        "aoi",
+                        autocenter=True,
+                    )
+                elif result.admin is not None:
+                    level = int(method[-1])
+                    wms_layer = create_wms_preview_layer(
+                        level=level,
+                        admin_code=result.admin,
+                        name="aoi",
+                    )
+                    map_.add_layer(wms_layer)
+
+                    bounds = await fetch_admin_bounds_async(level=level, admin_code=result.admin)
+                    map_.zoom_bounds(bounds)
+                elif result.gdf is not None:
+                    geojson_layer = get_ipygeojson(result.gdf, result.name, map_style)
+                    map_.add_layer(geojson_layer, key="aoi")
+                    map_.zoom_bounds(result.gdf.total_bounds)
+
+            # Update reactive value
+            reactive_value.set(result)
+
+            tracker.complete()
+            return ms.aoi_sel.complete
+
+        except BaseException:
+            tracker.__exit__(*__import__("sys").exc_info())
+            raise
 
     # Run AOI processing as async task
     # prefer_threaded=False: run on the stable kernel event loop instead of
@@ -507,7 +529,7 @@ def AoiView(
         prefer_threaded=False,
     )
 
-    # Handle task state changes
+    # Handle task state changes (loading + toast for success)
     def handle_task_state():
         if task.pending:
             reactive_loading.set(True)
@@ -517,7 +539,7 @@ def AoiView(
                 notifications.success(task.value)
         elif task.error:
             reactive_loading.set(False)
-            notifications.error(f"Error: {str(task.exception)}")
+            # Error toast is already published by TaskTracker.__exit__
         elif task.cancelled:
             reactive_loading.set(False)
             notifications.info("Process cancelled")

@@ -17,10 +17,10 @@ class ToastType(Enum):
 
 
 TOAST_TIMEOUT_DEFAULTS: dict[ToastType, Optional[float]] = {
-    ToastType.SUCCESS: 5.0,
-    ToastType.INFO: 5.0,
-    ToastType.WARNING: 10.0,
-    ToastType.ERROR: None,
+    ToastType.SUCCESS: 3.0,
+    ToastType.INFO: 3.0,
+    ToastType.WARNING: 3.0,
+    ToastType.ERROR: 3.0,
 }
 
 

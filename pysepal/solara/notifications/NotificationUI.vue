@@ -11,7 +11,7 @@
         :value="true"
         elevation="6"
         class="toast-alert"
-        @input="dismiss_toast(toast.id)"
+        @input="_dismissToast(toast.id)"
       >
         {{ toast.message }}
         <span v-if="toast.count > 1" class="ml-1">(x{{ toast.count }})</span>
@@ -139,18 +139,22 @@ export default {
       pillExpanded: false,
       taskExpanded: {},
       dismissTimers: {},
+      dismissedIds: new Set(),
       pillRight: 16,
     };
   },
   computed: {
     visibleToasts() {
+      // Filter out locally dismissed toasts first
+      const active = this.toasts.filter((t) => !this.dismissedIds.has(t.id));
+
       const now = Date.now() / 1000;
       const staleThreshold = 30;
 
       const fresh = [];
       const staleErrors = [];
 
-      for (const t of this.toasts) {
+      for (const t of active) {
         if (t.color === "error" && now - t.created_at > staleThreshold) {
           staleErrors.push(t);
         } else {
@@ -227,13 +231,13 @@ export default {
         for (const toast of newToasts) {
           if (toast.timeout && !this.dismissTimers[toast.id]) {
             this.dismissTimers[toast.id] = setTimeout(() => {
-              this.dismiss_toast(toast.id);
+              this._dismissToast(toast.id);
               delete this.dismissTimers[toast.id];
             }, toast.timeout * 1000);
           }
         }
 
-        // Clean up timers for removed toasts
+        // Clean up timers and dismissed IDs for removed toasts
         const currentIds = new Set(newToasts.map((t) => t.id));
         for (const id of Object.keys(this.dismissTimers)) {
           if (!currentIds.has(id)) {
@@ -241,47 +245,46 @@ export default {
             delete this.dismissTimers[id];
           }
         }
+        // Prune stale dismissed IDs
+        for (const id of this.dismissedIds) {
+          if (!currentIds.has(id)) {
+            this.dismissedIds.delete(id);
+          }
+        }
       },
     },
   },
   mounted() {
     this._updatePillPosition();
-    // The v-app may be inside an iframe or shadow DOM — search broadly
-    this._observer = new MutationObserver(() => this._updatePillPosition());
-    // Observe the entire document body for any style attribute changes
-    this._observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ["style"],
-      subtree: true,
-    });
-    window.addEventListener("resize", this._updatePillPosition);
+    // Watch the right-panel drawer for open/close (class and style changes)
+    this._pollInterval = setInterval(() => this._updatePillPosition(), 50);
   },
   beforeDestroy() {
     for (const id of Object.keys(this.dismissTimers)) {
       clearTimeout(this.dismissTimers[id]);
     }
-    if (this._observer) {
-      this._observer.disconnect();
+    if (this._pollInterval) {
+      clearInterval(this._pollInterval);
     }
-    window.removeEventListener("resize", this._updatePillPosition);
   },
   methods: {
+    _dismissToast(id) {
+      // Instantly hide in Vue, then notify Python to clean up bus state
+      this.dismissedIds.add(id);
+      this.dismissedIds = new Set(this.dismissedIds); // trigger reactivity
+      this.dismiss_toast(id);
+    },
     _updatePillPosition() {
-      const vApp = document.querySelector(".v-application");
-      if (!vApp) {
+      // Find the right panel drawer by its class
+      const panel = document.querySelector(".right-panel.v-navigation-drawer");
+      if (!panel) {
         this.pillRight = 16;
         return;
       }
-      const style = getComputedStyle(vApp);
-      const panelWidth = parseInt(
-        style.getPropertyValue("--right-panel-width") || "0",
-        10
-      );
-      const panelOpen = parseInt(
-        style.getPropertyValue("--right-panel-open") || "0",
-        10
-      );
-      this.pillRight = panelWidth * panelOpen + 16;
+      // Vuetify keeps offsetWidth even when closed (uses transform to hide).
+      // Check for the --open class to know if it's actually visible.
+      const isOpen = panel.classList.contains("v-navigation-drawer--open");
+      this.pillRight = isOpen ? panel.offsetWidth + 16 : 16;
     },
   },
 };

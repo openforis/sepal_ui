@@ -16,9 +16,9 @@ def use_notifications_from_bus(
 ) -> Union[Notifier, NoopNotifier]:
     """Resolve a Notifier from a bus (testable without Solara context)."""
     if bus is None:
-        logger.warning(
-            "use_notifications() called without a mounted NotificationProvider. "
-            "Notifications will be silently dropped."
+        logger.debug(
+            "use_notifications() called before NotificationProvider mounted. "
+            "Notifications will be silently dropped until next render."
         )
         return NoopNotifier()
     return Notifier(bus)

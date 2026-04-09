@@ -59,33 +59,31 @@ def ToastCard(toast: Toast, on_dismiss: callable):
     color = TOAST_COLORS.get(toast.type, "info")
     timeout = toast.effective_timeout()
 
-    # Auto-dismiss timer
-    if timeout is not None:
-        timeout_ms = int(timeout * 1000)
-    else:
-        timeout_ms = -1  # Vuetify: -1 means no auto-dismiss
-
     count_text = f" (x{toast.count})" if toast.count > 1 else ""
 
-    rv.Snackbar(
+    # Auto-dismiss via use_effect timer (always called — hooks can't be conditional)
+    def start_timer():
+        if timeout is None:
+            return
+        import threading
+
+        timer = threading.Timer(timeout, lambda: on_dismiss(toast.id))
+        timer.daemon = True
+        timer.start()
+        return timer.cancel
+
+    solara.use_effect(start_timer, [toast.id])
+
+    with rv.Alert(
+        type=color,
+        dense=True,
+        dismissible=True,
         v_model=True,
-        color=color,
-        timeout=timeout_ms,
-        top=True,
-        right=True,
-        children=[
-            solara.Text(f"{toast.message}{count_text}"),
-            rv.Btn(
-                icon=True,
-                children=[rv.Icon(children=["mdi-close"])],
-                on_click=lambda *_: on_dismiss(toast.id),
-                class_="ml-2",
-                small=True,
-            ),
-        ],
-        style_="position: relative; margin-bottom: 8px;",
         on_v_model=lambda v: on_dismiss(toast.id) if not v else None,
-    )
+        style_="margin-bottom: 8px; min-width: 300px; opacity: 0.75;",
+        elevation=6,
+    ):
+        solara.Text(f"{toast.message}{count_text}")
 
 
 @solara.component
