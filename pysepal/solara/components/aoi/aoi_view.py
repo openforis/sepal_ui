@@ -21,7 +21,7 @@ Usage:
             print(f"Selected: {aoi.value.name}")
 """
 
-from typing import Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import reacton.ipyvuetify as rv
 import solara
@@ -31,6 +31,7 @@ from pysepal import mapping as sm
 from pysepal.mapping import get_ipygeojson
 from pysepal.message import ms
 from pysepal.scripts import utils as su
+from pysepal.solara import get_current_gee_interface
 from pysepal.solara.components.aoi.admin import (
     fetch_admin_bounds_async,
     fetch_admin_items,
@@ -42,6 +43,9 @@ from pysepal.solara.components.aoi.wms_utils import (
     WMS_PREVIEW_LAYER_NAME,
     create_wms_preview_layer,
 )
+from pysepal.solara.components.inputs.asset_select import AssetSelectComponent
+from pysepal.solara.components.inputs.point_selector import PointsSelectorComponent
+from pysepal.solara.components.inputs.vector_selector import VectorSelectorComponent
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 
 __all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
@@ -314,6 +318,8 @@ def AoiView(
     map_: Optional[sm.SepalMap] = None,
     gee: bool = True,
     map_style: Optional[dict] = None,
+    file_initial_folder: str = "",
+    clear_ref: Optional[Any] = None,
 ):
     """Solara-native component for AOI (Area of Interest) selection.
 
@@ -330,6 +336,8 @@ def AoiView(
         map_: Link to a SepalMap instance for drawing and display
         gee: Whether to bind to Earth Engine
         map_style: Custom style for AOI display on map
+        file_initial_folder: Initial folder for file-based method pickers (SHAPE, POINTS)
+        clear_ref: Optional ref that receives a clear callback for external reset
 
     Example:
         ```python
@@ -375,6 +383,10 @@ def AoiView(
     selected_method = solara.use_reactive("")
     admin_code = solara.use_reactive(None)  # Output from AdminLevelSelector
     draw_name = solara.use_reactive("")  # Name for drawn shapes
+    shape_data = solara.use_reactive(None)  # Output from VectorSelectorComponent
+    points_data = solara.use_reactive(None)  # Output from PointsSelectorComponent
+    asset_data = solara.use_reactive(None)  # Output from AssetSelectComponent
+    asset_loading = solara.use_reactive(False)  # AssetSelectComponent loading state
 
     # UI state
     alert_message = solara.use_reactive("")
@@ -386,6 +398,24 @@ def AoiView(
         alert_type.set("info")
 
     solara.use_effect(reset_alert_on_mount, [])  # Empty deps = runs once on mount
+
+    # Register clear callback for external use
+    def _register_clear():
+        if clear_ref is not None:
+
+            def clear():
+                selected_method.set("")
+                admin_code.set(None)
+                draw_name.set("")
+                shape_data.set(None)
+                points_data.set(None)
+                asset_data.set(None)
+                reactive_value.set(None)
+                alert_message.set("")
+
+            clear_ref.current = clear
+
+    solara.use_effect(_register_clear, [])
 
     async def process_aoi() -> str:
         """Process the selected AOI."""
@@ -399,6 +429,7 @@ def AoiView(
                 method=method,
                 admin_code=admin_code.value,
                 gee=gee,
+                gee_interface=get_current_gee_interface(),
             )
 
         elif method == "DRAW":
@@ -472,10 +503,15 @@ def AoiView(
         return ms.aoi_sel.complete
 
     # Run AOI processing as async task
+    # prefer_threaded=False: run on the stable kernel event loop instead of
+    # spawning a new loop per invocation, which causes "bound to a different
+    # event loop" errors on start/cancel/start cycles (eeclient's asyncio
+    # primitives bind to the first loop they see).
     task = solara.lab.use_task(
         process_aoi,
         dependencies=None,
         raise_error=False,
+        prefer_threaded=False,
     )
 
     # Handle task state changes
@@ -590,10 +626,17 @@ def AoiView(
             )
 
         elif selected_method.value == "SHAPE":
-            solara.Warning("SHAPE method not yet implemented.")
+            VectorSelectorComponent(
+                gee=gee,
+                initial_folder=file_initial_folder,
+                value=shape_data,
+            )
 
         elif selected_method.value == "POINTS":
-            solara.Warning("POINTS method not yet implemented.")
+            PointsSelectorComponent(
+                initial_folder=file_initial_folder,
+                value=points_data,
+            )
 
         elif selected_method.value == "DRAW":
             if aoi_dc:
@@ -610,13 +653,19 @@ def AoiView(
                 solara.Error("DrawControl not available. Please provide a map with DrawControl.")
 
         elif selected_method.value == "ASSET" and gee:
-            solara.Warning("ASSET method not yet implemented.")
+            session_gee_interface = get_current_gee_interface()
+            AssetSelectComponent(
+                gee_interface=session_gee_interface,
+                value=asset_data,
+                loading=asset_loading,
+            )
 
         # Action buttons
         if selected_method.value:
             TaskButtonComponent(
                 label="Select AOI",
                 **btn_props,
+                external_busy=asset_loading.value,
                 small=True,
                 block=True,
             )
