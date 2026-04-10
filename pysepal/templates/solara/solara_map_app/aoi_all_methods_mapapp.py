@@ -94,8 +94,32 @@ def ProcessStep(aoi_data):
 
         notifications.success("Processing complete!")
 
+    async def run_failing_process():
+        """Simulate a Python exception mid-task to test error handling."""
+        with notifications.track("Risky operation", total_steps=3) as task:
+            task.step("Preparing data...")
+            await asyncio.sleep(1)
+            task.set_progress(0.3)
+
+            task.step("Calling external service...")
+            await asyncio.sleep(1)
+            task.set_progress(0.6)
+
+            task.step("Parsing response...")
+            await asyncio.sleep(0.5)
+            # Simulate a real error
+            raise RuntimeError(
+                "Simulated failure: external API returned malformed JSON "
+                "at line 42. Check the server logs for details."
+            )
+
     process_task = solara.lab.use_task(
         run_process,
+        dependencies=None,
+        raise_error=False,
+    )
+    failing_task = solara.lab.use_task(
+        run_failing_process,
         dependencies=None,
         raise_error=False,
     )
@@ -113,11 +137,17 @@ def ProcessStep(aoi_data):
                 disabled=process_task.pending,
                 block=True,
             )
+            solara.Button(
+                "Simulate Error",
+                on_click=failing_task,
+                color="error",
+                outlined=True,
+                loading=failing_task.pending,
+                disabled=failing_task.pending,
+                block=True,
+            )
         else:
             solara.Warning("Select an AOI first in the right panel.")
-
-        if process_task.error:
-            solara.Error(f"Error: {process_task.exception}")
 
 
 @solara.component

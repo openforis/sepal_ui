@@ -11,7 +11,6 @@ import solara
 
 from .bus import NotificationBus
 from .state import TaskStatus, ToastType
-from .task_pill import COMPLETED_FADE_SECONDS
 
 # Color mapping
 _TOAST_COLORS = {
@@ -57,12 +56,16 @@ def _serialize_tasks(bus: NotificationBus) -> list:
                 "title": t.title,
                 "status": t.status.value,
                 "statusColor": _STATUS_COLORS.get(t.status, "grey"),
-                "milestones": [{"message": m.message} for m in t.milestones],
+                "milestones": [
+                    {"message": m.message, "timestamp": m.timestamp} for m in t.milestones
+                ],
                 "lastStep": t.milestones[-1].message if t.milestones else None,
                 "progress": t.progress,
                 "totalSteps": t.total_steps,
                 "currentStep": t.current_step,
                 "errorMessage": t.error_message,
+                "createdAt": t.created_at,
+                "completedAt": t.completed_at,
             }
         )
     return result
@@ -87,35 +90,9 @@ def NotificationUIBridge(bus: NotificationBus):
     def handle_dismiss(toast_id: str):
         bus.remove_toast(toast_id)
 
-    # Auto-remove completed tasks after per-task fade delay
-    import threading
-
-    def cleanup_completed():
-        import time
-
-        def _cleanup():
-            while True:
-                time.sleep(1)
-                now = time.time()
-                for t in bus.tasks.value:
-                    if (
-                        t.status == TaskStatus.COMPLETED
-                        and t.completed_at is not None
-                        and now - t.completed_at >= COMPLETED_FADE_SECONDS
-                    ):
-                        bus.remove_task(t.id)
-                # Stop polling once no completed tasks remain
-                if not any(t.status == TaskStatus.COMPLETED for t in bus.tasks.value):
-                    break
-
-        if any(t.status == TaskStatus.COMPLETED for t in bus.tasks.value):
-            timer = threading.Thread(target=_cleanup, daemon=True)
-            timer.start()
-
-    solara.use_effect(
-        cleanup_completed,
-        [len([t for t in bus.tasks.value if t.status == TaskStatus.COMPLETED])],
-    )
+    # Tasks are kept in the bus for the logger panel. The Vue UI handles
+    # the "dismiss pill" interaction locally (it hides the pill from view
+    # but leaves the task in the logger history).
 
     NotificationUI(
         toasts=toasts,

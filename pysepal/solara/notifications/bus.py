@@ -30,9 +30,19 @@ class NotificationBus:
         self._lock = threading.Lock()
 
     def add_toast(self, toast: Toast) -> None:
-        """Add a toast, applying dedup and queue limit rules."""
+        """Add a toast, applying dedup and queue limit rules.
+
+        Error toasts replace previous errors (only the latest error is kept).
+        """
         with self._lock:
             current = list(self.toasts.value)
+
+            # Error replacement: new errors remove all previous errors
+            if toast.type == ToastType.ERROR:
+                current = [t for t in current if t.type != ToastType.ERROR]
+                current.append(toast)
+                self.toasts.value = current
+                return
 
             # Dedup: merge if identical message+type within window
             for i, existing in enumerate(current):

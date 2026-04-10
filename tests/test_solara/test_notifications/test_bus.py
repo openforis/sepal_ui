@@ -79,27 +79,26 @@ class TestNotificationBusToasts:
             )
         assert len(self.bus.toasts.value) <= MAX_TOAST_QUEUE
 
-    def test_queue_limit_preserves_errors(self):
-        # Fill with errors
-        for i in range(MAX_TOAST_QUEUE):
+    def test_new_error_replaces_previous_errors(self):
+        # New errors replace all previous errors (only the latest is kept)
+        for i in range(5):
             self.bus.add_toast(Toast(message=f"err-{i}", type=ToastType.ERROR))
-        # Add one more info toast
-        self.bus.add_toast(Toast(message="info", type=ToastType.INFO))
-        # Errors should all be preserved
         errors = [t for t in self.bus.toasts.value if t.type == ToastType.ERROR]
-        assert len(errors) == MAX_TOAST_QUEUE
+        assert len(errors) == 1
+        assert errors[0].message == "err-4"
 
-    def test_queue_limit_caps_errors_when_exceeding_max(self):
-        # Add more errors than MAX_TOAST_QUEUE allows
-        for i in range(MAX_TOAST_QUEUE + 10):
-            self.bus.add_toast(
-                Toast(message=f"err-{i}", type=ToastType.ERROR, created_at=time.time() + i)
-            )
-        # Total must never exceed MAX_TOAST_QUEUE, even if all are errors
-        assert len(self.bus.toasts.value) <= MAX_TOAST_QUEUE
-        # Should keep the newest errors (highest created_at)
-        messages = [t.message for t in self.bus.toasts.value]
-        assert f"err-{MAX_TOAST_QUEUE + 9}" in messages
+    def test_error_replacement_preserves_non_errors(self):
+        # Adding an error should not touch non-error toasts
+        self.bus.add_toast(Toast(message="info", type=ToastType.INFO))
+        self.bus.add_toast(Toast(message="warn", type=ToastType.WARNING))
+        self.bus.add_toast(Toast(message="err", type=ToastType.ERROR))
+        self.bus.add_toast(Toast(message="err2", type=ToastType.ERROR))
+
+        non_errors = [t for t in self.bus.toasts.value if t.type != ToastType.ERROR]
+        errors = [t for t in self.bus.toasts.value if t.type == ToastType.ERROR]
+        assert len(non_errors) == 2
+        assert len(errors) == 1
+        assert errors[0].message == "err2"
 
 
 class TestNotificationBusTasks:
