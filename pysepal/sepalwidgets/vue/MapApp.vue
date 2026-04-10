@@ -481,19 +481,54 @@ export default {
         this.open_dialog = true;
       }
     },
+
+    // Sync layout variables to document root for sibling widgets (notifications).
+    // Debounced to avoid transient flickers during Solara re-render cycles.
+    right_panel_open() {
+      this._debouncedSyncGlobalLayoutVars();
+    },
+    right_panel_width() {
+      this._debouncedSyncGlobalLayoutVars();
+    },
   },
 
   mounted() {
     window.addEventListener("resize", this.handleResize);
-    // Auto-activate first step if no main map
     this.autoActivateFirstStepIfNeeded();
+    this._syncGlobalLayoutVars();
   },
 
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
+    clearTimeout(this._syncTimer);
+    this._clearGlobalLayoutVars();
   },
 
   methods: {
+    _debouncedSyncGlobalLayoutVars() {
+      clearTimeout(this._syncTimer);
+      this._syncTimer = setTimeout(() => this._syncGlobalLayoutVars(), 50);
+    },
+    _syncGlobalLayoutVars() {
+      const root = document.documentElement;
+      const width = this.right_panel_width || 0;
+      const offset = this.right_panel_open ? width : 0;
+      root.style.setProperty("--sepal-right-panel-width", width + "px");
+      root.style.setProperty(
+        "--sepal-right-panel-open",
+        this.right_panel_open ? "1" : "0"
+      );
+      root.style.setProperty(
+        "--sepal-notification-right-offset",
+        offset + "px"
+      );
+    },
+    _clearGlobalLayoutVars() {
+      const root = document.documentElement;
+      root.style.removeProperty("--sepal-right-panel-width");
+      root.style.removeProperty("--sepal-right-panel-open");
+      root.style.removeProperty("--sepal-notification-right-offset");
+    },
     handleResize() {
       // Update reactive window dimensions
       this.windowWidth = window.innerWidth;

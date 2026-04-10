@@ -16,6 +16,7 @@ guides/
 .plans/
 docs/plans/
 docs/guides/
+docs/superpowers/
 *legacy*
 
 .github/workflows/act_unit.yml

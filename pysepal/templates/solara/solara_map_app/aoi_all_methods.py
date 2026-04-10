@@ -24,6 +24,7 @@ from pysepal.solara import (
     with_sepal_sessions,
 )
 from pysepal.solara.components.aoi import AoiView
+from pysepal.solara.notifications import NotificationProvider
 
 DUMMY_DATA_DIR = Path(__file__).resolve().parents[4] / "tests" / "data" / "aoi_manual"
 
@@ -169,6 +170,7 @@ def Page():
     selected_tab = solara.use_reactive(0)
 
     with solara.Column(style="padding: 20px; gap: 20px;"):
+        NotificationProvider()
         solara.Markdown("# AOI Methods Test Page")
         solara.Markdown("Verify all AOI selection methods work correctly.")
         solara.Info(f"Local SHAPE and POINTS pickers start in: {DUMMY_DATA_DIR}")

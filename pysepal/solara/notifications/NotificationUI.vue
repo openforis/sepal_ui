@@ -1,0 +1,584 @@
+<template>
+  <div>
+    <!-- Toast Stack: fixed top-right -->
+    <div class="toast-stack">
+      <v-alert
+        v-for="toast in visibleToasts"
+        :key="toast.id"
+        :type="toast.color"
+        :value="true"
+        dense
+        dark
+        elevation="4"
+        class="toast-alert"
+        :class="'toast-' + toast.color"
+        @click.native="_dismissToast(toast.id)"
+      >
+        <span class="toast-message">{{ toast.message }}</span>
+        <span v-if="toast.count > 1" class="toast-count"
+          >(x{{ toast.count }})</span
+        >
+        <div
+          v-if="toast.timeout"
+          class="toast-progress"
+          :style="{ animationDuration: toast.timeout + 's' }"
+        ></div>
+      </v-alert>
+    </div>
+
+    <!-- Task Progress Pill / Logger -->
+    <div
+      class="pill-wrapper"
+      :class="{ 'theme-dark': isDarkTheme, 'theme-light': !isDarkTheme }"
+    >
+      <!-- Open: show only the log panel (with its own close button) -->
+      <div v-if="logOpen" class="pill-log">
+        <div class="pill-log-header">
+          <span>
+            <v-icon small class="mr-2">mdi-history</v-icon>
+            Logger
+          </span>
+          <v-btn icon x-small @click="logOpen = false">
+            <v-icon small>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <div ref="logBody" class="pill-log-body" @scroll="_onLogScroll">
+          <div v-if="logEntries.length === 0" class="pill-log-empty">
+            No activity yet.
+          </div>
+          <div
+            v-for="entry in logEntries"
+            :key="entry.key"
+            class="pill-log-line"
+            :class="'log-' + entry.level"
+          >
+            <span class="pill-log-time">{{ entry.time }}</span>
+            <span class="pill-log-level">{{ entry.levelLabel }}</span>
+            <span class="pill-log-msg">{{ entry.message }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Closed: show pill (running task) + log button -->
+      <div v-else class="pill-row">
+        <div v-if="displayTask" class="pill-container">
+          <v-progress-circular
+            indeterminate
+            :size="14"
+            :width="2"
+            class="mr-2"
+            color="white"
+          />
+          <span class="pill-text">{{ pillText }}</span>
+        </div>
+
+        <v-btn
+          icon
+          class="pill-log-btn"
+          title="Show log"
+          @click="logOpen = true"
+        >
+          <v-icon>mdi-history</v-icon>
+        </v-btn>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "NotificationUI",
+  props: {
+    toasts: { type: Array, default: () => [] },
+    tasks: { type: Array, default: () => [] },
+  },
+  data() {
+    return {
+      dismissTimers: {},
+      dismissedIdsList: [],
+      logOpen: false,
+      logFollowing: true, // Auto-scroll to bottom when new entries arrive
+    };
+  },
+  computed: {
+    visibleToasts() {
+      const dismissed = new Set(this.dismissedIdsList);
+      const active = this.toasts.filter((t) => !dismissed.has(t.id));
+      active.sort((a, b) => b.created_at - a.created_at);
+      return active.slice(0, 5);
+    },
+    runningTask() {
+      const running = this.tasks.filter((t) => t.status === "running");
+      return running.length > 0 ? running[running.length - 1] : null;
+    },
+    displayTask() {
+      // Only show the pill while a task is actively running.
+      // Finished tasks disappear — the user can open the log for history.
+      return this.runningTask;
+    },
+    isDarkTheme() {
+      return this.$vuetify && this.$vuetify.theme && this.$vuetify.theme.dark;
+    },
+    pillText() {
+      if (!this.displayTask) return "Task log";
+      const t = this.displayTask;
+      let label = t.title;
+      if (t.lastStep) {
+        label += " — " + t.lastStep;
+      }
+      return label;
+    },
+    logEntries() {
+      // Build a chronological log: START / STEP / DONE / FAIL per task
+      const entries = [];
+      for (const task of this.tasks) {
+        // START entry
+        entries.push({
+          key: task.id + "-start",
+          timestamp: task.createdAt || 0,
+          level: "start",
+          levelLabel: "START",
+          message: task.title,
+        });
+        // STEP entries (one per milestone)
+        if (task.milestones) {
+          for (let i = 0; i < task.milestones.length; i++) {
+            const ms = task.milestones[i];
+            entries.push({
+              key: task.id + "-ms-" + i,
+              timestamp: ms.timestamp || 0,
+              level: "step",
+              levelLabel: "STEP",
+              message: ms.message,
+            });
+          }
+        }
+        // DONE / FAIL / CANCEL entry
+        if (task.status === "completed") {
+          entries.push({
+            key: task.id + "-done",
+            timestamp: task.completedAt || 0,
+            level: "done",
+            levelLabel: "DONE",
+            message: task.title,
+          });
+        } else if (task.status === "failed") {
+          entries.push({
+            key: task.id + "-fail",
+            timestamp: task.completedAt || 0,
+            level: "fail",
+            levelLabel: "FAIL",
+            message: task.errorMessage || task.title,
+          });
+        } else if (task.status === "cancelled") {
+          entries.push({
+            key: task.id + "-cancel",
+            timestamp: task.completedAt || 0,
+            level: "cancel",
+            levelLabel: "CNCL",
+            message: task.title,
+          });
+        }
+      }
+      // Sort chronologically (oldest first, like a real log)
+      entries.sort((a, b) => a.timestamp - b.timestamp);
+      // Format timestamps as HH:MM:SS
+      for (const e of entries) {
+        if (e.timestamp) {
+          const d = new Date(e.timestamp * 1000);
+          const hh = String(d.getHours()).padStart(2, "0");
+          const mm = String(d.getMinutes()).padStart(2, "0");
+          const ss = String(d.getSeconds()).padStart(2, "0");
+          e.time = `${hh}:${mm}:${ss}`;
+        } else {
+          e.time = "--:--:--";
+        }
+      }
+      return entries;
+    },
+  },
+  watch: {
+    toasts(newToasts) {
+      this._syncToastTimers(newToasts);
+    },
+    logEntries() {
+      // When new log entries arrive, scroll to bottom (if user was following)
+      if (this.logOpen && this.logFollowing) {
+        this.$nextTick(() => this._scrollLogToBottom());
+      }
+    },
+    logOpen(isOpen) {
+      // When opening the log, jump to the bottom and re-enable following
+      if (isOpen) {
+        this.logFollowing = true;
+        this.$nextTick(() => this._scrollLogToBottom());
+      }
+    },
+  },
+  mounted() {
+    this._syncToastTimers(this.toasts);
+  },
+  beforeDestroy() {
+    for (const id of Object.keys(this.dismissTimers)) {
+      clearTimeout(this.dismissTimers[id]);
+    }
+  },
+  methods: {
+    _syncToastTimers(newToasts) {
+      // Set up auto-dismiss timers for new toasts with timeouts
+      for (const toast of newToasts) {
+        if (toast.timeout && !this.dismissTimers[toast.id]) {
+          const toastId = toast.id;
+          this.dismissTimers[toastId] = setTimeout(() => {
+            this._dismissToast(toastId);
+          }, toast.timeout * 1000);
+        }
+      }
+      // Clean up timers and dismissed IDs for removed toasts
+      const currentIds = new Set(newToasts.map((t) => t.id));
+      for (const id of Object.keys(this.dismissTimers)) {
+        if (!currentIds.has(id)) {
+          clearTimeout(this.dismissTimers[id]);
+          delete this.dismissTimers[id];
+        }
+      }
+      this.dismissedIdsList = this.dismissedIdsList.filter((id) =>
+        currentIds.has(id)
+      );
+    },
+    _dismissToast(id) {
+      // Clear any pending timer for this toast
+      if (this.dismissTimers[id]) {
+        clearTimeout(this.dismissTimers[id]);
+        delete this.dismissTimers[id];
+      }
+      // Instantly hide in Vue (array push is reactive in Vue 2)
+      if (!this.dismissedIdsList.includes(id)) {
+        this.dismissedIdsList.push(id);
+      }
+      // Notify Python to clean up bus state (async)
+      this.dismiss_toast(id);
+    },
+    _scrollLogToBottom() {
+      const el = this.$refs.logBody;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    },
+    _onLogScroll() {
+      const el = this.$refs.logBody;
+      if (!el) return;
+      // Detect if user is at (or near) the bottom — if so, keep following.
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
+      this.logFollowing = distanceFromBottom < 20;
+    },
+    _iconForStatus(status) {
+      switch (status) {
+        case "running":
+          return "mdi-progress-clock";
+        case "completed":
+          return "mdi-check-circle";
+        case "failed":
+          return "mdi-alert-circle";
+        case "cancelled":
+          return "mdi-cancel";
+        default:
+          return "mdi-circle-outline";
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+/* ─── Toast Stack ────────────────────────────────────────── */
+.toast-stack {
+  position: fixed;
+  top: 4px;
+  right: 4px;
+  z-index: 1000;
+  width: 440px;
+  max-width: calc(100vw - 8px);
+  max-height: calc(100vh - 8px);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.toast-alert {
+  pointer-events: auto;
+  cursor: pointer;
+  margin-bottom: 0 !important;
+  border-radius: 6px;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+  min-height: 54px !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Solid but slightly translucent backgrounds for glass + high contrast */
+.toast-alert.toast-success {
+  background: rgba(46, 125, 50, 0.92) !important;
+}
+.toast-alert.toast-info {
+  background: rgba(21, 101, 192, 0.92) !important;
+}
+.toast-alert.toast-warning {
+  background: rgba(230, 120, 0, 0.92) !important;
+}
+.toast-alert.toast-error {
+  background: rgba(183, 28, 28, 0.94) !important;
+  border-left: 4px solid #ffcdd2 !important;
+}
+
+/* Align icon and content properly */
+.toast-alert >>> .v-alert__wrapper {
+  align-items: center;
+}
+
+.toast-alert >>> .v-alert__content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  line-height: 1.45;
+  max-height: 400px;
+  overflow-y: auto;
+  color: #ffffff;
+}
+
+.toast-alert >>> .v-icon {
+  color: #ffffff !important;
+}
+
+.toast-message {
+  font-size: 0.92em;
+  font-weight: 400;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  flex: 1;
+  color: #ffffff;
+}
+
+.toast-count {
+  margin-left: 6px;
+  opacity: 0.85;
+  font-size: 0.85em;
+}
+
+.toast-alert.toast-error >>> .v-alert__content {
+  max-height: 500px;
+}
+
+/* Auto-dismiss progress bar (shrinks over toast.timeout seconds) */
+.toast-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.85);
+  transform-origin: left center;
+  animation-name: toast-progress-shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+@keyframes toast-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ─── Task Progress Pill ─────────────────────────────────── */
+.pill-wrapper {
+  position: fixed;
+  bottom: 16px;
+  right: calc(var(--sepal-notification-right-offset, 0px) + 16px);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 500px;
+
+  /* Theme-aware CSS vars (defaults = dark theme) */
+  --pill-bg: rgba(33, 33, 33, 0.88);
+  --pill-bg-hover: rgba(60, 60, 60, 0.95);
+  --pill-fg: #ffffff;
+  --pill-border: rgba(255, 255, 255, 0.08);
+  --log-bg: rgba(33, 33, 33, 0.94);
+  --log-fg: #e0e0e0;
+  --log-time: #9e9e9e;
+  --log-muted: #bdbdbd;
+  --log-start: #64b5f6;
+  --log-done: #81c784;
+  --log-fail: #e57373;
+  --log-divider: rgba(255, 255, 255, 0.12);
+}
+
+.pill-wrapper.theme-light {
+  --pill-bg: rgba(250, 250, 250, 0.92);
+  --pill-bg-hover: rgba(240, 240, 240, 0.98);
+  --pill-fg: #212121;
+  --pill-border: rgba(0, 0, 0, 0.08);
+  --log-bg: rgba(252, 252, 252, 0.96);
+  --log-fg: #212121;
+  --log-time: #616161;
+  --log-muted: #757575;
+  --log-start: #1976d2;
+  --log-done: #388e3c;
+  --log-fail: #d32f2f;
+  --log-divider: rgba(0, 0, 0, 0.08);
+}
+
+.pill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-container {
+  display: flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--pill-bg);
+  color: var(--pill-fg);
+  border-radius: 4px;
+  font-size: 0.85em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+/* Icons inside the pill use the foreground color */
+.pill-container >>> .v-icon {
+  color: var(--pill-fg) !important;
+}
+
+.pill-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+}
+
+/* Always-visible log button (v-btn icon, square override) */
+.pill-log-btn {
+  flex-shrink: 0;
+  background: var(--pill-bg) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(4px);
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+.pill-log-btn:hover {
+  background: var(--pill-bg-hover) !important;
+}
+
+.pill-log-btn >>> .v-icon {
+  color: var(--pill-fg) !important;
+}
+
+/* Expanded log panel */
+.pill-log {
+  background: var(--log-bg);
+  color: var(--log-fg);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  width: 420px;
+  max-width: 90vw;
+}
+
+.pill-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px 4px 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  border-bottom: 1px solid var(--log-divider);
+}
+
+.pill-log-header >>> .v-icon {
+  color: var(--log-fg) !important;
+}
+
+.pill-log-body {
+  padding: 6px 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.78em;
+  line-height: 1.5;
+}
+
+.pill-log-empty {
+  text-align: center;
+  opacity: 0.6;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.pill-log-line {
+  display: flex;
+  align-items: flex-start;
+  padding: 1px 0;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.78em;
+  line-height: 1.5;
+}
+
+.pill-log-time {
+  color: var(--log-time);
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.pill-log-level {
+  flex-shrink: 0;
+  margin-right: 8px;
+  font-weight: 600;
+  width: 38px;
+}
+
+.pill-log-msg {
+  flex: 1;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.log-start .pill-log-level {
+  color: var(--log-start);
+}
+.log-step .pill-log-level {
+  color: var(--log-muted);
+}
+.log-step .pill-log-msg {
+  opacity: 0.85;
+}
+.log-done .pill-log-level {
+  color: var(--log-done);
+}
+.log-fail .pill-log-level,
+.log-fail .pill-log-msg {
+  color: var(--log-fail);
+}
+.log-cancel .pill-log-level {
+  color: var(--log-muted);
+}
+</style>
