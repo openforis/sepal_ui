@@ -14,6 +14,7 @@ class ToastType(Enum):
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
+    CANCEL = "cancel"
 
 
 TOAST_TIMEOUT_DEFAULTS: dict[ToastType, Optional[float]] = {
@@ -21,6 +22,7 @@ TOAST_TIMEOUT_DEFAULTS: dict[ToastType, Optional[float]] = {
     ToastType.INFO: 3.0,
     ToastType.WARNING: 3.0,
     ToastType.ERROR: 3.0,
+    ToastType.CANCEL: 3.0,
 }
 
 

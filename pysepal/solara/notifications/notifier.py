@@ -126,6 +126,10 @@ class Notifier:
         """Publish an info toast."""
         self._bus.add_toast(Toast(message=message, type=ToastType.INFO))
 
+    def cancel(self, message: str) -> None:
+        """Publish a cancellation toast (rendered in gray)."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.CANCEL))
+
     def dismiss(self, toast_id: str) -> None:
         """Dismiss a toast by ID."""
         self._bus.remove_toast(toast_id)
@@ -229,6 +233,9 @@ class NoopNotifier:
 
     def info(self, message: str) -> None:
         """No-op info toast."""
+
+    def cancel(self, message: str) -> None:
+        """No-op cancel toast."""
 
     def dismiss(self, toast_id: str) -> None:
         """No-op dismiss."""

@@ -1,17 +1,17 @@
 <template>
-  <div>
+  <div :class="{ 'theme-dark': isDarkTheme, 'theme-light': !isDarkTheme }">
     <!-- Toast Stack: fixed top-right -->
     <div class="toast-stack">
       <v-alert
         v-for="toast in visibleToasts"
         :key="toast.id"
-        :type="toast.color"
+        :type="toast.kind !== 'cancel' ? toast.color : undefined"
         :value="true"
         dense
         dark
         elevation="4"
         class="toast-alert"
-        :class="'toast-' + toast.color"
+        :class="'toast-' + toast.kind"
         @click.native="_dismissToast(toast.id)"
       >
         <span class="toast-message">{{ toast.message }}</span>
@@ -29,7 +29,7 @@
     <!-- Task Progress Pill / Logger -->
     <div
       class="pill-wrapper"
-      :class="{ 'theme-dark': isDarkTheme, 'theme-light': !isDarkTheme }"
+      :class="{ 'transitions-enabled': transitionsEnabled }"
     >
       <!-- Open: show only the log panel (with its own close button) -->
       <div v-if="logOpen" class="pill-log">
@@ -98,6 +98,7 @@ export default {
       dismissedIdsList: [],
       logOpen: false,
       logFollowing: true, // Auto-scroll to bottom when new entries arrive
+      transitionsEnabled: false, // Gated so the pill doesn't slide in on mount
     };
   },
   computed: {
@@ -217,6 +218,14 @@ export default {
   },
   mounted() {
     this._syncToastTimers(this.toasts);
+    // Enable the right-edge transition only AFTER initial layout has
+    // settled — the RightPanel v-navigation-drawer registers with
+    // $vuetify.application a few ticks after MapApp mounts, which in turn
+    // drives the --sepal-notification-right-offset CSS var.  Gating with a
+    // short timeout lets that first position lock in instantly (no slide).
+    setTimeout(() => {
+      this.transitionsEnabled = true;
+    }, 400);
   },
   beforeDestroy() {
     for (const id of Object.keys(this.dismissTimers)) {
@@ -314,27 +323,64 @@ export default {
   margin-bottom: 0 !important;
   border-radius: 6px;
   color: #ffffff !important;
-  backdrop-filter: blur(8px);
   position: relative;
   overflow: hidden;
-  min-height: 54px !important;
-  padding-top: 14px !important;
-  padding-bottom: 14px !important;
+  min-height: 72px !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
 }
 
-/* Solid but slightly translucent backgrounds for glass + high contrast */
-.toast-alert.toast-success {
-  background: rgba(46, 125, 50, 0.92) !important;
+/* v-alert paints a filled background on its inner .v-alert__wrapper — force
+ * that wrapper transparent and set the color on .toast-alert itself.  Use
+ * `background-color` (not the shorthand) to avoid clearing other background
+ * properties Vuetify sets. */
+.toast-alert >>> .v-alert__wrapper {
+  background-color: transparent !important;
 }
-.toast-alert.toast-info {
-  background: rgba(21, 101, 192, 0.92) !important;
+
+/* Translucent backgrounds tuned per theme.
+ * Colors picked to mirror the Vuetify button palette:
+ *  - success = theme success green
+ *  - error   = theme error red (matches color="error" buttons like Cancel)
+ *  - warning = theme warning orange
+ *  - info    = theme info blue
+ */
+
+/* Dark theme (default — theme success #3f802a, theme error #a63228) */
+.theme-dark .toast-alert.toast-success {
+  background-color: rgba(63, 128, 42, 0.9) !important;
 }
-.toast-alert.toast-warning {
-  background: rgba(230, 120, 0, 0.92) !important;
+.theme-dark .toast-alert.toast-info {
+  background-color: rgba(21, 101, 192, 0.9) !important;
 }
-.toast-alert.toast-error {
-  background: rgba(183, 28, 28, 0.94) !important;
+.theme-dark .toast-alert.toast-warning {
+  background-color: rgba(230, 120, 0, 0.9) !important;
+}
+.theme-dark .toast-alert.toast-error {
+  background-color: rgba(166, 50, 40, 0.92) !important;
   border-left: 4px solid #ffcdd2 !important;
+}
+.theme-dark .toast-alert.toast-cancel {
+  background-color: rgba(120, 120, 120, 0.9) !important;
+}
+
+/* Light theme — success matches the primary button green #5BB624,
+ * error matches Vuetify's default error #ff5252 (color="error" buttons). */
+.theme-light .toast-alert.toast-success {
+  background-color: rgba(91, 182, 36, 0.9) !important;
+}
+.theme-light .toast-alert.toast-info {
+  background-color: rgba(33, 150, 243, 0.9) !important;
+}
+.theme-light .toast-alert.toast-warning {
+  background-color: rgba(251, 140, 0, 0.9) !important;
+}
+.theme-light .toast-alert.toast-error {
+  background-color: rgba(255, 82, 82, 0.92) !important;
+  border-left: 4px solid #ffcdd2 !important;
+}
+.theme-light .toast-alert.toast-cancel {
+  background-color: rgba(150, 150, 150, 0.9) !important;
 }
 
 /* Align icon and content properly */
@@ -403,10 +449,9 @@ export default {
 /* ─── Task Progress Pill ─────────────────────────────────── */
 .pill-wrapper {
   position: fixed;
-  bottom: 16px;
-  right: calc(var(--sepal-notification-right-offset, 0px) + 16px);
+  bottom: 8px;
+  right: calc(var(--sepal-notification-right-offset, 0px) + 8px);
   z-index: 1000;
-  transition: right 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -415,10 +460,10 @@ export default {
 
   /* Theme-aware CSS vars (defaults = dark theme) */
   --pill-bg: rgba(33, 33, 33, 0.88);
-  --pill-bg-hover: rgba(60, 60, 60, 0.95);
+  --pill-bg-hover: rgba(60, 60, 60, 0.94);
   --pill-fg: #ffffff;
   --pill-border: rgba(255, 255, 255, 0.08);
-  --log-bg: rgba(33, 33, 33, 0.94);
+  --log-bg: rgba(33, 33, 33, 0.9);
   --log-fg: #e0e0e0;
   --log-time: #9e9e9e;
   --log-muted: #bdbdbd;
@@ -428,12 +473,16 @@ export default {
   --log-divider: rgba(255, 255, 255, 0.12);
 }
 
-.pill-wrapper.theme-light {
-  --pill-bg: rgba(250, 250, 250, 0.92);
-  --pill-bg-hover: rgba(240, 240, 240, 0.98);
+.pill-wrapper.transitions-enabled {
+  transition: right 0.3s ease;
+}
+
+.theme-light .pill-wrapper {
+  --pill-bg: rgba(250, 250, 250, 0.88);
+  --pill-bg-hover: rgba(240, 240, 240, 0.94);
   --pill-fg: #212121;
   --pill-border: rgba(0, 0, 0, 0.08);
-  --log-bg: rgba(252, 252, 252, 0.96);
+  --log-bg: rgba(252, 252, 252, 0.9);
   --log-fg: #212121;
   --log-time: #616161;
   --log-muted: #757575;
@@ -453,12 +502,11 @@ export default {
   display: flex;
   align-items: center;
   padding: 6px 14px;
-  background: var(--pill-bg);
+  background-color: var(--pill-bg) !important;
   color: var(--pill-fg);
   border-radius: 4px;
   font-size: 0.85em;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
 }
 
 /* Icons inside the pill use the foreground color */
@@ -473,21 +521,30 @@ export default {
   max-width: 420px;
 }
 
-/* Always-visible log button (v-btn icon, square override) */
-.pill-log-btn {
+/* Always-visible log button (v-btn icon, square override)
+ * NOTE: Vuetify's v-btn paints its background through a ::before overlay,
+ * so we must force that overlay to transparent and set the real
+ * background-color on the button element itself.  `background-color` is
+ * used explicitly (not the `background` shorthand) to avoid wiping the
+ * other background-* properties Vuetify may set.
+ */
+.pill-log-btn.v-btn {
   flex-shrink: 0;
-  background: var(--pill-bg) !important;
+  background-color: var(--pill-bg) !important;
   border-radius: 4px !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-  backdrop-filter: blur(4px);
   width: 36px !important;
   height: 36px !important;
   min-width: 36px !important;
   min-height: 36px !important;
 }
 
-.pill-log-btn:hover {
-  background: var(--pill-bg-hover) !important;
+.pill-log-btn.v-btn::before {
+  background-color: transparent !important;
+}
+
+.pill-log-btn.v-btn:hover {
+  background-color: var(--pill-bg-hover) !important;
 }
 
 .pill-log-btn >>> .v-icon {
@@ -496,11 +553,10 @@ export default {
 
 /* Expanded log panel */
 .pill-log {
-  background: var(--log-bg);
+  background-color: var(--log-bg) !important;
   color: var(--log-fg);
   border-radius: 4px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(8px);
   width: 420px;
   max-width: 90vw;
 }
@@ -578,7 +634,8 @@ export default {
 .log-fail .pill-log-msg {
   color: var(--log-fail);
 }
-.log-cancel .pill-log-level {
+.log-cancel .pill-log-level,
+.log-cancel .pill-log-msg {
   color: var(--log-muted);
 }
 </style>

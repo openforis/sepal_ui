@@ -41,6 +41,19 @@ class TestNotificationBusToasts:
         assert len(self.bus.toasts.value) == 1
         assert self.bus.toasts.value[0].count == 2
 
+    def test_dedup_refreshes_identity_and_timestamp(self):
+        now = time.time()
+        first = Toast(message="dup", type=ToastType.INFO, created_at=now)
+        second = Toast(message="dup", type=ToastType.INFO, created_at=now + 0.5)
+
+        self.bus.add_toast(first)
+        self.bus.add_toast(second)
+
+        merged = self.bus.toasts.value[0]
+        assert merged.count == 2
+        assert merged.id == second.id
+        assert merged.created_at == second.created_at
+
     def test_no_dedup_after_window(self):
         now = time.time()
         self.bus.add_toast(Toast(message="dup", type=ToastType.INFO, created_at=now))

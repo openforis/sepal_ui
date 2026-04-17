@@ -55,7 +55,17 @@ class NotificationBus:
                     and existing.type == toast.type
                     and (toast.created_at - existing.created_at) < DEDUP_WINDOW_SECONDS
                 ):
-                    current[i] = replace(existing, count=existing.count + 1)
+                    # Refresh the toast identity/timestamp so the frontend
+                    # resets its dismiss timer and progress bar on repeated
+                    # notifications instead of expiring relative to the first
+                    # occurrence in the burst.
+                    current[i] = replace(
+                        existing,
+                        id=toast.id,
+                        created_at=toast.created_at,
+                        timeout=toast.timeout,
+                        count=existing.count + 1,
+                    )
                     self.toasts.value = current
                     return
 

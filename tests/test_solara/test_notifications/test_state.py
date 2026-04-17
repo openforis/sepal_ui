@@ -12,7 +12,7 @@ from pysepal.solara.notifications.state import (
 
 class TestEnums:
     def test_toast_types(self):
-        assert set(t.value for t in ToastType) == {"success", "info", "warning", "error"}
+        assert set(t.value for t in ToastType) == {"success", "info", "warning", "error", "cancel"}
 
     def test_task_statuses(self):
         assert set(s.value for s in TaskStatus) == {
@@ -30,6 +30,7 @@ class TestToastTimeoutDefaults:
         assert TOAST_TIMEOUT_DEFAULTS[ToastType.INFO] == 3.0
         assert TOAST_TIMEOUT_DEFAULTS[ToastType.WARNING] == 3.0
         assert TOAST_TIMEOUT_DEFAULTS[ToastType.ERROR] == 3.0
+        assert TOAST_TIMEOUT_DEFAULTS[ToastType.CANCEL] == 3.0
 
 
 class TestToast:

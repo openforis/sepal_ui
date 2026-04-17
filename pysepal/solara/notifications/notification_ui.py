@@ -1,8 +1,7 @@
 """Vue-backed notification UI: toasts and task progress pill.
 
 Uses @solara.component_vue to render via Vue template for proper CSS variable
-access (--right-panel-width, --right-panel-open from MapApp) and smooth
-transitions.
+access to MapApp-published layout vars and smooth transitions.
 """
 
 from typing import Callable, Optional
@@ -13,11 +12,23 @@ from .bus import NotificationBus
 from .state import TaskStatus, ToastType
 
 # Color mapping
-_TOAST_COLORS = {
+# v-alert only accepts success|info|warning|error for its `type` prop (it
+# drives the built-in icon).  Our custom CANCEL type reuses the info icon
+# but carries its own `kind` for CSS styling.
+_TOAST_ALERT_TYPES = {
     ToastType.SUCCESS: "success",
     ToastType.INFO: "info",
     ToastType.WARNING: "warning",
     ToastType.ERROR: "error",
+    ToastType.CANCEL: "info",
+}
+
+_TOAST_KINDS = {
+    ToastType.SUCCESS: "success",
+    ToastType.INFO: "info",
+    ToastType.WARNING: "warning",
+    ToastType.ERROR: "error",
+    ToastType.CANCEL: "cancel",
 }
 
 _STATUS_COLORS = {
@@ -35,7 +46,8 @@ def _serialize_toasts_from_list(toasts: list) -> list:
         {
             "id": t.id,
             "message": t.message,
-            "color": _TOAST_COLORS.get(t.type, "info"),
+            "color": _TOAST_ALERT_TYPES.get(t.type, "info"),
+            "kind": _TOAST_KINDS.get(t.type, "info"),
             "created_at": t.created_at,
             "timeout": t.effective_timeout(),
             "count": t.count,
