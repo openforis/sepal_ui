@@ -206,6 +206,16 @@ class MapApp(v.VuetifyTemplate):
         if model is not None:
             self._setup_model_binding()
 
+    def vue_toggle_pin(self, *args):
+        """Toggle the sidebar pin state.
+
+        Called from Vue when the user clicks the pin button.  We cannot rely
+        on `$emit("update:is_pinned", ...)` from Vue because Vue events do
+        not cross the jupyter-widget boundary; the synced traitlet must be
+        flipped here on the backend.
+        """
+        self.is_pinned = not self.is_pinned
+
     def vue_handle_right_panel_action(self, action):
         """Handle right panel actions from step activation."""
         if self.right_panel and len(self.right_panel) > 0:

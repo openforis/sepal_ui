@@ -349,12 +349,20 @@ export default {
       return this.mini ? this.collapsedWidth + "px" : this.expandedWidth + "px";
     },
 
+    actualRightOffset() {
+      // Use Vuetify's application service as the source of truth for the
+      // right-side drawer offset.  This tracks the REAL drawer state
+      // (open/closed) regardless of what Solara reconc does to the
+      // right_panel_open traitlet.
+      return this.$vuetify?.application?.right || 0;
+    },
+
     rightPanelOffset() {
-      return this.right_panel_width + "px";
+      return this.actualRightOffset + "px";
     },
 
     rightPanelOpen() {
-      return this.right_panel_open;
+      return this.actualRightOffset > 0;
     },
 
     externalLinks() {
@@ -483,12 +491,12 @@ export default {
     },
 
     // Sync layout variables to document root for sibling widgets (notifications).
-    // Debounced to avoid transient flickers during Solara re-render cycles.
-    right_panel_open() {
-      this._debouncedSyncGlobalLayoutVars();
-    },
-    right_panel_width() {
-      this._debouncedSyncGlobalLayoutVars();
+    // Watches the actual Vuetify application offset (driven by the real
+    // v-navigation-drawer state) instead of the right_panel_open prop, which
+    // can be stale after a Solara reconc.  No debounce — the pill must move
+    // in lockstep with the drawer's 0.3s animation.
+    actualRightOffset() {
+      this._syncGlobalLayoutVars();
     },
   },
 
@@ -500,23 +508,17 @@ export default {
 
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
-    clearTimeout(this._syncTimer);
     this._clearGlobalLayoutVars();
   },
 
   methods: {
-    _debouncedSyncGlobalLayoutVars() {
-      clearTimeout(this._syncTimer);
-      this._syncTimer = setTimeout(() => this._syncGlobalLayoutVars(), 50);
-    },
     _syncGlobalLayoutVars() {
       const root = document.documentElement;
-      const width = this.right_panel_width || 0;
-      const offset = this.right_panel_open ? width : 0;
-      root.style.setProperty("--sepal-right-panel-width", width + "px");
+      const offset = this.actualRightOffset;
+      root.style.setProperty("--sepal-right-panel-width", offset + "px");
       root.style.setProperty(
         "--sepal-right-panel-open",
-        this.right_panel_open ? "1" : "0"
+        offset > 0 ? "1" : "0"
       );
       root.style.setProperty(
         "--sepal-notification-right-offset",
@@ -541,7 +543,9 @@ export default {
     },
 
     togglePin() {
-      this.$emit("update:is_pinned", !this.is_pinned);
+      // $emit does not cross the jupyter-widget boundary — call the Python
+      // method directly so the synced traitlet updates on the backend.
+      this.toggle_pin();
     },
 
     handleMapClick() {
