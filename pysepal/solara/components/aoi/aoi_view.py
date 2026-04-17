@@ -392,9 +392,10 @@ def AoiView(
 
     # Notification system (replaces embedded alert). When no
     # NotificationProvider is mounted, `notifications` is a NoopNotifier
-    # and user feedback is published to `fallback_error` instead.
+    # and user feedback is published inline instead.
     notifications = use_notifications()
-    fallback_error = solara.use_reactive("")
+    fallback_message = solara.use_reactive("")
+    fallback_level = solara.use_reactive("info")
 
     # Register clear callback for external use
     def _register_clear():
@@ -538,27 +539,39 @@ def AoiView(
     def handle_task_state():
         if task.pending:
             reactive_loading.set(True)
-            fallback_error.set("")
+            fallback_message.set("")
+            fallback_level.set("info")
         elif task.finished:
             reactive_loading.set(False)
             if task.value:
-                notifications.success(task.value)
+                if has_notifications:
+                    notifications.success(task.value)
+                else:
+                    fallback_message.set(task.value)
+                    fallback_level.set("success")
         elif task.error:
             reactive_loading.set(False)
             # The TaskTracker already published an error toast if a
             # NotificationProvider is mounted. If it is not, surface the
             # error inline so consumers without a provider still see it.
             if not has_notifications:
-                fallback_error.set(str(task.exception))
+                fallback_message.set(str(task.exception))
+                fallback_level.set("error")
         elif task.cancelled:
             reactive_loading.set(False)
-            notifications.info("Process cancelled")
+            if has_notifications:
+                notifications.cancel("Process cancelled")
+            else:
+                fallback_message.set("Process cancelled")
+                fallback_level.set("info")
 
     solara.use_effect(handle_task_state, [task.pending, task.finished, task.error, task.cancelled])
 
     def start_process():
         """Trigger the background process."""
         reactive_loading.set(True)
+        fallback_message.set("")
+        fallback_level.set("info")
         task()
 
     # Handle method changes
@@ -568,6 +581,8 @@ def AoiView(
             reactive_value.set(None)
             admin_code.set(None)
             draw_name.set("")
+            fallback_message.set("")
+            fallback_level.set("info")
 
             # Clear AOI layer and WMS preview from map
             if map_:
@@ -687,6 +702,13 @@ def AoiView(
                 block=True,
             )
 
-        # Fallback error display (only when no NotificationProvider is mounted)
-        if fallback_error.value:
-            solara.Error(fallback_error.value)
+        # Fallback inline feedback (only when no NotificationProvider is mounted)
+        if fallback_message.value:
+            if fallback_level.value == "success":
+                solara.Success(fallback_message.value)
+            elif fallback_level.value == "warning":
+                solara.Warning(fallback_message.value)
+            elif fallback_level.value == "error":
+                solara.Error(fallback_message.value)
+            else:
+                solara.Info(fallback_message.value)
