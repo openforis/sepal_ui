@@ -306,7 +306,9 @@ export default {
   position: fixed;
   top: 4px;
   right: 4px;
-  z-index: 1000;
+  /* Keep notifications below Vuetify dialogs/overlays, but above normal app
+   * content such as menus/tooltips. */
+  z-index: 190;
   width: 440px;
   max-width: calc(100vw - 8px);
   max-height: calc(100vh - 8px);
@@ -451,7 +453,8 @@ export default {
   position: fixed;
   bottom: 8px;
   right: calc(var(--sepal-notification-right-offset, 0px) + 8px);
-  z-index: 1000;
+  /* Match the toast stack so dialogs cover the task pill consistently. */
+  z-index: 190;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
