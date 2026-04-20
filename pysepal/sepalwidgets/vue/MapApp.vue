@@ -498,6 +498,9 @@ export default {
     actualRightOffset() {
       this._syncGlobalLayoutVars();
     },
+    sidebarOffset() {
+      this._syncGlobalLayoutVars();
+    },
   },
 
   mounted() {
@@ -524,12 +527,14 @@ export default {
         "--sepal-notification-right-offset",
         offset + "px"
       );
+      root.style.setProperty("--sepal-drawer-width", this.sidebarOffset);
     },
     _clearGlobalLayoutVars() {
       const root = document.documentElement;
       root.style.removeProperty("--sepal-right-panel-width");
       root.style.removeProperty("--sepal-right-panel-open");
       root.style.removeProperty("--sepal-notification-right-offset");
+      root.style.removeProperty("--sepal-drawer-width");
     },
     handleResize() {
       // Update reactive window dimensions

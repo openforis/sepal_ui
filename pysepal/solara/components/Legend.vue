@@ -97,11 +97,18 @@ module.exports = {
 .sepal-legend {
   position: fixed;
   bottom: 16px;
-  left: 50%;
+  left: calc(
+    var(--sepal-drawer-width, 0px) +
+      (
+        100vw - var(--sepal-drawer-width, 0px) -
+          var(--sepal-right-panel-width, 0px)
+      ) / 2
+  );
   transform: translateX(-50%);
   z-index: 1000;
   pointer-events: auto;
   font-family: Roboto, sans-serif;
+  transition: left 0.3s ease;
 }
 
 .sepal-legend__pill {
