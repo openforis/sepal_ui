@@ -148,6 +148,11 @@ version_files = [
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+addopts = "-m 'not gee'"
+markers = [
+    "unit: fast tests with no external services (default)",
+    "gee: tests that require a live Google Earth Engine session",
+]
 
 [tool.ruff]
 ignore-init-module-imports = true
