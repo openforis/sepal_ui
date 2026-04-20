@@ -42,8 +42,7 @@ def test_process_admin_closes_created_interface(monkeypatch):
 
     monkeypatch.setattr(admin.su, "init_ee", lambda: None)
     monkeypatch.setattr(admin.pygaul, "Items", lambda admin=None: _FakeFeatureCollection())
-    monkeypatch.setattr(admin, "AsyncGEEInterface", make_interface)
-    monkeypatch.setattr(admin, "EESession", lambda *args, **kwargs: object())
+    monkeypatch.setattr(admin, "GEEInterface", make_interface)
 
     result = asyncio.run(admin.process_admin("ADMIN0", "62", gee=True))
 
