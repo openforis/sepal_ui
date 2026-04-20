@@ -175,3 +175,142 @@ header.theme--light.v-app-bar.v-toolbar.v-sheet {
 .theme--dark .leaflet-tile-pane img[src*="gaul/wms"] {
   filter: invert(1) hue-rotate(180deg) brightness(1.3) contrast(1.5);
 }
+
+/* Theme-aware Leaflet-Geoman toolbar styling.
+ * Geoman ships with light-leaning defaults, so mirror pysepal's active
+ * light/dark theme on the map itself and style the toolbar against that. */
+.theme--dark .leaflet-container,
+.pysepal-map-theme-dark .leaflet-container,
+.theme--light .leaflet-container,
+.pysepal-map-theme-light .leaflet-container {
+  --pysepal-geoman-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.theme--dark .leaflet-container,
+.pysepal-map-theme-dark .leaflet-container {
+  --pysepal-geoman-toolbar-bg: rgba(26, 26, 26, 0.96);
+  --pysepal-geoman-toolbar-border: rgba(93, 118, 171, 0.45);
+  --pysepal-geoman-toolbar-hover: rgba(54, 62, 79, 0.98);
+  --pysepal-geoman-toolbar-active: #76591e;
+  --pysepal-geoman-toolbar-active-hover: #bf8f2d;
+  --pysepal-geoman-toolbar-text: #f3f3f3;
+  --pysepal-geoman-toolbar-text-muted: rgba(243, 243, 243, 0.78);
+}
+
+.theme--light .leaflet-container,
+.pysepal-map-theme-light .leaflet-container {
+  --pysepal-geoman-toolbar-bg: rgba(255, 255, 255, 0.96);
+  --pysepal-geoman-toolbar-border: rgba(33, 153, 196, 0.3);
+  --pysepal-geoman-toolbar-hover: rgba(243, 248, 252, 0.98);
+  --pysepal-geoman-toolbar-active: #5bb624;
+  --pysepal-geoman-toolbar-active-hover: #76b353;
+  --pysepal-geoman-toolbar-text: rgba(0, 0, 0, 0.84);
+  --pysepal-geoman-toolbar-text-muted: rgba(0, 0, 0, 0.62);
+}
+
+.leaflet-container .leaflet-pm-toolbar.leaflet-bar {
+  border: 1px solid var(--pysepal-geoman-toolbar-border);
+  border-radius: 12px;
+  overflow: visible;
+  box-shadow: var(--pysepal-geoman-shadow);
+}
+
+.leaflet-container .leaflet-pm-toolbar .button-container {
+  position: relative;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-buttons-control-button,
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-action {
+  transition: background-color 0.18s ease, color 0.18s ease,
+    border-color 0.18s ease, filter 0.18s ease;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-buttons-control-button {
+  background: var(--pysepal-geoman-toolbar-bg);
+  border-bottom: 1px solid var(--pysepal-geoman-toolbar-border);
+}
+
+.leaflet-container
+  .leaflet-pm-toolbar
+  .button-container:last-child
+  .leaflet-buttons-control-button {
+  border-bottom: 0;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-buttons-control-button:hover,
+.leaflet-container .leaflet-pm-toolbar .leaflet-buttons-control-button:focus {
+  background: var(--pysepal-geoman-toolbar-hover);
+  outline: none;
+}
+
+.leaflet-container
+  .leaflet-pm-toolbar
+  .button-container.active
+  .leaflet-buttons-control-button,
+.leaflet-container .leaflet-pm-toolbar .leaflet-buttons-control-button.active {
+  background: var(--pysepal-geoman-toolbar-active);
+}
+
+.leaflet-container
+  .leaflet-pm-toolbar
+  .button-container.active
+  .leaflet-buttons-control-button:hover,
+.leaflet-container
+  .leaflet-pm-toolbar
+  .leaflet-buttons-control-button.active:hover {
+  background: var(--pysepal-geoman-toolbar-active-hover);
+}
+
+.leaflet-container .leaflet-pm-toolbar .control-icon {
+  filter: none;
+}
+
+.theme--dark .leaflet-container .leaflet-pm-toolbar .control-icon,
+.pysepal-map-theme-dark .leaflet-container .leaflet-pm-toolbar .control-icon {
+  filter: brightness(0) invert(1);
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-actions-container {
+  background: var(--pysepal-geoman-toolbar-bg);
+  border: 1px solid var(--pysepal-geoman-toolbar-border);
+  border-radius: 10px;
+  box-shadow: var(--pysepal-geoman-shadow);
+  overflow: hidden;
+  min-width: 168px;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-action {
+  background: transparent;
+  color: var(--pysepal-geoman-toolbar-text);
+  border-bottom: 1px solid var(--pysepal-geoman-toolbar-border);
+  font-weight: 500;
+}
+
+.leaflet-container
+  .leaflet-pm-toolbar
+  .leaflet-pm-actions-container
+  .leaflet-pm-action:last-child {
+  border-bottom: 0;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-action:hover,
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-action:focus {
+  background: var(--pysepal-geoman-toolbar-hover);
+  color: var(--pysepal-geoman-toolbar-text);
+  outline: none;
+}
+
+.leaflet-container .leaflet-pm-toolbar .leaflet-pm-action.action-cancel {
+  color: #a63228;
+}
+
+.theme--dark
+  .leaflet-container
+  .leaflet-pm-toolbar
+  .leaflet-pm-action.action-cancel,
+.pysepal-map-theme-dark
+  .leaflet-container
+  .leaflet-pm-toolbar
+  .leaflet-pm-action.action-cancel {
+  color: #e16a60;
+}

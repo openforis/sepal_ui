@@ -191,6 +191,8 @@ class SepalMap(ipl.Map):
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
+        self._apply_theme_class(default_basemap == "CartoDB.DarkMatter")
+
         # set the visibility of all the basemaps to False but the first one
         [setattr(lyr, "visible", False) for lyr in self.layers]
         self.layers[0].visible = True
@@ -228,6 +230,7 @@ class SepalMap(ipl.Map):
         dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
 
         layer_names = [layer.name for layer in self.layers]
+        self._apply_theme_class(change["new"])
 
         if change["new"]:
             if light.name in layer_names:
@@ -241,6 +244,13 @@ class SepalMap(ipl.Map):
                 layer = self.layers[idx]
                 self.remove_layer(layer, base=True, none_ok=True)
                 self.layers = self.layers[:idx] + (light,) + self.layers[idx:]
+
+    def _apply_theme_class(self, is_dark: bool) -> None:
+        """Keep a theme marker class on the map root for theme-aware CSS hooks."""
+        dark_class = "pysepal-map-theme-dark"
+        light_class = "pysepal-map-theme-light"
+        self.remove_class(light_class if is_dark else dark_class)
+        self.add_class(dark_class if is_dark else light_class)
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
