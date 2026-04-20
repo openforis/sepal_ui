@@ -171,7 +171,9 @@ def AoiView(
         gee: Whether to bind to Earth Engine
         map_style: Custom style for AOI display on map
         file_initial_folder: Initial folder for file-based method pickers (SHAPE, POINTS)
-        clear_ref: Optional ref that receives a clear callback for external reset
+        clear_ref: Optional ref that receives a clear callback for external reset.
+            The clear callback preserves the currently selected method so the
+            user can retry without reselecting it.
 
     Example:
         ```python
@@ -228,18 +230,69 @@ def AoiView(
     fallback_message = solara.use_reactive("")
     fallback_level = solara.use_reactive("info")
 
+    def _clear_map_layers():
+        if not map_:
+            return
+
+        for layer in list(map_.layers):
+            if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
+                try:
+                    map_.remove_layer(layer)
+                except Exception:
+                    # Layer may already be detached by another cleanup path.
+                    pass
+
+    def _sync_draw_control(active_method: str = ""):
+        if not (map_ and aoi_dc):
+            return
+
+        try:
+            aoi_dc.clear()
+            if active_method == "DRAW":
+                if aoi_dc not in map_.controls:
+                    map_.add_control(aoi_dc)
+            elif aoi_dc in map_.controls:
+                map_.remove_control(aoi_dc)
+        except Exception:
+            # Control may already be detached by another cleanup path.
+            pass
+
+    def _clear_current_aoi(
+        *,
+        reset_method: bool = False,
+        active_method: Optional[str] = None,
+        reset_loading: bool = False,
+    ):
+        if reset_loading:
+            reactive_loading.set(False)
+
+        reactive_value.set(None)
+        admin_code.set(None)
+        draw_name.set("")
+        shape_data.set(None)
+        points_data.set(None)
+        asset_data.set(None)
+        fallback_message.set("")
+        fallback_level.set("info")
+
+        _clear_map_layers()
+        _sync_draw_control(
+            active_method
+            if active_method is not None
+            else ("" if reset_method else selected_method.value)
+        )
+
+        if reset_method:
+            selected_method.set("")
+
     # Register clear callback for external use
     def _register_clear():
         if clear_ref is not None:
 
             def clear():
-                selected_method.set("")
-                admin_code.set(None)
-                draw_name.set("")
-                shape_data.set(None)
-                points_data.set(None)
-                asset_data.set(None)
-                reactive_value.set(None)
+                # Preserve the currently selected method so the user can retry
+                # immediately after clearing the previous AOI.
+                _clear_current_aoi()
 
             clear_ref.current = clear
 
@@ -321,13 +374,7 @@ def AoiView(
             if map_ and result:
                 tracker.step("Updating map...")
 
-                # Clear existing AOI layers and WMS preview
-                for layer in list(map_.layers):
-                    if hasattr(layer, "name") and layer.name in [
-                        "aoi",
-                        WMS_PREVIEW_LAYER_NAME,
-                    ]:
-                        map_.remove_layer(layer)
+                _clear_map_layers()
 
                 # Add new AOI layer
                 if gee and result.feature_collection:
@@ -419,31 +466,7 @@ def AoiView(
     # Handle method changes
     def on_method_change():
         if selected_method.value:
-            # Clear previous AOI
-            reactive_value.set(None)
-            admin_code.set(None)
-            draw_name.set("")
-            shape_data.set(None)
-            points_data.set(None)
-            asset_data.set(None)
-            fallback_message.set("")
-            fallback_level.set("info")
-
-            # Clear AOI layer and WMS preview from map
-            if map_:
-                for layer in list(map_.layers):
-                    if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
-                        map_.remove_layer(layer)
-
-            # Handle DrawControl
-            if aoi_dc:
-                if selected_method.value == "DRAW":
-                    aoi_dc.clear()
-                    if aoi_dc not in map_.controls:
-                        map_.add_control(aoi_dc)
-                else:
-                    if aoi_dc in map_.controls:
-                        map_.remove_control(aoi_dc)
+            _clear_current_aoi(active_method=selected_method.value)
 
     solara.use_effect(on_method_change, [selected_method.value])
 
@@ -454,28 +477,10 @@ def AoiView(
             # _CancelledErrorInOurTask which propagates up. The task will be
             # garbage collected when the component unmounts.
 
-            reactive_loading.set(False)
+            _clear_current_aoi(active_method="", reset_loading=True)
 
-            if map_:
-                try:
-                    for layer in list(map_.layers):
-                        if hasattr(layer, "name") and layer.name in ["aoi", WMS_PREVIEW_LAYER_NAME]:
-                            map_.remove_layer(layer)
-                except Exception:
-                    # Silently ignore errors during cleanup - layer may already be removed
-                    pass
-
-                if aoi_dc:
-                    try:
-                        aoi_dc.clear()
-                        if aoi_dc in map_.controls:
-                            map_.remove_control(aoi_dc)
-                    except Exception:
-                        # Silently ignore errors during cleanup - control may already be removed
-                        pass
-
-                # Note: We intentionally do NOT reset map center/zoom on unmount
-                # to avoid surprising side effects for host apps that own the map state
+            # Note: We intentionally do NOT reset map center/zoom on unmount
+            # to avoid surprising side effects for host apps that own the map state
 
         return cleanup
 
