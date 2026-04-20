@@ -6,6 +6,7 @@ import os
 from pysepal.mapping.bounds import (
     compute_center,
     compute_zoom_for_bounds,
+    viewport_pixels_from_map,
 )
 from pysepal.mapping.fullscreen_control import FullScreenControl
 from pysepal.mapping.visualization import (
@@ -42,6 +43,7 @@ from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
+from traitlets import Int as _TInt
 from typing_extensions import Self
 
 from pysepal import color as scolors
@@ -68,40 +70,6 @@ log = logging.getLogger("sepalui.mapping")
 DEFAULT_MAP_WIDTH_PX = 1024
 
 
-def _resolve_map_width_px(width, fallback: int = DEFAULT_MAP_WIDTH_PX) -> tuple[int, bool]:
-    """Resolve a widget layout width value to an absolute pixel width."""
-    if width is None:
-        return fallback, True
-
-    if isinstance(width, str):
-        width = width.strip()
-        if not width:
-            return fallback, True
-        if width.endswith("%"):
-            return fallback, True
-        if width.endswith("px"):
-            width = width[:-2].strip()
-
-    try:
-        width_px = int(float(width))
-    except (TypeError, ValueError):
-        return fallback, True
-
-    return (width_px, False) if width_px > 0 else (fallback, True)
-
-
-def _is_expected_map_width_fallback(width) -> bool:
-    """Return True when falling back from the layout width is expected."""
-    if width is None:
-        return True
-
-    if isinstance(width, str):
-        width = width.strip()
-        return not width or width.endswith("%")
-
-    return False
-
-
 class SepalMap(ipl.Map):
     # ##########################################################################
     # ###                              Map parameters                        ###
@@ -121,6 +89,19 @@ class SepalMap(ipl.Map):
 
     state: Optional[sw.StateBar] = None
     "The statebar to inform the user about tile loading"
+
+    # Horizontal pixels of the viewport covered by overlay panels (left nav
+    # drawer, right panel). Set by a parent shell (e.g., MapApp). Used by
+    # fit_bounds so zoom and center target the *visible* region, not the
+    # full-viewport canvas that sits behind the overlays.
+    viewport_inset_left = _TInt(0)
+    viewport_inset_right = _TInt(0)
+
+    # Real canvas dimensions pushed from the frontend (fullscreen = window
+    # size). Preferred over bounds-derived values, which are wrong before the
+    # first render because `self.bounds` starts at the default world view.
+    canvas_width_px = _TInt(0)
+    canvas_height_px = _TInt(0)
 
     def __init__(
         self,
@@ -877,31 +858,46 @@ class SepalMap(ipl.Map):
         # awaitables that create conflicts with solara.
         # Also I don't like the way it zooms by levels
 
-        center = compute_center(bounds)
-        self.center = center
+        # Canvas (width, height) in pixels. Prefer values pushed from the
+        # frontend (accurate from render 0); fall back to bounds-derived
+        # (accurate post-render); finally to defaults. The pushed path is
+        # what fixes the "first fit_bounds is too far" cold-start bug —
+        # before the first render self.bounds is the default world view.
+        derived_w, derived_h = viewport_pixels_from_map(self)
+        canvas_w = int(self.canvas_width_px) or derived_w or DEFAULT_MAP_WIDTH_PX
+        canvas_h = int(self.canvas_height_px) or derived_h or (canvas_w * 9 / 16)
 
-        # 2) Determine map width in pixels
-        width = getattr(getattr(self, "layout", None), "width", None)
+        # Subtract overlay panels (nav drawer, right panel) from the *width*;
+        # MapApp has no top/bottom overlays, so height is the full canvas.
+        left = max(int(self.viewport_inset_left), 0)
+        right = max(int(self.viewport_inset_right), 0)
+        visible_w = max(canvas_w - left - right, 1)
+        visible_h = canvas_h
 
-        map_width_px, used_fallback = _resolve_map_width_px(width)
-        if used_fallback and not _is_expected_map_width_fallback(width):
-            log.debug(
-                f"map width {width!r} is unavailable or not an absolute pixel value; "
-                f"using fallback {map_width_px}px"
-            )
-
-        log.debug(f"map width in pixels: {map_width_px}")
+        log.debug(
+            f"canvas=({canvas_w:.0f},{canvas_h:.0f}) "
+            f"visible=({visible_w:.0f},{visible_h:.0f}) insets=({left},{right})"
+        )
 
         zoom = (
             compute_zoom_for_bounds(
                 bounds,
-                map_width_px,
+                map_width_px=visible_w,
+                map_height_px=visible_h,
                 min_zoom=getattr(self, "min_zoom", None),
                 max_zoom=getattr(self, "max_zoom", None),
             )
             + 1
         )
         self.zoom = zoom
+
+        # Shift the map center so the target's geographic center lands at the
+        # *visible* center (drawer_left + visible/2), not the canvas center.
+        # In Web Mercator, longitude is linear in pixels: 360° / (256 * 2**zoom).
+        lat_c, lon_c = compute_center(bounds)
+        px_offset = (left - right) / 2  # +ve when left panel dominates
+        lon_shift = px_offset * 360.0 / (256 * (2**zoom))
+        self.center = (lat_c, lon_c - lon_shift)
 
     def add_legend(
         self,

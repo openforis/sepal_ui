@@ -322,6 +322,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    drawer_width: {
+      type: Number,
+      default: 320,
+    },
   },
 
   data: () => ({
@@ -500,6 +504,10 @@ export default {
     },
     sidebarOffset() {
       this._syncGlobalLayoutVars();
+      this._pushDrawerWidth();
+    },
+    mini() {
+      this._pushDrawerWidth();
     },
   },
 
@@ -507,6 +515,8 @@ export default {
     window.addEventListener("resize", this.handleResize);
     this.autoActivateFirstStepIfNeeded();
     this._syncGlobalLayoutVars();
+    this._pushDrawerWidth();
+    this._pushWindowSize();
   },
 
   beforeDestroy() {
@@ -515,6 +525,14 @@ export default {
   },
 
   methods: {
+    _pushDrawerWidth() {
+      // Report the real pixel width of the nav drawer to Python so the
+      // embedded map can fit bounds against the visible region.
+      const px = this.mini ? this.collapsedWidth : this.expandedWidth;
+      if (px !== this.drawer_width) {
+        this.set_drawer_width(px);
+      }
+    },
     _syncGlobalLayoutVars() {
       const root = document.documentElement;
       const offset = this.actualRightOffset;
@@ -540,7 +558,14 @@ export default {
       // Update reactive window dimensions
       this.windowWidth = window.innerWidth;
       this.windowHeight = window.innerHeight;
+      this._pushWindowSize();
       this.$forceUpdate();
+    },
+
+    _pushWindowSize() {
+      // Report real browser size to Python so the embedded map has a
+      // correct canvas size from render 0 (fixes first-fit zoom bug).
+      this.set_window_size({ w: window.innerWidth, h: window.innerHeight });
     },
 
     toggleDrawer() {

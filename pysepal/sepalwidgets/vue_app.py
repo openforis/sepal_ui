@@ -43,6 +43,17 @@ class MapApp(v.VuetifyTemplate):
     # Left sidebar state tracking
     is_pinned = Bool(True).tag(sync=True)
 
+    # Actual drawer pixel width (collapsed or expanded). Pushed from Vue when
+    # `mini` toggles so the embedded map can fit-bounds against the visible
+    # region instead of the full canvas behind the overlays.
+    drawer_width = Int(320).tag(sync=True)
+
+    # Real browser window size, pushed from Vue on mount and resize. Used
+    # to fix the cold-start zoom bug: before the first render the map's
+    # self.bounds is the world default and can't yield a correct canvas.
+    window_width = Int(0).tag(sync=True)
+    window_height = Int(0).tag(sync=True)
+
     # Right panel configuration
     right_panel_config = Dict(
         default_value={
@@ -148,6 +159,52 @@ class MapApp(v.VuetifyTemplate):
         # Set up automatic model binding if model is provided
         if self._model is not None:
             self._setup_model_binding()
+
+        # Push overlay insets to the embedded map so fit_bounds targets the
+        # visible region. Re-run whenever drawer, panel, or map change.
+        self.observe(
+            self._sync_map_insets,
+            [
+                "drawer_width",
+                "right_panel_open",
+                "right_panel_width",
+                "window_width",
+                "window_height",
+                "main_map",
+            ],
+        )
+        self._sync_map_insets()
+
+    def _sync_map_insets(self, *args):
+        """Push drawer / right-panel pixel widths + window size onto the map."""
+        if not self.main_map:
+            return
+        map_widget = self.main_map[0]
+        if not hasattr(map_widget, "viewport_inset_left"):
+            return
+        map_widget.viewport_inset_left = int(self.drawer_width)
+        map_widget.viewport_inset_right = (
+            int(self.right_panel_width) if self.right_panel_open else 0
+        )
+        if self.window_width > 0 and hasattr(map_widget, "canvas_width_px"):
+            map_widget.canvas_width_px = int(self.window_width)
+        if self.window_height > 0 and hasattr(map_widget, "canvas_height_px"):
+            map_widget.canvas_height_px = int(self.window_height)
+
+    def vue_set_drawer_width(self, width):
+        """Receive the real drawer pixel width from Vue on mount/mini-toggle."""
+        try:
+            self.drawer_width = int(width)
+        except (TypeError, ValueError):
+            pass
+
+    def vue_set_window_size(self, size):
+        """Receive the real browser window size from Vue on mount/resize."""
+        try:
+            self.window_width = int(size.get("w", 0))
+            self.window_height = int(size.get("h", 0))
+        except (TypeError, ValueError, AttributeError):
+            pass
 
     def _setup_model_binding(self):
         """Set up automatic two-way binding with the provided model.
