@@ -2,11 +2,15 @@
   <div
     v-if="visible && hasContent"
     class="sepal-legend"
-    :class="{ 'sepal-legend--collapsed': collapsed }"
+    :class="{
+      'sepal-legend--collapsed': collapsed,
+      'sepal-legend--dark': isDark,
+      'sepal-legend--light': !isDark,
+    }"
   >
     <!-- Collapsed state: icon pill -->
     <div v-if="collapsed" class="sepal-legend__pill" @click="toggleCollapse">
-      <v-icon small dark>mdi-map-legend</v-icon>
+      <v-icon small :dark="isDark" :light="!isDark">mdi-map-legend</v-icon>
     </div>
 
     <!-- Expanded state -->
@@ -48,7 +52,9 @@
 
       <!-- Collapse toggle -->
       <button class="sepal-legend__toggle" @click="toggleCollapse">
-        <v-icon x-small dark>mdi-chevron-down</v-icon>
+        <v-icon x-small :dark="isDark" :light="!isDark"
+          >mdi-chevron-down</v-icon
+        >
       </button>
     </div>
   </div>
@@ -57,6 +63,14 @@
 <script>
 module.exports = {
   computed: {
+    isDark() {
+      // Reactive: changes when the user toggles the Vuetify theme at runtime.
+      return (
+        this.$vuetify &&
+        this.$vuetify.theme &&
+        this.$vuetify.theme.dark === true
+      );
+    },
     hasContent() {
       if (!this.legend_data) return false;
       var g = this.legend_data.gradients || [];
@@ -111,9 +125,12 @@ module.exports = {
   transition: left 0.3s ease;
 }
 
-.sepal-legend__pill {
-  background: rgba(33, 33, 33, 0.85);
+.sepal-legend__pill,
+.sepal-legend__body {
   backdrop-filter: blur(4px);
+}
+
+.sepal-legend__pill {
   border-radius: 16px;
   padding: 6px 12px;
   cursor: pointer;
@@ -122,17 +139,29 @@ module.exports = {
 }
 
 .sepal-legend__body {
-  background: rgba(33, 33, 33, 0.85);
-  backdrop-filter: blur(4px);
   border-radius: 8px;
   padding: 8px 14px;
-  color: #fff;
   font-size: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   max-width: 90vw;
   position: relative;
+}
+
+/* --- Dark theme --- */
+.sepal-legend--dark .sepal-legend__pill,
+.sepal-legend--dark .sepal-legend__body {
+  background: rgba(33, 33, 33, 0.85);
+  color: #fff;
+}
+
+/* --- Light theme --- */
+.sepal-legend--light .sepal-legend__pill,
+.sepal-legend--light .sepal-legend__body {
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* --- Gradient --- */
@@ -179,8 +208,15 @@ module.exports = {
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
+}
+
+.sepal-legend--dark .sepal-legend__chip {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sepal-legend--light .sepal-legend__chip {
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .sepal-legend__label {

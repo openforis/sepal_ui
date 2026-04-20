@@ -13,6 +13,7 @@ import solara
 
 from pysepal.message import ms
 from pysepal.solara.components.inputs.file_input import FileInputComponent
+from pysepal.solara.notifications import use_notifications
 
 VECTOR_EXTENSIONS = [".shp", ".geojson", ".gpkg", ".kml"]
 
@@ -72,6 +73,8 @@ def VectorSelectorComponent(
     reactive_value = solara.use_reactive(value, on_value)
     del value, on_value
 
+    notifications = use_notifications()
+
     file_path = solara.use_reactive("")
     selected_column = solara.use_reactive("ALL")
     selected_value = solara.use_reactive(None)
@@ -116,6 +119,7 @@ def VectorSelectorComponent(
         elif column_task.error:
             column_items.set([])
             reactive_value.set(None)
+            notifications.error(f"Error reading columns: {column_task.exception}")
 
     solara.use_effect(
         _handle_column_task,
@@ -155,6 +159,7 @@ def VectorSelectorComponent(
             value_items.set(value_task.value)
         elif value_task.error:
             value_items.set([])
+            notifications.error(f"Error reading values: {value_task.exception}")
 
     solara.use_effect(
         _handle_value_task,

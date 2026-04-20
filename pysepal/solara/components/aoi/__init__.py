@@ -1,6 +1,5 @@
 """Solara components for Area of Interest (AOI) selection and management."""
 
-from pysepal.solara.components.inputs.admin_selector import AdminLevelSelector
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 
 from .admin import fetch_admin_bounds_async, fetch_admin_items, process_admin
@@ -27,7 +26,6 @@ __all__ = [
     "FAO_GAUL_LAYERS",
     # UI components
     "AoiView",
-    "AdminLevelSelector",
     "MethodSelect",
     # Task button
     "TaskButtonComponent",

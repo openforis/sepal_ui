@@ -11,6 +11,7 @@ import reacton.ipyvuetify as rv
 import solara
 
 from pysepal.message import ms
+from pysepal.solara.notifications import use_notifications
 from pysepal.solara.utils import get_current_gee_interface
 
 ASSET_TYPES = {
@@ -58,6 +59,7 @@ def AssetSelectComponent(
     del value, on_value, loading, on_loading
 
     gee_interface = gee_interface or get_current_gee_interface()
+    notifications = use_notifications()
 
     asset_id = solara.use_reactive(None)
     asset_type = solara.use_reactive(None)
@@ -66,7 +68,6 @@ def AssetSelectComponent(
     selected_value = solara.use_reactive(None)
     column_items = solara.use_reactive([])
     value_items = solara.use_reactive([])
-    error_msg = solara.use_reactive("")
     loading_assets = solara.use_reactive(True)
     loading_columns = solara.use_reactive(False)
     loading_values = solara.use_reactive(False)
@@ -82,7 +83,6 @@ def AssetSelectComponent(
 
     async def load_assets():
         loading_assets.set(True)
-        error_msg.set("")
         try:
             folder_path = folder or await gee_interface.get_folder_async()
             raw_assets = await gee_interface.get_assets_async(folder_path)
@@ -110,7 +110,7 @@ def AssetSelectComponent(
             else:
                 asset_items.set(items)
         except Exception as e:
-            error_msg.set(f"Error loading assets: {e}")
+            notifications.error(f"Error loading assets: {e}")
             asset_items.set([])
         finally:
             loading_assets.set(False)
@@ -131,7 +131,6 @@ def AssetSelectComponent(
         column_items.set([])
         value_items.set([])
         validation_msg.set("")
-        error_msg.set("")
 
         if not aid:
             reactive_value.set(None)
@@ -169,7 +168,7 @@ def AssetSelectComponent(
             validation_msg.set(str(e))
             reactive_value.set(None)
         except Exception:
-            error_msg.set(ms.widgets.asset_select.no_access)
+            notifications.error(ms.widgets.asset_select.no_access)
             reactive_value.set(None)
         finally:
             loading_columns.set(False)
@@ -205,7 +204,7 @@ def AssetSelectComponent(
             vals = await gee_interface.get_info_async(fc.distinct(col).aggregate_array(col))
             value_items.set(sorted(set(vals)))
         except Exception as e:
-            error_msg.set(f"Error loading column values: {e}")
+            notifications.error(f"Error loading column values: {e}")
             value_items.set([])
         finally:
             loading_values.set(False)
@@ -246,9 +245,6 @@ def AssetSelectComponent(
             error_messages=validation_msg.value or None,
         ):
             pass
-
-        if error_msg.value:
-            solara.Error(error_msg.value)
 
         if column_items.value and not validation_msg.value:
             with rv.Select(

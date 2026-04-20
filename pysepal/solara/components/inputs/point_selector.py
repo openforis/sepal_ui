@@ -12,6 +12,7 @@ import solara
 
 from pysepal.message import ms
 from pysepal.solara.components.inputs.file_input import FileInputComponent
+from pysepal.solara.notifications import use_notifications
 
 POINT_EXTENSIONS = [".csv", ".txt"]
 
@@ -66,12 +67,13 @@ def PointsSelectorComponent(
     reactive_value = solara.use_reactive(value, on_value)
     del value, on_value
 
+    notifications = use_notifications()
+
     file_path = solara.use_reactive("")
     column_items = solara.use_reactive([])
     id_column = solara.use_reactive(None)
     lat_column = solara.use_reactive(None)
     lng_column = solara.use_reactive(None)
-    error_msg = solara.use_reactive("")
 
     def on_file_change():
         path = file_path.value
@@ -79,7 +81,6 @@ def PointsSelectorComponent(
         id_column.set(None)
         lat_column.set(None)
         lng_column.set(None)
-        error_msg.set("")
         reactive_value.set(None)
 
         if not path:
@@ -90,7 +91,7 @@ def PointsSelectorComponent(
             cols = df.columns.tolist()
 
             if len(cols) < 3:
-                error_msg.set(ms.widgets.load_table.too_small)
+                notifications.warning(ms.widgets.load_table.too_small)
                 return
 
             column_items.set(cols)
@@ -104,7 +105,7 @@ def PointsSelectorComponent(
                 lng_column.set(detected["lng_column"])
 
         except Exception as e:
-            error_msg.set(f"Error reading file: {e}")
+            notifications.error(f"Error reading file: {e}")
 
     solara.use_effect(on_file_change, [file_path.value])
 
@@ -135,9 +136,6 @@ def PointsSelectorComponent(
             label=ms.widgets.table.label,
             value=file_path,
         )
-
-        if error_msg.value:
-            solara.Error(error_msg.value)
 
         if column_items.value:
             with rv.Select(

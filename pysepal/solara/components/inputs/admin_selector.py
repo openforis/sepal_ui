@@ -7,7 +7,6 @@ import solara
 from deprecated.sphinx import versionadded
 
 from pysepal.message import ms
-from pysepal.solara.components.aoi.admin import fetch_admin_items
 
 
 @solara.component
@@ -68,6 +67,9 @@ def AdminLevelSelector(
     target_level = {"ADMIN0": 0, "ADMIN1": 1, "ADMIN2": 2}.get(method, 0)
 
     async def _load_level_0():
+        # Local import breaks the cycle: aoi/__init__ -> aoi_view -> this module.
+        from pysepal.solara.components.aoi.admin import fetch_admin_items
+
         loading_0.set(True)
         try:
             items = fetch_admin_items(level=0, parent_code="")
@@ -78,6 +80,8 @@ def AdminLevelSelector(
     solara.lab.use_task(_load_level_0, dependencies=[], raise_error=False)
 
     async def _load_level_1():
+        from pysepal.solara.components.aoi.admin import fetch_admin_items
+
         if level_0.value and target_level >= 1:
             loading_1.set(True)
             try:
@@ -98,6 +102,8 @@ def AdminLevelSelector(
     )
 
     async def _load_level_2():
+        from pysepal.solara.components.aoi.admin import fetch_admin_items
+
         if level_1.value and target_level >= 2:
             loading_2.set(True)
             try:
