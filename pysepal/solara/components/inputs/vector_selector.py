@@ -60,7 +60,8 @@ def VectorSelectorComponent(
 
     Provides a file browser for local vector files with optional column/value
     filtering. When a file is selected, reads its columns and lets the user
-    filter to specific features.
+    filter to specific features. FileInput is responsive on its own (auto-
+    hides its button label in narrow containers).
 
     Args:
         gee: Whether to use GEE assets (currently only local files supported).

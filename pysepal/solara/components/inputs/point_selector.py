@@ -55,6 +55,8 @@ def PointsSelectorComponent(
 
     Provides a file browser for CSV/TXT files and three column selectors
     (ID, Latitude, Longitude) with auto-detection of common column names.
+    The file-button label auto-hides when the component is rendered inside
+    a container narrower than ~450px (CSS container query).
 
     Args:
         initial_folder: Initial folder shown by the local file picker.

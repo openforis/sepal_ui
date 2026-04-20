@@ -1,5 +1,5 @@
 <template>
-  <v-row class="d-flex align-center mx-2">
+  <v-row class="d-flex align-center mx-2 pysepal-file-input-root">
     <v-menu
       v-model="showFileMenu"
       :min-width="500"
@@ -11,9 +11,9 @@
       eager
     >
       <template v-slot:activator="{ on }">
-        <v-btn v-on="on" color="primary" class="mr-2">
+        <v-btn v-on="on" color="primary" class="mr-2 pysepal-file-input-btn">
           <v-icon left small>fa-solid fa-search</v-icon>
-          {{ label }}
+          <span class="pysepal-file-input-label">{{ label }}</span>
         </v-btn>
       </template>
 
@@ -116,7 +116,7 @@
       v-model="value"
       readonly
       label="Selected file"
-      class="ml-2"
+      class="ml-2 pysepal-file-input-field"
       :error-messages="getErrorMessages"
     >
       <template v-slot:append>
@@ -612,6 +612,34 @@ export default {
   },
 };
 </script>
+
+<style>
+/* Responsive rules must be in a non-scoped block so ipyvuetify injects them
+   as plain global CSS (scoped + ::v-deep is inconsistently handled when a
+   .vue file is loaded as a runtime template rather than a compiled SFC). */
+.pysepal-file-input-root {
+  container-type: inline-size;
+  container-name: pysepal-file-input;
+  flex-wrap: nowrap;
+}
+@container pysepal-file-input (max-width: 450px) {
+  .pysepal-file-input-label {
+    display: none !important;
+  }
+  .pysepal-file-input-btn {
+    min-width: 36px !important;
+    padding: 0 8px !important;
+  }
+  .pysepal-file-input-btn .v-icon.v-icon--left {
+    margin-right: 0 !important;
+  }
+}
+@container pysepal-file-input (max-width: 300px) {
+  .pysepal-file-input-field {
+    display: none !important;
+  }
+}
+</style>
 
 <style scoped>
 /* Breadcrumb container */

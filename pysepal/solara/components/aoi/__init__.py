@@ -1,10 +1,11 @@
 """Solara components for Area of Interest (AOI) selection and management."""
 
+from pysepal.solara.components.inputs.admin_selector import AdminLevelSelector
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 
 from .admin import fetch_admin_bounds_async, fetch_admin_items, process_admin
 from .aoi_result import AoiResult
-from .aoi_view import AdminLevelSelector, AoiView, MethodSelect
+from .aoi_view import AoiView, MethodSelect
 from .constants import FAO_GAUL_LAYERS, FAO_WMS_BASE_URL, WMS_PREVIEW_LAYER_NAME
 from .draw import process_draw
 from .wms_utils import create_wms_preview_layer, remove_wms_preview_layer

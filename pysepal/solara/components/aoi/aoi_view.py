@@ -1,8 +1,5 @@
 """Solara-native AOI (Area of Interest) selection component.
 
-This module provides pure Solara components for AOI selection following modern
-Solara patterns with value/on_value parameters.
-
 Usage:
     from pysepal.solara.components.aoi import AoiView, AoiResult
 
@@ -33,15 +30,18 @@ from pysepal.message import ms
 from pysepal.scripts import utils as su
 from pysepal.solara.components.aoi.admin import (
     fetch_admin_bounds_async,
-    fetch_admin_items,
     process_admin,
 )
 from pysepal.solara.components.aoi.aoi_result import AoiResult
+from pysepal.solara.components.aoi.asset import process_asset
 from pysepal.solara.components.aoi.draw import process_draw
+from pysepal.solara.components.aoi.points import process_points
+from pysepal.solara.components.aoi.shape import process_shape
 from pysepal.solara.components.aoi.wms_utils import (
     WMS_PREVIEW_LAYER_NAME,
     create_wms_preview_layer,
 )
+from pysepal.solara.components.inputs.admin_selector import AdminLevelSelector
 from pysepal.solara.components.inputs.asset_select import AssetSelectComponent
 from pysepal.solara.components.inputs.point_selector import PointsSelectorComponent
 from pysepal.solara.components.inputs.vector_selector import VectorSelectorComponent
@@ -50,7 +50,7 @@ from pysepal.solara.notifications import use_notifications
 from pysepal.solara.notifications.notifier import NoopNotifier
 from pysepal.solara.utils import get_current_gee_interface
 
-__all__ = ["AoiView", "MethodSelect", "AdminLevelSelector", "AoiResult"]
+__all__ = ["AoiView", "MethodSelect", "AoiResult"]
 
 # Method type constants
 CUSTOM: str = ms.aoi_sel.custom
@@ -143,173 +143,6 @@ def MethodSelect(
 
 
 @solara.component
-@versionadded(version="3.1", reason="Self-contained admin level selector")
-def AdminLevelSelector(
-    method: str,
-    gee: bool = True,
-    value: Union[str, solara.Reactive[Optional[str]]] = None,
-    on_value: Optional[Callable[[Optional[str]], None]] = None,
-):
-    """Self-contained administrative level selector with cascading dropdowns.
-
-    Manages internal state for cascading admin levels (0, 1, 2) and exposes
-    only the final selected admin code. Provides a stable render tree regardless
-    of the method (ADMIN0, ADMIN1, ADMIN2).
-
-    Args:
-        method: The admin method ("ADMIN0", "ADMIN1", or "ADMIN2")
-        gee: Whether to use Earth Engine (GAUL) or FAO WFS (local)
-        value: The final selected admin code (output only)
-        on_value: Callback when the final admin code changes
-
-    Returns:
-        None. The final admin code is passed through value/on_value.
-
-    Example:
-        ```python
-        @solara.component
-        def MyApp():
-            admin_code = solara.use_reactive(None)
-
-            AdminLevelSelector(
-                method="ADMIN1",
-                gee=False,
-                value=admin_code,
-            )
-
-            if admin_code.value:
-                solara.Text(f"Selected: {admin_code.value}")
-        ```
-    """
-    reactive_value = solara.use_reactive(value, on_value)
-    del value, on_value
-
-    # Internal state for each level - ALWAYS created (stable hooks)
-    level_0 = solara.use_reactive(None)
-    level_1 = solara.use_reactive(None)
-    level_2 = solara.use_reactive(None)
-
-    # Items for each level
-    items_0 = solara.use_reactive([])
-    items_1 = solara.use_reactive([])
-    items_2 = solara.use_reactive([])
-
-    # Loading states for async fetches
-    loading_0 = solara.use_reactive(False)
-    loading_1 = solara.use_reactive(False)
-    loading_2 = solara.use_reactive(False)
-
-    # Determine target level from method
-    target_level = {"ADMIN0": 0, "ADMIN1": 1, "ADMIN2": 2}.get(method, 0)
-
-    # Async task to load level 0 items
-    async def _load_level_0():
-        loading_0.set(True)
-        try:
-            items = fetch_admin_items(level=0, parent_code="")
-            items_0.set(items)
-        finally:
-            loading_0.set(False)
-
-    solara.lab.use_task(_load_level_0, dependencies=[], raise_error=False)
-
-    # Async task to load level 1 items
-    async def _load_level_1():
-        if level_0.value and target_level >= 1:
-            loading_1.set(True)
-            try:
-                items = fetch_admin_items(level=1, parent_code=level_0.value)
-                items_1.set(items)
-            finally:
-                loading_1.set(False)
-        else:
-            items_1.set([])
-        # Reset downstream
-        level_1.set(None)
-        level_2.set(None)
-        items_2.set([])
-
-    solara.lab.use_task(
-        _load_level_1,
-        dependencies=[level_0.value, target_level],
-        raise_error=False,
-    )
-
-    # Async task to load level 2 items
-    async def _load_level_2():
-        if level_1.value and target_level >= 2:
-            loading_2.set(True)
-            try:
-                items = fetch_admin_items(level=2, parent_code=level_1.value)
-                items_2.set(items)
-            finally:
-                loading_2.set(False)
-        else:
-            items_2.set([])
-        # Reset downstream
-        level_2.set(None)
-
-    solara.lab.use_task(
-        _load_level_2,
-        dependencies=[level_1.value, target_level],
-        raise_error=False,
-    )
-
-    # Update output value when target level selection changes
-    def update_output():
-        if target_level == 0:
-            reactive_value.set(level_0.value)
-        elif target_level == 1:
-            reactive_value.set(level_1.value)
-        elif target_level == 2:
-            reactive_value.set(level_2.value)
-
-    solara.use_effect(update_output, [level_0.value, level_1.value, level_2.value, target_level])
-
-    # Render - stable structure, control visibility
-    with solara.Column(classes="pa-0 ma-0", style="gap: 8px;"):
-        # Level 0 - always visible for admin methods
-        with rv.Select(
-            label=ms.aoi_sel.adm[0],
-            items=items_0.value,
-            v_model=level_0.value,
-            clearable=True,
-            dense=True,
-            loading=loading_0.value,
-            on_v_model=level_0.set,
-        ):
-            pass
-
-        # Level 1 - visible for ADMIN1 and ADMIN2
-        if target_level >= 1:
-            with rv.Select(
-                label=ms.aoi_sel.adm[1],
-                items=items_1.value,
-                v_model=level_1.value,
-                clearable=True,
-                dense=True,
-                loading=loading_1.value,
-                disabled=not level_0.value,
-                on_v_model=level_1.set,
-            ):
-                pass
-
-        # Level 2 - visible only for ADMIN2
-        if target_level >= 2:
-            with rv.Select(
-                label=ms.aoi_sel.adm[2],
-                items=items_2.value,
-                v_model=level_2.value,
-                clearable=True,
-                dense=True,
-                loading=loading_2.value,
-                disabled=not level_1.value,
-                on_v_model=level_2.set,
-            ):
-                pass
-
-
-@solara.component
 @versionadded(version="3.1", reason="Pure Solara AOI selection component")
 def AoiView(
     value: Union[AoiResult, solara.Reactive[Optional[AoiResult]]] = None,
@@ -326,8 +159,7 @@ def AoiView(
     """Solara-native component for AOI (Area of Interest) selection.
 
     Provides multiple selection methods including administrative boundaries (GADM/GAUL),
-    vector files, drawn shapes, points, and Earth Engine assets. The component follows
-    modern Solara patterns with value/on_value for reactive data flow.
+    vector files, drawn shapes, points, and Earth Engine assets.
 
     Args:
         value: AoiResult containing AOI data. Can be reactive.
@@ -381,14 +213,13 @@ def AoiView(
     # Get DrawControl if map is provided
     aoi_dc = map_.dc if map_ else None
 
-    # State management - minimal state in AoiView
     selected_method = solara.use_reactive("")
-    admin_code = solara.use_reactive(None)  # Output from AdminLevelSelector
-    draw_name = solara.use_reactive("")  # Name for drawn shapes
-    shape_data = solara.use_reactive(None)  # Output from VectorSelectorComponent
-    points_data = solara.use_reactive(None)  # Output from PointsSelectorComponent
-    asset_data = solara.use_reactive(None)  # Output from AssetSelectComponent
-    asset_loading = solara.use_reactive(False)  # AssetSelectComponent loading state
+    admin_code = solara.use_reactive(None)
+    draw_name = solara.use_reactive("")
+    shape_data = solara.use_reactive(None)
+    points_data = solara.use_reactive(None)
+    asset_data = solara.use_reactive(None)
+    asset_loading = solara.use_reactive(False)
 
     # Notification system (replaces embedded alert). When no
     # NotificationProvider is mounted, `notifications` is a NoopNotifier
@@ -446,8 +277,8 @@ def AoiView(
                 if aoi_dc is None:
                     raise ValueError("No DrawControl available")
 
-                features = aoi_dc.get_data()
-                if not features:
+                features = aoi_dc.to_json()
+                if not features.get("features"):
                     raise ValueError("No drawn features found. Please draw an area on the map.")
 
                 tracker.step("Processing drawn features...")
@@ -458,18 +289,29 @@ def AoiView(
                 )
 
             elif method == "SHAPE":
-                raise ValueError(
-                    "The SHAPE method is not available yet. Please choose another AOI method."
-                )
+                if not shape_data.value or not shape_data.value.get("pathname"):
+                    raise ValueError("Please select a vector file")
+
+                tracker.step("Processing vector file...")
+                result = await process_shape(**shape_data.value, gee=gee)
 
             elif method == "POINTS":
-                raise ValueError(
-                    "The POINTS method is not available yet. Please choose another AOI method."
-                )
+                if not points_data.value or not points_data.value.get("pathname"):
+                    raise ValueError("Please select a points file and id/lat/lng columns")
+
+                tracker.step("Processing points file...")
+                result = await process_points(**points_data.value, gee=gee)
 
             elif method == "ASSET":
-                raise ValueError(
-                    "The ASSET method is not available yet. Please choose another AOI method."
+                if not asset_data.value or not asset_data.value.get("asset_id"):
+                    raise ValueError("Please select a GEE asset")
+
+                tracker.step("Processing GEE asset...")
+                result = await process_asset(
+                    asset_id=asset_data.value["asset_id"],
+                    asset_type=asset_data.value["type"],
+                    column=asset_data.value.get("column", "ALL"),
+                    value=asset_data.value.get("value"),
                 )
 
             else:
@@ -581,6 +423,9 @@ def AoiView(
             reactive_value.set(None)
             admin_code.set(None)
             draw_name.set("")
+            shape_data.set(None)
+            points_data.set(None)
+            asset_data.set(None)
             fallback_message.set("")
             fallback_level.set("info")
 
@@ -672,7 +517,6 @@ def AoiView(
 
         elif selected_method.value == "DRAW":
             if aoi_dc:
-                solara.Info("Use the drawing tools on the map to create your AOI.")
                 with rv.TextField(
                     label="AOI Name (optional)",
                     v_model=draw_name.value,

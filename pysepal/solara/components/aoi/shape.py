@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import geopandas as gpd
+from shapely import force_2d
 
 from pysepal.scripts import utils as su
 from pysepal.solara.components.aoi.aoi_result import AoiResult
@@ -46,6 +47,10 @@ async def process_shape(
 
     gdf = await asyncio.to_thread(gpd.read_file, pathname)
     gdf = gdf.to_crs(epsg=4326)
+
+    # Earth Engine rejects GeoJSON with Z coordinates (common in KML).
+    if gdf.geometry.has_z.any():
+        gdf["geometry"] = gdf.geometry.apply(force_2d)
 
     if column != "ALL" and value is not None:
         gdf = gdf[gdf[column] == value]
