@@ -49,10 +49,10 @@ class LegendData:
 
 @solara.component_vue("Legend.vue")
 def LegendComponent(
-    legend_data: dict = {},
+    legend_data: Optional[dict] = None,
     visible: bool = True,
     collapsed: bool = False,
-    on_collapsed: Optional[Callable[[bool], None]] = None,
+    event_set_collapsed: Optional[Callable[[bool], None]] = None,
 ):
     """Floating map legend overlay.
 
@@ -64,6 +64,6 @@ def LegendComponent(
             Empty dict or missing keys = nothing rendered.
         visible: Show/hide the entire legend.
         collapsed: Collapsed state (icon pill only).
-        on_collapsed: Callback when user toggles collapse.
+        event_set_collapsed: Callback when user toggles collapse.
     """
     pass

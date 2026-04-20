@@ -3,13 +3,13 @@
     v-if="visible && hasContent"
     class="sepal-legend"
     :class="{
-      'sepal-legend--collapsed': collapsed,
+      'sepal-legend--collapsed': isCollapsed,
       'sepal-legend--dark': isDark,
       'sepal-legend--light': !isDark,
     }"
   >
     <!-- Collapsed state: icon pill -->
-    <div v-if="collapsed" class="sepal-legend__pill" @click="toggleCollapse">
+    <div v-if="isCollapsed" class="sepal-legend__pill" @click="toggleCollapse">
       <v-icon small :dark="isDark" :light="!isDark">mdi-map-legend</v-icon>
     </div>
 
@@ -62,6 +62,25 @@
 
 <script>
 module.exports = {
+  props: {
+    legend_data: {
+      type: Object,
+      default: () => ({}),
+    },
+    visible: {
+      type: Boolean,
+      default: true,
+    },
+    collapsed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      internalCollapsed: this.collapsed,
+    };
+  },
   computed: {
     isDark() {
       // Reactive: changes when the user toggles the Vuetify theme at runtime.
@@ -70,6 +89,9 @@ module.exports = {
         this.$vuetify.theme &&
         this.$vuetify.theme.dark === true
       );
+    },
+    isCollapsed() {
+      return this.internalCollapsed;
     },
     hasContent() {
       if (!this.legend_data) return false;
@@ -99,9 +121,18 @@ module.exports = {
       return this.legend_data.items;
     },
   },
+  watch: {
+    collapsed(newValue) {
+      this.internalCollapsed = newValue;
+    },
+  },
   methods: {
     toggleCollapse() {
-      this.collapsed = !this.collapsed;
+      const nextCollapsed = !this.internalCollapsed;
+      this.internalCollapsed = nextCollapsed;
+      if (typeof this.set_collapsed === "function") {
+        this.set_collapsed(nextCollapsed);
+      }
     },
   },
 };
