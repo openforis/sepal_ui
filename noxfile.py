@@ -33,6 +33,23 @@ def test(session):
     session.run("pytest", "--color=yes", "--cov", "--cov-report=xml", *test_files)
 
 
+@nox.session(reuse_venv=False)
+def test_gee(session):
+    """Run GEE smoke tests. Requires EARTHENGINE_* credentials."""
+    session.install(".[test]")
+    session.run("pip", "list")
+
+    if "sepal-user" in session.virtualenv.location:
+        session.run(
+            "pip",
+            "install",
+            "git+https://github.com/openforis/earthengine-api.git@v0.1.384#egg=earthengine-api&subdirectory=python",
+        )
+
+    test_files = session.posargs or ["tests"]
+    session.run("pytest", "-m", "gee", "--color=yes", "-vv", *test_files)
+
+
 @nox.session(name="dead-fixtures", reuse_venv=True)
 def dead_fixtures(session):
     """Check for dead fixtures items."""
