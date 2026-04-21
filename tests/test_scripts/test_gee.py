@@ -12,6 +12,7 @@ from pysepal.message import ms
 from pysepal.scripts import gee
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _hash: str) -> None:
     """Check we can wait for a task completion.
@@ -46,6 +47,7 @@ def test_wait_for_completion(alert: sw.Alert, fake_task: str, gee_dir: Path, _ha
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_task(fake_task: str) -> None:
     """Check a name is a task.
@@ -61,6 +63,7 @@ def test_is_task(fake_task: str) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_assets(gee_dir: Path) -> None:
     """Check the assets are existing in the gee_dir folder and test deprecation warning.
@@ -91,6 +94,7 @@ def test_get_assets(gee_dir: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_asset(gee_dir: Path) -> None:
     """Check if the asset exist and test deprecation warnings.
@@ -125,6 +129,7 @@ def test_is_asset(gee_dir: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_is_running(fake_task: str) -> None:
     """Check if a task can be monitored.

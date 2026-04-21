@@ -81,6 +81,7 @@ def test_set_center() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def zoom_ee_object() -> None:
     """Check we can zoom on a GEE object."""
@@ -169,6 +170,7 @@ def test_add_colorbar() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_exceptions() -> None:
     """Check exceptions are raised on ee_layer method."""
@@ -198,6 +200,7 @@ def test_add_ee_layer_exceptions() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer(image_id: str) -> None:
     """Add a GEE layer on the map.
@@ -265,6 +268,7 @@ def test_get_basemap_list() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_viz_params(image_id: str) -> None:
     """Check I identify all the viz parameter from Daniel W. asset.
@@ -323,6 +327,7 @@ def test_get_viz_params(image_id: str) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove a specific layer from the map.
@@ -346,6 +351,7 @@ def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_all(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove all layers from the map.
@@ -449,6 +455,7 @@ def test_get_scale():
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Find a layer in a map.
@@ -518,6 +525,7 @@ def test_zoom_raster(byte: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     """Add a legend to the map.
@@ -543,6 +551,7 @@ def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_autocenter_sync() -> None:
     """Test that autocenter calls zoom_bounds with expected bbox in sync add_ee_layer."""
@@ -571,6 +580,7 @@ def test_add_ee_layer_autocenter_sync() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 @pytest.mark.asyncio
 async def test_add_ee_layer_autocenter_async() -> None:
@@ -600,6 +610,7 @@ async def test_add_ee_layer_autocenter_async() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_no_autocenter_sync() -> None:
     """Test that zoom_bounds is not called when autocenter=False in sync add_ee_layer."""
@@ -624,6 +635,7 @@ def test_add_ee_layer_no_autocenter_sync() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 @pytest.mark.asyncio
 async def test_add_ee_layer_no_autocenter_async() -> None:

@@ -23,6 +23,7 @@ def test_init() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_aoi_ee(ee_points: Tuple[ee.Geometry.Point], aoi_control: sm.AoiControl) -> None:
     """Add a ee point to the aoi_control.

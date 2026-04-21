@@ -9,6 +9,7 @@ import pytest
 from pysepal.scripts.gee_interface import GEEInterface
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_initialization(gee_interface: GEEInterface) -> None:
     """Test that GEEInterface can be initialized.
@@ -24,6 +25,7 @@ def test_initialization(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_info(gee_interface: GEEInterface) -> None:
     """Test get_info method with a simple EE object.
@@ -42,6 +44,7 @@ def test_get_info(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_info_batch(gee_interface: GEEInterface) -> None:
     """Test get_info_batch method with multiple EE objects.
@@ -65,6 +68,7 @@ def test_get_info_batch(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_asset(gee_interface: GEEInterface, fake_asset: Path) -> None:
     """Test get_asset method.
@@ -83,6 +87,7 @@ def test_get_asset(gee_interface: GEEInterface, fake_asset: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_asset_not_exists(gee_interface: GEEInterface, gee_dir: Path) -> None:
     """Test get_asset method with non-existing asset.
@@ -104,6 +109,7 @@ def test_get_asset_not_exists(gee_interface: GEEInterface, gee_dir: Path) -> Non
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_assets(gee_interface: GEEInterface, gee_dir: Path) -> None:
     """Test get_assets method.
@@ -131,6 +137,7 @@ def test_get_assets(gee_interface: GEEInterface, gee_dir: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_folder(gee_interface: GEEInterface) -> None:
     """Test get_folder method.
@@ -148,6 +155,7 @@ def test_get_folder(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_map_id(gee_interface: GEEInterface) -> None:
     """Test get_map_id method.
@@ -167,6 +175,7 @@ def test_get_map_id(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_context_manager() -> None:
     """Test that GEEInterface works as a context manager."""
@@ -184,6 +193,7 @@ def test_context_manager() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_close(gee_interface: GEEInterface) -> None:
     """Test close method.
@@ -210,6 +220,7 @@ def test_close(gee_interface: GEEInterface) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_export_table_to_asset(gee_interface: GEEInterface, gee_dir: Path, _hash: str) -> None:
     """Test export_table_to_asset method.
@@ -241,6 +252,7 @@ def test_export_table_to_asset(gee_interface: GEEInterface, gee_dir: Path, _hash
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_export_image_to_asset(gee_interface: GEEInterface, gee_dir: Path, _hash: str) -> None:
     """Test export_image_to_asset method.
@@ -279,6 +291,7 @@ def test_export_image_to_asset(gee_interface: GEEInterface, gee_dir: Path, _hash
 # -- Tests with SEPAL headers --------------------------------------------------
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_initialization_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface], has_sepal_credentials: bool
@@ -300,6 +313,7 @@ def test_initialization_with_sepal(
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_info_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface], has_sepal_credentials: bool
@@ -324,6 +338,7 @@ def test_get_info_with_sepal(
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_asset_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface],
@@ -350,6 +365,7 @@ def test_get_asset_with_sepal(
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_assets_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface],
@@ -385,6 +401,7 @@ def test_get_assets_with_sepal(
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_folder_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface], has_sepal_credentials: bool
@@ -408,6 +425,7 @@ def test_get_folder_with_sepal(
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_map_id_with_sepal(
     gee_interface_with_sepal: Optional[GEEInterface], has_sepal_credentials: bool
