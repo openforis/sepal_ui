@@ -50,6 +50,13 @@ def test_gee(session):
     session.run("pytest", "-m", "gee", "--color=yes", "-vv", *test_files)
 
 
+@nox.session(name="clean_gee_assets", reuse_venv=True)
+def clean_gee_assets(session):
+    """Delete stale pysepal test assets from GEE. Dry-run by default; pass -- --yes to delete."""
+    session.install(".[test]")
+    session.run("python", "-m", "tests._janitor", *session.posargs)
+
+
 @nox.session(name="dead-fixtures", reuse_venv=True)
 def dead_fixtures(session):
     """Check for dead fixtures items."""
