@@ -128,6 +128,10 @@ The GEE lane runs the smoke tests against a real Earth Engine session. It is inv
         $ nox -s test -- tests/test_mapping       # narrow to one directory
         $ nox -s test -- -k "test_init"           # pytest keyword filter
         $ nox -s test -- -x -vv                   # stop on first failure, verbose
+        $ nox -s test -- --lf                     # rerun only last-failed tests
+        $ nox -s test -- --ff                     # failed-first: run failures, then the rest
+
+    Note that pytest's flags use double-dash (:code:`--lf`, not :code:`-lf`) — a single dash parses as :code:`-l -f`.
 
 Marking a new GEE-dependent test
 --------------------------------
