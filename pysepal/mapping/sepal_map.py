@@ -305,7 +305,7 @@ class SepalMap(ipl.Map):
 
     @staticmethod
     @deprecated(
-        version="3.3.0",
+        version="3.4.0",
         reason="SepalMap(theme_toggle=...) is deprecated; pass theme_state=... instead.",
         category=DeprecationWarning,
     )
