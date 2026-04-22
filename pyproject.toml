@@ -48,7 +48,7 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "solara", 
-    "ee-client>=2.5.0", # supports caching
+    "ee-client>=2.5.2", # supports caching and fixes table asset export for session-backed flows
     "colorlog",
     "reactivex"
 ]

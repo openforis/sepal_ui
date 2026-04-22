@@ -15,9 +15,9 @@ from pathlib import Path
 import solara
 
 from pysepal import mapping as sm
-from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.solara import (
     get_current_gee_interface,
+    get_current_theme_state,
     setup_sessions,
     setup_solara_server,
     setup_theme_colors,
@@ -40,18 +40,17 @@ def on_kernel_start():
 
 
 @solara.component
-def AoiTestAllMethods(gee: bool = True, gee_interface=None):
+def AoiTestAllMethods(gee: bool = True, gee_interface=None, theme_state=None):
     """Test all AOI methods with a map.
 
     Args:
         gee: Whether to enable GEE.
         gee_interface: Session-backed GEEInterface from the current Solara session.
+        theme_state: Session-backed theme state from the current Solara session.
     """
     aoi_data = solara.use_reactive(None)
     aoi_loading = solara.use_reactive(False)
     clear_aoi_ref = solara.use_ref(None)
-
-    theme_toggle = ThemeToggle()
 
     def build_map():
         map_ = sm.SepalMap(
@@ -59,7 +58,7 @@ def AoiTestAllMethods(gee: bool = True, gee_interface=None):
             center=[0, 0],
             gee=gee,
             gee_interface=gee_interface if gee else None,
-            theme_toggle=theme_toggle,
+            theme_state=theme_state,
         )
         return map_
 
@@ -117,19 +116,17 @@ def AoiTestAllMethods(gee: bool = True, gee_interface=None):
 
 
 @solara.component
-def AoiTestCustomMethods():
+def AoiTestCustomMethods(theme_state=None):
     """Test only custom methods (SHAPE, DRAW, POINTS)."""
     aoi_data = solara.use_reactive(None)
     aoi_loading = solara.use_reactive(False)
-
-    theme_toggle = ThemeToggle()
 
     sepal_map = solara.use_memo(
         lambda: sm.SepalMap(
             zoom=2,
             center=[0, 0],
             gee=False,
-            theme_toggle=theme_toggle,
+            theme_state=theme_state,
         ),
         [],
     )
@@ -166,6 +163,7 @@ def Page():
     setup_theme_colors()
 
     gee_interface = get_current_gee_interface()
+    theme_state = get_current_theme_state()
 
     selected_tab = solara.use_reactive(0)
 
@@ -176,6 +174,24 @@ def Page():
         solara.Info(f"Local SHAPE and POINTS pickers start in: {DUMMY_DATA_DIR}")
 
         with solara.Card():
+            with solara.Row(style="gap: 10px;"):
+                solara.Button(
+                    "With Earth Engine",
+                    on_click=lambda: selected_tab.set(0),
+                    color="primary" if selected_tab.value == 0 else "default",
+                )
+                solara.Button(
+                    "Without Earth Engine",
+                    on_click=lambda: selected_tab.set(1),
+                    color="primary" if selected_tab.value == 1 else "default",
+                )
+                solara.Button(
+                    "Custom Methods",
+                    on_click=lambda: selected_tab.set(2),
+                    color="primary" if selected_tab.value == 2 else "default",
+                )
+
+        with solara.Card():
             # Keep all tab panels mounted so state survives tab switches.
             with solara.Column(style="gap: 0;"):
                 with solara.Column(
@@ -184,4 +200,16 @@ def Page():
                     AoiTestAllMethods(
                         gee=True,
                         gee_interface=gee_interface,
+                        theme_state=theme_state,
                     )
+                with solara.Column(
+                    style=("display: block;" if selected_tab.value == 1 else "display: none;")
+                ):
+                    AoiTestAllMethods(
+                        gee=False,
+                        theme_state=theme_state,
+                    )
+                with solara.Column(
+                    style=("display: block;" if selected_tab.value == 2 else "display: none;")
+                ):
+                    AoiTestCustomMethods(theme_state=theme_state)

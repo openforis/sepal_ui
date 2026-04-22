@@ -110,25 +110,25 @@ class Notifier:
         """Initialize notifier with a notification bus."""
         self._bus = bus
 
-    def success(self, message: str) -> None:
-        """Publish a success toast."""
-        self._bus.add_toast(Toast(message=message, type=ToastType.SUCCESS))
+    def success(self, message: str, *, timeout: Optional[float] = None) -> None:
+        """Publish a success toast. ``timeout`` overrides the per-type default."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.SUCCESS, timeout=timeout))
 
-    def error(self, message: str) -> None:
-        """Publish an error toast."""
-        self._bus.add_toast(Toast(message=message, type=ToastType.ERROR))
+    def error(self, message: str, *, timeout: Optional[float] = None) -> None:
+        """Publish an error toast. ``timeout`` overrides the per-type default."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.ERROR, timeout=timeout))
 
-    def warning(self, message: str) -> None:
-        """Publish a warning toast."""
-        self._bus.add_toast(Toast(message=message, type=ToastType.WARNING))
+    def warning(self, message: str, *, timeout: Optional[float] = None) -> None:
+        """Publish a warning toast. ``timeout`` overrides the per-type default."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.WARNING, timeout=timeout))
 
-    def info(self, message: str) -> None:
-        """Publish an info toast."""
-        self._bus.add_toast(Toast(message=message, type=ToastType.INFO))
+    def info(self, message: str, *, timeout: Optional[float] = None) -> None:
+        """Publish an info toast. ``timeout`` overrides the per-type default."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.INFO, timeout=timeout))
 
-    def cancel(self, message: str) -> None:
-        """Publish a cancellation toast (rendered in gray)."""
-        self._bus.add_toast(Toast(message=message, type=ToastType.CANCEL))
+    def cancel(self, message: str, *, timeout: Optional[float] = None) -> None:
+        """Publish a cancellation toast (gray). ``timeout`` overrides default."""
+        self._bus.add_toast(Toast(message=message, type=ToastType.CANCEL, timeout=timeout))
 
     def dismiss(self, toast_id: str) -> None:
         """Dismiss a toast by ID."""
@@ -222,19 +222,19 @@ class _NoopTaskTrackerContextManager(_NoopTaskTracker):
 class NoopNotifier:
     """Notifier that does nothing (used when no provider is mounted)."""
 
-    def success(self, message: str) -> None:
+    def success(self, message: str, *, timeout: Optional[float] = None) -> None:
         """No-op success toast."""
 
-    def error(self, message: str) -> None:
+    def error(self, message: str, *, timeout: Optional[float] = None) -> None:
         """No-op error toast."""
 
-    def warning(self, message: str) -> None:
+    def warning(self, message: str, *, timeout: Optional[float] = None) -> None:
         """No-op warning toast."""
 
-    def info(self, message: str) -> None:
+    def info(self, message: str, *, timeout: Optional[float] = None) -> None:
         """No-op info toast."""
 
-    def cancel(self, message: str) -> None:
+    def cancel(self, message: str, *, timeout: Optional[float] = None) -> None:
         """No-op cancel toast."""
 
     def dismiss(self, toast_id: str) -> None:

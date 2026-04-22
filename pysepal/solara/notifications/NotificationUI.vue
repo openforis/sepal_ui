@@ -306,9 +306,10 @@ export default {
   position: fixed;
   top: 4px;
   right: 4px;
-  /* Keep notifications below Vuetify dialogs/overlays, but above normal app
-   * content such as menus/tooltips. */
-  z-index: 190;
+  /* Stay above Vuetify dialogs and their overlays so toasts remain visible
+   * even when a modal is open — notifications are often about the dialog
+   * itself (errors, progress) and cannot be hidden beneath it. */
+  z-index: 9999;
   width: 440px;
   max-width: calc(100vw - 8px);
   max-height: calc(100vh - 8px);
@@ -453,8 +454,9 @@ export default {
   position: fixed;
   bottom: 8px;
   right: calc(var(--sepal-notification-right-offset, 0px) + 8px);
-  /* Match the toast stack so dialogs cover the task pill consistently. */
-  z-index: 190;
+  /* Match the toast stack so ongoing task progress stays visible over
+   * dialogs the user might open. */
+  z-index: 9999;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
