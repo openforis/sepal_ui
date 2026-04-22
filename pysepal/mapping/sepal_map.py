@@ -16,6 +16,7 @@ from pysepal.mapping.visualization import (
 )
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.solara.theme import ThemeState
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -111,6 +112,7 @@ class SepalMap(ipl.Map):
         gee: bool = True,
         statebar: bool = False,
         theme_toggle: ThemeToggle = None,
+        theme_state: Optional[ThemeState] = None,
         gee_session: Optional[EESession] = None,
         gee_interface: Optional[GEEInterface] = None,
         fullscreen: bool = False,
@@ -131,7 +133,8 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
-            theme_toggle: sepal_ui ThemeToggle object
+            theme_toggle: deprecated ThemeToggle source. Use theme_state instead.
+            theme_state: shared theme state for Solara apps
             gee_session (optional): a custom EESession object to do gee requests. default to None (deprecated in favor of gee_interface)
             gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             fullscreen: whether or not to display the map in full screen. default to False
@@ -168,6 +171,7 @@ class SepalMap(ipl.Map):
             self.add_class("full-screen-map")
 
         super().__init__(**kwargs)
+        self._theme_source = None
 
         # init ee
         self.gee = gee
@@ -180,13 +184,15 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        if theme_toggle:
-            default_basemap = "CartoDB.DarkMatter" if theme_toggle.dark else "CartoDB.Positron"
-            theme_toggle.observe(self._on_theme_change, "dark")
-            log.debug(f"Using solara theme: {theme_toggle.dark}")
-        else:
-            default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
-            v.theme.observe(self._on_theme_change, "dark")
+        theme_source = self._resolve_theme_source(theme_state, theme_toggle)
+        default_basemap = (
+            "CartoDB.DarkMatter" if self._theme_is_dark(theme_source) else "CartoDB.Positron"
+        )
+        log.debug(
+            "Using theme source %s dark=%s",
+            type(theme_source).__name__,
+            getattr(theme_source, "dark", None),
+        )
 
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
@@ -222,6 +228,7 @@ class SepalMap(ipl.Map):
         # this id should be unique and will be used by mutators to identify this map
         self._id = map_id or "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
+        self._bind_theme_source(theme_source)
 
     def _on_theme_change(self, change) -> None:
         """Change the basemap layer."""
@@ -251,6 +258,64 @@ class SepalMap(ipl.Map):
         light_class = "pysepal-map-theme-light"
         self.remove_class(light_class if is_dark else dark_class)
         self.add_class(dark_class if is_dark else light_class)
+
+    def bind_theme_state(self, theme_state: Optional[ThemeState]) -> None:
+        """Bind the map to a shared theme state."""
+        self._bind_theme_source(theme_state if theme_state is not None else v.theme)
+
+    def _bind_theme_source(self, source) -> None:
+        """Bind the map to the resolved source used to drive dark/light changes."""
+        if source is self._theme_source:
+            return
+
+        previous = self._theme_source
+        if previous is not None:
+            try:
+                previous.unobserve(self._on_theme_change, "dark")
+            except (AttributeError, KeyError, ValueError):
+                pass
+
+        source.observe(self._on_theme_change, "dark")
+        self._theme_source = source
+
+        is_dark = self._theme_is_dark(source)
+        if previous is None:
+            # Initial bind: basemaps already reflect the theme; only sync the CSS marker.
+            self._apply_theme_class(is_dark)
+        else:
+            self._on_theme_change({"new": is_dark})
+
+    @staticmethod
+    def _theme_is_dark(source) -> bool:
+        """Normalize theme sources that expose a `dark` traitlet."""
+        return getattr(source, "dark", None) is True
+
+    @staticmethod
+    def _resolve_theme_source(
+        theme_state: Optional[ThemeState], theme_toggle: Optional[ThemeToggle]
+    ):
+        """Resolve the theme source used to initialize and drive the map theme."""
+        if theme_state is not None:
+            return theme_state
+
+        if theme_toggle is not None:
+            return SepalMap._resolve_deprecated_theme_toggle_source(theme_toggle)
+
+        return v.theme
+
+    @staticmethod
+    @deprecated(
+        version="3.3.0",
+        reason="SepalMap(theme_toggle=...) is deprecated; pass theme_state=... instead.",
+        category=DeprecationWarning,
+    )
+    def _resolve_deprecated_theme_toggle_source(theme_toggle: ThemeToggle):
+        """Resolve the legacy theme_toggle constructor path."""
+        if hasattr(theme_toggle, "get_theme_state"):
+            bound_theme_state = theme_toggle.get_theme_state()
+            if bound_theme_state is not None:
+                return bound_theme_state
+        return theme_toggle
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
@@ -504,7 +569,9 @@ class SepalMap(ipl.Map):
             msg = '"cmap" keyword or "colors" key must be provided.'
             raise ValueError(msg)
 
-        style = "dark_background" if v.theme.dark is True else "classic"
+        style = (
+            "dark_background" if self._theme_is_dark(self._theme_source or v.theme) else "classic"
+        )
 
         with plt.style.context(style):
             fig, ax = plt.subplots(figsize=(width, height))

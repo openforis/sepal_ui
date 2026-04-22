@@ -21,6 +21,10 @@ export default {
       type: [Boolean, null],
       default: null,
     },
+    resolved_dark: {
+      type: Boolean,
+      default: false,
+    },
 
     enable_auto: {
       type: Boolean,
@@ -44,6 +48,7 @@ export default {
       clicks: 1,
       lim: 2,
       storedTheme: null,
+      mediaQuery: null,
     };
   },
 
@@ -53,6 +58,19 @@ export default {
     }
   },
   mounted() {
+    this.mediaQuery =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+    if (this.mediaQuery) {
+      if (this.mediaQuery.addEventListener) {
+        this.mediaQuery.addEventListener(
+          "change",
+          this.handleColorSchemeChange
+        );
+      } else if (this.mediaQuery.addListener) {
+        this.mediaQuery.addListener(this.handleColorSchemeChange);
+      }
+    }
+
     if (window.sepalUi) {
       if (localStorage.getItem(":sepalUi:theme.variant")) {
         // eslint-disable-next-line vue/no-mutating-props
@@ -60,12 +78,22 @@ export default {
       }
     }
 
-    if (this.dark === false) {
-      this.clicks = 2;
-    } else if (this.dark === null) {
-      this.clicks = 3;
-    }
     this.lim = this.enable_auto ? 3 : 2;
+    this.syncClicksFromDark();
+    this.setTheme();
+    this.updateResolvedDark();
+  },
+  beforeDestroy() {
+    if (this.mediaQuery) {
+      if (this.mediaQuery.removeEventListener) {
+        this.mediaQuery.removeEventListener(
+          "change",
+          this.handleColorSchemeChange
+        );
+      } else if (this.mediaQuery.removeListener) {
+        this.mediaQuery.removeListener(this.handleColorSchemeChange);
+      }
+    }
   },
   methods: {
     countClicks() {
@@ -84,6 +112,17 @@ export default {
         return false;
       } else {
         return true;
+      }
+    },
+    syncClicksFromDark() {
+      let next = 1;
+      if (this.dark === false) {
+        next = 2;
+      } else if (this.dark === null) {
+        next = 3;
+      }
+      if (this.clicks !== next) {
+        this.clicks = next;
       }
     },
     stringifyTheme() {
@@ -109,22 +148,42 @@ export default {
       }
       this.$vuetify.theme.dark = this.dark;
     },
+    updateResolvedDark() {
+      // eslint-disable-next-line vue/no-mutating-props
+      this.resolved_dark = !!(
+        this.$vuetify &&
+        this.$vuetify.theme &&
+        this.$vuetify.theme.dark
+      );
+    },
     prefersDarkScheme() {
       return (
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches
       );
     },
+    handleColorSchemeChange() {
+      if (this.dark === null) {
+        this.setTheme();
+        this.updateResolvedDark();
+      }
+    },
     jupyter_fire_button(event, data) {
       this.countClicks();
     },
   },
   watch: {
+    dark() {
+      this.syncClicksFromDark();
+      this.setTheme();
+      this.updateResolvedDark();
+    },
     clicks() {
       if (window.sepalUi) {
         this.$vuetify.theme.variant = this.stringifyTheme();
       }
       this.setTheme();
+      this.updateResolvedDark();
       if (window.sepalUi) {
         localStorage.setItem(
           ":sepalUi:theme.variant",
