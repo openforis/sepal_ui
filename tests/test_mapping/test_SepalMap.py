@@ -83,7 +83,7 @@ def test_set_center() -> None:
 
 @pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
-def zoom_ee_object() -> None:
+def test_zoom_ee_object() -> None:
     """Check we can zoom on a GEE object."""
     # init objects
     m = sm.SepalMap()
