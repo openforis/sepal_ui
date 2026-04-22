@@ -62,7 +62,9 @@ def dead_fixtures(session):
     """Check for dead fixtures items."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
-    session.run("pytest", "--dead-fixtures", *test_files)
+    # Clear addopts ("-m 'not gee'") so the scan covers both test lanes;
+    # otherwise every GEE fixture reports as unused.
+    session.run("pytest", "-o", "addopts=", "--dead-fixtures", *test_files)
 
 
 @nox.session(reuse_venv=True)
