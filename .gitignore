@@ -6,6 +6,7 @@ warnings.txt
 logging_config.toml
 .github/instructions/
 CLAUDE.md
+.codex/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
