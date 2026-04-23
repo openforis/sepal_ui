@@ -11,7 +11,6 @@ from pysepal.scripts.gee_interface import _resolve_create_folder_paths
 from pysepal.solara.components import export_hook as export_hook_module
 from pysepal.solara.components.export import (
     DEFAULT_TABLE_FILE_FORMAT,
-    ExportDataComponent,
     ExportLauncher,
     ExportRequest,
     ExportResult,
@@ -408,18 +407,6 @@ def test_export_launcher_supports_small_block_button_convention():
 
     assert launcher_buttons
     assert any(getattr(widget, "small", False) for widget in launcher_buttons)
-
-
-def test_export_data_component_remains_renderable():
-    element = _render(
-        ExportDataComponent.widget,
-        ee_object=_FakeTable(),
-        title="Export selected AOI",
-        gee_interface=MagicMock(),
-        drive_interface=MagicMock(),
-    )
-
-    assert element is not None
 
 
 class _FakeGeeInterface:

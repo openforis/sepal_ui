@@ -1,67 +1,8 @@
-"""Tests for TaskButtonComponent and use_task_button."""
+"""Tests for use_task_button hook."""
 
 from unittest.mock import MagicMock
 
-from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
-
-
-def test_task_button_renders_label_when_idle():
-    """When running=False, button shows the action label."""
-    on_start = MagicMock()
-    on_cancel = MagicMock()
-
-    el = TaskButtonComponent.widget(
-        label="Select AOI",
-        on_start=on_start,
-        on_cancel=on_cancel,
-        running=False,
-    )
-    assert el is not None
-
-
-def test_task_button_renders_cancel_when_running():
-    """When running=True, button shows cancel label."""
-    on_start = MagicMock()
-    on_cancel = MagicMock()
-
-    el = TaskButtonComponent.widget(
-        label="Select AOI",
-        on_start=on_start,
-        on_cancel=on_cancel,
-        running=True,
-        cancel_label="Stop",
-    )
-    assert el is not None
-
-
-def test_task_button_disabled_when_external_busy():
-    """When external_busy=True and not running, button is disabled."""
-    on_start = MagicMock()
-    on_cancel = MagicMock()
-
-    el = TaskButtonComponent.widget(
-        label="Select AOI",
-        on_start=on_start,
-        on_cancel=on_cancel,
-        running=False,
-        external_busy=True,
-    )
-    assert el is not None
-
-
-def test_task_button_cancel_never_disabled():
-    """When running=True, cancel is clickable even if external_busy=True."""
-    on_start = MagicMock()
-    on_cancel = MagicMock()
-
-    el = TaskButtonComponent.widget(
-        label="Select AOI",
-        on_start=on_start,
-        on_cancel=on_cancel,
-        running=True,
-        external_busy=True,
-    )
-    assert el is not None
+from pysepal.solara.components.task_button import use_task_button
 
 
 def test_use_task_button_returns_correct_keys():
