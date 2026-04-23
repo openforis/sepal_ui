@@ -3,7 +3,6 @@
 import json
 import math
 import random
-import warnings
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -15,6 +14,7 @@ from pysepal import mapping as sm
 from pysepal.frontend import styles as ss
 from pysepal.frontend.styles import get_theme
 from pysepal.mapping.legend_control import LegendControl
+from pysepal.mapping.visualization import get_viz_params
 from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.solara.theme import ThemeState
 
@@ -235,7 +235,7 @@ def test_add_ee_layer(image_id: str) -> None:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    for viz in sm.SepalMap().get_viz_params(image).values():
+    for viz in get_viz_params(image).values():
         m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     assert len(m.layers) == 6
@@ -299,7 +299,7 @@ def test_get_viz_params(image_id: str) -> None:
         image_id: the AssetId of the GEE image
     """
     image = ee.Image(image_id)
-    res = sm.SepalMap().get_viz_params(image)
+    res = get_viz_params(image)
 
     expected = {
         "1": {
@@ -690,10 +690,7 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    # Suppress deprecation warning in fixture
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        for viz in sm.SepalMap().get_viz_params(image).values():
-            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+    for viz in get_viz_params(image).values():
+        m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     return m

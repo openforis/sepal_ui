@@ -157,9 +157,11 @@ def _build_export_sources(
 
 
 @solara.component
-def AoiResultPanel(aoi_data, aoi_loading):
+def AoiResultPanel(aoi_data, aoi_loading, is_pinned):
     """Right panel content showing AOI result details."""
     with solara.Column(style="gap: 8px;"):
+        solara.Info(f"Sidebar pinned (Python-side): {is_pinned.value}")
+
         if aoi_loading.value:
             solara.ProgressLinear(True)
             solara.Info("Processing...")
@@ -356,6 +358,7 @@ def Page():
     aoi_data = solara.use_reactive(None)
     aoi_loading = solara.use_reactive(False)
     processed_datasets = solara.use_reactive(())
+    is_pinned = solara.use_reactive(True)
 
     # Build map once
     def build_map():
@@ -412,7 +415,13 @@ def Page():
         {
             "title": "Result",
             "icon": "mdi-information-outline",
-            "content": [AoiResultPanel(aoi_data=aoi_data, aoi_loading=aoi_loading)],
+            "content": [
+                AoiResultPanel(
+                    aoi_data=aoi_data,
+                    aoi_loading=aoi_loading,
+                    is_pinned=is_pinned,
+                )
+            ],
         },
     ]
 
@@ -445,6 +454,10 @@ def Page():
     # Notification system (toasts top-right, pill tracks map bottom-right)
     NotificationProvider()
 
+    def _on_pin_change(value):
+        is_pinned.set(value)
+        print(f"[aoi_all_methods_mapapp] is_pinned -> {value}")
+
     MapApp.element(
         app_title="AOI All Methods",
         app_icon="mdi-map-marker-check",
@@ -454,4 +467,5 @@ def Page():
         right_panel_content=right_panel_content,
         right_panel_open=True,
         theme_state=theme_state,
+        on_is_pinned=_on_pin_change,
     )

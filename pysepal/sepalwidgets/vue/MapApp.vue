@@ -573,9 +573,7 @@ export default {
     },
 
     togglePin() {
-      // $emit does not cross the jupyter-widget boundary — call the Python
-      // method directly so the synced traitlet updates on the backend.
-      this.toggle_pin();
+      this.is_pinned = !this.is_pinned;
     },
 
     handleMapClick() {

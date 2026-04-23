@@ -22,9 +22,19 @@ from pysepal.scripts.gee_task import GEETask, R, TaskState
 def _resolve_create_folder_paths(asset_root: str, folder_path: str) -> tuple[str, str]:
     """Normalize folder creation paths for both session and legacy EE clients.
 
-    Returns a tuple of:
-    - folder path relative to the current asset root
-    - absolute asset folder path
+    Accepts either a path relative to ``asset_root`` or an absolute
+    ``projects/.../assets/...`` path, and rejects paths outside ``asset_root``.
+
+    Args:
+        asset_root: The user's current asset root (e.g. ``projects/foo/assets``).
+        folder_path: Relative or absolute folder path requested by the caller.
+
+    Returns:
+        A tuple ``(relative_path, absolute_path)`` — the first suited to the
+        session client, the second to the legacy ``ee.data.createAsset`` API.
+
+    Raises:
+        ValueError: If ``folder_path`` resolves outside ``asset_root``.
     """
     root = PurePosixPath(str(asset_root).rstrip("/"))
     requested = (folder_path or "").strip().strip("/")

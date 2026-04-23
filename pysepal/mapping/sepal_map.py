@@ -91,18 +91,17 @@ class SepalMap(ipl.Map):
     state: Optional[sw.StateBar] = None
     "The statebar to inform the user about tile loading"
 
-    # Horizontal pixels of the viewport covered by overlay panels (left nav
-    # drawer, right panel). Set by a parent shell (e.g., MapApp). Used by
-    # fit_bounds so zoom and center target the *visible* region, not the
-    # full-viewport canvas that sits behind the overlays.
     viewport_inset_left = _TInt(0)
-    viewport_inset_right = _TInt(0)
+    "Left overlay width in px. Set by the parent shell (e.g. MapApp) so fit_bounds targets the visible region."
 
-    # Real canvas dimensions pushed from the frontend (fullscreen = window
-    # size). Preferred over bounds-derived values, which are wrong before the
-    # first render because `self.bounds` starts at the default world view.
+    viewport_inset_right = _TInt(0)
+    "Right overlay width in px. Set by the parent shell (e.g. MapApp) so fit_bounds targets the visible region."
+
     canvas_width_px = _TInt(0)
+    "Canvas width in px, pushed from the frontend."
+
     canvas_height_px = _TInt(0)
+    "Canvas height in px, pushed from the frontend."
 
     def __init__(
         self,
@@ -188,12 +187,6 @@ class SepalMap(ipl.Map):
         default_basemap = (
             "CartoDB.DarkMatter" if self._theme_is_dark(theme_source) else "CartoDB.Positron"
         )
-        log.debug(
-            "Using theme source %s dark=%s",
-            type(theme_source).__name__,
-            getattr(theme_source, "dark", None),
-        )
-
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
@@ -316,30 +309,6 @@ class SepalMap(ipl.Map):
             if bound_theme_state is not None:
                 return bound_theme_state
         return theme_toggle
-
-    @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
-    def _remove_local_raster(self, local_layer: str) -> Self:
-        """Remove local layer from memory.
-
-        .. danger::
-
-            Does nothing now.
-
-        Args:
-            local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
-        """
-        return self
-
-    @deprecated(version="2.8.0", reason="use remove_layer(-1) instead")
-    def remove_last_layer(self, local: bool = False) -> Self:
-        """Remove last added layer from Map.
-
-        Args:
-            local: Specify True to only remove local last layers, otherwise will remove every last layer.
-        """
-        self.remove_layer(-1)
-
-        return self
 
     def show_dc(self) -> Self:
         """Show the drawing control on the map.
@@ -605,36 +574,6 @@ class SepalMap(ipl.Map):
         self.add(colormap_ctrl)
 
         return
-
-    @staticmethod
-    @deprecated(
-        version="3.0.0",
-        reason="Use sepal_ui.mapping.visualization.get_viz_params() directly instead. This wrapper is maintained for backward compatibility.",
-    )
-    def get_viz_params(
-        ee_object: ee.ComputedObject,
-        gee_interface: Optional[GEEInterface] = None,
-    ) -> tuple:
-        """Get visualization parameters for an Earth Engine object.
-
-        This is a convenience wrapper around the visualization module helper.
-        Maintained for backward compatibility.
-
-        .. deprecated:: 3.0.0
-            Use :func:`sepal_ui.mapping.visualization.get_viz_params` directly instead.
-            This static method wrapper will be removed in version 4.0.0.
-
-        Args:
-            ee_object: The Earth Engine object to visualize.
-            gee_interface: Optional GEEInterface instance (creates one if not provided).
-
-        Returns:
-            Tuple of (image, object, vis_params).
-        """
-        return get_viz_params(
-            ee_object,
-            gee_interface=gee_interface,
-        )
 
     def add_ee_layer(
         self,

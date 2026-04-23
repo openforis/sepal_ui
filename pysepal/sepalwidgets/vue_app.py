@@ -37,25 +37,18 @@ class MapApp(v.VuetifyTemplate):
     language_selector = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     right_panel = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
 
-    # Right panel state tracking
     right_panel_open = Bool(False).tag(sync=True)
     right_panel_width = Int(300).tag(sync=True)
 
-    # Left sidebar state tracking
     is_pinned = Bool(True).tag(sync=True)
 
-    # Actual drawer pixel width (collapsed or expanded). Pushed from Vue when
-    # `mini` toggles so the embedded map can fit-bounds against the visible
-    # region instead of the full canvas behind the overlays.
     drawer_width = Int(320).tag(sync=True)
+    "Current drawer pixel width (collapsed or expanded). Pushed from Vue."
 
-    # Real browser window size, pushed from Vue on mount and resize. Used
-    # to fix the cold-start zoom bug: before the first render the map's
-    # self.bounds is the world default and can't yield a correct canvas.
     window_width = Int(0).tag(sync=True)
     window_height = Int(0).tag(sync=True)
+    "Browser window size, pushed from Vue on mount and resize."
 
-    # Right panel configuration
     right_panel_config = Dict(
         default_value={
             "title": "Extra Content",
@@ -163,8 +156,7 @@ class MapApp(v.VuetifyTemplate):
         if self._model is not None:
             self._setup_model_binding()
 
-        # Push overlay insets to the embedded map so fit_bounds targets the
-        # visible region. Re-run whenever drawer, panel, or map change.
+        # Push overlay insets to the embedded map so fit_bounds targets the visible region.
         self.observe(
             self._sync_map_insets,
             [
@@ -305,16 +297,6 @@ class MapApp(v.VuetifyTemplate):
         self._model = model
         if model is not None:
             self._setup_model_binding()
-
-    def vue_toggle_pin(self, *args):
-        """Toggle the sidebar pin state.
-
-        Called from Vue when the user clicks the pin button.  We cannot rely
-        on `$emit("update:is_pinned", ...)` from Vue because Vue events do
-        not cross the jupyter-widget boundary; the synced traitlet must be
-        flipped here on the backend.
-        """
-        self.is_pinned = not self.is_pinned
 
     def vue_handle_right_panel_action(self, action):
         """Handle right panel actions from step activation."""
