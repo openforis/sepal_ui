@@ -64,42 +64,63 @@
         >
           <!-- steps -->
           <v-list dense class="pa-0 ma-0">
-            <v-list-item
+            <v-tooltip
+              right
+              :disabled="!mini"
               v-if="main_map && main_map.length > 0"
-              @click="showMainMap"
-              :class="{ 'active-step': !activeStepId }"
             >
-              <v-list-item-icon>
-                <v-icon class="mb-1">mdi-map</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content v-if="!mini">
-                <v-list-item-title class="font-weight-medium"
-                  >Map</v-list-item-title
+              <template v-slot:activator="{ on, attrs }">
+                <v-list-item
+                  @click="showMainMap"
+                  :class="{ 'active-step': !activeStepId }"
+                  v-bind="attrs"
+                  v-on="on"
                 >
-              </v-list-item-content>
-            </v-list-item>
+                  <v-list-item-icon>
+                    <v-icon class="mb-1">mdi-map</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content v-if="!mini">
+                    <v-list-item-title class="font-weight-medium"
+                      >Map</v-list-item-title
+                    >
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <span>Map</span>
+            </v-tooltip>
 
-            <v-list-item
+            <v-tooltip
+              right
+              :disabled="!mini"
               v-for="(step, i) in steps"
               :key="`step-${i}`"
-              @click="activateStep(step)"
-              :class="{
-                'active-step':
-                  activeStepId === step.id && step.content_enabled !== false,
-              }"
-              :data-step-id="step.id"
             >
-              <v-list-item-icon>
-                <v-icon class="mb-1">{{
-                  step.icon || "mdi-checkbox-blank-circle-outline"
-                }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content v-if="!mini">
-                <v-list-item-title class="font-weight-medium">{{
-                  step.name
-                }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+              <template v-slot:activator="{ on, attrs }">
+                <v-list-item
+                  @click="activateStep(step)"
+                  :class="{
+                    'active-step':
+                      activeStepId === step.id &&
+                      step.content_enabled !== false,
+                  }"
+                  :data-step-id="step.id"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-list-item-icon>
+                    <v-icon class="mb-1">{{
+                      step.icon || "mdi-checkbox-blank-circle-outline"
+                    }}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content v-if="!mini">
+                    <v-list-item-title class="font-weight-medium">{{
+                      step.name
+                    }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <span>{{ step.name }}</span>
+            </v-tooltip>
           </v-list>
         </div>
 
@@ -107,49 +128,87 @@
           <v-divider class="mb-4"></v-divider>
           <!-- helper steps -->
           <v-list class="pa-0 ma-0" dense>
-            <v-list-item
+            <v-tooltip
+              right
+              :disabled="!mini"
               v-for="(link, i) in externalLinks"
               :key="`external-${i}`"
-              :href="link.url"
-              target="_blank"
-              class="link-item"
-              link
             >
-              <v-list-item-icon>
-                <v-icon class="mb-1">{{ link.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content v-if="!mini">
-                <v-list-item-title class="d-flex align-center">
-                  {{ link.title }}
-                  <v-spacer></v-spacer>
-                  <v-icon small class="ml-1">mdi-open-in-new</v-icon>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+              <template v-slot:activator="{ on, attrs }">
+                <v-list-item
+                  :href="link.url"
+                  target="_blank"
+                  class="link-item"
+                  link
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-list-item-icon>
+                    <v-icon class="mb-1">{{ link.icon }}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content v-if="!mini">
+                    <v-list-item-title class="d-flex align-center">
+                      {{ link.title }}
+                      <v-spacer></v-spacer>
+                      <v-icon small class="ml-1">mdi-open-in-new</v-icon>
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <span>{{ link.title }}</span>
+            </v-tooltip>
 
             <v-divider class="mt-2 mb-4"></v-divider>
-            <!-- configuration drawers -->
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title
-                  :class="{
-                    'd-flex align-center justify-center': !mini,
-                    'flex-column': mini,
-                  }"
-                >
-                  <div :class="{ 'mb-2': mini }">
-                    <slot name="theme-toggle"></slot>
-                    <jupyter-widget :widget="theme_toggle[0]"></jupyter-widget>
-                  </div>
-                  <div>
-                    <slot name="language-selector"></slot>
-                    <jupyter-widget
-                      :widget="language_selector[0]"
-                    ></jupyter-widget>
-                  </div>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+
+            <!-- configuration: theme + language -->
+            <template v-if="!mini">
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="d-flex align-center justify-center">
+                    <div>
+                      <slot name="theme-toggle"></slot>
+                      <jupyter-widget
+                        :widget="theme_toggle[0]"
+                      ></jupyter-widget>
+                    </div>
+                    <div>
+                      <slot name="language-selector"></slot>
+                      <jupyter-widget
+                        :widget="language_selector[0]"
+                      ></jupyter-widget>
+                    </div>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+            <template v-else>
+              <v-tooltip right>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-list-item v-bind="attrs" v-on="on">
+                    <v-list-item-icon class="config-icon-mini">
+                      <slot name="theme-toggle"></slot>
+                      <jupyter-widget
+                        :widget="theme_toggle[0]"
+                      ></jupyter-widget>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </template>
+                <span>Toggle theme</span>
+              </v-tooltip>
+              <v-tooltip right>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-list-item v-bind="attrs" v-on="on">
+                    <v-list-item-icon class="config-icon-mini">
+                      <slot name="language-selector"></slot>
+                      <jupyter-widget
+                        :widget="language_selector[0]"
+                      ></jupyter-widget>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </template>
+                <span>Change language</span>
+              </v-tooltip>
+            </template>
           </v-list>
         </div>
       </div>
@@ -826,6 +885,62 @@ export default {
   margin-bottom: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   border-radius: 3px !important;
+}
+
+/* Mini-sidebar theme/language controls: center the embedded jupyter-widget
+   inside the v-list-item-icon slot so the button aligns with the other
+   icon rows (map/steps/links) instead of being clipped or left-aligned. */
+.v-list-item .v-list-item__icon.config-icon-mini {
+  margin: 0 !important;
+  min-width: 0 !important;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* The LocaleSelect renders as <v-menu><v-btn/></v-menu>; the menu wrapper
+   (and any ipyvuetify wrapper div) can default to block-level width and
+   push the btn to the left edge. Force every intermediate wrapper to flex
+   so the btn itself gets centered, matching the ThemeToggle's <v-btn icon>
+   which is already a square flex item. */
+.config-icon-mini > *,
+.config-icon-mini .v-menu,
+.config-icon-mini .v-menu__activator {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100%;
+}
+
+/* Collapse the LocaleSelect button to a circular icon button in mini mode,
+   matching the ThemeToggle shape. Hide the language code text, drop the
+   95px min-width, and kill the icon's right margin so it centers. */
+.config-icon-mini .v-btn {
+  min-width: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+}
+.config-icon-mini .v-btn .v-btn__content {
+  font-size: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0 !important;
+  width: 100%;
+}
+/* Target the locale icon specifically: kill its mr-2 margin and center
+   the glyph absolutely inside the button so the trailing text node
+   (rendered at font-size: 0) can't pull it left. */
+.config-icon-mini .v-btn .v-btn__content .v-icon {
+  font-size: 20px !important;
+  margin: 0 !important;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .dialog-container {
