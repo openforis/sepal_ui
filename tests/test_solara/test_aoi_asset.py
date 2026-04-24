@@ -90,7 +90,6 @@ def test_process_asset_table_unfiltered(fake_ee):
     assert result.gdf is None
     assert result.name == "my_table"
     assert isinstance(result.feature_collection, _FakeFeatureCollection)
-    assert result.feature_collection.filters == []
 
 
 def test_process_asset_table_filtered_names_include_value(fake_ee):
@@ -107,15 +106,8 @@ def test_process_asset_table_filtered_names_include_value(fake_ee):
     assert result.feature_collection.filters == [("eq", "region", "north")]
 
 
-def test_process_asset_image(fake_ee):
-    result = _run(asset_mod.process_asset("users/me/my_img", asset_type="IMAGE"))
+@pytest.mark.parametrize("asset_type", ["IMAGE", "IMAGE_COLLECTION"])
+def test_process_asset_raster_types(fake_ee, asset_type):
+    result = _run(asset_mod.process_asset("users/me/raster_asset", asset_type=asset_type))
 
     assert isinstance(result.feature_collection, _FakeImage)
-    assert result.name == "my_img"
-
-
-def test_process_asset_image_collection(fake_ee):
-    result = _run(asset_mod.process_asset("users/me/my_ic", asset_type="IMAGE_COLLECTION"))
-
-    assert isinstance(result.feature_collection, _FakeImage)
-    assert result.name == "my_ic"

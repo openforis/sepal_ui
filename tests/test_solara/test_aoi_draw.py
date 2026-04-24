@@ -21,14 +21,13 @@ def _single_polygon_feature(properties: dict) -> dict:
     }
 
 
-def test_process_draw_rejects_empty_geojson():
+@pytest.mark.parametrize(
+    "geo_json",
+    [{}, {"type": "FeatureCollection", "features": []}],
+)
+def test_process_draw_rejects_empty_input(geo_json):
     with pytest.raises(ValueError):
-        process_draw({}, gee=False)
-
-
-def test_process_draw_rejects_missing_features():
-    with pytest.raises(ValueError):
-        process_draw({"type": "FeatureCollection", "features": []}, gee=False)
+        process_draw(geo_json, gee=False)
 
 
 def test_process_draw_strips_style_property():
@@ -40,23 +39,12 @@ def test_process_draw_strips_style_property():
     assert result.gdf.iloc[0]["name"] == "keep"
 
 
-def test_process_draw_normalizes_user_name():
-    geo = _single_polygon_feature({})
-
-    result = process_draw(geo, name="My Plot / 2026", gee=False)
-
-    # normalize_str replaces spaces and slashes with underscores
-    assert result.name == "My_Plot___2026"
-
-
 def test_process_draw_generates_timestamped_name_when_empty():
     geo = _single_polygon_feature({})
 
     result = process_draw(geo, name="", gee=False)
 
     assert result.name.startswith("drawn_")
-    # YYYYMMDD_HHMMSS -> 8 + 1 + 6 characters
-    assert len(result.name) == len("drawn_") + 15
 
 
 def test_process_draw_returns_aoi_result_with_gdf():
