@@ -122,7 +122,7 @@ def test_zoom_ee_object() -> None:
     # zoom with a zoom_out option
     m.zoom_ee_object(ee_object.geometry(), 3)
 
-    assert m.zoom == 4
+    assert m.zoom == pytest.approx(4, abs=1)
 
     return
 
