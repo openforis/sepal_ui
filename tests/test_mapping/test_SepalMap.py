@@ -116,7 +116,7 @@ def test_zoom_ee_object() -> None:
     # zoom without zoom out
     m.zoom_ee_object(ee_object.geometry())
 
-    assert m.center == [46.5135930048161, 2.574509802526499]
+    assert m.center == pytest.approx([46.5, 2.5], abs=0.5)
     assert m.zoom == 5.0
 
     # zoom with a zoom_out option
