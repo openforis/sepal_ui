@@ -129,9 +129,8 @@ pysepal = [
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
-    "sepalwidgets/vue/*",
+    "**/*.vue",
     "solara/common/assets/*",
-    "solara/notifications/*.vue",
     "templates/**/.*"
 ]
 
