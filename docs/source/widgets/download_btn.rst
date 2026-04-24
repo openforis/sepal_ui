@@ -4,7 +4,7 @@ Download Btn
 Overview
 --------
 
-:code:`DownloadBtn` is custom widget to provide easy to use button in the sepal_ui framework. it inherits from the :code:`SepalWidget` class.
+:code:`DownloadBtn` is custom widget to provide easy to use button in the pysepal framework. it inherits from the :code:`SepalWidget` class.
 Any argument from the original :code:`Btn` ipyvuetify class can be used to complement it. It is used to store download path.
 The default color is set to "success". if no URL is set the button is disabled.
 
@@ -12,7 +12,7 @@ The default color is set to "success". if no URL is set the button is disabled.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -31,7 +31,7 @@ the linked URL can be dynamically set with the :code:`set_url` method.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -44,4 +44,4 @@ the linked URL can be dynamically set with the :code:`set_url` method.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.btn.DownloadBtn>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.btn.DownloadBtn>`__.

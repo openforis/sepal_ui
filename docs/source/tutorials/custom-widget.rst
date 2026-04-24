@@ -6,7 +6,7 @@ In this tutorial we will show how to create a custom reusable widget. It will be
 Requirements
 ------------
 
-Vuetify has a huge number of component that can serve many purposes. Several others have been build in the sepal_ui library and can be found here.
+Vuetify has a huge number of component that can serve many purposes. Several others have been build in the pysepal library and can be found here.
 Sometimes a specific situation require complex assembly of multiple components. In this case it is better to create a custom widget rather than write numerous lines of code in your tile.
 
 Let's assume that you want to create a workflow that require your end-user to fill credentials to access an API. for the username you'll surely decide to use a Textfield as :
@@ -62,7 +62,7 @@ Here we will create the object with its expected attributes
     # component/widget/password_field.py
 
     import ipyvuetify as v
-    import sepal_ui.sepalwidgets as sw
+    import pysepal.sepalwidgets as sw
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
@@ -102,14 +102,14 @@ To be aligned with the sepal UI, is highly recommended to use the sepal theme co
 .. jupyter-execute::
     :raises:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
     import ipyvuetify as v
     v.theme.dark = False
 
-    from sepal_ui import color
+    from pysepal import color
     color._dark_theme = True
     display(color)
 
@@ -134,7 +134,7 @@ I'll call it :code:`password_viz` as the :code:`viz` parameter is already an att
     # component/widget/password_field.py
 
     import ipyvuetify as v
-    import sepal_ui.sepalwidgets as sw
+    import pysepal.sepalwidgets as sw
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
@@ -194,7 +194,7 @@ The newly created widget embed a :code:`v_model` trait so it can be bonded to an
 
     # component/tile/my_tile.py
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     from component.widget import *
 
@@ -220,7 +220,7 @@ finally we obtain the following reusable widget :
     # component/widget/password_field.py
 
     import ipyvuetify as v
-    import sepal_ui.sepalwidgets as sw
+    import pysepal.sepalwidgets as sw
 
     class PasswordField(sw.SepalWidget, v.Layout):
 
@@ -272,7 +272,7 @@ To reuse my object in a tile I should first import the widget component and then
 
     # component/tile/my_tile.py
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     from component.widget import *
 

@@ -1,7 +1,7 @@
 """Test the MarkerCluster control."""
 from ipyleaflet import Marker
 
-from sepal_ui import mapping as sm
+from pysepal import mapping as sm
 
 
 def test_init() -> None:

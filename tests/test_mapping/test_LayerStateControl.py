@@ -5,7 +5,7 @@ import pytest
 from ipyleaflet import RasterLayer
 from traitlets import Bool
 
-from sepal_ui import mapping as sm
+from pysepal import mapping as sm
 
 
 def test_init() -> None:
@@ -20,6 +20,7 @@ def test_init() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_nb_layer(map_with_layers: sm.SepalMap) -> None:
     """Check that number of layer is dynamically updated.
@@ -41,6 +42,7 @@ def test_update_nb_layer(map_with_layers: sm.SepalMap) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_loading(map_with_layers: sm.SepalMap) -> None:
     """Check loading control is updated when a layer is loading.

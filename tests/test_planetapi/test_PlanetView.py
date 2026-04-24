@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.message import ms
-from sepal_ui.planetapi import PlanetModel, PlanetView
+from pysepal import sepalwidgets as sw
+from pysepal.message import ms
+from pysepal.planetapi import PlanetModel, PlanetView
 
 
 @pytest.mark.skipif("PLANET_API_KEY" not in os.environ, reason="requires Planet")

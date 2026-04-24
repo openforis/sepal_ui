@@ -5,7 +5,7 @@ from pathlib import Path
 import ee
 import pytest
 
-from sepal_ui import aoi
+from pysepal import aoi
 
 
 def test_init() -> None:
@@ -18,6 +18,7 @@ def test_init() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init_ee(gee_dir: Path) -> None:
     """Init an AoiTile with GEE.

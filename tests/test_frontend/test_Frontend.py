@@ -3,9 +3,9 @@
 import re
 from types import SimpleNamespace
 
-import sepal_ui.scripts.utils as su
-from sepal_ui.conf import config
-from sepal_ui.frontend.styles import SepalColor
+import pysepal.scripts.utils as su
+from pysepal.conf import config
+from pysepal.frontend.styles import SepalColor
 
 
 def test_init() -> None:

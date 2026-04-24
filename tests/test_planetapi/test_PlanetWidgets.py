@@ -2,8 +2,8 @@
 
 import pytest
 
-from sepal_ui.planetapi import PlanetModel
-from sepal_ui.planetapi.planet_widgets import InfoView
+from pysepal.planetapi import PlanetModel
+from pysepal.planetapi.planet_widgets import InfoView
 
 
 def test_init() -> None:

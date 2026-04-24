@@ -13,11 +13,11 @@ import ipyvuetify as v
 import pytest
 from shapely import geometry as sg
 
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.conf import config_file
-from sepal_ui.frontend.styles import TYPES
-from sepal_ui.scripts import utils as su
-from sepal_ui.scripts.warning import SepalWarning
+from pysepal import sepalwidgets as sw
+from pysepal.conf import config_file
+from pysepal.frontend.styles import TYPES
+from pysepal.scripts import utils as su
+from pysepal.scripts.warning import SepalWarning
 
 
 def test_hide_component() -> None:
@@ -266,6 +266,7 @@ def test_set_style() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_geojson_to_ee() -> None:
     """Check the method to parse geojson into ee.FeatureCollection."""

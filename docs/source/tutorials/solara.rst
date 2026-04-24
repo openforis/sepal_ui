@@ -48,9 +48,9 @@ Instead of installing directly from GitHub, we recommend cloning the repository 
 
 .. code-block:: bash
 
-    # Clone the sepal_ui repository (solara3 branch)
-    git clone -b solara3 https://github.com/openforis/sepal_ui.git
-    cd sepal_ui
+    # Clone the pysepal repository (solara3 branch)
+    git clone -b solara3 https://github.com/openforis/pysepal.git
+    cd pysepal
 
     # Install in development mode (editable installation)
     pip install -e .
@@ -97,9 +97,9 @@ GEEInterface Wrapper
 
 To bridge the gap between traditional Earth Engine development (single-user) and multi-user SEPAL applications, we created the ``GEEInterface`` wrapper. This wrapper provides a unified API that seamlessly handles both single-user and multi-user deployments, using ee-client internally for multi-user scenarios.
 
-The advantage of ``GEEInterface`` lies in its dual-mode architecture. When developing locally, initialize it without any session parameter—it uses the standard ``ee`` module after ``ee.Initialize()``. When deployed to SEPAL with multiple users, pass an ``EESession`` or set ``use_sepal_headers=True`` to switch to the async ``ee-client`` flow, ensuring each user gets isolated credentials.
+The advantage of ``GEEInterface`` lies in its dual-mode architecture. When developing locally, initialize it without any session parameter—it uses the standard ``ee`` module after ``ee.Initialize()``. When deployed to SEPAL with multiple users, pass an ``EESession`` to switch to the async ``ee-client`` flow, ensuring each user gets isolated credentials. In pysepal Solara apps this is the default: ``SessionManager`` builds ``EESession(sepal_headers=...)`` and exposes a session-backed ``GEEInterface`` through ``get_current_gee_interface()``.
 
-The interface maintains its own event loop thread to handle async Earth Engine operations while providing a synchronous API. When you call ``get_info()`` or ``get_map_id()``, it runs the async version in its event loop and blocks until complete. For async contexts, use the ``*_async`` variants directly. The interface includes safety checks to prevent deadlocks—if you call a blocking method from its own thread, it raises a clear error.
+The interface maintains its own event loop thread to support blocking bridge methods such as ``get_info()`` or ``get_map_id()``. In SessionManager-backed Solara code, prefer the ``*_async`` variants directly and keep those coroutines on Solara's current loop, typically via ``solara.lab.use_task(..., prefer_threaded=False)``. Do not introduce a separate async getter for new Solara code.
 
 Common Operations
 """""""""""""""""
@@ -110,13 +110,14 @@ The ``GEEInterface`` supports all the essential Earth Engine operations you need
 * **Map visualization**: Call ``get_map_id()`` to obtain map tile descriptors that you can use to display Earth Engine imagery in maps.
 * **Export operations**: Launch exports of images or tables to Earth Engine assets or Google Drive, with full control over format, region, scale, and other parameters.
 * **Task management**: Check whether a task is running with ``is_running()``, retrieve task details with ``get_task()``, and monitor long-running operations.
-* **Progress tracking**: For operations that may take time, wrap them in ``create_task()`` to observe progress updates and surface real-time status information in your user interface.
+* **Progress tracking**: In new Solara apps, prefer ``solara.lab.use_task(..., prefer_threaded=False)`` with the ``*_async`` methods. ``create_task()`` remains available for legacy bridge flows.
 
 Asynchronous vs Blocking Methods
 """""""""""""""""""""""""""""""""
 
-* **Choose the right variant**: Use async methods (``*_async``) when in async code or orchestrating multiple concurrent calls. Use blocking methods for simpler, sequential operations that do not take too long.
+* **Choose the right variant**: In SessionManager-backed Solara apps, use async methods (``*_async``) by default. Reserve blocking methods for simpler legacy or non-Solara code paths.
 * **One interface per session**: In multi-user apps, always create one ``GEEInterface`` per user session, you can use the session_manager_ helpers to do this automatically.
+* **Solara event-loop rule**: If you wrap GEE work in ``solara.lab.use_task``, set ``prefer_threaded=False`` so the coroutine stays on Solara's current loop instead of hopping to a per-task thread loop.
 * **Watch for deadlock warnings**: If you get a deadlock warning, you're calling a blocking method from the interface's async thread—switch to the ``*_async`` method.
 
 *To explore GEEInterface capabilities, check the* `GEE Interface notebook`_ *below.*
@@ -149,11 +150,11 @@ Before building your own application, explore the provided notebooks and templat
 
 **Example Notebooks**
 
-Start Jupyter Lab and run these notebooks from ``sepal_ui/notebooks``:
+Start Jupyter Lab and run these notebooks from ``pysepal/notebooks``:
 
 .. code-block:: bash
 
-    cd sepal_ui/notebooks
+    cd pysepal/notebooks
     jupyter lab
 
 .. _SEPAL Client notebook:
@@ -185,7 +186,7 @@ Start Jupyter Lab and run these notebooks from ``sepal_ui/notebooks``:
 
 Testing Solara Templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-Create a ``.env`` file in the ``sepal_ui`` root directory:
+Create a ``.env`` file in the ``pysepal`` root directory:
 
 .. code-block:: properties
 
@@ -202,17 +203,17 @@ The repository also includes ready-to-run Solara application templates:
     # Activate conda environment
     conda activate pysepal_dev
 
-    # Navigate back to the main sepal_ui directory
-    cd /path/to/sepal_ui
+    # Navigate back to the main pysepal directory
+    cd /path/to/pysepal
 
     # Make the run script executable
     chmod +x run_solara.sh
 
     # Test the basic file input example
-    ./run_solara.sh sepal_ui/templates/solara/solara_map_app/simple_app.py --port 8900
+    ./run_solara.sh pysepal/templates/solara/solara_map_app/simple_app.py --port 8900
 
     # Test the map application template
-    ./run_solara.sh sepal_ui/templates/solara/solara_map_app/app.py --port 8901
+    ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
 
 The ``run_solara.sh`` script automatically:
 
@@ -237,13 +238,13 @@ Here's the basic structure for a Solara-based SEPAL application:
 
 .. code-block:: python
 
-    # this code can be found at: sepal_ui/templates/solara/solara_map_app/simple_app.py
+    # this code can be found at: pysepal/templates/solara/solara_map_app/simple_app.py
 
     from pathlib import Path
     import solara
 
-    from sepal_ui.sepalwidgets.file_input import FileInput
-    from sepal_ui.solara import (
+    from pysepal.sepalwidgets.file_input import FileInput
+    from pysepal.solara import (
         setup_sessions,
         with_sepal_sessions,
         get_current_gee_interface,
@@ -297,26 +298,27 @@ Complete Map Application Example
 
 .. code-block:: python
 
-    # this code can be found at: sepal_ui/templates/solara/solara_map_app/app.py
+    # this code can be found at: pysepal/templates/solara/solara_map_app/app.py
 
     import logging
     import ipyvuetify as v
     import solara
     import ee
 
-    from sepal_ui.mapping import SepalMap
-    from sepal_ui.sepalwidgets.vue_app import MapApp, ThemeToggle
-    from sepal_ui.solara import (
+    from pysepal.mapping import SepalMap
+    from pysepal.sepalwidgets.vue_app import MapApp
+    from pysepal.solara import (
         get_current_drive_interface,
         get_current_gee_interface,
+        get_current_theme_state,
         get_current_sepal_client,
         setup_sessions,
         setup_solara_server,
         setup_theme_colors,
         with_sepal_sessions,
     )
-    from sepal_ui.solara.components.admin import AdminButton
-    import sepal_ui.sepalwidgets as sw
+    from pysepal.solara.components.admin import AdminButton
+    import pysepal.sepalwidgets as sw
 
     setup_solara_server()
 
@@ -329,15 +331,13 @@ Complete Map Application Example
     def Page():
         setup_theme_colors()
 
-        # Theme toggle for dark/light mode
-        theme_toggle = ThemeToggle()
-
         # Get SEPAL interfaces
         gee_interface = get_current_gee_interface()
         sepal_client = get_current_sepal_client()
+        theme_state = get_current_theme_state()
 
         # Create the main map
-        map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_toggle=theme_toggle)
+        map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_state=theme_state)
         map_.center = [4.75, -74.12]  # Set initial center
 
         # Create UI components for map interactions
@@ -397,7 +397,7 @@ Complete Map Application Example
             right_panel_config=right_panel_config,
             right_panel_content=right_panel_content,
             right_panel_open=True,
-            theme_toggle=[theme_toggle],
+            theme_state=theme_state,
             dialog_width=750,
         )
 

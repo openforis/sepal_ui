@@ -9,8 +9,8 @@ After forking the project, run the following command to start developing:
 
 .. code-block:: console
 
-    $ git clone https://github.com/<github id>/sepal_ui.git
-    $ cd sepal_ui
+    $ git clone https://github.com/<github id>/pysepal.git
+    $ cd pysepal
     $ pip install -e .[dev]
 
 .. warning::
@@ -43,7 +43,7 @@ Develop within the project
 
 Since 2020-08-14, this repository follows these `development guidelines <https://nvie.com/posts/a-successful-git-branching-model/>`_. The git flow is thus the following:
 
-.. figure:: https://raw.githubusercontent.com/12rambau/sepal_ui/main/docs/source/_image/branching_system.png
+.. figure:: https://raw.githubusercontent.com/openforis/pysepal/main/docs/source/_image/branching_system.png
     :alt: the Git branching model
 
     The git branching model
@@ -105,6 +105,68 @@ To start, install :code:`nox`:
 
 You can call :code:`nox` from the command line in order to perform common actions that are needed in building. :code:`nox` operates with isolated environments, so each action has its own packages installed in a local directory (*.nox*). For common development actions, you’ll simply need to use nox and won’t need to set up any other packages.
 
+Running tests
+-------------
+
+The test suite is split into two lanes so that day-to-day development doesn't touch Earth Engine:
+
+.. code-block:: console
+
+    $ nox -s test          # fast lane: unit tests only, no GEE calls
+    $ nox -s test_gee      # smoke lane: GEE-backed tests only (needs credentials)
+
+The fast lane is the default and is what you should run locally while iterating. It applies the pytest filter ``-m 'not gee'`` (configured in :code:`pyproject.toml`) and deselects every test marked :code:`@pytest.mark.gee`. No GEE network calls, no asset creation, no credentials required.
+
+The GEE lane runs the smoke tests against a real Earth Engine session. It is invoked explicitly when you're working on GEE-dependent code, before opening a PR that touches that code, or when the CI :code:`test_gee` job flags a regression.
+
+.. tip::
+
+    Posargs after :code:`--` are forwarded to pytest as paths/flags, not as session modifiers:
+
+    .. code-block:: console
+
+        $ nox -s test -- tests/test_mapping       # narrow to one directory
+        $ nox -s test -- -k "test_init"           # pytest keyword filter
+        $ nox -s test -- -x -vv                   # stop on first failure, verbose
+        $ nox -s test -- --lf                     # rerun only last-failed tests
+        $ nox -s test -- --ff                     # failed-first: run failures, then the rest
+
+    Note that pytest's flags use double-dash (:code:`--lf`, not :code:`-lf`) — a single dash parses as :code:`-l -f`.
+
+Marking a new GEE-dependent test
+--------------------------------
+
+Any test that hits real Earth Engine — directly or through a fixture like :code:`gee_dir`, :code:`fake_asset`, :code:`fake_task`, :code:`aoi_gee_view`, or :code:`asset_select` — must carry two decorators:
+
+.. code-block:: python
+
+    @pytest.mark.gee
+    @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+    def test_something_with_gee(gee_dir: Path) -> None:
+        ...
+
+:code:`@pytest.mark.gee` gates the test out of the fast lane. :code:`@pytest.mark.skipif` is a secondary safety net so the test skips cleanly if someone runs :code:`nox -s test_gee` without credentials, instead of erroring.
+
+Cleaning up stale GEE assets
+----------------------------
+
+Session fixtures create temporary assets under :code:`projects/<project>/assets/pysepal-tests/sepal-ui-<uuid>/`. Three cleanup layers protect against leaks:
+
+- **L1 — fixture teardown**: deletes the session folder on normal pytest exit.
+- **L2 — atexit hook**: deletes the session folder even if pytest is interrupted (Ctrl-C, crash).
+- **L3 — janitor**: a manual sweep for orphans that slipped past L1 and L2.
+
+To run the janitor:
+
+.. code-block:: console
+
+    $ nox -s clean_gee_assets                    # dry-run, default 24h age filter
+    $ nox -s clean_gee_assets -- --yes           # actually delete
+    $ nox -s clean_gee_assets -- --max-age=7d    # tune age gate (h or d)
+    $ nox -s clean_gee_assets -- --max-age=0 --yes  # purge everything (no age gate)
+
+The janitor only touches folders directly under :code:`pysepal-tests/`. It never touches assets at the project root or in any other directory. The 24h default age filter protects a parallel running test session from having its assets deleted mid-test.
+
 Setup :code:`pre-commit`
 ------------------------
 
@@ -145,7 +207,7 @@ In the files change the version number by running commitizen `bump`:
 
     cz bump
 
-It should modify for you the version number in :code:`sepal_ui/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to semantic versioning thanks to the conventional commit that we use in the lib.
+It should modify for you the version number in :code:`pysepal/__init__.py`, :code:`setup.py`, and :code:`.cz.yaml` according to semantic versioning thanks to the conventional commit that we use in the lib.
 
 It will also update the :code:`CHANGELOG.md` file with the latest commits, sorted by categories if you run the following code, using the version bumped in the previous commit.
 
@@ -159,9 +221,9 @@ Then push the current :code:`main` branch to the :code:`release` branch. You can
 
     The target branch of the new release is :code:`release` not :code:`main`.
 
-The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://pypi.org/project/sepal-ui/>`_.
+The CI should take everything in control from here and execute the :code:`Upload Python Package` GitHub Action that is publishing the new version on `PyPi <https://pypi.org/project/pysepal/>`_.
 
-Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_sepal_ui.sh>`_ with the latest version number and the rebuild will start automatically.
+Once it's done you need to trigger the rebuild of SEPAL. modify the following `file <https://github.com/openforis/sepal/blob/master/modules/sandbox/docker/script/init_pysepal.sh>`_ with the latest version number and the rebuild will start automatically.
 
 ENV for Planet components
 -------------------------
@@ -211,7 +273,7 @@ Open the credentials file and copy its content. On the **GitHub Actions** page, 
 Build the API documentation files
 ---------------------------------
 
-We are using :code:`api-doc` to build the documentation of the lib so if you want to see the API related documentation in your local build you need to run the following lines from the :code:`sepal_ui` folder:
+We are using :code:`api-doc` to build the documentation of the lib so if you want to see the API related documentation in your local build you need to run the following lines from the :code:`pysepal` folder:
 
 .. code-block:: console
 

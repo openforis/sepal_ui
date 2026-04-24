@@ -12,7 +12,7 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
 .. jupyter-execute::
     :raises:
 
-    from sepal_ui import aoi
+    from pysepal import aoi
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -24,4 +24,4 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.tile.Tile>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.tile.Tile>`__.

@@ -1,7 +1,7 @@
 Map visualization
 *****************
 
-In this section, you will find information related to map visualization. In the :ref:`first section <geeraster>` you will learn how to set the styles to a GEE image fully compatible with both SEPAL and sepal-ui, and in the :ref:`last section <geevector>`, you will find the info about the default and custom styles that can be applied to :code:`sepal_ui.mapping.SepalMap`.
+In this section, you will find information related to map visualization. In the :ref:`first section <geeraster>` you will learn how to set the styles to a GEE image fully compatible with both SEPAL and pysepal, and in the :ref:`last section <geevector>`, you will find the info about the default and custom styles that can be applied to :code:`pysepal.mapping.SepalMap`.
 
 .. _geeraster:
 
@@ -10,7 +10,7 @@ Set EE Image visualization
 
 
 In the current release of SEPAL, Custom assets can be displayed in the main interface to overlay different information in the same place.
-As the main goal of this library is to create assets in the the SEPAL framework and as :code:`sepal_ui` is bound to GEE for many modules, we will present you here the different way of creating an :code:`Image` asset that can be automatically displayed in SEPAL and remain consistent with what you display in your app.
+As the main goal of this library is to create assets in the the SEPAL framework and as :code:`pysepal` is bound to GEE for many modules, we will present you here the different way of creating an :code:`Image` asset that can be automatically displayed in SEPAL and remain consistent with what you display in your app.
 
 Create a visualization
 ``````````````````````

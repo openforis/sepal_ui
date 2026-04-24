@@ -7,7 +7,7 @@ import ee
 import geopandas as gpd
 import pytest
 
-from sepal_ui import mapping as sm
+from pysepal import mapping as sm
 
 
 def test_init() -> None:
@@ -69,6 +69,7 @@ def test_read_data() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_free_eelayer(world_temp: ee.imagecollection, ee_adm2: ee.FeatureCollection) -> None:
     """Check result when clicking on a ee object.

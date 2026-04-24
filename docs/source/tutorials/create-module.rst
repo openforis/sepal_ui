@@ -44,7 +44,7 @@ from root execute the following command:
 
    .. code-block:: console
 
-      /usr/local/lib/python3.6/dist-packages/sepal_ui/bin/module_factory
+      /usr/local/lib/python3.6/dist-packages/pysepal/bin/module_factory
 
 
 It will launch the creation script of the module factory.
@@ -59,7 +59,7 @@ It will launch the creation script of the module factory.
    ##################################
 
    Welcome in the module factory interface.
-   This interface will help you building a dashboard app based on the sepal_ui library
+   This interface will help you building a dashboard app based on the pysepal library
    Please read the documentation of the library before launching this script
 
 
@@ -159,7 +159,7 @@ This parameter is optional
 What happened ?
 ^^^^^^^^^^^^^^^
 
-This script cloned the `template repository <https://github.com/12rambau/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file have been build on the fly based on the description you gave in the questionnaire.
+This script cloned the `template repository <https://github.com/openforis/sepal_ui_template>`_ from GitHub into a folder that use your **module name** (it removed space and special characters). Then an new ABOUT.md and README.md file have been build on the fly based on the description you gave in the questionnaire.
 The name of the app have been changed in the translation dictionaries and your folder has been pushed to the empty GitHub repository.
 
 if you reload your GitHub page in your browser, you'll find out that all the files have been updated. In your SEPAL terminal run :code:`cd my_first_repository` to start coding.
@@ -221,7 +221,7 @@ GitHub Template
 
     For advanced users only
 
-The `sepal_ui_template <https://github.com/12rambau/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsibility. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
+The `sepal_ui_template <https://github.com/openforis/sepal_ui_template>`__ repository is a template repository meaning that if you more comfortable doing eveything from Github; you can. Click on :guilabel:`use this template` and the repository will be created. This repository will not include any precooked tiles even the AOI selector. Note as well that setting up the :code:`release` branch, the translations and all the placeholders will be your responsibility. The :code:`README.md` and :code:`ABOUT.md` will not match your project description.
 
 .. danger::
 

@@ -15,7 +15,7 @@ Any argument from the original :code:`Alert` ipyvuetify class can be used to com
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -32,7 +32,7 @@ Methods
 
 .. note::
 
-    More information on the methods and their options can be found in the full documentation `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`__
+    More information on the methods and their options can be found in the full documentation `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.alert.Alert>`__
 
 
 update_progress
@@ -44,7 +44,7 @@ Update the Alert message with a progress bar
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -62,7 +62,7 @@ Add a message in the alert by replacing all the existing one.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -84,7 +84,7 @@ Add a message in the alert by replacing all the existing one and add a timestamp
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -106,7 +106,7 @@ Append a message in a new parragraph, with or without :code:`Divider`.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -130,7 +130,7 @@ Remove the last msg printed in the Alert widget.
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -157,7 +157,7 @@ If not return :code:`False` and display an error message else return :code:`True
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -172,4 +172,4 @@ If not return :code:`False` and display an error message else return :code:`True
 
 .. note::
     The Alert component is a key component of the tile component as it can test variable initialization, bind variable to widget, and display processes in voila dashboard.
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.alert.Alert>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.alert.Alert>`__.

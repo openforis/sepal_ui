@@ -17,8 +17,8 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
-    from sepal_ui import aoi
+    from pysepal import sepalwidgets as sw
+    from pysepal import aoi
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -45,4 +45,4 @@ The :code:`drawerItem` will be linked to the app tile and they will be able to c
 .. note::
 
     The :code:`App` component is the main widget of the framework. To learn how to use it, read our cookbook.
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.app>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.app>`__.

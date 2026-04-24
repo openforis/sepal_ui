@@ -6,8 +6,8 @@ from typing import List
 import pytest
 from traitlets import Any
 
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.model import Model
+from pysepal import sepalwidgets as sw
+from pysepal.model import Model
 
 
 def test_init(root_dir: Path) -> None:

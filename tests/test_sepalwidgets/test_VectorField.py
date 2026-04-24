@@ -5,7 +5,7 @@ from pathlib import Path
 import ee
 import pytest
 
-from sepal_ui import sepalwidgets as sw
+from pysepal import sepalwidgets as sw
 
 
 def test_init() -> None:
@@ -40,6 +40,7 @@ def test_update_file(fake_vector: Path, data_regression) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_file_gee(gee_dir: Path, data_regression, fake_asset: Path) -> None:
     """Update the selected file and check the widget behaviour in a GEE context.
@@ -83,6 +84,7 @@ def test_reset(fake_vector: Path, data_regression) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_reset_gee(gee_dir: Path, data_regression, fake_asset: Path) -> None:
     """Reset an already set widget in GEE context.
@@ -125,6 +127,7 @@ def test_update_column(fake_vector: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_column_gee(gee_dir: Path, fake_asset: Path) -> None:
     """Update a single column in a vector field in GEE context.
@@ -165,6 +168,7 @@ def test_update_value(fake_vector: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_value_gee(gee_dir: Path, fake_asset: Path) -> None:
     """Check the update of a value in an already selected column in GEE context.

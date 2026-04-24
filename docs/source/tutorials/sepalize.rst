@@ -173,7 +173,7 @@ We will thus create a :code:`model` that matches our process requirements. For m
     # component/model/process_model.py
 
     from traitlets import Any
-    from sepal_ui.model import Model
+    from pysepal.model import Model
 
     class ProcessIo(Model):
 
@@ -252,7 +252,7 @@ Now we want to get the images collection that will be used for the rest of the p
 display the results on a map
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-to display our result we will use the :code:`SepalMap` class embedded in the sepal_ui :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <../modules/sepal_ui.mapping.html#Ssepal_ui.mapping.sepalMap>`__.
+to display our result we will use the :code:`SepalMap` class embedded in the pysepal :code:`mapping` package. It's a wrapper of `geemap` Map with additional useful function. A complete description can be found `here <../modules/pysepal.mapping.html#pysepal.mapping.sepalMap>`__.
 
 At the bottom of the script you see some visualization parameters. These parameters needs to be set in the :code:`parameter` component.
 
@@ -276,7 +276,7 @@ set a SepalMap object and then add all the images you like using the same method
     # test.ipynb
 
     from component import parameter as cp
-    from sepal_ui import mapping as sm
+    from pysepal import mapping as sm
 
     Map = sm.SepalMap(['CartoDB.Positron'])
 
@@ -420,7 +420,7 @@ here we will launch a function on every click on it:
 
     # component/tile/process_tile.py
 
-    from sepal_ui.scripts.utils import loading_button
+    from pysepal.scripts.utils import loading_button
 
     class ProcessTile(sw.Tile):
 

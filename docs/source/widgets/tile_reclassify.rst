@@ -11,7 +11,7 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
     :raises:
     :stderr:
 
-    from sepal_ui import reclassify as rec
+    from pysepal import reclassify as rec
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -23,4 +23,4 @@ It inherits from the :code:`SepalWidget` class. Any argument from the original :
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.reclassify.reclassify_tile.ReclassifyTile>`_.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.reclassify.reclassify_tile.ReclassifyTile>`_.

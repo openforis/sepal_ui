@@ -6,22 +6,22 @@ Deploy on the web
     :target: https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html
     :width: 100 %
 
-First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`sepal-ui` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__.
+First of all, note that we are sad that you won't consider deploying your app on the SEPAL platform, but as the :code:`pysepal` framework is platform agnostic, we'll also demonstrate how to create and deploy an app on the web using `Heroku <https://dashboard.heroku.com/apps>`__.
 
 This tutorial has been inspired by This `pythonforundergradengineers <https://pythonforundergradengineers.com/deploy-jupyter-notebook-voila-heroku.html>`__ article.
 
 .. note::
 
-    This methodology has been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/12rambau/sepal_ui_template/tree/heroku>`__.
+    This methodology has been used to deploy the `demo app <https://sepal-ui.herokuapp.com>`__ of the framework. the source code can be found `here <https://github.com/openforis/sepal_ui_template/tree/heroku>`__.
 
 .. warning::
 
-    -   Heroku is a cloud hosting platform where deploying an app on a public account is free. If you prefer to use your favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/12rambau/sepal_ui/issues>`__ if you are experiencing difficulties.
+    -   Heroku is a cloud hosting platform where deploying an app on a public account is free. If you prefer to use your favorite service, you'll need to adapt this tutorial. You can still reach the development team in the `issue tracker <https://github.com/openforis/pysepal/issues>`__ if you are experiencing difficulties.
     -   The web platform offered by Heroku has very limited computation power. Please consider deploying on `SEPAL <https://sepal.io/>`_ if you require powerful computation resources.
 
 .. danger::
 
-    As of now, the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/12rambau/sepal_ui/issues/336>`__ has been opened, have a look if you require this feature.
+    As of now, the applications based on Google Earth Engine cannot work outside of SEPAL as it's impossible to register to their services. An `issue <https://github.com/openforis/pysepal/issues/336>`__ has been opened, have a look if you require this feature.
 
 Set up the app
 --------------
@@ -53,7 +53,7 @@ Using as parameters:
     ##################################
 
     Welcome to the module factory interface.
-    This interface will help you build a dashboard app based on the sepal_ui library
+    This interface will help you build a dashboard app based on the pysepal library
     Please read the documentation of the library before launching this script
 
 
@@ -105,9 +105,9 @@ You will get the following file:
     GDAL==3.0.4
     pyproj<3.0.0
 
-    # the base lib to run any sepal_ui based app
+    # the base lib to run any pysepal based app
     # don't forget to fix it to a specific version when you're app is ready
-    sepal_ui==2.4.0
+    pysepal==2.4.0
 
 
     # custom libs
@@ -135,9 +135,9 @@ The :code:`requirements.txt` file created with the :code:`model_deploy` command 
     pybind11
     pre-commit
 
-    # the base lib to run any sepal_ui based app
+    # the base lib to run any pysepal based app
     # don't forget to fix it to a specific version when you're app is ready
-    sepal_ui==2.4.0
+    pysepal==2.4.0
 
 
     # custom libs
@@ -206,6 +206,6 @@ At the very bottom of your build log, you'll find the web URL that renders your 
 
 .. important::
 
-    Congratulation you've built your first :code:`sepal-ui` based app on Heroku!
+    Congratulation you've built your first :code:`pysepal` based app on Heroku!
 
 

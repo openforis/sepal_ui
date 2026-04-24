@@ -3,8 +3,8 @@ requires = ["setuptools>=61.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sepal-ui"
-version = "3.1.1"
+name = "pysepal"
+version = "3.4.0"
 description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -48,7 +48,7 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "solara", 
-    "ee-client>=2.5.0", # supports caching
+    "ee-client>=2.5.2", # supports caching and fixes table asset export for session-backed flows
     "colorlog",
     "reactivex"
 ]
@@ -65,8 +65,8 @@ file = "README.rst"
 content-type = "text/x-rst"
 
 [project.urls]
-Homepage = "https://github.com/12rambau/sepal_ui"
-Download = "https://github.com/12rambau/sepal_ui/archive/v_${metadata:version}.tar.gz"
+Homepage = "https://github.com/openforis/pysepal"
+Download = "https://github.com/openforis/pysepal/archive/v_${metadata:version}.tar.gz"
 
 [project.optional-dependencies]
 dev = [
@@ -106,31 +106,32 @@ doc = [
 ]
 
 [project.scripts]
-module_deploy = "sepal_ui.bin.module_deploy:main"
-module_factory = "sepal_ui.bin.module_factory:main"
-module_l10n = "sepal_ui.bin.module_l10n:main"
-module_theme = "sepal_ui.bin.module_theme:main"
-module_venv = "sepal_ui.bin.module_venv:main"
-activate_venv = "sepal_ui.bin.activate_venv:main"
-sepal_ipyvuetify = "sepal_ui.bin.sepal_ipyvuetify:main"
-entry_point = "sepal_ui.bin.entry_point:main"
+module_deploy = "pysepal.bin.module_deploy:main"
+module_factory = "pysepal.bin.module_factory:main"
+module_l10n = "pysepal.bin.module_l10n:main"
+module_theme = "pysepal.bin.module_theme:main"
+module_venv = "pysepal.bin.module_venv:main"
+activate_venv = "pysepal.bin.activate_venv:main"
+sepal_ipyvuetify = "pysepal.bin.sepal_ipyvuetify:main"
+entry_point = "pysepal.bin.entry_point:main"
 
 [tool.setuptools]
 include-package-data = false
 license-files = ["LICENSE.txt"]
 
 [tool.setuptools.packages.find]
-include = ["sepal_ui*"]
+include = ["pysepal*", "sepal_ui*"]
 exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
-sepal_ui = [
+pysepal = [
     "data/*",
     "message/**/*",
     "frontend/**/*",
     "templates/**/*",
     "sepalwidgets/vue/*",
     "solara/common/assets/*",
+    "solara/notifications/*.vue",
     "templates/**/.*"
 ]
 
@@ -139,14 +140,19 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "3.1.1"
+version = "3.4.0"
 version_files = [
     "pyproject.toml:version",
-    "sepal_ui/__init__.py:__version__"
+    "pysepal/__init__.py:__version__"
 ]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+addopts = "-m 'not gee'"
+markers = [
+    "unit: fast tests with no external services (default)",
+    "gee: tests that require a live Google Earth Engine session",
+]
 
 [tool.ruff]
 ignore-init-module-imports = true
@@ -173,13 +179,14 @@ convention = "google"
 [tool.ruff.per-file-ignores]
 "*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal structure
 "setup.py" = ["D100"] # nothing to see there
+"tests/**/*.py" = ["D102", "D103"] # test methods and functions don't need docstrings
 
 [tool.coverage.run]
-source = ["sepal_ui"]
+source = ["pysepal"]
 omit = [
-    "sepal_ui/*/__init__.py",
-    "sepal_ui/scripts/messages.py",
-    "sepal_ui/reclassify/parameters.py",
+    "pysepal/*/__init__.py",
+    "pysepal/scripts/messages.py",
+    "pysepal/reclassify/parameters.py",
 ]
 
 [tool.doc8]
@@ -190,7 +197,7 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,sepal_ui/message/**/*.json,sepal_ui/data/gaul_iso.json'
+skip = 'CHANGELOG.md,pysepal/message/**/*.json,pysepal/data/gaul_iso.json'
 
 [tool.black]
 line-length = 100

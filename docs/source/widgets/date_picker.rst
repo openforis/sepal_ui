@@ -11,7 +11,7 @@ Any argument from the original :code:`Layout` ipyvuetify class can be used to co
     :raises:
     :stderr:
 
-    from sepal_ui import sepalwidgets as sw
+    from pysepal import sepalwidgets as sw
 
     # correct colors for the documentation
     # set to dark in SEPAL by default
@@ -30,4 +30,4 @@ the value can be retrieve from the :code:`v_model` trait.
 
 .. note::
 
-    More information can be found `here <../modules/sepal_ui.sepalwidgets.html#sepal_ui.sepalwidgets.inputs.DatePicker>`__.
+    More information can be found `here <../modules/pysepal.sepalwidgets.html#pysepal.sepalwidgets.inputs.DatePicker>`__.

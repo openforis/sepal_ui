@@ -3,7 +3,7 @@ Decorators
 
 When developing a user interface, some common tasks are repetitive and important for the user experience: trigger an action over some widgets when a method is called, catch errors within some method execution and avoid users to click over other buttons while the main process is running.
 
-In this tutorial, you will be introduced to the sepal_ui decorators and how they will help you tackle that tasks by taking the following topics:
+In this tutorial, you will be introduced to the pysepal decorators and how they will help you tackle that tasks by taking the following topics:
 
 -   Description: what is a decorator and what is its basic syntax?
 -   Types: interactive and validation.
@@ -12,7 +12,7 @@ In this tutorial, you will be introduced to the sepal_ui decorators and how they
 Description
 -----------
 
-The sepal_ui decorators are a simple and useful way to improve the readability and functionality of your code. A decorator is a function that allows you to add extra functionality to an existing object (such as a function) without modifying its structure: it takes a function as an argument, adds some functionality (could be after and/or before), and returns it.
+The pysepal decorators are a simple and useful way to improve the readability and functionality of your code. A decorator is a function that allows you to add extra functionality to an existing object (such as a function) without modifying its structure: it takes a function as an argument, adds some functionality (could be after and/or before), and returns it.
 
 Its basic syntax is to write :code:`@decorator_name` with its optional arguments at the top of a function definition, just as is shown below:
 
@@ -41,7 +41,7 @@ In some specific cases (keep reading), this syntax might vary, and you won't be 
 Decorator types
 ---------------
 
-In the sepal_ui we have two types of decorators:
+In pysepal we have two types of decorators:
 
 -  Interactive: those that will trigger traits over objects, and
 -  Validation: those that will validate the minimum requirements to run a method/function.
@@ -81,9 +81,9 @@ Let's import the required modules. All the decorators are stored in the utils mo
     import ee
     from time import sleep
     import ipyvuetify as v
-    import sepal_ui.sepalwidgets as sw
-    import sepal_ui.scripts.utils as su
-    import sepal_ui.scripts.decorator as sd
+    import pysepal.sepalwidgets as sw
+    import pysepal.scripts.utils as su
+    import pysepal.scripts.decorator as sd
 
 
 Now, create a custom tile with all the elements that we will require to be displayed in our interface, as well as the events that we want to trigger.

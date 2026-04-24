@@ -3,11 +3,12 @@
 import ee
 import pytest
 
-from sepal_ui import aoi
-from sepal_ui import mapping as sm
-from sepal_ui import sepalwidgets as sw
+from pysepal import aoi
+from pysepal import mapping as sm
+from pysepal import sepalwidgets as sw
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init() -> None:
     """Check the init of a layer control on a standard map."""
@@ -28,6 +29,7 @@ def test_init() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_layer() -> None:
     """Check that adding a layer refresh the layer control."""
@@ -53,6 +55,7 @@ def test_add_layer() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_basemaps() -> None:
     """Check that multiple basempas can be displayed at the same time."""
@@ -71,6 +74,7 @@ def test_add_basemaps() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_change_alpha() -> None:
     """Check that alpha channel can be changed."""
@@ -96,6 +100,7 @@ def test_change_alpha() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_select() -> None:
     """Check that layers can be selected and deselected preserving the alpha value."""
@@ -124,6 +129,7 @@ def test_select() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_change_basemap() -> None:
     """Check that besmap can be changed and that user can select 2 at a time."""
@@ -156,6 +162,7 @@ def test_change_basemap() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_ungrouped() -> None:
     """Check that layer control can be displayed at the same time with other menus."""

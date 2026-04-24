@@ -33,12 +33,38 @@ def test(session):
     session.run("pytest", "--color=yes", "--cov", "--cov-report=xml", *test_files)
 
 
+@nox.session(reuse_venv=False)
+def test_gee(session):
+    """Run GEE smoke tests. Requires EARTHENGINE_* credentials."""
+    session.install(".[test]")
+    session.run("pip", "list")
+
+    if "sepal-user" in session.virtualenv.location:
+        session.run(
+            "pip",
+            "install",
+            "git+https://github.com/openforis/earthengine-api.git@v0.1.384#egg=earthengine-api&subdirectory=python",
+        )
+
+    test_files = session.posargs or ["tests"]
+    session.run("pytest", "-m", "gee", "--color=yes", "-vv", *test_files)
+
+
+@nox.session(name="clean_gee_assets", reuse_venv=True)
+def clean_gee_assets(session):
+    """Delete stale pysepal test assets from GEE. Dry-run by default; pass -- --yes to delete."""
+    session.install(".[test]")
+    session.run("python", "-m", "tests._janitor", *session.posargs)
+
+
 @nox.session(name="dead-fixtures", reuse_venv=True)
 def dead_fixtures(session):
     """Check for dead fixtures items."""
     session.install(".[test]")
     test_files = session.posargs or ["tests"]
-    session.run("pytest", "--dead-fixtures", *test_files)
+    # Clear addopts ("-m 'not gee'") so the scan covers both test lanes;
+    # otherwise every GEE fixture reports as unused.
+    session.run("pytest", "-o", "addopts=", "--dead-fixtures", *test_files)
 
 
 @nox.session(reuse_venv=True)
@@ -65,7 +91,7 @@ def docs(session):
     # build the api doc files
     templates = "docs/source/_templates/apidoc"
     modules = "docs/source/modules"
-    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "sepal_ui")
+    session.run("sphinx-apidoc", f"--templatedir={templates}", "-o", modules, "pysepal")
 
     # build the documentation
     source = "docs/source"
@@ -80,7 +106,7 @@ def docs(session):
 def mypy(session):
     """Run a mypy check of the lib."""
     session.install(".[dev]")
-    test_files = session.posargs or ["sepal_ui"]
+    test_files = session.posargs or ["pysepal"]
     session.run(
         "mypy",
         "--scripts-are-modules",

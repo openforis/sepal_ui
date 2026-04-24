@@ -2,7 +2,7 @@
 Cookbook
 ========
 
-Using these tutorials, you'll be guided through standard usage of the :code:`sepal_ui`.
+Using these tutorials, you'll be guided through standard usage of the :code:`pysepal`.
 By the end, you will have an overview of the library usage and you'll be able to design you're own application based on Google Earth Engine scripts or Python workflow.
 
 .. warning::

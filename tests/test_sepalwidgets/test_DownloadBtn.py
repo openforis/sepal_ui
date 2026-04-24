@@ -1,8 +1,8 @@
 """Test the DownloadBtn widget."""
 
 
-from sepal_ui import sepalwidgets as sw
-from sepal_ui.scripts.utils import create_download_link
+from pysepal import sepalwidgets as sw
+from pysepal.scripts.utils import create_download_link
 
 
 def test_init(file_start: str) -> None:

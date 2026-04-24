@@ -146,7 +146,7 @@ This is where all the tiles that will be displayed in the app are created. More 
 
 .. note::
 
-   In the :code:`sepal_ui` framework, app are designed using the tile-based UX.
+   In the :code:`pysepal` framework, app are designed using the tile-based UX.
    A user interface that places icons in rows and columns with no space in between, exemplified by Windows Phone and Windows 8 Metro. we will refers to these unit as "tile" for the rest of the documentation.
 
 Widget
