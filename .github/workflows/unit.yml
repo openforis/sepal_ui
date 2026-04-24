@@ -68,7 +68,7 @@ jobs:
         run: nox -s dead-fixtures
 
   test_gee:
-    needs: [lint]
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
