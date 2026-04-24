@@ -3,7 +3,7 @@
 import asyncio
 import threading
 import traceback
-from pathlib import Path
+from pathlib import PurePosixPath
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 import ee
@@ -17,6 +17,44 @@ from eeclient.tasks import Task
 from pysepal.logger import log
 from pysepal.scripts import gee
 from pysepal.scripts.gee_task import GEETask, R, TaskState
+
+
+def _resolve_create_folder_paths(asset_root: str, folder_path: str) -> tuple[str, str]:
+    """Normalize folder creation paths for both session and legacy EE clients.
+
+    Accepts either a path relative to ``asset_root`` or an absolute
+    ``projects/.../assets/...`` path, and rejects paths outside ``asset_root``.
+
+    Args:
+        asset_root: The user's current asset root (e.g. ``projects/foo/assets``).
+        folder_path: Relative or absolute folder path requested by the caller.
+
+    Returns:
+        A tuple ``(relative_path, absolute_path)`` — the first suited to the
+        session client, the second to the legacy ``ee.data.createAsset`` API.
+
+    Raises:
+        ValueError: If ``folder_path`` resolves outside ``asset_root``.
+    """
+    root = PurePosixPath(str(asset_root).rstrip("/"))
+    requested = (folder_path or "").strip().strip("/")
+
+    if not requested:
+        return "", str(root)
+
+    requested_path = PurePosixPath(requested)
+    absolute_path = (
+        str(requested_path) if requested.startswith("projects/") else str(root / requested_path)
+    )
+
+    absolute_parts = PurePosixPath(absolute_path).parts
+    root_parts = root.parts
+    if absolute_parts[: len(root_parts)] != root_parts:
+        raise ValueError(f"Folder `{folder_path}` is outside the current asset root `{root}`.")
+
+    relative_parts = absolute_parts[len(root_parts) :]
+    relative_path = str(PurePosixPath(*relative_parts)) if relative_parts else ""
+    return relative_path, absolute_path
 
 
 class GEEInterface:
@@ -283,12 +321,15 @@ class GEEInterface:
 
     async def create_folder_async(self, folder_path: str) -> Dict:
         """Asynchronously create a folder in Earth Engine assets."""
+        asset_root = await self.get_folder_async()
+        relative_path, absolute_path = _resolve_create_folder_paths(asset_root, folder_path)
+
         if self.session:
-            return await self.session.operations.create_folder_async(folder_path)
+            if not relative_path:
+                return {"id": absolute_path}
+            return await self.session.operations.create_folder_async(relative_path)
         else:
-            asset_path = await self.get_folder_async()
-            folder_path = str(Path(asset_path) / folder_path)
-            return await asyncio.to_thread(ee.data.createAsset, {"type": "FOLDER"}, folder_path)
+            return await asyncio.to_thread(ee.data.createAsset, {"type": "FOLDER"}, absolute_path)
 
     async def export_image_to_asset_async(
         self,

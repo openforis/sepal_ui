@@ -1,5 +1,6 @@
 """The configuration of the pytest run."""
 
+import atexit
 import json
 import os
 import uuid
@@ -108,15 +109,16 @@ def _hash() -> str:
 def gee_dir(_hash: str) -> Optional[Path]:
     """Create a test dir based on earthengine initialization.
 
-    Populated with fake super small assets:
+    Populated with fake super small assets under a shared container:
 
-    sepal-ui-<hash>/
+    pysepal-tests/sepal-ui-<hash>/
     ├── subfolder/
     │   └── subfolder_feature_collection
     ├── feature_collection
     └── image
 
-    remove everything on teardown
+    Cleaned up on normal teardown (L1), on interpreter exit (L2 atexit),
+    and via `nox -s clean_gee_assets` (L3 janitor).
 
     Returns:
         the path to the gee dir inside user folder
@@ -124,11 +126,32 @@ def gee_dir(_hash: str) -> Optional[Path]:
     if not ee.data.is_initialized():
         pytest.skip("Earthengine is not connected")
 
-    # create a test folder with a hash name
+    # Compute the container and session paths
     project_id = ee.data.getProjectConfig()["name"].split("/")[1]
-    root = f"projects/{project_id}/assets/"
-    gee_dir = PurePosixPath(root) / f"sepal-ui-{_hash}"
+    assets_root = PurePosixPath(f"projects/{project_id}/assets/")
+    container = assets_root / "pysepal-tests"
+    gee_dir = container / f"sepal-ui-{_hash}"
+
+    # Best-effort idempotent container creation; same-millisecond parallel races
+    # are rare at test-fixture scale and fail loudly rather than corrupting state.
+    try:
+        ee.data.getAsset(str(container))
+    except ee.EEException:
+        ee.data.createAsset({"type": "FOLDER"}, str(container))
+
+    # Session folder — must be unique per session, so no idempotency needed
     ee.data.createAsset({"type": "FOLDER"}, str(gee_dir))
+
+    # L2: atexit safety net for interrupted/crashed sessions
+    def _atexit_cleanup() -> None:
+        try:
+            if ee.data.is_initialized():
+                gee.delete_assets(str(gee_dir), dry_run=False)
+        except Exception:
+            # atexit swallows raised exceptions anyway; silence explicitly
+            pass
+
+    atexit.register(_atexit_cleanup)
 
     # create a subfolder
     subfolder = gee_dir / "subfolder"
@@ -153,7 +176,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     ee_buffer = ee.Geometry.Point(0, 0).buffer(200).bounds()
     image = image.clipToBoundsAndScale(ee_buffer, scale=30)
 
-    # exports It should take less than 2 minutes unless there are concurrent tasks
+    # exports — should take less than 2 minutes unless there are concurrent tasks
     fc = "feature_collection"
     ee.batch.Export.table.toAsset(
         collection=ee_gdf, description=f"{fc}_{_hash}", assetId=str(gee_dir / fc)
@@ -175,17 +198,14 @@ def gee_dir(_hash: str) -> Optional[Path]:
     ).start()
 
     # wait for completion of the exportation tasks before leaving this method
-    # image should be the longest
     gee.wait_for_completion(f"{fc}_{_hash}")
     gee.wait_for_completion(f"{subfolder_fc}_{_hash}")
     gee.wait_for_completion(f"{rand_image}_{_hash}")
 
     yield gee_dir
 
-    # flush the directory and it's content
-    # gee.delete_assets(str(gee_dir), False)
-
-    return
+    # L1: primary teardown on normal session exit
+    gee.delete_assets(str(gee_dir), dry_run=False)
 
 
 @pytest.fixture(scope="session")

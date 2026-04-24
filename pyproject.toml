@@ -48,7 +48,7 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "solara", 
-    "ee-client>=2.5.0", # supports caching
+    "ee-client>=2.5.2", # supports caching and fixes table asset export for session-backed flows
     "colorlog",
     "reactivex"
 ]
@@ -131,6 +131,7 @@ pysepal = [
     "templates/**/*",
     "sepalwidgets/vue/*",
     "solara/common/assets/*",
+    "solara/notifications/*.vue",
     "templates/**/.*"
 ]
 
@@ -147,6 +148,11 @@ version_files = [
 
 [tool.pytest.ini_options]
 testpaths = "tests"
+addopts = "-m 'not gee'"
+markers = [
+    "unit: fast tests with no external services (default)",
+    "gee: tests that require a live Google Earth Engine session",
+]
 
 [tool.ruff]
 ignore-init-module-imports = true
@@ -173,6 +179,7 @@ convention = "google"
 [tool.ruff.per-file-ignores]
 "*/__init__.py" = ["F403"] # unable to detect undefined names | hide internal structure
 "setup.py" = ["D100"] # nothing to see there
+"tests/**/*.py" = ["D102", "D103"] # test methods and functions don't need docstrings
 
 [tool.coverage.run]
 source = ["pysepal"]

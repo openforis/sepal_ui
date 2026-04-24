@@ -1,0 +1,4 @@
+plot_id;lat;lng;campaign;notes
+site_a;4.650;-74.090;baseline;urban reference
+site_b;4.675;-74.110;baseline;peri-urban
+site_c;4.702;-74.125;followup;wet season

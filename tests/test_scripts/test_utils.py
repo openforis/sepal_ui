@@ -266,6 +266,7 @@ def test_set_style() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_geojson_to_ee() -> None:
     """Check the method to parse geojson into ee.FeatureCollection."""

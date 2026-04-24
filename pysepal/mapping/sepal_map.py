@@ -6,6 +6,7 @@ import os
 from pysepal.mapping.bounds import (
     compute_center,
     compute_zoom_for_bounds,
+    viewport_pixels_from_map,
 )
 from pysepal.mapping.fullscreen_control import FullScreenControl
 from pysepal.mapping.visualization import (
@@ -15,6 +16,7 @@ from pysepal.mapping.visualization import (
 )
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.solara.theme import ThemeState
 
 if "GDAL_DATA" in list(os.environ.keys()):
     del os.environ["GDAL_DATA"]
@@ -42,13 +44,14 @@ from localtileserver import TileClient, get_leaflet_tile_layer
 from matplotlib import colorbar
 from matplotlib import colors as mpc
 from rasterio.crs import CRS
+from traitlets import Int as _TInt
 from typing_extensions import Self
 
 from pysepal import color as scolors
 from pysepal import sepalwidgets as sw
 from pysepal.frontend import styles as ss
 from pysepal.mapping.basemaps import basemap_tiles
-from pysepal.mapping.draw_control import DrawControl
+from pysepal.mapping.draw_control import GeomanDrawControl
 from pysepal.mapping.inspector_control import InspectorControl
 from pysepal.mapping.layer import EELayer
 from pysepal.mapping.layer_state_control import LayerStateControl
@@ -65,6 +68,8 @@ import logging
 
 log = logging.getLogger("sepalui.mapping")
 
+DEFAULT_MAP_WIDTH_PX = 1024
+
 
 class SepalMap(ipl.Map):
     # ##########################################################################
@@ -77,7 +82,7 @@ class SepalMap(ipl.Map):
     v_inspector: Optional[InspectorControl] = None
     "The value inspector of the map"
 
-    dc: Optional[DrawControl] = None
+    dc: Optional[GeomanDrawControl] = None
     "The drawing control of the map"
 
     _id: str = ""
@@ -85,6 +90,18 @@ class SepalMap(ipl.Map):
 
     state: Optional[sw.StateBar] = None
     "The statebar to inform the user about tile loading"
+
+    viewport_inset_left = _TInt(0)
+    "Left overlay width in px. Set by the parent shell (e.g. MapApp) so fit_bounds targets the visible region."
+
+    viewport_inset_right = _TInt(0)
+    "Right overlay width in px. Set by the parent shell (e.g. MapApp) so fit_bounds targets the visible region."
+
+    canvas_width_px = _TInt(0)
+    "Canvas width in px, pushed from the frontend."
+
+    canvas_height_px = _TInt(0)
+    "Canvas height in px, pushed from the frontend."
 
     def __init__(
         self,
@@ -94,6 +111,7 @@ class SepalMap(ipl.Map):
         gee: bool = True,
         statebar: bool = False,
         theme_toggle: ThemeToggle = None,
+        theme_state: Optional[ThemeState] = None,
         gee_session: Optional[EESession] = None,
         gee_interface: Optional[GEEInterface] = None,
         fullscreen: bool = False,
@@ -114,7 +132,8 @@ class SepalMap(ipl.Map):
             vinspector: Add value inspector to map, useful to inspect pixel values. default to false
             gee: whether or not to use the ee binding. If False none of the earthengine display functionalities can be used. default to True
             statebar: whether or not to display the Statebar in the map
-            theme_toggle: sepal_ui ThemeToggle object
+            theme_toggle: deprecated ThemeToggle source. Use theme_state instead.
+            theme_state: shared theme state for Solara apps
             gee_session (optional): a custom EESession object to do gee requests. default to None (deprecated in favor of gee_interface)
             gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
             fullscreen: whether or not to display the map in full screen. default to False
@@ -151,6 +170,7 @@ class SepalMap(ipl.Map):
             self.add_class("full-screen-map")
 
         super().__init__(**kwargs)
+        self._theme_source = None
 
         # init ee
         self.gee = gee
@@ -163,16 +183,14 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        if theme_toggle:
-            default_basemap = "CartoDB.DarkMatter" if theme_toggle.dark else "CartoDB.Positron"
-            theme_toggle.observe(self._on_theme_change, "dark")
-            log.debug(f"Using solara theme: {theme_toggle.dark}")
-        else:
-            default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
-            v.theme.observe(self._on_theme_change, "dark")
-
+        theme_source = self._resolve_theme_source(theme_state, theme_toggle)
+        default_basemap = (
+            "CartoDB.DarkMatter" if self._theme_is_dark(theme_source) else "CartoDB.Positron"
+        )
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
+
+        self._apply_theme_class(default_basemap == "CartoDB.DarkMatter")
 
         # set the visibility of all the basemaps to False but the first one
         [setattr(lyr, "visible", False) for lyr in self.layers]
@@ -188,7 +206,7 @@ class SepalMap(ipl.Map):
             self.add(FullScreenControl(self))
 
         # specific drawing control
-        self.dc = DrawControl(self)
+        self.dc = GeomanDrawControl(self)
         not dc or self.add(self.dc)
 
         # specific v_inspector
@@ -203,6 +221,7 @@ class SepalMap(ipl.Map):
         # this id should be unique and will be used by mutators to identify this map
         self._id = map_id or "".join(random.choice(string.ascii_lowercase) for i in range(6))
         self.add_class(self._id)
+        self._bind_theme_source(theme_source)
 
     def _on_theme_change(self, change) -> None:
         """Change the basemap layer."""
@@ -211,6 +230,7 @@ class SepalMap(ipl.Map):
         dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
 
         layer_names = [layer.name for layer in self.layers]
+        self._apply_theme_class(change["new"])
 
         if change["new"]:
             if light.name in layer_names:
@@ -225,29 +245,70 @@ class SepalMap(ipl.Map):
                 self.remove_layer(layer, base=True, none_ok=True)
                 self.layers = self.layers[:idx] + (light,) + self.layers[idx:]
 
-    @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
-    def _remove_local_raster(self, local_layer: str) -> Self:
-        """Remove local layer from memory.
+    def _apply_theme_class(self, is_dark: bool) -> None:
+        """Keep a theme marker class on the map root for theme-aware CSS hooks."""
+        dark_class = "pysepal-map-theme-dark"
+        light_class = "pysepal-map-theme-light"
+        self.remove_class(light_class if is_dark else dark_class)
+        self.add_class(dark_class if is_dark else light_class)
 
-        .. danger::
+    def bind_theme_state(self, theme_state: Optional[ThemeState]) -> None:
+        """Bind the map to a shared theme state."""
+        self._bind_theme_source(theme_state if theme_state is not None else v.theme)
 
-            Does nothing now.
+    def _bind_theme_source(self, source) -> None:
+        """Bind the map to the resolved source used to drive dark/light changes."""
+        if source is self._theme_source:
+            return
 
-        Args:
-            local_layer (str | ipyleaflet.TileLayer): The local layer to remove or its name
-        """
-        return self
+        previous = self._theme_source
+        if previous is not None:
+            try:
+                previous.unobserve(self._on_theme_change, "dark")
+            except (AttributeError, KeyError, ValueError):
+                pass
 
-    @deprecated(version="2.8.0", reason="use remove_layer(-1) instead")
-    def remove_last_layer(self, local: bool = False) -> Self:
-        """Remove last added layer from Map.
+        source.observe(self._on_theme_change, "dark")
+        self._theme_source = source
 
-        Args:
-            local: Specify True to only remove local last layers, otherwise will remove every last layer.
-        """
-        self.remove_layer(-1)
+        is_dark = self._theme_is_dark(source)
+        if previous is None:
+            # Initial bind: basemaps already reflect the theme; only sync the CSS marker.
+            self._apply_theme_class(is_dark)
+        else:
+            self._on_theme_change({"new": is_dark})
 
-        return self
+    @staticmethod
+    def _theme_is_dark(source) -> bool:
+        """Normalize theme sources that expose a `dark` traitlet."""
+        return getattr(source, "dark", None) is True
+
+    @staticmethod
+    def _resolve_theme_source(
+        theme_state: Optional[ThemeState], theme_toggle: Optional[ThemeToggle]
+    ):
+        """Resolve the theme source used to initialize and drive the map theme."""
+        if theme_state is not None:
+            return theme_state
+
+        if theme_toggle is not None:
+            return SepalMap._resolve_deprecated_theme_toggle_source(theme_toggle)
+
+        return v.theme
+
+    @staticmethod
+    @deprecated(
+        version="3.4.0",
+        reason="SepalMap(theme_toggle=...) is deprecated; pass theme_state=... instead.",
+        category=DeprecationWarning,
+    )
+    def _resolve_deprecated_theme_toggle_source(theme_toggle: ThemeToggle):
+        """Resolve the legacy theme_toggle constructor path."""
+        if hasattr(theme_toggle, "get_theme_state"):
+            bound_theme_state = theme_toggle.get_theme_state()
+            if bound_theme_state is not None:
+                return bound_theme_state
+        return theme_toggle
 
     def show_dc(self) -> Self:
         """Show the drawing control on the map.
@@ -477,7 +538,9 @@ class SepalMap(ipl.Map):
             msg = '"cmap" keyword or "colors" key must be provided.'
             raise ValueError(msg)
 
-        style = "dark_background" if v.theme.dark is True else "classic"
+        style = (
+            "dark_background" if self._theme_is_dark(self._theme_source or v.theme) else "classic"
+        )
 
         with plt.style.context(style):
             fig, ax = plt.subplots(figsize=(width, height))
@@ -511,36 +574,6 @@ class SepalMap(ipl.Map):
         self.add(colormap_ctrl)
 
         return
-
-    @staticmethod
-    @deprecated(
-        version="3.0.0",
-        reason="Use sepal_ui.mapping.visualization.get_viz_params() directly instead. This wrapper is maintained for backward compatibility.",
-    )
-    def get_viz_params(
-        ee_object: ee.ComputedObject,
-        gee_interface: Optional[GEEInterface] = None,
-    ) -> tuple:
-        """Get visualization parameters for an Earth Engine object.
-
-        This is a convenience wrapper around the visualization module helper.
-        Maintained for backward compatibility.
-
-        .. deprecated:: 3.0.0
-            Use :func:`sepal_ui.mapping.visualization.get_viz_params` directly instead.
-            This static method wrapper will be removed in version 4.0.0.
-
-        Args:
-            ee_object: The Earth Engine object to visualize.
-            gee_interface: Optional GEEInterface instance (creates one if not provided).
-
-        Returns:
-            Tuple of (image, object, vis_params).
-        """
-        return get_viz_params(
-            ee_object,
-            gee_interface=gee_interface,
-        )
 
     def add_ee_layer(
         self,
@@ -601,8 +634,14 @@ class SepalMap(ipl.Map):
         )
 
         if autocenter:
-            bounds = self.gee_interface.get_info(ee_object.bounds().coordinates().get(0))
-            self.zoom_bounds((*bounds[0], *bounds[2]))
+            try:
+                ee_geometry = (
+                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
+                )
+                bounds = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
+                self.zoom_bounds((*bounds[0], *bounds[2]))
+            except Exception:
+                log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
         self.add_layer(tile_layer, key=key)
 
@@ -670,10 +709,16 @@ class SepalMap(ipl.Map):
         )
 
         if autocenter:
-            bounds = await self.gee_interface.get_info_async(
-                ee_object.bounds().coordinates().get(0)
-            )
-            self.zoom_bounds((*bounds[0], *bounds[2]))
+            try:
+                ee_geometry = (
+                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
+                )
+                bounds = await self.gee_interface.get_info_async(
+                    ee_geometry.bounds().coordinates().get(0)
+                )
+                self.zoom_bounds((*bounds[0], *bounds[2]))
+            except Exception:
+                log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
         self.add_layer(tile_layer, key=key)
 
@@ -829,34 +874,46 @@ class SepalMap(ipl.Map):
         # awaitables that create conflicts with solara.
         # Also I don't like the way it zooms by levels
 
-        center = compute_center(bounds)
-        self.center = center
+        # Canvas (width, height) in pixels. Prefer values pushed from the
+        # frontend (accurate from render 0); fall back to bounds-derived
+        # (accurate post-render); finally to defaults. The pushed path is
+        # what fixes the "first fit_bounds is too far" cold-start bug —
+        # before the first render self.bounds is the default world view.
+        derived_w, derived_h = viewport_pixels_from_map(self)
+        canvas_w = int(self.canvas_width_px) or derived_w or DEFAULT_MAP_WIDTH_PX
+        canvas_h = int(self.canvas_height_px) or derived_h or (canvas_w * 9 / 16)
 
-        # 2) Determine map width in pixels
-        width = None
-        log.debug(f"getting map width from layout: {self.layout}")
-        if hasattr(self, "layout"):
-            width = getattr(self.layout, "width", None)
-            log.debug(f"map width from layout: {width}")
-        try:
-            log.debug(f"getting map width from width: {width}")
-            map_width_px = int(width)
-        except (TypeError, ValueError) as e:
-            log.debug(f"Error: {width}, {e}")
-            map_width_px = 1024
+        # Subtract overlay panels (nav drawer, right panel) from the *width*;
+        # MapApp has no top/bottom overlays, so height is the full canvas.
+        left = max(int(self.viewport_inset_left), 0)
+        right = max(int(self.viewport_inset_right), 0)
+        visible_w = max(canvas_w - left - right, 1)
+        visible_h = canvas_h
 
-        log.debug(f"map width in pixels: {map_width_px}")
+        log.debug(
+            f"canvas=({canvas_w:.0f},{canvas_h:.0f}) "
+            f"visible=({visible_w:.0f},{visible_h:.0f}) insets=({left},{right})"
+        )
 
         zoom = (
             compute_zoom_for_bounds(
                 bounds,
-                map_width_px,
+                map_width_px=visible_w,
+                map_height_px=visible_h,
                 min_zoom=getattr(self, "min_zoom", None),
                 max_zoom=getattr(self, "max_zoom", None),
             )
             + 1
         )
         self.zoom = zoom
+
+        # Shift the map center so the target's geographic center lands at the
+        # *visible* center (drawer_left + visible/2), not the canvas center.
+        # In Web Mercator, longitude is linear in pixels: 360° / (256 * 2**zoom).
+        lat_c, lon_c = compute_center(bounds)
+        px_offset = (left - right) / 2  # +ve when left panel dominates
+        lon_shift = px_offset * 360.0 / (256 * (2**zoom))
+        self.center = (lat_c, lon_c - lon_shift)
 
     def add_legend(
         self,

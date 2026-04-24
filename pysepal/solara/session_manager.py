@@ -19,6 +19,7 @@ from solara.lab import headers
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.sepal_client import SepalClient
+from pysepal.solara.theme import ThemeState
 
 logger = logging.getLogger("sepalui.session_manager")
 
@@ -101,12 +102,14 @@ class SessionManager:
         gee_interface = GEEInterface(gee_session)
         sepal_client = SepalClient(session_id=sepal_session_id, module_name=module_name)
         drive_interface = GDriveInterface(sepal_headers=sepal_headers)
+        theme_state = ThemeState()
 
         self._sessions[kernel_id] = {
             "username": username,
             "gee_interface": gee_interface,
             "sepal_client": sepal_client,
             "drive_interface": drive_interface,
+            "theme_state": theme_state,
         }
         logger.debug(
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
@@ -179,6 +182,7 @@ class SessionManager:
                 "has_gee_interface": False,
                 "has_sepal_client": False,
                 "has_drive_interface": False,
+                "has_theme_state": False,
                 "session_ready": False,
             }
 
@@ -188,6 +192,7 @@ class SessionManager:
             "has_gee_interface": current_session.get("gee_interface") is not None,
             "has_sepal_client": current_session.get("sepal_client") is not None,
             "has_drive_interface": current_session.get("drive_interface") is not None,
+            "has_theme_state": current_session.get("theme_state") is not None,
             "session_ready": current_session.get("gee_interface") is not None,
         }
 

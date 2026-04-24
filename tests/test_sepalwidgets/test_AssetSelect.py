@@ -41,6 +41,7 @@ def wait_for_async(asset_select: sw.AssetSelect, action: Callable, timeout: floa
     time.sleep(0.2)
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init(gee_dir: Path, gee_user_dir: Path, asset_select: sw.AssetSelect) -> None:
     """Init the widget.
@@ -68,6 +69,7 @@ def test_init(gee_dir: Path, gee_user_dir: Path, asset_select: sw.AssetSelect) -
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_default(asset_select: sw.AssetSelect, default_items: List[str]) -> None:
     """Check that user can add default assets to the list.
@@ -93,6 +95,7 @@ def test_add_default(asset_select: sw.AssetSelect, default_items: List[str]) -> 
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_validate(asset_select: sw.AssetSelect, default_items: List[str]) -> None:
     """Check asset that user cannot read cannot be selected.
@@ -123,6 +126,7 @@ def test_validate(asset_select: sw.AssetSelect, default_items: List[str]) -> Non
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     """Check only the specified types are displayed to the need user.
@@ -149,6 +153,7 @@ def test_check_types(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_items(asset_select: sw.AssetSelect, gee_user_dir: Path) -> None:
     """Get items from a specific folder.

@@ -54,6 +54,7 @@ def test_init() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init_ee(gee_dir: Path) -> None:
     """Init a view with GEE.
@@ -72,6 +73,7 @@ def test_init_ee(gee_dir: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_admin_ee(gee_dir: Path) -> None:
     """Init an admin view with gee.
@@ -97,6 +99,8 @@ def test_admin() -> None:
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_activate(aoi_gee_view: aoi.AoiView) -> None:
     """Activate the different methods fields.
 
@@ -131,6 +135,7 @@ def test_activate(aoi_gee_view: aoi.AoiView) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_update_gee_aoi(aoi_gee_view: aoi.AoiView) -> None:
     """Update a view on vatican with GEE.

@@ -238,40 +238,47 @@ async def process_admin(
         su.init_ee()
 
         # Use provided interface or create a new one
+        created_interface = gee_interface is None
         interface = gee_interface or GEEInterface()
 
-        # Use pygaul.Items to get the feature collection (handles all the EE logic)
-        feature_collection = pygaul.Items(admin=admin_code)
+        try:
+            # Use pygaul.Items to get the feature collection (handles all the EE logic)
+            feature_collection = pygaul.Items(admin=admin_code)
 
-        # Get properties for naming (async call)
-        feature = feature_collection.first()
-        properties = await interface.get_info_async(feature.toDictionary(feature.propertyNames()))
+            # Get properties for naming (async call)
+            feature = feature_collection.first()
+            properties = await interface.get_info_async(
+                feature.toDictionary(feature.propertyNames())
+            )
 
-        # Build name from ISO code and admin names
-        # GAUL 2024 uses: iso3_code, gaul0_name, gaul1_name, gaul2_name
-        iso = properties.get("iso3_code", "")
-        if not iso or iso.startswith("x"):  # 'x' prefix means disputed/unknown
-            iso_mapping = json.loads(GAUL_ISO_MAPPING.read_text())
-            gaul0_code = str(properties.get("gaul0_code", ""))
-            iso = iso_mapping.get(gaul0_code, "UNK")
+            # Build name from ISO code and admin names
+            # GAUL 2024 uses: iso3_code, gaul0_name, gaul1_name, gaul2_name
+            iso = properties.get("iso3_code", "")
+            if not iso or iso.startswith("x"):  # 'x' prefix means disputed/unknown
+                iso_mapping = json.loads(GAUL_ISO_MAPPING.read_text())
+                gaul0_code = str(properties.get("gaul0_code", ""))
+                iso = iso_mapping.get(gaul0_code, "UNK")
 
-        # Collect admin names from all levels up to current
-        names = [iso]
-        for lvl in range(1, level + 1):
-            name_col = f"gaul{lvl}_name"
-            if name_col in properties and properties.get(name_col):
-                names.append(su.normalize_str(properties[name_col]))
+            # Collect admin names from all levels up to current
+            names = [iso]
+            for lvl in range(1, level + 1):
+                name_col = f"gaul{lvl}_name"
+                if name_col in properties and properties.get(name_col):
+                    names.append(su.normalize_str(properties[name_col]))
 
-        name = "_".join(names)
+            name = "_".join(names)
 
-        return AoiResult(
-            method=method,
-            name=name,
-            gdf=None,  # Lazy - users can use get_gdf_async() if needed
-            feature_collection=feature_collection,
-            admin=admin_code,
-            gee=True,
-        )
+            return AoiResult(
+                method=method,
+                name=name,
+                gdf=None,  # Lazy - users can use get_gdf_async() if needed
+                feature_collection=feature_collection,
+                admin=admin_code,
+                gee=True,
+            )
+        finally:
+            if created_interface:
+                interface.close()
 
     else:
 

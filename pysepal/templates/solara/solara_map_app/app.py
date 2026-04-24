@@ -10,16 +10,16 @@ import ee
 import ipyvuetify as v
 import solara
 from component.model import AppModel
-from solara.lab.components.theming import theme
 
 import pysepal.sepalwidgets as sw
 from pysepal.mapping import SepalMap
 from pysepal.scripts.utils import init_ee
-from pysepal.sepalwidgets.vue_app import MapApp, ThemeToggle
+from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import (
     get_current_drive_interface,
     get_current_gee_interface,
     get_current_sepal_client,
+    get_current_theme_state,
     setup_sessions,
     setup_solara_server,
     setup_theme_colors,
@@ -69,12 +69,11 @@ def Page():
     The page is configured with SEPAL sessions for SDG indicators module 15.4.2.
     """
     setup_theme_colors()
-    theme_toggle = ThemeToggle()
-    theme_toggle.observe(lambda e: setattr(theme, "dark", e["new"]), "dark")
 
     gee_interface = get_current_gee_interface()
     get_current_drive_interface()
     get_current_sepal_client()
+    theme_state = get_current_theme_state()
 
     # Just a model to store the app name
     model = AppModel()
@@ -85,7 +84,7 @@ def Page():
     )
 
     # Main map widget
-    map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_toggle=theme_toggle)
+    map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_state=theme_state)
     map_.center = [4.75, -74.12]
 
     aoi_view = v.Card(
@@ -174,6 +173,6 @@ def Page():
         right_panel_config=right_panel_config,
         right_panel_content=right_panel_content_with_solara,
         right_panel_open=True,
-        theme_toggle=[theme_toggle],
+        theme_state=theme_state,
         dialog_width=750,
     )

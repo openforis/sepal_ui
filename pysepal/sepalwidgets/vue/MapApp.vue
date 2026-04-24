@@ -322,6 +322,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    drawer_width: {
+      type: Number,
+      default: 320,
+    },
   },
 
   data: () => ({
@@ -349,12 +353,20 @@ export default {
       return this.mini ? this.collapsedWidth + "px" : this.expandedWidth + "px";
     },
 
+    actualRightOffset() {
+      // Use Vuetify's application service as the source of truth for the
+      // right-side drawer offset.  This tracks the REAL drawer state
+      // (open/closed) regardless of what Solara reconc does to the
+      // right_panel_open traitlet.
+      return this.$vuetify?.application?.right || 0;
+    },
+
     rightPanelOffset() {
-      return this.right_panel_width + "px";
+      return this.actualRightOffset + "px";
     },
 
     rightPanelOpen() {
-      return this.right_panel_open;
+      return this.actualRightOffset > 0;
     },
 
     externalLinks() {
@@ -481,24 +493,79 @@ export default {
         this.open_dialog = true;
       }
     },
+
+    // Sync layout variables to document root for sibling widgets (notifications).
+    // Watches the actual Vuetify application offset (driven by the real
+    // v-navigation-drawer state) instead of the right_panel_open prop, which
+    // can be stale after a Solara reconc.  No debounce — the pill must move
+    // in lockstep with the drawer's 0.3s animation.
+    actualRightOffset() {
+      this._syncGlobalLayoutVars();
+    },
+    sidebarOffset() {
+      this._syncGlobalLayoutVars();
+      this._pushDrawerWidth();
+    },
+    mini() {
+      this._pushDrawerWidth();
+    },
   },
 
   mounted() {
     window.addEventListener("resize", this.handleResize);
-    // Auto-activate first step if no main map
     this.autoActivateFirstStepIfNeeded();
+    this._syncGlobalLayoutVars();
+    this._pushDrawerWidth();
+    this._pushWindowSize();
   },
 
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
+    this._clearGlobalLayoutVars();
   },
 
   methods: {
+    _pushDrawerWidth() {
+      // Report the real pixel width of the nav drawer to Python so the
+      // embedded map can fit bounds against the visible region.
+      const px = this.mini ? this.collapsedWidth : this.expandedWidth;
+      if (px !== this.drawer_width) {
+        this.set_drawer_width(px);
+      }
+    },
+    _syncGlobalLayoutVars() {
+      const root = document.documentElement;
+      const offset = this.actualRightOffset;
+      root.style.setProperty("--sepal-right-panel-width", offset + "px");
+      root.style.setProperty(
+        "--sepal-right-panel-open",
+        offset > 0 ? "1" : "0"
+      );
+      root.style.setProperty(
+        "--sepal-notification-right-offset",
+        offset + "px"
+      );
+      root.style.setProperty("--sepal-drawer-width", this.sidebarOffset);
+    },
+    _clearGlobalLayoutVars() {
+      const root = document.documentElement;
+      root.style.removeProperty("--sepal-right-panel-width");
+      root.style.removeProperty("--sepal-right-panel-open");
+      root.style.removeProperty("--sepal-notification-right-offset");
+      root.style.removeProperty("--sepal-drawer-width");
+    },
     handleResize() {
       // Update reactive window dimensions
       this.windowWidth = window.innerWidth;
       this.windowHeight = window.innerHeight;
+      this._pushWindowSize();
       this.$forceUpdate();
+    },
+
+    _pushWindowSize() {
+      // Report real browser size to Python so the embedded map has a
+      // correct canvas size from render 0 (fixes first-fit zoom bug).
+      this.set_window_size({ w: window.innerWidth, h: window.innerHeight });
     },
 
     toggleDrawer() {
@@ -506,7 +573,7 @@ export default {
     },
 
     togglePin() {
-      this.$emit("update:is_pinned", !this.is_pinned);
+      this.is_pinned = !this.is_pinned;
     },
 
     handleMapClick() {

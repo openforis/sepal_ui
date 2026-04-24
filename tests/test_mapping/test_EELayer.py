@@ -6,6 +6,7 @@ import pytest
 from pysepal import mapping as sm
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init() -> None:
     """Init a EELyer and check members."""

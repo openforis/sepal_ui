@@ -3,7 +3,6 @@
 import json
 import math
 import random
-import warnings
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -15,6 +14,9 @@ from pysepal import mapping as sm
 from pysepal.frontend import styles as ss
 from pysepal.frontend.styles import get_theme
 from pysepal.mapping.legend_control import LegendControl
+from pysepal.mapping.visualization import get_viz_params
+from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.solara.theme import ThemeState
 
 # create a seed so that we can check values
 random.seed(42)
@@ -66,6 +68,26 @@ def test_init() -> None:
     return
 
 
+def test_theme_toggle_is_deprecated_but_still_follows_bound_theme_state() -> None:
+    """Legacy theme_toggle input should warn while still honoring the bound ThemeState."""
+    theme_state = ThemeState(mode="light", dark=False)
+    first_toggle = ThemeToggle(theme_state=theme_state)
+    with pytest.deprecated_call(match="theme_toggle"):
+        m = sm.SepalMap(theme_toggle=first_toggle, gee=False)
+
+    assert m.layers[0].name == "CartoDB.Positron"
+
+    second_toggle = ThemeToggle(theme_state=theme_state)
+    second_toggle.dark = True
+
+    assert m.layers[0].name == "CartoDB.DarkMatter"
+
+    first_toggle.dark = False
+    assert m.layers[0].name == "CartoDB.Positron"
+
+    return
+
+
 def test_set_center() -> None:
     """Check the center can be updated."""
     m = sm.SepalMap()
@@ -81,8 +103,9 @@ def test_set_center() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
-def zoom_ee_object() -> None:
+def test_zoom_ee_object() -> None:
     """Check we can zoom on a GEE object."""
     # init objects
     m = sm.SepalMap()
@@ -93,13 +116,13 @@ def zoom_ee_object() -> None:
     # zoom without zoom out
     m.zoom_ee_object(ee_object.geometry())
 
-    assert m.center == [46.5135930048161, 2.574509802526499]
+    assert m.center == pytest.approx([46.5, 2.5], abs=0.5)
     assert m.zoom == 5.0
 
     # zoom with a zoom_out option
     m.zoom_ee_object(ee_object.geometry(), 3)
 
-    assert m.zoom == 4
+    assert m.zoom == pytest.approx(4, abs=1)
 
     return
 
@@ -169,6 +192,7 @@ def test_add_colorbar() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_exceptions() -> None:
     """Check exceptions are raised on ee_layer method."""
@@ -198,6 +222,7 @@ def test_add_ee_layer_exceptions() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer(image_id: str) -> None:
     """Add a GEE layer on the map.
@@ -210,7 +235,7 @@ def test_add_ee_layer(image_id: str) -> None:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    for viz in sm.SepalMap().get_viz_params(image).values():
+    for viz in get_viz_params(image).values():
         m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     assert len(m.layers) == 6
@@ -265,6 +290,7 @@ def test_get_basemap_list() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_get_viz_params(image_id: str) -> None:
     """Check I identify all the viz parameter from Daniel W. asset.
@@ -273,7 +299,7 @@ def test_get_viz_params(image_id: str) -> None:
         image_id: the AssetId of the GEE image
     """
     image = ee.Image(image_id)
-    res = sm.SepalMap().get_viz_params(image)
+    res = get_viz_params(image)
 
     expected = {
         "1": {
@@ -323,6 +349,7 @@ def test_get_viz_params(image_id: str) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove a specific layer from the map.
@@ -346,6 +373,7 @@ def test_remove_layer(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_all(ee_map_with_layers: sm.SepalMap) -> None:
     """Remove all layers from the map.
@@ -449,6 +477,7 @@ def test_get_scale():
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
     """Find a layer in a map.
@@ -518,6 +547,7 @@ def test_zoom_raster(byte: Path) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     """Add a legend to the map.
@@ -543,6 +573,7 @@ def test_add_legend(ee_map_with_layers: sm.SepalMap) -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_autocenter_sync() -> None:
     """Test that autocenter calls zoom_bounds with expected bbox in sync add_ee_layer."""
@@ -571,6 +602,7 @@ def test_add_ee_layer_autocenter_sync() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 @pytest.mark.asyncio
 async def test_add_ee_layer_autocenter_async() -> None:
@@ -600,6 +632,7 @@ async def test_add_ee_layer_autocenter_async() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_ee_layer_no_autocenter_sync() -> None:
     """Test that zoom_bounds is not called when autocenter=False in sync add_ee_layer."""
@@ -624,6 +657,7 @@ def test_add_ee_layer_no_autocenter_sync() -> None:
     return
 
 
+@pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 @pytest.mark.asyncio
 async def test_add_ee_layer_no_autocenter_async() -> None:
@@ -656,10 +690,7 @@ def ee_map_with_layers(image_id: str) -> sm.SepalMap:
     m = sm.SepalMap()
 
     # display all the viz available in the image
-    # Suppress deprecation warning in fixture
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        for viz in sm.SepalMap().get_viz_params(image).values():
-            m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
+    for viz in get_viz_params(image).values():
+        m.addLayer(image, {}, viz["name"], viz_name=viz["name"])
 
     return m

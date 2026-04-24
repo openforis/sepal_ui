@@ -9,9 +9,10 @@ import ipyvuetify as v
 import pandas as pd
 from ipywidgets import DOMWidget, jsdlink, link
 from ipywidgets.widgets.widget import widget_serialization
-from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode
+from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode, observe
 
 from pysepal.scripts import utils as su
+from pysepal.solara.theme import ThemeState, get_current_theme_state
 from pysepal.translator import Translator
 
 logger = logging.getLogger("sepalui.vue_app")
@@ -36,14 +37,18 @@ class MapApp(v.VuetifyTemplate):
     language_selector = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
     right_panel = List(Instance(DOMWidget)).tag(sync=True, **widget_serialization)
 
-    # Right panel state tracking
     right_panel_open = Bool(False).tag(sync=True)
     right_panel_width = Int(300).tag(sync=True)
 
-    # Left sidebar state tracking
     is_pinned = Bool(True).tag(sync=True)
 
-    # Right panel configuration
+    drawer_width = Int(320).tag(sync=True)
+    "Current drawer pixel width (collapsed or expanded). Pushed from Vue."
+
+    window_width = Int(0).tag(sync=True)
+    window_height = Int(0).tag(sync=True)
+    "Browser window size, pushed from Vue on mount and resize."
+
     right_panel_config = Dict(
         default_value={
             "title": "Extra Content",
@@ -91,6 +96,7 @@ class MapApp(v.VuetifyTemplate):
     def __init__(
         self,
         theme_toggle: "ThemeToggle" = None,
+        theme_state: Optional[ThemeState] = None,
         initial_step: Optional[int] = None,
         model: Optional[HasTraits] = None,
         **kwargs,
@@ -108,9 +114,10 @@ class MapApp(v.VuetifyTemplate):
         **kwargs
             Additional parameters
         """
-        self.theme_toggle = theme_toggle
+        self._theme_state = theme_state or get_current_theme_state()
         self._model = model
         self._model_links = []  # Store links for cleanup
+        kwargs["theme_toggle"] = self._coerce_theme_toggle(theme_toggle, self._theme_state)
 
         # Create right panel from parameters if content or config is provided
         right_panel = None
@@ -148,6 +155,91 @@ class MapApp(v.VuetifyTemplate):
         # Set up automatic model binding if model is provided
         if self._model is not None:
             self._setup_model_binding()
+
+        # Push overlay insets to the embedded map so fit_bounds targets the visible region.
+        self.observe(
+            self._sync_map_insets,
+            [
+                "drawer_width",
+                "right_panel_open",
+                "right_panel_width",
+                "window_width",
+                "window_height",
+                "main_map",
+            ],
+        )
+        self.observe(self._sync_map_theme_state, ["theme_toggle", "main_map"])
+        self._sync_map_insets()
+        self._sync_map_theme_state()
+
+    def _coerce_theme_toggle(
+        self, theme_toggle, theme_state: Optional[ThemeState]
+    ) -> list["ThemeToggle"]:
+        """Normalize theme toggle input and bind it to the session theme state."""
+        if isinstance(theme_toggle, list):
+            widgets = list(theme_toggle)
+        elif isinstance(theme_toggle, tuple):
+            widgets = list(theme_toggle)
+        elif theme_toggle is None:
+            widgets = []
+        else:
+            widgets = [theme_toggle]
+
+        if widgets:
+            widget = widgets[0]
+            if hasattr(widget, "bind_theme_state"):
+                widget.bind_theme_state(theme_state)
+            return widgets
+
+        return [ThemeToggle(theme_state=theme_state)]
+
+    def _sync_map_insets(self, *args):
+        """Push drawer / right-panel pixel widths + window size onto the map."""
+        if not self.main_map:
+            return
+        map_widget = self.main_map[0]
+        if not hasattr(map_widget, "viewport_inset_left"):
+            return
+        map_widget.viewport_inset_left = int(self.drawer_width)
+        map_widget.viewport_inset_right = (
+            int(self.right_panel_width) if self.right_panel_open else 0
+        )
+        if self.window_width > 0 and hasattr(map_widget, "canvas_width_px"):
+            map_widget.canvas_width_px = int(self.window_width)
+        if self.window_height > 0 and hasattr(map_widget, "canvas_height_px"):
+            map_widget.canvas_height_px = int(self.window_height)
+
+    def _sync_map_theme_state(self, *args):
+        """Push the current theme state into the embedded map."""
+        if not self.main_map:
+            return
+
+        map_widget = self.main_map[0]
+        if hasattr(map_widget, "bind_theme_state"):
+            map_widget.bind_theme_state(self._resolve_theme_state())
+
+    def _resolve_theme_state(self) -> ThemeState:
+        """Resolve the theme state from the mounted toggle when available."""
+        if self.theme_toggle and hasattr(self.theme_toggle[0], "get_theme_state"):
+            theme_state = self.theme_toggle[0].get_theme_state()
+            if theme_state is not None:
+                return theme_state
+        return self._theme_state
+
+    def vue_set_drawer_width(self, width):
+        """Receive the real drawer pixel width from Vue on mount/mini-toggle."""
+        try:
+            self.drawer_width = int(width)
+        except (TypeError, ValueError):
+            pass
+
+    def vue_set_window_size(self, size):
+        """Receive the real browser window size from Vue on mount/resize."""
+        try:
+            self.window_width = int(size.get("w", 0))
+            self.window_height = int(size.get("h", 0))
+        except (TypeError, ValueError, AttributeError):
+            pass
 
     def _setup_model_binding(self):
         """Set up automatic two-way binding with the provided model.
@@ -264,10 +356,60 @@ class ThemeToggle(v.VuetifyTemplate):
     )
 
     dark = Bool(None, allow_none=True).tag(sync=True)
+    resolved_dark = Bool(False).tag(sync=True)
     enable_auto = Bool(True).tag(sync=True)
     on_icon = Unicode("mdi-weather-night").tag(sync=True)
     off_icon = Unicode("mdi-white-balance-sunny").tag(sync=True)
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
+
+    def __init__(self, theme_state: Optional[ThemeState] = None, **kwargs):
+        """Initialize the toggle, optionally bound to a shared ThemeState."""
+        self._theme_state = None
+        super().__init__(**kwargs)
+        if theme_state is not None:
+            self.bind_theme_state(theme_state)
+
+    def bind_theme_state(self, theme_state: Optional[ThemeState]) -> None:
+        """Bind the toggle widget to a shared theme state."""
+        if theme_state is self._theme_state:
+            return
+
+        if self._theme_state is not None:
+            self._theme_state.unobserve(self._on_theme_state_mode_change, "mode")
+            self._theme_state.unobserve(self._on_theme_state_dark_change, "dark")
+
+        self._theme_state = theme_state
+        if self._theme_state is None:
+            return
+
+        self.dark = ThemeState.mode_to_widget_dark(self._theme_state.mode)
+        self.resolved_dark = bool(self._theme_state.dark)
+        self._theme_state.observe(self._on_theme_state_mode_change, "mode")
+        self._theme_state.observe(self._on_theme_state_dark_change, "dark")
+
+    def get_theme_state(self) -> Optional[ThemeState]:
+        """Return the currently bound theme state."""
+        return self._theme_state
+
+    @observe("dark")
+    def _on_dark_change(self, change):
+        """Mirror widget mode changes into the shared theme state."""
+        if self._theme_state is not None:
+            self._theme_state.set_mode(ThemeState.widget_dark_to_mode(change["new"]))
+
+    @observe("resolved_dark")
+    def _on_resolved_dark_change(self, change):
+        """Mirror frontend-resolved dark/light into the shared theme state."""
+        if self._theme_state is not None:
+            self._theme_state.set_dark(change["new"])
+
+    def _on_theme_state_mode_change(self, change):
+        """Mirror external theme mode changes back into the widget."""
+        self.dark = ThemeState.mode_to_widget_dark(change["new"])
+
+    def _on_theme_state_dark_change(self, change):
+        """Mirror external resolved dark/light changes back into the widget."""
+        self.resolved_dark = bool(change["new"])
 
 
 class RightPanel(v.VuetifyTemplate):
