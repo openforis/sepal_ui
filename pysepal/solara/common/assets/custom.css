@@ -11,7 +11,7 @@
 
 /* remove the shadow from the widgets on the maps */
 .leaflet-widgetcontrol {
-  box-shadow: none;
+  box-shadow: none !important;
 }
 
 .v-alert__wrapper .progress {
@@ -313,4 +313,8 @@ header.theme--light.v-app-bar.v-toolbar.v-sheet {
   .leaflet-pm-toolbar
   .leaflet-pm-action.action-cancel {
   color: #e16a60;
+}
+
+.right-panel .drawer-top .v-sheet {
+  background-color: transparent !important;
 }

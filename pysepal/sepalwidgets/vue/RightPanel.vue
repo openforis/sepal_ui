@@ -100,7 +100,7 @@
         class="control-btn"
         title="Show extra content"
       >
-        <v-icon>{{ config.toggle_icon || "mdi-chevron-left" }}</v-icon>
+        <v-icon>{{ config.toggle_icon || "mdi-menu-left" }}</v-icon>
       </v-btn>
     </div>
   </div>
@@ -122,7 +122,7 @@ export default {
         icon: "mdi-widgets",
         width: 300,
         description: "",
-        toggle_icon: "mdi-chevron-left",
+        toggle_icon: "mdi-menu-left",
       }),
     },
     content_data: {
@@ -199,12 +199,9 @@ export default {
 }
 
 /* Right panel styles */
-.right-panel {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
 
-.right-panel .v-navigation-drawer__content {
-  transition: none !important;
+.right-panel.v-navigation-drawer {
+  box-shadow: -2px 0 18px rgba(0, 0, 0, 0.08) !important;
 }
 
 .right-panel .section-header {
@@ -237,11 +234,10 @@ export default {
 }
 
 .right-panel-tab .control-btn {
-  min-width: 40px !important;
-  min-height: 40px !important;
-  padding: 8px !important;
+  min-width: 25px !important;
+  padding: 0px !important;
   margin-bottom: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.12) !important;
   border-radius: 3px 0 0 3px !important;
 }
 </style>
