@@ -514,6 +514,9 @@ export default {
   mounted() {
     window.addEventListener("resize", this.handleResize);
     this.autoActivateFirstStepIfNeeded();
+    if (!this.is_pinned) {
+      this.mini = true;
+    }
     this._syncGlobalLayoutVars();
     this._pushDrawerWidth();
     this._pushWindowSize();
