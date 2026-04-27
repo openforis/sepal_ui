@@ -28,8 +28,8 @@ pysepal
    :target: https://doi.org/10.5281/zenodo.6467834
    :alt: Citation
 
-.. image:: https://img.shields.io/readthedocs/sepal_ui?logo=readthedocs&logoColor=white
-    :target: https://sepal-ui.readthedocs.io/en/latest/
+.. image:: https://img.shields.io/readthedocs/pysepal?logo=readthedocs&logoColor=white
+    :target: https://pysepal.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/pypi/v/pysepal?color=orange&logo=pypi&logoColor=white
@@ -51,10 +51,6 @@ pysepal
 .. image:: https://img.shields.io/codeclimate/maintainability/openforis/pysepal?logo=codeclimate&logoColor=white
     :target: https://codeclimate.com/github/openforis/pysepal/maintainability
     :alt: Maintainability
-
-.. image:: https://img.shields.io/codecov/c/github/openforis/pysepal?logo=codecov&logoColor=white
-    :target: https://codecov.io/gh/openforis/pysepal
-    :alt: Test Coverage
 
 --------------------------------------------------------------------------------
 
