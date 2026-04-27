@@ -48,10 +48,6 @@ pysepal
     :target: https://github.com/openforis/pysepal/actions/workflows/unit.yml
     :alt: build
 
-.. image:: https://img.shields.io/codeclimate/maintainability/openforis/pysepal?logo=codeclimate&logoColor=white
-    :target: https://codeclimate.com/github/openforis/pysepal/maintainability
-    :alt: Maintainability
-
 --------------------------------------------------------------------------------
 
 Currently translated in the following languages:
