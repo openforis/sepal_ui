@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pysepal"
 version = "3.4.1"
-description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
+description = "UI toolkit for building ipyvuetify and Solara dashboards, with first-class SEPAL integration"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
