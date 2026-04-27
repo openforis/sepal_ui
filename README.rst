@@ -24,7 +24,7 @@ pysepal
    :target: https://conventionalcommits.org
    :alt: conventional commit
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
+.. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.6467834-blue?logo=doi&logoColor=white
    :target: https://doi.org/10.5281/zenodo.6467834
    :alt: Citation
 
