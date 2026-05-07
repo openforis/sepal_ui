@@ -156,13 +156,6 @@ module.exports = {
   transition: left 0.3s ease, bottom 0.3s ease;
 }
 
-/* Hide while a step dialog/modal is open — the legend's stacking context
-   sits above the modal scrim due to the jupyter-widget z-index, so simply
-   removing it from the layer is the cleanest fix. */
-body.sepal-modal-open .sepal-legend {
-  display: none;
-}
-
 .sepal-legend__pill,
 .sepal-legend__body {
   backdrop-filter: blur(4px);
@@ -277,5 +270,15 @@ body.sepal-modal-open .sepal-legend {
 
 .sepal-legend__toggle:hover {
   opacity: 1;
+}
+</style>
+
+<style>
+/* Non-scoped: `body` is outside this component's scope attribute, so the
+   selector must run as plain global CSS. Hides the legend while a step
+   dialog/modal is open — its stacking context sits above the modal scrim
+   due to the jupyter-widget z-index. */
+body.sepal-modal-open .sepal-legend {
+  display: none;
 }
 </style>

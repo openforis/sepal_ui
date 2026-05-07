@@ -5,7 +5,8 @@
       '--drawer-width': sidebarOffset,
       '--right-panel-width': rightPanelOffset,
       '--right-panel-open': rightPanelOpen ? '1' : '0',
-      '--bottom-panel-height': narrowBottom ? bottomPanelHeight : '0px',
+      '--narrow-panel-height': NARROW_PANEL_HEIGHT,
+      '--bottom-panel-height': narrowBottom ? NARROW_PANEL_HEIGHT : '0px',
     }"
   >
     <div
@@ -399,7 +400,11 @@ export default {
     windowWidth: window.innerWidth,
     windowHeight: window.innerHeight,
     narrowBreakpoint: 960,
-    bottomPanelHeight: "45vh",
+    // Single source of truth for the narrow-mode bottom-panel height,
+    // shared between inline style bindings and the global layout vars
+    // synced to the document root. The CSS rule that sizes the panel
+    // reads this via `var(--narrow-panel-height)` so they can't drift.
+    NARROW_PANEL_HEIGHT: "45vh",
   }),
 
   computed: {
@@ -664,7 +669,7 @@ export default {
       // when narrow + closed, else 0.
       const hasRightPanel = this.right_panel && this.right_panel.length > 0;
       let bottomReserved = "0px";
-      if (this.narrowBottom) bottomReserved = this.bottomPanelHeight;
+      if (this.narrowBottom) bottomReserved = this.NARROW_PANEL_HEIGHT;
       else if (this.isNarrow && hasRightPanel) bottomReserved = "48px";
       root.style.setProperty("--sepal-bottom-reserved", bottomReserved);
     },
@@ -1102,37 +1107,9 @@ export default {
   pointer-events: none !important;
 }
 
-/* Narrow viewports: dock the right panel to the bottom and shrink the map
-   above it. The right-panel widget is mounted via a separate jupyter-widget
-   so scoped data-v-* attributes don't reach it; the !important overrides
-   target Vuetify's right-side navigation drawer regardless.
-
-   `narrow-mode` (always when narrow) reshapes the right-panel into a bottom
-   sheet so its open/close transition slides vertically instead of from the
-   right edge. `narrow-bottom-panel` (narrow + open) drives the layout shift
-   for siblings: map shrinks upward, left drawer height shrinks, etc. */
-.narrow-mode .right-panel.v-navigation-drawer {
-  top: auto !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  max-width: 100vw !important;
-  height: 45vh !important;
-  box-shadow: 0 -2px 18px rgba(0, 0, 0, 0.12) !important;
-  transition: transform 0.3s ease !important;
-}
-.narrow-mode .right-panel.v-navigation-drawer--close,
-.narrow-mode .right-panel.v-navigation-drawer:not(.v-navigation-drawer--open) {
-  transform: translateY(100%) !important;
-}
-.narrow-mode .right-panel.v-navigation-drawer--open {
-  transform: translateY(0) !important;
-}
-
-/* Match the right-panel's 0.3s slide so the map shrinks in sync with the
-   bottom sheet rising into place — without this they desync (drawer/map
-   snap instantly while the panel still slides up). */
+/* Narrow-mode rules that only target this component's own DOM
+   (#map-container, .step-content-container, .sidebar-controls, .left-drawer)
+   stay scoped. */
 .narrow-mode #map-container.map-background {
   transition: bottom 0.3s ease;
 }
@@ -1149,8 +1126,7 @@ export default {
 }
 
 /* Left drawer should only span the visible map area, not run behind the
-   bottom panel. Vuetify positions the drawer with top:0 + height:100%; we
-   shrink height (and pin bottom) so it stops at the panel's top edge. */
+   bottom panel. */
 .narrow-mode .left-drawer.v-navigation-drawer {
   transition: height 0.3s ease, bottom 0.3s ease,
     transform 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
@@ -1170,10 +1146,42 @@ export default {
 .narrow-bottom-panel .sidebar-controls {
   top: calc((100vh - var(--bottom-panel-height)) / 2);
 }
+</style>
 
-/* Right-panel toggle tab: when narrow, dock it to the bottom-center so the
-   panel slides up from below it. Rotate the chevron-left icon 90° so it
-   points up, and round the top corners instead of the left corners. */
+<style>
+/* Non-scoped: these rules target DOM rendered inside sibling components
+   (RightPanel.vue mounted via jupyter-widget). Vue 2 scoped CSS appends
+   the parent's data-v-* attribute to the rightmost selector, which would
+   not match elements outside this component's template — !important does
+   not fix that. Keep them as plain global CSS, gated by the .narrow-mode
+   / .narrow-bottom-panel classes set on this component's <v-app> root.
+
+   `narrow-mode` (always when narrow) reshapes the right-panel into a bottom
+   sheet so its open/close transition slides vertically. `narrow-bottom-panel`
+   (narrow + open) drives layout shifts for siblings. The panel height is
+   read from --narrow-panel-height so it cannot drift from the JS value
+   used elsewhere for layout offsets. */
+.narrow-mode .right-panel.v-navigation-drawer {
+  top: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: var(--narrow-panel-height, 45vh) !important;
+  box-shadow: 0 -2px 18px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.3s ease !important;
+}
+.narrow-mode .right-panel.v-navigation-drawer--close,
+.narrow-mode .right-panel.v-navigation-drawer:not(.v-navigation-drawer--open) {
+  transform: translateY(100%) !important;
+}
+.narrow-mode .right-panel.v-navigation-drawer--open {
+  transform: translateY(0) !important;
+}
+
+/* Right-panel toggle tab: dock to bottom-center when narrow, rotate the
+   chevron 90° so it points up, round the top corners. */
 .narrow-mode .right-panel-tab {
   top: auto !important;
   right: auto !important;
