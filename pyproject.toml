@@ -86,6 +86,7 @@ test = [
     "pytest-icdiff",
     "pytest-cov",
     "pytest-deadfixtures",
+    "pytest-rerunfailures",
     "Flake8-pyproject",
     "nbmake",
     "pytest-regressions",

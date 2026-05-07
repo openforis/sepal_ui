@@ -206,7 +206,7 @@ def _get_assets(folder: Union[str, Path] = "", async_=True) -> List[dict]:
         the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
 
     """
-    folder = str(folder) or f"projects/{get_ee_project()}/assets/"
+    folder = str(folder) if folder else f"projects/{get_ee_project()}/assets/"
 
     return _get_assets_sync(folder)
 
@@ -269,7 +269,7 @@ def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: st
             asset_id = asset_name
         else:
             # Construct asset_id from legacy parameters
-            folder = str(folder)
+            folder = str(folder) if folder else ""
             if folder and not folder.startswith("projects/"):
                 # If folder doesn't start with 'projects/', assume it's a relative path
                 folder = f"projects/{get_ee_project()}/assets/{folder}"

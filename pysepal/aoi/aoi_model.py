@@ -177,7 +177,7 @@ class AoiModel(Model):
                 self.gee_interface = gee_interface
             else:
                 self.gee_interface = GEEInterface(gee_session)
-            self.folder = str(folder) or self.gee_interface.get_folder()
+            self.folder = str(folder) if folder else self.gee_interface.get_folder()
 
         # set default values
         self.set_default(vector, admin, asset)

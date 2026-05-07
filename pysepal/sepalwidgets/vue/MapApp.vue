@@ -1,9 +1,12 @@
 <template>
   <v-app
+    :class="{ 'narrow-mode': isNarrow, 'narrow-bottom-panel': narrowBottom }"
     :style="{
       '--drawer-width': sidebarOffset,
       '--right-panel-width': rightPanelOffset,
       '--right-panel-open': rightPanelOpen ? '1' : '0',
+      '--narrow-panel-height': NARROW_PANEL_HEIGHT,
+      '--bottom-panel-height': narrowBottom ? NARROW_PANEL_HEIGHT : '0px',
     }"
   >
     <div
@@ -28,7 +31,7 @@
       :mini-variant="mini"
       :mini-variant-width="collapsedWidth"
       :width="expandedWidth"
-      :class="{ 'drawer-disabled': drawerDisabled }"
+      :class="['left-drawer', { 'drawer-disabled': drawerDisabled }]"
       app
       permanent
       stateless
@@ -396,6 +399,12 @@ export default {
     open_dialog: false,
     windowWidth: window.innerWidth,
     windowHeight: window.innerHeight,
+    narrowBreakpoint: 960,
+    // Single source of truth for the narrow-mode bottom-panel height,
+    // shared between inline style bindings and the global layout vars
+    // synced to the document root. The CSS rule that sizes the panel
+    // reads this via `var(--narrow-panel-height)` so they can't drift.
+    NARROW_PANEL_HEIGHT: "45vh",
   }),
 
   computed: {
@@ -497,6 +506,14 @@ export default {
     drawerDisabled() {
       return this.open_dialog;
     },
+
+    isNarrow() {
+      return this.windowWidth < this.narrowBreakpoint;
+    },
+
+    narrowBottom() {
+      return this.isNarrow && this.rightPanelOpen;
+    },
   },
 
   watch: {
@@ -568,6 +585,42 @@ export default {
     mini() {
       this._pushDrawerWidth();
     },
+
+    // Toggle a body-level class while a step dialog is open so siblings
+    // mounted outside the v-app stacking context (e.g. Legend, mounted via
+    // its own jupyter-widget) can hide themselves cleanly.
+    open_dialog: {
+      immediate: true,
+      handler(open) {
+        document.body.classList.toggle("sepal-modal-open", !!open);
+      },
+    },
+
+    // Nudge leaflet to recompute its canvas when the bottom-panel layout
+    // toggles — the map-container's height changes via CSS, but leaflet
+    // only listens to window resize. Also re-sync global layout vars so
+    // Legend / NotificationUI stop tracking a right edge that no longer
+    // exists in narrow-bottom mode.
+    narrowBottom() {
+      this._syncGlobalLayoutVars();
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+    },
+
+    // Auto-collapse the drawer on narrow viewports regardless of pin state,
+    // and restore the pinned-open state when the viewport grows back.
+    isNarrow: {
+      immediate: true,
+      handler(narrow) {
+        if (narrow) {
+          if (!this.mini) this.mini = true;
+        } else if (this.is_pinned && this.mini) {
+          this.mini = false;
+        }
+        this._syncGlobalLayoutVars();
+      },
+    },
   },
 
   mounted() {
@@ -584,6 +637,7 @@ export default {
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
     this._clearGlobalLayoutVars();
+    document.body.classList.remove("sepal-modal-open");
   },
 
   methods: {
@@ -598,16 +652,26 @@ export default {
     _syncGlobalLayoutVars() {
       const root = document.documentElement;
       const offset = this.actualRightOffset;
-      root.style.setProperty("--sepal-right-panel-width", offset + "px");
-      root.style.setProperty(
-        "--sepal-right-panel-open",
-        offset > 0 ? "1" : "0"
-      );
+      // In narrow-bottom mode the right panel is docked at the bottom, so
+      // downstream consumers (Legend, notifications) should treat the right
+      // edge as flush and instead leave room at the bottom.
+      const rightOffset = this.narrowBottom ? 0 : offset;
+      const isOpen = this.narrowBottom ? false : offset > 0;
+      root.style.setProperty("--sepal-right-panel-width", rightOffset + "px");
+      root.style.setProperty("--sepal-right-panel-open", isOpen ? "1" : "0");
       root.style.setProperty(
         "--sepal-notification-right-offset",
-        offset + "px"
+        rightOffset + "px"
       );
       root.style.setProperty("--sepal-drawer-width", this.sidebarOffset);
+      // Reserved space at the bottom edge for floating components (Legend,
+      // toasts) — equals the panel height when open, the toggle-tab height
+      // when narrow + closed, else 0.
+      const hasRightPanel = this.right_panel && this.right_panel.length > 0;
+      let bottomReserved = "0px";
+      if (this.narrowBottom) bottomReserved = this.NARROW_PANEL_HEIGHT;
+      else if (this.isNarrow && hasRightPanel) bottomReserved = "48px";
+      root.style.setProperty("--sepal-bottom-reserved", bottomReserved);
     },
     _clearGlobalLayoutVars() {
       const root = document.documentElement;
@@ -615,6 +679,7 @@ export default {
       root.style.removeProperty("--sepal-right-panel-open");
       root.style.removeProperty("--sepal-notification-right-offset");
       root.style.removeProperty("--sepal-drawer-width");
+      root.style.removeProperty("--sepal-bottom-reserved");
     },
     handleResize() {
       // Update reactive window dimensions
@@ -1012,12 +1077,12 @@ export default {
   z-index: 1001 !important;
 }
 
-.leaflet-left {
+#map-container .leaflet-left {
   transition: left 0.3s ease;
   left: var(--drawer-width) !important;
 }
 
-.leaflet-right {
+#map-container .leaflet-right {
   transition: right 0.3s ease;
   right: calc(var(--right-panel-width) * var(--right-panel-open)) !important;
 }
@@ -1040,5 +1105,100 @@ export default {
 
 .drawer-disabled .v-list-item {
   pointer-events: none !important;
+}
+
+/* Narrow viewports: dock the right panel to the bottom and shrink the map
+   above it. Despite the right-panel widget being mounted via a separate
+   jupyter-widget, these scoped rules still apply in the ipyvue runtime —
+   moving them to a non-scoped block was tried and broke the layout, so
+   they stay here. The panel height is read from --narrow-panel-height so
+   it cannot drift from the JS value used elsewhere for layout offsets.
+
+   `narrow-mode` (always when narrow) reshapes the right-panel into a bottom
+   sheet so its open/close transition slides vertically instead of from the
+   right edge. `narrow-bottom-panel` (narrow + open) drives the layout shift
+   for siblings: map shrinks upward, left drawer height shrinks, etc. */
+.narrow-mode .right-panel.v-navigation-drawer {
+  top: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: var(--narrow-panel-height, 45vh) !important;
+  box-shadow: 0 -2px 18px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.3s ease !important;
+}
+.narrow-mode .right-panel.v-navigation-drawer--close,
+.narrow-mode .right-panel.v-navigation-drawer:not(.v-navigation-drawer--open) {
+  transform: translateY(100%) !important;
+}
+.narrow-mode .right-panel.v-navigation-drawer--open {
+  transform: translateY(0) !important;
+}
+
+/* In narrow mode the map ALWAYS reserves the bottom-panel height, even
+   when the panel is closed. This keeps the visible map area stable so
+   downstream calculations (e.g. image centering against the map size)
+   don't shift every time the panel toggles. The closed-panel state shows
+   an empty band below the map where the panel tab sits; the open panel
+   slides in on top of that band. */
+.narrow-mode #map-container.map-background {
+  bottom: var(--narrow-panel-height, 45vh) !important;
+}
+
+.narrow-mode #map-container .leaflet-right {
+  right: 0 !important;
+  transition: none !important;
+}
+.narrow-mode #map-container .leaflet-left {
+  transition: none !important;
+}
+
+/* Left drawer should only span the visible map area, not run behind the
+   bottom panel. Vuetify positions the drawer with top:0 + height:100%; we
+   shrink height (and pin bottom) so it stops at the panel's top edge. */
+.narrow-mode .left-drawer.v-navigation-drawer {
+  transition: height 0.3s ease, bottom 0.3s ease,
+    transform 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
+}
+.narrow-bottom-panel .left-drawer.v-navigation-drawer {
+  height: calc(100vh - var(--bottom-panel-height)) !important;
+  bottom: var(--bottom-panel-height) !important;
+}
+
+/* Step-type content (when used instead of the map) must also leave room
+   for the bottom panel. */
+.narrow-bottom-panel .step-content-container {
+  bottom: var(--bottom-panel-height);
+}
+
+/* Re-center the sidebar collapse/expand arrow on the visible map area. */
+.narrow-bottom-panel .sidebar-controls {
+  top: calc((100vh - var(--bottom-panel-height)) / 2);
+}
+
+/* Right-panel toggle tab: when narrow, dock it flush to the bottom-center
+   so the panel slides up from below it. The button flips orientation —
+   on the right edge it is a vertical tab (25px short axis = width); at
+   the bottom it becomes a horizontal tab (25px short axis = height) so
+   the visible "thickness" matches in both layouts. */
+.narrow-mode .right-panel-tab {
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.narrow-mode .right-panel-tab .control-btn {
+  min-width: 64px !important;
+  height: 25px !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+  border-radius: 3px 3px 0 0 !important;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.12) !important;
+}
+.narrow-mode .right-panel-tab .v-icon {
+  transform: rotate(90deg);
 }
 </style>
