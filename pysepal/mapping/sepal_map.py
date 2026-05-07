@@ -914,12 +914,20 @@ class SepalMap(ipl.Map):
         self.zoom = zoom
 
         # Shift the map center so the target's geographic center lands at the
-        # *visible* center (drawer_left + visible/2), not the canvas center.
-        # In Web Mercator, longitude is linear in pixels: 360° / (256 * 2**zoom).
+        # *visible* center, not the canvas center.
+        # X (longitude) is linear in Web Mercator pixels: 360° / (256 * 2**zoom).
+        # Y (latitude) scale near lat_c is the X scale * cos(lat_c).
         lat_c, lon_c = compute_center(bounds)
-        px_offset = (left - right) / 2  # +ve when left panel dominates
-        lon_shift = px_offset * 360.0 / (256 * (2**zoom))
-        self.center = (lat_c, lon_c - lon_shift)
+        deg_per_px_x = 360.0 / (256 * (2**zoom))
+        deg_per_px_y = deg_per_px_x * math.cos(math.radians(lat_c))
+
+        px_offset_x = (left - right) / 2  # +ve when left panel dominates
+        # bottom panel pushes the visible region upward → canvas center is
+        # below visible center → map center must shift south (lower lat).
+        px_offset_y = bottom / 2
+        lon_shift = px_offset_x * deg_per_px_x
+        lat_shift = px_offset_y * deg_per_px_y
+        self.center = (lat_c - lat_shift, lon_c - lon_shift)
 
     def add_legend(
         self,

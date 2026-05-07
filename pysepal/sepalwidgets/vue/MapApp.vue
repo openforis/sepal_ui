@@ -1178,9 +1178,11 @@ export default {
   top: calc((100vh - var(--bottom-panel-height)) / 2);
 }
 
-/* Right-panel toggle tab: when narrow, dock it to the bottom-center so the
-   panel slides up from below it. Rotate the chevron-left icon 90° so it
-   points up, and round the top corners instead of the left corners. */
+/* Right-panel toggle tab: when narrow, dock it flush to the bottom-center
+   so the panel slides up from below it. The button flips orientation —
+   on the right edge it is a vertical tab (25px short axis = width); at
+   the bottom it becomes a horizontal tab (25px short axis = height) so
+   the visible "thickness" matches in both layouts. */
 .narrow-mode .right-panel-tab {
   top: auto !important;
   right: auto !important;
@@ -1189,6 +1191,10 @@ export default {
   transform: translateX(-50%) !important;
 }
 .narrow-mode .right-panel-tab .control-btn {
+  min-width: 64px !important;
+  height: 25px !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
   border-radius: 3px 3px 0 0 !important;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.12) !important;
 }
