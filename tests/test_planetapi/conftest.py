@@ -8,12 +8,15 @@ assertion failures and other exceptions still fail fast on the first run.
 import pytest
 
 _RERUN_ON = (
-    # Planet's own rate-limit exception
-    "planet.exceptions.TooManyRequests",
-    # Generic transient network errors
-    "httpx.ConnectError",
-    "httpx.ReadTimeout",
-    "httpx.RemoteProtocolError",
+    # pytest-rerunfailures regex-matches these against the failure repr
+    # (e.g. "TooManyRequests(...)"), so use bare class names.
+    "TooManyRequests",
+    "TooManyRedirects",
+    "ConnectError",
+    "ReadTimeout",
+    "RemoteProtocolError",
+    "ConnectionError",
+    "ServerError",
 )
 
 
