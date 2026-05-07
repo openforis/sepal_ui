@@ -1107,60 +1107,17 @@ export default {
   pointer-events: none !important;
 }
 
-/* Narrow-mode rules that only target this component's own DOM
-   (#map-container, .step-content-container, .sidebar-controls, .left-drawer)
-   stay scoped. */
-.narrow-mode #map-container.map-background {
-  transition: bottom 0.3s ease;
-}
-.narrow-bottom-panel #map-container.map-background {
-  bottom: var(--bottom-panel-height) !important;
-}
-
-.narrow-bottom-panel #map-container .leaflet-right {
-  right: 0 !important;
-  transition: none !important;
-}
-.narrow-bottom-panel #map-container .leaflet-left {
-  transition: none !important;
-}
-
-/* Left drawer should only span the visible map area, not run behind the
-   bottom panel. */
-.narrow-mode .left-drawer.v-navigation-drawer {
-  transition: height 0.3s ease, bottom 0.3s ease,
-    transform 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
-}
-.narrow-bottom-panel .left-drawer.v-navigation-drawer {
-  height: calc(100vh - var(--bottom-panel-height)) !important;
-  bottom: var(--bottom-panel-height) !important;
-}
-
-/* Step-type content (when used instead of the map) must also leave room
-   for the bottom panel. */
-.narrow-bottom-panel .step-content-container {
-  bottom: var(--bottom-panel-height);
-}
-
-/* Re-center the sidebar collapse/expand arrow on the visible map area. */
-.narrow-bottom-panel .sidebar-controls {
-  top: calc((100vh - var(--bottom-panel-height)) / 2);
-}
-</style>
-
-<style>
-/* Non-scoped: these rules target DOM rendered inside sibling components
-   (RightPanel.vue mounted via jupyter-widget). Vue 2 scoped CSS appends
-   the parent's data-v-* attribute to the rightmost selector, which would
-   not match elements outside this component's template — !important does
-   not fix that. Keep them as plain global CSS, gated by the .narrow-mode
-   / .narrow-bottom-panel classes set on this component's <v-app> root.
+/* Narrow viewports: dock the right panel to the bottom and shrink the map
+   above it. Despite the right-panel widget being mounted via a separate
+   jupyter-widget, these scoped rules still apply in the ipyvue runtime —
+   moving them to a non-scoped block was tried and broke the layout, so
+   they stay here. The panel height is read from --narrow-panel-height so
+   it cannot drift from the JS value used elsewhere for layout offsets.
 
    `narrow-mode` (always when narrow) reshapes the right-panel into a bottom
-   sheet so its open/close transition slides vertically. `narrow-bottom-panel`
-   (narrow + open) drives layout shifts for siblings. The panel height is
-   read from --narrow-panel-height so it cannot drift from the JS value
-   used elsewhere for layout offsets. */
+   sheet so its open/close transition slides vertically instead of from the
+   right edge. `narrow-bottom-panel` (narrow + open) drives the layout shift
+   for siblings: map shrinks upward, left drawer height shrinks, etc. */
 .narrow-mode .right-panel.v-navigation-drawer {
   top: auto !important;
   left: 0 !important;
@@ -1180,8 +1137,50 @@ export default {
   transform: translateY(0) !important;
 }
 
-/* Right-panel toggle tab: dock to bottom-center when narrow, rotate the
-   chevron 90° so it points up, round the top corners. */
+/* Match the right-panel's 0.3s slide so the map shrinks in sync with the
+   bottom sheet rising into place — without this they desync (drawer/map
+   snap instantly while the panel still slides up). */
+.narrow-mode #map-container.map-background {
+  transition: bottom 0.3s ease;
+}
+.narrow-bottom-panel #map-container.map-background {
+  bottom: var(--bottom-panel-height) !important;
+}
+
+.narrow-bottom-panel #map-container .leaflet-right {
+  right: 0 !important;
+  transition: none !important;
+}
+.narrow-bottom-panel #map-container .leaflet-left {
+  transition: none !important;
+}
+
+/* Left drawer should only span the visible map area, not run behind the
+   bottom panel. Vuetify positions the drawer with top:0 + height:100%; we
+   shrink height (and pin bottom) so it stops at the panel's top edge. */
+.narrow-mode .left-drawer.v-navigation-drawer {
+  transition: height 0.3s ease, bottom 0.3s ease,
+    transform 0.2s cubic-bezier(0.25, 0.8, 0.5, 1) !important;
+}
+.narrow-bottom-panel .left-drawer.v-navigation-drawer {
+  height: calc(100vh - var(--bottom-panel-height)) !important;
+  bottom: var(--bottom-panel-height) !important;
+}
+
+/* Step-type content (when used instead of the map) must also leave room
+   for the bottom panel. */
+.narrow-bottom-panel .step-content-container {
+  bottom: var(--bottom-panel-height);
+}
+
+/* Re-center the sidebar collapse/expand arrow on the visible map area. */
+.narrow-bottom-panel .sidebar-controls {
+  top: calc((100vh - var(--bottom-panel-height)) / 2);
+}
+
+/* Right-panel toggle tab: when narrow, dock it to the bottom-center so the
+   panel slides up from below it. Rotate the chevron-left icon 90° so it
+   points up, and round the top corners instead of the left corners. */
 .narrow-mode .right-panel-tab {
   top: auto !important;
   right: auto !important;
