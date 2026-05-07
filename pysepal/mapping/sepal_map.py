@@ -97,6 +97,9 @@ class SepalMap(ipl.Map):
     viewport_inset_right = _TInt(0)
     "Right overlay width in px. Set by the parent shell (e.g. MapApp) so fit_bounds targets the visible region."
 
+    viewport_inset_bottom = _TInt(0)
+    "Bottom overlay height in px. Set by the parent shell (e.g. MapApp narrow-mode bottom panel) so fit_bounds targets the visible region."
+
     canvas_width_px = _TInt(0)
     "Canvas width in px, pushed from the frontend."
 
@@ -883,16 +886,19 @@ class SepalMap(ipl.Map):
         canvas_w = int(self.canvas_width_px) or derived_w or DEFAULT_MAP_WIDTH_PX
         canvas_h = int(self.canvas_height_px) or derived_h or (canvas_w * 9 / 16)
 
-        # Subtract overlay panels (nav drawer, right panel) from the *width*;
-        # MapApp has no top/bottom overlays, so height is the full canvas.
+        # Subtract overlay panels (nav drawer, right panel) from the *width*
+        # and the narrow-mode bottom panel from the *height* so fit_bounds
+        # targets the truly visible region.
         left = max(int(self.viewport_inset_left), 0)
         right = max(int(self.viewport_inset_right), 0)
+        bottom = max(int(self.viewport_inset_bottom), 0)
         visible_w = max(canvas_w - left - right, 1)
-        visible_h = canvas_h
+        visible_h = max(canvas_h - bottom, 1)
 
         log.debug(
             f"canvas=({canvas_w:.0f},{canvas_h:.0f}) "
-            f"visible=({visible_w:.0f},{visible_h:.0f}) insets=({left},{right})"
+            f"visible=({visible_w:.0f},{visible_h:.0f}) "
+            f"insets=({left},{right},{bottom})"
         )
 
         zoom = (

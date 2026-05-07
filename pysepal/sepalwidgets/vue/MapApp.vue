@@ -1137,21 +1137,21 @@ export default {
   transform: translateY(0) !important;
 }
 
-/* Match the right-panel's 0.3s slide so the map shrinks in sync with the
-   bottom sheet rising into place — without this they desync (drawer/map
-   snap instantly while the panel still slides up). */
+/* In narrow mode the map ALWAYS reserves the bottom-panel height, even
+   when the panel is closed. This keeps the visible map area stable so
+   downstream calculations (e.g. image centering against the map size)
+   don't shift every time the panel toggles. The closed-panel state shows
+   an empty band below the map where the panel tab sits; the open panel
+   slides in on top of that band. */
 .narrow-mode #map-container.map-background {
-  transition: bottom 0.3s ease;
-}
-.narrow-bottom-panel #map-container.map-background {
-  bottom: var(--bottom-panel-height) !important;
+  bottom: var(--narrow-panel-height, 45vh) !important;
 }
 
-.narrow-bottom-panel #map-container .leaflet-right {
+.narrow-mode #map-container .leaflet-right {
   right: 0 !important;
   transition: none !important;
 }
-.narrow-bottom-panel #map-container .leaflet-left {
+.narrow-mode #map-container .leaflet-left {
   transition: none !important;
 }
 

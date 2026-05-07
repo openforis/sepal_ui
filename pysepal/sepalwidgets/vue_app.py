@@ -193,6 +193,12 @@ class MapApp(v.VuetifyTemplate):
 
         return [ThemeToggle(theme_state=theme_state)]
 
+    # Mirror of MapApp.vue: viewports below this width dock the right
+    # panel as a bottom sheet sized at NARROW_PANEL_HEIGHT_VH of the
+    # window height. Both values must stay in sync with the .vue file.
+    _NARROW_BREAKPOINT_PX = 960
+    _NARROW_PANEL_HEIGHT_VH = 0.45
+
     def _sync_map_insets(self, *args):
         """Push drawer / right-panel pixel widths + window size onto the map."""
         if not self.main_map:
@@ -200,10 +206,21 @@ class MapApp(v.VuetifyTemplate):
         map_widget = self.main_map[0]
         if not hasattr(map_widget, "viewport_inset_left"):
             return
+        is_narrow = 0 < self.window_width < self._NARROW_BREAKPOINT_PX
+        has_right_panel = bool(self.right_panel)
         map_widget.viewport_inset_left = int(self.drawer_width)
+        # In narrow mode the right panel is docked at the bottom, so it
+        # consumes height (mirrored below) rather than width.
         map_widget.viewport_inset_right = (
-            int(self.right_panel_width) if self.right_panel_open else 0
+            int(self.right_panel_width) if self.right_panel_open and not is_narrow else 0
         )
+        if hasattr(map_widget, "viewport_inset_bottom"):
+            bottom = (
+                int(self.window_height * self._NARROW_PANEL_HEIGHT_VH)
+                if is_narrow and has_right_panel
+                else 0
+            )
+            map_widget.viewport_inset_bottom = bottom
         if self.window_width > 0 and hasattr(map_widget, "canvas_width_px"):
             map_widget.canvas_width_px = int(self.window_width)
         if self.window_height > 0 and hasattr(map_widget, "canvas_height_px"):
