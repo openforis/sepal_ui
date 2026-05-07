@@ -1,6 +1,6 @@
-"""Wrapper for ipyvuetify widgets to unify the display of voila dashboards in the SEPAL platform.
+"""UI toolkit for building ipyvuetify and Solara dashboards, with first-class SEPAL integration.
 
-``pysepal`` is a lib designed to create elegant python based dashboard in the SEPAL environment. It is designed on top of the amazing ``ipyvuetify`` library and will help developer to easily create interface for their workflows. By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
+``pysepal`` provides ipyvuetify and Solara components for building geospatial dashboards — mapping (ipyleaflet), AOI selection, GEE session helpers, notifications, exports, i18n, and theme state — usable in any Jupyter / Solara context and tightly integrated with the SEPAL platform.
 """
 
 from pysepal.conf import config as config
@@ -10,7 +10,7 @@ from pysepal.frontend.styles import get_theme as get_theme
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"
-__version__ = "3.4.1"
+__version__ = "3.5.0"
 
 color = SepalColor()
 'color: the colors of sepal. members are in the following list: "main, darker, bg, primary, accent, secondary, success, info, warning, error, menu". They will render according to the selected theme.'

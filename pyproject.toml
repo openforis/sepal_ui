@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pysepal"
-version = "3.4.1"
-description = "Wrapper for ipyvuetify widgets to unify the display of voila dashboards in SEPAL platform"
+version = "3.5.0"
+description = "UI toolkit for building ipyvuetify and Solara dashboards, with first-class SEPAL integration"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -86,6 +86,7 @@ test = [
     "pytest-icdiff",
     "pytest-cov",
     "pytest-deadfixtures",
+    "pytest-rerunfailures",
     "Flake8-pyproject",
     "nbmake",
     "pytest-regressions",
@@ -139,7 +140,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "3.4.1"
+version = "3.5.0"
 version_files = [
     "pyproject.toml:version",
     "pysepal/__init__.py:__version__"

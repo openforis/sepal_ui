@@ -24,12 +24,12 @@ pysepal
    :target: https://conventionalcommits.org
    :alt: conventional commit
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6467834.svg
+.. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.6467834-blue?logo=doi&logoColor=white
    :target: https://doi.org/10.5281/zenodo.6467834
    :alt: Citation
 
-.. image:: https://img.shields.io/readthedocs/sepal_ui?logo=readthedocs&logoColor=white
-    :target: https://sepal-ui.readthedocs.io/en/latest/
+.. image:: https://img.shields.io/readthedocs/pysepal?logo=readthedocs&logoColor=white
+    :target: https://pysepal.readthedocs.io/en/latest/
     :alt: Documentation Status
 
 .. image:: https://img.shields.io/pypi/v/pysepal?color=orange&logo=pypi&logoColor=white
@@ -47,14 +47,6 @@ pysepal
 .. image:: https://img.shields.io/github/actions/workflow/status/openforis/pysepal/unit.yml?logo=github&logoColor=white
     :target: https://github.com/openforis/pysepal/actions/workflows/unit.yml
     :alt: build
-
-.. image:: https://img.shields.io/codeclimate/maintainability/openforis/pysepal?logo=codeclimate&logoColor=white
-    :target: https://codeclimate.com/github/openforis/pysepal/maintainability
-    :alt: Maintainability
-
-.. image:: https://img.shields.io/codecov/c/github/openforis/pysepal?logo=codecov&logoColor=white
-    :target: https://codecov.io/gh/openforis/pysepal
-    :alt: Test Coverage
 
 --------------------------------------------------------------------------------
 
@@ -75,8 +67,7 @@ You can contribute to the translation effort on our `crowdin project <https://cr
 
 --------------------------------------------------------------------------------
 
-:code:`pysepal` is a lib designed to create elegant python based dashboard in the `SEPAL environment <https://sepal.io/>`__. It is designed on top of the amazing `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ library and will help developer to easily create interface for their workflows.
-By using this libraries, you'll ensure a robust and unified interface for your scripts and a easy and complete integration into the SEPAL dashboard of application.
+:code:`pysepal` is a UI toolkit for building `ipyvuetify <https://ipyvuetify.readthedocs.io/en/latest/introduction.html>`_ and `Solara <https://solara.dev/>`_ dashboards, with first-class integration for the `SEPAL platform <https://sepal.io/>`__. It ships components for mapping (`ipyleaflet <https://ipyleaflet.readthedocs.io/>`_), AOI selection, Google Earth Engine session handling, notifications, exports, theming, and i18n — usable in any Jupyter or Solara context, and tightly wired into SEPAL when you run there.
 
 The full documentation is available `here <https://sepal-ui.readthedocs.io/en/latest/>`__ and demo apps can be launched on Heroku following these links:
 

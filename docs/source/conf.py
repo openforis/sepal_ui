@@ -138,6 +138,11 @@ html_theme_options = {
     "footer_center": ["sphinx-version.html"],
     "show_version_warning_banner": True,
 }
+if os.environ.get("READTHEDOCS_PROJECT") == "sepal-ui":
+    html_theme_options["announcement"] = (
+        "<code>sepal-ui</code> has been renamed to <code>pysepal</code>. "
+        'These docs now live at <a href="https://pysepal.readthedocs.io/">pysepal.readthedocs.io</a> — please update your bookmarks.'
+    )
 html_context = {
     "github_user": "openforis",
     "github_repo": "pysepal",
