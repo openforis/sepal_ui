@@ -153,7 +153,6 @@ module.exports = {
   z-index: 1000;
   pointer-events: auto;
   font-family: Roboto, sans-serif;
-  transition: left 0.3s ease, bottom 0.3s ease;
 }
 
 .sepal-legend__pill,
