@@ -1,7 +1,7 @@
 <template>
   <v-btn
     :color="currentColor"
-    :disabled="false"
+    :disabled="disabled"
     @click="on_click_python()"
     :style="{ minWidth: buttonWidth }"
     :small="small"
