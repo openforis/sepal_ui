@@ -723,7 +723,7 @@ class AssetSelect(v.Combobox, SepalWidget):
         # self.asset_info = {}
 
         # if folder is not set use the root one
-        self.folder = str(folder) or self.gee_interface.get_folder()
+        self.folder = str(folder) if folder else self.gee_interface.get_folder()
         self.types = types
 
         # load the default assets
