@@ -141,7 +141,7 @@ module.exports = {
 <style scoped>
 .sepal-legend {
   position: fixed;
-  bottom: 16px;
+  bottom: calc(var(--sepal-bottom-reserved, 0px) + 16px);
   left: calc(
     var(--sepal-drawer-width, 0px) +
       (
@@ -153,7 +153,14 @@ module.exports = {
   z-index: 1000;
   pointer-events: auto;
   font-family: Roboto, sans-serif;
-  transition: left 0.3s ease;
+  transition: left 0.3s ease, bottom 0.3s ease;
+}
+
+/* Hide while a step dialog/modal is open — the legend's stacking context
+   sits above the modal scrim due to the jupyter-widget z-index, so simply
+   removing it from the layer is the cleanest fix. */
+body.sepal-modal-open .sepal-legend {
+  display: none;
 }
 
 .sepal-legend__pill,
