@@ -1,0 +1,15 @@
+import solara
+
+
+class AppState:
+    """Reactive application state for {{project_name}}."""
+
+    def __init__(self):
+        self.ready = solara.reactive(False)
+        self.loading = solara.reactive(False)
+        self.error_message = solara.reactive(None)
+        self.status_message = solara.reactive(None)
+        self.result = solara.reactive(None)
+
+
+app_state = AppState()
