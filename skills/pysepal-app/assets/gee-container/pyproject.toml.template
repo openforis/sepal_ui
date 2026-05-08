@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{project_slug}}"
+version = "0.1.0"
+description = "{{project_description}}"
+requires-python = ">=3.12"
+dependencies = [
+    "pysepal",
+    "solara",
+    "ee-client>=2.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=2.18.0",
+    "commitizen",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "black",
+    "ruff",
+]
+
+[tool.commitizen]
+version = "0.1.0"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+version_files = [
+    "pyproject.toml:version",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+pythonpath = ["."]
+
+[tool.ruff]
+ignore-init-module-imports = true
+fix = true
+select = ["E", "F", "W", "I", "D", "RUF"]
+ignore = ["E501", "F403", "D107", "D100", "D101", "D102", "D103", "D104"]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.black]
+line-length = 100

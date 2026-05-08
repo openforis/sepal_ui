@@ -1,0 +1,14 @@
+name: {{conda_env_name}}
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - pandas
+  - geopandas
+  - rasterio
+  - pyproj
+  - pip:
+      - -e .

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Pysepal App"
+  short_description: "Scaffold pysepal Solara and Voila apps"
+  default_prompt: "Use $pysepal-app to scaffold a new pysepal app from this notebook, repository, or app description."
+
+policy:
+  allow_implicit_invocation: true

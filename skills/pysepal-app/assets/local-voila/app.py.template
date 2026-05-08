@@ -1,0 +1,14 @@
+import solara
+
+from component.model.state_manager import app_state
+
+
+@solara.component
+def Page():
+    solara.Title("{{app_title}}")
+    with solara.Column(style="padding: 20px; gap: 16px;"):
+        solara.Markdown("# {{app_title}}")
+        solara.Markdown(
+            "Replace this scaffold with local widgets, tiles, and scripts. "
+            "Keep business logic out of notebook cells when a notebook entrypoint is used."
+        )
