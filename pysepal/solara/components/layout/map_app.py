@@ -87,6 +87,29 @@ def _build_locale_select(translator):
     return LocaleSelect(translator=translator)
 
 
+def embed_widget(*widgets):
+    """Wrap one or more existing widget instances as a Solara render function.
+
+    Useful when adapting legacy ipyvuetify code to `MapAppComponent` —
+    the `StepConfig.content` and `PanelSection.content` callables expect
+    a Solara render fn, but you may already have constructed
+    `v.Card(...)`, `solara_admin = AdminButton(...)`, etc.
+
+    Example:
+        >>> btn = v.Btn(children=["Click"])
+        >>> PanelSection(title="Tools", content=embed_widget(btn))
+    """
+    from ipywidgets import VBox
+
+    widgets_list = list(widgets)
+
+    @solara.component
+    def _Embed() -> None:
+        VBox.element(children=widgets_list)
+
+    return _Embed
+
+
 @solara.component
 def MapAppComponent(
     app_title: str = "Map Application",

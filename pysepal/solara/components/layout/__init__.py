@@ -3,7 +3,7 @@
 Re-exports the public component and its typed prop models.
 """
 
-from .map_app import MapAppComponent
+from .map_app import MapAppComponent, embed_widget
 from .models import (
     ExternalLink,
     PanelSection,
@@ -14,6 +14,7 @@ from .models import (
 )
 
 __all__ = [
+    "embed_widget",
     "ExternalLink",
     "MapAppComponent",
     "PanelSection",

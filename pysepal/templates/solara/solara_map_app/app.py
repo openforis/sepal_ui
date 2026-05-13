@@ -1,21 +1,26 @@
-"""Solara map application template for SEPAL UI.
+"""Solara map application template — `MapAppComponent` reference.
 
-This module provides a complete example of a map-based application built with Solara
-and SEPAL UI components, including AOI selection, map visualization, and admin tools.
+Demonstrates the new Solara-native `MapAppComponent`:
+
+- Typed `StepConfig` / `PanelSection` / `RightPanelConfig` props.
+- `with MapAppComponent(...): ...` syntax for floating overlays.
+- Lazy step content via `@solara.component` render callables.
+- Mixing pre-built ipyvuetify widgets through `embed_widget(...)`.
+- Auto-wired `ThemeState` and notification CSS variables.
 """
 
 import logging
 
 import ee
-import ipyvuetify as v
 import solara
 from component.model import AppModel
 
 import pysepal.sepalwidgets as sw
 from pysepal.mapping import SepalMap
 from pysepal.scripts.utils import init_ee
-from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import (
+    MapAppComponent,
+    NotificationProvider,
     get_current_drive_interface,
     get_current_gee_interface,
     get_current_sepal_client,
@@ -26,12 +31,18 @@ from pysepal.solara import (
     with_sepal_sessions,
 )
 from pysepal.solara.components.admin import AdminButton
+from pysepal.solara.components.layout import (
+    PanelSection,
+    RightPanelConfig,
+    StepConfig,
+    embed_widget,
+)
 
 logger = logging.getLogger("SEPALUI.map_app")
 logger.debug(">>>>>>>>>>> Starting MAP APP example application <<<<<<<<<<")
 init_ee()
 
-setup_solara_server()  # or setup_solara_server(extra_asset_locations=["./my_assets/"])
+setup_solara_server()
 
 
 @solara.lab.on_kernel_start
@@ -40,8 +51,8 @@ def on_kernel_start():
     return setup_sessions()
 
 
-def get_map():
-    """Create and configure the main map with sample Earth Engine data."""
+def _ndvi_image():
+    """Compute a small NDVI demo image around Bogotá."""
     polygons = ee.FeatureCollection(
         [
             ee.Feature(ee.Geometry.Rectangle([-74.15, 4.77, -74.10, 4.72]), {"name": "Tile A"}),
@@ -55,52 +66,45 @@ def get_map():
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 10))
         .median()
     )
-
     return s2.normalizedDifference(["B8", "B4"]).rename("NDVI")
+
+
+@solara.component
+def AoiStep():
+    """Solara render fn used for both `step` and `dialog` step displays."""
+    with solara.Card(title="Area of Interest Selection"):
+        solara.Markdown("Select your area of interest on the map.")
+        solara.Button(label="Select AOI", color="primary")
 
 
 @solara.component
 @with_sepal_sessions(module_name="sdg_indicators/15.4.2")
 def Page():
-    """Main application page component for the Solara map application.
+    """Main application page — MapAppComponent reference.
 
-    This component sets up the main user interface including theme configuration,
-    map visualization, AOI selection tools, and administrative features.
-    The page is configured with SEPAL sessions for SDG indicators module 15.4.2.
+    Mounts `NotificationProvider` for toast/task UI and the new
+    `MapAppComponent` with two example steps and a right panel.
     """
     setup_theme_colors()
+    NotificationProvider()
 
     gee_interface = get_current_gee_interface()
     get_current_drive_interface()
     get_current_sepal_client()
     theme_state = get_current_theme_state()
 
-    # Just a model to store the app name
     model = AppModel()
+    solara_admin = AdminButton(model, logger_instance=logger)
 
-    solara_admin = AdminButton(
-        model,
-        logger_instance=logger,
-    )
-
-    # Main map widget
     map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_state=theme_state)
     map_.center = [4.75, -74.12]
 
-    aoi_view = v.Card(
-        children=[
-            v.CardTitle(children=["Area of Interest Selection"]),
-            v.CardText(children=["Select your area of interest on the map."]),
-            v.Btn(children=["Select AOI"], color="primary"),
-        ]
-    )
-
     async def _get_maps():
-        """Compute the restoration maps."""
+        """Compute the NDVI demo layer."""
         map_.center = [4.75, -74.12]
         map_.zoom = 5
         map_.remove_all()
-        await map_.add_ee_layer_async(get_map())
+        await map_.add_ee_layer_async(_ndvi_image())
         map_.zoom = 12
 
     def remove_all_layers():
@@ -110,7 +114,6 @@ def Page():
 
     btn_compute = sw.TaskButton("add layer", small=True, block=True)
     btn_remove = sw.Btn("remove all layers", small=True, block=True)
-
     btn_remove.on_event("click", lambda *args: remove_all_layers())
 
     def create_compute_maps_task():
@@ -118,60 +121,70 @@ def Page():
 
     btn_compute.configure(task_factory=create_compute_maps_task)
 
-    steps_data = [
-        {
-            "id": 2,
-            "name": "AOI Selection as step",
-            "icon": "mdi-map-marker-check",
-            "display": "step",
-            "content": aoi_view,
-        },
-        {
-            "id": 3,
-            "name": "AOI Selection as dialog",
-            "icon": "mdi-map-marker-check",
-            "display": "dialog",
-            "content": aoi_view,
-        },
-        {
-            "id": 5,
-            "name": "Toggle sidebar panel",
-            "icon": "mdi-view-dashboard",
-            "display": "step",
-            "content": [],
-            "right_panel_action": "toggle",  # "open", "close", "toggle", or None
-        },
+    steps = [
+        StepConfig(
+            id=2,
+            name="AOI Selection as step",
+            icon="mdi-map-marker-check",
+            display="step",
+            content=AoiStep,
+        ),
+        StepConfig(
+            id=3,
+            name="AOI Selection as dialog",
+            icon="mdi-map-marker-check",
+            display="dialog",
+            content=AoiStep,
+        ),
+        StepConfig(
+            id=5,
+            name="Toggle sidebar panel",
+            icon="mdi-view-dashboard",
+            display="step",
+            right_panel_action="toggle",
+            content_enabled=False,
+        ),
     ]
 
-    # This is for the secondary panel
-    right_panel_config = {
-        "title": "Results",
-        "icon": "mdi-image-filter-hdr",
-        "width": 400,
-        "description": "Some description.",
-        "toggle_icon": "mdi-chart-line",
-    }
+    right_panel_config = RightPanelConfig(
+        title="Results",
+        icon="mdi-image-filter-hdr",
+        width=400,
+        description="Visualize and export layers.",
+        toggle_icon="mdi-chart-line",
+    )
 
-    # We can use solara components here!
-    right_panel_content_with_solara = [
-        {
-            "title": "Visualize and export layers",
-            "icon": "mdi-layers",
-            "content": [solara.Text("This is a Solara component.")],
-            "description": "To add layers to the map, you will first need to select the area of interest and the years in the 3. Indicator settings step.",
-        },
-        {
-            "content": [solara_admin, btn_remove, btn_compute],
-        },
+    @solara.component
+    def IntroSection():
+        solara.Markdown(
+            "Select the AOI from one of the steps on the left, then add "
+            "the demo NDVI layer below."
+        )
+
+    right_panel_content = [
+        PanelSection(
+            title="Visualize and export layers",
+            icon="mdi-layers",
+            content=IntroSection,
+            description="Add the NDVI layer to the map.",
+        ),
+        # Pre-built ipyvuetify widgets (admin button + action buttons)
+        # are wrapped via `embed_widget` so they slot into a typed section.
+        PanelSection(
+            title="Tools",
+            icon="mdi-tools",
+            content=embed_widget(solara_admin, btn_remove, btn_compute),
+            divider=True,
+        ),
     ]
 
-    MapApp.element(
+    MapAppComponent(
         app_title="My test App",
         app_icon="mdi-image-filter-hdr",
-        main_map=[map_],
-        steps_data=steps_data,
+        sepal_map=map_,
+        steps=steps,
         right_panel_config=right_panel_config,
-        right_panel_content=right_panel_content_with_solara,
+        right_panel_content=right_panel_content,
         right_panel_open=True,
         theme_state=theme_state,
         dialog_width=750,

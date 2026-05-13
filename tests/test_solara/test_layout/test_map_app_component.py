@@ -11,6 +11,7 @@ from pysepal.solara.components.layout import (
     PanelSection,
     RightPanelConfig,
     StepConfig,
+    embed_widget,
 )
 from pysepal.solara.components.layout.shell import MapAppShell
 from pysepal.solara.theme import ThemeState
@@ -191,6 +192,28 @@ def test_with_syntax_mounts_children():
     shell = _walk_for(box, MapAppShell)[0]
     assert "rendered" in rendered
     assert shell.children_slot is not None
+
+
+def test_embed_widget_mounts_existing_widget():
+    import ipyvuetify as v
+
+    btn = v.Btn(children=["Click"])
+
+    @solara.component
+    def Page():
+        MapAppComponent(
+            right_panel_config=RightPanelConfig(),
+            right_panel_content=[PanelSection(title="Tools", content=embed_widget(btn))],
+            right_panel_open=True,
+        )
+
+    box, _ = _render(Page)
+    shell = _walk_for(box, MapAppShell)[0]
+    # The host widget is in right_panel_content_widgets; the btn should
+    # appear somewhere in its descendants.
+    host = shell.right_panel_content_widgets[0]
+    all_descendants = _walk_for(host, v.Btn)
+    assert btn in all_descendants
 
 
 def test_step_change_callback_updates_reactive_state():
