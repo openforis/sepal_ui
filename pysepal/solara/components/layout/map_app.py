@@ -192,26 +192,46 @@ def MapAppComponent(
         lambda: [SolaraRenderHost() for _ in right_panel_content],
         dependencies=[len(right_panel_content)],
     )
-    for host, section in zip(panel_hosts, right_panel_content):
-        host.set_render(section.content)
 
-    # Resolve the active step's content factory.
+    # Resolve the active step (used to decide what the shell trait
+    # should point to). The actual `host.set_render(...)` calls happen
+    # in `use_effect` below — calling `reacton.render(...)` from inside
+    # an active render context corrupts Reacton's reconciler.
     active_id = current_step_reactive.value
     active_step: Optional[StepConfig] = next((s for s in steps if s.id == active_id), None)
-    if active_step is not None and active_step.content is not None:
-        step_host.set_render(active_step.content)
-        active_step_content = step_host
-    else:
-        step_host.set_render(None)
-        active_step_content = None
+    active_step_content = (
+        step_host if (active_step is not None and active_step.content is not None) else None
+    )
+    children_widget: Optional[DOMWidget] = children_host if children else None
 
-    # Children slot — only mount the host when there are children.
-    if children:
-        children_host.set_elements(children)
-        children_widget: Optional[DOMWidget] = children_host
-    else:
-        children_host.set_render(None)
-        children_widget = None
+    # --- Deferred host updates (run after the parent render commits) ---
+    section_content_fns = tuple(section.content for section in right_panel_content)
+
+    def _refresh_panel_hosts():
+        for host, factory in zip(panel_hosts, section_content_fns):
+            host.set_render(factory)
+        return None
+
+    solara.use_effect(_refresh_panel_hosts, dependencies=[id(panel_hosts), section_content_fns])
+
+    active_factory = active_step.content if (active_step and active_step.content) else None
+
+    def _refresh_step_host():
+        step_host.set_render(active_factory)
+        return None
+
+    solara.use_effect(_refresh_step_host, dependencies=[active_factory])
+
+    children_tuple = tuple(children)
+
+    def _refresh_children_host():
+        if children_tuple:
+            children_host.set_elements(list(children_tuple))
+        else:
+            children_host.set_render(None)
+        return None
+
+    solara.use_effect(_refresh_children_host, dependencies=[children_tuple])
 
     # Bind the embedded map to the resolved theme state.
     if sepal_map is not None and hasattr(sepal_map, "bind_theme_state"):
