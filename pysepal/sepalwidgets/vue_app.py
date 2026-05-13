@@ -2,6 +2,7 @@
 
 import json
 import logging
+import warnings
 from pathlib import Path
 from typing import Optional
 
@@ -114,6 +115,14 @@ class MapApp(v.VuetifyTemplate):
         **kwargs
             Additional parameters
         """
+        warnings.warn(
+            "pysepal.sepalwidgets.vue_app.MapApp is deprecated and will be "
+            "removed in a future release. Use "
+            "pysepal.solara.components.layout.MapAppComponent (also exported "
+            "as `from pysepal.solara import MapAppComponent`).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._theme_state = theme_state or get_current_theme_state()
         self._model = model
         self._model_links = []  # Store links for cleanup

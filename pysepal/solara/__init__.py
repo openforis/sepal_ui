@@ -4,6 +4,7 @@ This module provides utilities for integrating sepal_ui with Solara applications
 including session management, decorators, and interface utilities.
 """
 
+from .components.layout import MapAppComponent
 from .decorators import with_sepal_sessions
 from .notifications import (
     NotificationProvider,
@@ -23,6 +24,7 @@ from .utils import (
 )
 
 __all__ = [
+    "MapAppComponent",
     "NotificationProvider",
     "ThemeState",
     "get_current_drive_interface",
