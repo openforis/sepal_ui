@@ -11,6 +11,7 @@ from typing import Callable, Optional, Sequence
 
 from googleapiclient.http import MediaIoBaseDownload
 
+from pysepal.mapping.visualization import set_viz_params
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.sepal_client import SepalClient
@@ -213,6 +214,23 @@ def _delete_drive_items(drive_interface: GDriveInterface, items: Sequence[dict])
         drive_interface.service.files().delete(fileId=item["id"]).execute()
 
 
+def _apply_viz_to_image(request: ExportRequest) -> object:
+    """Return the export image with SEPAL visualization properties embedded.
+
+    Apps that produce SEPAL-styled layers can pass ``vis_params`` on
+    :class:`ResolvedExport` to keep the displayed styling on the exported asset.
+    The properties are written via
+    :func:`pysepal.mapping.visualization.set_viz_params` and survive on
+    ``Export.image.toAsset`` outputs; Drive/SEPAL targets stage through a
+    GeoTIFF where image properties become GDAL tags rather than EE properties,
+    but applying them unconditionally is cheap and keeps downstream EE-asset
+    consumers consistent.
+    """
+    if request.export_kind != "image" or not request.vis_params:
+        return request.ee_object
+    return set_viz_params(request.ee_object, **request.vis_params)
+
+
 async def _submit_export(
     gee_interface: GEEInterface,
     request: ExportRequest,
@@ -221,9 +239,10 @@ async def _submit_export(
 ) -> object:
     """Dispatch the export submission through ``GEEInterface``."""
     if request.export_kind == "image":
+        image_to_export = _apply_viz_to_image(request)
         if request.target == "gee":
             return await gee_interface.export_image_to_asset_async(
-                image=request.ee_object,
+                image=image_to_export,
                 asset_id=asset_id or "",
                 description=request.name,
                 region=request.region,
@@ -233,7 +252,7 @@ async def _submit_export(
             )
 
         return await gee_interface.export_image_to_drive_async(
-            image=request.ee_object,
+            image=image_to_export,
             description=request.name,
             folder=request.drive_folder or None,
             filename_prefix=request.name,
