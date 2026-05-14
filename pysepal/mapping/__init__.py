@@ -28,4 +28,5 @@ from .map_btn import *
 from .marker_cluster import *
 from .menu_control import *
 from .sepal_map import *
+from .visualization import *
 from .zoom_control import *
