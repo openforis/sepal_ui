@@ -69,6 +69,19 @@ class ResolvedExport:
     max_pixels: int | None = 1_000_000_000
     max_vertices: int | None = None
     priority: int | None = None
+    vis_params: Optional[dict] = None
+    """Optional SEPAL-convention visualization parameters to embed on the
+    exported image.
+
+    When set on an ``image``-kind source, the engine wraps ``ee_object`` with
+    :func:`pysepal.mapping.visualization.set_viz_params` before submission, so
+    the resulting Earth Engine asset carries the ``visualization_*`` properties
+    that SepalMap (and other SEPAL recipes) read on display. Pass the same dict
+    shape accepted by ``set_viz_params`` (keys: ``name``, ``type``, ``bands``,
+    ``min``, ``max``, ``palette``, ``values``, ``labels``, ``inverted``).
+
+    Ignored for ``table``-kind sources.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,6 +106,7 @@ class ExportRequest:
     cleanup_drive_after_sepal: bool = True
     poll_interval_seconds: float = 3.0
     timeout_seconds: float = 1800.0
+    vis_params: Optional[dict] = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -256,16 +270,16 @@ def _build_result_message(result: ExportResult) -> str:
 __all__ = [
     "DEFAULT_IMAGE_FILE_FORMAT",
     "DEFAULT_TABLE_FILE_FORMAT",
+    "FAILED_TASK_STATES",
+    "SUCCESS_TASK_STATES",
+    "TABLE_FILE_FORMATS",
+    "TARGET_LABELS",
     "ExportKind",
     "ExportRequest",
     "ExportResult",
     "ExportSource",
     "ExportTarget",
-    "FAILED_TASK_STATES",
     "ResolvedExport",
-    "SUCCESS_TASK_STATES",
-    "TABLE_FILE_FORMATS",
-    "TARGET_LABELS",
     "_build_result_message",
     "extract_task_id",
     "get_task_state_name",

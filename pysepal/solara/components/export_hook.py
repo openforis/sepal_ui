@@ -440,6 +440,7 @@ def use_export_dialog(
             cleanup_drive_after_sepal=state.cleanup_drive_after_sepal,
             poll_interval_seconds=state.poll_interval_seconds,
             timeout_seconds=state.timeout_seconds,
+            vis_params=resolved_export.vis_params if export_kind == "image" else None,
         )
 
     async def run_export(request: ExportRequest) -> ExportResult:
