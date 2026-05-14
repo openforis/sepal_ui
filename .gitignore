@@ -13,15 +13,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 *[Uu]ntitled*
-guides/
+/guides/
 .plans/
 docs/plans/
-docs/guides/
 docs/superpowers/
 *legacy*
 
 .github/workflows/act_unit.yml
-guides/
+/guides/
 legacy/
 
 # C extensions
