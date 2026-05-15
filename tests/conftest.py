@@ -21,11 +21,7 @@ from pysepal.scripts import gee
 from pysepal.scripts import utils as su
 from pysepal.scripts.gee_interface import GEEInterface
 
-try:
-    su.init_ee()
-except Exception as e:
-    raise e
-    # pass  # try to init earthengine. use ee.data.is_initialized() to skip
+su.init_ee()
 
 # -- a component to fake the display in Ipython --------------------------------
 
