@@ -607,7 +607,7 @@ def test_submit_export_request_embeds_vis_params_on_image_for_gee_asset(monkeypa
         export_kind="image",
         target="gee",
         name="styled_export",
-        gee_folder="gfc",
+        gee_asset_id="projects/demo/assets/gfc/styled_export",
         vis_params=vis_params,
     )
 
@@ -648,7 +648,7 @@ def test_submit_export_request_skips_viz_embed_when_vis_params_missing(monkeypat
         export_kind="image",
         target="gee",
         name="plain_export",
-        gee_folder="demo",
+        gee_asset_id="projects/demo/assets/demo/plain_export",
     )
 
     asyncio.run(
