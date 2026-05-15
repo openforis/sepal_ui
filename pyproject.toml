@@ -42,7 +42,7 @@ dependencies = [
     "pygadm>=0.5.0", # use the class implementation
     # miscellaneous
     "python-box",
-    "pysepal-api>=0.1,<1",
+    "pysepal-api>=0.1.0.dev0,<1",
     "tqdm",
     "Deprecated>=1.2.14",
     "anyascii",  # to decode international names with non latin characters
