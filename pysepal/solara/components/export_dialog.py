@@ -14,11 +14,7 @@ from .export_hook import (
     get_source_items,
     get_target_items,
 )
-from .export_models import (
-    TABLE_FILE_FORMATS,
-    resolve_asset_folder,
-    sanitize_export_name,
-)
+from .export_models import TABLE_FILE_FORMATS, validate_asset_id_under_root
 
 IMAGE_SCALE_PRESETS = [10, 15, 20, 30, 60, 100]
 
@@ -30,13 +26,6 @@ def _hint_props(hint: str) -> dict[str, object]:
         "hint": hint,
         "persistent_hint": True,
     }
-
-
-def _build_gee_asset_hint(asset_root: str, requested_folder: str, export_name: str) -> str:
-    """Return a humane preview of the resolved Earth Engine asset path."""
-    resolved_folder = resolve_asset_folder(asset_root, requested_folder)
-    asset_name = sanitize_export_name(export_name) if export_name.strip() else "<name>"
-    return f"Will be exported as: {resolved_folder}/{asset_name}"
 
 
 @solara.component
@@ -121,14 +110,33 @@ def ExportDialog(
     )
     has_usable_sources = any(not source.disabled for source in controller.sources)
     fields_disabled = active_source is None
-    name_error = "" if fields_disabled or controller.export_name.value.strip() else "Name required"
+    gee_target_selected = controller.selected_target.value == "gee"
+    gee_asset_conflict = gee_target_selected and state.gee_asset_conflict.value
+
+    if gee_target_selected:
+        identifier_error = (
+            "" if fields_disabled or state.gee_asset_id.value.strip() else "Asset ID required"
+        )
+        asset_root_error = (
+            validate_asset_id_under_root(state.gee_asset_id.value, state.asset_root.value)
+            if not fields_disabled
+            else None
+        )
+    else:
+        identifier_error = (
+            "" if fields_disabled or controller.export_name.value.strip() else "Name required"
+        )
+        asset_root_error = None
+
     submit_disabled = (
         not has_usable_sources
         or active_source is None
         or resolved_export is None
         or export_kind is None
         or bool(resolve_error)
-        or bool(name_error)
+        or bool(identifier_error)
+        or bool(asset_root_error)
+        or gee_asset_conflict
     )
 
     target_items = get_target_items(state.sepal_client)
@@ -143,6 +151,11 @@ def ExportDialog(
         controller.export_name.set(value)
         if not controller.name_dirty.value and value != state.last_default_name.value:
             controller.name_dirty.set(True)
+
+    def _handle_asset_id_change(value: str) -> None:
+        state.gee_asset_id.set(value)
+        if not state.gee_asset_id_dirty.value and value != state.last_default_gee_asset_id.value:
+            state.gee_asset_id_dirty.set(True)
 
     with v.Dialog(
         v_model=controller.open.value,
@@ -189,37 +202,53 @@ def ExportDialog(
                                 disabled=bool(item.get("disabled", False)) or fields_disabled,
                             )
 
-                    with rv.TextField(
-                        label="Export name",
-                        v_model=controller.export_name.value,
-                        on_v_model=_handle_name_change,
-                        dense=True,
-                        error=bool(name_error),
-                        error_messages=name_error or None,
-                        hide_details="auto",
-                        disabled=fields_disabled,
-                    ):
-                        pass
+                    if gee_target_selected:
+                        if identifier_error:
+                            asset_id_kwargs: dict[str, object] = {
+                                "error": True,
+                                "error_messages": identifier_error,
+                                "hide_details": "auto",
+                            }
+                        elif asset_root_error:
+                            asset_id_kwargs = {
+                                "error": True,
+                                "error_messages": asset_root_error,
+                                "hide_details": False,
+                            }
+                        elif gee_asset_conflict:
+                            asset_id_kwargs = {
+                                "error": True,
+                                "error_messages": (
+                                    "An asset with this id already exists. "
+                                    "Edit the id or pick a different path."
+                                ),
+                                "hide_details": False,
+                            }
+                        else:
+                            asset_id_kwargs = {"hide_details": True}
 
-                    if controller.selected_target.value == "gee":
-                        asset_root_placeholder = state.asset_root.value
-                        gee_asset_hint = _build_gee_asset_hint(
-                            state.asset_root.value,
-                            state.gee_folder.value,
-                            controller.export_name.value,
-                        )
                         with rv.TextField(
-                            label="Earth Engine folder",
-                            v_model=state.gee_folder.value,
-                            on_v_model=state.gee_folder.set,
+                            label="Asset ID",
+                            v_model=state.gee_asset_id.value,
+                            on_v_model=_handle_asset_id_change,
                             dense=True,
-                            placeholder=asset_root_placeholder,
                             disabled=fields_disabled,
-                            **_hint_props(gee_asset_hint),
+                            **asset_id_kwargs,
+                        ):
+                            pass
+                    else:
+                        with rv.TextField(
+                            label="Export name",
+                            v_model=controller.export_name.value,
+                            on_v_model=_handle_name_change,
+                            dense=True,
+                            error=bool(identifier_error),
+                            error_messages=identifier_error or None,
+                            hide_details="auto",
+                            disabled=fields_disabled,
                         ):
                             pass
 
-                    if controller.selected_target.value in {"drive", "sepal"}:
                         with rv.TextField(
                             label="Google Drive folder",
                             v_model=state.drive_folder.value,

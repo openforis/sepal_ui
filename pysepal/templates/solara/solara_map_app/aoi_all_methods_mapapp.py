@@ -262,11 +262,13 @@ def ProcessStep(aoi_data, processed_datasets, sepal_map):
         run_process,
         dependencies=None,
         raise_error=False,
+        prefer_threaded=False,
     )
     failing_task = solara.lab.use_task(
         run_failing_process,
         dependencies=None,
         raise_error=False,
+        prefer_threaded=False,
     )
 
     def start_process():
