@@ -130,6 +130,13 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Error closing GEE interface for kernel {kernel_id}: {e}")
 
+            try:
+                sepal_client = session.get("sepal_client")
+                if sepal_client is not None:
+                    sepal_client.close()
+            except Exception as e:
+                logger.error(f"Error closing SepalClient for kernel {kernel_id}: {e}")
+
             del self._sessions[kernel_id]
             logger.debug(f"Session cleaned up for kernel {kernel_id}")
 
