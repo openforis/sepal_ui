@@ -1,0 +1,12 @@
+# Reviews on these paths require @dfguerrerom even if other reviewers
+# already approved the PR. Enforced via branch protection's "Require review
+# from Code Owners" toggle.
+#
+# Rationale: workflows run with secrets (EE, PyPI publishing), pyproject
+# declares the dep tree (pip install runs setup.py as root in CI),
+# conftest/noxfile execute on every test run.
+
+/.github/                       @dfguerrerom
+/pyproject.toml                 @dfguerrerom
+/noxfile.py                     @dfguerrerom
+/tests/conftest.py              @dfguerrerom
