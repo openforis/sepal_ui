@@ -31,6 +31,9 @@ jobs:
   build:
     needs: [lint]
     runs-on: ubuntu-latest
+    env:
+      # Inject EE creds when triggered by push or by a same-repo PR. Forks see ''.
+      EARTHENGINE_TOKEN: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.EARTHENGINE_SERVICE_ACCOUNT || '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,7 +65,8 @@ jobs:
 
   test_gee:
     needs: [build]
-    if: github.event_name == 'push'
+    # Run on push and on same-repo PRs; skip on fork PRs (no secrets available).
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
