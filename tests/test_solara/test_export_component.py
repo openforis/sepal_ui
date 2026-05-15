@@ -25,8 +25,9 @@ from pysepal.solara.components.export import (
     resolve_sepal_folder,
     sanitize_export_name,
     submit_export_request,
+    validate_asset_id_under_root,
 )
-from pysepal.solara.components.export_dialog import ExportDialog, _build_gee_asset_hint
+from pysepal.solara.components.export_dialog import ExportDialog
 from pysepal.solara.components.export_hook import get_active_source, use_export_dialog
 
 
@@ -57,12 +58,27 @@ def _render(factory, *args, **kwargs):
     return asyncio.run(_runner())
 
 
-def _render_preselected_dialog(source, *, target="gee"):
+def _render_preselected_dialog(
+    source,
+    *,
+    target="gee",
+    force_conflict_path=None,
+    force_asset_root=None,
+    force_asset_id=None,
+):
     """Render ``ExportDialog`` with a source preselected and the dialog open.
 
     The production UX hides the dialog body until the user picks an asset, so
     assertions about post-selection widgets (destination radio, scale presets,
     folder fields) must drive the controller into the selected state first.
+
+    Pass ``force_conflict_path`` to additionally seed ``gee_asset_conflict``
+    state — useful for asserting the conflict UI without driving the live
+    debounced check.
+
+    Pass ``force_asset_root`` / ``force_asset_id`` to drive root + asset-id
+    state directly — useful for asserting the root-validation UI without
+    waiting on ``_load_asset_root`` (which fails silently against MagicMock).
     """
 
     @solara.component
@@ -77,6 +93,20 @@ def _render_preselected_dialog(source, *, target="gee"):
             controller.selected_source_id.set(source.id)
             controller.selected_target.set(target)
             controller.open.set(True)
+            if force_asset_root is not None:
+                controller._state.asset_root.set(force_asset_root)
+            if force_asset_id is not None:
+                controller._state.gee_asset_id.set(force_asset_id)
+                controller._state.gee_asset_id_dirty.set(True)
+            if force_conflict_path is not None:
+                # Seed a non-empty asset id (and mark dirty) so the live
+                # conflict-check task hits its debounce sleep — which is
+                # cancelled when asyncio.run() tears down the loop — instead
+                # of running to completion and clobbering the forced state.
+                controller._state.gee_asset_id.set(force_conflict_path)
+                controller._state.gee_asset_id_dirty.set(True)
+                controller._state.gee_asset_conflict.set(True)
+                controller._state.gee_asset_conflict_path.set(force_conflict_path)
 
         solara.use_effect(_preselect, [])
         return ExportDialog(controller=controller, title="Test")
@@ -132,14 +162,57 @@ def test_resolve_asset_folder_keeps_absolute_paths():
     assert resolve_asset_folder("projects/my-project/assets", absolute) == absolute
 
 
-def test_build_gee_asset_hint_uses_resolved_folder_and_sanitized_name():
-    hint = _build_gee_asset_hint(
-        "projects/my-project/assets",
-        "exports/final",
-        "My export",
+def test_validate_asset_id_under_root_accepts_path_under_root():
+    assert (
+        validate_asset_id_under_root(
+            "projects/my-project/assets/exports/my_data",
+            "projects/my-project/assets",
+        )
+        is None
     )
 
-    assert hint == ("Will be exported as: projects/my-project/assets/exports/final/My_export")
+
+def test_validate_asset_id_under_root_rejects_different_project():
+    error = validate_asset_id_under_root(
+        "projects/other-project/assets/exports/my_data",
+        "projects/my-project/assets",
+    )
+    assert error is not None
+    assert "projects/my-project/assets/" in error
+
+
+def test_validate_asset_id_under_root_rejects_path_outside_assets():
+    error = validate_asset_id_under_root(
+        "users/somebody/my_data",
+        "projects/my-project/assets",
+    )
+    assert error is not None
+
+
+def test_validate_asset_id_under_root_rejects_root_with_no_name():
+    error = validate_asset_id_under_root(
+        "projects/my-project/assets/",
+        "projects/my-project/assets",
+    )
+    assert error is not None
+    assert "name" in error.lower()
+
+
+def test_validate_asset_id_under_root_defers_when_root_unloaded():
+    """Placeholder root means asset_root hasn't loaded yet — defer validation."""
+    assert (
+        validate_asset_id_under_root(
+            "projects/my-project/assets/foo",
+            "projects/{project}/assets",
+        )
+        is None
+    )
+
+
+def test_validate_asset_id_under_root_lets_empty_pass_through():
+    """Empty asset_id is a separate 'required' error handled elsewhere."""
+    assert validate_asset_id_under_root("", "projects/my-project/assets") is None
+    assert validate_asset_id_under_root("   ", "projects/my-project/assets") is None
 
 
 def test_get_active_source_requires_explicit_selection():
@@ -455,7 +528,7 @@ def test_submit_export_request_builds_gee_asset_result():
         export_kind="table",
         target="gee",
         name="demo_export",
-        gee_folder="reports/2026",
+        gee_asset_id="projects/demo/assets/reports/2026/demo_export",
     )
 
     result = asyncio.run(
@@ -600,9 +673,6 @@ def test_build_request_drops_vis_params_for_table_exports():
         vis_params={"palette": ["#000"]},
     )
 
-    # Mimic the relevant subset of build_request's behavior: the hook clears
-    # vis_params for table kind. We assert by constructing the request directly
-    # the same way the hook does.
     request = ExportRequest(
         ee_object=resolved.ee_object,
         export_kind="table",
@@ -611,6 +681,445 @@ def test_build_request_drops_vis_params_for_table_exports():
         vis_params=resolved.vis_params if "table" == "image" else None,
     )
     assert request.vis_params is None
+
+
+class _FakeGeeInterfaceWithExistingAsset(_FakeGeeInterface):
+    """Variant whose ``get_asset_async`` reports the target asset as existing."""
+
+    def __init__(self):
+        super().__init__()
+        self.checked_asset_ids: list[str] = []
+
+    async def get_asset_async(self, asset_id, not_exists_ok=False):
+        self.checked_asset_ids.append(asset_id)
+        return {"id": asset_id, "type": "TABLE"}
+
+
+def test_submit_export_request_refuses_to_overwrite_existing_gee_asset():
+    gee_interface = _FakeGeeInterfaceWithExistingAsset()
+
+    request = ExportRequest(
+        ee_object=_FakeTable(),
+        export_kind="table",
+        target="gee",
+        name="demo_export",
+        gee_asset_id="projects/demo/assets/reports/2026/demo_export",
+    )
+
+    try:
+        asyncio.run(
+            submit_export_request(
+                request,
+                gee_interface=gee_interface,
+                drive_interface=MagicMock(),
+                sepal_client=None,
+            )
+        )
+    except FileExistsError as exc:
+        assert "projects/demo/assets/reports/2026/demo_export" in str(exc)
+        assert gee_interface.checked_asset_ids == ["projects/demo/assets/reports/2026/demo_export"]
+        # The existence check must run *before* folder creation so a conflict
+        # does not leave empty folders behind.
+        assert gee_interface.created_folders == []
+        assert gee_interface.asset_exports == []
+    else:
+        raise AssertionError("submit_export_request must raise on existing GEE asset")
+
+
+def test_submit_export_request_rejects_empty_gee_asset_id():
+    """Engine validates `gee_asset_id` is non-empty for GEE target."""
+    gee_interface = _FakeGeeInterface()
+
+    request = ExportRequest(
+        ee_object=_FakeTable(),
+        export_kind="table",
+        target="gee",
+        name="demo_export",
+        gee_asset_id="",
+    )
+
+    try:
+        asyncio.run(
+            submit_export_request(
+                request,
+                gee_interface=gee_interface,
+                drive_interface=MagicMock(),
+                sepal_client=None,
+            )
+        )
+    except ValueError as exc:
+        assert "asset id" in str(exc).lower()
+    else:
+        raise AssertionError("Empty gee_asset_id must raise ValueError")
+
+
+def test_submit_export_request_rejects_asset_id_outside_user_root():
+    """Engine refuses an asset_id that does not live under the user's asset root."""
+    gee_interface = _FakeGeeInterface()
+
+    request = ExportRequest(
+        ee_object=_FakeTable(),
+        export_kind="table",
+        target="gee",
+        name="demo_export",
+        gee_asset_id="projects/someone-else/assets/exports/my_data",
+    )
+
+    try:
+        asyncio.run(
+            submit_export_request(
+                request,
+                gee_interface=gee_interface,
+                drive_interface=MagicMock(),
+                sepal_client=None,
+            )
+        )
+    except ValueError as exc:
+        assert "projects/demo/assets/" in str(exc)
+        # Existence check must not run for a path the user cannot write to.
+        assert gee_interface.created_folders == []
+        assert gee_interface.asset_exports == []
+    else:
+        raise AssertionError("Engine must refuse asset ids outside the user's root")
+
+
+class _DriveCheckTrackingGeeInterface(_FakeGeeInterface):
+    """Tracks ``get_asset_async`` calls so we can assert non-GEE targets skip it."""
+
+    def __init__(self):
+        super().__init__()
+        self.checked_asset_ids: list[str] = []
+
+    async def get_asset_async(self, asset_id, not_exists_ok=False):
+        self.checked_asset_ids.append(asset_id)
+        return None
+
+    async def export_table_to_drive_async(self, **_kwargs):
+        return {"id": "drive-task"}
+
+
+def test_submit_export_request_skips_existence_check_for_drive_target():
+    gee_interface = _DriveCheckTrackingGeeInterface()
+
+    request = ExportRequest(
+        ee_object=_FakeTable(),
+        export_kind="table",
+        target="drive",
+        name="demo_export",
+        drive_folder="exports",
+    )
+
+    asyncio.run(
+        submit_export_request(
+            request,
+            gee_interface=gee_interface,
+            drive_interface=MagicMock(),
+            sepal_client=None,
+        )
+    )
+
+    assert gee_interface.checked_asset_ids == []
+
+
+# ---------------------------------------------------------------------------
+# Layer 2: dialog live conflict hint
+# ---------------------------------------------------------------------------
+
+
+class _ConflictProbeGeeInterface:
+    """Records ``get_asset_async`` calls; returns whatever was preconfigured."""
+
+    def __init__(self, existing_asset=None, raises: Exception | None = None):
+        self.existing_asset = existing_asset
+        self.raises = raises
+        self.checked_asset_ids: list[str] = []
+
+    async def get_asset_async(self, asset_id, not_exists_ok=False):
+        self.checked_asset_ids.append(asset_id)
+        if self.raises is not None:
+            raise self.raises
+        return self.existing_asset
+
+
+def test_resolve_gee_asset_conflict_short_circuits_when_target_not_gee():
+    gee_interface = _ConflictProbeGeeInterface(existing_asset={"id": "ignored"})
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="drive",
+            has_active_source=True,
+            asset_id="projects/demo/assets/reports/my_export",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    assert conflict is False
+    assert path == ""
+    # Never touches the network for non-GEE targets.
+    assert gee_interface.checked_asset_ids == []
+
+
+def test_resolve_gee_asset_conflict_short_circuits_when_asset_id_empty():
+    gee_interface = _ConflictProbeGeeInterface(existing_asset={"id": "ignored"})
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="gee",
+            has_active_source=True,
+            asset_id="   ",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    assert conflict is False
+    assert path == ""
+    assert gee_interface.checked_asset_ids == []
+
+
+def test_resolve_gee_asset_conflict_short_circuits_when_no_active_source():
+    gee_interface = _ConflictProbeGeeInterface(existing_asset={"id": "ignored"})
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="gee",
+            has_active_source=False,
+            asset_id="projects/demo/assets/reports/my_export",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    assert conflict is False
+    assert path == ""
+    assert gee_interface.checked_asset_ids == []
+
+
+def test_resolve_gee_asset_conflict_returns_no_conflict_when_asset_absent():
+    gee_interface = _ConflictProbeGeeInterface(existing_asset=None)
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="gee",
+            has_active_source=True,
+            asset_id="projects/demo/assets/reports/my_export",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    assert conflict is False
+    assert path == ""
+    assert gee_interface.checked_asset_ids == ["projects/demo/assets/reports/my_export"]
+
+
+def test_resolve_gee_asset_conflict_flags_conflict_when_asset_exists():
+    gee_interface = _ConflictProbeGeeInterface(
+        existing_asset={"id": "projects/demo/assets/reports/My_export"},
+    )
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="gee",
+            has_active_source=True,
+            asset_id="projects/demo/assets/reports/My_export",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    assert conflict is True
+    assert path == "projects/demo/assets/reports/My_export"
+    assert gee_interface.checked_asset_ids == ["projects/demo/assets/reports/My_export"]
+
+
+def test_resolve_gee_asset_conflict_swallows_lookup_errors():
+    gee_interface = _ConflictProbeGeeInterface(raises=RuntimeError("transient network blip"))
+
+    conflict, path = asyncio.run(
+        export_hook_module._resolve_gee_asset_conflict(
+            target="gee",
+            has_active_source=True,
+            asset_id="projects/demo/assets/reports/my_export",
+            gee_interface=gee_interface,
+            debounce_seconds=0,
+        )
+    )
+
+    # Lookup failures must not block the user; engine guard remains authoritative.
+    assert conflict is False
+    assert path == ""
+    assert gee_interface.checked_asset_ids == ["projects/demo/assets/reports/my_export"]
+
+
+def test_build_default_gee_asset_id_uses_asset_root_and_module_folder():
+    resolved = ResolvedExport(ee_object=_FakeTable(), default_name="My export")
+    sepal_client = SimpleNamespace(module_name="aoi_all_methods")
+
+    asset_id = export_hook_module._build_default_gee_asset_id(
+        "projects/demo/assets",
+        resolved,
+        sepal_client,
+    )
+
+    assert asset_id == "projects/demo/assets/aoi_all_methods/My_export"
+
+
+def test_build_default_gee_asset_id_respects_absolute_resolved_folder():
+    resolved = ResolvedExport(
+        ee_object=_FakeTable(),
+        default_name="data",
+        gee_folder="projects/other/assets/exports/2026",
+    )
+
+    asset_id = export_hook_module._build_default_gee_asset_id(
+        "projects/demo/assets",
+        resolved,
+        None,
+    )
+
+    assert asset_id == "projects/other/assets/exports/2026/data"
+
+
+def test_build_default_gee_asset_id_returns_empty_until_asset_root_loads():
+    resolved = ResolvedExport(ee_object=_FakeTable(), default_name="data")
+
+    asset_id = export_hook_module._build_default_gee_asset_id(
+        "projects/{project}/assets",
+        resolved,
+        None,
+    )
+
+    assert asset_id == ""
+
+
+def test_export_dialog_renders_single_asset_id_field_for_gee_target():
+    """GEE target collapses Export name + EE folder into one Asset ID field."""
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_export",
+        ),
+    )
+    element = _render_preselected_dialog(source=source, target="gee")
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    text_fields = [widget for widget in _walk(element) if widget.__class__.__name__ == "TextField"]
+    labels = [getattr(widget, "label", None) for widget in text_fields]
+
+    assert "Asset ID" in labels, "GEE target must render an Asset ID field"
+    assert "Earth Engine folder" not in labels
+    assert "Export name" not in labels
+
+
+def test_export_dialog_marks_asset_id_field_with_error_on_conflict():
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_export",
+        ),
+    )
+    element = _render_preselected_dialog(
+        source=source,
+        target="gee",
+        force_conflict_path="projects/demo/assets/reports/demo_export",
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    asset_id_fields = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "TextField" and getattr(widget, "label", None) == "Asset ID"
+    ]
+
+    assert asset_id_fields, "Asset ID field must be rendered"
+    field = asset_id_fields[0]
+    assert getattr(field, "error", False) is True
+    error_messages = str(getattr(field, "error_messages", ""))
+    assert "already exists" in error_messages.lower()
+    # Path should NOT be repeated in the message — the field already shows it.
+    assert "projects/demo/assets/reports/demo_export" not in error_messages
+
+
+def test_export_dialog_marks_asset_id_field_with_error_when_outside_root():
+    """User-edited asset_id outside the user's GEE asset root surfaces inline."""
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_export",
+        ),
+    )
+    element = _render_preselected_dialog(
+        source=source,
+        target="gee",
+        force_asset_root="projects/my-project/assets",
+        force_asset_id="projects/someone-else/assets/exports/my_data",
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    asset_id_fields = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "TextField" and getattr(widget, "label", None) == "Asset ID"
+    ]
+
+    assert asset_id_fields, "Asset ID field must be rendered"
+    field = asset_id_fields[0]
+    assert getattr(field, "error", False) is True
+    error_messages = str(getattr(field, "error_messages", ""))
+    assert "projects/my-project/assets/" in error_messages
+    assert "must live under" in error_messages.lower()
+
+
+def test_export_dialog_renders_export_name_and_drive_folder_for_drive_target():
+    """Drive/SEPAL targets keep the existing Export name + Drive folder UX."""
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_export",
+        ),
+    )
+    element = _render_preselected_dialog(source=source, target="drive")
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    labels = [
+        getattr(widget, "label", None)
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "TextField"
+    ]
+
+    assert "Export name" in labels
+    assert "Google Drive folder" in labels
+    assert "Asset ID" not in labels
 
 
 class _FakeRestSession:

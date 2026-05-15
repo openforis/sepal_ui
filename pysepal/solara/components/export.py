@@ -37,6 +37,7 @@ from .export_models import (
     resolve_asset_folder,
     resolve_sepal_folder,
     sanitize_export_name,
+    validate_asset_id_under_root,
 )
 
 
@@ -159,4 +160,5 @@ __all__ = [
     "sanitize_export_name",
     "submit_export_request",
     "use_export_dialog",
+    "validate_asset_id_under_root",
 ]

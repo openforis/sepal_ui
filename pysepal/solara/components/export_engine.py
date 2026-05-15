@@ -25,8 +25,8 @@ from .export_models import (
     extract_task_id,
     get_task_state_name,
     matches_drive_export_prefix,
-    resolve_asset_folder,
     resolve_sepal_folder,
+    validate_asset_id_under_root,
 )
 
 StatusCallback = Optional[Callable[[str], None]]
@@ -300,10 +300,24 @@ async def submit_export_request(
 
     if request.target == "gee":
         _notify(on_step, "Preparing Earth Engine destination")
+        asset_id = (request.gee_asset_id or "").strip()
+        if not asset_id:
+            raise ValueError("Earth Engine export requires an asset id.")
+
         root_folder = await gee_interface.get_folder_async()
-        asset_folder = resolve_asset_folder(root_folder, request.gee_folder)
+        root_error = validate_asset_id_under_root(asset_id, str(root_folder or ""))
+        if root_error:
+            raise ValueError(root_error)
+
+        existing = await gee_interface.get_asset_async(asset_id, not_exists_ok=True)
+        if existing is not None:
+            raise FileExistsError(
+                f"An Earth Engine asset already exists at `{asset_id}`. "
+                "Edit the asset id or pick a different path."
+            )
+
+        asset_folder = str(PurePosixPath(asset_id).parent)
         await _ensure_asset_folder_exists(gee_interface, asset_folder)
-        asset_id = str(PurePosixPath(asset_folder) / request.name)
 
         _notify(on_step, "Submitting Earth Engine export")
         submission = await _submit_export(gee_interface, request, asset_id=asset_id)
