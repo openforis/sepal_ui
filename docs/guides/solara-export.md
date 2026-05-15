@@ -126,11 +126,16 @@ provider is mounted).
 ```python
 ResolvedExport(
     ee_object=ee_object,             # ee.Image or ee.FeatureCollection
-    default_name="my_export",         # pre-fills the Export name field
+    default_name="my_export",         # leaf name; pre-fills the Asset ID (GEE)
+                                       # or the Export name field (Drive/SEPAL)
     region=aoi.value,                 # optional, used for image exports
     default_scale=30,                 # optional, used for image exports
     selectors=("ADM0_NAME",),          # optional, narrow table columns
-    gee_folder="my_module",           # optional, relative to user's asset root
+    gee_folder="my_module",           # optional folder segment under the user's
+                                       # asset root; feeds the auto-filled Asset ID
+                                       # (e.g. projects/<project>/assets/my_module/<name>).
+                                       # Pass an absolute "projects/.../assets/..." path
+                                       # to override the root.
     drive_folder="",                  # optional, Drive folder name
     sepal_folder="exports",           # optional, relative to module_results
     table_file_format="SHP",         # canonical enum; see below
@@ -208,10 +213,13 @@ The dialog offers three destinations, each enabled based on runtime state:
 
 - **Earth Engine asset** (`gee`) — default. Submits
   `projects.image.export` / `projects.table.export` to the user's EE project
-  asset root. The dialog shows a live preview hint:
-  `Will be exported as: projects/<user>/assets/<folder>/<name>`.
+  asset root. The dialog shows a single editable **Asset ID** field
+  pre-filled with the full path
+  (`projects/<project>/assets/<folder>/<sanitized-name>`). The user can
+  edit any segment — the validation rules below catch invalid input.
 - **Google Drive** (`drive`) — submits a Drive export task; no waiting for
-  completion inside the dialog.
+  completion inside the dialog. Shown as separate **Export name** +
+  **Google Drive folder** fields.
 - **SEPAL workspace** (`sepal`) — requires a session-backed `SepalClient`.
   Exports to Drive first, waits for completion, downloads the files, and
   uploads them under `<module_results>/<sepal_folder>/`. Disabled (greyed
@@ -225,6 +233,26 @@ code; let the export engine download bytes from Drive and upload them through
 
 The engine creates any missing intermediate folders under the user's asset
 root before submitting an EE asset export.
+
+## Asset ID Validation (GEE target)
+
+The GEE target enforces three rules on the asset id, each surfaced as an
+inline error on the Asset ID field (which also disables the Export button)
+and re-enforced by `submit_export_request` at submit time so programmatic
+callers are protected:
+
+- **Required** — empty asset id raises `ValueError("Earth Engine export requires an asset id.")`.
+- **Root** — the asset id must live under
+  `projects/<user-project>/assets/`. Editing the project, dropping the
+  `assets/` segment, or pointing at `users/...` raises
+  `ValueError("Asset id must live under \`projects/<project>/assets/\`.")`. The shared helper is `validate_asset_id_under_root`.
+- **Conflict** — a debounced (350 ms) `get_asset_async` probe flags
+  pre-existing assets in the dialog. The engine re-checks at submit and
+  raises `FileExistsError` as the authoritative guard, so concurrent
+  creations between the live check and submit cannot silently overwrite.
+
+Drive and SEPAL exports skip all three (Drive allows duplicate filenames
+natively; SEPAL writes through `set_file(..., overwrite=True)`).
 
 ## File Formats: Use Canonical Enum Values
 
@@ -273,17 +301,19 @@ To keep a layer visible but non-selectable (e.g., not ready yet), set
 
 ## The Dialog Body is Always Visible
 
-When no asset is selected, the Destination radio, Name field, and folder
-fields render but are disabled. The rationale is that users should see the
-structure of the form before committing to a selection — it telegraphs
-which options exist.
+When no asset is selected, the Destination radio and the target-appropriate
+input fields render but are disabled — Asset ID for the GEE target, Export
+name + Google Drive folder for Drive/SEPAL. The rationale is that users
+should see the structure of the form before committing to a selection — it
+telegraphs which options exist.
 
 Kind-specific widgets (image scale presets, table file format) only appear
 after a source is selected, because they are mutually exclusive — showing
 both would be misleading.
 
-The Export button stays disabled until a source is selected and the name
-field is non-empty.
+The Export button stays disabled until a source is selected, the target
+input is non-empty, and (for the GEE target) the asset id passes the root
+and conflict checks described above.
 
 ## Custom Layouts: `use_export_dialog`
 
