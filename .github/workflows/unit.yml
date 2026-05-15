@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Inject EE creds when triggered by push or by a same-repo PR. Forks see ''.
-      EARTHENGINE_TOKEN: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.EARTHENGINE_SERVICE_ACCOUNT || '' }}
+      EARTHENGINE_TOKEN: ${{ (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && secrets.EARTHENGINE_TOKEN || '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -69,7 +69,7 @@ jobs:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
-      EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
+      EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -108,7 +108,12 @@ jobs:
 
   apps:
     needs: [build]
+    # Templates use SepalMap which calls init_ee() in its constructor; skip on
+    # fork PRs since they have no EE creds.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    env:
+      EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
