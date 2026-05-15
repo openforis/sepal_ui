@@ -10,17 +10,17 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.10"
-      - uses: pre-commit/action@v3.0.0
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
   #mypy:
   #  runs-on: ubuntu-latest
   #  steps:
-  #    - uses: actions/checkout@v3
-  #    - uses: actions/setup-python@v4
+  #    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+  #    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
   #      with:
   #        python-version: "3.10"
   #    - name: Install nox
@@ -44,9 +44,9 @@ jobs:
           - os: windows-latest # windows test
             python-version: "3.11"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install nox
@@ -55,7 +55,7 @@ jobs:
         run: nox -s test -- -vv
       - name: codecov
         if: github.event_name == 'push' && matrix.python-version == '3.10' && runner.os == 'Linux'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
@@ -71,8 +71,8 @@ jobs:
     env:
       EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Install nox
@@ -84,8 +84,8 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.10"
       - name: Install nox
@@ -97,8 +97,8 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Install nox
@@ -110,8 +110,8 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.10"
       - name: Install dependencies
