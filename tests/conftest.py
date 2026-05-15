@@ -21,11 +21,7 @@ from pysepal.scripts import gee
 from pysepal.scripts import utils as su
 from pysepal.scripts.gee_interface import GEEInterface
 
-if (
-    os.getenv("EARTHENGINE_TOKEN")
-    or (Path.home() / ".config" / "earthengine" / "credentials").exists()
-):
-    su.init_ee()
+su.init_ee()
 
 # -- a component to fake the display in Ipython --------------------------------
 
