@@ -65,20 +65,48 @@ jobs:
 
   test_gee:
     needs: [build]
-    # Run on push and on same-repo PRs; skip on fork PRs (no secrets available).
+    # Job runs on push or same-repo PR (skip fork PRs).
+    # Per-step if: further skips when no GEE-relevant files changed.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     env:
       EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
+        id: changes
+        with:
+          filters: |
+            gee:
+              - 'pysepal/mapping/**'
+              - 'pysepal/aoi/**'
+              - 'pysepal/planetapi/**'
+              - 'pysepal/scripts/gee*'
+              - 'pysepal/solara/**'
+              - 'tests/test_mapping/**'
+              - 'tests/test_aoi/**'
+              - 'tests/test_solara/**'
+              - 'tests/test_scripts/test_gee*'
+              - 'tests/conftest.py'
+              - 'noxfile.py'
+              - 'pyproject.toml'
+              - '.github/workflows/unit.yml'
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        if: github.event_name == 'push' || steps.changes.outputs.gee == 'true'
         with:
           python-version: "3.12"
       - name: Install nox
+        if: github.event_name == 'push' || steps.changes.outputs.gee == 'true'
         run: python -m pip install nox
       - name: test GEE smoke tests
+        if: github.event_name == 'push' || steps.changes.outputs.gee == 'true'
         run: nox -s test_gee -- -vv
+      - name: skip notice
+        if: github.event_name != 'push' && steps.changes.outputs.gee != 'true'
+        run: echo "No GEE-relevant files changed; skipping test_gee."
 
   entry-point:
     needs: [build]
