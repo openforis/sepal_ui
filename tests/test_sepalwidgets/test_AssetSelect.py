@@ -194,7 +194,10 @@ def asset_select(gee_dir: Path) -> sw.AssetSelect:
     """Create an AssetSelect widget that waits for the asset list to load."""
     # This is done because the asset list is loaded asynchronously
     asset_select = sw.AssetSelect(folder=str(gee_dir))
-    timeout = 5
+    # 30s allows for cold-start of a fresh GEEInterface (new event loop +
+    # thread + EE listAssets round-trip) on every function-scoped fixture
+    # instantiation. The in-test wait_for_async helper above uses 10s.
+    timeout = 30
     start_time = time.time()
     while not getattr(asset_select, "_loaded", False):
         if time.time() - start_time > timeout:
