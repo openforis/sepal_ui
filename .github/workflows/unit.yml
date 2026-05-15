@@ -6,14 +6,6 @@ on:
       - main
   pull_request:
 
-env:
-  PLANET_API_CREDENTIALS: ${{ secrets.PLANET_API_CREDENTIALS }}
-  PLANET_API_KEY: ${{ secrets.PLANET_API_KEY }}
-  EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
-  EARTHENGINE_SERVICE_ACCOUNT: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
-  EARTHENGINE_PROJECT: ${{ secrets.EARTHENGINE_PROJECT }}
-  SEPAL_HOST: ${{ secrets.SEPAL_HOST }}
-
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -59,6 +51,7 @@ jobs:
       - name: test with pytest
         run: nox -s test -- -vv
       - name: codecov
+        if: github.event_name == 'push' && matrix.python-version == '3.10' && runner.os == 'Linux'
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -69,43 +62,19 @@ jobs:
 
   test_gee:
     needs: [build]
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
+    env:
+      EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_SERVICE_ACCOUNT }}
     steps:
       - uses: actions/checkout@v3
-      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3.0.3
-        id: changes
-        with:
-          filters: |
-            gee:
-              - 'pysepal/mapping/**'
-              - 'pysepal/aoi/**'
-              - 'pysepal/planetapi/**'
-              - 'pysepal/scripts/gee*'
-              - 'pysepal/solara/**'
-              - 'tests/test_mapping/**'
-              - 'tests/test_aoi/**'
-              - 'tests/test_solara/**'
-              - 'tests/test_scripts/test_gee*'
-              - 'tests/conftest.py'
-              - 'noxfile.py'
-              - 'pyproject.toml'
-              - '.github/workflows/unit.yml'
       - uses: actions/setup-python@v4
-        if: steps.changes.outputs.gee == 'true' || github.event_name == 'push'
         with:
           python-version: "3.12"
       - name: Install nox
-        if: steps.changes.outputs.gee == 'true' || github.event_name == 'push'
         run: python -m pip install nox
       - name: test GEE smoke tests
-        if: steps.changes.outputs.gee == 'true' || github.event_name == 'push'
         run: nox -s test_gee -- -vv
-      - name: skip notice
-        if: steps.changes.outputs.gee != 'true' && github.event_name != 'push'
-        run: echo "No GEE-relevant files changed; skipping test_gee."
 
   entry-point:
     needs: [build]
