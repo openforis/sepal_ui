@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
+from pathlib import PurePosixPath
 from typing import Any, Callable, Optional, Sequence
 
 import solara
@@ -31,6 +33,7 @@ from .export_models import (
     ResolvedExport,
     infer_export_kind,
     sanitize_export_name,
+    validate_asset_id_under_root,
 )
 
 # Success toast carries an asset path / task id the user often wants to copy,
@@ -38,18 +41,27 @@ from .export_models import (
 # lingers annoyingly.
 EXPORT_SUCCESS_TOAST_TIMEOUT = 8.0
 
+# Debounce window for the live GEE asset-existence check. The Solara hook
+# cancels the previous task invocation when dependencies change, so as long
+# as the user keeps typing the sleep never completes and no API call fires.
+GEE_ASSET_CONFLICT_CHECK_DELAY = 0.35
+
 
 @dataclass(frozen=True, slots=True)
 class _ExportDialogState:
     scale: solara.Reactive[int]
     asset_root: solara.Reactive[str]
-    gee_folder: solara.Reactive[str]
+    gee_asset_id: solara.Reactive[str]
+    gee_asset_id_dirty: solara.Reactive[bool]
+    last_default_gee_asset_id: solara.Reactive[str]
     drive_folder: solara.Reactive[str]
     sepal_folder: solara.Reactive[str]
     table_file_format: solara.Reactive[str]
     inline_message: solara.Reactive[str]
     inline_level: solara.Reactive[str]
     last_default_name: solara.Reactive[str]
+    gee_asset_conflict: solara.Reactive[bool]
+    gee_asset_conflict_path: solara.Reactive[str]
     gee_interface: GEEInterface
     drive_interface: GDriveInterface
     sepal_client: SepalClient | None
@@ -228,6 +240,69 @@ def _default_gee_folder(sepal_client: SepalClient | None) -> str:
     return "pysepal_exports"
 
 
+async def _resolve_gee_asset_conflict(
+    *,
+    target: ExportTarget,
+    has_active_source: bool,
+    asset_id: str,
+    gee_interface: GEEInterface,
+    debounce_seconds: float = GEE_ASSET_CONFLICT_CHECK_DELAY,
+) -> tuple[bool, str]:
+    """Probe Earth Engine for a name collision against the resolved asset id.
+
+    Returns ``(conflict, candidate_path)``. ``conflict`` is ``True`` only when
+    Earth Engine confirms an asset already lives at ``asset_id``. The probe
+    runs for the auto-filled default as well as user edits — many SEPAL apps
+    reuse the same module folder + name across sessions, so the default itself
+    is the most common collision. Lookup failures (permissions, network, the
+    known eeclient cross-loop httpx race) are treated as ``(False, "")`` — the
+    engine-side guard remains the authoritative check at submit time.
+    """
+    candidate = (asset_id or "").strip()
+    if target != "gee" or not has_active_source or not candidate:
+        return False, ""
+
+    if debounce_seconds > 0:
+        await asyncio.sleep(debounce_seconds)
+
+    try:
+        existing = await gee_interface.get_asset_async(candidate, not_exists_ok=True)
+    except Exception:
+        return False, ""
+
+    if existing is None:
+        return False, ""
+    return True, candidate
+
+
+def _build_default_gee_asset_id(
+    asset_root: str,
+    resolved_export: ResolvedExport,
+    sepal_client: SepalClient | None,
+) -> str:
+    """Pre-fill a sensible GEE asset path from the user's asset root + source.
+
+    Composes ``{asset_root}/{resolved.gee_folder or module}/{sanitized_name}``.
+    When ``resolved.gee_folder`` is an absolute path (starts with ``projects/``)
+    the asset root is ignored. Returns ``""`` when the asset root has not
+    finished loading yet (still contains the ``{project}`` placeholder), so
+    callers can wait before overwriting user input.
+    """
+    if not asset_root or "{project}" in asset_root:
+        return ""
+
+    name = sanitize_export_name(resolved_export.default_name) or "export"
+    folder = (resolved_export.gee_folder or _default_gee_folder(sepal_client) or "").strip("/")
+
+    if folder.startswith("projects/"):
+        return f"{folder.rstrip('/')}/{name}"
+
+    root = asset_root.rstrip("/")
+    if not folder:
+        return f"{root}/{name}"
+    return f"{root}/{folder}/{name}"
+
+
 def _source_defaults_signature(
     resolved_export: ResolvedExport | None,
     export_kind: ExportKind | None,
@@ -280,13 +355,17 @@ def use_export_dialog(
     state = _ExportDialogState(
         scale=solara.use_reactive(30),
         asset_root=solara.use_reactive("projects/{project}/assets"),
-        gee_folder=solara.use_reactive(""),
+        gee_asset_id=solara.use_reactive(""),
+        gee_asset_id_dirty=solara.use_reactive(False),
+        last_default_gee_asset_id=solara.use_reactive(""),
         drive_folder=solara.use_reactive(""),
         sepal_folder=solara.use_reactive(""),
         table_file_format=solara.use_reactive(DEFAULT_TABLE_FILE_FORMAT),
         inline_message=solara.use_reactive(""),
         inline_level=solara.use_reactive("info"),
         last_default_name=solara.use_reactive(""),
+        gee_asset_conflict=solara.use_reactive(False),
+        gee_asset_conflict_path=solara.use_reactive(""),
         gee_interface=gee_interface,
         drive_interface=drive_interface,
         sepal_client=sepal_client,
@@ -366,12 +445,41 @@ def use_export_dialog(
         prefer_threaded=False,
     )
 
+    async def _check_gee_asset_conflict() -> None:
+        # Skip the probe for structurally invalid paths — the visible "must
+        # live under <root>/" error is the gate. Probing a path the user
+        # cannot write to would just produce a 404 or permission error.
+        if validate_asset_id_under_root(state.gee_asset_id.value, state.asset_root.value):
+            state.gee_asset_conflict.set(False)
+            state.gee_asset_conflict_path.set("")
+            return
+
+        conflict, candidate = await _resolve_gee_asset_conflict(
+            target=selected_target.value,
+            has_active_source=active_source is not None,
+            asset_id=state.gee_asset_id.value,
+            gee_interface=state.gee_interface,
+        )
+        state.gee_asset_conflict.set(conflict)
+        state.gee_asset_conflict_path.set(candidate)
+
+    solara.lab.use_task(
+        _check_gee_asset_conflict,
+        dependencies=[
+            selected_target.value,
+            state.gee_asset_id.value,
+            state.asset_root.value,
+            active_source_id,
+        ],
+        raise_error=False,
+        prefer_threaded=False,
+    )
+
     def _sync_source_defaults() -> None:
         if resolved_export is None:
             return
 
         state.scale.set(int(resolved_export.default_scale or 30))
-        state.gee_folder.set(resolved_export.gee_folder or _default_gee_folder(state.sepal_client))
         state.drive_folder.set(resolved_export.drive_folder or "")
         state.sepal_folder.set(resolved_export.sepal_folder or "")
         state.table_file_format.set(resolved_export.table_file_format or DEFAULT_TABLE_FILE_FORMAT)
@@ -387,6 +495,34 @@ def use_export_dialog(
             export_name.set(default_name)
 
     solara.use_effect(_sync_default_name, [active_source_id, default_name, name_dirty.value])
+
+    def _sync_default_gee_asset_id() -> None:
+        if state.gee_asset_id_dirty.value:
+            return
+        if resolved_export is None:
+            return
+
+        default = _build_default_gee_asset_id(
+            state.asset_root.value,
+            resolved_export,
+            state.sepal_client,
+        )
+        if not default:
+            return  # Asset root still loading.
+
+        if default != state.last_default_gee_asset_id.value:
+            state.last_default_gee_asset_id.set(default)
+            state.gee_asset_id.set(default)
+
+    solara.use_effect(
+        _sync_default_gee_asset_id,
+        [
+            active_source_id,
+            state.asset_root.value,
+            state.gee_asset_id_dirty.value,
+            source_defaults_signature,
+        ],
+    )
 
     def _handle_resolve_error() -> None:
         if not resolve_error:
@@ -414,21 +550,28 @@ def use_export_dialog(
                 "SEPAL export requires a session-backed SepalClient. "
                 "Use @with_sepal_sessions in the host page."
             )
-        if not export_name.value.strip():
-            raise ValueError("Name required")
 
-        sanitized_name = sanitize_export_name(export_name.value)
-        export_name.set(sanitized_name)
+        if selected_target.value == "gee":
+            asset_id = state.gee_asset_id.value.strip()
+            if not asset_id:
+                raise ValueError("Asset ID required")
+            description = PurePosixPath(asset_id).name or "export"
+        else:
+            if not export_name.value.strip():
+                raise ValueError("Name required")
+            description = sanitize_export_name(export_name.value)
+            export_name.set(description)
+            asset_id = None
 
         selectors = resolved_export.selectors
         return ExportRequest(
             ee_object=resolved_export.ee_object,
             export_kind=export_kind,
             target=selected_target.value,
-            name=sanitized_name,
+            name=description,
             region=resolved_export.region,
             scale=state.scale.value if export_kind == "image" else None,
-            gee_folder=state.gee_folder.value.strip() or None,
+            gee_asset_id=asset_id,
             drive_folder=state.drive_folder.value.strip() or None,
             sepal_folder=state.sepal_folder.value.strip() or None,
             table_file_format=state.table_file_format.value,
@@ -440,6 +583,7 @@ def use_export_dialog(
             cleanup_drive_after_sepal=state.cleanup_drive_after_sepal,
             poll_interval_seconds=state.poll_interval_seconds,
             timeout_seconds=state.timeout_seconds,
+            vis_params=resolved_export.vis_params if export_kind == "image" else None,
         )
 
     async def run_export(request: ExportRequest) -> ExportResult:
@@ -523,11 +667,15 @@ def use_export_dialog(
         export_name.set("")
         name_dirty.set(False)
         state.last_default_name.set("")
+        state.gee_asset_id.set("")
+        state.gee_asset_id_dirty.set(False)
+        state.last_default_gee_asset_id.set("")
         open_state.set(True)
 
     def close_dialog() -> None:
         _clear_inline()
         name_dirty.set(False)
+        state.gee_asset_id_dirty.set(False)
         open_state.set(False)
 
     def submit_export() -> None:

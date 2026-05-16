@@ -1,0 +1,527 @@
+# Building Solara Apps with pysepal
+
+> **IMPORTANT**: Read this guide BEFORE creating a new SEPAL module with pysepal + Solara.
+> Every pattern here is grounded in working apps: `sepal_mgci`, `se.plan`, `sbae-design`.
+>
+> For new GEE-based Solara apps, use the `solara.reactive()` +
+> `solara.lab.use_task(prefer_threaded=False)` pattern in
+> [Solara GEE Patterns](./solara-gee-patterns.md) and await
+> `gee_interface.*_async(...)` directly.
+> User files in GEE/container apps must always be read, listed, created,
+> and written through the session `SepalClient`; never write user data to the
+> container filesystem.
+> For user-facing app status, mount `NotificationProvider()` once at the app
+> shell and follow [Solara Notifications](./solara-notifications.md).
+> The traitlets `create_task()` and `.observe()` flows are legacy patterns for
+> existing apps, not new scaffolds.
+
+## 1. Entry Point Pattern
+
+Every pysepal Solara app follows this exact initialization sequence in `solara_app.py`:
+
+```python
+import solara
+from pysepal.solara import (
+    setup_sessions,
+    setup_solara_server,
+    setup_theme_colors,
+    with_sepal_sessions,
+    get_current_gee_interface,
+    get_current_sepal_client,
+    get_current_drive_interface,
+)
+
+# 1. Server setup (module level, runs once)
+setup_solara_server(extra_asset_locations=[])
+
+# 2. Session setup (per kernel, runs on each new browser tab)
+@solara.lab.on_kernel_start
+def on_kernel_start():
+    return setup_sessions()
+
+# 3. Main component with session decorator
+@solara.component
+@with_sepal_sessions(module_name="my_module_name")
+def Page():
+    setup_theme_colors()
+
+    # 4. Get session interfaces (per-user, per-tab)
+    gee_interface = get_current_gee_interface()
+    sepal_client = get_current_sepal_client()
+
+    # 5. Pass interfaces to components/models
+    # ...your app here...
+```
+
+### Initialization order matters
+
+1. `setup_solara_server()` — module level, configures Solara (kernel timeout, assets)
+2. `setup_sessions()` — in `@solara.lab.on_kernel_start`, creates SessionManager
+3. `@with_sepal_sessions` — on `Page()`, waits for auth headers, creates per-user session
+4. `get_current_*()` — inside component, retrieves session-bound interfaces
+
+### The `@with_sepal_sessions` decorator
+
+This decorator is **required** on the main `Page()` component. It:
+
+- Waits for SEPAL auth headers (`solara.lab.headers`)
+- Creates a session with `GEEInterface`, `SepalClient`, `GDriveInterface` per user
+- Shows a loading screen while waiting
+- Handles auth errors gracefully
+
+```python
+@solara.component
+@with_sepal_sessions(module_name="sdg_indicators/15.4.2")
+def Page():
+    # This only renders after session is ready
+    gee_interface = get_current_gee_interface()  # Guaranteed to have sepal headers
+```
+
+## Notification Shell Pattern
+
+New pysepal Solara apps that perform async work should treat notifications as a
+first-class part of the app shell.
+
+Default rule:
+
+- mount `NotificationProvider()` once near the top of the app shell
+- let child pages, tiles, and widgets call `use_notifications()`
+- do not mount a separate provider in every subpage unless each page truly runs
+  in a separate kernel
+
+The notification bus is scoped to the current Solara kernel, not the route. If
+routes are rendered inside one live page, they share notification history. If
+an app launcher opens each route as a separate browser page load, each page gets
+its own kernel and its own notification history.
+
+For the full architecture and usage patterns, read
+[Solara Notifications](./solara-notifications.md).
+
+## Export Shell Pattern
+
+Apps that produce GEE-backed layers users might want to take out of the app
+should drop in `ExportLauncher`. It handles Earth Engine asset, Google Drive,
+and SEPAL workspace targets through one button, including folder creation
+and Drive-to-SEPAL staging. Declare one `ExportSource` per exportable layer
+and pass the tuple to `ExportLauncher(sources=...)`.
+
+For the full component API (sources, `ResolvedExport`, canonical file-format
+constants, `use_export_dialog` for custom layouts, and testing helpers),
+read [Solara Export](./solara-export.md).
+
+## 2. Session Interfaces
+
+Three interfaces are available per user session:
+
+| Interface         | Getter                          | Purpose                             |
+| ----------------- | ------------------------------- | ----------------------------------- |
+| `GEEInterface`    | `get_current_gee_interface()`   | Earth Engine API calls (async/sync) |
+| `SepalClient`     | `get_current_sepal_client()`    | SEPAL file/task operations          |
+| `GDriveInterface` | `get_current_drive_interface()` | Google Drive export/import          |
+
+### Getting interfaces
+
+Always call getters **inside the component**, never at module level:
+
+```python
+# WRONG — gets fallback without headers
+gee_interface = get_current_gee_interface()  # Module level!
+
+@solara.component
+def Page():
+    ...
+
+# CORRECT — gets session-bound interface with sepal headers
+@solara.component
+@with_sepal_sessions(module_name="my_app")
+def Page():
+    gee_interface = get_current_gee_interface()
+```
+
+### Passing interfaces to sub-components
+
+```python
+@solara.component
+@with_sepal_sessions(module_name="my_app")
+def Page():
+    gee_interface = get_current_gee_interface()
+    sepal_client = get_current_sepal_client()
+
+    # Pass to models
+    model = MyModel(gee_interface=gee_interface, sepal_client=sepal_client)
+
+    # Pass to map
+    sepal_map = solara.use_memo(
+        lambda: sm.SepalMap(gee=True, gee_interface=gee_interface),
+        [id(gee_interface)],
+    )
+
+    # Pass to tiles/widgets
+    MyTile(model=model, map_=sepal_map)
+```
+
+### User file boundary
+
+For GEE/container apps, `SepalClient` is the only runtime API for user files.
+This rule applies both in local development and after deployment behind the
+SEPAL app launcher. The container filesystem is for application code, Python
+packages, and bundled static assets; it is not a user workspace and should not
+receive user uploads, generated reports, CSVs, rasters, recipes, or temporary
+state.
+
+Do not use `pathlib.Path`, `os`, `shutil`, `glob`, `open()`, or library calls
+that walk/read/write server-local paths for user data. Those calls inspect the
+container, not the authenticated user's SEPAL workspace, and they can mix users
+or lose data when the container restarts.
+
+Use the session client instead:
+
+```python
+@solara.component
+@with_sepal_sessions(module_name="my_app")
+def Page():
+    sepal_client = get_current_sepal_client()
+
+    results_dir = sepal_client.get_remote_dir(
+        f"{sepal_client.results_path}/exports",
+        parents=True,
+    )
+    sepal_client.set_file(f"{results_dir}/summary.csv", csv_text, overwrite=True)
+    content = sepal_client.get_file(f"{results_dir}/summary.csv")
+    files = sepal_client.list_files(folder=str(results_dir))
+```
+
+Remote paths are POSIX-style strings relative to the user's SEPAL workspace, or
+absolute paths under `/home/sepal-user`. Do not branch on `DEPLOY_ENV` to fall
+back to local filesystem writes for a container app; keep the same
+`SepalClient` path in tests, local runs, and production.
+
+### GEEInterface async methods
+
+The session-bound `GEEInterface` returned by `get_current_gee_interface()`
+already exposes both sync and async methods. For new Solara apps, the async API
+is the default. There is no separate async getter.
+
+When you call those methods inside `solara.lab.use_task`, set
+`prefer_threaded=False` so the GEE coroutine stays on Solara's current event
+loop instead of hopping to a per-task thread loop.
+
+```python
+@solara.lab.use_task(
+    dependencies=None,
+    raise_error=False,
+    prefer_threaded=False,
+)
+async def load_stats(ee_object):
+    return await gee_interface.get_info_async(ee_object)
+
+
+# Fetch asset info
+info = await gee_interface.get_asset_async(asset_id)
+
+# List user's assets
+assets = await gee_interface.get_assets_async(folder)
+
+# Get computed value
+result = await gee_interface.get_info_async(ee_object)
+
+# Export to Drive or Assets
+await gee_interface.export_table_to_drive_async(collection, description, folder)
+await gee_interface.export_image_to_asset_async(image, asset_id=asset_id)
+```
+
+`gee_interface.create_task(...)` remains available for legacy code paths, but it
+is not the scaffold default for new Solara apps.
+
+## 3. Directory Structure
+
+```
+my_module/
+├── solara_app.py              # Entry point
+├── run_solara.sh              # Dev run script (sources .env)
+├── .env                       # Environment variables
+├── requirements.txt           # Dependencies
+├── Dockerfile                 # Container build
+├── docker-compose.yml         # SEPAL platform deployment
+├── docker-compose.override.yml # Local dev overrides
+├── supervisord.conf           # Process management
+├── logging_config.toml        # Logging configuration
+├── component/
+│   ├── model/                 # State management
+│   │   ├── __init__.py
+│   │   ├── app_model.py       # UI state (steps, active tab, etc.)
+│   │   └── state_manager.py   # AppState with solara.reactive() (or traitlets Model)
+│   ├── tile/                  # Major UI sections (dialogs, panels)
+│   │   ├── __init__.py
+│   │   ├── upload.py
+│   │   ├── export.py
+│   │   └── landing.py
+│   ├── widget/                # Reusable Solara components
+│   │   ├── __init__.py
+│   │   ├── map.py             # SepalMap extension
+│   │   └── custom_widgets.py
+│   ├── scripts/               # Pure Python logic (no UI)
+│   │   ├── __init__.py
+│   │   └── calculations.py
+│   └── parameter/             # Constants, paths, config
+│       ├── __init__.py
+│       └── directory.py       # Local/remote file management
+└── assets/                    # Static files (CSS, images)
+```
+
+## 4. State Management
+
+### Option A: AppState singleton with `solara.reactive()` (required for new apps)
+
+```python
+# component/model/state_manager.py
+import solara
+
+class AppState:
+    def __init__(self):
+        self.file_path = solara.reactive(None)
+        self.aoi_data = solara.reactive(None)
+        self.results = solara.reactive(None)
+        self.is_processing = solara.reactive(False)
+
+    def is_ready_for_calculation(self) -> bool:
+        return self.file_path.value is not None
+
+app_state = AppState()
+
+# Usage in components:
+# from component.model import app_state
+# app_state.file_path.value = "/path/to/file"
+```
+
+### Option B: traitlets Model (legacy only, used by sepal_mgci, se.plan)
+
+```python
+# component/model/model.py
+from pysepal.model import Model
+import traitlets as t
+
+class MyModel(Model):
+    file_path = t.Unicode(None, allow_none=True).tag(sync=True)
+    results = t.Dict({}).tag(sync=True)
+
+    def __init__(self, gee_interface=None, sepal_client=None, **kwargs):
+        self.gee_interface = gee_interface
+        self.sepal_client = sepal_client
+        super().__init__(**kwargs)
+```
+
+### When to use which
+
+| Pattern                          | Use when                                             |
+| -------------------------------- | ---------------------------------------------------- |
+| `AppState` + `solara.reactive()` | New apps, pure Solara components                     |
+| traitlets `Model`                | Existing apps, ipyvuetify widgets, need `.observe()` |
+
+## 5. Map Integration
+
+```python
+from pysepal import mapping as sm
+from pysepal.sepalwidgets.vue_app import MapApp
+from pysepal.solara import get_current_theme_state
+
+@solara.component
+def Page():
+    gee_interface = get_current_gee_interface()
+
+    # Session-scoped theme state (dark/light mode; auto follows system)
+    theme_state = get_current_theme_state()
+
+    # Create map with GEE support (memoized to avoid re-creation)
+    sepal_map = solara.use_memo(
+        lambda: sm.SepalMap(
+            gee=True,
+            gee_interface=gee_interface,
+            theme_state=theme_state,
+        ),
+        [id(gee_interface)],
+    )
+
+    # Use MapApp layout (map background + sidebar + right panel)
+    MapApp.element(
+        app_title="My App",
+        app_icon="mdi-earth",
+        main_map=[sepal_map.get_map_widget()],
+        theme_state=theme_state,
+        steps_data=[...],
+        right_panel_content=[...],
+    )
+```
+
+> `SepalMap(theme_toggle=...)` / `MapApp.element(theme_toggle=[...])` still
+> work but emit a `DeprecationWarning`. See `migration-notes-v3.4.md` § 7.
+
+## 6. Button & Icon Sizing
+
+The right panel and dialogs are narrow (~450 px). Use `small=True` on all
+buttons and chips inside them. Navigation drawer icons keep default size.
+
+| Context                                                      | Rule                                           |
+| ------------------------------------------------------------ | ---------------------------------------------- |
+| Buttons in right panel / sidebar content                     | `small=True` (add `block=True` for full-width) |
+| Icon-only buttons (close, edit, toolbar)                     | `icon=True, small=True`                        |
+| Chips (stats, tags, year selectors)                          | `small=True` (or `x_small=True` for inline)    |
+| Dialog action buttons (OK / Cancel)                          | `small=True`                                   |
+| Navigation drawer icons (`steps_data`, `right_panel_config`) | Default size — never `small=True`              |
+
+## 7. Deployment
+
+### `.env` file
+
+```bash
+SOLARA_TEST=true                    # Use get_sepal_headers_from_auth() for local dev
+DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to local user-file I/O
+LOCAL_SEPAL_USER=admin              # Dev credentials
+LOCAL_SEPAL_PASSWORD=yourpassword
+SEPAL_HOST=yourinstance.sepal.io    # SEPAL platform host
+```
+
+### `run_solara.sh` (local dev)
+
+```bash
+#!/bin/bash
+SOLARA_FILE="${1:-solara_app.py}"
+PORT="${2:-8900}"
+
+# Source .env
+while IFS= read -r line; do
+  [[ $line =~ ^#.*$ || -z $line ]] && continue
+  if [[ $line =~ ^([^=]+)=(.*)$ ]]; then
+    export "${BASH_REMATCH[1]}=${BASH_REMATCH[2]}"
+  fi
+done < .env
+
+solara run "$SOLARA_FILE" --port $PORT --no-open
+```
+
+### `Dockerfile`
+
+```dockerfile
+FROM mambaorg/micromamba:latest
+
+USER root
+RUN apt-get update && apt-get install -y supervisor netcat-openbsd curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/lib/myapp
+
+COPY requirements.txt .
+RUN micromamba create -n myapp python=3.10 pip -c conda-forge -y && \
+    micromamba run -n myapp pip install -r requirements.txt
+
+COPY . .
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 8765
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+```
+
+### `supervisord.conf`
+
+```ini
+[supervisord]
+nodaemon=true
+
+[program:solara]
+command=bash -c "micromamba run -n myapp solara run solara_app.py --host=0.0.0.0 --root-path=/api/app-launcher/my_module --production --port=8765"
+autostart=true
+autorestart=true
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+```
+
+### `docker-compose.yml`
+
+```yaml
+services:
+  myapp:
+    build: .
+    volumes:
+      - ${EE_CREDENTIALS_PATH:-${HOME}/.config/earthengine/credentials}:/root/.config/earthengine/credentials
+    environment:
+      FORWARDED_ALLOW_IPS: "*"
+      SEPAL_HOST: "${SEPAL_HOST}"
+      SOLARA_TEST: "${SOLARA_TEST:-false}"
+      LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER}"
+      LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD}"
+    ports:
+      - "8765:8765"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8765"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+    networks:
+      - sepal
+
+networks:
+  sepal:
+    external: true
+```
+
+## 8. Multi-User Session Flow
+
+```
+Browser Tab Opens
+    ↓
+Solara creates new kernel
+    ↓
+@solara.lab.on_kernel_start → setup_sessions() → SessionManager initialized
+    ↓
+Page() renders → @with_sepal_sessions waits for HTTP headers
+    ↓
+Headers arrive → SessionManager.create_session():
+    - Extracts username from SepalHeaders
+    - Creates EESession with user's credentials
+    - Creates GEEInterface(gee_session)
+    - Creates SepalClient(session_id, module_name)
+    - Creates GDriveInterface(sepal_headers)
+    - Stores all in _sessions[kernel_id]
+    ↓
+Page() re-renders → get_current_gee_interface() returns user's GEEInterface
+    ↓
+Components use authenticated interfaces for GEE/SEPAL/Drive operations
+    ↓
+Tab closes → kernel cleanup → SessionManager.cleanup_session(kernel_id)
+```
+
+Each browser tab = separate kernel = isolated session with its own credentials.
+
+## 9. Local Development vs SEPAL Deployment
+
+| Aspect               | Local Dev                                              | SEPAL Platform                                |
+| -------------------- | ------------------------------------------------------ | --------------------------------------------- |
+| Auth headers         | `get_sepal_headers_from_auth()` via `SOLARA_TEST=true` | Real HTTP headers from SEPAL proxy            |
+| User files           | `SepalClient` against `SEPAL_HOST`                     | `SepalClient` from session headers            |
+| Container filesystem | Code and static assets only                            | Code and static assets only                   |
+| GEE credentials      | `~/.config/earthengine/credentials`                    | SEPAL-provided per user                       |
+| URL                  | `http://localhost:8900`                                | `https://sepal.io/api/app-launcher/my_module` |
+| Run command          | `./run_solara.sh`                                      | `supervisord` in Docker                       |
+
+### Handling user files
+
+```python
+sepal_client = get_current_sepal_client()
+folder = sepal_client.get_remote_dir(
+    f"{sepal_client.results_path}/exports",
+    parents=True,
+)
+sepal_client.set_file(f"{folder}/result.json", json_text, overwrite=True)
+payload = sepal_client.get_file(f"{folder}/result.json", parse_json=True)
+```
+
+## 10. Reference Apps
+
+| App                   | Location                    | Key patterns                                                    |
+| --------------------- | --------------------------- | --------------------------------------------------------------- |
+| **sbae-design**       | `~/1_modules/sbae-design/`  | AppState singleton, MapApp layout, use_thread, strategy pattern |
+| **sepal_mgci**        | `~/1_modules/sepal_mgci/`   | traitlets Model, GEE async tasks, deferred calculations, Docker |
+| **se.plan**           | `~/1_modules/se.plan/`      | Recipe model, GEE interface injection, multi-panel layout       |
+| **pysepal templates** | `pysepal/templates/solara/` | Minimal examples (simple_app, map_app, aoi_app)                 |

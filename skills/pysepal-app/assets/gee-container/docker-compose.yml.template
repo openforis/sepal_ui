@@ -1,0 +1,27 @@
+services:
+  {{service_name}}:
+    build:
+      dockerfile: ./Dockerfile
+    image: "{{image_name}}"
+    container_name: {{service_name}}
+    volumes:
+      - "${EE_CREDENTIALS_PATH:-${HOME}/.config/earthengine/credentials}:/root/.config/earthengine/credentials"
+    environment:
+      SEPAL_HOST: "${SEPAL_HOST:-}"
+      FORWARDED_ALLOW_IPS: "*"
+      SOLARA_THEME_SHOW_BANNER: "False"
+      SOLARA_TEST: "${SOLARA_TEST:-false}"
+      LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER:-}"
+      LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD:-}"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "{{container_port}}"]
+      timeout: 60s
+      interval: 1s
+      retries: 60
+    networks:
+      - sepal
+    restart: always
+
+networks:
+  sepal:
+    external: true

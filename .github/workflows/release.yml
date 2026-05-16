@@ -7,25 +7,28 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write # OIDC for trusted publishing to PyPI
+      contents: write # merge-branch step pushes to the release branch
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
 
-      - name: Install dependencies
-        run: pip install setuptools wheel twine build
+      - name: Install build tooling
+        run: pip install build
 
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          python -m build
-          twine upload dist/* --verbose
+      - name: Build distribution
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        # Auth via OIDC trusted publisher; no PYPI_PASSWORD needed.
 
       - name: merge in release
-        uses: devmasx/merge-branch@master
+        uses: devmasx/merge-branch@854d3ac71ed1e9deb668e0074781b81fdd6e771f # v1.4.0
         with:
           type: now
           message: ":rocket: ${{  github.ref_name }}"

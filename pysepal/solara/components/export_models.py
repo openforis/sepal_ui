@@ -69,6 +69,19 @@ class ResolvedExport:
     max_pixels: int | None = 1_000_000_000
     max_vertices: int | None = None
     priority: int | None = None
+    vis_params: Optional[dict] = None
+    """Optional SEPAL-convention visualization parameters to embed on the
+    exported image.
+
+    When set on an ``image``-kind source, the engine wraps ``ee_object`` with
+    :func:`pysepal.mapping.visualization.set_viz_params` before submission, so
+    the resulting Earth Engine asset carries the ``visualization_*`` properties
+    that SepalMap (and other SEPAL recipes) read on display. Pass the same dict
+    shape accepted by ``set_viz_params`` (keys: ``name``, ``type``, ``bands``,
+    ``min``, ``max``, ``palette``, ``values``, ``labels``, ``inverted``).
+
+    Ignored for ``table``-kind sources.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,7 +94,7 @@ class ExportRequest:
     name: str
     region: object = None
     scale: Optional[int] = None
-    gee_folder: Optional[str] = None
+    gee_asset_id: Optional[str] = None
     drive_folder: Optional[str] = None
     sepal_folder: Optional[str] = None
     table_file_format: str = DEFAULT_TABLE_FILE_FORMAT
@@ -93,6 +106,7 @@ class ExportRequest:
     cleanup_drive_after_sepal: bool = True
     poll_interval_seconds: float = 3.0
     timeout_seconds: float = 1800.0
+    vis_params: Optional[dict] = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,6 +193,40 @@ def resolve_sepal_folder(
     return base_results / requested_path
 
 
+def validate_asset_id_under_root(asset_id: str, asset_root: str) -> Optional[str]:
+    """Return an error message if ``asset_id`` does not live under ``asset_root``.
+
+    Earth Engine only lets a user write to assets beneath their own asset root
+    (``projects/<project>/assets/``). This guards the dialog (live UI hint)
+    and the engine (submit-time validation) with one shared rule.
+
+    Returns ``None`` when:
+    - ``asset_root`` is empty or still the ``{project}`` placeholder — the UI
+      can defer validation until ``_load_asset_root`` finishes.
+    - ``asset_id`` is empty — empty is a separate "required" error that the
+      caller already surfaces.
+
+    Returns an error string otherwise: when the path does not start under the
+    root, or when only the root is given with no asset name beneath it.
+    """
+    if not asset_root or "{project}" in asset_root:
+        return None
+
+    normalized_id = (asset_id or "").strip()
+    if not normalized_id:
+        return None
+
+    expected_root = asset_root.rstrip("/") + "/"
+    if not normalized_id.startswith(expected_root):
+        return f"Asset id must live under `{expected_root}`."
+
+    leaf = normalized_id[len(expected_root) :].strip("/")
+    if not leaf:
+        return f"Asset id must include a name segment under `{expected_root}`."
+
+    return None
+
+
 def matches_drive_export_prefix(filename: str, prefix: str) -> bool:
     """Return ``True`` when a Drive filename belongs to an export prefix."""
     return (
@@ -256,16 +304,16 @@ def _build_result_message(result: ExportResult) -> str:
 __all__ = [
     "DEFAULT_IMAGE_FILE_FORMAT",
     "DEFAULT_TABLE_FILE_FORMAT",
+    "FAILED_TASK_STATES",
+    "SUCCESS_TASK_STATES",
+    "TABLE_FILE_FORMATS",
+    "TARGET_LABELS",
     "ExportKind",
     "ExportRequest",
     "ExportResult",
     "ExportSource",
     "ExportTarget",
-    "FAILED_TASK_STATES",
     "ResolvedExport",
-    "SUCCESS_TASK_STATES",
-    "TABLE_FILE_FORMATS",
-    "TARGET_LABELS",
     "_build_result_message",
     "extract_task_id",
     "get_task_state_name",
@@ -274,4 +322,5 @@ __all__ = [
     "resolve_asset_folder",
     "resolve_sepal_folder",
     "sanitize_export_name",
+    "validate_asset_id_under_root",
 ]

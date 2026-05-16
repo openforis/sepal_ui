@@ -1,0 +1,94 @@
+import logging
+
+import solara
+from solara.lab.components.theming import theme
+
+from pysepal import mapping as sm
+from pysepal.logger import setup_logging
+from pysepal.sepalwidgets.vue_app import MapApp, ThemeToggle
+from pysepal.solara import (
+    get_current_gee_interface,
+    setup_sessions,
+    setup_solara_server,
+    setup_theme_colors,
+    with_sepal_sessions,
+)
+
+from component.model.state_manager import app_state
+
+logger = setup_logging(logger_name="{{module_slug}}")
+logger.setLevel(logging.DEBUG)
+logger.debug("{{app_title}} initialized")
+logger.debug("Solara version: %s", solara.__version__)
+
+setup_solara_server(extra_asset_locations=[])
+
+
+@solara.lab.on_kernel_start
+def on_kernel_start():
+    return setup_sessions()
+
+
+@solara.component
+@with_sepal_sessions(module_name="{{module_name}}")
+def Page():
+    setup_theme_colors()
+
+    gee_interface = get_current_gee_interface()
+    theme_toggle = ThemeToggle()
+    theme_toggle.observe(lambda e: setattr(theme, "dark", e["new"]), "dark")
+
+    sepal_map = solara.use_memo(
+        lambda: sm.SepalMap(
+            zoom=3, center=[0, 0], gee=True,
+            gee_interface=gee_interface, theme_toggle=theme_toggle,
+        ),
+        [id(gee_interface)],
+    )
+
+    steps_data = [
+        # {
+        #     "id": 1,
+        #     "name": "Step Name",
+        #     "icon": "mdi-map-marker-check",
+        #     "display": "step",          # or "dialog"
+        #     "content": MyTile(...),     # ipyvuetify widget or Solara component
+        #     "content_enabled": True,    # False to disable navigation to this step
+        # },
+    ]
+
+    right_panel_config = {
+        "title": "Tools",
+        "icon": "mdi-tools",
+        "width": 350,
+        "toggle_icon": "mdi-chevron-left",
+    }
+
+    right_panel_content = [
+        # {
+        #     "title": "Section title",
+        #     "icon": "mdi-cog",
+        #     "content": [MySolaraComponent()],  # list — Solara components supported
+        # },
+    ]
+
+    solara.Title("{{app_title}}")
+
+    MapApp.element(
+        app_title="{{app_title}}",
+        app_icon="{{app_icon}}",
+        main_map=[sepal_map],
+        steps_data=steps_data,
+        initial_step=1,
+        theme_toggle=[theme_toggle],
+        right_panel_config=right_panel_config,
+        right_panel_content=right_panel_content,
+        right_panel_open=False,
+        is_pinned=False,
+        repo_url="{{repo_url}}",
+    )
+
+
+routes = [
+    solara.Route(path="/", component=Page, label="{{app_title}}"),
+]

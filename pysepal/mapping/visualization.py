@@ -3,7 +3,7 @@
 import json
 import logging
 import warnings
-from typing import Optional
+from typing import Mapping, Optional, Sequence, Union
 
 import ee
 
@@ -13,6 +13,17 @@ from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.warning import SepalWarning
 
 log = logging.getLogger("sepalui.mapping.visualization")
+
+VIZ_LIST_KEYS = ("bands", "palette", "labels")
+VIZ_NUMERIC_LIST_KEYS = ("min", "max", "values")
+VIZ_BOOL_LIST_KEYS = ("inverted",)
+VIZ_SCALAR_KEYS = ("name", "type")
+VIZ_ALL_KEYS = (
+    *VIZ_LIST_KEYS,
+    *VIZ_NUMERIC_LIST_KEYS,
+    *VIZ_BOOL_LIST_KEYS,
+    *VIZ_SCALAR_KEYS,
+)
 
 
 def _strtobool(val: str) -> bool:
@@ -382,3 +393,129 @@ def validate_ee_object(ee_object: ee.ComputedObject) -> None:
             "\n\nThe image argument in 'addLayer' function must be an instance of "
             "one of ee.Image, ee.Geometry, ee.Feature or ee.FeatureCollection."
         )
+
+
+def _serialize_viz_value(key: str, value: object) -> str:
+    """Serialize a single visualization parameter value to the SEPAL property format.
+
+    SEPAL stores visualization parameters as flat image properties prefixed with
+    ``visualization_<index>_<key>``. List-valued keys (``bands``, ``palette``,
+    ``labels``, ``min``, ``max``, ``values``, ``inverted``) are stored as
+    comma-separated strings; scalar keys (``name``, ``type``) as plain strings.
+    """
+    if key in VIZ_SCALAR_KEYS:
+        return str(value)
+
+    if key in VIZ_BOOL_LIST_KEYS:
+        sequence = value if isinstance(value, (list, tuple)) else [value]
+        return ",".join("true" if bool(item) else "false" for item in sequence)
+
+    if isinstance(value, str):
+        # Allow callers to pass a pre-serialized comma-separated string.
+        return value
+    if isinstance(value, (list, tuple)):
+        return ",".join(str(item) for item in value)
+    return str(value)
+
+
+def set_viz_params(
+    image: ee.Image,
+    *,
+    name: str = "default",
+    type: Optional[str] = None,
+    bands: Optional[Sequence[str]] = None,
+    min: Union[float, Sequence[float], None] = None,
+    max: Union[float, Sequence[float], None] = None,
+    palette: Union[str, Sequence[str], None] = None,
+    values: Optional[Sequence[Union[int, float]]] = None,
+    labels: Optional[Sequence[str]] = None,
+    inverted: Optional[Sequence[bool]] = None,
+    index: int = 0,
+) -> ee.Image:
+    """Embed SEPAL-convention visualization parameters as image properties.
+
+    This is the inverse of :func:`get_viz_params`. SEPAL stores per-image
+    visualization as flat properties ``visualization_<index>_<key>``; SepalMap
+    reads them on display, and Earth Engine asset exports preserve them, so
+    callers downstream (other SEPAL recipes, the Code Editor) see the styling
+    automatically.
+
+    Args:
+        image: The :class:`ee.Image` to annotate. A new image is returned;
+            the original is not mutated.
+        name: Logical name of the visualization (e.g. ``"default"``). Stored
+            as ``visualization_<index>_name``.
+        type: Visualization type — one of ``"continuous"``, ``"categorical"``,
+            ``"rgb"``, ``"hsv"``. Inferred by SepalMap when omitted, based on
+            the number of bands.
+        bands: Band names targeted by the visualization. Single-band for
+            ``continuous``/``categorical``, three bands for ``rgb``/``hsv``.
+        min: Per-band minimum value(s). Scalar or sequence; both stored as
+            a comma-separated string.
+        max: Per-band maximum value(s). Same rules as ``min``.
+        palette: Hex color palette. Sequence of ``#RRGGBB`` or a
+            pre-comma-joined string.
+        values: For ``categorical`` only — the discrete pixel values that the
+            palette maps to. Preserves non-consecutive class codes.
+        labels: Per-value human-readable labels (used in legends).
+        inverted: Per-band inversion flags.
+        index: Slot index in the property name. Use distinct indices when
+            attaching multiple named visualizations to the same image.
+
+    Returns:
+        A new :class:`ee.Image` carrying the visualization properties.
+
+    Example:
+        >>> styled = set_viz_params(
+        ...     classified,
+        ...     name="loss_year",
+        ...     type="categorical",
+        ...     bands=["classification"],
+        ...     palette=["#ffff00", "#8b0000", "#d3d3d3"],
+        ...     values=[1, 25, 30],
+        ...     labels=["loss 2001", "loss 2025", "non forest"],
+        ... )
+    """
+    if not isinstance(image, ee.Image):
+        actual = image.__class__.__name__ if image is not None else "None"
+        raise TypeError(f"set_viz_params requires an ee.Image; got {actual}")
+
+    fields: dict[str, object] = {
+        "name": name,
+        "type": type,
+        "bands": bands,
+        "min": min,
+        "max": max,
+        "palette": palette,
+        "values": values,
+        "labels": labels,
+        "inverted": inverted,
+    }
+
+    properties: dict[str, str] = {}
+    for key, value in fields.items():
+        if value is None:
+            continue
+        properties[f"visualization_{index}_{key}"] = _serialize_viz_value(key, value)
+
+    if not properties:
+        return image
+
+    return image.set(properties)
+
+
+def merge_viz_params(*params_list: Mapping[str, object]) -> dict:
+    """Merge several visualization parameter dicts, later entries taking precedence.
+
+    Useful when an app exposes a base palette (e.g. a shared common module)
+    and a per-instance override (e.g. user-tuned min/max).
+    """
+    merged: dict = {}
+    for params in params_list:
+        if not params:
+            continue
+        for key, value in params.items():
+            if value is None:
+                continue
+            merged[key] = value
+    return merged
