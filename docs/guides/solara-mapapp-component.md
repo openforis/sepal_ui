@@ -6,9 +6,20 @@ exposes typed dataclass props, auto-wires `ThemeState` / `Translator`,
 and preserves the visual design of the original `MapApp.vue`
 (drawer, narrow-mode bottom sheet, dialog steps, right panel).
 
-```{warning}
-The legacy `pysepal.sepalwidgets.vue_app.MapApp` still works but emits a
-`DeprecationWarning`. Migrate to `MapAppComponent` for new code.
+```{important}
+**Availability — not yet shipped.** As of pysepal 3.6.1, `MapAppComponent` and
+the `pysepal.solara.components.layout` package are **not present in the released
+package**: the `layout` module is empty and `from pysepal.solara import
+MapAppComponent` (along with the dataclasses below) raises `ImportError`. The
+API documented here is the **planned target** — verify availability with
+`python -c "from pysepal.solara import MapAppComponent"` before relying on it.
+
+Until it lands, build the shell with the shipped
+`pysepal.sepalwidgets.vue_app.MapApp.element(...)`. Reacton renders nested
+Solara elements before they reach `MapApp`'s `List(Instance(DOMWidget))` traits,
+so modern `@solara.component` tiles can be passed straight through as step /
+panel `content`. The legacy `MapApp` is therefore **not** effectively deprecated
+yet — it remains the supported shell until `MapAppComponent` ships.
 ```
 
 ## Quick start
