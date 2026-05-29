@@ -206,9 +206,17 @@ boilerplate; swap `theme_toggle=` for `theme_state=` on `SepalMap` and `MapApp`.
 
 ## 8. MapApp → MapAppComponent
 
-The `pysepal.sepalwidgets.vue_app.MapApp` VuetifyTemplate is deprecated.
-Prefer `pysepal.solara.components.layout.MapAppComponent` (re-exported
-as `pysepal.solara.MapAppComponent`). The new component:
+```{important}
+**Not yet available** (as of pysepal 3.6.1): `MapAppComponent` and
+`pysepal.solara.components.layout` are not in the released package — the module
+is empty and the imports raise `ImportError`. Keep using `MapApp.element`
+(reacton renders `@solara.component` tiles passed as `content`). The guidance
+below describes the **planned target**, not the current state.
+```
+
+Once it ships, prefer `pysepal.solara.components.layout.MapAppComponent`
+(re-exported as `pysepal.solara.MapAppComponent`) over the
+`pysepal.sepalwidgets.vue_app.MapApp` VuetifyTemplate. The new component:
 
 - Is a `@solara.component` usable with `with MapAppComponent(...): ...`.
 - Exposes typed dataclass props: `StepConfig`, `PanelSection`,
