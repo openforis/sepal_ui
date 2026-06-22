@@ -631,7 +631,7 @@ class LoadTableField(v.Col, SepalWidget):
         return self
 
     def _set_v_model(self, key: str, value: Any) -> None:
-        """set the v_model from an external function to trigger the change event.
+        """Set the v_model from an external function to trigger the change event.
 
         Args:
             key: the column name
@@ -1196,7 +1196,9 @@ class VectorField(v.Col, SepalWidget):
 
         elif isinstance(self.w_file, AssetSelect):
             self.feature_collection = ee.FeatureCollection(change["new"])
-            columns = self.gee_interface.get_info(self.feature_collection.first())["properties"]
+            # read only the property names server-side to avoid pulling geometry
+            first = ee.Feature(self.feature_collection.first())
+            columns = self.gee_interface.get_info(first.propertyNames())
             columns = [str(col) for col in columns if col not in ["system:index", "Shape_Area"]]
 
         # update the columns
