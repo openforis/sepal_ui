@@ -532,10 +532,7 @@ class AoiModel(Model):
             raise ValueError(ms.aoi_sel.exception.no_gdf)
 
         if self.gee:
-            coords = self.gee_interface.get_info(
-                self.feature_collection.geometry().bounds().coordinates().get(0)
-            )
-            bounds = [coords[0][0], coords[0][1], coords[2][0], coords[2][1]]
+            bounds = list(self.gee_interface.get_bounds(self.feature_collection))
         else:
             bounds = self.gdf.total_bounds.tolist()
 

@@ -4,7 +4,7 @@ import asyncio
 import threading
 import traceback
 from pathlib import PurePosixPath
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 import ee
 from eeclient.client import EESession
@@ -55,6 +55,34 @@ def _resolve_create_folder_paths(asset_root: str, folder_path: str) -> tuple[str
     relative_parts = absolute_parts[len(root_parts) :]
     relative_path = str(PurePosixPath(*relative_parts)) if relative_parts else ""
     return relative_path, absolute_path
+
+
+def _bbox_geometry(item: ee.ComputedObject) -> ee.Geometry:
+    """Build the bounding-box geometry of an Earth Engine object without dissolving.
+
+    ``ee.FeatureCollection.geometry()`` unions every feature into a single
+    geometry, which trips Earth Engine's hard 2M-edge limit on dense
+    collections. Reducing each feature to its own bounding box *first* yields an
+    identical extent while keeping every intermediate geometry tiny (#996).
+
+    Assumes no single feature on its own exceeds the 2M-edge limit.
+
+    Args:
+        item: an ``ee.Geometry``, ``ee.Feature``, ``ee.FeatureCollection`` or
+            ``ee.Image`` (or subclass).
+
+    Returns:
+        the bounding-box geometry of ``item``.
+    """
+    if isinstance(item, ee.Geometry):
+        geom = item
+    elif isinstance(item, ee.FeatureCollection):
+        # reduce each feature to its bbox before unioning (avoids the dissolve)
+        geom = item.map(lambda f: ee.Feature(f.geometry().bounds())).geometry()
+    else:
+        # ee.Image / ee.Feature: a single geometry, no collection to dissolve
+        geom = item.geometry()
+    return geom.bounds()
 
 
 class GEEInterface:
@@ -186,6 +214,23 @@ class GEEInterface:
     ) -> List:
         """Synchronously get info for multiple Earth Engine objects in batch."""
         return self._run_async_blocking(self.get_info_batch_async(ee_objects), timeout)
+
+    async def get_bounds_async(self, item: ee.ComputedObject) -> Tuple[float, float, float, float]:
+        """Asynchronously compute the extent of an Earth Engine object.
+
+        Dense feature collections are reduced per-feature to avoid Earth Engine's
+        2M-edge limit on ``FeatureCollection.geometry()`` (issue #996).
+
+        Args:
+            item: an ``ee.Geometry``, ``ee.Feature``, ``ee.FeatureCollection`` or
+                ``ee.Image``.
+
+        Returns:
+            the bounding box as ``(minx, miny, maxx, maxy)``.
+        """
+        ring = _bbox_geometry(item).coordinates().get(0)
+        coords = await self.get_info_async(ring)
+        return (coords[0][0], coords[0][1], coords[2][0], coords[2][1])
 
     async def get_map_id_async(
         self,
@@ -460,6 +505,24 @@ class GEEInterface:
         return self._run_async_blocking(
             self.get_info_async(ee_object, tag, serialized_object=serialized_object), timeout
         )
+
+    def get_bounds(
+        self, item: ee.ComputedObject, timeout: Optional[float] = None
+    ) -> Tuple[float, float, float, float]:
+        """Compute the extent of an Earth Engine object, blocking until done.
+
+        Dense feature collections are reduced per-feature to avoid Earth Engine's
+        2M-edge limit on ``FeatureCollection.geometry()`` (issue #996).
+
+        Args:
+            item: an ``ee.Geometry``, ``ee.Feature``, ``ee.FeatureCollection`` or
+                ``ee.Image``.
+            timeout: optional seconds to wait for the blocking call.
+
+        Returns:
+            the bounding box as ``(minx, miny, maxx, maxy)``.
+        """
+        return self._run_async_blocking(self.get_bounds_async(item), timeout)
 
     def get_map_id(
         self,
