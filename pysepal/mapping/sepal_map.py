@@ -352,14 +352,10 @@ class SepalMap(ipl.Map):
             item: the geometry to zoom on
             zoom_out: Zoom out the bounding zoom
         """
-        # type check the given object
-        ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
-
-        # extract bounds from ee_object
-        coords = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
+        bounds = self.gee_interface.get_bounds(item)
 
         # zoom on these bounds
-        return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
+        return self.zoom_bounds(bounds, zoom_out)
 
     def zoom_raster(self, layer: ipl.LocalTileLayer, zoom_out: int = 1) -> Self:
         """Adapt the zoom to the given LocalLayer.
@@ -638,11 +634,7 @@ class SepalMap(ipl.Map):
 
         if autocenter:
             try:
-                ee_geometry = (
-                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
-                )
-                bounds = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
-                self.zoom_bounds((*bounds[0], *bounds[2]))
+                self.zoom_bounds(self.gee_interface.get_bounds(ee_object))
             except Exception:
                 log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
@@ -713,13 +705,7 @@ class SepalMap(ipl.Map):
 
         if autocenter:
             try:
-                ee_geometry = (
-                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
-                )
-                bounds = await self.gee_interface.get_info_async(
-                    ee_geometry.bounds().coordinates().get(0)
-                )
-                self.zoom_bounds((*bounds[0], *bounds[2]))
+                self.zoom_bounds(await self.gee_interface.get_bounds_async(ee_object))
             except Exception:
                 log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 

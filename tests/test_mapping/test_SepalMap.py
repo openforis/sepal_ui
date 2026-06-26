@@ -581,12 +581,8 @@ def test_add_ee_layer_autocenter_sync() -> None:
     m = sm.SepalMap()
     ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
 
-    # Mock the bounds coordinates that would be returned by EE
-    # bounds().coordinates().get(0) returns [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny], [minx, miny]]
-    mock_bounds = [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]]
-
-    # Mock gee_interface methods
-    m.gee_interface.get_info = MagicMock(return_value=mock_bounds)
+    # Mock the extent get_bounds computes for the object (per-feature-bbox, #996)
+    m.gee_interface.get_bounds = MagicMock(return_value=(-180, -90, 180, 90))
     m.gee_interface.get_map_id = MagicMock(
         return_value={"tile_fetcher": MagicMock(url_format="http://test")}
     )
@@ -611,12 +607,8 @@ async def test_add_ee_layer_autocenter_async() -> None:
     m = sm.SepalMap()
     ee_object = ee.Geometry.Rectangle([-180, -90, 180, 90])
 
-    # Mock the bounds coordinates that would be returned by EE
-    # bounds().coordinates().get(0) returns [[minx, miny], [minx, maxy], [maxx, maxy], [maxx, miny], [minx, miny]]
-    mock_bounds = [[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]]
-
-    # Mock gee_interface async methods
-    m.gee_interface.get_info_async = AsyncMock(return_value=mock_bounds)
+    # Mock the extent get_bounds_async computes for the object (per-feature-bbox, #996)
+    m.gee_interface.get_bounds_async = AsyncMock(return_value=(-180, -90, 180, 90))
     m.gee_interface.get_map_id_async = AsyncMock(
         return_value={"tile_fetcher": MagicMock(url_format="http://test")}
     )

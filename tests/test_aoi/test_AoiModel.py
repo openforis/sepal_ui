@@ -225,6 +225,28 @@ def test_total_bounds(test_model: aoi.AoiModel, data_regression) -> None:
 
 @pytest.mark.gee
 @pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+def test_total_bounds_dense_aoi(gee_dir: Path) -> None:
+    """total_bounds must not dissolve a dense AOI past Earth Engine's 2M-edge limit.
+
+    Regression for #996: GAUL 2024 Indonesia (~2.4M edges across 4 features)
+    overflowed ``feature_collection.geometry()``. total_bounds now reduces each
+    feature to its bbox first, so the extent comes back without dissolving.
+
+    Args:
+        gee_dir: the session directory where assets are saved
+    """
+    # GAUL 2024 Indonesia — dense enough that the naive dissolve hits the limit
+    model = aoi.AoiModel(admin="241", folder=gee_dir)
+
+    bounds = model.total_bounds()
+
+    assert bounds == pytest.approx([95.0108, -11.0076, 141.0194, 6.0769], abs=0.05)
+
+    return
+
+
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_clear_output(test_model: aoi.AoiModel, aoi_model_outputs: List[str]) -> None:
     """Clear all output from a AoiModel.
 
