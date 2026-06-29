@@ -242,6 +242,40 @@ def image_id() -> str:
 # -- create local tmp files ----------------------------------------------------
 
 
+#: vendored GADM level-0 definition of Vatican City. Sourced once from
+#: https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json and committed so the
+#: AOI test suite never has to reach the (slow/often-unreachable) GADM server. It backs
+#: both the ``fake_vector`` fixture and the ``_offline_gadm`` pygadm interceptor below.
+GADM_VAT_0 = Path(__file__).parent / "data" / "gadm41_VAT_0.geojson"
+
+
+@pytest.fixture(autouse=True)
+def _offline_gadm(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Serve the vendored Vatican geometry instead of hitting the GADM server.
+
+    ``pygadm.Items`` performs a single HTTP GET against geodata.ucdavis.edu to fetch the
+    ``gadm41_<ISO>_<level>.json`` boundary. That host is frequently slow or unreachable
+    from CI, which used to flake every AOI test that resolved an admin. We intercept that
+    one call for the Vatican definition so the tests stay hermetic and fast; any other URL
+    falls through to the real session.
+    """
+    import pygadm
+
+    content = GADM_VAT_0.read_bytes()
+    original_get = pygadm.session.get
+
+    class _Response:
+        def __init__(self, content: bytes) -> None:
+            self.content = content
+
+    def fake_get(url: str, *args, **kwargs):
+        if "gadm41_VAT_0" in url:
+            return _Response(content)
+        return original_get(url, *args, **kwargs)
+
+    monkeypatch.setattr(pygadm.session, "get", fake_get)
+
+
 @pytest.fixture(scope="session")
 def fake_vector(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Create a fake vector file from the GADM definition of vatican city and save it in the tmp dir.
@@ -249,9 +283,8 @@ def fake_vector(tmp_path_factory: pytest.TempPathFactory) -> Path:
     Returns:
         the path to the tmp vector file
     """
-    link = "https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_VAT_0.json"
     file = tmp_path_factory.mktemp("temp") / "gadm41_VAT_0.shp"
-    gpd.read_file(link).to_file(file)
+    gpd.read_file(GADM_VAT_0).to_file(file)
     return file
 
 
