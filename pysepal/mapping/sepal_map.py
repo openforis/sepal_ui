@@ -28,22 +28,16 @@ import math
 import random
 import string
 from pathlib import Path
-from typing import List, Optional, Sequence, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union, cast
 
 import ee
 import ipyleaflet as ipl
 import ipyvuetify as v
 import ipywidgets as widgets
-import matplotlib.pyplot as plt
 import numpy as np
-import rioxarray
 from deprecated.sphinx import deprecated
 from eeclient.client import EESession
 from ipyleaflet import TileLayer  # noqa: F401 - leave it here, it is used in the eval
-from localtileserver import TileClient, get_leaflet_tile_layer
-from matplotlib import colorbar
-from matplotlib import colors as mpc
-from rasterio.crs import CRS
 from traitlets import Int as _TInt
 from typing_extensions import Self
 
@@ -61,6 +55,9 @@ from pysepal.mapping.zoom_control import ZoomControl
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts import utils as su
+
+if TYPE_CHECKING:
+    from matplotlib import colors as mpc
 
 __all__ = ["SepalMap"]
 
@@ -366,6 +363,9 @@ class SepalMap(ipl.Map):
             layer: the localTile layer to zoom on. it needs to embed the "raster" member
             zoom_out: Zoom out the bounding zoom
         """
+        import rioxarray
+        from rasterio.crs import CRS
+
         da = rioxarray.open_rasterio(layer.raster, masked=True)
 
         # unproject if necessary
@@ -398,7 +398,7 @@ class SepalMap(ipl.Map):
         image: Union[str, Path],
         bands: Optional[Union[list, int]] = None,
         layer_name: str = "Layer_" + su.random_string(),
-        colormap: Union[str, mpc.Colormap] = "inferno",
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
         opacity: float = 1.0,
         fit_bounds: bool = True,
         key: str = "",
@@ -419,6 +419,11 @@ class SepalMap(ipl.Map):
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
+        import matplotlib.pyplot as plt
+        import rioxarray
+        from localtileserver import TileClient, get_leaflet_tile_layer
+        from matplotlib import colors as mpc
+
         # force cast to Path and then start the client
         image = Path(image)
 
@@ -513,6 +518,10 @@ class SepalMap(ipl.Map):
             layer_name: Layer name of the colorbar to be associated with. Defaults to None.
             kwargs: any other argument of the colorbar object from matplotlib
         """
+        import matplotlib.pyplot as plt
+        from matplotlib import colorbar
+        from matplotlib import colors as mpc
+
         width, height = 6.0, 0.4
         alpha = 1
 
