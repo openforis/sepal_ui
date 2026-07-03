@@ -682,6 +682,22 @@ class GEEInterface:
         log.debug(f"Closing GEEInterface... {id(self)}")
 
         try:
+            # Close the EESession HTTP client on the session's own loop BEFORE
+            # stopping it: the httpx AsyncClient (HTTP/2 pool, sockets, TLS
+            # state) must be released deterministically on kernel cull, not
+            # whenever the garbage collector gets to it.
+            if (
+                getattr(self, "session", None) is not None
+                and hasattr(self.session, "aclose")
+                and hasattr(self, "_async_loop")
+                and self._async_loop.is_running()
+            ):
+                future = asyncio.run_coroutine_threadsafe(self.session.aclose(), self._async_loop)
+                try:
+                    future.result(timeout=5.0)
+                except Exception as e:
+                    log.warning(f"Failed to close EESession HTTP client: {e}")
+
             if hasattr(self, "_async_loop") and self._async_loop.is_running():
                 self._async_loop.call_soon_threadsafe(self._async_loop.stop)
                 if hasattr(self, "_async_thread") and self._async_thread.is_alive():
