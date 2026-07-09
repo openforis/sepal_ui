@@ -8,10 +8,10 @@ from pathlib import PurePosixPath
 from typing import Any, Callable, Optional, Sequence
 
 import solara
+from pysepal_api import SepalClient
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 from pysepal.solara.notifications import use_notifications
 from pysepal.solara.notifications.notifier import NoopNotifier
 from pysepal.solara.utils import (

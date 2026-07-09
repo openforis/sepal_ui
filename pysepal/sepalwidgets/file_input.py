@@ -11,10 +11,10 @@ from typing import Literal, Optional, Union
 import ipyvuetify as v
 from natsort import natsorted
 from pydantic import BaseModel
+from pysepal_api import SepalClient
 from traitlets import Bool, Int, List, Unicode
 
 from pysepal.logger import log
-from pysepal.scripts.sepal_client import SepalClient
 from pysepal.sepalwidgets.widget import SepalWidget
 
 
@@ -79,8 +79,18 @@ def get_local_files(folder: str = "/", extensions: List[str] = [], cache_dirs=No
 def get_remote_files(sepal_client, folder: str = "/", extensions=None, cache_dirs=None, root="/"):
     """Get the list of files in a folder on the remote server."""
     try:
-        response = sepal_client.list_files(folder, extensions=extensions)
-        return ListDirectoryResponse.model_validate(response).sorted()
+        listing = sepal_client.files.list(folder, extensions=extensions)
+        files = [
+            FileDetails(
+                name=entry.name,
+                path=entry.path,
+                type=entry.type,
+                size=entry.size,
+                modified_time=(entry.modified_time.timestamp() if entry.modified_time else 0.0),
+            )
+            for entry in listing.files
+        ]
+        return ListDirectoryResponse(path=listing.path, files=files).sorted()
 
     except Exception as error:
         log.error(f"Failed to list files: {error}")

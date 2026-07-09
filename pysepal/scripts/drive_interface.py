@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from apiclient import discovery
-from eeclient.sepal_credential_mixin import SepalCredentialMixin
+from eeclient.credential_mixin import CredentialMixin
 from google.oauth2.credentials import Credentials
 from googleapiclient.http import MediaIoBaseDownload
 
@@ -18,24 +18,34 @@ logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.ERROR)
 log = logging.getLogger("sepalui.scripts.drive_interface")
 
 
-class GDriveInterface(SepalCredentialMixin):
+class GDriveInterface(CredentialMixin):
     """Google Drive interface with SEPAL credential integration.
 
     This class provides methods to interact with Google Drive using SEPAL credentials
     or file-based credentials. It supports automatic token refresh and various file operations.
     """
 
-    def __init__(self, sepal_headers: Optional[dict] = None):
+    def __init__(self, sepal_headers: Optional[dict] = None, *, provider=None):
         """Initialize the Google Drive interface.
 
         Args:
             sepal_headers: Optional SEPAL headers dictionary for authentication.
-                          If not provided, falls back to file-based credentials.
+                          If neither ``sepal_headers`` nor ``provider`` is given,
+                          credentials are resolved from the environment via
+                          ``eeclient.providers.resolve_default_provider`` (the
+                          SEPAL credentials file in a SEPAL context, otherwise
+                          ``EARTHENGINE_TOKEN`` / the Earth Engine OAuth file).
+            provider: Optional explicit ``eeclient`` credential provider.
 
         Raises:
             ValueError: If credentials file not found or no access token available.
         """
-        super().__init__(sepal_headers)
+        if sepal_headers is None and provider is None:
+            from eeclient.providers import resolve_default_provider
+
+            provider = resolve_default_provider()
+
+        super().__init__(sepal_headers, provider=provider)
 
         self._service = None
         self.logger = logging.getLogger(f"eeclient.gdrive.{self.user}")
@@ -138,7 +148,7 @@ class GDriveInterface(SepalCredentialMixin):
             status, done = downloader.next_chunk()
 
         if sepal_client:
-            sepal_client.set_file(output_file, fh.getvalue())
+            sepal_client.files.write(str(output_file), fh.getvalue(), overwrite=True)
             return
 
         # Otherwise, write to local file
@@ -181,7 +191,7 @@ class GDriveInterface(SepalCredentialMixin):
         if task.get("state") == "COMPLETED":
             tmp_result_folder = Path("tmp_results", Path(tasks_file.name).stem)
             if sepal_client:
-                tmp_result_folder = sepal_client.get_remote_dir(tmp_result_folder)
+                tmp_result_folder = sepal_client.files.mkdir(str(tmp_result_folder))
             else:
                 tmp_result_folder.mkdir(exist_ok=True, parents=True)
 

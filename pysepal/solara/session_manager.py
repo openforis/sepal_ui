@@ -14,11 +14,11 @@ import solara.server.kernel_context
 from eeclient.client import EESession
 from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.models import SepalHeaders
+from pysepal_api import SepalClient
 from solara.lab import headers
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 from pysepal.solara.theme import ThemeState
 
 logger = logging.getLogger("sepalui.session_manager")
@@ -97,10 +97,10 @@ class SessionManager:
         username = sepal_headers.sepal_user.username
 
         sepal_session_id = sepal_headers.cookies["SEPAL-SESSIONID"]
-        gee_session = EESession(sepal_headers=sepal_headers)
+        gee_session = EESession.from_sepal_headers(sepal_headers)
 
         gee_interface = GEEInterface(gee_session)
-        sepal_client = SepalClient(session_id=sepal_session_id, module_name=module_name)
+        sepal_client = SepalClient.create(session_id=sepal_session_id, module_name=module_name)
         drive_interface = GDriveInterface(sepal_headers=sepal_headers)
         theme_state = ThemeState()
 
@@ -129,6 +129,13 @@ class SessionManager:
                 session["gee_interface"].close()
             except Exception as e:
                 logger.error(f"Error closing GEE interface for kernel {kernel_id}: {e}")
+
+            sepal_client = session.get("sepal_client")
+            if sepal_client is not None:
+                try:
+                    sepal_client.close()
+                except Exception as e:
+                    logger.error(f"Error closing SepalClient for kernel {kernel_id}: {e}")
 
             del self._sessions[kernel_id]
             logger.debug(f"Session cleaned up for kernel {kernel_id}")

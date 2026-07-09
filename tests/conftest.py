@@ -458,7 +458,7 @@ def gee_interface_with_sepal() -> Optional[GEEInterface]:
         from eeclient.helpers import get_sepal_headers_from_auth
 
         sepal_headers = get_sepal_headers_from_auth(sepal_user, sepal_password, sepal_host)
-        session = EESession(sepal_headers)
+        session = EESession.from_sepal_headers(sepal_headers)
         return GEEInterface(session=session)
     except Exception as e:
         import traceback

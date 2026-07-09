@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 import solara
+from pysepal_api import SepalClient
 
-from pysepal.scripts.sepal_client import SepalClient
 from pysepal.sepalwidgets.file_input import FileInput
 
 

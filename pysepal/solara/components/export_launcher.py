@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Callable, Optional, Sequence, Union
 
 import solara
+from pysepal_api import SepalClient
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 
 from .export_dialog import ExportDialog, InlineExportFeedback
 from .export_hook import ExportDialogController, use_export_dialog

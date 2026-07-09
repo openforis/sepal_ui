@@ -8,10 +8,10 @@ import logging
 from typing import Optional
 
 from eeclient.client import EESession
+from pysepal_api import SepalClient
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 
 from .session_manager import SessionManager
 
@@ -26,9 +26,11 @@ def _get_fallback_gee_interface() -> GEEInterface:
     """Get or create the fallback GEE interface with EESession without headers."""
     global _fallback_gee_interface
     if _fallback_gee_interface is None:
-        logger.debug("Creating fallback GEEInterface with EESession without headers")
-        # if we do not pass headers, the EESession will use the local credentials file
-        ee_session = EESession()
+        logger.debug("Creating fallback GEEInterface with EESession.from_default()")
+        # from_default() resolves local credentials (the SEPAL file in a SEPAL
+        # context, otherwise EARTHENGINE_TOKEN / the Earth Engine OAuth file).
+        # A bare EESession() raises under ee-client 3.0.0 (agnostic auth).
+        ee_session = EESession.from_default()
         _fallback_gee_interface = GEEInterface(ee_session)
     return _fallback_gee_interface
 
@@ -38,7 +40,8 @@ def _get_fallback_drive_interface() -> GDriveInterface:
     global _fallback_drive_interface
     if _fallback_drive_interface is None:
         logger.debug("Creating fallback GDriveInterface without headers")
-        # if we do not pass headers, the interface will use the local credentials file
+        # headerless GDriveInterface resolves local credentials via
+        # eeclient.providers.resolve_default_provider() (see GDriveInterface).
         _fallback_drive_interface = GDriveInterface()
     return _fallback_drive_interface
 
