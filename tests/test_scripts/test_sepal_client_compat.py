@@ -68,3 +68,9 @@ def test_list_files_returns_legacy_dict_shape(shim):
     # sepal-gee-bundle does response.get("files", []) then item["name"]
     assert isinstance(result, dict)
     assert [f["name"] for f in result["files"]] == ["a.js"]
+
+
+def test_session_manager_constructs_the_compat_client():
+    import pysepal.solara.session_manager as session_manager
+
+    assert session_manager.SepalClient is SepalClient
