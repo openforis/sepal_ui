@@ -9,10 +9,10 @@ from __future__ import annotations
 from typing import Optional, Sequence
 
 import solara
+from pysepal_api import SepalClient
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 
 from .export_dialog import ExportDialog
 from .export_engine import submit_export_request

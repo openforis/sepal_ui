@@ -229,7 +229,7 @@ The dialog offers three destinations, each enabled based on runtime state:
 SEPAL workspace exports must stay on the `SepalClient` path. Do not stage,
 copy, or rewrite user export files in the container filesystem from host app
 code; let the export engine download bytes from Drive and upload them through
-`sepal_client.set_file(...)`.
+`sepal_client.files.write(...)`.
 
 The engine creates any missing intermediate folders under the user's asset
 root before submitting an EE asset export.
@@ -252,7 +252,7 @@ callers are protected:
   creations between the live check and submit cannot silently overwrite.
 
 Drive and SEPAL exports skip all three (Drive allows duplicate filenames
-natively; SEPAL writes through `set_file(..., overwrite=True)`).
+natively; SEPAL writes through `files.write(..., overwrite=True)`).
 
 ## File Formats: Use Canonical Enum Values
 

@@ -330,7 +330,7 @@ wrap `Path.open`, `Path.write_text`, `os.listdir`, `os.walk`, `glob`, or
 server-local `gpd.read_file(path)` calls in `asyncio.to_thread()` for user
 workspace data; that only moves an unsafe container-filesystem access off the
 render thread. If a library accepts bytes or a file-like object, first load the
-user's file with `sepal_client.get_file(...)` and pass an in-memory object. If
+user's file with `sepal_client.files.read_bytes(...)` and pass an in-memory object. If
 the library only accepts local paths, do not wire that workflow into a
 GEE/container app until there is a remote-aware pysepal adapter for it.
 
@@ -341,7 +341,7 @@ GEE/container app until there is a remote-aware pysepal adapter for it.
 import io
 
 async def load_user_csv(sepal_client, remote_path: str):
-    payload = await asyncio.to_thread(sepal_client.get_file, remote_path)
+    payload = await asyncio.to_thread(sepal_client.files.read_bytes, remote_path)
     return await asyncio.to_thread(pd.read_csv, io.BytesIO(payload))
 ```
 
@@ -350,7 +350,7 @@ instead of doing the read directly in `use_effect`:
 
 ```python
 async def _load_columns(sepal_client, remote_path: str):
-    payload = await asyncio.to_thread(sepal_client.get_file, remote_path)
+    payload = await asyncio.to_thread(sepal_client.files.read_bytes, remote_path)
     frame = await asyncio.to_thread(pd.read_csv, io.BytesIO(payload), nrows=0)
     return list(frame.columns)
 

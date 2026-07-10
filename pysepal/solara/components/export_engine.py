@@ -10,11 +10,11 @@ from pathlib import PurePosixPath
 from typing import Callable, Optional, Sequence
 
 from googleapiclient.http import MediaIoBaseDownload
+from pysepal_api import SepalClient
 
 from pysepal.mapping.visualization import set_viz_params
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 
 from .export_models import (
     FAILED_TASK_STATES,
@@ -196,14 +196,14 @@ def _copy_drive_items_to_sepal(
     destination_folder: PurePosixPath,
 ) -> tuple[str, ...]:
     """Download Drive results and upload them into the SEPAL workspace."""
-    created_folder = sepal_client.get_remote_dir(destination_folder, parents=True)
+    created_folder = sepal_client.files.mkdir(str(destination_folder), parents=True)
     remote_root = PurePosixPath(sepal_client.BASE_REMOTE_PATH) / created_folder
     uploaded_paths = []
 
     for item in items:
         remote_path = remote_root / item["name"]
         payload = _download_drive_item_bytes(drive_interface, item["id"])
-        sepal_client.set_file(str(remote_path), payload, overwrite=True)
+        sepal_client.files.write(str(remote_path), payload, overwrite=True)
         uploaded_paths.append(str(remote_path))
 
     return tuple(uploaded_paths)

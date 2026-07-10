@@ -8,8 +8,7 @@ from pathlib import PurePosixPath
 from typing import Callable, Literal, Optional
 
 import ee
-
-from pysepal.scripts.sepal_client import SepalClient
+from pysepal_api import SepalClient
 
 ExportTarget = Literal["gee", "drive", "sepal"]
 ExportKind = Literal["image", "table"]

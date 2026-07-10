@@ -94,7 +94,7 @@ class GEEInterface:
         """
         if use_sepal_headers:
             sepal_headers = get_sepal_headers_from_auth()
-            session = EESession(sepal_headers)
+            session = EESession.from_sepal_headers(sepal_headers)
 
         self.session = session
         self._closed = False
