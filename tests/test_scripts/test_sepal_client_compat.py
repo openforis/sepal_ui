@@ -21,7 +21,7 @@ def shim():
 
 def test_is_subclass_of_api_client_with_legacy_verbs():
     assert issubclass(SepalClient, ApiSepalClient)
-    for verb in ("get_remote_dir", "set_file", "list_files"):
+    for verb in ("get_remote_dir", "set_file", "list_files", "get_file"):
         assert callable(getattr(SepalClient, verb))
 
 
@@ -74,3 +74,19 @@ def test_session_manager_constructs_the_compat_client():
     import pysepal.solara.session_manager as session_manager
 
     assert session_manager.SepalClient is SepalClient
+
+
+def test_get_file_parse_json_delegates_to_read_json(shim):
+    shim.files.read_json.return_value = {"a": 1}
+    with pytest.warns(DeprecationWarning, match="read_json"):
+        result = shim.get_file("/x/a.json", parse_json=True)
+    shim.files.read_json.assert_called_once_with("/x/a.json")
+    assert result == {"a": 1}
+
+
+def test_get_file_bytes_delegates_to_read_bytes(shim):
+    shim.files.read_bytes.return_value = b"data"
+    with pytest.warns(DeprecationWarning, match="read_bytes"):
+        result = shim.get_file("/x/a.bin")
+    shim.files.read_bytes.assert_called_once_with("/x/a.bin")
+    assert result == b"data"

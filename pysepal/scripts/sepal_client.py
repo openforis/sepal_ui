@@ -59,3 +59,15 @@ class SepalClient(_ApiSepalClient):
             stacklevel=2,
         )
         return self.files.list(folder, extensions=extensions).model_dump()
+
+    def get_file(self, file_path: str, parse_json: bool = False) -> Any:
+        """Deprecated: download a file. Use ``files.read_json`` / ``files.read_bytes``."""
+        warnings.warn(
+            f"SepalClient.get_file() is deprecated and will be removed in "
+            f"{_REMOVED_IN}; use SepalClient.files.read_json()/read_bytes() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if parse_json:
+            return self.files.read_json(file_path)
+        return self.files.read_bytes(file_path)
