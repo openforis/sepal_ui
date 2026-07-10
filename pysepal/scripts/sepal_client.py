@@ -21,7 +21,7 @@ _REMOVED_IN = "pysepal 4.0"
 
 
 class SepalClient(_ApiSepalClient):
-    """``pysepal_api.SepalClient`` plus the three legacy file verbs.
+    """``pysepal_api.SepalClient`` plus the four legacy file verbs.
 
     Each legacy verb delegates to ``self.files.*`` and emits a ``DeprecationWarning``.
     """
