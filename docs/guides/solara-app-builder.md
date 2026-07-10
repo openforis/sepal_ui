@@ -182,13 +182,13 @@ Use the session client instead:
 def Page():
     sepal_client = get_current_sepal_client()
 
-    results_dir = sepal_client.get_remote_dir(
+    results_dir = sepal_client.files.mkdir(
         f"{sepal_client.results_path}/exports",
         parents=True,
     )
-    sepal_client.set_file(f"{results_dir}/summary.csv", csv_text, overwrite=True)
-    content = sepal_client.get_file(f"{results_dir}/summary.csv")
-    files = sepal_client.list_files(folder=str(results_dir))
+    sepal_client.files.write(f"{results_dir}/summary.csv", csv_text, overwrite=True)
+    content = sepal_client.files.read_bytes(f"{results_dir}/summary.csv")
+    files = sepal_client.files.list(str(results_dir))
 ```
 
 Remote paths are POSIX-style strings relative to the user's SEPAL workspace, or
@@ -481,7 +481,7 @@ Headers arrive → SessionManager.create_session():
     - Extracts username from SepalHeaders
     - Creates EESession with user's credentials
     - Creates GEEInterface(gee_session)
-    - Creates SepalClient(session_id, module_name)
+    - Creates SepalClient.create(session_id=..., module_name=...)
     - Creates GDriveInterface(sepal_headers)
     - Stores all in _sessions[kernel_id]
     ↓
@@ -509,12 +509,12 @@ Each browser tab = separate kernel = isolated session with its own credentials.
 
 ```python
 sepal_client = get_current_sepal_client()
-folder = sepal_client.get_remote_dir(
+folder = sepal_client.files.mkdir(
     f"{sepal_client.results_path}/exports",
     parents=True,
 )
-sepal_client.set_file(f"{folder}/result.json", json_text, overwrite=True)
-payload = sepal_client.get_file(f"{folder}/result.json", parse_json=True)
+sepal_client.files.write(f"{folder}/result.json", json_text, overwrite=True)
+payload = sepal_client.files.read_json(f"{folder}/result.json")
 ```
 
 ## 10. Reference Apps
