@@ -89,10 +89,13 @@ Default rule:
 - do not mount a separate provider in every subpage unless each page truly runs
   in a separate kernel
 
-The notification bus is scoped to the current Solara kernel, not the route. If
-routes are rendered inside one live page, they share notification history. If
-an app launcher opens each route as a separate browser page load, each page gets
-its own kernel and its own notification history.
+The notification bus is scoped to the current pysepal app runtime session, not
+the route. Under `solara run`, that scope is the Solara virtual kernel. Under
+Voila or a plain Jupyter notebook, that scope is the active notebook kernel. If
+routes are rendered inside
+one live page, they share notification history. If an app launcher opens each
+route as a separate browser page load, each page gets its own runtime session
+and its own notification history.
 
 For the full architecture and usage patterns, read
 [Solara Notifications](./solara-notifications.md).

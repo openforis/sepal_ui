@@ -6,7 +6,8 @@ from dataclasses import replace
 from typing import Dict, Optional
 
 import solara
-import solara.server.kernel_context
+
+from pysepal.solara.runtime_context import get_current_runtime_id
 
 from .state import Toast, ToastType, TrackedTask
 
@@ -121,8 +122,8 @@ _registry_lock = threading.Lock()
 
 
 def _get_kernel_id() -> str:
-    """Get current Solara kernel ID (same approach as SessionManager)."""
-    return str(id(solara.server.kernel_context.get_current_context().kernel))
+    """Get current supported Solara/Voila runtime ID."""
+    return get_current_runtime_id()
 
 
 def get_current_bus() -> Optional[NotificationBus]:
