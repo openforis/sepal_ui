@@ -61,6 +61,8 @@ class DemoExportDataset:
     default_name: str
     region: object = None
     default_scale: int | None = None
+    bands: tuple[str, ...] | None = None
+    default_bands: tuple[str, ...] | None = None
 
 
 def _get_aoi_key(aoi_value) -> str:
@@ -76,11 +78,26 @@ def _build_demo_datasets(aoi_value) -> tuple[DemoExportDataset, ...]:
     if aoi_value is None or aoi_value.feature_collection is None:
         return ()
 
-    region = aoi_value.feature_collection.geometry()
+    fc = aoi_value.feature_collection
     name_prefix = aoi_value.name.replace(" ", "_")
 
-    constant_image = ee.Image.constant(10).rename("constant_10").clip(region)
-    pixel_area_image = ee.Image.pixelArea().rename("pixel_area_m2").clip(region)
+    # clipToCollection masks to the collection's features, so a dense AOI never
+    # dissolves into one 2M-edge geometry the way clip(fc.geometry()) would
+    # (issue #996). ee.Image.clip only accepts a Geometry/Feature, so a
+    # FeatureCollection must go through clipToCollection.
+    constant_image = ee.Image.constant(10).rename("constant_10").clipToCollection(fc)
+    pixel_area_image = ee.Image.pixelArea().rename("pixel_area_m2").clipToCollection(fc)
+    multiband_image = (
+        ee.Image.constant(10)
+        .rename("constant_10")
+        .addBands(ee.Image.pixelArea().rename("pixel_area_m2"))
+        .addBands(ee.Image.constant(1).rename("flag"))
+        .clipToCollection(fc)
+    )
+
+    # Export region as the union of per-feature bounding boxes — same trick as
+    # clip, so exporting a dense AOI doesn't dissolve its geometry (issue #996).
+    region = fc.map(lambda f: ee.Feature(f.geometry().bounds())).geometry().bounds()
 
     return (
         DemoExportDataset(
@@ -108,6 +125,23 @@ def _build_demo_datasets(aoi_value) -> tuple[DemoExportDataset, ...]:
             default_name=f"{name_prefix}_pixel_area",
             region=region,
             default_scale=30,
+        ),
+        DemoExportDataset(
+            id="demo_multi_band",
+            label="Multi-band demo (3 bands)",
+            kind="image",
+            ee_object=multiband_image,
+            description=(
+                "Three-band demo image. Shows off the ExportLauncher band picker: "
+                "leave all bands selected to export everything, or narrow to a subset."
+            ),
+            default_name=f"{name_prefix}_multi_band",
+            region=region,
+            default_scale=30,
+            bands=("constant_10", "pixel_area_m2", "flag"),
+            # Pre-select the two bands that are most useful by default; the user
+            # can deselect or re-add `flag` from the dialog.
+            default_bands=("constant_10", "pixel_area_m2"),
         ),
     )
 
@@ -147,6 +181,8 @@ def _build_export_sources(
                     default_name=dataset.default_name,
                     region=dataset.region,
                     default_scale=dataset.default_scale,
+                    bands=dataset.bands,
+                    default_bands=dataset.default_bands,
                     drive_folder="pysepal_exports",
                     sepal_folder="exports",
                 ),

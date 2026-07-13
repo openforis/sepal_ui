@@ -60,6 +60,10 @@ class ResolvedExport:
     region: object = None
     default_scale: int | None = None
     selectors: tuple[str, ...] | None = None
+    bands: tuple[str, ...] | None = None
+    """Bands (images) / properties (tables) offered in the picker; ``None`` hides it."""
+    default_bands: tuple[str, ...] | None = None
+    """Initial picker selection; defaults to all ``bands``."""
     gee_folder: str = ""
     drive_folder: str = ""
     sepal_folder: str = ""

@@ -27,13 +27,33 @@ from pysepal.solara.components.export import (
     submit_export_request,
     validate_asset_id_under_root,
 )
-from pysepal.solara.components.export_dialog import ExportDialog
-from pysepal.solara.components.export_hook import get_active_source, use_export_dialog
+from pysepal.solara.components.export_dialog import (
+    BandSelectorField,
+    ExportDialog,
+    ImageScaleField,
+    _validation_message,
+)
+from pysepal.solara.components.export_engine import _apply_band_selection
+from pysepal.solara.components.export_hook import (
+    available_bands_for,
+    default_bands_for,
+    discover_image_bands,
+    get_active_source,
+    normalize_band_selection,
+    resolved_default_bands,
+    use_export_dialog,
+)
 
 
 class _FakeImage:
+    def __init__(self, selected_bands: tuple[str, ...] | None = None):
+        self.selected_bands = tuple(selected_bands) if selected_bands else ()
+
     def bandNames(self):
-        return []
+        return list(self.selected_bands)
+
+    def select(self, bands):
+        return _FakeImage(selected_bands=tuple(bands))
 
 
 class _FakeTable:
@@ -65,6 +85,7 @@ def _render_preselected_dialog(
     force_conflict_path=None,
     force_asset_root=None,
     force_asset_id=None,
+    gee_interface=None,
 ):
     """Render ``ExportDialog`` with a source preselected and the dialog open.
 
@@ -79,13 +100,17 @@ def _render_preselected_dialog(
     Pass ``force_asset_root`` / ``force_asset_id`` to drive root + asset-id
     state directly — useful for asserting the root-validation UI without
     waiting on ``_load_asset_root`` (which fails silently against MagicMock).
+
+    Pass ``gee_interface`` to override the default ``MagicMock`` — a fake with
+    an ``async get_info_async`` lets the band auto-discovery task run to
+    completion so tests can assert the picker renders from discovered bands.
     """
 
     @solara.component
     def _Harness():
         controller = use_export_dialog(
             sources=[source],
-            gee_interface=MagicMock(),
+            gee_interface=gee_interface or MagicMock(),
             drive_interface=MagicMock(),
         )
 
@@ -1020,7 +1045,62 @@ def test_export_dialog_renders_single_asset_id_field_for_gee_target():
     assert "Export name" not in labels
 
 
-def test_export_dialog_marks_asset_id_field_with_error_on_conflict():
+def _msg(**overrides) -> str:
+    base = dict(
+        has_usable_sources=True,
+        has_active_source=True,
+        resolvable=True,
+        gee_target=True,
+        gee_asset_id="projects/demo/assets/x",
+        asset_root_error=None,
+        gee_asset_conflict=False,
+        export_name="demo",
+        bands_empty=False,
+        band_noun="band",
+    )
+    base.update(overrides)
+    return _validation_message(**base)
+
+
+def test_validation_message_priority_order():
+    assert _msg(has_usable_sources=False) == "No exportable layers available."
+    # No message when nothing is picked yet — the Asset selector guides that.
+    assert _msg(has_active_source=False) == ""
+    assert _msg(resolvable=False) == "The selected layer cannot currently be exported."
+    assert _msg(gee_asset_id="   ") == "Asset ID is required."
+    assert _msg(asset_root_error="Asset id must live under `X`.") == "Asset id must live under `X`."
+    assert _msg(gee_asset_conflict=True).startswith("An asset with this id already exists")
+    assert _msg(gee_target=False, export_name="   ") == "Name is required."
+    assert _msg(bands_empty=True) == "Select at least one band."
+    assert _msg(bands_empty=True, band_noun="property") == "Select at least one property."
+    assert _msg() == ""
+
+
+def test_validation_message_asset_id_blocks_before_bands():
+    # A missing asset id must win over an empty band selection (earlier step).
+    assert _msg(gee_asset_id="", bands_empty=True) == "Asset ID is required."
+
+
+def _bottom_validation_text(element) -> str:
+    """Join the text of the dialog's single bottom validation message."""
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    chunks = [
+        str(child)
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "Html"
+        and "sepal-export-error" in str(getattr(widget, "class_", ""))
+        for child in getattr(widget, "children", ()) or ()
+    ]
+    return " ".join(chunks)
+
+
+def test_export_dialog_shows_bottom_validation_for_conflict():
+    """The asset-id conflict surfaces in the single bottom message, not the field."""
     source = ExportSource(
         id="demo",
         label="Demo layer",
@@ -1041,23 +1121,19 @@ def test_export_dialog_marks_asset_id_field_with_error_on_conflict():
         for child in getattr(widget, "children", ()) or ():
             yield from _walk(child)
 
+    assert "already exists" in _bottom_validation_text(element).lower()
+    # The Asset ID field itself no longer carries per-field error styling.
     asset_id_fields = [
         widget
         for widget in _walk(element)
         if widget.__class__.__name__ == "TextField" and getattr(widget, "label", None) == "Asset ID"
     ]
-
     assert asset_id_fields, "Asset ID field must be rendered"
-    field = asset_id_fields[0]
-    assert getattr(field, "error", False) is True
-    error_messages = str(getattr(field, "error_messages", ""))
-    assert "already exists" in error_messages.lower()
-    # Path should NOT be repeated in the message — the field already shows it.
-    assert "projects/demo/assets/reports/demo_export" not in error_messages
+    assert getattr(asset_id_fields[0], "error", False) in (False, None)
 
 
-def test_export_dialog_marks_asset_id_field_with_error_when_outside_root():
-    """User-edited asset_id outside the user's GEE asset root surfaces inline."""
+def test_export_dialog_shows_bottom_validation_when_asset_id_outside_root():
+    """An asset_id outside the user's GEE root surfaces in the bottom message."""
     source = ExportSource(
         id="demo",
         label="Demo layer",
@@ -1074,23 +1150,9 @@ def test_export_dialog_marks_asset_id_field_with_error_when_outside_root():
         force_asset_id="projects/someone-else/assets/exports/my_data",
     )
 
-    def _walk(widget):
-        yield widget
-        for child in getattr(widget, "children", ()) or ():
-            yield from _walk(child)
-
-    asset_id_fields = [
-        widget
-        for widget in _walk(element)
-        if widget.__class__.__name__ == "TextField" and getattr(widget, "label", None) == "Asset ID"
-    ]
-
-    assert asset_id_fields, "Asset ID field must be rendered"
-    field = asset_id_fields[0]
-    assert getattr(field, "error", False) is True
-    error_messages = str(getattr(field, "error_messages", ""))
-    assert "projects/my-project/assets/" in error_messages
-    assert "must live under" in error_messages.lower()
+    message = _bottom_validation_text(element)
+    assert "projects/my-project/assets/" in message
+    assert "must live under" in message.lower()
 
 
 def test_export_dialog_renders_export_name_and_drive_folder_for_drive_target():
@@ -1184,3 +1246,642 @@ def test_default_gee_folder_prefers_module_name():
 
     assert export_hook_module._default_gee_folder(sepal_client) == "aoi_all_methods"
     assert export_hook_module._default_gee_folder(None) == "pysepal_exports"
+
+
+# ---------------------------------------------------------------------------
+# Band picker: catalog helpers, engine application, dialog rendering
+# ---------------------------------------------------------------------------
+
+
+def test_available_bands_for_returns_empty_without_catalog():
+    resolved = ResolvedExport(ee_object=_FakeImage(), default_name="demo")
+    assert available_bands_for(resolved) == ()
+    assert available_bands_for(None) == ()
+
+
+def test_available_bands_for_returns_catalog_when_declared():
+    resolved = ResolvedExport(
+        ee_object=_FakeImage(),
+        default_name="demo",
+        bands=("B4", "B3", "B2"),
+    )
+    assert available_bands_for(resolved) == ("B4", "B3", "B2")
+
+
+def test_resolved_default_bands_defaults_to_full_catalog():
+    resolved = ResolvedExport(
+        ee_object=_FakeImage(),
+        default_name="demo",
+        bands=("B4", "B3", "B2"),
+    )
+    assert resolved_default_bands(resolved) == ("B4", "B3", "B2")
+
+
+def test_resolved_default_bands_filters_default_against_catalog():
+    resolved = ResolvedExport(
+        ee_object=_FakeImage(),
+        default_name="demo",
+        bands=("B4", "B3", "B2", "B1"),
+        default_bands=("B4", "B2", "MISSING"),
+    )
+    # Preserves catalog order; drops MISSING silently.
+    assert resolved_default_bands(resolved) == ("B4", "B2")
+
+
+def test_resolved_default_bands_falls_back_to_catalog_when_default_outside_catalog():
+    """If default_bands has no overlap with bands, fall back to all bands."""
+    resolved = ResolvedExport(
+        ee_object=_FakeImage(),
+        default_name="demo",
+        bands=("B4", "B3"),
+        default_bands=("nope",),
+    )
+    assert resolved_default_bands(resolved) == ("B4", "B3")
+
+
+def test_normalize_band_selection_preserves_catalog_order():
+    available = ("B4", "B3", "B2", "B1")
+    # User picked out of order — the catalog order should win.
+    assert normalize_band_selection(available, ("B2", "B4")) == ("B4", "B2")
+
+
+def test_normalize_band_selection_drops_unknown_picks():
+    assert normalize_band_selection(("B4", "B3"), ("B4", "ghost")) == ("B4",)
+
+
+def test_default_bands_for_defaults_to_full_available():
+    resolved = ResolvedExport(ee_object=_FakeImage(), default_name="demo")
+    assert default_bands_for(resolved, ("nir", "red")) == ("nir", "red")
+
+
+def test_default_bands_for_honors_declared_default_bands():
+    resolved = ResolvedExport(
+        ee_object=_FakeImage(),
+        default_name="demo",
+        default_bands=("red",),
+    )
+    # Order comes from the available catalog, not from default_bands.
+    assert default_bands_for(resolved, ("nir", "red", "green")) == ("red",)
+
+
+def test_default_bands_for_empty_available_returns_empty():
+    resolved = ResolvedExport(ee_object=_FakeImage(), default_name="demo")
+    assert default_bands_for(resolved, ()) == ()
+
+
+class _BandDiscoveryGeeInterface:
+    """Fake interface whose ``get_info_async`` returns preconfigured band names."""
+
+    def __init__(self, band_names=None, raises: Exception | None = None):
+        self.band_names = list(band_names) if band_names is not None else []
+        self.raises = raises
+        self.calls: list[object] = []
+
+    async def get_info_async(self, ee_object=None, tag=None, serialized_object=None):
+        self.calls.append(ee_object)
+        if self.raises is not None:
+            raise self.raises
+        return self.band_names
+
+
+def test_discover_image_bands_returns_band_names():
+    gee = _BandDiscoveryGeeInterface(band_names=["B4", "B3", "B2"])
+    image = _FakeImage(selected_bands=("B4", "B3", "B2"))
+
+    result = asyncio.run(discover_image_bands(gee, image))
+
+    assert result == ("B4", "B3", "B2")
+    assert gee.calls, "Discovery must call get_info_async on the image's bandNames()"
+
+
+def test_discover_image_bands_returns_empty_when_no_bands():
+    gee = _BandDiscoveryGeeInterface(band_names=[])
+    assert asyncio.run(discover_image_bands(gee, _FakeImage())) == ()
+
+
+def test_discover_image_bands_swallows_lookup_errors():
+    gee = _BandDiscoveryGeeInterface(raises=RuntimeError("transient network blip"))
+    # A failed discovery must degrade to no picker, never propagate.
+    assert asyncio.run(discover_image_bands(gee, _FakeImage())) == ()
+
+
+def test_discover_image_bands_handles_objects_without_bandnames():
+    gee = _BandDiscoveryGeeInterface(band_names=["ignored"])
+    assert asyncio.run(discover_image_bands(gee, object())) == ()
+
+
+def test_switching_source_does_not_leak_band_selection():
+    """Editing source A's bands then switching to B resets to B's own defaults."""
+    source_a = ExportSource(
+        id="a",
+        label="A",
+        kind="image",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeImage(), default_name="a", bands=("b1", "b2", "b3")
+        ),
+    )
+    source_b = ExportSource(
+        id="b",
+        label="B",
+        kind="image",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeImage(), default_name="b", bands=("x1", "x2")
+        ),
+    )
+    captured = {}
+
+    @solara.component
+    def _Harness():
+        controller = use_export_dialog(
+            sources=[source_a, source_b],
+            gee_interface=MagicMock(),
+            drive_interface=MagicMock(),
+        )
+        captured["controller"] = controller
+
+        def _drive():
+            controller.selected_source_id.set("a")
+            # User hand-edits A down to a subset and marks it dirty…
+            controller._state.selected_bands.set(("b1",))
+            controller._state.bands_dirty.set(True)
+            # …then switches to B, whose catalog is disjoint from A's.
+            controller.selected_source_id.set("b")
+
+        solara.use_effect(_drive, [])
+        return solara.Text("driven")
+
+    _render(_Harness.widget)
+
+    state = captured["controller"]._state
+    # B must show its own defaults, not A's leaked ("b1",) subset, and be clean.
+    assert state.selected_bands.value == ("x1", "x2")
+    assert state.bands_dirty.value is False
+
+
+def test_apply_band_selection_subsets_image_when_selectors_set():
+    original = _FakeImage()
+    request = ExportRequest(
+        ee_object=original,
+        export_kind="image",
+        target="gee",
+        name="demo",
+        selectors=("B4", "B3"),
+    )
+    result = _apply_band_selection(original, request)
+    assert isinstance(result, _FakeImage)
+    assert result.selected_bands == ("B4", "B3")
+    assert result is not original
+
+
+def test_apply_band_selection_passthrough_for_tables():
+    """Tables thread selectors directly to the EE export call — no image.select()."""
+    table = _FakeTable()
+    request = ExportRequest(
+        ee_object=table,
+        export_kind="table",
+        target="gee",
+        name="demo",
+        selectors=("ADM0_NAME",),
+    )
+    assert _apply_band_selection(table, request) is table
+
+
+def test_apply_band_selection_passthrough_when_no_selectors():
+    image = _FakeImage()
+    request = ExportRequest(
+        ee_object=image,
+        export_kind="image",
+        target="gee",
+        name="demo",
+        selectors=None,
+    )
+    assert _apply_band_selection(image, request) is image
+
+
+def test_submit_export_request_applies_band_selection_to_image_for_gee_asset():
+    """End-to-end: ExportRequest.selectors bakes into image.select() before submit."""
+    gee_interface = _FakeGeeInterfaceImageExports()
+    original_image = _FakeImage()
+
+    request = ExportRequest(
+        ee_object=original_image,
+        export_kind="image",
+        target="gee",
+        name="band_subset_export",
+        gee_asset_id="projects/demo/assets/demo/band_subset_export",
+        selectors=("B4", "B3", "B2"),
+    )
+
+    asyncio.run(
+        submit_export_request(
+            request,
+            gee_interface=gee_interface,
+            drive_interface=MagicMock(),
+            sepal_client=None,
+        )
+    )
+
+    submitted = gee_interface.exports[0]
+    submitted_image = submitted["image"]
+    assert isinstance(submitted_image, _FakeImage)
+    assert submitted_image.selected_bands == ("B4", "B3", "B2")
+
+
+def test_submit_export_request_applies_band_selection_after_viz_embed(monkeypatch):
+    """Vis embedding runs first, then band selection — both must end up applied."""
+    gee_interface = _FakeGeeInterfaceImageExports()
+    original_image = _FakeImage()
+    styled_image = _FakeImage()
+
+    def fake_set_viz_params(image, **_kwargs):
+        assert image is original_image
+        return styled_image
+
+    monkeypatch.setattr(
+        "pysepal.solara.components.export_engine.set_viz_params",
+        fake_set_viz_params,
+    )
+
+    request = ExportRequest(
+        ee_object=original_image,
+        export_kind="image",
+        target="gee",
+        name="styled_subset",
+        gee_asset_id="projects/demo/assets/demo/styled_subset",
+        vis_params={"bands": ["B4"], "palette": ["#000"]},
+        selectors=("B4",),
+    )
+
+    asyncio.run(
+        submit_export_request(
+            request,
+            gee_interface=gee_interface,
+            drive_interface=MagicMock(),
+            sepal_client=None,
+        )
+    )
+
+    submitted_image = gee_interface.exports[0]["image"]
+    # Result must be the styled image's .select() output, not the styled
+    # image directly — i.e. band selection happened after viz embedding.
+    assert isinstance(submitted_image, _FakeImage)
+    assert submitted_image.selected_bands == ("B4",)
+
+
+def test_export_dialog_renders_band_picker_for_image_source_with_bands():
+    source = ExportSource(
+        id="image-bands",
+        label="Image with bands",
+        kind="image",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeImage(),
+            default_name="demo_image",
+            bands=("B4", "B3", "B2"),
+        ),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    multi_toggles = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "BtnToggle" and getattr(widget, "multiple", False)
+    ]
+
+    assert multi_toggles, "Band picker (multi-toggle) must render when bands are declared"
+    # One button per band sits inside the multi-toggle group.
+    toggle_button_labels = []
+    for toggle in multi_toggles:
+        for child in toggle.children or ():
+            if child.__class__.__name__ == "Btn":
+                for grandchild in child.children or ():
+                    toggle_button_labels.append(str(grandchild))
+    assert "B4" in toggle_button_labels
+    assert "B3" in toggle_button_labels
+    assert "B2" in toggle_button_labels
+
+    # Label-bearing Text widget should say "Bands" for image kind.
+    label_texts = [
+        getattr(widget, "children", [])
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "Html"
+    ]
+    flattened = [str(c) for group in label_texts for c in (group or [])]
+    assert any("Bands" in chunk for chunk in flattened)
+
+
+def test_band_selector_field_fills_selected_buttons_with_secondary():
+    """Selected bands get a solid secondary colour; unselected stay neutral."""
+    element = _render(
+        BandSelectorField.widget,
+        available=("B4", "B3", "B2"),
+        selected=solara.reactive(("B4", "B2")),
+        dirty=solara.reactive(False),
+        export_kind="image",
+        loading=False,
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    color_by_label = {}
+    class_by_label = {}
+    for widget in _walk(element):
+        if widget.__class__.__name__ == "Btn":
+            children = getattr(widget, "children", ()) or ()
+            if children:
+                label = str(children[0])
+                color_by_label[label] = getattr(widget, "color", "")
+                class_by_label[label] = getattr(widget, "class_", "") or ""
+
+    # B4 and B2 are selected → filled secondary; B3 is not → neutral (no colour).
+    assert color_by_label.get("B4") == "secondary"
+    assert color_by_label.get("B2") == "secondary"
+    assert color_by_label.get("B3") in ("", None)
+    # Selected labels are forced white so they read on the secondary fill;
+    # unselected inherit the theme text colour.
+    assert "white--text" in class_by_label.get("B4", "")
+    assert "white--text" in class_by_label.get("B2", "")
+    assert "white--text" not in class_by_label.get("B3", "")
+
+
+def test_image_scale_field_styles_selected_preset_like_bands():
+    """The scale presets reuse the band styling: selected = secondary + white."""
+    element = _render(ImageScaleField.widget, scale=solara.reactive(30))
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    toggles = [w for w in _walk(element) if w.__class__.__name__ == "BtnToggle"]
+    assert toggles, "Scale presets render inside a BtnToggle"
+    # Group carries secondary so the selected accent is not the default blue.
+    assert all(getattr(toggle, "color", None) == "secondary" for toggle in toggles)
+
+    color_by_label = {}
+    class_by_label = {}
+    for widget in _walk(element):
+        if widget.__class__.__name__ == "Btn":
+            children = getattr(widget, "children", ()) or ()
+            if children:
+                label = str(children[0])
+                color_by_label[label] = getattr(widget, "color", "")
+                class_by_label[label] = getattr(widget, "class_", "") or ""
+
+    # Scale defaults to 30 → that preset is filled secondary with a white label.
+    assert color_by_label.get("30") == "secondary"
+    assert "white--text" in class_by_label.get("30", "")
+    # A non-selected preset stays neutral.
+    assert color_by_label.get("10") in ("", None)
+
+
+def test_export_dialog_destination_uses_standalone_title():
+    """Destination drops the built-in radio label for a shared styled title."""
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(ee_object=_FakeTable(), default_name="demo_export"),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    radio_groups = [w for w in _walk(element) if w.__class__.__name__ == "RadioGroup"]
+    assert radio_groups
+    # The built-in radio-group label is gone in favour of a standalone title.
+    assert not any(getattr(rg, "label", None) for rg in radio_groups)
+
+    html_chunks = [
+        str(child)
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "Html"
+        for child in getattr(widget, "children", ()) or ()
+    ]
+    assert any("Destination" in chunk for chunk in html_chunks)
+
+
+def test_export_dialog_body_uses_single_rhythm_container():
+    """All fields sit in one sepal-export-body container (single-gap layout)."""
+    source = ExportSource(
+        id="demo",
+        label="Demo layer",
+        kind="table",
+        resolve=lambda: ResolvedExport(ee_object=_FakeTable(), default_name="demo_export"),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    assert any(
+        "sepal-export-body" in str(getattr(w, "class_", "")) for w in _walk(element)
+    ), "The form body carries the single-rhythm sepal-export-body class"
+
+
+def test_export_dialog_band_picker_has_no_select_all_or_clear():
+    source = ExportSource(
+        id="image-bands",
+        label="Image with bands",
+        kind="image",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeImage(),
+            default_name="demo_image",
+            bands=("B4", "B3", "B2"),
+        ),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    button_labels = [
+        str(child)
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "Btn"
+        for child in getattr(widget, "children", ()) or ()
+    ]
+
+    assert "Select all" not in button_labels
+    assert "Clear" not in button_labels
+
+
+class _ImageBandsDialogGee(_FakeGeeInterface):
+    """Fake whose ``get_info_async`` returns a fixed band-name list for discovery."""
+
+    def __init__(self, band_names):
+        super().__init__()
+        self._band_names = list(band_names)
+
+    async def get_info_async(self, ee_object=None, tag=None, serialized_object=None):
+        return self._band_names
+
+
+def test_export_dialog_renders_band_picker_from_discovered_bands():
+    """Image without a declared catalog shows the picker from auto-discovered bands."""
+    source = ExportSource(
+        id="image-no-bands",
+        label="Image without bands",
+        kind="image",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeImage(),
+            default_name="demo_image",
+        ),
+    )
+    element = _render_preselected_dialog(
+        source=source,
+        gee_interface=_ImageBandsDialogGee(["nir", "red", "green"]),
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    multi_toggles = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "BtnToggle" and getattr(widget, "multiple", False)
+    ]
+    assert multi_toggles, "Picker must render for images from auto-discovered bands"
+
+    toggle_button_labels = []
+    for toggle in multi_toggles:
+        for child in toggle.children or ():
+            if child.__class__.__name__ == "Btn":
+                for grandchild in child.children or ():
+                    toggle_button_labels.append(str(grandchild))
+    assert "nir" in toggle_button_labels
+    assert "red" in toggle_button_labels
+    assert "green" in toggle_button_labels
+
+
+def test_band_selector_field_shows_spinner_while_loading():
+    """While discovery is in flight (loading, no catalog yet) a spinner stands in.
+
+    Asserted at the component level: the dialog-level ``bands_loading`` flag is
+    owned by the async discovery task, whose ``finally`` resets it before this
+    harness can capture it, so forcing it through the controller does not stick.
+    """
+    element = _render(
+        BandSelectorField.widget,
+        available=(),
+        selected=solara.reactive(()),
+        dirty=solara.reactive(False),
+        export_kind="image",
+        loading=True,
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    spinners = [
+        widget for widget in _walk(element) if widget.__class__.__name__ == "ProgressCircular"
+    ]
+    multi_toggles = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "BtnToggle" and getattr(widget, "multiple", False)
+    ]
+
+    assert spinners, "A spinner must stand in for the toggles while bands load"
+    assert not multi_toggles, "Toggles must not render until discovery completes"
+
+
+def test_band_selector_field_returns_nothing_without_catalog_or_loading():
+    """No catalog and not loading → the field renders nothing (opt-out path)."""
+    element = _render(
+        BandSelectorField.widget,
+        available=(),
+        selected=solara.reactive(()),
+        dirty=solara.reactive(False),
+        export_kind="image",
+        loading=False,
+    )
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    spinners = [
+        widget for widget in _walk(element) if widget.__class__.__name__ == "ProgressCircular"
+    ]
+    multi_toggles = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "BtnToggle" and getattr(widget, "multiple", False)
+    ]
+    assert not spinners
+    assert not multi_toggles
+
+
+def test_export_dialog_hides_band_picker_for_table_without_catalog():
+    """Tables never auto-discover — without a declared catalog the picker stays hidden."""
+    source = ExportSource(
+        id="table-no-catalog",
+        label="Table without properties",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_table",
+        ),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    multi_toggles = [
+        widget
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "BtnToggle" and getattr(widget, "multiple", False)
+    ]
+
+    assert not multi_toggles, "Tables without a declared catalog show no picker"
+
+
+def test_export_dialog_labels_band_picker_as_properties_for_tables():
+    source = ExportSource(
+        id="table-props",
+        label="Table with properties",
+        kind="table",
+        resolve=lambda: ResolvedExport(
+            ee_object=_FakeTable(),
+            default_name="demo_table",
+            bands=("ADM0_NAME", "ADM1_NAME"),
+        ),
+    )
+    element = _render_preselected_dialog(source=source)
+
+    def _walk(widget):
+        yield widget
+        for child in getattr(widget, "children", ()) or ():
+            yield from _walk(child)
+
+    label_texts = [
+        getattr(widget, "children", [])
+        for widget in _walk(element)
+        if widget.__class__.__name__ == "Html"
+    ]
+    flattened = [str(c) for group in label_texts for c in (group or [])]
+    assert any("Properties" in chunk for chunk in flattened)
+    assert not any("Bands" == chunk for chunk in flattened)
