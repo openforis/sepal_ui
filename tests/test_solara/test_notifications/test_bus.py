@@ -186,3 +186,11 @@ def test_refcount_prevents_premature_removal(mock_kid, clean_bus_registry):
 
 def test_get_bus_returns_none_without_kernel_context(clean_bus_registry):
     assert get_current_bus() is None
+
+
+@patch(
+    "pysepal.solara.notifications.bus._get_kernel_id",
+    side_effect=RuntimeError("No supported pysepal Solara runtime context is available"),
+)
+def test_get_current_bus_returns_none_for_unsupported_runtime(mock_kid, clean_bus_registry):
+    assert get_current_bus() is None
