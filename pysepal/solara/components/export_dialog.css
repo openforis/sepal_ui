@@ -1,0 +1,80 @@
+/* Styling for the export dialog fields. Loaded once from ExportDialog via
+   solara.Style so the component bodies stay free of inline style strings. */
+
+/* Body rhythm: solara.Column supplies the single 16px gap between fields; this
+   just adds top breathing room and zeroes Vuetify's extra top spacing (radio
+   groups add margin-top:16px + padding-top:4px) so the gap is the ONLY spacing
+   between fields. Every input uses hide_details=True, so heights are fixed. */
+.sepal-export-body {
+  padding-top: 8px;
+}
+
+.sepal-export-body .v-input--selection-controls {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Field wrapper: title stacked over its control. */
+.sepal-export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Shared field title (Bands / Scale / Destination) — identical across fields. */
+.sepal-export-field-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Single validation row at the bottom, always rendered with a fixed height so
+   showing/clearing the message never resizes the modal. Right-aligned toward
+   the Export button. */
+.sepal-export-message {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.sepal-export-error {
+  color: var(--v-error-base, #ff5252);
+  font-size: 0.8125rem;
+  /* Match the reserved row height exactly so a single-line message fills it
+     without growing the modal. */
+  line-height: 20px;
+}
+
+/* Band control slot: no frame, but a fixed min-height so the discovery spinner
+   and the rendered toggles occupy the same space (no resize on layer switch). */
+.sepal-band-slot {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+/* --- Band / Scale toggles --- */
+
+/* Selected buttons carry the fill via `color="secondary"`; the group only
+   needs to wrap and stay transparent so it blends into the dialog. */
+.sepal-band-toggle,
+.sepal-scale-toggle {
+  flex-wrap: wrap;
+  background: transparent !important;
+}
+
+.sepal-scale-toggle {
+  width: fit-content;
+}
+
+.sepal-scale-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.sepal-scale-custom {
+  max-width: 128px;
+}

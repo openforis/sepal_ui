@@ -231,6 +231,20 @@ def _apply_viz_to_image(request: ExportRequest) -> object:
     return set_viz_params(request.ee_object, **request.vis_params)
 
 
+def _apply_band_selection(ee_object: object, request: ExportRequest) -> object:
+    """Subset an image to the user-picked bands before export.
+
+    Tables thread ``selectors`` directly through to the EE export call (where
+    Earth Engine interprets them as feature property names). Images need an
+    explicit ``image.select(...)`` because the image-export endpoints do not
+    accept a selectors parameter — the band subset has to be baked into the
+    image itself.
+    """
+    if request.export_kind != "image" or not request.selectors:
+        return ee_object
+    return ee_object.select(list(request.selectors))
+
+
 async def _submit_export(
     gee_interface: GEEInterface,
     request: ExportRequest,
@@ -240,6 +254,7 @@ async def _submit_export(
     """Dispatch the export submission through ``GEEInterface``."""
     if request.export_kind == "image":
         image_to_export = _apply_viz_to_image(request)
+        image_to_export = _apply_band_selection(image_to_export, request)
         if request.target == "gee":
             return await gee_interface.export_image_to_asset_async(
                 image=image_to_export,

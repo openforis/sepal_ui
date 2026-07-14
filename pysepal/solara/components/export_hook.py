@@ -36,14 +36,11 @@ from .export_models import (
     validate_asset_id_under_root,
 )
 
-# Success toast carries an asset path / task id the user often wants to copy,
-# so add a few extra seconds beyond the 3s type default — not so long that it
-# lingers annoyingly.
+# Longer than the 3s toast default so the asset path / task id stays copyable.
 EXPORT_SUCCESS_TOAST_TIMEOUT = 8.0
 
-# Debounce window for the live GEE asset-existence check. The Solara hook
-# cancels the previous task invocation when dependencies change, so as long
-# as the user keeps typing the sleep never completes and no API call fires.
+# Debounce for the live GEE asset-existence check; task cancellation on new
+# input means no API call fires while the user is still typing.
 GEE_ASSET_CONFLICT_CHECK_DELAY = 0.35
 
 
@@ -62,6 +59,12 @@ class _ExportDialogState:
     last_default_name: solara.Reactive[str]
     gee_asset_conflict: solara.Reactive[bool]
     gee_asset_conflict_path: solara.Reactive[str]
+    selected_bands: solara.Reactive[tuple[str, ...]]
+    bands_dirty: solara.Reactive[bool]
+    last_default_bands: solara.Reactive[tuple[str, ...]]
+    discovered_bands: solara.Reactive[tuple[str, ...]]
+    discovered_source_id: solara.Reactive[str]
+    bands_loading: solara.Reactive[bool]
     gee_interface: GEEInterface
     drive_interface: GDriveInterface
     sepal_client: SepalClient | None
@@ -185,11 +188,9 @@ def get_target_items(sepal_client: SepalClient | None) -> list[dict[str, object]
 def resolve_source_state(
     source: ExportSource | None,
 ) -> tuple[ResolvedExport | None, ExportKind | None, str | None]:
-    """Resolve a source safely and verify its declared vs actual kind match.
+    """Resolve a source and verify its declared kind matches the real ee object.
 
-    Returns ``(resolved, kind, error)``: the resolved payload and kind when
-    everything is consistent, or ``(None, None, error_message)`` if the source
-    failed to resolve or its kind declaration did not match the real ee object.
+    Returns ``(resolved, kind, None)`` on success, else ``(None, None, error)``.
     """
     if source is None:
         return None, None, None
@@ -250,13 +251,8 @@ async def _resolve_gee_asset_conflict(
 ) -> tuple[bool, str]:
     """Probe Earth Engine for a name collision against the resolved asset id.
 
-    Returns ``(conflict, candidate_path)``. ``conflict`` is ``True`` only when
-    Earth Engine confirms an asset already lives at ``asset_id``. The probe
-    runs for the auto-filled default as well as user edits — many SEPAL apps
-    reuse the same module folder + name across sessions, so the default itself
-    is the most common collision. Lookup failures (permissions, network, the
-    known eeclient cross-loop httpx race) are treated as ``(False, "")`` — the
-    engine-side guard remains the authoritative check at submit time.
+    Returns ``(conflict, candidate_path)``; lookup failures count as no conflict,
+    since the engine-side guard is authoritative at submit time.
     """
     candidate = (asset_id or "").strip()
     if target != "gee" or not has_active_source or not candidate:
@@ -280,13 +276,10 @@ def _build_default_gee_asset_id(
     resolved_export: ResolvedExport,
     sepal_client: SepalClient | None,
 ) -> str:
-    """Pre-fill a sensible GEE asset path from the user's asset root + source.
+    """Pre-fill a GEE asset path as ``{asset_root}/{gee_folder or module}/{name}``.
 
-    Composes ``{asset_root}/{resolved.gee_folder or module}/{sanitized_name}``.
-    When ``resolved.gee_folder`` is an absolute path (starts with ``projects/``)
-    the asset root is ignored. Returns ``""`` when the asset root has not
-    finished loading yet (still contains the ``{project}`` placeholder), so
-    callers can wait before overwriting user input.
+    Ignores the asset root when ``gee_folder`` is absolute (``projects/…``);
+    returns ``""`` while the asset root is still loading.
     """
     if not asset_root or "{project}" in asset_root:
         return ""
@@ -319,6 +312,72 @@ def _source_defaults_signature(
         resolved_export.sepal_folder or "",
         resolved_export.table_file_format or DEFAULT_TABLE_FILE_FORMAT,
     )
+
+
+def available_bands_for(resolved_export: ResolvedExport | None) -> tuple[str, ...]:
+    """Return the *declared* ``ResolvedExport.bands`` catalog, or ``()``.
+
+    Image sources that omit it get bands auto-discovered instead
+    (see :func:`discover_image_bands`).
+    """
+    if resolved_export is None or not resolved_export.bands:
+        return ()
+    return tuple(resolved_export.bands)
+
+
+def default_bands_for(
+    resolved_export: ResolvedExport | None,
+    available: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Return the initial selection for ``available``, in catalog order.
+
+    Whole catalog by default, narrowed to ``ResolvedExport.default_bands`` when
+    declared; an empty overlap falls back to the full catalog.
+    """
+    if not available:
+        return ()
+    requested = resolved_export.default_bands if resolved_export is not None else None
+    if not requested:
+        return available
+    requested_set = set(requested)
+    return tuple(band for band in available if band in requested_set) or available
+
+
+def resolved_default_bands(resolved_export: ResolvedExport | None) -> tuple[str, ...]:
+    """Return the initial selection for a source's *declared* catalog."""
+    return default_bands_for(resolved_export, available_bands_for(resolved_export))
+
+
+async def discover_image_bands(
+    gee_interface: GEEInterface,
+    ee_object: object,
+) -> tuple[str, ...]:
+    """Fetch an image's band names via GEE, returning ``()`` on any failure.
+
+    Auto-populates the picker for image sources without a declared ``bands``
+    catalog; failures just leave the picker hidden and export the full image.
+    """
+    band_names_fn = getattr(ee_object, "bandNames", None)
+    if band_names_fn is None:
+        return ()
+    try:
+        names = await gee_interface.get_info_async(band_names_fn())
+    except Exception:
+        return ()
+    if not names:
+        return ()
+    return tuple(str(name) for name in names)
+
+
+def normalize_band_selection(
+    available: tuple[str, ...],
+    selected: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Filter ``selected`` against ``available`` and preserve catalog order."""
+    if not available:
+        return ()
+    selected_set = set(selected)
+    return tuple(band for band in available if band in selected_set)
 
 
 def use_export_dialog(
@@ -366,6 +425,12 @@ def use_export_dialog(
         last_default_name=solara.use_reactive(""),
         gee_asset_conflict=solara.use_reactive(False),
         gee_asset_conflict_path=solara.use_reactive(""),
+        selected_bands=solara.use_reactive(()),
+        bands_dirty=solara.use_reactive(False),
+        last_default_bands=solara.use_reactive(()),
+        discovered_bands=solara.use_reactive(()),
+        discovered_source_id=solara.use_reactive(""),
+        bands_loading=solara.use_reactive(False),
         gee_interface=gee_interface,
         drive_interface=drive_interface,
         sepal_client=sepal_client,
@@ -388,6 +453,16 @@ def use_export_dialog(
         export_kind,
         state.sepal_client,
     )
+    # Effective catalog: declared bands, else bands auto-discovered from the
+    # image. The source-id gate drops a stale catalog from a prior selection.
+    declared_bands = available_bands_for(resolved_export)
+    discovered_bands = (
+        state.discovered_bands.value
+        if active_source_id and state.discovered_source_id.value == active_source_id
+        else ()
+    )
+    available_bands = declared_bands or discovered_bands
+    default_bands = default_bands_for(resolved_export, available_bands)
     last_resolve_error_ref = solara.use_ref(None)
 
     def _push_inline(level: str, message: str) -> None:
@@ -446,9 +521,8 @@ def use_export_dialog(
     )
 
     async def _check_gee_asset_conflict() -> None:
-        # Skip the probe for structurally invalid paths — the visible "must
-        # live under <root>/" error is the gate. Probing a path the user
-        # cannot write to would just produce a 404 or permission error.
+        # Structurally invalid paths are gated by the visible "must live under
+        # <root>/" error; no point probing a path the user can't write to.
         if validate_asset_id_under_root(state.gee_asset_id.value, state.asset_root.value):
             state.gee_asset_conflict.set(False)
             state.gee_asset_conflict_path.set("")
@@ -524,6 +598,64 @@ def use_export_dialog(
         ],
     )
 
+    async def _sync_discovered_bands() -> None:
+        # Auto-discover bands only for image sources without a declared catalog.
+        if export_kind != "image" or declared_bands or resolved_export is None:
+            if state.bands_loading.value:
+                state.bands_loading.set(False)
+            return
+
+        state.bands_loading.set(True)
+        try:
+            names = await discover_image_bands(state.gee_interface, resolved_export.ee_object)
+        finally:
+            state.bands_loading.set(False)
+        # Tag with the source id so it applies only to the source it was fetched for.
+        state.discovered_source_id.set(active_source_id)
+        state.discovered_bands.set(names)
+
+    solara.lab.use_task(
+        _sync_discovered_bands,
+        # Keyed on source id, not the ee.Image identity (resolve() returns a
+        # fresh object each render, which would refetch every time). See the guide.
+        dependencies=[active_source_id, export_kind, declared_bands],
+        raise_error=False,
+        prefer_threaded=False,
+    )
+
+    def _reset_bands_dirty_on_source_change() -> None:
+        # A freshly selected source starts clean, so its defaults re-apply.
+        if state.bands_dirty.value:
+            state.bands_dirty.set(False)
+
+    solara.use_effect(_reset_bands_dirty_on_source_change, [active_source_id])
+
+    def _sync_default_bands() -> None:
+        # No catalog: clear stale picker state so a prior subset doesn't leak.
+        if not available_bands:
+            if state.last_default_bands.value:
+                state.last_default_bands.set(())
+            if state.selected_bands.value:
+                state.selected_bands.set(())
+            return
+
+        if state.bands_dirty.value:
+            return
+
+        if default_bands != state.last_default_bands.value:
+            state.last_default_bands.set(default_bands)
+            state.selected_bands.set(default_bands)
+
+    solara.use_effect(
+        _sync_default_bands,
+        [
+            active_source_id,
+            state.bands_dirty.value,
+            available_bands,
+            default_bands,
+        ],
+    )
+
     def _handle_resolve_error() -> None:
         if not resolve_error:
             last_resolve_error_ref.current = None
@@ -563,7 +695,14 @@ def use_export_dialog(
             export_name.set(description)
             asset_id = None
 
-        selectors = resolved_export.selectors
+        if available_bands:
+            picked = normalize_band_selection(available_bands, state.selected_bands.value)
+            if not picked:
+                raise ValueError("Select at least one band.")
+            selectors = picked
+        else:
+            selectors = tuple(resolved_export.selectors) if resolved_export.selectors else None
+
         return ExportRequest(
             ee_object=resolved_export.ee_object,
             export_kind=export_kind,
@@ -576,7 +715,7 @@ def use_export_dialog(
             sepal_folder=state.sepal_folder.value.strip() or None,
             table_file_format=state.table_file_format.value,
             image_file_format=resolved_export.image_file_format or DEFAULT_IMAGE_FILE_FORMAT,
-            selectors=tuple(selectors) if selectors else None,
+            selectors=selectors,
             max_pixels=resolved_export.max_pixels,
             max_vertices=resolved_export.max_vertices,
             priority=resolved_export.priority,
@@ -670,12 +809,20 @@ def use_export_dialog(
         state.gee_asset_id.set("")
         state.gee_asset_id_dirty.set(False)
         state.last_default_gee_asset_id.set("")
+        state.selected_bands.set(())
+        state.bands_dirty.set(False)
+        state.last_default_bands.set(())
+        state.discovered_bands.set(())
+        state.discovered_source_id.set("")
+        state.bands_loading.set(False)
         open_state.set(True)
 
     def close_dialog() -> None:
         _clear_inline()
         name_dirty.set(False)
         state.gee_asset_id_dirty.set(False)
+        state.bands_dirty.set(False)
+        state.bands_loading.set(False)
         open_state.set(False)
 
     def submit_export() -> None:
@@ -718,10 +865,15 @@ def use_export_dialog(
 
 __all__ = [
     "ExportDialogController",
+    "available_bands_for",
+    "default_bands_for",
+    "discover_image_bands",
     "get_active_source",
     "get_controller_source_state",
     "get_source_items",
     "get_target_items",
+    "normalize_band_selection",
     "resolve_source_state",
+    "resolved_default_bands",
     "use_export_dialog",
 ]

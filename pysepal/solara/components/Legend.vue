@@ -8,13 +8,8 @@
       'sepal-legend--light': !isDark,
     }"
   >
-    <!-- Collapsed state: icon pill -->
-    <div v-if="isCollapsed" class="sepal-legend__pill" @click="toggleCollapse">
-      <v-icon small :dark="isDark" :light="!isDark">mdi-map-legend</v-icon>
-    </div>
-
-    <!-- Expanded state -->
-    <div v-else class="sepal-legend__body">
+    <!-- Expanded body -->
+    <div v-if="!isCollapsed" class="sepal-legend__body">
       <!-- Gradient sections -->
       <div
         v-for="(grad, gi) in parsedGradients"
@@ -49,13 +44,26 @@
           <span class="sepal-legend__label">{{ item.label }}</span>
         </div>
       </div>
+    </div>
 
-      <!-- Collapse toggle -->
-      <button class="sepal-legend__toggle" @click="toggleCollapse">
-        <v-icon x-small :dark="isDark" :light="!isDark"
-          >mdi-chevron-down</v-icon
-        >
-      </button>
+    <!-- Toggle bar: always rendered in the same spot (bottom-center of the
+         legend), so the same click target both opens and closes it. Exposed as
+         a real button to the a11y tree — focusable and Enter/Space operable. -->
+    <div
+      class="sepal-legend__bar"
+      role="button"
+      tabindex="0"
+      @click="toggleCollapse"
+      @keydown.enter="toggleCollapse"
+      @keydown.space.prevent="toggleCollapse"
+      :title="isCollapsed ? 'Show legend' : 'Hide legend'"
+      :aria-label="isCollapsed ? 'Show legend' : 'Hide legend'"
+      :aria-expanded="String(!isCollapsed)"
+    >
+      <v-icon small :dark="isDark" :light="!isDark">mdi-map-legend</v-icon>
+      <v-icon x-small :dark="isDark" :light="!isDark">{{
+        isCollapsed ? "mdi-chevron-up" : "mdi-chevron-down"
+      }}</v-icon>
     </div>
   </div>
 </template>
@@ -153,19 +161,18 @@ module.exports = {
   z-index: 1000;
   pointer-events: auto;
   font-family: Roboto, sans-serif;
-}
-
-.sepal-legend__pill,
-.sepal-legend__body {
-  backdrop-filter: blur(4px);
-}
-
-.sepal-legend__pill {
-  border-radius: 16px;
-  padding: 6px 12px;
-  cursor: pointer;
-  display: inline-flex;
+  /* Stack body over the toggle bar and keep everything centered. Because the
+     element is bottom-anchored, the bar (last child) stays fixed at the bottom
+     whether or not the body is shown. */
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 4px;
+}
+
+.sepal-legend__body,
+.sepal-legend__bar {
+  backdrop-filter: blur(4px);
 }
 
 .sepal-legend__body {
@@ -174,21 +181,30 @@ module.exports = {
   font-size: 12px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 6px;
-  max-width: 90vw;
-  position: relative;
+  max-width: min(380px, 92vw);
+}
+
+.sepal-legend__bar {
+  border-radius: 16px;
+  padding: 2px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* --- Dark theme --- */
-.sepal-legend--dark .sepal-legend__pill,
-.sepal-legend--dark .sepal-legend__body {
+.sepal-legend--dark .sepal-legend__body,
+.sepal-legend--dark .sepal-legend__bar {
   background: rgba(33, 33, 33, 0.85);
   color: #fff;
 }
 
 /* --- Light theme --- */
-.sepal-legend--light .sepal-legend__pill,
-.sepal-legend--light .sepal-legend__body {
+.sepal-legend--light .sepal-legend__body,
+.sepal-legend--light .sepal-legend__bar {
   background: rgba(255, 255, 255, 0.9);
   color: rgba(0, 0, 0, 0.87);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -199,6 +215,7 @@ module.exports = {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  align-self: stretch;
 }
 
 .sepal-legend__gradient-title {
@@ -226,6 +243,7 @@ module.exports = {
   flex-wrap: wrap;
   gap: 4px 12px;
   align-items: center;
+  justify-content: center;
 }
 
 .sepal-legend__item {
@@ -252,23 +270,6 @@ module.exports = {
 .sepal-legend__label {
   white-space: nowrap;
   font-size: 12px;
-}
-
-/* --- Toggle --- */
-.sepal-legend__toggle {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  opacity: 0.6;
-  padding: 2px;
-  line-height: 1;
-}
-
-.sepal-legend__toggle:hover {
-  opacity: 1;
 }
 </style>
 
