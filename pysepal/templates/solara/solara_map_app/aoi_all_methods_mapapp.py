@@ -348,8 +348,7 @@ def AoiExportPanel(aoi_data, processed_datasets):
 
 
 @solara.component
-@with_sepal_sessions(module_name="aoi_all_methods")
-def Page():
+def AoiAllMethodsMapApp():
     """All AOI methods demo using MapApp layout with notifications."""
     setup_theme_colors()
 
@@ -471,3 +470,10 @@ def Page():
         theme_state=theme_state,
         on_is_pinned=_on_pin_change,
     )
+
+
+@solara.component
+@with_sepal_sessions(module_name="aoi_all_methods")
+def Page():
+    """Authenticated Solara-server entrypoint for the AOI methods demo."""
+    AoiAllMethodsMapApp()
