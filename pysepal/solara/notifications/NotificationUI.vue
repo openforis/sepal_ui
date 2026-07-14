@@ -99,6 +99,7 @@ export default {
       logOpen: false,
       logFollowing: true, // Auto-scroll to bottom when new entries arrive
       transitionsEnabled: false, // Gated so the pill doesn't slide in on mount
+      themeVersion: 0, // bumped by a MutationObserver to re-evaluate isDarkTheme
     };
   },
   computed: {
@@ -118,7 +119,25 @@ export default {
       return this.runningTask;
     },
     isDarkTheme() {
-      return this.$vuetify && this.$vuetify.theme && this.$vuetify.theme.dark;
+      // Detect the active theme from the DOM (majority of Vuetify app roots).
+      // This is the only signal reliable across runtimes: $vuetify.theme isn't
+      // wired for this widget in Voila, and pysepal's Python theme state isn't
+      // reliably in sync there either.  themeVersion (bumped by a
+      // MutationObserver) makes this reactive to theme toggles.
+      void this.themeVersion;
+      const apps = document.querySelectorAll(".v-application");
+      let dark = 0;
+      let light = 0;
+      apps.forEach((a) => {
+        if (a.classList.contains("theme--dark")) dark += 1;
+        else if (a.classList.contains("theme--light")) light += 1;
+      });
+      if (dark + light > 0) return dark > 0 && dark >= light;
+      return !!(
+        this.$vuetify &&
+        this.$vuetify.theme &&
+        this.$vuetify.theme.dark
+      );
     },
     pillText() {
       if (!this.displayTask) return "Task log";
@@ -218,6 +237,28 @@ export default {
   },
   mounted() {
     this._syncToastTimers(this.toasts);
+    // Re-theme the pill/log when the user toggles dark/light.  Watch class
+    // mutations document-wide but only react to Vuetify app-root / theme
+    // changes, so the majority-vote in isDarkTheme re-runs without churn.
+    this._themeObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        const el = m.target;
+        if (
+          el.classList &&
+          (el.classList.contains("v-application") ||
+            el.classList.contains("theme--dark") ||
+            el.classList.contains("theme--light"))
+        ) {
+          this.themeVersion += 1;
+          break;
+        }
+      }
+    });
+    this._themeObserver.observe(document.documentElement, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
     // Enable the right-edge transition only AFTER initial layout has
     // settled — the RightPanel v-navigation-drawer registers with
     // $vuetify.application a few ticks after MapApp mounts, which in turn
@@ -228,6 +269,7 @@ export default {
     }, 400);
   },
   beforeDestroy() {
+    if (this._themeObserver) this._themeObserver.disconnect();
     for (const id of Object.keys(this.dismissTimers)) {
       clearTimeout(this.dismissTimers[id]);
     }
@@ -350,39 +392,39 @@ export default {
  */
 
 /* Dark theme (default — theme success #3f802a, theme error #a63228) */
-.theme-dark .toast-alert.toast-success {
+.theme-dark > .toast-stack .toast-alert.toast-success {
   background-color: rgba(63, 128, 42, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-info {
+.theme-dark > .toast-stack .toast-alert.toast-info {
   background-color: rgba(21, 101, 192, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-warning {
+.theme-dark > .toast-stack .toast-alert.toast-warning {
   background-color: rgba(230, 120, 0, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-error {
+.theme-dark > .toast-stack .toast-alert.toast-error {
   background-color: rgba(166, 50, 40, 0.92) !important;
   border-left: 4px solid #ffcdd2 !important;
 }
-.theme-dark .toast-alert.toast-cancel {
+.theme-dark > .toast-stack .toast-alert.toast-cancel {
   background-color: rgba(120, 120, 120, 0.9) !important;
 }
 
 /* Light theme — success matches the primary button green #5BB624,
  * error matches Vuetify's default error #ff5252 (color="error" buttons). */
-.theme-light .toast-alert.toast-success {
+.theme-light > .toast-stack .toast-alert.toast-success {
   background-color: rgba(91, 182, 36, 0.9) !important;
 }
-.theme-light .toast-alert.toast-info {
+.theme-light > .toast-stack .toast-alert.toast-info {
   background-color: rgba(33, 150, 243, 0.9) !important;
 }
-.theme-light .toast-alert.toast-warning {
+.theme-light > .toast-stack .toast-alert.toast-warning {
   background-color: rgba(251, 140, 0, 0.9) !important;
 }
-.theme-light .toast-alert.toast-error {
+.theme-light > .toast-stack .toast-alert.toast-error {
   background-color: rgba(255, 82, 82, 0.92) !important;
   border-left: 4px solid #ffcdd2 !important;
 }
-.theme-light .toast-alert.toast-cancel {
+.theme-light > .toast-stack .toast-alert.toast-cancel {
   background-color: rgba(150, 150, 150, 0.9) !important;
 }
 
@@ -482,7 +524,7 @@ export default {
   transition: right 0.3s ease;
 }
 
-.theme-light .pill-wrapper {
+.theme-light > .pill-wrapper {
   --pill-bg: rgba(250, 250, 250, 0.88);
   --pill-bg-hover: rgba(240, 240, 240, 0.94);
   --pill-fg: #212121;
@@ -510,7 +552,7 @@ export default {
   background-color: var(--pill-bg) !important;
   color: var(--pill-fg);
   border-radius: 4px;
-  font-size: 0.85em;
+  font-size: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -571,7 +613,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px 4px 12px;
-  font-size: 0.85em;
+  font-size: 13px;
   font-weight: 500;
   border-bottom: 1px solid var(--log-divider);
 }
@@ -584,7 +626,7 @@ export default {
   padding: 6px 12px;
   max-height: 180px;
   overflow-y: auto;
-  font-size: 0.78em;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -600,7 +642,7 @@ export default {
   align-items: flex-start;
   padding: 1px 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 0.78em;
+  font-size: 12px;
   line-height: 1.5;
 }
 

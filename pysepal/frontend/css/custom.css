@@ -19,6 +19,19 @@ main.v-content {
   padding-top: 0px !important;
 }
 
+/* Solara's Markdown emits the JupyterLab `jp-RenderedHTMLCommon` class, whose
+ * text color comes from the `--jp-content-font-color*` variables.  Under
+ * `solara run` Solara's own theme CSS themes those vars; under Voila the
+ * (light) JupyterLab theme owns them, so markdown renders dark text on
+ * pysepal's dark shell.  Force it to inherit the surrounding Vuetify theme
+ * color instead.  Harmless under Solara — it already resolves to the themed
+ * color. */
+.solara-markdown.jp-RenderedHTMLCommon,
+.solara-markdown.jp-RenderedHTMLCommon
+  :where(p, h1, h2, h3, h4, h5, h6, li, strong, em, code, blockquote, td, th) {
+  color: inherit;
+}
+
 .v-alert__wrapper .progress {
   background-color: transparent;
 }
@@ -318,4 +331,12 @@ header.theme--light.v-app-bar.v-toolbar.v-sheet {
   .leaflet-pm-toolbar
   .leaflet-pm-action.action-cancel {
   color: #e16a60;
+}
+
+/* Right-panel cards sit on the drawer's own themed surface; drop the v-sheet's
+ * default background so they don't paint an extra panel behind the content.
+ * Ported from the Solara stylesheet (part of the right-panel polish) — the
+ * Voila stylesheet lacked it, leaving an unwanted card background. */
+.right-panel .drawer-top .v-sheet {
+  background-color: transparent !important;
 }
