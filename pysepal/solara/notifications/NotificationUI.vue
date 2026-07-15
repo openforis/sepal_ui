@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'theme-dark': isDarkTheme, 'theme-light': !isDarkTheme }">
+  <div :class="{ 'theme-dark': is_dark, 'theme-light': !is_dark }">
     <!-- Toast Stack: fixed top-right -->
     <div class="toast-stack">
       <v-alert
@@ -91,6 +91,7 @@ export default {
   props: {
     toasts: { type: Array, default: () => [] },
     tasks: { type: Array, default: () => [] },
+    is_dark: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -99,7 +100,6 @@ export default {
       logOpen: false,
       logFollowing: true, // Auto-scroll to bottom when new entries arrive
       transitionsEnabled: false, // Gated so the pill doesn't slide in on mount
-      themeVersion: 0, // bumped by a MutationObserver to re-evaluate isDarkTheme
     };
   },
   computed: {
@@ -117,27 +117,6 @@ export default {
       // Only show the pill while a task is actively running.
       // Finished tasks disappear — the user can open the log for history.
       return this.runningTask;
-    },
-    isDarkTheme() {
-      // Detect the active theme from the DOM (majority of Vuetify app roots).
-      // This is the only signal reliable across runtimes: $vuetify.theme isn't
-      // wired for this widget in Voila, and pysepal's Python theme state isn't
-      // reliably in sync there either.  themeVersion (bumped by a
-      // MutationObserver) makes this reactive to theme toggles.
-      void this.themeVersion;
-      const apps = document.querySelectorAll(".v-application");
-      let dark = 0;
-      let light = 0;
-      apps.forEach((a) => {
-        if (a.classList.contains("theme--dark")) dark += 1;
-        else if (a.classList.contains("theme--light")) light += 1;
-      });
-      if (dark + light > 0) return dark > 0 && dark >= light;
-      return !!(
-        this.$vuetify &&
-        this.$vuetify.theme &&
-        this.$vuetify.theme.dark
-      );
     },
     pillText() {
       if (!this.displayTask) return "Task log";
@@ -237,28 +216,6 @@ export default {
   },
   mounted() {
     this._syncToastTimers(this.toasts);
-    // Re-theme the pill/log when the user toggles dark/light.  Watch class
-    // mutations document-wide but only react to Vuetify app-root / theme
-    // changes, so the majority-vote in isDarkTheme re-runs without churn.
-    this._themeObserver = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        const el = m.target;
-        if (
-          el.classList &&
-          (el.classList.contains("v-application") ||
-            el.classList.contains("theme--dark") ||
-            el.classList.contains("theme--light"))
-        ) {
-          this.themeVersion += 1;
-          break;
-        }
-      }
-    });
-    this._themeObserver.observe(document.documentElement, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["class"],
-    });
     // Enable the right-edge transition only AFTER initial layout has
     // settled — the RightPanel v-navigation-drawer registers with
     // $vuetify.application a few ticks after MapApp mounts, which in turn
@@ -269,7 +226,6 @@ export default {
     }, 400);
   },
   beforeDestroy() {
-    if (this._themeObserver) this._themeObserver.disconnect();
     for (const id of Object.keys(this.dismissTimers)) {
       clearTimeout(this.dismissTimers[id]);
     }

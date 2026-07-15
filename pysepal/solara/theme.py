@@ -80,6 +80,23 @@ def get_current_theme_state() -> ThemeState:
     return _get_fallback_theme_state()
 
 
+def resolve_theme_state(theme_state: Optional[ThemeState] = None) -> ThemeState:
+    """Return a usable ThemeState without ever raising.
+
+    Precedence: an explicit ``theme_state`` > the current session's theme state
+    > a process-local fallback. Unlike :func:`get_current_theme_state`, an active
+    session that is missing its theme component degrades to the fallback instead
+    of raising, so callers such as ``NotificationProvider`` cannot crash a
+    misconfigured app.
+    """
+    if theme_state is not None:
+        return theme_state
+    try:
+        return get_current_theme_state()
+    except RuntimeError:
+        return _get_fallback_theme_state()
+
+
 def use_theme_dark(theme_state: Optional[ThemeState] = None) -> bool:
     """Reactively return the effective dark/light state for the current session."""
     theme_state = theme_state or get_current_theme_state()
