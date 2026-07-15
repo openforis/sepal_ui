@@ -508,7 +508,7 @@ export default {
   background-color: var(--pill-bg) !important;
   color: var(--pill-fg);
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -569,7 +569,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px 4px 12px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   border-bottom: 1px solid var(--log-divider);
 }
@@ -582,7 +582,7 @@ export default {
   padding: 6px 12px;
   max-height: 180px;
   overflow-y: auto;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -598,7 +598,7 @@ export default {
   align-items: flex-start;
   padding: 1px 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
