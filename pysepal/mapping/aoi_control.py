@@ -81,12 +81,7 @@ class AoiControl(MenuControl):
             item: the item to use to compute the bounds. It need to be a shapely geometry or an ee object.
         """
         if isinstance(item, ee.ComputedObject):
-            # extract bounds from ee_object
-            ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
-            bl, br, tr, tl, _ = self.map_.gee_interface.get_info(
-                ee_geometry.bounds().coordinates().get(0)
-            )
-            bounds = (*bl, *tr)
+            bounds = self.map_.gee_interface.get_bounds(item)
 
         elif isinstance(item, sg.base.BaseGeometry):
             bounds = item.bounds

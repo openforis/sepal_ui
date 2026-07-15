@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pysepal"
-version = "3.6.2"
+version = "3.7.0"
 description = "UI toolkit for building ipyvuetify and Solara dashboards, with first-class SEPAL integration"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -48,7 +48,8 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "solara", 
-    "ee-client>=2.5.2", # supports caching and fixes table asset export for session-backed flows
+    "ee-client>=3.0.0", # provider-agnostic auth: EESession.from_*() factories (issue-12)
+    "pysepal-api>=0.2.0", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes)
     "colorlog",
     "reactivex"
 ]
@@ -131,6 +132,7 @@ pysepal = [
     "frontend/**/*",
     "templates/**/*",
     "**/*.vue",
+    "**/*.css",
     "solara/common/assets/*",
     "templates/**/.*"
 ]
@@ -140,7 +142,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "3.6.2"
+version = "3.7.0"
 version_files = [
     "pyproject.toml:version",
     "pysepal/__init__.py:__version__"

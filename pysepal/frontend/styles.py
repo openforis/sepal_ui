@@ -189,8 +189,21 @@ class SepalColor(HasTraits, SimpleNamespace):
         return html
 
 
+def get_custom_css() -> str:
+    """Return pysepal's custom stylesheet for the ipyvuetify / Voila runtime.
+
+    Concatenates the shared ``base.css`` with the Voila-only overrides in
+    ``custom.css`` (base first, so the overrides win on equal specificity). The
+    Solara runtime loads the same ``base.css`` via
+    :mod:`pysepal.solara.asset_merger`.
+    """
+    base_css = (CSS_DIR / "base.css").read_text()
+    voila_css = (CSS_DIR / "custom.css").read_text()
+    return f"{base_css}\n{voila_css}"
+
+
 # load custom styling of pysepal
-sepal_ui_css = HTML(f"<style>{(CSS_DIR / 'custom.css').read_text()}</style>")
+sepal_ui_css = HTML(f"<style>{get_custom_css()}</style>")
 
 # load fa-6
 fa_css = HTML(

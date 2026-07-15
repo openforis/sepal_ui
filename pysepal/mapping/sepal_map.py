@@ -28,22 +28,16 @@ import math
 import random
 import string
 from pathlib import Path
-from typing import List, Optional, Sequence, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union, cast
 
 import ee
 import ipyleaflet as ipl
 import ipyvuetify as v
 import ipywidgets as widgets
-import matplotlib.pyplot as plt
 import numpy as np
-import rioxarray
 from deprecated.sphinx import deprecated
 from eeclient.client import EESession
 from ipyleaflet import TileLayer  # noqa: F401 - leave it here, it is used in the eval
-from localtileserver import TileClient, get_leaflet_tile_layer
-from matplotlib import colorbar
-from matplotlib import colors as mpc
-from rasterio.crs import CRS
 from traitlets import Int as _TInt
 from typing_extensions import Self
 
@@ -61,6 +55,9 @@ from pysepal.mapping.zoom_control import ZoomControl
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts import utils as su
+
+if TYPE_CHECKING:
+    from matplotlib import colors as mpc
 
 __all__ = ["SepalMap"]
 
@@ -352,14 +349,10 @@ class SepalMap(ipl.Map):
             item: the geometry to zoom on
             zoom_out: Zoom out the bounding zoom
         """
-        # type check the given object
-        ee_geometry = item if isinstance(item, ee.Geometry) else item.geometry()
-
-        # extract bounds from ee_object
-        coords = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
+        bounds = self.gee_interface.get_bounds(item)
 
         # zoom on these bounds
-        return self.zoom_bounds((*coords[0], *coords[2]), zoom_out)
+        return self.zoom_bounds(bounds, zoom_out)
 
     def zoom_raster(self, layer: ipl.LocalTileLayer, zoom_out: int = 1) -> Self:
         """Adapt the zoom to the given LocalLayer.
@@ -370,6 +363,9 @@ class SepalMap(ipl.Map):
             layer: the localTile layer to zoom on. it needs to embed the "raster" member
             zoom_out: Zoom out the bounding zoom
         """
+        import rioxarray
+        from rasterio.crs import CRS
+
         da = rioxarray.open_rasterio(layer.raster, masked=True)
 
         # unproject if necessary
@@ -402,7 +398,7 @@ class SepalMap(ipl.Map):
         image: Union[str, Path],
         bands: Optional[Union[list, int]] = None,
         layer_name: str = "Layer_" + su.random_string(),
-        colormap: Union[str, mpc.Colormap] = "inferno",
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
         opacity: float = 1.0,
         fit_bounds: bool = True,
         key: str = "",
@@ -423,6 +419,11 @@ class SepalMap(ipl.Map):
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
         """
+        import matplotlib.pyplot as plt
+        import rioxarray
+        from localtileserver import TileClient, get_leaflet_tile_layer
+        from matplotlib import colors as mpc
+
         # force cast to Path and then start the client
         image = Path(image)
 
@@ -517,6 +518,10 @@ class SepalMap(ipl.Map):
             layer_name: Layer name of the colorbar to be associated with. Defaults to None.
             kwargs: any other argument of the colorbar object from matplotlib
         """
+        import matplotlib.pyplot as plt
+        from matplotlib import colorbar
+        from matplotlib import colors as mpc
+
         width, height = 6.0, 0.4
         alpha = 1
 
@@ -638,11 +643,7 @@ class SepalMap(ipl.Map):
 
         if autocenter:
             try:
-                ee_geometry = (
-                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
-                )
-                bounds = self.gee_interface.get_info(ee_geometry.bounds().coordinates().get(0))
-                self.zoom_bounds((*bounds[0], *bounds[2]))
+                self.zoom_bounds(self.gee_interface.get_bounds(ee_object))
             except Exception:
                 log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 
@@ -713,13 +714,7 @@ class SepalMap(ipl.Map):
 
         if autocenter:
             try:
-                ee_geometry = (
-                    ee_object if isinstance(ee_object, ee.Geometry) else ee_object.geometry()
-                )
-                bounds = await self.gee_interface.get_info_async(
-                    ee_geometry.bounds().coordinates().get(0)
-                )
-                self.zoom_bounds((*bounds[0], *bounds[2]))
+                self.zoom_bounds(await self.gee_interface.get_bounds_async(ee_object))
             except Exception:
                 log.debug("autocenter skipped: unable to compute bounds (unbounded image?)")
 

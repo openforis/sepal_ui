@@ -42,10 +42,16 @@ Conceptually:
 
 ## Scope Rules
 
-The isolation boundary is the Solara kernel, not the route.
+The isolation boundary is the live app runtime session, not the route.
+Notifications are scoped to the current app runtime in three contexts:
 
-- One browser page connection usually maps to one Solara virtual kernel.
-- The notification bus is keyed by kernel id.
+- Solara server apps launched with `solara run`
+- Voila apps launched from a notebook kernel
+- Plain Jupyter Notebook/Lab, scoped to the active notebook kernel
+
+- One browser page connection usually maps to one Solara virtual kernel under `solara run`.
+- Voila and Jupyter scope to the active notebook kernel.
+- The notification bus is keyed by the pysepal runtime session id.
 - Routes inside the same live page share the same notification history.
 - Separate browser page loads get separate kernels and therefore separate histories.
 
@@ -85,6 +91,20 @@ def Layout(children=[]):
     NotificationProvider()
     solara.Column(children=children)
 ```
+
+### Voila apps
+
+Voila apps use the same mounting pattern:
+
+```python
+@solara.component
+def Page():
+    NotificationProvider()
+    AppContent()
+```
+
+The provider uses the active Voila notebook kernel as the notification bus
+scope. No Solara server context is created or required.
 
 ### What not to do
 

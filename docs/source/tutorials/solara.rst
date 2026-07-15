@@ -78,7 +78,7 @@ File System Access
 
 When building PySepal applications, you cannot use standard Python file operations like ``os.listdir()`` or ``pathlib``. If you did, your application would navigate the server's filesystem instead of the user's personal workspace.
 
-The ``SepalClient`` solves this by authenticating with SEPAL's user-files API module. It makes HTTP requests to SEPAL's backend, which performs file operations within each user's isolated workspace. The API is familiar: ``list_files()`` to browse, ``get_file()`` to download, ``set_file()`` to upload, and ``get_remote_dir()`` to create directories. Each operation is authenticated with the user's SEPAL session ID, automatically handling path sanitization, MIME type detection, and creating a dedicated results directory for your module.
+The ``SepalClient`` solves this by authenticating with SEPAL's user-files API module. It makes HTTP requests to SEPAL's backend, which performs file operations within each user's isolated workspace. The API is familiar: ``files.list()`` to browse, ``files.read_bytes()`` to download, ``files.write()`` to upload, and ``files.mkdir()`` to create directories. Each operation is authenticated with the user's SEPAL session ID, automatically handling path sanitization, MIME type detection, and creating a dedicated results directory for your module.
 
 *To see the SepalClient in action, check the* `SEPAL Client notebook`_ *below.*
 

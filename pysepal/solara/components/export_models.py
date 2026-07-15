@@ -8,8 +8,7 @@ from pathlib import PurePosixPath
 from typing import Callable, Literal, Optional
 
 import ee
-
-from pysepal.scripts.sepal_client import SepalClient
+from pysepal_api import SepalClient
 
 ExportTarget = Literal["gee", "drive", "sepal"]
 ExportKind = Literal["image", "table"]
@@ -61,6 +60,10 @@ class ResolvedExport:
     region: object = None
     default_scale: int | None = None
     selectors: tuple[str, ...] | None = None
+    bands: tuple[str, ...] | None = None
+    """Bands (images) / properties (tables) offered in the picker; ``None`` hides it."""
+    default_bands: tuple[str, ...] | None = None
+    """Initial picker selection; defaults to all ``bands``."""
     gee_folder: str = ""
     drive_folder: str = ""
     sepal_folder: str = ""

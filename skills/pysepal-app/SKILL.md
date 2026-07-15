@@ -69,7 +69,7 @@ When a new pysepal Solara app has async work or user-visible state transitions:
 
 Scope model:
 
-- notifications are scoped to the Solara kernel, not the route
+- notifications are scoped to the current pysepal app runtime session (the Solara server kernel under `solara run`, or the active notebook kernel under Voila or plain Jupyter), not the route
 - routes inside one live page share notification history
 - separate browser page loads usually create separate kernels and therefore separate histories
 

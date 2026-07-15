@@ -6,11 +6,8 @@ from typing import Optional, Sequence, Union
 import ee
 import geopandas as gpd
 import ipyvuetify as v
-import rasterio as rio
-import rioxarray
 from deprecated.sphinx import deprecated
 from ipyleaflet import GeoJSON, Map, Marker
-from rasterio.crs import CRS
 from shapely import geometry as sg
 from traitlets import Bool
 
@@ -256,6 +253,10 @@ class InspectorControl(MenuControl):
         Returns:
             The value associated to the feature names
         """
+        import rasterio as rio
+        import rioxarray
+        from rasterio.crs import CRS
+
         # extract the coordinates as a point
         point = sg.Point(*coords)
 

@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'theme-dark': isDarkTheme, 'theme-light': !isDarkTheme }">
+  <div :class="{ 'theme-dark': is_dark, 'theme-light': !is_dark }">
     <!-- Toast Stack: fixed top-right -->
     <div class="toast-stack">
       <v-alert
@@ -91,6 +91,7 @@ export default {
   props: {
     toasts: { type: Array, default: () => [] },
     tasks: { type: Array, default: () => [] },
+    is_dark: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -116,9 +117,6 @@ export default {
       // Only show the pill while a task is actively running.
       // Finished tasks disappear — the user can open the log for history.
       return this.runningTask;
-    },
-    isDarkTheme() {
-      return this.$vuetify && this.$vuetify.theme && this.$vuetify.theme.dark;
     },
     pillText() {
       if (!this.displayTask) return "Task log";
@@ -350,39 +348,39 @@ export default {
  */
 
 /* Dark theme (default — theme success #3f802a, theme error #a63228) */
-.theme-dark .toast-alert.toast-success {
+.theme-dark > .toast-stack .toast-alert.toast-success {
   background-color: rgba(63, 128, 42, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-info {
+.theme-dark > .toast-stack .toast-alert.toast-info {
   background-color: rgba(21, 101, 192, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-warning {
+.theme-dark > .toast-stack .toast-alert.toast-warning {
   background-color: rgba(230, 120, 0, 0.9) !important;
 }
-.theme-dark .toast-alert.toast-error {
+.theme-dark > .toast-stack .toast-alert.toast-error {
   background-color: rgba(166, 50, 40, 0.92) !important;
   border-left: 4px solid #ffcdd2 !important;
 }
-.theme-dark .toast-alert.toast-cancel {
+.theme-dark > .toast-stack .toast-alert.toast-cancel {
   background-color: rgba(120, 120, 120, 0.9) !important;
 }
 
 /* Light theme — success matches the primary button green #5BB624,
  * error matches Vuetify's default error #ff5252 (color="error" buttons). */
-.theme-light .toast-alert.toast-success {
+.theme-light > .toast-stack .toast-alert.toast-success {
   background-color: rgba(91, 182, 36, 0.9) !important;
 }
-.theme-light .toast-alert.toast-info {
+.theme-light > .toast-stack .toast-alert.toast-info {
   background-color: rgba(33, 150, 243, 0.9) !important;
 }
-.theme-light .toast-alert.toast-warning {
+.theme-light > .toast-stack .toast-alert.toast-warning {
   background-color: rgba(251, 140, 0, 0.9) !important;
 }
-.theme-light .toast-alert.toast-error {
+.theme-light > .toast-stack .toast-alert.toast-error {
   background-color: rgba(255, 82, 82, 0.92) !important;
   border-left: 4px solid #ffcdd2 !important;
 }
-.theme-light .toast-alert.toast-cancel {
+.theme-light > .toast-stack .toast-alert.toast-cancel {
   background-color: rgba(150, 150, 150, 0.9) !important;
 }
 
@@ -482,7 +480,7 @@ export default {
   transition: right 0.3s ease;
 }
 
-.theme-light .pill-wrapper {
+.theme-light > .pill-wrapper {
   --pill-bg: rgba(250, 250, 250, 0.88);
   --pill-bg-hover: rgba(240, 240, 240, 0.94);
   --pill-fg: #212121;
@@ -510,7 +508,7 @@ export default {
   background-color: var(--pill-bg) !important;
   color: var(--pill-fg);
   border-radius: 4px;
-  font-size: 0.85em;
+  font-size: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -571,7 +569,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px 4px 12px;
-  font-size: 0.85em;
+  font-size: 12px;
   font-weight: 500;
   border-bottom: 1px solid var(--log-divider);
 }
@@ -584,7 +582,7 @@ export default {
   padding: 6px 12px;
   max-height: 180px;
   overflow-y: auto;
-  font-size: 0.78em;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -600,7 +598,7 @@ export default {
   align-items: flex-start;
   padding: 1px 0;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 0.78em;
+  font-size: 11px;
   line-height: 1.5;
 }
 

@@ -449,3 +449,50 @@ def test_get_map_id_with_sepal(
     assert "tile_fetcher" in map_id or "mapid" in map_id
 
     return
+
+
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+def test_get_bounds_geometry(gee_interface: GEEInterface) -> None:
+    """get_bounds returns the extent of a plain ee.Geometry.
+
+    Args:
+        gee_interface: the GEEInterface fixture
+    """
+    bounds = gee_interface.get_bounds(ee.Geometry.BBox(1.0, 2.0, 3.0, 4.0))
+
+    assert len(bounds) == 4
+    assert list(bounds) == pytest.approx([1.0, 2.0, 3.0, 4.0], abs=1e-4)
+
+    return
+
+
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
+def test_get_bounds_dense_aoi(gee_interface: GEEInterface) -> None:
+    """get_bounds avoids FeatureCollection.geometry()'s 2M-edge limit on dense AOIs.
+
+    Regression for #996: GAUL 2024 Indonesia is ~2.4M edges across 4 features,
+    so the naive ``fc.geometry().bounds()`` dissolve overflows Earth Engine's
+    hard 2M-edge limit. get_bounds reduces each feature to its own bbox before
+    unioning, so the extent comes back without dissolving.
+
+    Args:
+        gee_interface: the GEEInterface fixture
+    """
+    pygaul = pytest.importorskip("pygaul")
+    indonesia = pygaul.Items(admin="241")  # GAUL 2024 Indonesia
+
+    # the naive dissolve must fail — this is exactly the bug being fixed
+    with pytest.raises(ee.EEException, match="too many edges"):
+        indonesia.geometry().bounds().getInfo()
+
+    # get_bounds must succeed and return Indonesia's extent
+    minx, miny, maxx, maxy = gee_interface.get_bounds(indonesia)
+
+    assert minx == pytest.approx(95.0108, abs=0.05)
+    assert miny == pytest.approx(-11.0076, abs=0.05)
+    assert maxx == pytest.approx(141.0194, abs=0.05)
+    assert maxy == pytest.approx(6.0769, abs=0.05)
+
+    return

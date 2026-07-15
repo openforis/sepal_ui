@@ -130,7 +130,9 @@ ResolvedExport(
                                        # or the Export name field (Drive/SEPAL)
     region=aoi.value,                 # optional, used for image exports
     default_scale=30,                 # optional, used for image exports
-    selectors=("ADM0_NAME",),          # optional, narrow table columns
+    selectors=("ADM0_NAME",),          # optional, pre-baked subset (bypasses the picker)
+    bands=("B4", "B3", "B2"),          # optional catalog; renders the picker (see below)
+    default_bands=("B4", "B3"),       # optional initial selection; defaults to all bands
     gee_folder="my_module",           # optional folder segment under the user's
                                        # asset root; feeds the auto-filled Asset ID
                                        # (e.g. projects/<project>/assets/my_module/<name>).
@@ -149,6 +151,111 @@ ResolvedExport(
 
 The user can override any destination-related field in the dialog. The
 `default_*` values just pre-fill the controls.
+
+## Band Selection
+
+Every **image** export gets a band picker automatically: when a source
+does not declare a catalog, the dialog fetches the image's band names
+from Earth Engine (`image.bandNames()`) and renders the multi-select
+picker regardless of band count — a spinner stands in while the names
+load. Apps that want a specific order, a subset, or a non-default initial
+selection can still declare a catalog explicitly (see below); a declared
+catalog skips discovery. **Tables** never auto-discover — declare a
+catalog to expose a property picker.
+
+The user-selected subset is threaded through `ExportRequest.selectors`
+and applied by the engine:
+
+- **Images** → `image.select(selectors)` is applied to the EE object
+  before submission (the image-export endpoints do not accept a
+  `selectors` parameter, so it has to be baked into the image).
+- **Tables** → `selectors=` is passed straight through to
+  `Export.table.toAsset` / `Export.table.toDrive`, which is how Earth
+  Engine selects feature properties.
+
+Declare the catalog on the source:
+
+```python
+ExportSource(
+    id="landsat_composite",
+    label="Landsat composite",
+    kind="image",
+    resolve=lambda: ResolvedExport(
+        ee_object=composite,
+        default_name="landsat_composite",
+        region=aoi.geometry(),
+        default_scale=30,
+        bands=("B4", "B3", "B2", "B5", "B6", "B7"),    # full catalog
+        default_bands=("B4", "B3", "B2"),               # initial selection
+    ),
+)
+```
+
+Rules:
+
+- `bands=None` (the default) auto-discovers the catalog for **image**
+  sources (the picker always renders, 1 band or many) and hides the
+  picker for **table** sources. A failed discovery (permissions, network)
+  degrades to no picker and exports the full image.
+- `bands=(...)` renders the picker labelled **Bands** for images,
+  **Properties** for tables, and skips auto-discovery.
+- `default_bands` is optional; when omitted, every band is selected by
+  default. Entries that are not in `bands` are dropped silently.
+- The picker preserves catalog order — even if the user clicks them in
+  a different order, the submitted `selectors` come back ordered by
+  `bands`.
+- Empty selection is rejected (Submit stays disabled; trying to call
+  `submit_export` programmatically raises `ValueError`).
+- Pre-baked `selectors=(...)` is the legacy escape hatch for apps that
+  manage band selection outside the dialog. When `bands` is declared,
+  the picker overrides `selectors`.
+
+### Auto-discovery cost
+
+Discovery calls `image.bandNames().getInfo()` once per selected source
+(the result is cached per source for the life of the dialog). This reads
+the image's **band schema, not its pixels**, so it is independent of how
+spatially large, high-resolution, or deeply chained the image is —
+`select`, `rename`, `addBands`, arithmetic, `mosaic`, and reducers all
+propagate band names structurally. In practice it is a single metadata
+round-trip to Earth Engine (typically sub-second; occasionally 1–2s of
+network latency). The cost tracks _schema_ complexity, not pixel volume,
+so a "huge" image is not a problem.
+
+The one operation that can be slow is `imageCollection.toBands()`, whose
+output band count is `images × bands-per-image` — Earth Engine has to
+enumerate the whole collection to name the bands. Raw `ee.ImageCollection`
+inputs are rejected by the export anyway, so this only bites if a source
+hands in a `toBands()` result over a large collection. Plain `mosaic()` /
+reducers are fine (fixed schema).
+
+While discovery is in flight:
+
+- The picker shows a spinner and the **Export button is disabled**
+  (`bands_loading`), so a slow `bandNames()` delays _Export_, not the
+  dialog opening.
+- Any failure (permissions, network) is swallowed — the picker is hidden
+  and the full image is exported unchanged.
+
+To skip the round-trip entirely — for a known band set, or a source where
+`bandNames()` would be expensive — **declare `bands=(...)`** on the
+`ResolvedExport`. A declared catalog renders instantly and never calls
+Earth Engine.
+
+Discovery is cached per source id, not per resolved image (`resolve()`
+returns a fresh object every render, so caching on the object would refetch
+constantly). A source whose `resolve()` changes its **band set** under the
+same id — unusual, since `clip`/`filter`/AOI changes preserve band names —
+therefore keeps its first-discovered catalog. If a source genuinely swaps
+its bands under one id, give it a distinct id per variant or declare
+`bands=(...)` so the picker tracks the change.
+
+Heads-up on visualization: if you set both `vis_params` and `bands`, the
+viz dict can reference bands the user deselects. The engine applies
+`set_viz_params` first and then `image.select(...)`, so the embedded
+visualization properties may point at bands missing from the exported
+asset. Apps that mix the two should keep `vis_params.bands` inside the
+band catalog or warn users in the source description.
 
 ## Carrying SEPAL Visualization Onto Exports
 
@@ -229,7 +336,7 @@ The dialog offers three destinations, each enabled based on runtime state:
 SEPAL workspace exports must stay on the `SepalClient` path. Do not stage,
 copy, or rewrite user export files in the container filesystem from host app
 code; let the export engine download bytes from Drive and upload them through
-`sepal_client.set_file(...)`.
+`sepal_client.files.write(...)`.
 
 The engine creates any missing intermediate folders under the user's asset
 root before submitting an EE asset export.
@@ -252,7 +359,7 @@ callers are protected:
   creations between the live check and submit cannot silently overwrite.
 
 Drive and SEPAL exports skip all three (Drive allows duplicate filenames
-natively; SEPAL writes through `set_file(..., overwrite=True)`).
+natively; SEPAL writes through `files.write(..., overwrite=True)`).
 
 ## File Formats: Use Canonical Enum Values
 
