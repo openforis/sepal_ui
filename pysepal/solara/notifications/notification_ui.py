@@ -8,6 +8,8 @@ from typing import Callable, Optional
 
 import solara
 
+from pysepal.solara.theme import ThemeState, use_theme_dark
+
 from .bus import NotificationBus
 from .state import TaskStatus, ToastType
 
@@ -81,6 +83,7 @@ def _serialize_tasks_from_list(tasks: list) -> list:
 def NotificationUI(
     toasts: list = [],
     tasks: list = [],
+    is_dark: bool = False,
     event_dismiss_toast: Optional[Callable[[str], None]] = None,
 ):
     """Vue-rendered notification UI with toasts and task progress pill."""
@@ -88,14 +91,17 @@ def NotificationUI(
 
 
 @solara.component
-def NotificationUIBridge(bus: NotificationBus):
+def NotificationUIBridge(bus: NotificationBus, theme_state: ThemeState):
     """Bridge between the NotificationBus (reactive Python state) and the Vue UI.
 
     Subscribes to bus.toasts and bus.tasks via Reactive.subscribe() so that
     changes are forwarded to local state without triggering a parent re-render.
+    The active theme flows in as ``is_dark`` via ``use_theme_dark`` so the Vue
+    widget never has to detect it from the DOM.
     """
     toasts_data, set_toasts_data = solara.use_state([])
     tasks_data, set_tasks_data = solara.use_state([])
+    is_dark = use_theme_dark(theme_state)
 
     def subscribe_to_bus():
         # Subscribe callbacks fire when .value changes, outside render context.
@@ -126,5 +132,6 @@ def NotificationUIBridge(bus: NotificationBus):
     NotificationUI(
         toasts=toasts_data,
         tasks=tasks_data,
+        is_dark=is_dark,
         event_dismiss_toast=handle_dismiss,
     )

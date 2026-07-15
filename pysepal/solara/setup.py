@@ -18,6 +18,11 @@ logger = logging.getLogger("sepalui.solara.setup")
 DEFAULT_FONT_AWESOME = "/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
 DEFAULT_CULL_TIMEOUT = "0s"
 
+# Shared stylesheet consumed by BOTH runtimes; merged into the Solara assets
+# ahead of the Solara override sheet. The Voila runtime loads the same file via
+# frontend.styles.get_custom_css().
+SHARED_BASE_CSS = Path(__file__).parent.parent / "frontend" / "css" / "base.css"
+
 
 def setup_theme_colors():
     """Configure default sepalui theme colors for the application."""
@@ -82,21 +87,17 @@ def setup_solara_server(
         logger.warning(f"sepal_ui common assets directory not found: {sepal_common_assets}")
         return
 
-    # If no extra locations, just use sepal_ui common assets
-    if not extra_asset_locations:
-        logger.debug("No extra asset locations specified, using sepal_ui common assets only")
-        solara.server.settings.assets.extra_locations = [str(sepal_common_assets)]
-        logger.debug(f"Asset location set to: {sepal_common_assets}")
-    else:
-        # Convert extra locations to Path objects
-        extra_paths = [Path(loc) for loc in extra_asset_locations]
+    # Always merge so the shared base.css is served alongside the Solara
+    # override sheet (and any extra locations). Both the "no extra locations"
+    # and "extra locations" cases go through the same path.
+    extra_paths = [Path(loc) for loc in (extra_asset_locations or [])]
+    if extra_paths:
         logger.debug(f"Extra asset locations: {[str(p) for p in extra_paths]}")
 
-        # Create merged assets directory
-        merged_assets_dir = create_merged_assets_directory(sepal_common_assets, extra_paths)
-
-        # Set the merged assets location
-        solara.server.settings.assets.extra_locations = [str(merged_assets_dir)]
-        logger.debug(f"Asset location set to merged directory: {merged_assets_dir}")
+    merged_assets_dir = create_merged_assets_directory(
+        sepal_common_assets, extra_paths, base_css_files=[SHARED_BASE_CSS]
+    )
+    solara.server.settings.assets.extra_locations = [str(merged_assets_dir)]
+    logger.debug(f"Asset location set to merged directory: {merged_assets_dir}")
 
     logger.info("Solara server configuration completed successfully")

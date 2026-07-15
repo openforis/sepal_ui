@@ -8,22 +8,42 @@ import logging
 import shutil
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Sequence
 
 logger = logging.getLogger("sepalui.solara.asset_merger")
 
 
-def merge_asset_files(sepal_assets_dir: Path, extra_locations: List[Path], temp_dir: Path) -> None:
+def merge_asset_files(
+    sepal_assets_dir: Path,
+    extra_locations: List[Path],
+    temp_dir: Path,
+    base_css_files: Sequence[Path] = (),
+) -> None:
     """Merge CSS and JS files from sepal_ui and extra locations into combined files.
 
     Args:
         sepal_assets_dir: Path to sepal_ui common assets
         extra_locations: List of extra asset directory paths
         temp_dir: Temporary directory to create merged files in
+        base_css_files: Shared base stylesheets merged in FIRST, ahead of the
+            sepal_ui common CSS, so per-runtime override sheets win on equal
+            specificity.
     """
     # Merge CSS files
     css_content = []
     js_content = []
+
+    # Shared base CSS is the single source of truth for rules common to both
+    # runtimes; it must come first so the override sheets below can win.
+    for base_css in base_css_files:
+        base_path = Path(base_css)
+        if base_path.exists():
+            css_content.append(
+                f"/* === shared base: {base_path.name} === */\n{base_path.read_text()}\n"
+            )
+            logger.debug(f"Added shared base CSS: {base_path}")
+        else:
+            logger.warning(f"Shared base CSS not found: {base_path}")
 
     # Start with sepal_ui common assets
     sepal_css = sepal_assets_dir / "custom.css"
@@ -86,12 +106,17 @@ def merge_asset_files(sepal_assets_dir: Path, extra_locations: List[Path], temp_
                 logger.debug(f"Copied additional asset: {file_path.name}")
 
 
-def create_merged_assets_directory(sepal_assets_dir: Path, extra_locations: List[Path]) -> Path:
+def create_merged_assets_directory(
+    sepal_assets_dir: Path,
+    extra_locations: List[Path],
+    base_css_files: Sequence[Path] = (),
+) -> Path:
     """Create a temporary directory with merged assets from all locations.
 
     Args:
         sepal_assets_dir: Path to sepal_ui common assets
         extra_locations: List of extra asset directory paths
+        base_css_files: Shared base stylesheets merged in ahead of everything.
 
     Returns:
         Path to the directory containing the merged assets (ready for Solara)
@@ -101,7 +126,7 @@ def create_merged_assets_directory(sepal_assets_dir: Path, extra_locations: List
     logger.debug(f"Created temporary assets directory: {temp_dir}")
 
     # Merge all assets
-    merge_asset_files(sepal_assets_dir, extra_locations, temp_dir)
+    merge_asset_files(sepal_assets_dir, extra_locations, temp_dir, base_css_files)
 
     # Return the assets subdirectory (where the actual files are)
     merged_assets_dir = temp_dir / "assets"
