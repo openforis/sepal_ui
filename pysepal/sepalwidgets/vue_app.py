@@ -2,6 +2,7 @@
 
 import json
 import logging
+from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional
 
@@ -11,7 +12,7 @@ from ipywidgets import DOMWidget, jsdlink, link
 from ipywidgets.widgets.widget import widget_serialization
 from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode, observe
 
-from pysepal.scripts import utils as su
+from pysepal.solara.locale import LocaleState, resolve_locale_state
 from pysepal.solara.theme import ThemeState, get_current_theme_state
 from pysepal.translator import Translator
 
@@ -97,6 +98,8 @@ class MapApp(v.VuetifyTemplate):
         self,
         theme_toggle: "ThemeToggle" = None,
         theme_state: Optional[ThemeState] = None,
+        locale_state: Optional[LocaleState] = None,
+        translator: Optional[Translator] = None,
         initial_step: Optional[int] = None,
         model: Optional[HasTraits] = None,
         **kwargs,
@@ -107,6 +110,13 @@ class MapApp(v.VuetifyTemplate):
         ----------
         theme_toggle : ThemeToggle, optional
             Theme toggle widget
+        theme_state : ThemeState, optional
+            Shared theme state; defaults to the current session's.
+        locale_state : LocaleState, optional
+            Shared locale state; defaults to the current session's.
+        translator : Translator, optional
+            Translator used to build the offered-locale list of the default
+            ``LocaleSelect``. Ignored when a ``language_selector`` is supplied.
         initial_step : int, optional
             Initial step to display
         model : HasTraits, optional
@@ -115,6 +125,13 @@ class MapApp(v.VuetifyTemplate):
             Additional parameters
         """
         self._theme_state = theme_state or get_current_theme_state()
+        # resolve_*, not get_current_* as the theme line above: every existing
+        # caller passes theme_state explicitly and so short-circuits that
+        # lookup, but nobody passes locale_state, so this runs unconditionally.
+        # get_current_locale_state() raises once a SessionManager exists without
+        # a session for this kernel, which would make MapApp itself unusable.
+        self._locale_state = resolve_locale_state(locale_state)
+        self._translator = translator
         self._model = model
         self._model_links = []  # Store links for cleanup
         kwargs["theme_toggle"] = self._coerce_theme_toggle(theme_toggle, self._theme_state)
@@ -138,7 +155,9 @@ class MapApp(v.VuetifyTemplate):
             kwargs["right_panel_open"] = right_panel.is_open
             kwargs["right_panel_width"] = right_panel.config.get("width", 300)
 
-        kwargs["language_selector"] = kwargs.get("language_selector", [LocaleSelect()])
+        kwargs["language_selector"] = self._coerce_locale_select(
+            kwargs.get("language_selector"), self._locale_state
+        )
 
         # Handle initial step configuration
         if initial_step is not None:
@@ -192,6 +211,27 @@ class MapApp(v.VuetifyTemplate):
             return widgets
 
         return [ThemeToggle(theme_state=theme_state)]
+
+    def _coerce_locale_select(
+        self, language_selector, locale_state: Optional[LocaleState]
+    ) -> list["LocaleSelect"]:
+        """Normalize language selector input and bind it to the session locale state."""
+        if isinstance(language_selector, list):
+            widgets = list(language_selector)
+        elif isinstance(language_selector, tuple):
+            widgets = list(language_selector)
+        elif language_selector is None:
+            widgets = []
+        else:
+            widgets = [language_selector]
+
+        if widgets:
+            widget = widgets[0]
+            if hasattr(widget, "bind_locale_state"):
+                widget.bind_locale_state(locale_state)
+            return widgets
+
+        return [LocaleSelect(translator=self._translator, locale_state=locale_state)]
 
     # Mirror of MapApp.vue: viewports below this width dock the right
     # panel as a bottom sheet sized at NARROW_PANEL_HEIGHT_VH of the
@@ -479,34 +519,77 @@ class LocaleSelect(v.VuetifyTemplate):
     COUNTRIES: pd.DataFrame = pd.read_parquet(Path(__file__).parents[1] / "data" / "locale.parquet")
     available_locales = List([{"code": "en", "name": "English", "flag": "gb"}]).tag(sync=True)
     selected_locale = Unicode("en").tag(sync=True)
+    config_locale = Unicode("").tag(sync=True)
     value = Unicode().tag(sync=True)
 
-    def __init__(self, translator: Optional[Translator] = None, **kwargs):
-        """Instantiate the LocaleSelect class."""
+    def __init__(
+        self,
+        translator: Optional[Translator] = None,
+        locale_state: Optional[LocaleState] = None,
+        **kwargs,
+    ):
+        """Instantiate the LocaleSelect class.
+
+        The effective locale is resolved in the browser (localStorage ->
+        ``config_locale`` legacy seed -> ``navigator.language`` -> "en") and
+        pushed back through ``selected_locale``; this class only mirrors the
+        resolved value into the bound :class:`LocaleState`. Nothing here ever
+        writes ``~/.sepal-ui-config``.
+        """
+        self._locale_state: Optional[LocaleState] = None
         super().__init__(**kwargs)
 
         available_locales = ["en"] if translator is None else translator.available_locales()
         available_locales = self.COUNTRIES[self.COUNTRIES.code.isin(available_locales)]
         self.available_locales = json.loads(available_locales.to_json(orient="records"))
 
-        # TODO: consider removing this, I'm not sure if an app is using the value
-        jsdlink((self, "selected_locale"), (self, "value"))
+        # one-time legacy seed: the ONLY config-file read in the locale design
+        self.config_locale = self._read_config_locale()
 
+        jsdlink((self, "selected_locale"), (self, "value"))
         self.observe(self._on_locale_select, "selected_locale")
 
-    def _on_locale_select(self, change: dict) -> None:
-        """adapt the application to the newly selected language.
+        if locale_state is not None:
+            self.bind_locale_state(locale_state)
 
-        Display the new flag and country code on the widget btn
-        change the value in the config file
-        """
-        if not change["new"]:
+    @staticmethod
+    def _read_config_locale() -> str:
+        """Read the legacy ``[sepal-ui] locale`` key; ``""`` when absent."""
+        from pysepal import conf
+
+        if conf.config_file.is_file():
+            parser = ConfigParser()
+            parser.read(conf.config_file)
+            return parser.get("sepal-ui", "locale", fallback="")
+        return ""
+
+    def bind_locale_state(self, locale_state: Optional[LocaleState]) -> None:
+        """Bind the widget to a shared locale state (mirrors ThemeToggle)."""
+        if locale_state is self._locale_state:
             return
 
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
+        if self._locale_state is not None:
+            self._locale_state.unobserve(self._on_state_locale_change, "locale")
 
-        # change the parameter file
-        su.set_config("locale", loc.code)
+        self._locale_state = locale_state
+        if self._locale_state is None:
+            return
 
-        return
+        self.selected_locale = self._locale_state.locale
+        self._locale_state.observe(self._on_state_locale_change, "locale")
+
+    def get_locale_state(self) -> Optional[LocaleState]:
+        """Return the currently bound locale state."""
+        return self._locale_state
+
+    def _on_locale_select(self, change: dict) -> None:
+        """Mirror the browser-resolved locale into the shared locale state."""
+        if not change["new"]:
+            return
+        if self._locale_state is not None:
+            self._locale_state.set_locale(change["new"])
+
+    def _on_state_locale_change(self, change: dict) -> None:
+        """Mirror external locale-state changes back into the widget."""
+        if change["new"] and change["new"] != self.selected_locale:
+            self.selected_locale = change["new"]

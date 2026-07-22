@@ -1,3 +1,13 @@
+## Unreleased
+
+### Feat
+
+- LocaleSelect now resolves the locale in the browser (localStorage ->
+  legacy config seed -> navigator.language -> "en"), binds a new
+  session-scoped `LocaleState`, and no longer writes `~/.sepal-ui-config`.
+  Language switching is live (no page reload). Legacy config locales are
+  honored once and migrated to localStorage.
+
 ## v_2.16.4 (2023-05-25)
 
 ### Fix
