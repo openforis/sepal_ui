@@ -14,6 +14,8 @@ from pysepal.scripts import decorator as sd
 from pysepal.scripts.warning import SepalWarning
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init_ee() -> None:
     """Test the init_ee_from_token function."""
     credentials_filepath = Path(ee.oauth.get_credentials_path())
