@@ -45,10 +45,14 @@ def need_ee(func: Callable) -> Any:
 
     @wraps(func)
     def wrapper_ee(*args, **kwargs):
-        # try to connect to ee
+        # init_ee() is best-effort and no-ops without credentials, so require an
+        # initialized session here rather than trusting the call to have raised
         try:
             init_ee()
         except Exception:
+            pass
+
+        if not ee.data.is_initialized():
             raise Exception("This function needs an Earth Engine authentication")
 
         return func(*args, **kwargs)

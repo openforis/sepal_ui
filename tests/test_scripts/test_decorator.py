@@ -70,6 +70,23 @@ def test_init_ee() -> None:
     return
 
 
+def test_need_ee_raises_when_not_initialized(monkeypatch) -> None:
+    """@need_ee must fail loudly when EE is not initialized.
+
+    init_ee() is best-effort (no-ops without credentials), so need_ee enforces the
+    requirement: the wrapped function must not run against an uninitialized session.
+    """
+    monkeypatch.setattr("pysepal.scripts.gee.init_ee", lambda: None)
+    monkeypatch.setattr(ee.data, "is_initialized", lambda: False)
+
+    @sd.need_ee
+    def use_ee() -> str:
+        return "ran"
+
+    with pytest.raises(Exception, match="needs an Earth Engine authentication"):
+        use_ee()
+
+
 def test_catch_errors() -> None:
     """Check the catch error decorator."""
     # create an external alert to test the wiring
