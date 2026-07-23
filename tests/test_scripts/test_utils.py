@@ -108,6 +108,8 @@ def test_get_file_size() -> None:
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_init_ee() -> None:
     """Test the init_ee_from_token function."""
     credentials_filepath = Path(ee.oauth.get_credentials_path())
@@ -160,6 +162,23 @@ def test_init_ee() -> None:
         su.init_ee()
 
     return
+
+
+def test_init_ee_without_credentials_is_noop(monkeypatch, tmp_path) -> None:
+    """init_ee() must not crash when no usable credentials are available.
+
+    Reproduces the fork-PR CI failure: EARTHENGINE_TOKEN is defined but empty and
+    no credential file exists. The bootstrap must leave Earth Engine uninitialized
+    (so the non-GEE suite still collects and GEE tests skip) instead of writing an
+    empty credentials file and dying in ``json.loads("")``.
+    """
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.setattr(ee.data, "is_initialized", lambda: False)
+    monkeypatch.setenv("EARTHENGINE_TOKEN", "")
+
+    su.init_ee()  # must not raise
+
+    assert not (tmp_path / ".config" / "earthengine" / "credentials").exists()
 
 
 def test_to_colors() -> None:
