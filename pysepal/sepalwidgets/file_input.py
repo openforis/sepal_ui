@@ -204,15 +204,15 @@ class FileInput(v.VuetifyTemplate, SepalWidget):
         if self.client:
             raise NotImplementedError("Selecting files is not supported for remote files (yet)")
 
-        file_path = path  # path should be deprecated
-        path = Path(file_path)
+        path = Path(path)
 
         # test file existence
         if not path.is_file():
             raise Exception(f"{path} is not a file")
 
-        self.current_folder = file_path.parent
-        self.value = str(file_path)
+        # current_folder is a Unicode trait, so store the parent as a string
+        self.current_folder = str(path.parent)
+        self.value = str(path)
 
 
 def __getattr__(name: str):
