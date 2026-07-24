@@ -11,7 +11,7 @@ Usage:
 
     legend = LegendData(
         gradients=[GradientEntry(colors=["#ffff00", "#8b0000"], labels=["2001", "2024"])],
-        items=[DiscreteEntry("Forest", "#006400")],
+        items=[DiscreteEntry("Forest", "#006400", detail="12,345 km² · 42%")],
     )
     LegendComponent(legend_data=asdict(legend))
 """
