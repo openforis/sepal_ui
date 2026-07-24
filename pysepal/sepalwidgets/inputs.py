@@ -925,7 +925,8 @@ class AssetSelect(v.Combobox, SepalWidget):
         )
 
         # get the list of user asset
-        raw_assets = gee_assets or await self.gee_interface.get_assets_async(self.folder)
+        # get_assets_async can return None for an empty/inaccessible folder; keep it iterable
+        raw_assets = gee_assets or await self.gee_interface.get_assets_async(self.folder) or []
 
         log.debug(
             f"[{id(self)}] {text} || [[[{id(self)} ]]]Already awaited for get_assets_async, current v_model is {self.v_model}"
