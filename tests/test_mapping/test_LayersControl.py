@@ -177,6 +177,8 @@ def test_ungrouped() -> None:
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_vectors() -> None:
     """Check that vectors are grouped together and they can be controlled."""
     m = sm.SepalMap()

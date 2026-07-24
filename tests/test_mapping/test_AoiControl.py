@@ -40,6 +40,8 @@ def test_add_aoi_ee(ee_points: Tuple[ee.Geometry.Point], aoi_control: sm.AoiCont
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_add_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     """Add an aoi to the control.
 
@@ -59,6 +61,8 @@ def test_add_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_remove_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     """Remove an aoi from the control.
 
@@ -81,6 +85,8 @@ def test_remove_aoi(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_click_btn(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     """Click on the btn to change the zoom.
 
@@ -111,6 +117,8 @@ def test_click_btn(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     return
 
 
+@pytest.mark.gee
+@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
 def test_zoom(points: Tuple[sg.Point], aoi_control: sm.AoiControl) -> None:
     """Check the map is zoomed.
 
