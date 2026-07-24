@@ -37,6 +37,7 @@ class DiscreteEntry:
 
     label: str
     color: str
+    detail: str = ""
 
 
 @dataclass
