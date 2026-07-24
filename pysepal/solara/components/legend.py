@@ -54,6 +54,9 @@ def LegendComponent(
     visible: bool = True,
     collapsed: bool = False,
     event_set_collapsed: Optional[Callable[[bool], None]] = None,
+    selector_options: Optional[list] = None,
+    selected: Optional[str] = None,
+    event_set_selected: Optional[Callable[[str], None]] = None,
 ):
     """Floating map legend overlay.
 
@@ -66,5 +69,10 @@ def LegendComponent(
         visible: Show/hide the entire legend.
         collapsed: Collapsed state (icon pill only).
         event_set_collapsed: Callback when user toggles collapse.
+        selector_options: Optional [{"value", "text"}] layer options. When two
+            or more are given, a compact dropdown renders at the top of the
+            legend body; one or none renders no dropdown.
+        selected: The currently selected option value.
+        event_set_selected: Callback when the user picks a different option.
     """
     pass

@@ -10,6 +10,24 @@
   >
     <!-- Expanded body -->
     <div v-if="!isCollapsed" class="sepal-legend__body">
+      <!-- Layer selector (only with 2+ options) -->
+      <div v-if="showSelector" class="sepal-legend__selector">
+        <select
+          class="sepal-legend__select"
+          :value="selected"
+          @change="onSelect($event)"
+          aria-label="Choose which layer legend to show"
+        >
+          <option
+            v-for="(opt, oi) in selector_options"
+            :key="'o-' + oi"
+            :value="opt.value"
+          >
+            {{ opt.text }}
+          </option>
+        </select>
+      </div>
+
       <!-- Gradient sections -->
       <div
         v-for="(grad, gi) in parsedGradients"
@@ -31,17 +49,25 @@
       </div>
 
       <!-- Discrete items -->
-      <div v-if="parsedItems.length > 0" class="sepal-legend__items">
+      <div
+        v-if="parsedItems.length > 0"
+        class="sepal-legend__items"
+        :class="{ 'sepal-legend__items--detailed': hasDetail }"
+      >
         <div
           v-for="(item, ii) in parsedItems"
           :key="'i-' + ii"
           class="sepal-legend__item"
         >
           <span
+            v-if="item.color"
             class="sepal-legend__chip"
             :style="{ backgroundColor: item.color }"
           ></span>
           <span class="sepal-legend__label">{{ item.label }}</span>
+          <span v-if="item.detail" class="sepal-legend__detail">{{
+            item.detail
+          }}</span>
         </div>
       </div>
     </div>
@@ -82,6 +108,14 @@ module.exports = {
     collapsed: {
       type: Boolean,
       default: false,
+    },
+    selector_options: {
+      type: Array,
+      default: () => [],
+    },
+    selected: {
+      type: String,
+      default: null,
     },
   },
   data() {
@@ -128,6 +162,16 @@ module.exports = {
       if (!this.legend_data || !this.legend_data.items) return [];
       return this.legend_data.items;
     },
+    hasDetail() {
+      return this.parsedItems.some(function (it) {
+        return it.detail;
+      });
+    },
+    showSelector() {
+      return (
+        Array.isArray(this.selector_options) && this.selector_options.length > 1
+      );
+    },
   },
   watch: {
     collapsed(newValue) {
@@ -140,6 +184,12 @@ module.exports = {
       this.internalCollapsed = nextCollapsed;
       if (typeof this.set_collapsed === "function") {
         this.set_collapsed(nextCollapsed);
+      }
+    },
+    onSelect(e) {
+      var val = e && e.target ? e.target.value : null;
+      if (val != null && typeof this.set_selected === "function") {
+        this.set_selected(val);
       }
     },
   },
@@ -250,6 +300,47 @@ module.exports = {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.sepal-legend__items--detailed {
+  flex-direction: column;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  gap: 3px;
+  align-self: stretch;
+}
+.sepal-legend__items--detailed .sepal-legend__item {
+  justify-content: flex-start;
+}
+.sepal-legend__detail {
+  margin-left: auto;
+  padding-left: 14px;
+  opacity: 0.7;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sepal-legend__selector {
+  align-self: stretch;
+}
+.sepal-legend__select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.sepal-legend--dark .sepal-legend__select {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+.sepal-legend--light .sepal-legend__select {
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .sepal-legend__chip {
