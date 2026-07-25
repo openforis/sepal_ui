@@ -16,6 +16,7 @@ def AdminLevelSelector(
     gee: bool = True,
     value: Union[str, solara.Reactive[Optional[str]]] = None,
     on_value: Optional[Callable[[Optional[str]], None]] = None,
+    initial: Optional[str] = None,
 ):
     """Self-contained administrative level selector with cascading dropdowns.
 
@@ -28,6 +29,10 @@ def AdminLevelSelector(
         gee: Whether to use Earth Engine (GAUL) or FAO WFS (local)
         value: The final selected admin code (output only)
         on_value: Callback when the final admin code changes
+        initial: Restore seed — the final admin code of a previously persisted
+            selection. Snapshotted at mount; the full cascade (parent levels
+            included) is seeded from it exactly once. Remount the component to
+            restore a different selection.
 
     Returns:
         None. The final admin code is passed through value/on_value.
@@ -66,6 +71,37 @@ def AdminLevelSelector(
 
     target_level = {"ADMIN0": 0, "ADMIN1": 1, "ADMIN2": 2}.get(method, 0)
 
+    # Snapshot the restore seed at first mount. Callers (AoiView) may bind
+    # `initial` live to the same reactive this component drives via `value`, and
+    # update_output resets that reactive to None on mount before the async
+    # cascade seeds — so reading `initial` live would wipe the restore chain to
+    # {} and leave the dropdowns empty. Freezing it (deps=[]) keeps the chain
+    # stable; a genuine re-restore remounts the component.
+    initial_seed = solara.use_memo(lambda: initial, [])
+
+    def _compute_chain():
+        # Local import breaks the cycle: aoi/__init__ -> aoi_view -> this module.
+        from pysepal.solara.components.aoi.admin import admin_parent_chain
+
+        return admin_parent_chain(method, initial_seed)
+
+    _chain = solara.use_memo(_compute_chain, [method, initial_seed])
+    # Levels auto-seeded from the restore chain. A per-level one-shot guard (not a
+    # shared flag) so the async loaders can seed in any order, exactly once each,
+    # and a later genuine user change of a parent still resets its children.
+    _seeded = solara.use_ref(set())
+
+    # The (parent, target_level) each child loader last processed. Under reacton's
+    # double effect-run the loaders fire twice per dependency change; the second,
+    # redundant run for an UNCHANGED parent would otherwise take the else-branch
+    # and wipe the value the first run just restored from the chain (leaving the
+    # dropdowns empty on restore). Short-circuiting on an unchanged parent keeps
+    # the seed and skips a duplicate fetch; a genuine parent change still flows
+    # through to reseed or clear stale children.
+    _UNSET = solara.use_memo(lambda: object(), [])
+    _level1_parent = solara.use_ref(_UNSET)
+    _level2_parent = solara.use_ref(_UNSET)
+
     async def _load_level_0():
         # Local import breaks the cycle: aoi/__init__ -> aoi_view -> this module.
         from pysepal.solara.components.aoi.admin import fetch_admin_items
@@ -74,6 +110,9 @@ def AdminLevelSelector(
         try:
             items = fetch_admin_items(level=0, parent_code="")
             items_0.set(items)
+            if _chain.get(0) and 0 not in _seeded.current:
+                _seeded.current = _seeded.current | {0}
+                level_0.set(_chain[0])
         finally:
             loading_0.set(False)
 
@@ -82,16 +121,26 @@ def AdminLevelSelector(
     async def _load_level_1():
         from pysepal.solara.components.aoi.admin import fetch_admin_items
 
+        key = (level_0.value, target_level)
+        if _level1_parent.current == key:
+            return
+        _level1_parent.current = key
+
         if level_0.value and target_level >= 1:
             loading_1.set(True)
             try:
                 items = fetch_admin_items(level=1, parent_code=level_0.value)
                 items_1.set(items)
+                if _chain.get(1) and 1 not in _seeded.current:
+                    _seeded.current = _seeded.current | {1}
+                    level_1.set(_chain[1])
+                else:
+                    level_1.set(None)
             finally:
                 loading_1.set(False)
         else:
             items_1.set([])
-        level_1.set(None)
+            level_1.set(None)
         level_2.set(None)
         items_2.set([])
 
@@ -104,16 +153,26 @@ def AdminLevelSelector(
     async def _load_level_2():
         from pysepal.solara.components.aoi.admin import fetch_admin_items
 
+        key = (level_1.value, target_level)
+        if _level2_parent.current == key:
+            return
+        _level2_parent.current = key
+
         if level_1.value and target_level >= 2:
             loading_2.set(True)
             try:
                 items = fetch_admin_items(level=2, parent_code=level_1.value)
                 items_2.set(items)
+                if _chain.get(2) and 2 not in _seeded.current:
+                    _seeded.current = _seeded.current | {2}
+                    level_2.set(_chain[2])
+                else:
+                    level_2.set(None)
             finally:
                 loading_2.set(False)
         else:
             items_2.set([])
-        level_2.set(None)
+            level_2.set(None)
 
     solara.lab.use_task(
         _load_level_2,

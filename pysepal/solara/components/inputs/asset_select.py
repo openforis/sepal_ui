@@ -39,6 +39,7 @@ def AssetSelectComponent(
     loading: Union[bool, solara.Reactive[bool]] = False,
     on_loading: Optional[Callable[[bool], None]] = None,
     gee_interface=None,
+    initial: Optional[Dict] = None,
 ):
     """Selector component for GEE assets.
 
@@ -53,6 +54,10 @@ def AssetSelectComponent(
         loading: Whether the component is busy (loading assets, validating, etc.).
         on_loading: Callback when loading state changes.
         gee_interface: Optional GEEInterface instance. Falls back to session default.
+        initial: Restore seed — a previously persisted selection dict
+            ``{asset_id, type, column, value}``. Applied once at mount: the
+            asset id is validated and its columns loaded as if the user had
+            picked it, then column/value are seeded when the columns arrive.
     """
     reactive_value = solara.use_reactive(value, on_value)
     reactive_loading = solara.use_reactive(loading, on_loading)
@@ -72,6 +77,25 @@ def AssetSelectComponent(
     loading_columns = solara.use_reactive(False)
     loading_values = solara.use_reactive(False)
     validation_msg = solara.use_reactive("")
+
+    _restoring_filter = solara.use_ref(
+        bool(initial and initial.get("column") not in (None, "ALL"))
+    )
+
+    def _apply_initial():
+        if initial and initial.get("asset_id"):
+            asset_id.set(initial["asset_id"])  # triggers on_asset_change -> validate + load columns
+
+    solara.use_effect(_apply_initial, [])
+
+    def _seed_filter():
+        if _restoring_filter.current and column_items.value and initial:
+            selected_column.set(initial.get("column"))
+            if initial.get("value") is not None:
+                selected_value.set(initial.get("value"))
+            _restoring_filter.current = False
+
+    solara.use_effect(_seed_filter, [column_items.value])
 
     def _sync_loading():
         reactive_loading.set(loading_assets.value or loading_columns.value or loading_values.value)

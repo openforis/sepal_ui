@@ -71,4 +71,6 @@ async def process_asset(
         feature_collection=ee_object,
         admin=None,
         gee=True,
+        # Round-trip the picker inputs so apps can persist and restore them.
+        asset={"asset_id": asset_id, "type": asset_type, "column": column, "value": value},
     )

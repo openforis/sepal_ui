@@ -175,6 +175,15 @@ def AoiView(
             The clear callback preserves the currently selected method so the
             user can retry without reselecting it.
 
+    Restore-on-mount:
+        When ``value`` already holds an ``AoiResult`` at mount (e.g. rebuilt
+        from a persisted project), the picker restores itself: the method
+        select, admin cascade, draw name/control and asset field are seeded
+        from the result, and the selection is auto-confirmed (map layer drawn,
+        success feedback) without reprocessing. To restore a different AOI
+        later, set ``value`` and remount (e.g. key the component on a
+        load signal).
+
     Example:
         ```python
         @solara.component
@@ -222,6 +231,25 @@ def AoiView(
     points_data = solara.use_reactive(None)
     asset_data = solara.use_reactive(None)
     asset_loading = solara.use_reactive(False)
+
+    # The method we restored on mount. on_method_change skips its clear while
+    # the selected method equals this, so restore (and reacton's double
+    # effect-run) doesn't wipe the loaded AOI. Cleared on the first genuine
+    # user change.
+    restored_method = solara.use_ref(None)
+
+    # When True, the next process_aoi run is an auto-select of the
+    # just-restored AOI: it reuses the already-loaded AoiResult instead of
+    # re-running the live picker, so it can't race the still-settling admin
+    # cascade / asset validation. It renders the map layer + shows the
+    # confirmation, exactly as ending a manual "Select AOI" press would.
+    restore_pending = solara.use_ref(False)
+
+    # The AoiResult captured synchronously at restore time. The auto-select
+    # uses this rather than the shared value reactive, which can be transiently
+    # None when a previous AoiView instance's unmount cleanup fires during a
+    # load-triggered remount. process_aoi re-publishes it via reactive_value.set.
+    restore_result = solara.use_ref(None)
 
     # Notification system (replaces embedded alert). When no
     # NotificationProvider is mounted, `notifications` is a NoopNotifier
@@ -298,6 +326,40 @@ def AoiView(
 
     solara.use_effect(_register_clear, [])
 
+    def _seed_draw_control(gdf):
+        # Best-effort: re-populate the editable DrawControl from a restored gdf
+        # so a restored DRAW AOI stays editable. The geometry is rendered by the
+        # auto-select regardless, so a failure here is cosmetic.
+        if not (map_ and aoi_dc) or gdf is None:
+            return
+        try:
+            import json
+
+            features = json.loads(gdf.to_crs(epsg=4326).to_json())["features"]
+            aoi_dc.data = features
+            if aoi_dc not in map_.controls:
+                map_.add_control(aoi_dc)
+        except Exception:
+            pass
+
+    def _apply_restore():
+        result = reactive_value.value  # the loaded AoiResult (set before mount)
+        if result is None or not getattr(result, "method", None):
+            return
+        method = result.method
+        restored_method.current = method  # set BEFORE selected_method so the guard sees it
+        restore_result.current = result  # capture now; the shared reactive may churn on remount
+        restore_pending.current = True  # auto-select this restored AOI (see _autoselect_restored)
+        selected_method.set(method)
+        if method in ("ADMIN0", "ADMIN1", "ADMIN2"):
+            admin_code.set(result.admin)
+        elif method == "DRAW":
+            draw_name.set(result.name or "")
+            _seed_draw_control(getattr(result, "gdf", None))
+        # ASSET: AssetSelectComponent seeds from initial=result.asset.
+
+    solara.use_effect(_apply_restore, [])
+
     # Track the current task in the notification system
     task_tracker_ref = solara.use_ref(None)
 
@@ -314,7 +376,18 @@ def AoiView(
         try:
             tracker.step("Validating input...")
 
-            if method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
+            # Auto-select on restore: reuse the already-loaded AoiResult
+            # instead of re-running the live picker, which would race the
+            # still-settling admin cascade / asset validation. Just render it
+            # on the map + confirm below.
+            if restore_pending.current:
+                restore_pending.current = False
+                result = restore_result.current
+                if result is None:
+                    raise ValueError("No AOI to restore")
+                method = result.method
+
+            elif method in ["ADMIN0", "ADMIN1", "ADMIN2"]:
                 if not admin_code.value:
                     raise ValueError(f"Please select a {method} region")
 
@@ -463,9 +536,24 @@ def AoiView(
         fallback_level.set("info")
         task()
 
+    def _autoselect_restored():
+        # Mirror a "Select AOI" press for the just-restored AOI so the panel
+        # lands in the confirmed state (map layer drawn + success feedback)
+        # rather than a filled-but-unsubmitted form. Runs once per (re)mount;
+        # _apply_restore set restore_pending when it found a loaded AoiResult.
+        if restore_pending.current and reactive_value.value is not None:
+            start_process()
+
+    solara.use_effect(_autoselect_restored, [])
+
     # Handle method changes
     def on_method_change():
         if selected_method.value:
+            # Skip the clear for the restore-driven method (survives reacton's
+            # double effect-run); the first genuine user change clears it.
+            if selected_method.value == restored_method.current:
+                return
+            restored_method.current = None
             _clear_current_aoi(active_method=selected_method.value)
 
     solara.use_effect(on_method_change, [selected_method.value])
@@ -505,6 +593,7 @@ def AoiView(
                 method=selected_method.value,
                 gee=gee,
                 value=admin_code,
+                initial=admin_code.value,
             )
 
         elif selected_method.value == "SHAPE":
@@ -539,6 +628,13 @@ def AoiView(
                 gee_interface=session_gee_interface,
                 value=asset_data,
                 loading=asset_loading,
+                # Seed the restored asset selection; cleared once the user
+                # genuinely changes method (restored_method guard).
+                initial=(
+                    getattr(restore_result.current, "asset", None)
+                    if restored_method.current == "ASSET"
+                    else None
+                ),
             )
 
         # Action buttons

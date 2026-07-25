@@ -111,3 +111,29 @@ def test_process_asset_raster_types(fake_ee, asset_type):
     result = _run(asset_mod.process_asset("users/me/raster_asset", asset_type=asset_type))
 
     assert isinstance(result.feature_collection, _FakeImage)
+
+
+def test_process_asset_attaches_selection_inputs(fake_ee):
+    """The result must round-trip the picker inputs so apps can restore it."""
+    result = _run(
+        asset_mod.process_asset(
+            "users/me/my_table",
+            asset_type="TABLE",
+            column="region",
+            value="north",
+        )
+    )
+
+    assert result.asset == {
+        "asset_id": "users/me/my_table",
+        "type": "TABLE",
+        "column": "region",
+        "value": "north",
+    }
+
+
+def test_aoi_result_asset_defaults_to_none():
+    from pysepal.solara.components.aoi import AoiResult
+
+    result = AoiResult(method="DRAW", name="drawn_item")
+    assert result.asset is None

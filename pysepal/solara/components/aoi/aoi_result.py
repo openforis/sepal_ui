@@ -4,7 +4,7 @@ Common dataclass used across all AOI selection methods.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import geopandas as gpd
 from deprecated.sphinx import versionadded
@@ -28,6 +28,10 @@ class AoiResult:
         feature_collection: ee.ComputedObject for GEE workflows (FeatureCollection, Image, etc.; None otherwise)
         admin: Admin code for admin methods (None for other methods)
         gee: Whether this result was created with GEE binding
+        asset: For ASSET selections, the picker inputs
+            ``{asset_id, type, column, value}`` (None for other methods).
+            Persisting this dict lets apps rebuild an equivalent AoiResult and
+            restore the asset picker on load.
 
     Example:
         ```python
@@ -47,6 +51,7 @@ class AoiResult:
     feature_collection: Optional[Any] = field(default=None, repr=False)  # ee.ComputedObject
     admin: Optional[str] = None
     gee: bool = False
+    asset: Optional[Dict[str, Any]] = field(default=None, repr=False)
 
     async def get_gdf_async(self) -> Optional[gpd.GeoDataFrame]:
         """Fetch the GeoDataFrame asynchronously.
