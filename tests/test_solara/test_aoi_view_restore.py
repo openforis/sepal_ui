@@ -117,13 +117,13 @@ def test_aoi_view_restores_every_method_from_value(monkeypatch, result):
                 lambda b: _has_v_model(b, result.method),
                 lambda b: _has_text(b, ms.aoi_sel.complete),
             )
-            assert _has_v_model(box, result.method), (
-                f"method select was not seeded with {result.method}"
-            )
+            assert _has_v_model(
+                box, result.method
+            ), f"method select was not seeded with {result.method}"
             # The auto-select must land the panel in the confirmed state.
-            assert _has_text(box, ms.aoi_sel.complete), (
-                f"restored {result.method} AOI was not auto-confirmed"
-            )
+            assert _has_text(
+                box, ms.aoi_sel.complete
+            ), f"restored {result.method} AOI was not auto-confirmed"
             # The restore must keep the loaded AOI, not clear or rebuild it.
             assert value.value is result
         finally:
@@ -175,9 +175,7 @@ def test_aoi_view_restores_draw_name_and_editable_geometry(monkeypatch):
     value = solara.reactive(result)
 
     async def _scenario():
-        box, rc = solara.render(
-            AoiView(value=value, gee=False, map_=map_), handle_error=False
-        )
+        box, rc = solara.render(AoiView(value=value, gee=False, map_=map_), handle_error=False)
         try:
             await _settle(
                 box,
@@ -234,9 +232,7 @@ class _FakeGeeInterface:
 def test_aoi_view_restores_asset_selection(monkeypatch):
     _patch_admin(monkeypatch)
     monkeypatch.setattr(aoi_view_mod.su, "init_ee", lambda: None)
-    monkeypatch.setattr(
-        aoi_view_mod, "get_current_gee_interface", lambda: _FakeGeeInterface()
-    )
+    monkeypatch.setattr(aoi_view_mod, "get_current_gee_interface", lambda: _FakeGeeInterface())
 
     asset = {"asset_id": "users/me/aoi", "type": "TABLE", "column": "ALL", "value": None}
     result = AoiResult(method="ASSET", name="aoi", gee=True, asset=asset)

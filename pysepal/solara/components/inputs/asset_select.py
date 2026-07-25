@@ -78,9 +78,7 @@ def AssetSelectComponent(
     loading_values = solara.use_reactive(False)
     validation_msg = solara.use_reactive("")
 
-    _restoring_filter = solara.use_ref(
-        bool(initial and initial.get("column") not in (None, "ALL"))
-    )
+    _restoring_filter = solara.use_ref(bool(initial and initial.get("column") not in (None, "ALL")))
 
     def _apply_initial():
         if initial and initial.get("asset_id"):

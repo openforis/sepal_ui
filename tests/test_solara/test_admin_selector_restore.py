@@ -68,9 +68,9 @@ def test_admin1_cascade_restores_seeded_value(monkeypatch):
     box, rc = solara.render(_RestoreHarness("ADMIN1", admin_code), handle_error=False)
     try:
         _settle(admin_code, "2184")
-        assert admin_code.value == "2184", (
-            f"cascade failed to restore admin code; admin_code={admin_code.value!r}"
-        )
+        assert (
+            admin_code.value == "2184"
+        ), f"cascade failed to restore admin code; admin_code={admin_code.value!r}"
     finally:
         rc.close()
 
@@ -83,8 +83,8 @@ def test_admin2_cascade_restores_full_chain(monkeypatch):
     box, rc = solara.render(_RestoreHarness("ADMIN2", admin_code), handle_error=False)
     try:
         _settle(admin_code, "100001")
-        assert admin_code.value == "100001", (
-            f"ADMIN2 cascade failed to restore; admin_code={admin_code.value!r}"
-        )
+        assert (
+            admin_code.value == "100001"
+        ), f"ADMIN2 cascade failed to restore; admin_code={admin_code.value!r}"
     finally:
         rc.close()
