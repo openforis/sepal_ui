@@ -149,14 +149,14 @@ details.
 
 ### Reference templates
 
-Working examples live in the pysepal repo — read these before building a
+One worked example lives in the pysepal repo — read it before building a
 new app to see the patterns in action:
 
-- `pysepal/templates/solara/solara_map_app/app.py` — full MapApp layout with steps and right panel
-- `pysepal/templates/solara/solara_map_app/aoi_app_solara.py` — AoiView with GEE and without
-- `pysepal/templates/solara/solara_map_app/aoi_all_methods.py` — all AOI methods + standalone AssetSelectComponent test
-- `pysepal/templates/solara/solara_map_app/simple_app.py` — minimal starting point
-- `pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py` — MapApp layout with NotificationProvider, AoiView in right panel, task tracking demo
+- `pysepal/templates/solara/solara_map_app/app.py` — MapApp shell with `AoiView`
+  in the right panel, `NotificationProvider` task tracking, `ExportLauncher`
+  sources, and a `LegendComponent` whose layer selector is driven by the layers
+  on the map. `MapAppDemo` holds the UI so `Page` (Solara, session-authenticated)
+  and `ui.ipynb` (Voila) can share it.
 
 ### eager=True for dialogs in jupyter-widget contexts
 
@@ -275,7 +275,7 @@ with track_task("Exporting", total_steps=2) as task:
   with legacy Alert widgets only. The notification system is independent.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py`
+`pysepal/templates/solara/solara_map_app/app.py`
 
 ### Export System (ExportLauncher)
 
@@ -359,7 +359,7 @@ into a selected+open state before the walk — see
 `_render_preselected_dialog`.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py`
+`pysepal/templates/solara/solara_map_app/app.py`
 
 **Full guide:** `docs/guides/solara-export.md`
 

@@ -196,7 +196,7 @@ Create a ``.env`` file in the ``pysepal`` root directory:
     LOCAL_SEPAL_PASSWORD=your_password
     SEPAL_HOST=sepal.io # or your custom SEPAL instance URL
 
-The repository also includes ready-to-run Solara application templates:
+The repository also includes a ready-to-run Solara application template:
 
 .. code-block:: bash
 
@@ -208,9 +208,6 @@ The repository also includes ready-to-run Solara application templates:
 
     # Make the run script executable
     chmod +x run_solara.sh
-
-    # Test the basic file input example
-    ./run_solara.sh pysepal/templates/solara/solara_map_app/simple_app.py --port 8900
 
     # Test the map application template
     ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
@@ -237,8 +234,6 @@ Basic Application Structure
 Here's the basic structure for a Solara-based SEPAL application:
 
 .. code-block:: python
-
-    # this code can be found at: pysepal/templates/solara/solara_map_app/simple_app.py
 
     from pathlib import Path
     import solara
@@ -296,99 +291,57 @@ For map based applications, SEPAL UI provides the MapApp component that creates 
 Complete Map Application Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The full worked example lives at
+``pysepal/templates/solara/solara_map_app/app.py``. It wires an ``AoiView``,
+async processing with progress notifications, layer management, a floating map
+legend and the export dialog into one ``MapApp`` shell — read it alongside this
+section rather than copying the skeleton below.
+
+``MapApp.element()`` takes the map, the drawer steps and the right panel:
+
 .. code-block:: python
-
-    # this code can be found at: pysepal/templates/solara/solara_map_app/app.py
-
-    import logging
-    import ipyvuetify as v
-    import solara
-    import ee
 
     from pysepal.mapping import SepalMap
     from pysepal.sepalwidgets.vue_app import MapApp
-    from pysepal.solara import (
-        get_current_drive_interface,
-        get_current_gee_interface,
-        get_current_theme_state,
-        get_current_sepal_client,
-        setup_sessions,
-        setup_solara_server,
-        setup_theme_colors,
-        with_sepal_sessions,
-    )
-    from pysepal.solara.components.admin import AdminButton
-    import pysepal.sepalwidgets as sw
-
-    setup_solara_server()
-
-    @solara.lab.on_kernel_start
-    def on_kernel_start():
-        return setup_sessions()
+    from pysepal.solara import get_current_gee_interface, get_current_theme_state
 
     @solara.component
     @with_sepal_sessions(module_name="your_map_module")
     def Page():
         setup_theme_colors()
 
-        # Get SEPAL interfaces
         gee_interface = get_current_gee_interface()
-        sepal_client = get_current_sepal_client()
         theme_state = get_current_theme_state()
 
-        # Create the main map
         map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_state=theme_state)
-        map_.center = [4.75, -74.12]  # Set initial center
 
-        # Create UI components for map interactions
-        aoi_selector = v.Card(
-            children=[
-                v.CardTitle(children=["Area of Interest Selection"]),
-                v.CardText(children=["Select your area of interest on the map."]),
-                v.Btn(children=["Select AOI"], color="primary"),
-            ]
-        )
-
-        # Define steps for the sidebar
+        # Drawer entries. `display` is "step" (inline) or "dialog" (modal).
         steps_data = [
             {
                 "id": 1,
                 "name": "AOI Selection",
                 "icon": "mdi-map-marker-check",
                 "display": "step",
-                "content": aoi_selector,
-            },
-            {
-                "id": 2,
-                "name": "Processing Settings",
-                "icon": "mdi-cog",
-                "display": "step",
-                "content": v.Card(children=[v.CardText(children=["Processing options here"])]),
+                "content": [aoi_view],
             },
         ]
 
-        # Configuration for the right panel
+        # Collapsible panel on the right, one dict per section.
         right_panel_config = {
             "title": "Results",
             "icon": "mdi-image-filter-hdr",
             "width": 400,
             "description": "View and export your results.",
-            "toggle_icon": "mdi-chart-line",
         }
-
-        # Right panel content with controls
         right_panel_content = [
             {
                 "title": "Layer Controls",
                 "icon": "mdi-layers",
-                "content": [
-                    sw.TaskButton("Add Layer", small=True, block=True),
-                    sw.Btn("Remove All", small=True, block=True),
-                ],
+                "content": [btn_add, btn_remove],
+                "description": "Shown under the section title, not as an alert.",
             },
         ]
 
-        # Create the complete map application
         MapApp.element(
             app_title="Your Map Application",
             app_icon="mdi-map",
@@ -400,6 +353,15 @@ Complete Map Application Example
             theme_state=theme_state,
             dialog_width=750,
         )
+
+Both ``content`` lists accept ipyvuetify widgets and Solara elements, so modern
+``@solara.component`` tiles can be passed straight through.
+
+.. note::
+   Keep user feedback in the notification system rather than in
+   ``solara.Info`` / ``solara.Warning`` blocks inside a panel. Static guidance
+   belongs in a section's ``description``; anything transient belongs in a
+   toast or a tracked task. See ``docs/guides/solara-notifications.md``.
 
 If everything is set up correctly, your map application should launch successfully. Here's what it looks like in both themes:
 
