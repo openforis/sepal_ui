@@ -26,6 +26,9 @@
             {{ opt.text }}
           </option>
         </select>
+        <!-- Arrow is drawn by .sepal-legend__selector::after, not a <v-icon>:
+             Vuetify's `.v-icon.v-icon` sets position:relative at specificity
+             (0,2,0), which drags an absolutely-positioned icon back into flow. -->
       </div>
 
       <!-- Gradient sections -->
@@ -64,8 +67,17 @@
             class="sepal-legend__chip"
             :style="{ backgroundColor: item.color }"
           ></span>
+          <!-- Colorless entries (a totals row) keep the chip's footprint so
+               every label still starts on the same column. -->
+          <span
+            v-else
+            class="sepal-legend__chip sepal-legend__chip--empty"
+          ></span>
           <span class="sepal-legend__label">{{ item.label }}</span>
-          <span v-if="item.detail" class="sepal-legend__detail">{{
+          <!-- Rendered for every row once any row has a detail: the detailed
+               layout is a grid whose columns would shift if a row emitted
+               fewer cells than its neighbours. -->
+          <span v-if="hasDetail" class="sepal-legend__detail">{{
             item.detail
           }}</span>
         </div>
@@ -139,7 +151,9 @@ module.exports = {
       if (!this.legend_data) return false;
       var g = this.legend_data.gradients || [];
       var i = this.legend_data.items || [];
-      return g.length > 0 || i.length > 0;
+      // The selector counts as content: without this a layer whose legend is
+      // empty would unmount the dropdown that lets you switch away from it.
+      return g.length > 0 || i.length > 0 || this.showSelector;
     },
     parsedGradients() {
       if (!this.legend_data || !this.legend_data.gradients) return [];
@@ -302,45 +316,97 @@ module.exports = {
   gap: 4px;
 }
 
+/* Detailed mode is a three-column table -- chip, label, value. `display:
+   contents` dissolves each row box so its spans become grid cells directly,
+   which is what makes the columns size against every row instead of each row
+   sizing itself. The value column is `auto`: as wide as the widest value, and
+   identical for all rows. */
 .sepal-legend__items--detailed {
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
   flex-wrap: nowrap;
-  gap: 3px;
+  gap: 3px 10px;
   align-self: stretch;
 }
 .sepal-legend__items--detailed .sepal-legend__item {
-  justify-content: flex-start;
+  display: contents;
+}
+/* Detailed rows can't wrap, so a long label has to yield rather than push the
+   row past the body's max-width. The value column keeps its full text. */
+.sepal-legend__items--detailed .sepal-legend__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sepal-legend__detail {
-  margin-left: auto;
-  padding-left: 14px;
+  text-align: right;
   opacity: 0.7;
   font-size: 11px;
+  /* Digits share one advance width, so the values line up figure by figure. */
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .sepal-legend__selector {
   align-self: stretch;
+  position: relative;
+}
+/* The "this is a dropdown" affordance, replacing the UA arrow we turned off.
+   A borders triangle on our own element rather than a <v-icon>, so no Vuetify
+   rule can outrank it, and currentColor themes it without dark/light props. */
+.sepal-legend__selector::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  margin-top: -2px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.7;
+  /* The arrow is decoration; the click belongs to the select underneath. */
+  pointer-events: none;
 }
 .sepal-legend__select {
   width: 100%;
   font-family: inherit;
   font-size: 12px;
-  padding: 3px 6px;
+  /* Right padding reserves room for our own arrow. */
+  padding: 3px 22px 3px 6px;
   border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
   color: inherit;
   cursor: pointer;
+  /* Drop the UA arrow: it differs per browser and OS, and half of them ignore
+     the surrounding theme. `.sepal-legend__selector-icon` replaces it. */
+  -webkit-appearance: none;
+  appearance: none;
 }
+/* The dropdown popup does not inherit the legend's surface, and the select's
+   own translucent background composites to white behind it -- so the options
+   need opaque colors of their own or dark mode renders white on white.
+   `color-scheme` covers the platforms where the popup is an OS-drawn menu that
+   ignores CSS (macOS) rather than a browser-painted list. */
 .sepal-legend--dark .sepal-legend__select {
   border-color: rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.06);
+  color-scheme: dark;
+}
+.sepal-legend--dark .sepal-legend__select option {
+  background-color: #212121;
+  color: #fff;
 }
 .sepal-legend--light .sepal-legend__select {
   border-color: rgba(0, 0, 0, 0.2);
   background: rgba(0, 0, 0, 0.03);
+  color-scheme: light;
+}
+.sepal-legend--light .sepal-legend__select option {
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 .sepal-legend__chip {
@@ -356,6 +422,13 @@ module.exports = {
 
 .sepal-legend--light .sepal-legend__chip {
   border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Two classes so this outranks the themed `.sepal-legend--dark .sepal-legend__chip`
+   border. The border stays, just invisible, so the box keeps its exact size. */
+.sepal-legend__chip.sepal-legend__chip--empty {
+  background: transparent;
+  border-color: transparent;
 }
 
 .sepal-legend__label {
