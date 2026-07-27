@@ -9,8 +9,8 @@ from pathlib import Path
 TEMPLATE_DIR = (
     Path(__file__).resolve().parents[2] / "pysepal" / "templates" / "solara" / "solara_map_app"
 )
-APP_PATH = TEMPLATE_DIR / "aoi_all_methods_mapapp.py"
-NOTEBOOK_PATH = TEMPLATE_DIR / "aoi_all_methods_mapapp.ipynb"
+APP_PATH = TEMPLATE_DIR / "app.py"
+NOTEBOOK_PATH = TEMPLATE_DIR / "ui.ipynb"
 
 
 def _decorator_name(decorator: ast.expr) -> str:
@@ -32,7 +32,7 @@ def test_app_exposes_shared_component_and_authenticated_page_wrapper():
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
     }
 
-    shared = functions["AoiAllMethodsMapApp"]
+    shared = functions["MapAppDemo"]
     page = functions["Page"]
 
     assert [_decorator_name(item) for item in shared.decorator_list] == ["component"]
@@ -43,7 +43,7 @@ def test_app_exposes_shared_component_and_authenticated_page_wrapper():
     assert any(
         isinstance(node, ast.Call)
         and isinstance(node.func, ast.Name)
-        and node.func.id == "AoiAllMethodsMapApp"
+        and node.func.id == "MapAppDemo"
         for statement in page.body
         for node in ast.walk(statement)
     )
@@ -58,11 +58,7 @@ def test_voila_notebook_only_imports_and_displays_shared_component():
     source = "".join(cell["source"])
 
     assert cell["cell_type"] == "code"
-    assert source == (
-        "from aoi_all_methods_mapapp import AoiAllMethodsMapApp\n"
-        "\n"
-        "display(AoiAllMethodsMapApp())\n"
-    )
+    assert source == ("from app import MapAppDemo\n" "\n" "display(MapAppDemo())\n")
     assert not any(
         isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
         for node in ast.walk(ast.parse(source))

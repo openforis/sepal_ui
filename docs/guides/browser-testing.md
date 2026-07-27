@@ -27,7 +27,7 @@ questions; use pytest for Python logic.
 - Node ≥ 22 (built-in global `WebSocket` — the script needs no npm install).
 - `google-chrome` / `chromium` on `PATH` (or pass `--chrome <path>`).
 - The app already running locally, e.g.:
-  - Solara: `./run_solara.sh pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py --port 8900`
+  - Solara: `./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8900`
   - Voila: `voila <notebook>.ipynb --port 8910`
 
 ## Quickstart
