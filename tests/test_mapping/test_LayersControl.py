@@ -2,6 +2,7 @@
 
 import ee
 import pytest
+from ipyleaflet import Map, Marker, PMTilesLayer
 
 from pysepal import aoi
 from pysepal import mapping as sm
@@ -197,5 +198,54 @@ def test_vectors() -> None:
     # set the visibility from the layer
     aoi_layer.visible = True
     assert vector_row.w_checkbox.v_model is True
+
+    return
+
+
+def test_toggle_row() -> None:
+    """Check that a layer exposing no visible trait still gets a row."""
+    m = Map()
+    layer_control = sm.LayersControl(m)
+    m.add(PMTilesLayer(name="pmtiles", url="https://example.com/tiles.pmtiles"))
+
+    rows = layer_control.tile.get_children(klass=sm.ToggleRow)
+
+    assert len(rows) == 1
+    assert rows[0].w_checkbox.v_model is True
+
+    return
+
+
+def test_toggle_row_skips_linkable_layers() -> None:
+    """Check that a layer owning a visible trait is left out of the toggle rows."""
+    m = Map()
+    layer_control = sm.LayersControl(m)
+
+    # a Marker is neither a GeoJSON nor a TileLayer but it can still be linked,
+    # and SepalMap ships one by default so it must not show up as a blank row
+    m.add(Marker(location=(0, 0)))
+
+    assert len(layer_control.tile.get_children(klass=sm.ToggleRow)) == 0
+
+    return
+
+
+def test_toggle_layer() -> None:
+    """Check that such a layer is hidden by removing it from the map."""
+    m = Map()
+    layer_control = sm.LayersControl(m)
+    layer = PMTilesLayer(name="pmtiles", url="https://example.com/tiles.pmtiles")
+    m.add(layer)
+
+    # hiding drops it from the map but the row must survive to switch it back on
+    layer_control.tile.get_children(klass=sm.ToggleRow)[0].w_checkbox.v_model = False
+    rows = layer_control.tile.get_children(klass=sm.ToggleRow)
+    assert layer not in m.layers
+    assert len(rows) == 1
+    assert rows[0].w_checkbox.v_model is False
+
+    rows[0].w_checkbox.v_model = True
+    assert layer in m.layers
+    assert len(layer_control.tile.get_children(klass=sm.ToggleRow)) == 1
 
     return
