@@ -4,6 +4,7 @@ Functions for selecting and processing administrative boundaries using
 FAO GAUL 2024 data (both WFS for non-GEE and sat-io asset for GEE).
 """
 
+import asyncio
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -276,10 +277,16 @@ async def process_admin(
             # Use pygaul.Items to get the feature collection (handles all the EE logic)
             feature_collection = pygaul.Items(admin=admin_code)
 
-            # Get properties for naming (async call)
+            # Get properties for naming. Use the blocking API in a worker
+            # thread: eeclient's pooled httpx connection binds to the first
+            # loop that drives it, so awaiting get_info_async here would bind
+            # it to the caller's loop and later private-loop calls (e.g.
+            # add_ee_layer -> get_map_id) would raise "bound to a different
+            # event loop".
             feature = feature_collection.first()
-            properties = await interface.get_info_async(
-                feature.toDictionary(feature.propertyNames())
+            properties = await asyncio.to_thread(
+                interface.get_info,
+                feature.toDictionary(feature.propertyNames()),
             )
 
             # Build name from ISO code and admin names
