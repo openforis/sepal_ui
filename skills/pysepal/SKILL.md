@@ -115,37 +115,48 @@ with rv.CardText():
 
 ### MapApp layout
 
-All map-based pysepal apps use `MapAppComponent` as the layout shell.
-Do not build custom `solara.Columns` layouts. The legacy `MapApp.element()`
-still works via a compat shim but new code should use `MapAppComponent`
-with typed dataclasses.
+All map-based pysepal apps use `MapApp.element()` as the layout shell.
+Do not build custom `solara.Columns` layouts. Steps and panel sections are
+plain dicts; both `content` lists accept ipyvuetify widgets _and_ Solara
+elements, so `@solara.component` tiles can be passed straight through.
 
 ```python
+from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import get_current_theme_state
-from pysepal.solara.components.layout import (
-    MapAppComponent, StepConfig, PanelSection, RightPanelConfig,
-)
 
 # Session-scoped theme state — no manual ThemeToggle wiring needed
 theme_state = get_current_theme_state()
 sepal_map = SepalMap(fullscreen=True, theme_state=theme_state, gee=True)
 
-MapAppComponent(
+MapApp.element(
     app_title="My App",
     app_icon="mdi-earth",
-    sepal_map=sepal_map,
-    steps=[StepConfig(id=1, name="AOI", icon="mdi-map", display="step")],
+    main_map=[sepal_map],
+    steps_data=[
+        {"id": 1, "name": "AOI", "icon": "mdi-map",
+         "display": "step",  # or "dialog"
+         "content": [AoiTile()]},
+    ],
     theme_state=theme_state,
-    right_panel_config=RightPanelConfig(title="Tools", width=400),
-    right_panel_content=[PanelSection(title="Section", icon="mdi-cog", content=[...])],
-    repo_url="...",
+    right_panel_config={"title": "Tools", "icon": "mdi-cog", "width": 400},
+    right_panel_content=[
+        {"title": "Section", "icon": "mdi-cog", "content": [LayerControls()],
+         # Static guidance belongs here, not in a solara.Info alert.
+         "description": "Shown under the section title."},
+    ],
+    right_panel_open=True,
 )
 ```
 
-`SepalMap(theme_toggle=...)` and `MapApp.element(theme_toggle=[...])` still
-work but emit a `DeprecationWarning`. See
-`docs/guides/migration-notes-v3.4.md` § 7 for migration
-details.
+`MapAppComponent` — typed dataclass props, `with` syntax — is designed but
+**not shipped**: `pysepal.solara.components.layout` does not exist and the
+import raises `ImportError`. Check with
+`python -c "from pysepal.solara import MapAppComponent"` before relying on
+anything in `docs/guides/solara-mapapp-component.md`.
+
+`SepalMap(theme_toggle=...)` still works but emits a `DeprecationWarning`
+(`MapApp` accepts it silently). See `docs/guides/migration-notes-v3.4.md`
+§ 7 for migration details.
 
 ### Reference templates
 
