@@ -50,6 +50,7 @@ from pysepal.solara.components.legend import (
     LegendComponent,
     LegendData,
 )
+from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 from pysepal.solara.notifications import NotificationProvider, use_notifications
 
 logger = logging.getLogger("SEPALUI.map_app")
@@ -457,29 +458,37 @@ def MapAppDemo():
     sepal_map = solara.use_memo(build_map, [id(gee_interface)])
     app_model = solara.use_memo(AppModel, [])
 
+    async def add_ndvi_layer():
+        """Add the demo layer.
+
+        Scheduled through ``use_task`` rather than ``gee_interface.create_task``: the
+        latter runs on GEEInterface's own event loop, and two loops sharing the
+        eeclient http/2 client crash it mid-request.
+        """
+        await sepal_map.add_ee_layer_async(
+            _ndvi_composite(),
+            vis_params=NDVI_VIS,
+            name="Sentinel-2 NDVI",
+            key=NDVI_LAYER_ID,
+        )
+        sepal_map.center = DEMO_CENTER
+        sepal_map.zoom = 12
+        layer_legends.set(
+            _upsert_legends(
+                layer_legends.value,
+                LayerLegend(NDVI_LAYER_ID, "Sentinel-2 NDVI", _gradient_legend("NDVI", NDVI_VIS)),
+            )
+        )
+
+    ndvi_task = solara.lab.use_task(
+        add_ndvi_layer, dependencies=None, raise_error=False, prefer_threaded=False
+    )
+    ndvi_btn_props = use_task_button(ndvi_task, on_start=ndvi_task)
+
     def build_layer_buttons():
-        """Build the ipyvuetify buttons once; they close over stable reactives."""
-        btn_add = sw.TaskButton("add layer", small=True, block=True)
+        """Build the sync ipyvuetify buttons once; they close over stable reactives."""
         btn_pmtiles = sw.Btn("add pmtiles layer", small=True, block=True)
         btn_remove = sw.Btn("remove all layers", small=True, block=True)
-
-        async def add_ndvi_layer():
-            await sepal_map.add_ee_layer_async(
-                _ndvi_composite(),
-                vis_params=NDVI_VIS,
-                name="Sentinel-2 NDVI",
-                key=NDVI_LAYER_ID,
-            )
-            sepal_map.center = DEMO_CENTER
-            sepal_map.zoom = 12
-            layer_legends.set(
-                _upsert_legends(
-                    layer_legends.value,
-                    LayerLegend(
-                        NDVI_LAYER_ID, "Sentinel-2 NDVI", _gradient_legend("NDVI", NDVI_VIS)
-                    ),
-                )
-            )
 
         def add_pmtiles_layer():
             """Add vector tiles, which the layer control drives without Earth Engine."""
@@ -499,12 +508,9 @@ def MapAppDemo():
 
         btn_pmtiles.on_event("click", lambda *args: add_pmtiles_layer())
         btn_remove.on_event("click", lambda *args: remove_all_layers())
-        btn_add.configure(
-            task_factory=lambda: gee_interface.create_task(func=add_ndvi_layer, key=NDVI_LAYER_ID)
-        )
-        return btn_add, btn_pmtiles, btn_remove
+        return btn_pmtiles, btn_remove
 
-    btn_add, btn_pmtiles, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
+    btn_pmtiles, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
 
     aoi_key = _aoi_key(aoi_data.value)
     previous_aoi_key = solara.use_ref(aoi_key)
@@ -574,7 +580,7 @@ def MapAppDemo():
             "title": "Layers",
             "icon": "mdi-layers",
             "content": [
-                btn_add,
+                TaskButtonComponent(label="add layer", **ndvi_btn_props, small=True, block=True),
                 btn_pmtiles,
                 btn_remove,
                 AdminButton(app_model, logger_instance=logger),
