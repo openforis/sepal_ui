@@ -11,6 +11,7 @@ reprocessing.
 """
 
 import asyncio
+import threading
 import time
 
 import geopandas as gpd
@@ -252,6 +253,60 @@ def test_aoi_view_restores_asset_selection(monkeypatch):
             assert _has_v_model(box, "users/me/aoi"), "asset id was not restored"
             assert _has_text(box, ms.aoi_sel.complete), "restored ASSET AOI was not auto-confirmed"
             assert value.value is result
+        finally:
+            rc.close()
+
+    asyncio.run(_scenario())
+
+
+class _EeFakeMap(_FakeMap):
+    """SepalMap stand-in for GEE results: records how the EE layer was added.
+
+    ``add_ee_layer_async`` reproduces the crash seen after a project load:
+    eeclient's pooled HTTP/2 connection binds to the loop that first used it
+    (GEEInterface's private loop, warmed by the load's sync-API traffic), so
+    awaiting the async path from Solara's kernel loop raises RuntimeError.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.ee_threads = []
+
+    def add_ee_layer(self, ee_object, vis_params={}, name="", **kwargs):
+        self.ee_threads.append(threading.current_thread())
+        self.layers.append(name or "ee")
+
+    async def add_ee_layer_async(self, *args, **kwargs):
+        raise RuntimeError("<asyncio.locks.Event [unset]> is bound to a different event loop")
+
+
+def test_aoi_view_restore_adds_ee_layer_off_loop(monkeypatch):
+    """A restored GEE AOI must draw via the blocking add_ee_layer in a worker
+    thread — never add_ee_layer_async on the kernel loop (loop-bound eeclient
+    pool; see _EeFakeMap)."""
+    _patch_admin(monkeypatch)
+    monkeypatch.setattr(aoi_view_mod, "get_current_gee_interface", lambda: object())
+
+    map_ = _EeFakeMap()
+    result = AoiResult(
+        method="DRAW",
+        name="my_drawing",
+        gdf=_gdf(),
+        gee=True,
+        feature_collection=object(),
+    )
+    value = solara.reactive(result)
+
+    async def _scenario():
+        loop_thread = threading.current_thread()
+        box, rc = solara.render(AoiView(value=value, gee=True, map_=map_), handle_error=False)
+        try:
+            await _settle(box, lambda b: _has_text(b, ms.aoi_sel.complete))
+            assert _has_text(box, ms.aoi_sel.complete), "restored GEE AOI was not auto-confirmed"
+            assert map_.layers, "restored EE layer was not drawn on the map"
+            assert map_.ee_threads and all(
+                t is not loop_thread for t in map_.ee_threads
+            ), "add_ee_layer ran on the kernel event loop thread"
         finally:
             rc.close()
 
