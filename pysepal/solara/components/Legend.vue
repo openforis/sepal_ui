@@ -445,4 +445,12 @@ module.exports = {
 body.sepal-modal-open .sepal-legend {
   display: none;
 }
+
+/* Some apps open ipyvuetify dialogs that don't set body.sepal-modal-open;
+   :has() also hides the legend while any Vuetify dialog/overlay is active, so
+   the fixed legend never floats over a modal. */
+body:has(.v-dialog__content--active) .sepal-legend,
+body:has(.v-overlay--active) .sepal-legend {
+  display: none;
+}
 </style>
