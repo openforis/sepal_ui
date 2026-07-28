@@ -18,6 +18,7 @@ Usage:
             print(f"Selected: {aoi.value.name}")
 """
 
+import asyncio
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import reacton.ipyvuetify as rv
@@ -290,11 +291,22 @@ def AoiView(
         reset_method: bool = False,
         active_method: Optional[str] = None,
         reset_loading: bool = False,
+        clear_value: bool = True,
     ):
+        """Drop the current selection and everything it put on the map.
+
+        Args:
+            clear_value: Whether to also reset ``value`` to None. ``value`` may
+                be a reactive owned by the host app, so only user-driven
+                clears (method change, clear button) may null it. Teardown
+                paths pass False: unmounting the picker must not erase a
+                selection the app is still holding.
+        """
         if reset_loading:
             reactive_loading.set(False)
 
-        reactive_value.set(None)
+        if clear_value:
+            reactive_value.set(None)
         admin_code.set(None)
         draw_name.set("")
         shape_data.set(None)
@@ -451,7 +463,15 @@ def AoiView(
 
                 # Add new AOI layer
                 if gee and result.feature_collection:
-                    await map_.add_ee_layer_async(
+                    # eeclient's pooled HTTP/2 connection binds to the loop
+                    # that first uses it. Any sync-API GEE traffic (e.g. an
+                    # app's project load) binds it to GEEInterface's private
+                    # loop, after which awaiting the *_async map path here —
+                    # on Solara's kernel loop — raises "bound to a different
+                    # event loop". The blocking API in a worker thread is
+                    # loop-safe: it dispatches to the interface's own loop.
+                    await asyncio.to_thread(
+                        map_.add_ee_layer,
                         result.feature_collection,
                         map_style or {},
                         "aoi",
@@ -565,7 +585,13 @@ def AoiView(
             # _CancelledErrorInOurTask which propagates up. The task will be
             # garbage collected when the component unmounts.
 
-            _clear_current_aoi(active_method="", reset_loading=True)
+            # Release only what this picker owns (map layers, draw control,
+            # loading flag). `value` belongs to the caller — use_reactive passes
+            # a host-owned reactive straight through — and unmounting the widget
+            # is not the user dropping their AOI. Nulling it here wiped app
+            # state on a panel collapse / conditional render / keyed remount,
+            # which for apps that persist the AOI meant saving an empty one.
+            _clear_current_aoi(active_method="", reset_loading=True, clear_value=False)
 
             # Note: We intentionally do NOT reset map center/zoom on unmount
             # to avoid surprising side effects for host apps that own the map state
