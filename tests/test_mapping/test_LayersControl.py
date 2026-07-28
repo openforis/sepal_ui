@@ -202,6 +202,42 @@ def test_vectors() -> None:
     return
 
 
+def _pmtiles(name: str) -> PMTilesLayer:
+    """Return a PMTiles layer, which owns no visible trait."""
+    return PMTilesLayer(name=name, url=f"https://example.com/{name}.pmtiles")
+
+
+def test_toggle_row_keeps_its_position() -> None:
+    """Check that hiding a layer does not move its row under the user's cursor."""
+    m = Map()
+    layer_control = sm.LayersControl(m)
+    m.add(_pmtiles("first"))
+    m.add(_pmtiles("second"))
+
+    def row_names() -> list:
+        return [r.layer.name for r in layer_control.tile.get_children(klass=sm.ToggleRow)]
+
+    def row(name: str):
+        return next(
+            r for r in layer_control.tile.get_children(klass=sm.ToggleRow) if r.layer.name == name
+        )
+
+    assert row_names() == ["second", "first"]
+
+    # hiding must leave the row exactly where it was
+    row("second").w_checkbox.v_model = False
+    assert row_names() == ["second", "first"]
+
+    # and a layer added meanwhile must not displace it either
+    m.add(_pmtiles("third"))
+    assert row_names() == ["second", "third", "first"]
+
+    row("second").w_checkbox.v_model = True
+    assert row_names() == ["second", "third", "first"]
+
+    return
+
+
 def test_toggle_row() -> None:
     """Check that a layer exposing no visible trait still gets a row."""
     m = Map()

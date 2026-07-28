@@ -150,20 +150,27 @@ class ToggleRow(sw.Html):
     w_checkbox: Optional[sw.SimpleCheckbox] = None
     "the checkbox to hide/show the layer"
 
-    def __init__(self, layer: Layer, control: "LayersControl") -> None:
+    def __init__(self, layer: Layer, control: "LayersControl", index: int) -> None:
         """Html row element to describe a layer exposing no visibility trait.
 
         Layers such as the ipyleaflet ``PMTilesLayer`` inherit from ``Layer`` rather
         than ``RasterLayer``, so they have neither ``visible`` nor ``opacity`` to link
         a widget to. They are hidden by removing them from the map instead, which means
-        the control has to remember them to keep the row around.
+        the control has to remember them, and where they sat, to keep the row in place.
+
+        Showing a layer again appends it to the map, so it lands on top of anything
+        added while it was hidden. That cannot be undone from python: ipywidgets reuses
+        the views of the models already present, so reordering ``m.layers`` never
+        replays leaflet's ``addLayer`` and the stack stays as it is.
 
         Args:
             layer: the layer associated to the row
             control: the layer control owning the registry of hidden layers
+            index: the position of the row, restored as is when the layer is hidden
         """
         self.layer = layer
         self.control = control
+        self.index = index
 
         # create the checkbox, by default layer are visible
         self.w_checkbox = sw.SimpleCheckbox(
@@ -190,10 +197,10 @@ class ToggleRow(sw.Html):
         """Add or remove the layer from the map."""
         # the registry drives the rebuild triggered by the map, so update it first
         if self.w_checkbox.v_model:
-            self.control.hidden.remove(self.layer)
+            self.control.hidden.pop(self.layer, None)
             self.control.m.add(self.layer)
         else:
-            self.control.hidden.append(self.layer)
+            self.control.hidden[self.layer] = self.index
             self.control.m.remove(self.layer)
 
         return
@@ -204,8 +211,8 @@ class LayersControl(MenuControl):
     m: Optional[Map] = None
     "the map controlled by the layercontrol"
 
-    hidden: Optional[list] = None
-    "the layers this control removed from the map to hide them"
+    hidden: Optional[dict] = None
+    "the layers this control removed from the map to hide them, and their row position"
 
     group: Optional[sw.RadioGroup] = None
     "As radio button cannot behave individually we add an extra GroupRadio to wrap the table"
@@ -221,7 +228,7 @@ class LayersControl(MenuControl):
         """
         # save the map
         self.m = m
-        self.hidden = []
+        self.hidden = {}
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
@@ -261,13 +268,18 @@ class LayersControl(MenuControl):
             lyr
             for lyr in reversed(self.m.layers)
             if lyr.base is False and not lyr.has_trait("visible")
-        ] + self.hidden
+        ]
+
+        # splice the hidden ones back where they sat, else a row would jump away
+        # from the cursor that just unchecked it
+        for layer, index in sorted(self.hidden.items(), key=lambda item: item[1]):
+            others.insert(min(index, len(others)), layer)
 
         vector_rows = []
         if len(vectors) > 0 or len(others) > 0:
             head = [HeaderRow(ms.layer_control.vector.header)]
             rows = [VectorRow(lyr) for lyr in vectors]
-            rows += [ToggleRow(lyr, self) for lyr in others]
+            rows += [ToggleRow(lyr, self, i) for i, lyr in enumerate(others)]
             vector_rows = head + rows
 
         # create a table of layerLine
