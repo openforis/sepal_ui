@@ -92,9 +92,7 @@ def test_unmount_still_releases_owned_resources():
             rc.render(_Host(value=value, show=False, map_=map_, loading=loading))
             await asyncio.sleep(0.5)
 
-            aoi_layers = [
-                layer for layer in map_.layers if getattr(layer, "name", None) == "aoi"
-            ]
+            aoi_layers = [layer for layer in map_.layers if getattr(layer, "name", None) == "aoi"]
             assert not aoi_layers, "unmount left the AOI layer on the map"
             assert map_.dc not in map_.controls, "unmount left the DrawControl attached"
             assert loading.value is False, "unmount left the loading flag set"
