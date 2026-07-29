@@ -326,3 +326,12 @@ header.theme--light.v-app-bar.v-toolbar.v-sheet {
 .right-panel .drawer-top .v-sheet {
   background-color: transparent !important;
 }
+
+/* The legend and the open logger both float over the bottom of the map and
+ * would overlap, so an open legend collapses to its bar while the logger is up.
+ * Only `__body` is dropped -- `__bar` stays, so the legend keeps its icon and
+ * the user can still reach it. `.pill-log` is `v-if`-ed out of the DOM while
+ * the logger is closed, which makes its presence the signal. */
+body:has(.pill-log) .sepal-legend__body {
+  display: none;
+}
