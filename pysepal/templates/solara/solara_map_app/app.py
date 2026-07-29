@@ -24,6 +24,7 @@ from pathlib import Path
 import ee
 import solara
 from component.model import AppModel
+from ipyleaflet import PMTilesLayer
 
 import pysepal.sepalwidgets as sw
 from pysepal import mapping as sm
@@ -58,6 +59,7 @@ DUMMY_DATA_DIR = Path(__file__).resolve().parents[4] / "tests" / "data" / "aoi_m
 NDVI_LAYER_ID = "demo_ndvi"
 PIXEL_AREA_LAYER_ID = "demo_pixel_area"
 ELEVATION_CLASS_LAYER_ID = "demo_elevation_class"
+PMTILES_LAYER_ID = "demo_pmtiles"
 AOI_LAYER_IDS = (PIXEL_AREA_LAYER_ID, ELEVATION_CLASS_LAYER_ID)
 
 DEMO_CENTER = [4.75, -74.12]
@@ -71,6 +73,32 @@ ELEVATION_CLASSES = (
     (2, "Upland (500-1500 m)", "#41b6c4"),
     (3, "Highland (>= 1500 m)", "#253494"),
 )
+
+# Vector tiles read straight from a public archive: the browser range-requests the
+# PMTiles itself, so nothing is proxied through the kernel. ``source-layer`` must
+# match a layer id inside the archive ("buildings" here) or nothing is painted.
+PMTILES_URL = "https://r2-public.protomaps.com/protomaps-sample-datasets/nz-buildings-v3.pmtiles"
+PMTILES_CENTER = [-43.5565, 172.6062]
+PMTILES_STYLE = {
+    "version": 8,
+    "sources": {"nz_buildings": {"type": "vector", "url": f"pmtiles://{PMTILES_URL}"}},
+    "layers": [
+        {
+            "id": "buildings-fill",
+            "type": "fill",
+            "source": "nz_buildings",
+            "source-layer": "buildings",
+            "paint": {"fill-color": "#41b6c4", "fill-opacity": 0.6},
+        },
+        {
+            "id": "buildings-outline",
+            "type": "line",
+            "source": "nz_buildings",
+            "source-layer": "buildings",
+            "paint": {"line-color": "#253494", "line-width": 0.5},
+        },
+    ],
+}
 
 setup_solara_server(extra_asset_locations=[])
 
@@ -432,6 +460,7 @@ def MapAppDemo():
     def build_layer_buttons():
         """Build the ipyvuetify buttons once; they close over stable reactives."""
         btn_add = sw.TaskButton("add layer", small=True, block=True)
+        btn_pmtiles = sw.Btn("add pmtiles layer", small=True, block=True)
         btn_remove = sw.Btn("remove all layers", small=True, block=True)
 
         async def add_ndvi_layer():
@@ -452,6 +481,15 @@ def MapAppDemo():
                 )
             )
 
+        def add_pmtiles_layer():
+            """Add vector tiles, which the layer control drives without Earth Engine."""
+            sepal_map.add_layer(
+                PMTilesLayer(name="NZ buildings", url=PMTILES_URL, style=PMTILES_STYLE),
+                key=PMTILES_LAYER_ID,
+            )
+            sepal_map.center = PMTILES_CENTER
+            sepal_map.zoom = 14
+
         def remove_all_layers():
             sepal_map.remove_all()
             sepal_map.center = DEMO_CENTER
@@ -459,13 +497,14 @@ def MapAppDemo():
             layer_legends.set(())
             outputs.set(None)
 
+        btn_pmtiles.on_event("click", lambda *args: add_pmtiles_layer())
         btn_remove.on_event("click", lambda *args: remove_all_layers())
         btn_add.configure(
             task_factory=lambda: gee_interface.create_task(func=add_ndvi_layer, key=NDVI_LAYER_ID)
         )
-        return btn_add, btn_remove
+        return btn_add, btn_pmtiles, btn_remove
 
-    btn_add, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
+    btn_add, btn_pmtiles, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
 
     aoi_key = _aoi_key(aoi_data.value)
     previous_aoi_key = solara.use_ref(aoi_key)
@@ -534,8 +573,16 @@ def MapAppDemo():
         {
             "title": "Layers",
             "icon": "mdi-layers",
-            "content": [btn_add, btn_remove, AdminButton(app_model, logger_instance=logger)],
-            "description": "Add a standalone demo layer, or clear the map and its legends.",
+            "content": [
+                btn_add,
+                btn_pmtiles,
+                btn_remove,
+                AdminButton(app_model, logger_instance=logger),
+            ],
+            "description": (
+                "Add a standalone demo layer or a PMTiles vector layer, or clear the map "
+                "and its legends. Both show up in the layer control, top right."
+            ),
             "divider": True,
         },
         {
