@@ -24,11 +24,13 @@ from pathlib import Path
 import ee
 import solara
 from component.model import AppModel
+from ipyleaflet import PMTilesLayer
 
 import pysepal.sepalwidgets as sw
 from pysepal import mapping as sm
 from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import (
+    get_current_drive_interface,
     get_current_gee_interface,
     get_current_theme_state,
     setup_sessions,
@@ -49,6 +51,7 @@ from pysepal.solara.components.legend import (
     LegendComponent,
     LegendData,
 )
+from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 from pysepal.solara.notifications import NotificationProvider, use_notifications
 
 logger = logging.getLogger("SEPALUI.map_app")
@@ -58,6 +61,7 @@ DUMMY_DATA_DIR = Path(__file__).resolve().parents[4] / "tests" / "data" / "aoi_m
 NDVI_LAYER_ID = "demo_ndvi"
 PIXEL_AREA_LAYER_ID = "demo_pixel_area"
 ELEVATION_CLASS_LAYER_ID = "demo_elevation_class"
+PMTILES_LAYER_ID = "demo_pmtiles"
 AOI_LAYER_IDS = (PIXEL_AREA_LAYER_ID, ELEVATION_CLASS_LAYER_ID)
 
 DEMO_CENTER = [4.75, -74.12]
@@ -71,6 +75,32 @@ ELEVATION_CLASSES = (
     (2, "Upland (500-1500 m)", "#41b6c4"),
     (3, "Highland (>= 1500 m)", "#253494"),
 )
+
+# Vector tiles read straight from a public archive: the browser range-requests the
+# PMTiles itself, so nothing is proxied through the kernel. ``source-layer`` must
+# match a layer id inside the archive ("buildings" here) or nothing is painted.
+PMTILES_URL = "https://r2-public.protomaps.com/protomaps-sample-datasets/nz-buildings-v3.pmtiles"
+PMTILES_CENTER = [-43.5565, 172.6062]
+PMTILES_STYLE = {
+    "version": 8,
+    "sources": {"nz_buildings": {"type": "vector", "url": f"pmtiles://{PMTILES_URL}"}},
+    "layers": [
+        {
+            "id": "buildings-fill",
+            "type": "fill",
+            "source": "nz_buildings",
+            "source-layer": "buildings",
+            "paint": {"fill-color": "#41b6c4", "fill-opacity": 0.6},
+        },
+        {
+            "id": "buildings-outline",
+            "type": "line",
+            "source": "nz_buildings",
+            "source-layer": "buildings",
+            "paint": {"line-color": "#253494", "line-width": 0.5},
+        },
+    ],
+}
 
 setup_solara_server(extra_asset_locations=[])
 
@@ -391,14 +421,25 @@ def ProcessPanel(aoi_data, outputs, layer_legends, sepal_map, gee_interface):
 
 
 @solara.component
-def ExportPanel(aoi_data, outputs):
-    """Export the selected AOI and any processed outputs."""
+def ExportPanel(aoi_data, outputs, gee_interface, drive_interface):
+    """Export the selected AOI and any processed outputs.
+
+    The interfaces are threaded in rather than looked up here. Both
+    ``get_current_gee_interface`` and ``get_current_drive_interface`` raise once
+    the SessionManager is live but the current render has no session, and this
+    panel is rendered as a child of MapApp's right panel -- a separate render
+    root from the ``@with_sepal_sessions`` page that establishes the session.
+    Resolving them once at the top of :func:`MapAppDemo` keeps the lookup where
+    the session is known to exist.
+    """
     ExportLauncher(
         sources=_export_sources(aoi_data.value, outputs.value),
         dialog_title="Export datasets",
         default_target="gee",
         button_text=True,
         block=True,
+        gee_interface=gee_interface,
+        drive_interface=drive_interface,
     )
 
 
@@ -408,6 +449,7 @@ def MapAppDemo():
     setup_theme_colors()
 
     gee_interface = get_current_gee_interface()
+    drive_interface = get_current_drive_interface()
     theme_state = get_current_theme_state()
 
     aoi_data = solara.use_reactive(None)
@@ -429,28 +471,46 @@ def MapAppDemo():
     sepal_map = solara.use_memo(build_map, [id(gee_interface)])
     app_model = solara.use_memo(AppModel, [])
 
+    async def add_ndvi_layer():
+        """Add the demo layer.
+
+        Scheduled through ``use_task`` rather than ``gee_interface.create_task``: the
+        latter runs on GEEInterface's own event loop, and two loops sharing the
+        eeclient http/2 client crash it mid-request.
+        """
+        await sepal_map.add_ee_layer_async(
+            _ndvi_composite(),
+            vis_params=NDVI_VIS,
+            name="Sentinel-2 NDVI",
+            key=NDVI_LAYER_ID,
+        )
+        sepal_map.center = DEMO_CENTER
+        sepal_map.zoom = 12
+        layer_legends.set(
+            _upsert_legends(
+                layer_legends.value,
+                LayerLegend(NDVI_LAYER_ID, "Sentinel-2 NDVI", _gradient_legend("NDVI", NDVI_VIS)),
+            )
+        )
+
+    ndvi_task = solara.lab.use_task(
+        add_ndvi_layer, dependencies=None, raise_error=False, prefer_threaded=False
+    )
+    ndvi_btn_props = use_task_button(ndvi_task, on_start=ndvi_task)
+
     def build_layer_buttons():
-        """Build the ipyvuetify buttons once; they close over stable reactives."""
-        btn_add = sw.TaskButton("add layer", small=True, block=True)
+        """Build the sync ipyvuetify buttons once; they close over stable reactives."""
+        btn_pmtiles = sw.Btn("add pmtiles layer", small=True, block=True)
         btn_remove = sw.Btn("remove all layers", small=True, block=True)
 
-        async def add_ndvi_layer():
-            await sepal_map.add_ee_layer_async(
-                _ndvi_composite(),
-                vis_params=NDVI_VIS,
-                name="Sentinel-2 NDVI",
-                key=NDVI_LAYER_ID,
+        def add_pmtiles_layer():
+            """Add vector tiles, which the layer control drives without Earth Engine."""
+            sepal_map.add_layer(
+                PMTilesLayer(name="NZ buildings", url=PMTILES_URL, style=PMTILES_STYLE),
+                key=PMTILES_LAYER_ID,
             )
-            sepal_map.center = DEMO_CENTER
-            sepal_map.zoom = 12
-            layer_legends.set(
-                _upsert_legends(
-                    layer_legends.value,
-                    LayerLegend(
-                        NDVI_LAYER_ID, "Sentinel-2 NDVI", _gradient_legend("NDVI", NDVI_VIS)
-                    ),
-                )
-            )
+            sepal_map.center = PMTILES_CENTER
+            sepal_map.zoom = 14
 
         def remove_all_layers():
             sepal_map.remove_all()
@@ -459,13 +519,11 @@ def MapAppDemo():
             layer_legends.set(())
             outputs.set(None)
 
+        btn_pmtiles.on_event("click", lambda *args: add_pmtiles_layer())
         btn_remove.on_event("click", lambda *args: remove_all_layers())
-        btn_add.configure(
-            task_factory=lambda: gee_interface.create_task(func=add_ndvi_layer, key=NDVI_LAYER_ID)
-        )
-        return btn_add, btn_remove
+        return btn_pmtiles, btn_remove
 
-    btn_add, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
+    btn_pmtiles, btn_remove = solara.use_memo(build_layer_buttons, [id(gee_interface)])
 
     aoi_key = _aoi_key(aoi_data.value)
     previous_aoi_key = solara.use_ref(aoi_key)
@@ -534,14 +592,29 @@ def MapAppDemo():
         {
             "title": "Layers",
             "icon": "mdi-layers",
-            "content": [btn_add, btn_remove, AdminButton(app_model, logger_instance=logger)],
-            "description": "Add a standalone demo layer, or clear the map and its legends.",
+            "content": [
+                TaskButtonComponent(label="add layer", **ndvi_btn_props, small=True, block=True),
+                btn_pmtiles,
+                btn_remove,
+                AdminButton(app_model, logger_instance=logger),
+            ],
+            "description": (
+                "Add a standalone demo layer or a PMTiles vector layer, or clear the map "
+                "and its legends. Both show up in the layer control, top right."
+            ),
             "divider": True,
         },
         {
             "title": "Export",
             "icon": "mdi-export-variant",
-            "content": [ExportPanel(aoi_data=aoi_data, outputs=outputs)],
+            "content": [
+                ExportPanel(
+                    aoi_data=aoi_data,
+                    outputs=outputs,
+                    gee_interface=gee_interface,
+                    drive_interface=drive_interface,
+                )
+            ],
             "description": "Send the AOI or a processed output to Earth Engine, Drive or SEPAL.",
         },
     ]

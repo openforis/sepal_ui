@@ -64,13 +64,16 @@ def _get_fallback_theme_state() -> ThemeState:
 
 def get_current_theme_state() -> ThemeState:
     """Return the theme state for the current Solara kernel session."""
-    from .session_manager import SessionManager
+    from .session_manager import SessionManager, can_create_sessions
 
     if SessionManager.is_initialized():
         session_manager = SessionManager()
         theme_state = session_manager.get_session_component("theme_state")
         if theme_state is not None:
             return theme_state
+
+        if not can_create_sessions():
+            return _get_fallback_theme_state()
 
         raise RuntimeError(
             "Session manager is active but no theme state exists for the current kernel. "

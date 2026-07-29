@@ -48,21 +48,31 @@ Use `use_thread` only for genuinely synchronous local work.
 
 ## Event Loop Rule for GEE
 
-The important event-loop detail is not `GEEInterface`'s private loop. In the
-session-backed path, `gee_interface.get_info_async(...)` delegates directly to
-`ee-client` awaitables.
+The rule is one event loop per app. `EESession` owns asyncio coordination
+primitives such as locks and semaphores, and `ee-client` caches a single
+`httpx.AsyncClient(http2=True)` per session. All of them bind lazily to the
+first event loop that needs them, so a second loop breaks them under
+contention.
 
-The real Solara risk is `use_task(prefer_threaded=True)`. Solara can run a
-coroutine task in a separate thread with its own event loop. At the same time,
-`EESession` owns asyncio coordination primitives such as locks and semaphores.
-Those primitives bind lazily to the first event loop that needs them.
+There are two ways to end up with a second loop:
+
+- `use_task(prefer_threaded=True)`. Solara runs the coroutine in a separate
+  thread with its own event loop.
+- `gee_interface.create_task(...)`. It hands the coroutine to `GEEInterface`'s
+  private loop, running in its own thread. Because `get_info_async` delegates
+  directly to `ee-client`, it runs on _whichever loop called it_ — so this is a
+  second loop even when every `use_task` in the app sets
+  `prefer_threaded=False`. Mixing the two scheduling styles in one app is what
+  breaks, which is why the legacy `sw.TaskButton` must not be combined with
+  `use_task` components.
 
 Two consequences follow:
 
 - Light testing can look fine. If a lock or semaphore is never contended, the
   code may appear to work across loops.
-- Under contention, or once waiters are created, asyncio can raise
-  `RuntimeError: ... is bound to a different event loop`.
+- Under contention, or once waiters are created, asyncio raises either
+  `RuntimeError: ... is bound to a different event loop` or
+  `RuntimeError: Non-thread-safe operation invoked on an event loop other than the current one` — which primitive loses the race varies between runs.
 
 **The rule for new Solara GEE apps:**
 

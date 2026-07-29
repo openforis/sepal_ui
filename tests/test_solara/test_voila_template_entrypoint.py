@@ -49,6 +49,28 @@ def test_app_exposes_shared_component_and_authenticated_page_wrapper():
     )
 
 
+def test_app_never_schedules_gee_work_on_a_second_event_loop():
+    """Every async button must go through solara's loop, not GEEInterface's own.
+
+    ``GEEInterface.create_task`` hands the coroutine to a private event loop running
+    in its own thread, while ``solara.lab.use_task`` runs it on solara's. Mixing both
+    in one app makes two loops share the single ``httpx.AsyncClient(http2=True)``
+    cached on the eeclient session, and its asyncio primitives bind to whichever loop
+    touched them first -- so a concurrent call from the other one dies mid-request.
+    """
+    module = ast.parse(APP_PATH.read_text())
+
+    create_task_calls = [
+        node
+        for node in ast.walk(module)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "create_task"
+    ]
+
+    assert create_task_calls == []
+
+
 def test_voila_notebook_only_imports_and_displays_shared_component():
     """The notebook remains a thin runtime entrypoint with no duplicated UI."""
     notebook = json.loads(NOTEBOOK_PATH.read_text())

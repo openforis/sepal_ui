@@ -222,7 +222,9 @@ module.exports = {
       ) / 2
   );
   transform: translateX(-50%);
-  z-index: 1000;
+  /* Below vuetify's modal baseline on purpose -- see the layering contract at
+     the top of frontend/css/base.css. The scrim then dims it during a modal. */
+  z-index: 150;
   pointer-events: auto;
   font-family: Roboto, sans-serif;
   /* Stack body over the toggle bar and keep everything centered. Because the
@@ -434,15 +436,5 @@ module.exports = {
 .sepal-legend__label {
   white-space: nowrap;
   font-size: 12px;
-}
-</style>
-
-<style>
-/* Non-scoped: `body` is outside this component's scope attribute, so the
-   selector must run as plain global CSS. Hides the legend while a step
-   dialog/modal is open — its stacking context sits above the modal scrim
-   due to the jupyter-widget z-index. */
-body.sepal-modal-open .sepal-legend {
-  display: none;
 }
 </style>

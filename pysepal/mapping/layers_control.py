@@ -3,7 +3,7 @@
 from types import SimpleNamespace
 from typing import Optional
 
-from ipyleaflet import GeoJSON, Map, TileLayer
+from ipyleaflet import GeoJSON, Layer, Map, TileLayer
 from ipywidgets import link
 
 from pysepal import sepalwidgets as sw
@@ -145,10 +145,74 @@ class VectorRow(sw.Html):
         link((layer, "visible"), (self.w_checkbox, "v_model"))
 
 
+class ToggleRow(sw.Html):
+
+    w_checkbox: Optional[sw.SimpleCheckbox] = None
+    "the checkbox to hide/show the layer"
+
+    def __init__(self, layer: Layer, control: "LayersControl", index: int) -> None:
+        """Html row element to describe a layer exposing no visibility trait.
+
+        Layers such as the ipyleaflet ``PMTilesLayer`` inherit from ``Layer`` rather
+        than ``RasterLayer``, so they have neither ``visible`` nor ``opacity`` to link
+        a widget to. They are hidden by removing them from the map instead, which means
+        the control has to remember them, and where they sat, to keep the row in place.
+
+        Showing a layer again appends it to the map, so it lands on top of anything
+        added while it was hidden. That cannot be undone from python: ipywidgets reuses
+        the views of the models already present, so reordering ``m.layers`` never
+        replays leaflet's ``addLayer`` and the stack stays as it is.
+
+        Args:
+            layer: the layer associated to the row
+            control: the layer control owning the registry of hidden layers
+            index: the position of the row, restored as is when the layer is hidden
+        """
+        self.layer = layer
+        self.control = control
+        self.index = index
+
+        # create the checkbox, by default layer are visible
+        self.w_checkbox = sw.SimpleCheckbox(
+            v_model=layer not in control.hidden, small=True, label=layer.name, color="primary"
+        )
+        kwargs = {"style": "width: 10%;", "tag": "td"}
+        checkbox_cell = sw.Html(children=[self.w_checkbox], **kwargs)
+
+        # create the label
+        kwargs = {"style_": "width: 40%;", "tag": "td"}
+        label_cell = sw.Html(children=[layer.name], **kwargs)
+
+        # create an empty row to align on
+        kwargs = {"style_": "width: 50%;", "tag": "td"}
+        empty_cell = sw.Html(children=[""], **kwargs)
+
+        # build a html tr from it
+        super().__init__(tag="tr", children=[label_cell, empty_cell, checkbox_cell])
+
+        # add js behavior
+        self.w_checkbox.observe(self._toggle_layer, "v_model")
+
+    def _toggle_layer(self, *args) -> None:
+        """Add or remove the layer from the map."""
+        # the registry drives the rebuild triggered by the map, so update it first
+        if self.w_checkbox.v_model:
+            self.control.hidden.pop(self.layer, None)
+            self.control.m.add(self.layer)
+        else:
+            self.control.hidden[self.layer] = self.index
+            self.control.m.remove(self.layer)
+
+        return
+
+
 class LayersControl(MenuControl):
 
     m: Optional[Map] = None
     "the map controlled by the layercontrol"
+
+    hidden: Optional[dict] = None
+    "the layers this control removed from the map to hide them, and their row position"
 
     group: Optional[sw.RadioGroup] = None
     "As radio button cannot behave individually we add an extra GroupRadio to wrap the table"
@@ -164,6 +228,7 @@ class LayersControl(MenuControl):
         """
         # save the map
         self.m = m
+        self.hidden = {}
 
         # create a loading to place it on top of the card. It will always be visible
         # even when the card is scrolled
@@ -196,10 +261,25 @@ class LayersControl(MenuControl):
         """Update the table content."""
         # create the vector line
         vectors = [lyr for lyr in reversed(self.m.layers) if isinstance(lyr, GeoJSON)]
+
+        # overlays owning no visible trait (PMTiles, ...) cannot be linked to a
+        # checkbox, they are displayed alongside the vectors and toggled by hand
+        others = [
+            lyr
+            for lyr in reversed(self.m.layers)
+            if lyr.base is False and not lyr.has_trait("visible")
+        ]
+
+        # splice the hidden ones back where they sat, else a row would jump away
+        # from the cursor that just unchecked it
+        for layer, index in sorted(self.hidden.items(), key=lambda item: item[1]):
+            others.insert(min(index, len(others)), layer)
+
         vector_rows = []
-        if len(vectors) > 0:
+        if len(vectors) > 0 or len(others) > 0:
             head = [HeaderRow(ms.layer_control.vector.header)]
             rows = [VectorRow(lyr) for lyr in vectors]
+            rows += [ToggleRow(lyr, self, i) for i, lyr in enumerate(others)]
             vector_rows = head + rows
 
         # create a table of layerLine
