@@ -13,7 +13,7 @@ from pysepal_api import SepalClient
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
 
-from .session_manager import SessionManager
+from .session_manager import SessionManager, can_create_sessions
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +62,10 @@ def get_current_gee_interface() -> GEEInterface:
         if interface is not None:
             return interface
 
+        if not can_create_sessions():
+            logger.debug("No SEPAL session is possible here; using the fallback")
+            return _get_fallback_gee_interface()
+
         raise RuntimeError(
             "Session manager is active but no session exists for the current kernel. "
             "Ensure your Page component is decorated with @with_sepal_sessions."
@@ -100,6 +104,10 @@ def get_current_drive_interface() -> GDriveInterface:
         interface = session_manager.get_session_component("drive_interface")
         if interface is not None:
             return interface
+
+        if not can_create_sessions():
+            logger.debug("No SEPAL session is possible here; using the fallback")
+            return _get_fallback_drive_interface()
 
         raise RuntimeError(
             "Session manager is active but no session exists for the current kernel. "
