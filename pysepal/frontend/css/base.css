@@ -23,9 +23,35 @@
   background-color: transparent;
 }
 
-/* set the bar on top of the map (800) when set to fullscreen */
+/*  ---------------------------------------------------------------------------
+ *  LAYERING CONTRACT
+ *
+ *  Everything pysepal floats over the page lives BELOW vuetify's modal
+ *  baseline (~200). That is deliberate: vuetify computes a dialog's z-index at
+ *  runtime (the `stackable` mixin reads computed z-indexes off the DOM), so any
+ *  app layer that outranks it has to be beaten with `!important` -- which
+ *  desynchronises that bookkeeping and silently breaks click-outside-to-close.
+ *  Keeping our layers underneath means vuetify's scrim covers the map on its
+ *  own, dialogs stack natively, and the scrim dims the legend and logger for
+ *  free.
+ *
+ *      100  fullscreen map
+ *      110  app bar
+ *      150  map legend
+ *      160  MapApp side panels
+ *      170  task pill / logger
+ *      ~201 vuetify scrim          <-- do not pin these two from CSS
+ *      ~202 vuetify dialog
+ *      9999 toast stack            <-- intentionally above modals
+ *
+ *  Add new floating chrome below 200. If something must sit above a modal,
+ *  say why, as the toast stack does. Enforced by
+ *  tests/test_frontend/test_layering_contract.py.
+ *  ------------------------------------------------------------------------ */
+
+/* set the bar on top of the map when set to fullscreen */
 header.v-app-bar {
-  z-index: 800 !important;
+  z-index: 110 !important;
 }
 
 /* set the menu_content on top of the map when it's set to fullscreen.
@@ -119,7 +145,7 @@ header.v-app-bar {
   position: fixed !important;
   width: 100vw;
   height: calc(100vh - 48px);
-  z-index: 800;
+  z-index: 100;
   bottom: 0;
   left: 0;
 }
