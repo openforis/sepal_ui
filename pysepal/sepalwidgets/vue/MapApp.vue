@@ -1008,10 +1008,6 @@ export default {
   transform: translate(-50%, -50%);
 }
 
-.dialog-container {
-  z-index: 1010 !important;
-}
-
 .dialog-card {
   max-width: 100%;
   max-height: 90vh;
@@ -1051,30 +1047,24 @@ export default {
   position: fixed !important;
   width: 100vw !important;
   height: 100vh !important;
-  z-index: 800;
+  z-index: 100;
   bottom: 0;
   left: 0;
 }
 
-/* v-dialog overlay should be below our dialog but above other elements */
-.v-overlay__scrim {
-  z-index: 1005 !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-}
-
-/* Ensure dialog overlay covers navigation drawer and right panel */
-.v-application .v-overlay--active .v-overlay__scrim {
-  z-index: 1005 !important;
-}
+/* The scrim is deliberately NOT overridden. It used to be forced to
+   `position: fixed` at `100vw/100vh` to cover a map that outranked it, but the
+   app's layers now sit below vuetify's baseline so the default
+   (`absolute`, inset 0 inside a fixed `.v-overlay`) already covers the
+   viewport. Pinning explicit viewport units also made resizing visibly lag:
+   vuetify declares `transition: .3s` with no property, i.e. `all`, so an
+   explicit width/height ANIMATES to its new size on every resize (measured at
+   ~296ms) while inset-based sizing settles in ~2ms. */
 
 /* Ensure right panel is below dialog overlay */
 .v-application .jupyter-widget {
   position: relative;
-  z-index: 1001 !important;
+  z-index: 160 !important;
 }
 
 #map-container .leaflet-left {

@@ -115,48 +115,59 @@ with rv.CardText():
 
 ### MapApp layout
 
-All map-based pysepal apps use `MapAppComponent` as the layout shell.
-Do not build custom `solara.Columns` layouts. The legacy `MapApp.element()`
-still works via a compat shim but new code should use `MapAppComponent`
-with typed dataclasses.
+All map-based pysepal apps use `MapApp.element()` as the layout shell.
+Do not build custom `solara.Columns` layouts. Steps and panel sections are
+plain dicts; both `content` lists accept ipyvuetify widgets _and_ Solara
+elements, so `@solara.component` tiles can be passed straight through.
 
 ```python
+from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import get_current_theme_state
-from pysepal.solara.components.layout import (
-    MapAppComponent, StepConfig, PanelSection, RightPanelConfig,
-)
 
 # Session-scoped theme state — no manual ThemeToggle wiring needed
 theme_state = get_current_theme_state()
 sepal_map = SepalMap(fullscreen=True, theme_state=theme_state, gee=True)
 
-MapAppComponent(
+MapApp.element(
     app_title="My App",
     app_icon="mdi-earth",
-    sepal_map=sepal_map,
-    steps=[StepConfig(id=1, name="AOI", icon="mdi-map", display="step")],
+    main_map=[sepal_map],
+    steps_data=[
+        {"id": 1, "name": "AOI", "icon": "mdi-map",
+         "display": "step",  # or "dialog"
+         "content": [AoiTile()]},
+    ],
     theme_state=theme_state,
-    right_panel_config=RightPanelConfig(title="Tools", width=400),
-    right_panel_content=[PanelSection(title="Section", icon="mdi-cog", content=[...])],
-    repo_url="...",
+    right_panel_config={"title": "Tools", "icon": "mdi-cog", "width": 400},
+    right_panel_content=[
+        {"title": "Section", "icon": "mdi-cog", "content": [LayerControls()],
+         # Static guidance belongs here, not in a solara.Info alert.
+         "description": "Shown under the section title."},
+    ],
+    right_panel_open=True,
 )
 ```
 
-`SepalMap(theme_toggle=...)` and `MapApp.element(theme_toggle=[...])` still
-work but emit a `DeprecationWarning`. See
-`docs/guides/migration-notes-v3.4.md` § 7 for migration
-details.
+`MapAppComponent` — typed dataclass props, `with` syntax — is designed but
+**not shipped**: `pysepal.solara.components.layout` does not exist and the
+import raises `ImportError`. Check with
+`python -c "from pysepal.solara import MapAppComponent"` before relying on
+anything in `docs/guides/solara-mapapp-component.md`.
+
+`SepalMap(theme_toggle=...)` still works but emits a `DeprecationWarning`
+(`MapApp` accepts it silently). See `docs/guides/migration-notes-v3.4.md`
+§ 7 for migration details.
 
 ### Reference templates
 
-Working examples live in the pysepal repo — read these before building a
+One worked example lives in the pysepal repo — read it before building a
 new app to see the patterns in action:
 
-- `pysepal/templates/solara/solara_map_app/app.py` — full MapApp layout with steps and right panel
-- `pysepal/templates/solara/solara_map_app/aoi_app_solara.py` — AoiView with GEE and without
-- `pysepal/templates/solara/solara_map_app/aoi_all_methods.py` — all AOI methods + standalone AssetSelectComponent test
-- `pysepal/templates/solara/solara_map_app/simple_app.py` — minimal starting point
-- `pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py` — MapApp layout with NotificationProvider, AoiView in right panel, task tracking demo
+- `pysepal/templates/solara/solara_map_app/app.py` — MapApp shell with `AoiView`
+  in the right panel, `NotificationProvider` task tracking, `ExportLauncher`
+  sources, and a `LegendComponent` whose layer selector is driven by the layers
+  on the map. `MapAppDemo` holds the UI so `Page` (Solara, session-authenticated)
+  and `ui.ipynb` (Voila) can share it.
 
 ### eager=True for dialogs in jupyter-widget contexts
 
@@ -275,7 +286,7 @@ with track_task("Exporting", total_steps=2) as task:
   with legacy Alert widgets only. The notification system is independent.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py`
+`pysepal/templates/solara/solara_map_app/app.py`
 
 ### Export System (ExportLauncher)
 
@@ -359,7 +370,7 @@ into a selected+open state before the walk — see
 `_render_preselected_dialog`.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py`
+`pysepal/templates/solara/solara_map_app/app.py`
 
 **Full guide:** `docs/guides/solara-export.md`
 

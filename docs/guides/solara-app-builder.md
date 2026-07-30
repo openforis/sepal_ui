@@ -527,4 +527,4 @@ payload = sepal_client.files.read_json(f"{folder}/result.json")
 | **sbae-design**       | `~/1_modules/sbae-design/`  | AppState singleton, MapApp layout, use_thread, strategy pattern |
 | **sepal_mgci**        | `~/1_modules/sepal_mgci/`   | traitlets Model, GEE async tasks, deferred calculations, Docker |
 | **se.plan**           | `~/1_modules/se.plan/`      | Recipe model, GEE interface injection, multi-panel layout       |
-| **pysepal templates** | `pysepal/templates/solara/` | Minimal examples (simple_app, map_app, aoi_app)                 |
+| **pysepal templates** | `pysepal/templates/solara/` | Worked map-app example: AOI, notifications, legend, export      |

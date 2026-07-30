@@ -45,10 +45,14 @@ def need_ee(func: Callable) -> Any:
 
     @wraps(func)
     def wrapper_ee(*args, **kwargs):
-        # try to connect to ee
+        # init_ee() is best-effort and no-ops without credentials, so require an
+        # initialized session here rather than trusting the call to have raised
         try:
             init_ee()
         except Exception:
+            pass
+
+        if not ee.data.is_initialized():
             raise Exception("This function needs an Earth Engine authentication")
 
         return func(*args, **kwargs)
@@ -370,12 +374,15 @@ def init_ee() -> None:
         credential_folder_path = Path.home() / ".config" / "earthengine"
         credential_file_path = credential_folder_path / "credentials"
 
-        if "EARTHENGINE_TOKEN" in os.environ and not credential_file_path.exists():
+        ee_token = os.environ.get("EARTHENGINE_TOKEN")
+        if ee_token and not credential_file_path.exists():
 
             # write the token to the appropriate folder
-            ee_token = os.environ["EARTHENGINE_TOKEN"]
             credential_folder_path.mkdir(parents=True, exist_ok=True)
             credential_file_path.write_text(ee_token)
+
+        if not credential_file_path.exists():
+            return
 
         # Extract the project name from credentials
         _credentials = json.loads(credential_file_path.read_text())

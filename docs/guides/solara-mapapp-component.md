@@ -7,7 +7,7 @@ and preserves the visual design of the original `MapApp.vue`
 (drawer, narrow-mode bottom sheet, dialog steps, right panel).
 
 ```{important}
-**Availability — not yet shipped.** As of pysepal 3.6.1, `MapAppComponent` and
+**Availability — not yet shipped.** As of pysepal 3.7.0, `MapAppComponent` and
 the `pysepal.solara.components.layout` package are **not present in the released
 package**: the `layout` module is empty and `from pysepal.solara import
 MapAppComponent` (along with the dataclasses below) raises `ImportError`. The

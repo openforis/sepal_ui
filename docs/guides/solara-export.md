@@ -553,4 +553,4 @@ layers:
   re-implementing submission logic
 
 The reference integration lives at
-`pysepal/templates/solara/solara_map_app/aoi_all_methods_mapapp.py`.
+`pysepal/templates/solara/solara_map_app/app.py`.
