@@ -281,9 +281,11 @@ class _EeFakeMap(_FakeMap):
 
 
 def test_aoi_view_restore_adds_ee_layer_off_loop(monkeypatch):
-    """A restored GEE AOI must draw via the blocking add_ee_layer in a worker
-    thread — never add_ee_layer_async on the kernel loop (loop-bound eeclient
-    pool; see _EeFakeMap)."""
+    """A restored GEE AOI must draw via the blocking add_ee_layer in a worker thread.
+
+    Never add_ee_layer_async on the kernel loop (loop-bound eeclient pool; see
+    _EeFakeMap).
+    """
     _patch_admin(monkeypatch)
     monkeypatch.setattr(aoi_view_mod, "get_current_gee_interface", lambda: object())
 
