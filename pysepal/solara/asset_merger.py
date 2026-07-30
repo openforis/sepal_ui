@@ -6,9 +6,10 @@ to work around Solara's limitation of serving assets from a single location.
 
 import logging
 import shutil
-import tempfile
 from pathlib import Path
 from typing import List, Sequence
+
+from pysepal.scripts.scratch import scratch_dir
 
 logger = logging.getLogger("sepalui.solara.asset_merger")
 
@@ -122,7 +123,7 @@ def create_merged_assets_directory(
         Path to the directory containing the merged assets (ready for Solara)
     """
     # Create temporary directory for merged assets
-    temp_dir = Path(tempfile.mkdtemp(prefix="sepal_ui_assets_"))
+    temp_dir = scratch_dir(prefix="sepal_ui_assets_")
     logger.debug(f"Created temporary assets directory: {temp_dir}")
 
     # Merge all assets
