@@ -163,11 +163,14 @@ anything in `docs/guides/solara-mapapp-component.md`.
 One worked example lives in the pysepal repo — read it before building a
 new app to see the patterns in action:
 
-- `pysepal/templates/solara/solara_map_app/app.py` — MapApp shell with `AoiView`
+- `pysepal/templates/solara/solara_map_app/` — MapApp shell with `AoiView`
   in the right panel, `NotificationProvider` task tracking, `ExportLauncher`
   sources, and a `LegendComponent` whose layer selector is driven by the layers
-  on the map. `MapAppDemo` holds the UI so `Page` (Solara, session-authenticated)
-  and `ui.ipynb` (Voila) can share it.
+  on the map. `app.py` holds the shell: `MapAppDemo` owns the UI so `Page`
+  (Solara, session-authenticated) and `ui.ipynb` (Voila) can share it. The rest
+  lives under `component/` — `parameter/` (layer ids, vis params), `model/`
+  (dataclasses in reactives), `scripts/` (Earth Engine work, no UI), `tile/`
+  (right-panel sections), `widget/` (map, layer lifecycle, floating legend).
 
 ### eager=True for dialogs in jupyter-widget contexts
 
@@ -286,7 +289,8 @@ with track_task("Exporting", total_steps=2) as task:
   with legacy Alert widgets only. The notification system is independent.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/app.py`
+`pysepal/templates/solara/solara_map_app/` — provider in `app.py`,
+`use_notifications` in `component/tile/process.py`
 
 ### Export System (ExportLauncher)
 
@@ -370,7 +374,8 @@ into a selected+open state before the walk — see
 `_render_preselected_dialog`.
 
 **Reference template:**
-`pysepal/templates/solara/solara_map_app/app.py`
+`pysepal/templates/solara/solara_map_app/component/scripts/exports.py` (sources)
+and `component/tile/export.py` (launcher)
 
 **Full guide:** `docs/guides/solara-export.md`
 
