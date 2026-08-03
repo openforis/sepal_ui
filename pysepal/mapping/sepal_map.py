@@ -9,6 +9,7 @@ from pysepal.mapping.bounds import (
     viewport_pixels_from_map,
 )
 from pysepal.mapping.fullscreen_control import FullScreenControl
+from pysepal.mapping.gdal_env import GDAL_ENV_VARS, prune_foreign_gdal_env
 from pysepal.mapping.visualization import (
     get_viz_params,
     get_viz_params_async,
@@ -18,10 +19,8 @@ from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.solara.theme import ThemeState
 
-if "GDAL_DATA" in list(os.environ.keys()):
-    del os.environ["GDAL_DATA"]
-if "PROJ_LIB" in list(os.environ.keys()):
-    del os.environ["PROJ_LIB"]
+if any(var in os.environ for var in GDAL_ENV_VARS):
+    prune_foreign_gdal_env()
 
 import json
 import math
