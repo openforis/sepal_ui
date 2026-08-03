@@ -552,5 +552,6 @@ layers:
   your requirements; in that case prefer the `use_export_dialog` hook over
   re-implementing submission logic
 
-The reference integration lives at
-`pysepal/templates/solara/solara_map_app/app.py`.
+The reference integration lives in `pysepal/templates/solara/solara_map_app/`:
+`component/scripts/exports.py` declares the sources and
+`component/tile/export.py` mounts the launcher.

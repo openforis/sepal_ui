@@ -11,6 +11,7 @@ TEMPLATE_DIR = (
 )
 APP_PATH = TEMPLATE_DIR / "app.py"
 NOTEBOOK_PATH = TEMPLATE_DIR / "ui.ipynb"
+TEMPLATE_SOURCES = sorted(TEMPLATE_DIR.rglob("*.py"))
 
 
 def _decorator_name(decorator: ast.expr) -> str:
@@ -49,7 +50,23 @@ def test_app_exposes_shared_component_and_authenticated_page_wrapper():
     )
 
 
-def test_app_never_schedules_gee_work_on_a_second_event_loop():
+def test_app_is_only_the_shell():
+    """Logic belongs under ``component/``; ``app.py`` only opens and lays out the app.
+
+    Guards the module boundaries against the template drifting back into one file.
+    """
+    module = ast.parse(APP_PATH.read_text())
+
+    defined = {
+        node.name
+        for node in module.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+    }
+
+    assert defined == {"on_kernel_start", "MapAppDemo", "Page"}
+
+
+def test_template_never_schedules_gee_work_on_a_second_event_loop():
     """Every async button must go through solara's loop, not GEEInterface's own.
 
     ``GEEInterface.create_task`` hands the coroutine to a private event loop running
@@ -58,17 +75,16 @@ def test_app_never_schedules_gee_work_on_a_second_event_loop():
     cached on the eeclient session, and its asyncio primitives bind to whichever loop
     touched them first -- so a concurrent call from the other one dies mid-request.
     """
-    module = ast.parse(APP_PATH.read_text())
-
-    create_task_calls = [
-        node
-        for node in ast.walk(module)
+    offenders = [
+        path.relative_to(TEMPLATE_DIR)
+        for path in TEMPLATE_SOURCES
+        for node in ast.walk(ast.parse(path.read_text()))
         if isinstance(node, ast.Call)
         and isinstance(node.func, ast.Attribute)
         and node.func.attr == "create_task"
     ]
 
-    assert create_task_calls == []
+    assert offenders == []
 
 
 def test_voila_notebook_only_imports_and_displays_shared_component():
