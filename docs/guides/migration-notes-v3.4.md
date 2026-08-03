@@ -207,7 +207,7 @@ boilerplate; swap `theme_toggle=` for `theme_state=` on `SepalMap` and `MapApp`.
 ## 8. MapApp → MapAppComponent
 
 ```{important}
-**Not yet available** (as of pysepal 3.6.1): `MapAppComponent` and
+**Not yet available** (as of pysepal 3.7.0): `MapAppComponent` and
 `pysepal.solara.components.layout` are not in the released package — the module
 is empty and the imports raise `ImportError`. Keep using `MapApp.element`
 (reacton renders `@solara.component` tiles passed as `content`). The guidance

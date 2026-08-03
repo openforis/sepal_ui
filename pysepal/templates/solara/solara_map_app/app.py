@@ -1,178 +1,157 @@
-"""Solara map application template for SEPAL UI.
+"""SEPAL Solara map application template.
 
-This module provides a complete example of a map-based application built with Solara
-and SEPAL UI components, including AOI selection, map visualization, and admin tools.
+One app exercising what a real SEPAL module needs: AOI selection, async
+processing with progress notifications, layer management, a floating map legend
+driven by the layers currently on the map, and Earth Engine / Drive / SEPAL
+exports.
+
+This module is only the shell: it opens the session, holds the reactives the
+sections share and lays them out. The pieces live under ``component/``:
+
+- ``component/parameter`` -- layer ids, vis params, class breaks, sample paths
+- ``component/model`` -- the app model and the dataclasses carried in reactives
+- ``component/scripts`` -- Earth Engine work, legend numbers, export sources (no UI)
+- ``component/tile`` -- the right-panel sections
+- ``component/widget`` -- the map, its layer lifecycle and the floating legend
+
+The UI lives in :func:`MapAppDemo` so the same code serves both runtimes --
+``Page`` wraps it with SEPAL session auth for Solara, and ``ui.ipynb`` is a thin
+Voila entrypoint that displays it directly.
+
+To run:
+
+```bash
+pysepal$ ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
+```
 """
 
-import logging
-
-import ee
-import ipyvuetify as v
 import solara
-from component.model import AppModel
+from component.parameter import DUMMY_DATA_DIR
+from component.tile import ExportPanel, ProcessPanel, use_layer_tools
+from component.widget import MapLegend, use_aoi_scoped_layers, use_sepal_map
 
-import pysepal.sepalwidgets as sw
-from pysepal.mapping import SepalMap
-from pysepal.scripts.utils import init_ee
 from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import (
     get_current_drive_interface,
     get_current_gee_interface,
-    get_current_sepal_client,
     get_current_theme_state,
     setup_sessions,
     setup_solara_server,
     setup_theme_colors,
     with_sepal_sessions,
 )
-from pysepal.solara.components.admin import AdminButton
+from pysepal.solara.components.aoi import AoiView
+from pysepal.solara.notifications import NotificationProvider
 
-logger = logging.getLogger("SEPALUI.map_app")
-logger.debug(">>>>>>>>>>> Starting MAP APP example application <<<<<<<<<<")
-init_ee()
-
-setup_solara_server()  # or setup_solara_server(extra_asset_locations=["./my_assets/"])
+setup_solara_server(extra_asset_locations=[])
 
 
 @solara.lab.on_kernel_start
 def on_kernel_start():
-    """Set up sessions management for Solara applications."""
+    """Set up sessions management."""
     return setup_sessions()
 
 
-def get_map():
-    """Create and configure the main map with sample Earth Engine data."""
-    polygons = ee.FeatureCollection(
-        [
-            ee.Feature(ee.Geometry.Rectangle([-74.15, 4.77, -74.10, 4.72]), {"name": "Tile A"}),
-            ee.Feature(ee.Geometry.Rectangle([-74.09, 4.77, -74.04, 4.72]), {"name": "Tile B"}),
-        ]
-    )
-    s2 = (
-        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
-        .filterBounds(polygons)
-        .filterDate("2024-01-01", "2024-12-31")
-        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 10))
-        .median()
-    )
-
-    return s2.normalizedDifference(["B8", "B4"]).rename("NDVI")
-
-
 @solara.component
-@with_sepal_sessions(module_name="sdg_indicators/15.4.2")
-def Page():
-    """Main application page component for the Solara map application.
-
-    This component sets up the main user interface including theme configuration,
-    map visualization, AOI selection tools, and administrative features.
-    The page is configured with SEPAL sessions for SDG indicators module 15.4.2.
-    """
+def MapAppDemo():
+    """MapApp shell wiring AOI, processing, layers, legend and export together."""
     setup_theme_colors()
 
     gee_interface = get_current_gee_interface()
-    get_current_drive_interface()
-    get_current_sepal_client()
+    drive_interface = get_current_drive_interface()
     theme_state = get_current_theme_state()
 
-    # Just a model to store the app name
-    model = AppModel()
+    # State shared between the sections; each section owns whatever is private to it.
+    aoi_data = solara.use_reactive(None)
+    aoi_loading = solara.use_reactive(False)
+    outputs = solara.use_reactive(None)
+    layer_legends = solara.use_reactive(())
 
-    solara_admin = AdminButton(
-        model,
-        logger_instance=logger,
+    sepal_map = use_sepal_map(gee_interface, theme_state)
+    use_aoi_scoped_layers(aoi_data, sepal_map, outputs, layer_legends)
+    layer_tools = use_layer_tools(sepal_map, layer_legends, outputs)
+
+    aoi_view = AoiView(
+        value=aoi_data,
+        loading=aoi_loading,
+        methods="ALL",
+        map_=sepal_map,
+        gee=True,
+        file_initial_folder=str(DUMMY_DATA_DIR),
     )
 
-    # Main map widget
-    map_ = SepalMap(gee_interface=gee_interface, fullscreen=True, theme_state=theme_state)
-    map_.center = [4.75, -74.12]
-
-    aoi_view = v.Card(
-        children=[
-            v.CardTitle(children=["Area of Interest Selection"]),
-            v.CardText(children=["Select your area of interest on the map."]),
-            v.Btn(children=["Select AOI"], color="primary"),
-        ]
-    )
-
-    async def _get_maps():
-        """Compute the restoration maps."""
-        map_.center = [4.75, -74.12]
-        map_.zoom = 5
-        map_.remove_all()
-        await map_.add_ee_layer_async(get_map())
-        map_.zoom = 12
-
-    def remove_all_layers():
-        map_.zoom = 5
-        map_.center = [4.75, -74.12]
-        map_.remove_all()
-
-    btn_compute = sw.TaskButton("add layer", small=True, block=True)
-    btn_remove = sw.Btn("remove all layers", small=True, block=True)
-
-    btn_remove.on_event("click", lambda *args: remove_all_layers())
-
-    def create_compute_maps_task():
-        return gee_interface.create_task(func=_get_maps, key="compute_all_maps")
-
-    btn_compute.configure(task_factory=create_compute_maps_task)
-
-    steps_data = [
-        {
-            "id": 2,
-            "name": "AOI Selection as step",
-            "icon": "mdi-map-marker-check",
-            "display": "step",
-            "content": aoi_view,
-        },
-        {
-            "id": 3,
-            "name": "AOI Selection as dialog",
-            "icon": "mdi-map-marker-check",
-            "display": "dialog",
-            "content": aoi_view,
-        },
-        {
-            "id": 5,
-            "name": "Toggle sidebar panel",
-            "icon": "mdi-view-dashboard",
-            "display": "step",
-            "content": [],
-            "right_panel_action": "toggle",  # "open", "close", "toggle", or None
-        },
-    ]
-
-    # This is for the secondary panel
     right_panel_config = {
-        "title": "Results",
-        "icon": "mdi-image-filter-hdr",
+        "title": "Tools",
+        "icon": "mdi-map-marker-check",
         "width": 400,
-        "description": "Some description.",
-        "toggle_icon": "mdi-chart-line",
+        "description": "Select an area, process it, then inspect and export the results.",
     }
 
-    # We can use solara components here!
-    right_panel_content_with_solara = [
+    right_panel_content = [
         {
-            "title": "Visualize and export layers",
-            "icon": "mdi-layers",
-            "content": [solara.Text("This is a Solara component.")],
-            "description": "To add layers to the map, you will first need to select the area of interest and the years in the 3. Indicator settings step.",
+            "title": "Select AOI",
+            "icon": "mdi-map-marker-check",
+            "content": [aoi_view],
         },
         {
-            "content": [solara_admin, btn_remove, btn_compute],
+            "title": "Process",
+            "icon": "mdi-cog-outline",
+            "content": [
+                ProcessPanel(
+                    aoi_data=aoi_data,
+                    outputs=outputs,
+                    layer_legends=layer_legends,
+                    sepal_map=sepal_map,
+                    gee_interface=gee_interface,
+                )
+            ],
+            "description": "Derives two layers from the AOI and publishes a legend for each.",
+        },
+        {
+            "title": "Layers",
+            "icon": "mdi-layers",
+            "content": layer_tools,
+            "description": (
+                "Add a standalone demo layer or a PMTiles vector layer, or clear the map "
+                "and its legends. Both show up in the layer control, top right."
+            ),
+            "divider": True,
+        },
+        {
+            "title": "Export",
+            "icon": "mdi-export-variant",
+            "content": [
+                ExportPanel(
+                    aoi_data=aoi_data,
+                    outputs=outputs,
+                    gee_interface=gee_interface,
+                    drive_interface=drive_interface,
+                )
+            ],
+            "description": "Send the AOI or a processed output to Earth Engine, Drive or SEPAL.",
         },
     ]
 
+    # Toasts top-right, task progress pill bottom-right.
+    NotificationProvider()
+
+    MapLegend(layer_legends)
+
     MapApp.element(
-        app_title="My test App",
-        app_icon="mdi-image-filter-hdr",
-        main_map=[map_],
-        steps_data=steps_data,
+        app_title="PySepal Map App",
+        app_icon="mdi-earth",
+        main_map=[sepal_map],
+        steps_data=[],
         right_panel_config=right_panel_config,
-        right_panel_content=right_panel_content_with_solara,
+        right_panel_content=right_panel_content,
         right_panel_open=True,
         theme_state=theme_state,
         dialog_width=750,
     )
+
+
+@solara.component
+@with_sepal_sessions(module_name="solara_map_app")
+def Page():
+    """Authenticated Solara-server entrypoint for the map app demo."""
+    MapAppDemo()

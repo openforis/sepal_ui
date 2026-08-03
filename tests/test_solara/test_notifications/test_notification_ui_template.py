@@ -30,19 +30,32 @@ def _numeric_property(rule_body: str, name: str) -> int:
 
 
 _DIALOG_Z_INDEX = 202  # Vuetify 2 v-dialog__content default
+_OVERLAY_Z_INDEX = 201  # Vuetify 2 v-overlay default
 
 
-def test_notification_layers_sit_above_dialogs():
-    """Keep pill and toast layers above Vuetify dialog/overlay defaults.
+def test_toasts_sit_above_dialogs():
+    """Keep the toast stack above Vuetify dialog/overlay defaults.
 
-    Notifications are often *about* the dialog (errors, progress) so they must
-    remain visible even when a modal is open — otherwise users miss critical
-    feedback and assume the app is unresponsive.
+    Toasts are often *about* the dialog (errors, progress) so they must remain
+    visible even when a modal is open — otherwise users miss critical feedback
+    and assume the app is unresponsive.
     """
     toast_z = _numeric_property(_rule_body(".toast-stack"), "z-index")
-    pill_z = _numeric_property(_rule_body(".pill-wrapper"), "z-index")
     assert toast_z > _DIALOG_Z_INDEX, f"toast z-index {toast_z} not above dialog"
-    assert pill_z > _DIALOG_Z_INDEX, f"pill z-index {pill_z} not above dialog"
+
+
+def test_pill_sits_below_the_modal_baseline():
+    """Keep the pill/logger under Vuetify's scrim, unlike the toast stack.
+
+    It used to share the toast tier, which floated the logger panel over open
+    modals. It now sits below the scrim so a modal dims it instead — and because
+    every app layer above Vuetify's baseline has to be pinned with `!important`,
+    which desynchronises the `stackable` mixin's runtime z-index bookkeeping and
+    breaks click-outside-to-close. See the layering contract in
+    ``pysepal/frontend/css/base.css``.
+    """
+    pill_z = _numeric_property(_rule_body(".pill-wrapper"), "z-index")
+    assert pill_z < _OVERLAY_Z_INDEX, f"pill z-index {pill_z} not below the scrim"
 
 
 def test_notification_pill_keeps_mapapp_right_offset_hook():

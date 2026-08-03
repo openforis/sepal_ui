@@ -452,9 +452,10 @@ export default {
   position: fixed;
   bottom: 8px;
   right: calc(var(--sepal-notification-right-offset, 0px) + 8px);
-  /* Match the toast stack so ongoing task progress stays visible over
-   * dialogs the user might open. */
-  z-index: 9999;
+  /* Below vuetify's modal baseline, unlike the toast stack: the scrim should
+   * dim the pill and the logger rather than let them float over a dialog.
+   * See the layering contract in frontend/css/base.css. */
+  z-index: 170;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
