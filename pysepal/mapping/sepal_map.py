@@ -531,11 +531,13 @@ class SepalMap(ipl.Map):
         # rio-tiler reads full-resolution pixels for every tile when the source
         # has no overviews, so serve a prepared COG. Fast no-op when the raster
         # is already tiled with overviews. class_colors settles the overview
-        # resampling; without it fall back to the dtype guess.
+        # resampling either way -- without it the raster is being drawn as a ramp,
+        # so averaged overviews are right even for the integer dtypes
+        # prepare_for_tiles would otherwise guess were classes (an int16 DEM).
         served = (
             _optimize_for_tiles(
                 source,
-                categorical=True if class_colors else None,
+                categorical=bool(class_colors),
                 warp_to_3857=warp_to_3857,
             )
             if optimize

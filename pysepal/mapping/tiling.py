@@ -21,6 +21,7 @@ import hashlib
 import logging
 import os
 import pathlib
+import uuid
 from typing import Iterator, Optional, Union
 
 from pysepal.scripts.scratch import scratch_root
@@ -77,12 +78,24 @@ def _optimize_for_tiles(
         return str(image)
 
 
-def _hash_for_cache(path: str) -> str:
+def _hash_for_cache(path: str, *recipe: str) -> str:
+    """Identify a cache entry by its source *and* how it was prepared.
+
+    ``recipe`` carries everything that changes the output for the same input --
+    overview resampling, class renumbering -- so a second call asking for
+    different treatment does not get handed the first call's file.
+
+    ``st_mtime_ns`` rather than whole seconds: a rewrite that keeps the byte
+    count and lands inside the same second would otherwise look unchanged.
+    """
     st = os.stat(path)
     h = hashlib.sha1()
     h.update(path.encode())
     h.update(str(st.st_size).encode())
-    h.update(str(int(st.st_mtime)).encode())
+    h.update(str(st.st_mtime_ns).encode())
+    for item in recipe:
+        h.update(b"\x00")
+        h.update(item.encode())
     return h.hexdigest()[:16]
 
 
@@ -95,7 +108,10 @@ def _write_atomically(dst: Union[str, pathlib.Path]) -> Iterator[str]:
     corrupt source.
     """
     dst = pathlib.Path(dst)
-    tmp = dst.with_name(f"{dst.name}.{os.getpid()}.part")
+    # unique per writer, not just per process: add_raster_async hands preparation
+    # to a thread pool, so two concurrent adds share a pid and would otherwise
+    # write the same file -- one publishing it while the other is mid-write
+    tmp = dst.with_name(f"{dst.name}.{os.getpid()}.{uuid.uuid4().hex[:8]}.part")
     try:
         yield str(tmp)
         os.replace(tmp, dst)
@@ -246,13 +262,13 @@ def prepare_for_tiles(
 
     cache_dir = str(cache_dir or default_cache_dir())
     os.makedirs(cache_dir, exist_ok=True)
-    tag = _hash_for_cache(path)
+    tag = _hash_for_cache(path, resampling)
     out = os.path.join(
         cache_dir,
         f"{os.path.basename(path)}.{tag}" + (".3857.cog.tif" if warp_to_3857 else ".cog.tif"),
     )
-    # the tag covers the source's size and mtime, so an existing entry is this
-    # exact raster already prepared
+    # the tag covers the source and the resampling, so an existing entry is this
+    # exact raster already prepared the same way
     if os.path.exists(out) and not force:
         return {"path": out, "report": analyze_tif(out)}
 

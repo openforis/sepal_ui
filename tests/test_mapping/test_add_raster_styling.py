@@ -150,6 +150,21 @@ def test_densify_maps_high_codes_onto_a_byte(int16_classes: Path, tmp_path: Path
         assert set(np.unique(ds.read(1))) == {1, 2}
 
 
+def test_densify_keys_its_cache_on_the_classes_asked_for(
+    int16_classes: Path, tmp_path: Path
+) -> None:
+    # renumbering depends on the code set, so sharing one file between two
+    # different sets paints one class with another's colour
+    first, first_colors = _densify_class_codes(
+        int16_classes, {1: "#ff0000", 2: "#00ff00"}, tmp_path
+    )
+    second, second_colors = _densify_class_codes(int16_classes, {2: "#00ff00"}, tmp_path)
+
+    assert second != first
+    assert first_colors == {1: "#ff0000", 2: "#00ff00"}
+    assert second_colors == {1: "#00ff00"}  # class 2 renumbered to 1 on its own
+
+
 def test_densify_reuses_its_cached_copy(int16_classes: Path, tmp_path: Path) -> None:
     first, _ = _densify_class_codes(int16_classes, {1: "#ff0000"}, tmp_path)
     stamp = first.stat().st_mtime_ns

@@ -109,6 +109,19 @@ def demo_rasters() -> dict:
 
 @solara.component
 def RasterAppDemo():
+    """Mount the notification bus, then the app that publishes to it.
+
+    ``use_notifications()`` resolves to a NoopNotifier while no provider is
+    mounted, and the tasks close over whatever it returned -- so the hook has to
+    run in a child of the provider, not alongside it.
+    """
+    # Toasts top-right, task progress pill bottom-right.
+    NotificationProvider()
+    RasterPanel()
+
+
+@solara.component
+def RasterPanel():
     """Map plus a panel of buttons, one per raster-rendering path."""
     setup_theme_colors()
     theme_state = get_current_theme_state()
@@ -187,9 +200,6 @@ def RasterAppDemo():
     clear_button = solara.use_memo(build_clear_button, [id(sepal_map)])
 
     source = "generated stand-ins" if rasters["synthetic"] else "real class maps"
-
-    # Toasts top-right, task progress pill bottom-right.
-    NotificationProvider()
 
     MapApp.element(
         app_title="Local rasters",
