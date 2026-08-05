@@ -25,7 +25,7 @@ swap ``legend_data`` as the selection changes::
         event_set_selected=selected.set,
     )
 
-See ``pysepal/templates/solara/solara_map_app/component/widget/legend.py`` for a
+See ``demo_apps/solara_map_app/component/widget/legend.py`` for a
 working example.
 """
 

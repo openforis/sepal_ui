@@ -14,7 +14,7 @@ The UI lives in :func:`RasterAppDemo` so the same code serves both runtimes --
 To run:
 
 ```bash
-pysepal$ ./run_solara.sh pysepal/templates/solara/solara_raster_app/app.py --port 8901
+pysepal$ ./run_solara.sh demo_apps/solara_raster_app/app.py --port 8901
 ```
 """
 
@@ -27,13 +27,10 @@ import pysepal.sepalwidgets as sw
 from pysepal import mapping as sm
 from pysepal.scripts.scratch import scratch_root
 from pysepal.sepalwidgets.vue_app import MapApp
-from pysepal.solara import (
-    get_current_theme_state,
-    setup_solara_server,
-    setup_theme_colors,
-)
+from pysepal.solara import setup_solara_server, setup_theme_colors
 from pysepal.solara.components.task_button import TaskButtonComponent, use_task_button
 from pysepal.solara.notifications import NotificationProvider, use_notifications
+from pysepal.solara.theme import resolve_theme_state
 
 setup_solara_server(extra_asset_locations=[])
 
@@ -111,7 +108,9 @@ def demo_rasters() -> dict:
 def RasterAppDemo():
     """Map plus a panel of buttons, one per raster-rendering path."""
     setup_theme_colors()
-    theme_state = get_current_theme_state()
+    # Never demands a SEPAL session: this demo has none, and in the gallery the
+    # map app's session manager is active process-wide.
+    theme_state = resolve_theme_state()
     notifications = use_notifications()
 
     rasters = solara.use_memo(demo_rasters, [])

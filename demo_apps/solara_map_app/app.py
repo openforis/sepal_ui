@@ -1,4 +1,4 @@
-"""SEPAL Solara map application template.
+"""SEPAL Solara map application demo.
 
 One app exercising what a real SEPAL module needs: AOI selection, async
 processing with progress notifications, layer management, a floating map legend
@@ -21,7 +21,7 @@ Voila entrypoint that displays it directly.
 To run:
 
 ```bash
-pysepal$ ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
+pysepal$ ./run_solara.sh demo_apps/solara_map_app/app.py --port 8901
 ```
 """
 

@@ -196,7 +196,7 @@ Create a ``.env`` file in the ``pysepal`` root directory:
     LOCAL_SEPAL_PASSWORD=your_password
     SEPAL_HOST=sepal.io # or your custom SEPAL instance URL
 
-The repository also includes a ready-to-run Solara application template:
+The repository also includes ready-to-run Solara demo apps under ``demo_apps/``:
 
 .. code-block:: bash
 
@@ -209,8 +209,11 @@ The repository also includes a ready-to-run Solara application template:
     # Make the run script executable
     chmod +x run_solara.sh
 
-    # Test the map application template
-    ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
+    # Test the map application demo
+    ./run_solara.sh demo_apps/solara_map_app/app.py --port 8901
+
+    # ...or open the gallery, which routes to every demo
+    ./run_solara.sh demo_apps/gallery.py --port 8901
 
 The ``run_solara.sh`` script automatically:
 
@@ -292,7 +295,7 @@ Complete Map Application Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The full worked example lives at
-``pysepal/templates/solara/solara_map_app/app.py``. It wires an ``AoiView``,
+``demo_apps/solara_map_app/app.py``. It wires an ``AoiView``,
 async processing with progress notifications, layer management, a floating map
 legend and the export dialog into one ``MapApp`` shell — read it alongside this
 section rather than copying the skeleton below.
