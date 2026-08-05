@@ -244,6 +244,38 @@ def test_class_colors_ignore_a_caller_supplied_range(int16_classes: Path, caplog
     assert "vmin/vmax are ignored" in caplog.text
 
 
+@pytest.mark.asyncio
+async def test_add_raster_async_matches_the_sync_call(int16_classes: Path) -> None:
+    colors = {1: "#ff0000", 2: "#00ff00"}
+    m = sm.SepalMap()
+    layer = await m.add_raster_async(int16_classes, class_colors=colors, key="a")
+
+    assert m.find_layer("a") is layer
+    assert _rendered_colors(layer) == {(255, 0, 0), (0, 255, 0)}
+
+
+@pytest.mark.asyncio
+async def test_add_raster_async_prepares_off_the_loop(byte: Path, monkeypatch) -> None:
+    # the whole point: the GDAL pass must not run on the thread driving the UI
+    import threading
+
+    import pysepal.mapping.sepal_map as sepal_map
+
+    calling_thread = {}
+    real = sepal_map._optimize_for_tiles
+
+    def _record(*args, **kwargs):
+        calling_thread["name"] = threading.current_thread()
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(sepal_map, "_optimize_for_tiles", _record)
+
+    m = sm.SepalMap()
+    await m.add_raster_async(byte, key="off")
+
+    assert calling_thread["name"] is not threading.current_thread()
+
+
 def test_add_raster_points_the_inspector_at_the_source(byte: Path) -> None:
     # the served file may be a prepared COG copy; the v_inspector must report
     # values from the raster the caller supplied
@@ -345,6 +377,25 @@ def test_optimize_serves_a_prepared_copy(byte: Path) -> None:
     layer = m.add_raster(byte, key="cog")
 
     assert _served_file(layer) != str(byte)  # the cached COG, not the source
+
+
+def test_warp_reaches_the_tile_server(byte: Path) -> None:
+    import rasterio as rio
+
+    m = sm.SepalMap()
+    layer = m.add_raster(byte, warp_to_3857=True, key="warp")
+
+    with rio.open(_served_file(layer)) as ds:
+        assert ds.crs.to_epsg() == 3857
+
+
+def test_warp_without_optimize_says_so(byte: Path, caplog) -> None:
+    # reprojecting means writing a copy, which optimize=False forbids
+    m = sm.SepalMap()
+    layer = m.add_raster(byte, warp_to_3857=True, optimize=False, key="nowarp")
+
+    assert _served_file(layer) == str(byte)
+    assert "warp_to_3857 needs optimize=True" in caplog.text
 
 
 def test_optimize_false_serves_the_source_untouched(byte: Path) -> None:

@@ -29,6 +29,7 @@ from pysepal.solara.theme import ThemeState
 if any(var in os.environ for var in GDAL_ENV_VARS):
     prune_foreign_gdal_env()
 
+import asyncio
 import json
 import math
 import random
@@ -413,6 +414,7 @@ class SepalMap(ipl.Map):
         vmax: Optional[float] = None,
         nodata: Optional[float] = None,
         optimize: bool = True,
+        warp_to_3857: bool = False,
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
 
@@ -431,13 +433,19 @@ class SepalMap(ipl.Map):
             vmax: value mapped to the last color. See ``vmin``.
             nodata: value to render transparent. Defaults to the file's declared nodata, which some products tag incorrectly.
             optimize: prepare a tiled COG with overviews before serving. On by default because rio-tiler otherwise reads full-resolution pixels for every tile. Turn it off for a large raster you do not want copied into the tile cache, or one that already has ``.ovr`` sidecars.
+            warp_to_3857: reproject to Web Mercator while preparing, so tiles are cut in the CRS they are served in instead of being warped per request. Needs ``optimize=True``. Off by default because it doubles the preparation work for a raster that is already close to 3857.
 
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
 
+        Note:
+            The first add of a large raster runs a GDAL pass over every pixel and
+            blocks until it finishes. In a Solara app use :meth:`add_raster_async`
+            instead, which does that part in a worker thread.
+
         .. versionadded:: 3.9.0
-            ``class_colors``, ``vmin``, ``vmax``, ``nodata`` and ``optimize``,
-            plus overview preparation by default.
+            ``class_colors``, ``vmin``, ``vmax``, ``nodata``, ``optimize`` and
+            ``warp_to_3857``, plus overview preparation by default.
 
         .. versionchanged:: 3.9.0
             ``colormap`` now reaches the tile server. It was previously packed into
@@ -445,9 +453,98 @@ class SepalMap(ipl.Map):
             reading in localtileserver 0.10.0, so rasters rendered with
             localtileserver's default coloring regardless of what was requested.
         """
-        from localtileserver import TileClient, get_leaflet_tile_layer
+        served, class_colors = self._prepare_raster(image, class_colors, optimize, warp_to_3857)
+        return self._attach_raster(
+            image,
+            served,
+            bands=bands,
+            layer_name=layer_name,
+            colormap=colormap,
+            opacity=opacity,
+            fit_bounds=fit_bounds,
+            key=key,
+            class_colors=class_colors,
+            vmin=vmin,
+            vmax=vmax,
+            nodata=nodata,
+        )
 
-        # force cast to Path and then start the client
+    async def add_raster_async(
+        self,
+        image: Union[str, Path],
+        bands: Optional[Union[list, int]] = None,
+        layer_name: str = "Layer_" + su.random_string(),
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
+        opacity: float = 1.0,
+        fit_bounds: bool = True,
+        key: str = "",
+        class_colors: Optional[dict] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        nodata: Optional[float] = None,
+        optimize: bool = True,
+        warp_to_3857: bool = False,
+    ) -> ipl.TileLayer:
+        """Add a local raster without blocking the event loop.
+
+        Same arguments and return as :meth:`add_raster`. Preparing a raster for
+        tiling is a GDAL pass over every pixel, so on a large file the
+        synchronous call freezes the kernel for as long as that takes; here it
+        runs in a worker thread and only the layer attach stays on the loop.
+        Both are cheap once a raster has been prepared, since the result is
+        cached.
+
+        Args:
+            image: The image file path.
+            bands: The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
+            layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
+            colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
+            opacity: the opacity of the layer, default 1.0.
+            fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
+            key: the unequivocal key of the layer. by default use a normalized str of the layer name
+            class_colors: mapping of class code to a hex color, for a categorical raster. See :meth:`add_raster`.
+            vmin: value mapped to the first color. See :meth:`add_raster`.
+            vmax: value mapped to the last color. See :meth:`add_raster`.
+            nodata: value to render transparent. See :meth:`add_raster`.
+            optimize: prepare a tiled COG with overviews before serving. See :meth:`add_raster`.
+            warp_to_3857: reproject to Web Mercator while preparing. See :meth:`add_raster`.
+
+        Returns:
+            the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
+
+        .. versionadded:: 3.9.0
+        """
+        served, class_colors = await asyncio.to_thread(
+            self._prepare_raster, image, class_colors, optimize, warp_to_3857
+        )
+        return self._attach_raster(
+            image,
+            served,
+            bands=bands,
+            layer_name=layer_name,
+            colormap=colormap,
+            opacity=opacity,
+            fit_bounds=fit_bounds,
+            key=key,
+            class_colors=class_colors,
+            vmin=vmin,
+            vmax=vmax,
+            nodata=nodata,
+        )
+
+    def _prepare_raster(
+        self,
+        image: Union[str, Path],
+        class_colors: Optional[dict],
+        optimize: bool,
+        warp_to_3857: bool = False,
+    ) -> tuple:
+        """Produce the serve-ready raster path, doing all of the expensive work.
+
+        Touches only the filesystem, so it is safe to run off the UI thread --
+        which is what :meth:`add_raster_async` does. Returns the path to serve
+        and the ``class_colors`` restated in whatever codes that path uses.
+        """
         image = Path(image)
 
         if not image.is_file():
@@ -459,15 +556,49 @@ class SepalMap(ipl.Map):
             cache_dir.mkdir(parents=True, exist_ok=True)
             source, class_colors = _densify_class_codes(image, class_colors, cache_dir)
 
+        if warp_to_3857 and not optimize:
+            # reprojecting means writing a new raster, which is the very thing
+            # optimize=False asks us not to do
+            log.warning("warp_to_3857 needs optimize=True; %s is served in its own CRS.", image)
+
         # rio-tiler reads full-resolution pixels for every tile when the source
         # has no overviews, so serve a prepared COG. Fast no-op when the raster
         # is already tiled with overviews. class_colors settles the overview
         # resampling; without it fall back to the dtype guess.
         served = (
-            _optimize_for_tiles(source, categorical=True if class_colors else None)
+            _optimize_for_tiles(
+                source,
+                categorical=True if class_colors else None,
+                warp_to_3857=warp_to_3857,
+            )
             if optimize
             else str(source)
         )
+        return served, class_colors
+
+    def _attach_raster(
+        self,
+        image: Union[str, Path],
+        served: str,
+        bands: Optional[Union[list, int]] = None,
+        layer_name: str = "",
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
+        opacity: float = 1.0,
+        fit_bounds: bool = True,
+        key: str = "",
+        class_colors: Optional[dict] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        nodata: Optional[float] = None,
+    ) -> ipl.TileLayer:
+        """Serve a prepared raster and put it on the map.
+
+        The half of ``add_raster`` that mutates the map, so it belongs on the
+        thread that owns the widgets.
+        """
+        from localtileserver import TileClient, get_leaflet_tile_layer
+
+        image = Path(image)
         client = TileClient(served)
 
         # check inputs
