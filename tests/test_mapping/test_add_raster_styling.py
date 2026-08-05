@@ -256,7 +256,7 @@ async def test_add_raster_async_matches_the_sync_call(int16_classes: Path) -> No
 
 @pytest.mark.asyncio
 async def test_add_raster_async_prepares_off_the_loop(byte: Path, monkeypatch) -> None:
-    # the whole point: the GDAL pass must not run on the thread driving the UI
+    # the whole point: rewriting the pixels must not run on the thread driving the UI
     import threading
 
     import pysepal.mapping.sepal_map as sepal_map

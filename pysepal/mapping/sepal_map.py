@@ -439,7 +439,7 @@ class SepalMap(ipl.Map):
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
 
         Note:
-            The first add of a large raster runs a GDAL pass over every pixel and
+            The first add of a large raster rewrites every one of its pixels and
             blocks until it finishes. In a Solara app use :meth:`add_raster_async`
             instead, which does that part in a worker thread.
         """
@@ -477,30 +477,9 @@ class SepalMap(ipl.Map):
     ) -> ipl.TileLayer:
         """Add a local raster without blocking the event loop.
 
-        Same arguments and return as :meth:`add_raster`. Preparing a raster for
-        tiling is a GDAL pass over every pixel, so on a large file the
-        synchronous call freezes the kernel for as long as that takes; here it
-        runs in a worker thread and only the layer attach stays on the loop.
-        Both are cheap once a raster has been prepared, since the result is
-        cached.
-
-        Args:
-            image: The image file path.
-            bands: The image bands to use. It can be either a number (e.g., 1) or a list (e.g., [3, 2, 1]). Defaults to None.
-            layer_name: The layer name to use for the raster. Defaults to None. If a layer is already using this name 3 random letter will be added
-            colormap: The name of the colormap to use for the raster, such as 'gray' and 'terrain'. More can be found at https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html. Defaults to inferno.
-            opacity: the opacity of the layer, default 1.0.
-            fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
-            key: the unequivocal key of the layer. by default use a normalized str of the layer name
-            class_colors: mapping of class code to a hex color, for a categorical raster. See :meth:`add_raster`.
-            vmin: value mapped to the first color. See :meth:`add_raster`.
-            vmax: value mapped to the last color. See :meth:`add_raster`.
-            nodata: value to render transparent. See :meth:`add_raster`.
-            optimize: prepare a tiled COG with overviews before serving. See :meth:`add_raster`.
-            warp_to_3857: reproject to Web Mercator while preparing. See :meth:`add_raster`.
-
-        Returns:
-            the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
+        Same arguments and return as :meth:`add_raster`. Preparing a raster
+        rewrites every one of its pixels into a tiled COG; that runs in a worker
+        thread here, leaving only the layer attach on the loop.
         """
         served, class_colors = await asyncio.to_thread(
             self._prepare_raster, image, class_colors, optimize, warp_to_3857
