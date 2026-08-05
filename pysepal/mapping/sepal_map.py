@@ -604,10 +604,14 @@ class SepalMap(ipl.Map):
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
 
-        # zoom on the layer if requested
+        # zoom on the layer if requested. Not client.default_zoom: that frames the
+        # raster in a single 256px tile, leaving it about an eighth of the
+        # viewport wide. zoom_bounds is what add_ee_layer autocenters with -- it
+        # sizes to the canvas, allows for whatever panels MapApp has laid over it,
+        # and stops at the tightest zoom that still shows the whole raster.
         if fit_bounds is True:
-            self.center = client.center()
-            self.zoom = client.default_zoom
+            (south, west), (north, east) = layer.bounds
+            self.zoom_bounds((west, south, east, north))
 
         return layer
 

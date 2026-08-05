@@ -387,6 +387,45 @@ def test_explicit_band_on_a_multi_band_source_uses_a_ramp(rgb: Path) -> None:
     assert params["colormap"] == "viridis"
 
 
+def _on_screen_width_px(layer, zoom: int) -> float:
+    """How wide the raster draws at ``zoom``; longitude is linear in Mercator px."""
+    (_, west), (_, east) = layer.bounds
+    return (east - west) * (256 * 2**zoom) / 360
+
+
+@pytest.mark.parametrize("fixture", ["byte", "rgb"])
+def test_fit_bounds_frames_the_whole_raster(fixture: str, request) -> None:
+    # localtileserver's default_zoom frames a raster in a 256px tile rather than
+    # in the map, which drew it about an eighth of the viewport wide
+    canvas_px = 1024  # the map's fallback canvas width, with no frontend attached
+    m = sm.SepalMap()
+    layer = m.add_raster(request.getfixturevalue(fixture), key="fit")
+
+    on_screen_px = _on_screen_width_px(layer, m.zoom)
+
+    # fills the viewport without spilling off it; the exact zoom is whichever
+    # axis runs out of pixels first, so height may be what binds
+    assert 0.25 * canvas_px < on_screen_px <= canvas_px
+
+
+def test_fit_bounds_centres_on_the_raster(byte: Path) -> None:
+    m = sm.SepalMap()
+    layer = m.add_raster(byte, key="centre")
+
+    (south, west), (north, east) = layer.bounds
+
+    assert south < m.center[0] < north
+    assert west < m.center[1] < east
+
+
+def test_fit_bounds_can_be_declined(byte: Path) -> None:
+    m = sm.SepalMap()
+    before = (m.center, m.zoom)
+    m.add_raster(byte, fit_bounds=False, key="still")
+
+    assert (m.center, m.zoom) == before
+
+
 def test_optimize_serves_a_prepared_copy(byte: Path) -> None:
     m = sm.SepalMap()
     layer = m.add_raster(byte, key="cog")
