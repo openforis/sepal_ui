@@ -87,7 +87,11 @@ def _densify_class_codes(image: Path, class_colors: dict, cache_dir: Path) -> Tu
     for color in renumbered.values():
         _hex_to_rgb(color)  # fail before rewriting a raster for an unusable palette
 
-    dst = cache_dir / f"{image.name}.{_hash_for_cache(str(image))}.classes.tif"
+    # the renumbering depends on which classes were asked for, so the codes are
+    # part of the identity: mapping {300, 1024} and later just {1024} produce
+    # different pixels, and sharing one file would paint 300 as 1024
+    tag = _hash_for_cache(str(image), *(str(code) for code in codes))
+    dst = cache_dir / f"{image.name}.{tag}.classes.tif"
     if dst.exists():
         return dst, renumbered
 

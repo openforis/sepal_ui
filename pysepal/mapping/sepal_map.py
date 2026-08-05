@@ -531,11 +531,13 @@ class SepalMap(ipl.Map):
         # rio-tiler reads full-resolution pixels for every tile when the source
         # has no overviews, so serve a prepared COG. Fast no-op when the raster
         # is already tiled with overviews. class_colors settles the overview
-        # resampling; without it fall back to the dtype guess.
+        # resampling either way -- without it the raster is being drawn as a ramp,
+        # so averaged overviews are right even for the integer dtypes
+        # prepare_for_tiles would otherwise guess were classes (an int16 DEM).
         served = (
             _optimize_for_tiles(
                 source,
-                categorical=True if class_colors else None,
+                categorical=bool(class_colors),
                 warp_to_3857=warp_to_3857,
             )
             if optimize
@@ -602,10 +604,14 @@ class SepalMap(ipl.Map):
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
 
-        # zoom on the layer if requested
+        # zoom on the layer if requested. Not client.default_zoom: that frames the
+        # raster in a single 256px tile, leaving it about an eighth of the
+        # viewport wide. zoom_bounds is what add_ee_layer autocenters with -- it
+        # sizes to the canvas, allows for whatever panels MapApp has laid over it,
+        # and stops at the tightest zoom that still shows the whole raster.
         if fit_bounds is True:
-            self.center = client.center()
-            self.zoom = client.default_zoom
+            (south, west), (north, east) = layer.bounds
+            self.zoom_bounds((west, south, east, north))
 
         return layer
 

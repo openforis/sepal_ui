@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from pysepal.mapping.tiling import (
+    _hash_for_cache,
     _predictor_for,
     _write_atomically,
     default_cache_dir,
@@ -109,6 +110,56 @@ def test_prepared_raster_is_reused(byte: Path, tmp_path: Path) -> None:
 
     assert second["path"] == first["path"]
     assert Path(second["path"]).stat().st_mtime_ns == stamp
+
+
+def test_resampling_choice_is_part_of_the_cache_identity(byte: Path, tmp_path: Path) -> None:
+    # NEAREST and AVERAGE overviews are different pixels; sharing one entry hands
+    # the second caller the first caller's resampling
+    categorical = prepare_for_tiles(str(byte), cache_dir=str(tmp_path), categorical=True)
+    continuous = prepare_for_tiles(str(byte), cache_dir=str(tmp_path), categorical=False)
+
+    assert categorical["path"] != continuous["path"]
+
+
+def test_a_same_size_rewrite_within_a_second_is_not_reused(tmp_path: Path) -> None:
+    # whole-second mtime would call these the same raster
+    import numpy as np
+    import rasterio as rio
+    from rasterio.transform import from_origin
+
+    source = tmp_path / "churn.tif"
+    profile = dict(
+        driver="GTiff",
+        height=1024,
+        width=1024,
+        count=1,
+        dtype="int16",
+        crs="EPSG:4326",
+        transform=from_origin(0, 0, 0.001, 0.001),
+    )
+    with rio.open(source, "w", **profile) as ds:
+        ds.write(np.ones((1024, 1024), dtype="int16"), 1)
+    first = _hash_for_cache(str(source))
+
+    with rio.open(source, "w", **profile) as ds:  # same byte count, same second
+        ds.write(np.full((1024, 1024), 2, dtype="int16"), 1)
+
+    assert _hash_for_cache(str(source)) != first
+
+
+def test_concurrent_writers_do_not_share_a_temp_file(tmp_path: Path) -> None:
+    # add_raster_async prepares in a thread pool, so a pid-only name collides
+    target = tmp_path / "out.tif"
+    seen = []
+
+    with _write_atomically(target) as first:
+        seen.append(first)
+        with _write_atomically(target) as second:
+            seen.append(second)
+            Path(second).write_bytes(b"second")
+        Path(first).write_bytes(b"first")
+
+    assert seen[0] != seen[1]
 
 
 def test_force_rebuilds_the_prepared_raster(byte: Path, tmp_path: Path) -> None:
