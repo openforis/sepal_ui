@@ -30,6 +30,7 @@ dependencies = [
     "colorama",
     "pipreqs",
     # read local data
+    "rasterio", # read raster metadata and prepare COGs for the tile server
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
     "geopandas>=0.14.0",
