@@ -360,6 +360,52 @@ def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return file
 
 
+@pytest.fixture(scope="session")
+def int16_classes(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A two-class int16 raster, the shape most land cover products come in.
+
+    Returns:
+        the path to a raster of class 1 (left half) and class 2 (right half)
+    """
+    import numpy as np
+    import rasterio as rio
+    from rasterio.transform import from_origin
+
+    file = tmp_path_factory.mktemp("temp") / "classes.tif"
+    data = np.ones((64, 64), dtype="int16")
+    data[:, 32:] = 2
+    with rio.open(
+        file,
+        "w",
+        driver="GTiff",
+        height=64,
+        width=64,
+        count=1,
+        dtype="int16",
+        crs="EPSG:4326",
+        transform=from_origin(0, 0, 0.01, 0.01),
+    ) as ds:
+        ds.write(data, 1)
+
+    return file
+
+
+@pytest.fixture(scope="session")
+def _tile_cache_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Where prepared rasters are cached for the duration of the run."""
+    return tmp_path_factory.mktemp("tile-cache")
+
+
+@pytest.fixture(autouse=True)
+def _tile_cache(_tile_cache_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep prepared rasters out of the developer's real ``~/.cache``.
+
+    The raster fixtures land on a new tmp path every session, so a shared cache
+    would gain an entry per run and never drop one.
+    """
+    monkeypatch.setenv("PYSEPAL_TILE_CACHE", str(_tile_cache_dir))
+
+
 # -- Planet credentials --------------------------------------------------------
 
 
