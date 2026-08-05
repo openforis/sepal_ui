@@ -10,6 +10,10 @@ Everything runs through rasterio's own GDAL rather than the ``gdal_translate``
 / ``gdaladdo`` / ``gdalwarp`` binaries: those cannot be declared as a dependency
 -- they are not on PyPI -- so a ``pip install`` would silently fall back to
 serving unprepared, unprojected rasters.
+
+``rasterio`` is imported inside the functions that need it. ``pysepal.mapping``
+pulls this module in, and importing rasterio costs ~160ms, which an app that only
+draws Earth Engine layers should not pay to display a map.
 """
 
 import contextlib
@@ -33,11 +37,20 @@ BLOCK_SIZE = 512
 def default_cache_dir() -> pathlib.Path:
     """The directory prepared rasters are cached in.
 
+    Derived files, not user output, so they belong in a cache rather than next to
+    the source or under ``module_results``.
+
     Returns:
-        ``$PYSEPAL_TILE_CACHE`` when set, otherwise ``~/.cache/localtiles``.
+        ``$PYSEPAL_TILE_CACHE`` when set, otherwise ``localtiles`` inside
+        ``$XDG_CACHE_HOME`` (``~/.cache`` when that is unset).
     """
     override = os.environ.get(CACHE_DIR_ENV_VAR)
-    return pathlib.Path(override) if override else pathlib.Path.home() / ".cache" / "localtiles"
+    if override:
+        return pathlib.Path(override)
+
+    xdg = os.environ.get("XDG_CACHE_HOME")
+    root = pathlib.Path(xdg) if xdg else pathlib.Path.home() / ".cache"
+    return root / "localtiles"
 
 
 def _optimize_for_tiles(

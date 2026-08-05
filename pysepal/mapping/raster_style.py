@@ -15,6 +15,10 @@ import logging
 from pathlib import Path
 from typing import Optional, Tuple
 
+import numpy as np
+
+from pysepal.mapping.tiling import _hash_for_cache, _write_atomically
+
 __all__ = []
 
 log = logging.getLogger("sepalui.mapping.raster_style")
@@ -68,10 +72,9 @@ def _densify_class_codes(image: Path, class_colors: dict, cache_dir: Path) -> Tu
     Returns:
         the path to serve, and the ``class_colors`` restated in the new codes.
     """
-    import numpy as np
+    # rasterio stays lazy: importing it costs ~160ms and a GEE-only app that
+    # never touches a local raster should not pay that at import time
     import rasterio as rio
-
-    from pysepal.mapping.tiling import _hash_for_cache, _write_atomically
 
     codes = sorted(int(code) for code in class_colors)
     if len(codes) > MAX_CLASS_CODE:

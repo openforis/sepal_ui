@@ -442,16 +442,6 @@ class SepalMap(ipl.Map):
             The first add of a large raster runs a GDAL pass over every pixel and
             blocks until it finishes. In a Solara app use :meth:`add_raster_async`
             instead, which does that part in a worker thread.
-
-        .. versionadded:: 3.9.0
-            ``class_colors``, ``vmin``, ``vmax``, ``nodata``, ``optimize`` and
-            ``warp_to_3857``, plus overview preparation by default.
-
-        .. versionchanged:: 3.9.0
-            ``colormap`` now reaches the tile server. It was previously packed into
-            a large-image ``style`` dict, which ``get_leaflet_tile_layer`` stopped
-            reading in localtileserver 0.10.0, so rasters rendered with
-            localtileserver's default coloring regardless of what was requested.
         """
         served, class_colors = self._prepare_raster(image, class_colors, optimize, warp_to_3857)
         return self._attach_raster(
@@ -511,8 +501,6 @@ class SepalMap(ipl.Map):
 
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
-
-        .. versionadded:: 3.9.0
         """
         served, class_colors = await asyncio.to_thread(
             self._prepare_raster, image, class_colors, optimize, warp_to_3857
