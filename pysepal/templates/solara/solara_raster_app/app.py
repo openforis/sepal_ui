@@ -19,13 +19,13 @@ pysepal$ ./run_solara.sh pysepal/templates/solara/solara_raster_app/app.py --por
 """
 
 import os
-import tempfile
 from pathlib import Path
 
 import solara
 
 import pysepal.sepalwidgets as sw
 from pysepal import mapping as sm
+from pysepal.scripts.scratch import scratch_root
 from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import (
     get_current_theme_state,
@@ -99,7 +99,7 @@ def demo_rasters() -> dict:
         if congo.is_file() and hansen.is_file():
             return {"congo": congo, "hansen": hansen, "synthetic": False}
 
-    scratch = Path(tempfile.gettempdir()) / "pysepal-raster-demo"
+    scratch = scratch_root() / "pysepal-raster-demo"
     return {
         "congo": _synthetic_raster(scratch / "classes.tif", CONGO_COLORS),
         "hansen": _synthetic_raster(scratch / "loss.tif", HANSEN_COLORS),

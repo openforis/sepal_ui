@@ -23,6 +23,8 @@ import os
 import pathlib
 from typing import Iterator, Optional, Union
 
+from pysepal.scripts.scratch import scratch_root
+
 __all__ = ["analyze_tif", "prepare_for_tiles"]
 
 log = logging.getLogger("sepalui.mapping.tiling")
@@ -37,20 +39,23 @@ BLOCK_SIZE = 512
 def default_cache_dir() -> pathlib.Path:
     """The directory prepared rasters are cached in.
 
-    Derived files, not user output, so they belong in a cache rather than next to
-    the source or under ``module_results``.
+    A prepared COG is a derived file, so it belongs on scratch rather than in the
+    user's home: on a SEPAL sandbox the home export is nfs4 and quota'd, which
+    would make every tile read cross the network and charge the user for the
+    copy. :func:`~pysepal.scripts.scratch.scratch_root` is container-local there.
+
+    A fixed name under that root rather than :func:`scratch_dir`, which mints a
+    unique directory per call and would defeat the caching entirely.
 
     Returns:
-        ``$PYSEPAL_TILE_CACHE`` when set, otherwise ``localtiles`` inside
-        ``$XDG_CACHE_HOME`` (``~/.cache`` when that is unset).
+        ``$PYSEPAL_TILE_CACHE`` when set, otherwise ``pysepal-tiles`` under the
+        scratch root.
     """
     override = os.environ.get(CACHE_DIR_ENV_VAR)
     if override:
         return pathlib.Path(override)
 
-    xdg = os.environ.get("XDG_CACHE_HOME")
-    root = pathlib.Path(xdg) if xdg else pathlib.Path.home() / ".cache"
-    return root / "localtiles"
+    return scratch_root() / "pysepal-tiles"
 
 
 def _optimize_for_tiles(

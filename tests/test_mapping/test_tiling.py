@@ -48,6 +48,28 @@ def test_cache_dir_follows_the_env_var(monkeypatch, tmp_path):
     assert default_cache_dir() == tmp_path / "elsewhere"
 
 
+def test_cache_dir_sits_on_scratch(monkeypatch, tmp_path):
+    # a derived COG on SEPAL's nfs4 home export would cross the network on every
+    # tile read and count against the user's quota
+    import pysepal.mapping.tiling as tiling
+
+    monkeypatch.delenv("PYSEPAL_TILE_CACHE", raising=False)
+    monkeypatch.setattr(tiling, "scratch_root", lambda: tmp_path)
+
+    assert default_cache_dir().parent == tmp_path
+
+
+def test_cache_dir_is_stable_across_calls(monkeypatch, tmp_path):
+    # scratch_dir() mints a new directory per call, which would mean nothing is
+    # ever reused; the cache needs a fixed name under the scratch root
+    import pysepal.mapping.tiling as tiling
+
+    monkeypatch.delenv("PYSEPAL_TILE_CACHE", raising=False)
+    monkeypatch.setattr(tiling, "scratch_root", lambda: tmp_path)
+
+    assert default_cache_dir() == default_cache_dir()
+
+
 def test_predictor_matches_the_sample_format():
     # predictor 2 is horizontal differencing, defined for integers only
     assert _predictor_for("int16") == 2
