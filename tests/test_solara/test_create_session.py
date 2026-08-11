@@ -488,6 +488,24 @@ def test_get_sepal_client_returns_none_for_the_reserved_process_scope():
             assert manager.get_sepal_client() is None
 
 
+def test_get_sepal_client_refuses_an_explicitly_named_process_scope():
+    """The ``scope_id`` parameter must not be a second door into the process bucket.
+
+    The test above pins the *resolved* scope. Guarding only that left a caller
+    who names ``PROCESS_SCOPE`` outright reading the shared process/dev-auth
+    session's client -- the same collision from the other side. No ``_stack()``
+    here on purpose: an explicit scope never consults the plan, so nothing about
+    this can pass by way of a patched topology.
+    """
+    manager = SessionManager()
+    manager._registry.set(
+        {"active_module_name": "route_a", "sepal_clients": {"route_a": MagicMock()}},
+        PROCESS_SCOPE,
+    )
+
+    assert manager.get_sepal_client(scope_id=PROCESS_SCOPE) is None
+
+
 def test_get_current_sepal_client_accepts_an_explicit_module():
     from pysepal.solara import utils
 

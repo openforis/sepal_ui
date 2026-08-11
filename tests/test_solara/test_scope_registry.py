@@ -54,6 +54,22 @@ def test_scope_lock_is_stable_per_scope(registry):
     assert isinstance(registry.scope_lock("s1"), type(threading.Lock()))
 
 
+def test_scope_lock_resolves_the_scope_like_every_other_method():
+    """A forgotten ``scope_id`` must not key a lock under None.
+
+    Strictness has to be uniform on a credential store: one method that
+    resolves differently from its neighbours is how the next caller ends up
+    holding a lock for a scope it is not reading.
+    """
+    strict = ScopeRegistry("test", resolver=resolve_scope_id)
+    with pytest.raises(UnsupportedSolaraRuntimeError):
+        strict.scope_lock()
+
+    lenient = ScopeRegistry("test")
+    with patch.object(scope_registry, "current_scope_id", return_value=PROCESS_SCOPE):
+        assert lenient.scope_lock() is lenient.scope_lock(PROCESS_SCOPE)
+
+
 def test_scope_lock_survives_pop():
     """A popped scope's lock stays stable.
 

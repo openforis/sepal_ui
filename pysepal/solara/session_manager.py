@@ -684,7 +684,8 @@ class SessionManager:
 
         Returns:
             The client, or None when there is no session for the scope, no
-            client for that module, or no SEPAL identity in this process.
+            client for that module, no SEPAL identity in this process, or the
+            scope is the reserved process one.
         """
         if scope_id is None:
             plan = _current_plan()
@@ -702,11 +703,14 @@ class SessionManager:
                 # off the render thread -- a background export task, a callback on
                 # GEEInterface's private loop -- where no kernel context resolves.
                 return None
-            if scope_id == PROCESS_SCOPE:
-                # Same reserved-scope collision as _require_connection_session, but this
-                # accessor never raises: an untrusted per-connection lookup landing on the
-                # process scope gets "no client", not the shared process/dev-auth session's.
-                return None
+
+        # Same reserved-scope collision as _require_connection_session, but this
+        # accessor never raises: a per-connection lookup landing on the process scope
+        # gets "no client", not the shared process/dev-auth session's. Outside the
+        # resolution branch on purpose -- guarding only the resolved scope would leave
+        # the scope_id parameter as a second door into that session.
+        if scope_id == PROCESS_SCOPE:
+            return None
 
         session = self._registry.get(scope_id)
         if session is None:

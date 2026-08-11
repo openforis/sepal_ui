@@ -76,7 +76,7 @@ class ScopeRegistry(Generic[T]):
         resolver = self._resolver if self._resolver is not None else current_scope_id
         return resolver()
 
-    def scope_lock(self, scope_id: str) -> threading.Lock:
+    def scope_lock(self, scope_id: Optional[str] = None) -> threading.Lock:
         """Return the lock guarding one scope.
 
         Per scope on purpose: building a scope's value can perform blocking
@@ -89,13 +89,14 @@ class ScopeRegistry(Generic[T]):
         section at once. The leaked ``Lock`` objects are negligible.
 
         Args:
-            scope_id: The scope to lock.
+            scope_id: Scope to lock; defaults to the current one.
 
         Returns:
             That scope's lock.
         """
+        scope = self.resolve(scope_id)
         with self._registry_lock:
-            return self._scope_locks.setdefault(scope_id, threading.Lock())
+            return self._scope_locks.setdefault(scope, threading.Lock())
 
     def get(self, scope_id: Optional[str] = None) -> Optional[T]:
         """Return a scope's value, or None.

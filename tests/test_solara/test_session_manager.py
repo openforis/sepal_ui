@@ -26,11 +26,14 @@ def test_the_session_registry_refuses_to_resolve_without_a_runtime():
     here: a call that forgot its ``scope_id`` would read and write one
     connection's credentials in the bucket every other runtime shares. The
     session registry is built with the raising resolver so that fails loudly.
+
+    Pinned on the accessor rather than on ``resolve()`` beneath it: reading a
+    session is the operation that must not silently land on the shared scope.
     """
     manager = SessionManager()
 
     with pytest.raises(UnsupportedSolaraRuntimeError):
-        manager._registry.resolve()
+        manager._registry.get()
 
 
 def test_session_scope_ids_replaces_handing_out_the_session_dicts():
