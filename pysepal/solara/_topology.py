@@ -22,6 +22,17 @@ and that is exactly the path ``eeclient.providers.resolve_default_provider``
 reads -- so a headerless fallback in that runtime silently hands every user the
 platform service account.
 
+This rule governs the session layer, not the whole package.
+``pysepal.scripts.gee.init_ee`` reads ``~/.config/earthengine/credentials``
+directly, branches on ``type == "service_account"`` and calls
+``ee.Initialize()``; a ``GEEInterface`` built with no session then routes every
+call through that global ``ee``. Two public defaults still reach it --
+``solara.components.aoi.admin.process_admin(..., gee=True)`` with no
+``gee_interface``, and ``SepalMap(gee=True)`` likewise -- so in an app-launcher
+container both use the platform service account rather than the caller's
+identity. pysepal's own render paths pass ``get_current_gee_interface()``, so
+nothing here regresses; the gap is in the public API and predates this rule.
+
 These names are private on purpose: exporting the enum in a major release
 freezes its members, and this is the enum most likely to gain a case.
 """

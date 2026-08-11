@@ -540,9 +540,12 @@ class SessionManager:
             if sepal_headers is not None:
                 ee_session = EESession.from_sepal_headers(sepal_headers)
             else:
-                # The one place pysepal may read the machine's Earth Engine
-                # credentials. Topology has established they belong to a single
-                # user; a service-account key there would not, so refuse it.
+                # The one place the *session layer* reads the machine's Earth
+                # Engine credentials -- not the one place in pysepal:
+                # su.init_ee() reads the same file outside it and accepts a
+                # service account, see _topology's module docstring. Topology
+                # has established these credentials belong to a single user; a
+                # service-account key there would not, so refuse it.
                 ee_session = EESession.from_default(allow_service_account_file=False)
             session["gee_interface"] = GEEInterface(ee_session)
         return session["gee_interface"]
