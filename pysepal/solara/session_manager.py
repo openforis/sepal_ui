@@ -17,10 +17,34 @@ from solara.lab import headers
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.sepal_client import SepalClient
-from pysepal.solara.runtime_context import get_current_runtime_id
+from pysepal.solara.runtime_context import (
+    UnsupportedSolaraRuntimeError,
+    get_current_runtime_id,
+)
 from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
 
 logger = logging.getLogger("sepalui.session_manager")
+
+
+def empty_session_info(kernel_id: Optional[str]) -> dict:
+    """Return the canonical "no session exists here" payload.
+
+    Args:
+        kernel_id: The scope the caller asked about, or None when no scope
+            could be resolved at all (script, pytest, unsupported kernel).
+
+    Returns:
+        A session-info dict with every capability flag off.
+    """
+    return {
+        "kernel_id": kernel_id,
+        "username": None,
+        "has_gee_interface": False,
+        "has_sepal_client": False,
+        "has_drive_interface": False,
+        "has_theme_state": kernel_id is not None and has_scoped_state("theme_state", kernel_id),
+        "session_ready": False,
+    }
 
 
 class SessionManager:
@@ -165,29 +189,28 @@ class SessionManager:
         return session.get(component_name)
 
     def get_session_info(self, kernel_id: Optional[str] = None) -> dict:
-        """Get session information for a specific kernel.
+        """Get session information for a specific scope.
+
+        Never raises: a runtime with no resolvable scope reports a None
+        ``kernel_id`` and a not-ready session, so UI can render anywhere.
 
         Args:
-            kernel_id: The kernel ID to get info for. If None, uses current kernel.
+            kernel_id: The scope to get info for. If None, uses the current one.
 
         Returns:
             Dictionary with session information.
         """
         if kernel_id is None:
-            kernel_id = self.get_kernel_id()
+            try:
+                kernel_id = self.get_kernel_id()
+            except UnsupportedSolaraRuntimeError:
+                logger.debug("No resolvable runtime scope; reporting an empty session")
+                return empty_session_info(None)
 
         current_session = self._sessions.get(kernel_id)
 
         if current_session is None:
-            return {
-                "kernel_id": kernel_id,
-                "username": None,
-                "has_gee_interface": False,
-                "has_sepal_client": False,
-                "has_drive_interface": False,
-                "has_theme_state": has_scoped_state("theme_state", kernel_id),
-                "session_ready": False,
-            }
+            return empty_session_info(kernel_id)
 
         return {
             "kernel_id": kernel_id,
