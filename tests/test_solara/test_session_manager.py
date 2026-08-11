@@ -60,3 +60,38 @@ def test_getters_still_raise_when_headers_exist_but_session_is_missing():
         ):
             with pytest.raises(RuntimeError, match="Session manager is active"):
                 getter()
+
+
+def test_session_dict_no_longer_carries_theme_state():
+    """Theme is UI state; it must not live behind an auth-gated session."""
+    manager = SessionManager()
+    manager._sessions["kernel-a"] = {"username": "alice", "gee_interface": object()}
+
+    info = manager.get_session_info("kernel-a")
+
+    assert "theme_state" not in manager._sessions["kernel-a"]
+    assert info["has_theme_state"] is False
+
+
+def test_session_info_reports_theme_state_from_the_scope_store():
+    from pysepal.solara import ui_state
+    from pysepal.solara.theme import ThemeState
+
+    manager = SessionManager()
+    manager._sessions["kernel-a"] = {"username": "alice", "gee_interface": object()}
+    ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
+
+    assert manager.get_session_info("kernel-a")["has_theme_state"] is True
+
+
+def test_setup_sessions_cleanup_clears_the_scope_ui_state():
+    from pysepal.solara import ui_state
+    from pysepal.solara.session_manager import setup_sessions
+    from pysepal.solara.theme import ThemeState
+
+    with patch("pysepal.solara.session_manager.get_current_runtime_id", return_value="kernel-a"):
+        cleanup = setup_sessions()
+        ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
+        cleanup()
+
+    assert ui_state.has_scoped_state("theme_state", "kernel-a") is False
