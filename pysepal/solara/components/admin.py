@@ -6,74 +6,9 @@ from typing import Any, Optional, Union
 import reacton.ipyvuetify as v
 import solara
 
-from pysepal.solara.session_manager import SessionManager
+from pysepal.solara.utils import get_current_session_info, get_sessions_overview
 
 logger = logging.getLogger("sepalui.admin")
-
-
-def get_current_session_info() -> dict:
-    """Get information about the current session."""
-    session_manager = SessionManager()
-    kernel_id = session_manager.get_kernel_id()
-
-    # Get the current session directly
-    sessions = session_manager.list_sessions()
-    current_session = sessions.get(kernel_id)
-
-    if current_session is None:
-        return {
-            "kernel_id": kernel_id,
-            "username": None,
-            "has_gee_interface": False,
-            "has_sepal_client": False,
-            "session_ready": False,
-        }
-
-    gee_interface = current_session.get("gee_interface")
-    sepal_client = current_session.get("sepal_client")
-    username = current_session.get("username", "unknown")
-
-    return {
-        "kernel_id": kernel_id,
-        "username": username,
-        "has_gee_interface": gee_interface is not None,
-        "has_sepal_client": sepal_client is not None,
-        "session_ready": gee_interface is not None,
-    }
-
-
-def get_sessions_overview() -> dict:
-    """Get an overview of all sessions."""
-    session_manager = SessionManager()
-    sessions = session_manager.list_sessions()
-
-    session_details = []
-    ready_sessions = 0
-
-    for kernel_id, session in sessions.items():
-        gee_interface = session.get("gee_interface")
-        sepal_client = session.get("sepal_client")
-        username = session.get("username", "unknown")
-
-        session_ready = gee_interface is not None
-        if session_ready:
-            ready_sessions += 1
-
-        session_details.append(
-            {
-                "kernel_id": kernel_id,
-                "username": username,
-                "has_gee_interface": gee_interface is not None,
-                "has_sepal_client": sepal_client is not None,
-                "session_ready": session_ready,
-            }
-        )
-
-    return {
-        "total_sessions": len(sessions),
-        "ready_sessions": ready_sessions,
-        "sessions": session_details,
-    }
 
 
 @solara.component
@@ -116,7 +51,7 @@ def AdminButton(
 
         This checks if the username is 'admin'.
         """
-        return username and username.lower() in ["admin", "dguerrero"]
+        return bool(username) and username.lower() in ["admin", "dguerrero"]
 
     def normalize_models() -> list[Any]:
         """Normalize the models input to always return a list."""
@@ -328,6 +263,12 @@ def _render_session_content(
             )
             solara.Text(
                 f"Sepal Client: {'✅ Available' if session_info.get('has_sepal_client') else '❌ Not Available'}"
+            )
+            solara.Text(
+                f"Drive Interface: {'✅ Available' if session_info.get('has_drive_interface') else '❌ Not Available'}"
+            )
+            solara.Text(
+                f"Theme State: {'✅ Available' if session_info.get('has_theme_state') else '❌ Not Available'}"
             )
     else:
         solara.Text("No session information available.")
