@@ -210,6 +210,54 @@ def test_setup_sessions_reopens_a_tombstoned_scope_on_restart():
         assert factories.gee.call_count == 2
 
 
+def test_reopen_scope_serializes_against_a_concurrent_cleanup():
+    """A restart's reopen must never race a still-running cleanup for the same scope.
+
+    ``cleanup_session`` writes the tombstone only after ``_close_session``
+    returns, which can block for seconds closing the GEE interface. A reopen
+    that isn't serialised against the whole cleanup -- not just the tombstone
+    write -- can land in that window, find nothing to remove yet, and then
+    lose the race when cleanup writes the tombstone moments later.
+    """
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session()
+        gee_interface = manager.get_session_component("gee_interface")
+
+        close_started = threading.Event()
+        release_close = threading.Event()
+
+        def _slow_close():
+            close_started.set()
+            release_close.wait(timeout=5.0)
+
+        gee_interface.close.side_effect = _slow_close
+
+        cleanup_thread = threading.Thread(target=manager.cleanup_session, args=("kernel-a",))
+        cleanup_thread.start()
+        assert close_started.wait(timeout=2.0)
+
+        # cleanup_session is blocked inside _close_session right now, scope lock
+        # held, tombstone not written yet. Dispatch the reopen on its own thread
+        # (calling it from here would deadlock: nothing would ever set
+        # release_close) and prove it blocks on the still-held scope lock rather
+        # than racing through on the registry lock alone.
+        reopen_thread = threading.Thread(target=manager._reopen_scope, args=("kernel-a",))
+        reopen_thread.start()
+        reopen_thread.join(timeout=0.2)
+        assert reopen_thread.is_alive(), "_reopen_scope must block on the still-held scope lock"
+
+        release_close.set()
+        cleanup_thread.join(timeout=2.0)
+        reopen_thread.join(timeout=2.0)
+        assert not cleanup_thread.is_alive()
+        assert not reopen_thread.is_alive()
+
+        manager.create_session()
+
+        assert factories.gee.call_count == 2
+
+
 def test_partial_session_build_closes_already_built_interfaces():
     """A later constructor failing must not leak the interfaces built before it."""
     manager = SessionManager()
@@ -323,6 +371,21 @@ def test_cleanup_closes_every_module_client():
 
     for client in clients:
         client.close.assert_called_once()
+
+
+def test_get_sepal_client_returns_none_without_a_resolvable_scope():
+    """A runtime with no resolvable scope must get None, not an exception.
+
+    This is the documented get_current_sepal_client() behaviour change (PR
+    body): it never raises UnsupportedSolaraRuntimeError, unlike
+    get_session_component (and therefore get_current_gee_interface() /
+    get_current_drive_interface()), which must keep raising.
+    """
+    manager = SessionManager()
+    with patch.object(
+        SessionManager, "get_kernel_id", side_effect=sm.UnsupportedSolaraRuntimeError("no scope")
+    ):
+        assert manager.get_sepal_client() is None
 
 
 def test_get_current_sepal_client_accepts_an_explicit_module():

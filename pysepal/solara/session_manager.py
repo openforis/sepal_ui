@@ -168,7 +168,7 @@ class SessionManager:
         with self._registry_lock:
             return self._scope_locks.setdefault(kernel_id, threading.Lock())
 
-    def reopen_scope(self, kernel_id: str) -> None:
+    def _reopen_scope(self, kernel_id: str) -> None:
         """Forget a scope's tombstone because its kernel is genuinely restarting.
 
         Solara's hot-reload restarts a kernel in place: it runs the on-close
@@ -178,12 +178,21 @@ class SessionManager:
         that scope on the very first file save. Only ``setup_sessions`` calls
         this, so a late callback on another thread can't trigger it.
 
+        Takes the scope lock, not just the registry lock: ``cleanup_session``
+        writes the tombstone from inside its own scope-lock section, well
+        after ``_close_session`` (which can block for seconds closing the GEE
+        interface). Without the scope lock here, a reopen landing while that
+        close is still in flight would find no tombstone to remove yet, and
+        then lose the race when cleanup writes one moments later -- bricking
+        the scope for good, exactly what this method exists to prevent.
+
         Args:
             kernel_id: The scope whose kernel is (re)starting.
         """
-        with self._registry_lock:
-            while kernel_id in self._closed_scopes:
-                self._closed_scopes.remove(kernel_id)
+        with self._scope_lock(kernel_id):
+            with self._registry_lock:
+                while kernel_id in self._closed_scopes:
+                    self._closed_scopes.remove(kernel_id)
 
     def create_session(self, module_name: str = "default") -> None:
         """Create -- or reuse -- the session for the current runtime scope.
@@ -325,6 +334,9 @@ class SessionManager:
             try:
                 kernel_id = self.get_kernel_id()
             except UnsupportedSolaraRuntimeError:
+                # Deliberately swallowed here but not in get_session_component: this is
+                # get_current_sepal_client()'s documented "returns None" contract (PR body),
+                # not a promise get_current_gee_interface()/_drive_interface() also make.
                 return None
 
         session = self._sessions.get(kernel_id)
@@ -337,7 +349,7 @@ class SessionManager:
     def cleanup_session(self, kernel_id: str) -> None:
         """Close and forget the session for a scope, then tombstone the scope.
 
-        The tombstone is permanent until ``reopen_scope`` lifts it -- which
+        The tombstone is permanent until ``_reopen_scope`` lifts it -- which
         only happens when ``setup_sessions`` runs again for this same
         ``kernel_id``, i.e. a genuine kernel restart, not a reconnect.
 
@@ -483,7 +495,7 @@ def setup_sessions() -> Callable:
     """
     session_manager = SessionManager()
     kernel_id = session_manager.get_kernel_id()
-    session_manager.reopen_scope(kernel_id)
+    session_manager._reopen_scope(kernel_id)
 
     logger.debug(f"Setting up sepal sessions for kernel {kernel_id}")
 
