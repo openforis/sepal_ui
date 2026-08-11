@@ -6,21 +6,31 @@ Solara applications.
 """
 
 import logging
+import os
 import threading
 from collections import deque
 from typing import Any, Callable, Deque, Dict, Optional
 
 from eeclient.client import EESession
 from eeclient.models import SepalHeaders
+from pydantic import ValidationError
 from pysepal_api import SepalClient
-from solara.lab import headers
+from solara.lab.utils.headers import headers
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
+from pysepal.solara._topology import (
+    SessionPlan,
+    SessionSource,
+    current_session_plan,
+    dev_auth_enabled,
+)
+from pysepal.solara.dev_auth import prime_dev_auth
 
 # Imported only to raise below; not re-exported in __all__ -- see pysepal.solara.errors.
 from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
 from pysepal.solara.runtime_context import (
+    PROCESS_SCOPE,
     UnsupportedSolaraRuntimeError,
     resolve_scope_id,
 )
@@ -48,8 +58,76 @@ def resolve_sepal_headers(raw_headers: dict) -> SepalHeaders:
 
     Returns:
         The validated SEPAL headers.
+
+    Raises:
+        MissingSepalHeadersError: The headers are not SEPAL headers. A
+            per-connection runtime has no second credential source to try:
+            degrading here would hand the caller the container's platform
+            service account instead of the user's own identity.
     """
-    return SepalHeaders.model_validate(raw_headers)
+    try:
+        sepal_headers = SepalHeaders.model_validate(raw_headers)
+    except ValidationError as exc:
+        raise MissingSepalHeadersError(
+            "The connection carries no SEPAL authentication headers "
+            f"({exc.error_count()} validation errors). This app runs "
+            "per-connection, where credentials come from the SEPAL proxy only."
+        ) from exc
+    return _require_session_id(sepal_headers)
+
+
+def _require_session_id(sepal_headers: SepalHeaders) -> SepalHeaders:
+    """Validate that SEPAL headers carry a SEPAL-SESSIONID cookie.
+
+    ``SepalHeaders.parse_cookies`` silently drops unparsable cookies, so a
+    structurally valid header set can validate with an empty cookie jar. Left
+    unchecked, that surfaces downstream as a bare ``KeyError:
+    'SEPAL-SESSIONID'`` -- exactly the failure mode this release's safety
+    rule exists to eliminate.
+
+    Args:
+        sepal_headers: Headers already validated by ``SepalHeaders.model_validate``.
+
+    Returns:
+        The same headers, unchanged.
+
+    Raises:
+        MissingSepalHeadersError: No ``SEPAL-SESSIONID`` cookie is present.
+    """
+    if sepal_headers.session_id is None:
+        raise MissingSepalHeadersError(
+            "The SEPAL headers carry no SEPAL-SESSIONID cookie; a SEPAL "
+            "session cannot be created without one."
+        )
+    return sepal_headers
+
+
+def _carries_sepal_headers() -> bool:
+    """Whether this connection's headers validate as SEPAL headers.
+
+    Read only by the ``PYSEPAL_DEV_AUTH`` interlock in
+    :func:`pysepal.solara._topology.resolve_session_plan`. The PROCESS versus
+    PER_CONNECTION decision never consults it.
+    """
+    raw_headers = headers.value
+    if raw_headers is None:
+        return False
+    try:
+        SepalHeaders.model_validate(raw_headers)
+    except ValidationError:
+        return False
+    return True
+
+
+def _current_plan() -> SessionPlan:
+    """Resolve this runtime's credential plan.
+
+    Validates the connection headers only when ``PYSEPAL_DEV_AUTH`` is armed:
+    that is the sole rule that reads them, and ``create_session`` runs on every
+    render, where its fast path depends on not parsing headers at all.
+    """
+    has_headers = _carries_sepal_headers() if dev_auth_enabled(os.environ) else False
+    return current_session_plan(has_sepal_headers=has_headers)
 
 
 def empty_session_info(scope_id: Optional[str]) -> dict:
@@ -159,23 +237,47 @@ class SessionManager:
                     self._closed_scopes.remove(scope_id)
 
     def create_session(self, module_name: str = "default") -> None:
-        """Create -- or reuse -- the session for the current runtime scope.
+        """Create -- or reuse -- the session for the current runtime.
 
-        Runs on every render of a ``@with_sepal_sessions`` component, so the
-        common case is the raw-header fast path: the same connection hands back
-        the same headers object and nothing is parsed. Otherwise the headers are
-        validated and the session is idempotent per *identity* rather than per
-        scope -- a session whose username or SEPAL-SESSIONID no longer matches
-        is torn down and rebuilt, because a bare scope-id check would hand a
-        recycled scope the previous user's interfaces. On an already-live session,
-        a ``SepalClient.create()`` failure for a new ``module_name`` propagates
-        as-is and leaves the session -- and its other modules' clients -- intact.
+        Dispatches on runtime topology, never on credential probing: an
+        app-launcher container builds one session per connection from that
+        connection's SEPAL headers, and every other runtime -- a SEPAL sandbox,
+        Voila, plain Jupyter, a script -- shares one session for the process,
+        built from a developer login when ``PYSEPAL_DEV_AUTH`` is armed and
+        from the machine's own credentials otherwise.
 
         Args:
             module_name: The module name for the SepalClient.
 
         Raises:
-            MissingSepalHeadersError: The runtime carries no SEPAL headers.
+            MissingSepalHeadersError: A per-connection runtime carries no valid
+                SEPAL headers.
+            SessionScopeClosedError: The scope was already cleaned up.
+            EEClientError: For authentication-related errors.
+        """
+        plan = _current_plan()
+        if plan.source is SessionSource.PER_CONNECTION:
+            self._create_connection_session(module_name)
+        else:
+            self._ensure_process_session(plan, module_name)
+
+    def _create_connection_session(self, module_name: str) -> None:
+        """Create -- or reuse -- this connection's session from its SEPAL headers.
+
+        The common case is the raw-header fast path: the same connection hands
+        back the same headers object and nothing is parsed. Otherwise the
+        session is idempotent per *identity* rather than per scope -- one whose
+        username or SEPAL-SESSIONID no longer matches is torn down and rebuilt,
+        because a bare scope-id check would hand a recycled scope the previous
+        user's interfaces. On an already-live session, a ``SepalClient.create()``
+        failure for a new ``module_name`` propagates as-is and leaves the
+        session -- and its other modules' clients -- intact.
+
+        Args:
+            module_name: The module name for the SepalClient.
+
+        Raises:
+            MissingSepalHeadersError: The connection carries no valid SEPAL headers.
             SessionScopeClosedError: The scope was already cleaned up.
             EEClientError: For authentication-related errors.
         """
@@ -278,6 +380,50 @@ class SessionManager:
         session["active_module_name"] = module_name
         return client
 
+    def _ensure_process_session(
+        self, plan: SessionPlan, module_name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Return the process-wide session, creating its shell on first use.
+
+        Only the shell is built here. Components are built one at a time on
+        first access, because the runtimes that land on this path do not
+        necessarily hold every credential: a notebook outside a sandbox can
+        resolve Earth Engine credentials while having no SEPAL API credentials
+        at all, and one missing source must not deny the others.
+
+        Args:
+            plan: The resolved plan; its source selects the credential origin.
+            module_name: Becomes the session's active module. None leaves the
+                current one in place, for accessors that are not entering a route.
+
+        Returns:
+            The process session payload.
+        """
+        with self._scope_lock(PROCESS_SCOPE):
+            session = self._sessions.get(PROCESS_SCOPE)
+            if session is None:
+                sepal_headers = (
+                    _require_session_id(prime_dev_auth())
+                    if plan.source is SessionSource.DEV_AUTH
+                    else None
+                )
+                session = {
+                    "source": plan.source,
+                    "username": sepal_headers.sepal_user.username if sepal_headers else None,
+                    "sepal_session_id": sepal_headers.session_id if sepal_headers else None,
+                    "sepal_headers": sepal_headers,
+                    "raw_headers": None,
+                    "gee_interface": None,
+                    "sepal_clients": {},
+                    "active_module_name": module_name or "default",
+                    "drive_interface": None,
+                }
+                self._sessions[PROCESS_SCOPE] = session
+                logger.debug(f"Created the process session ({plan.reason})")
+            elif module_name is not None:
+                session["active_module_name"] = module_name
+            return session
+
     def get_sepal_client(
         self, module_name: Optional[str] = None, scope_id: Optional[str] = None
     ) -> Optional[SepalClient]:
@@ -318,6 +464,14 @@ class SessionManager:
         Args:
             scope_id: The scope to clean up.
         """
+        if scope_id == PROCESS_SCOPE:
+            # A page close ends a connection, not the process. Popping this
+            # session would tear down every notebook's interfaces, and the
+            # tombstone would then refuse to rebuild them. Explicit teardown is
+            # close_process_session().
+            logger.debug("Ignoring cleanup for the process scope")
+            return
+
         logger.debug(f"Cleaning up session for scope {scope_id}")
 
         with self._scope_lock(scope_id):

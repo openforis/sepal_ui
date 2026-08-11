@@ -9,16 +9,35 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from pysepal.solara import session_manager as sm
+from pysepal.solara._topology import SessionPlan, SessionSource
 from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
+from pysepal.solara.runtime_context import PROCESS_SCOPE
 from pysepal.solara.session_manager import SessionManager
 
 _MISSING = object()
+
+_PER_CONNECTION_PLAN = SessionPlan(SessionSource.PER_CONNECTION, "test")
+_PROCESS_PLAN = SessionPlan(SessionSource.PROCESS, "test")
+
+
+def _validation_error():
+    from pydantic import BaseModel, ValidationError
+
+    class _Probe(BaseModel):
+        required: str
+
+    try:
+        _Probe.model_validate({})
+    except ValidationError as exc:
+        return exc
+    raise AssertionError("expected a ValidationError")
 
 
 def _parsed_headers(username="alice", session_id="sid-1"):
     return SimpleNamespace(
         sepal_user=SimpleNamespace(username=username),
         cookies={"SEPAL-SESSIONID": session_id},
+        session_id=session_id,
     )
 
 
@@ -43,6 +62,7 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
     drive_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
 
     with (
+        patch.object(sm, "_current_plan", return_value=_PER_CONNECTION_PLAN),
         patch.object(sm, "resolve_scope_id", return_value="kernel-a"),
         patch.object(sm, "headers", SimpleNamespace(value=header_value)),
         patch.object(sm, "SepalHeaders", SimpleNamespace(model_validate=lambda _v: parsed)),
@@ -414,3 +434,155 @@ def test_get_current_sepal_client_accepts_an_explicit_module():
 
         assert utils.get_current_sepal_client("route_a") is manager.get_sepal_client("route_a")
         assert utils.get_current_sepal_client() is manager.get_sepal_client("route_b")
+
+
+def test_invalid_connection_headers_raise_instead_of_degrading():
+    """A per-connection runtime must never fall through to machine credentials.
+
+    Before v4 a header dict that failed SepalHeaders validation surfaced as a
+    bare pydantic ValidationError, which @with_sepal_sessions rendered as
+    "An error has occurred" -- indistinguishable from a GEE outage.
+    """
+    manager = SessionManager()
+    with _stack():
+        with patch.object(
+            sm,
+            "SepalHeaders",
+            SimpleNamespace(model_validate=MagicMock(side_effect=_validation_error())),
+        ):
+            with pytest.raises(MissingSepalHeadersError, match="SEPAL authentication headers"):
+                manager.create_session()
+
+    assert manager._sessions == {}
+
+
+def test_a_process_runtime_creates_a_session_without_any_headers():
+    """Voila, plain Jupyter and scripts own one identity; headers are irrelevant."""
+    manager = SessionManager()
+    with _stack(raw_headers=None):
+        with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
+            manager.create_session(module_name="route_a")
+
+    assert sorted(manager._sessions) == [PROCESS_SCOPE]
+    assert manager._sessions[PROCESS_SCOPE]["active_module_name"] == "route_a"
+
+
+def test_the_process_session_builds_nothing_eagerly():
+    """One missing credential source must not deny the others.
+
+    A notebook outside a sandbox can resolve GEE credentials while having no
+    SEPAL API credentials at all, so components are built one at a time on
+    first use rather than all at once in create_session.
+    """
+    manager = SessionManager()
+    with _stack(raw_headers=None) as factories:
+        with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
+            manager.create_session()
+
+        assert factories.gee.call_count == 0
+        assert factories.sepal.call_count == 0
+        assert factories.drive.call_count == 0
+
+
+def test_repeat_process_renders_reuse_one_session():
+    manager = SessionManager()
+    with _stack(raw_headers=None):
+        with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
+            manager.create_session(module_name="route_a")
+            first = manager._sessions[PROCESS_SCOPE]
+            manager.create_session(module_name="route_b")
+            second = manager._sessions[PROCESS_SCOPE]
+
+    assert first is second
+    assert second["active_module_name"] == "route_b"
+
+
+def test_cleanup_never_tombstones_the_process_scope():
+    """Closing a page ends a connection, not the process.
+
+    cleanup_session pops the session and writes a permanent tombstone. Applied
+    to the shared process session that would tear down every notebook's
+    interfaces and then refuse to rebuild them.
+    """
+    manager = SessionManager()
+    with _stack(raw_headers=None):
+        with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
+            manager.create_session(module_name="route_a")
+            manager.cleanup_session(PROCESS_SCOPE)
+
+            assert PROCESS_SCOPE in manager._sessions
+            manager.create_session(module_name="route_b")
+
+    assert manager._sessions[PROCESS_SCOPE]["active_module_name"] == "route_b"
+
+
+def test_a_new_module_failing_on_a_live_session_leaves_it_intact():
+    """Debt 2.3: the reuse-branch SepalClient.create() failure policy.
+
+    An already-live session visiting a new route whose client creation fails
+    keeps the session and every other module's client. The exception propagates
+    so the route reports the real failure instead of rendering with a client
+    that silently points at the wrong module.
+    """
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session(module_name="route_a")
+        good_client = manager._sessions["kernel-a"]["sepal_clients"]["route_a"]
+
+        factories.sepal.side_effect = RuntimeError("SEPAL API is down")
+        with pytest.raises(RuntimeError, match="SEPAL API is down"):
+            manager.create_session(module_name="route_b")
+
+        session = manager._sessions["kernel-a"]
+        assert session["gee_interface"] is not None
+        assert session["sepal_clients"] == {"route_a": good_client}
+        assert session["active_module_name"] == "route_a"
+
+
+def test_headers_without_a_sepal_sessionid_raise_instead_of_a_bare_keyerror():
+    """SepalHeaders.parse_cookies silently drops unparsable cookies.
+
+    A structurally valid header set can therefore validate with an empty
+    cookie jar. Before this fix that surfaced downstream as a bare
+    ``KeyError: 'SEPAL-SESSIONID'`` -- exactly the failure mode this release's
+    safety rule exists to eliminate.
+    """
+    manager = SessionManager()
+    with _stack():
+        with patch.object(
+            sm,
+            "SepalHeaders",
+            SimpleNamespace(
+                model_validate=lambda _v: SimpleNamespace(
+                    sepal_user=SimpleNamespace(username="alice"),
+                    cookies={},
+                    session_id=None,
+                )
+            ),
+        ):
+            with pytest.raises(MissingSepalHeadersError, match="SEPAL-SESSIONID"):
+                manager.create_session()
+
+    assert manager._sessions == {}
+
+
+def test_dev_auth_headers_without_a_sepal_sessionid_raise():
+    """The same empty-cookie-jar failure, reached through the DEV_AUTH process path."""
+    manager = SessionManager()
+    with _stack(raw_headers=None):
+        with patch.object(
+            sm, "_current_plan", return_value=SessionPlan(SessionSource.DEV_AUTH, "test")
+        ):
+            with patch.object(
+                sm,
+                "prime_dev_auth",
+                return_value=SimpleNamespace(
+                    sepal_user=SimpleNamespace(username="dev"),
+                    cookies={},
+                    session_id=None,
+                ),
+            ):
+                with pytest.raises(MissingSepalHeadersError, match="SEPAL-SESSIONID"):
+                    manager.create_session()
+
+    assert manager._sessions == {}
