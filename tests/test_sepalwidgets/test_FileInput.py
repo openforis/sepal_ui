@@ -29,7 +29,7 @@ def test_init(root_dir: Path) -> None:
     assert file_input.v_model == ""
 
     # get all the names
-    assert "sepal_ui" in get_names(file_input)
+    assert "pysepal" in get_names(file_input)
 
     # default init
     file_input = sw.FileInput([".rst"], folder=root_dir)

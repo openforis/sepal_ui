@@ -152,7 +152,7 @@ def test_key_use() -> None:
     """Check that are used at least once."""
     # check key usage method
     # don't test if all keys are translated, crowdin will monitor it
-    lib_folder = Path(__file__).parents[1] / "sepal_ui"
+    lib_folder = Path(__file__).parents[2] / "pysepal"
 
     assert "test_key" in ms.key_use(lib_folder, "ms")
 
