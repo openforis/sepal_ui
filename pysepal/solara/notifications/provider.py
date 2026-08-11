@@ -7,24 +7,24 @@ import solara
 
 from pysepal.solara.theme import ThemeState, resolve_theme_state
 
-from .bus import NotificationBus, cleanup_bus, create_bus, get_current_bus
+from .bus import NotificationBus, cleanup_bus, create_bus
 from .notification_ui import NotificationUIBridge
 
 logger = logging.getLogger(__name__)
 
 
 def _get_or_create_current_bus() -> NotificationBus:
-    """Return the current bus, creating it immediately when missing.
+    """Return the current bus, creating it when missing, and take a reference.
 
     Creation happens during render via ``solara.use_memo`` so sibling components
     in the same render pass can resolve a real notifier instead of a transient
     ``NoopNotifier`` on first mount.
+
+    Every mount must go through ``create_bus`` even when a bus already exists:
+    each one registers its own ``cleanup_bus`` effect, so a mount that reuses a
+    bus without taking a reference lets another mount's unmount tear it down.
     """
-    bus = get_current_bus()
-    if bus is None:
-        bus = create_bus()
-        logger.debug("NotificationProvider: created bus")
-    return bus
+    return create_bus()
 
 
 @solara.component

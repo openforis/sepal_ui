@@ -6,9 +6,22 @@ the process scope, one raised, one did both depending on the method. There is
 one default now, and it is the topology rule's: no per-connection runtime
 *is* the process scope. A registry over a credential store configures the
 strict resolver instead -- there, a wrong scope is a cross-user leak, not a
-shared bucket. Lifetime still differs per registry (plain drop, refcount,
-tombstone); that, like resolution, is configured here, not reimplemented at
-each call site.
+shared bucket.
+
+Two policies, split deliberately. *Resolution* is configured per instance, via
+``resolver=``. *Lifetime* is not configurable here at all -- it stays the
+caller's, because the three consumers disagree and always will:
+
+- plain drop -- ``ui_state`` removes a scope's state on the first release;
+- refcount -- ``notifications.bus`` keeps a bus until the last mount releases it;
+- tombstone -- ``SessionManager`` remembers a closed scope so it cannot be
+  resurrected.
+
+This registry therefore has no opinion on *when* a value goes, only on how it
+is keyed and locked. A consumer layers its own policy on
+:meth:`ScopeRegistry.scope_lock` and drives it with the plain accessors --
+folding those three policies back in here as flags would recreate the
+per-caller tangle this class exists to remove.
 """
 
 import logging

@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 import solara
 
-from pysepal.solara.runtime_context import current_scope_id
+from pysepal.solara.scope_registry import ScopeRegistry
 
 from .state import Toast, ToastType, TrackedTask
 
@@ -114,59 +114,67 @@ class NotificationBus:
             self.tasks.value = [t for t in self.tasks.value if t.id != task_id]
 
 
-# --- Scope-keyed bus registry (matches SessionManager pattern) ---
+# --- Scope-keyed bus registry ---
 
-_buses: Dict[str, NotificationBus] = {}
-_bus_refcounts: Dict[str, int] = {}
-_registry_lock = threading.Lock()
+_registry: ScopeRegistry[NotificationBus] = ScopeRegistry("NotificationBus")
+
+# Refcounting is this module's lifetime policy, not the registry's -- other
+# consumers of ScopeRegistry drop a scope on its first release. Every read and
+# write below happens under that scope's ``scope_lock``.
+_refcounts: Dict[str, int] = {}
 
 
 def get_current_bus() -> Optional[NotificationBus]:
-    """Get the NotificationBus for the current scope, or None."""
-    try:
-        scope_id = current_scope_id()
-    except Exception:
-        return None
-    with _registry_lock:
-        return _buses.get(scope_id)
+    """Return the current scope's NotificationBus, or None when none exists.
+
+    Total: a runtime with no per-connection kernel resolves to the process
+    scope rather than failing, so only a genuine bug can raise here.
+
+    Returns:
+        The scope's bus, or None.
+    """
+    return _registry.get()
 
 
 def create_bus() -> NotificationBus:
-    """Get or create a NotificationBus for the current scope.
+    """Get or create the current scope's NotificationBus.
 
-    If a bus already exists for this scope, reuse it and increment
-    the reference count. This prevents remounts or double-mounts
-    from invalidating active notifiers.
+    Reuses an existing bus and takes a second reference, so a remount or a
+    double-mount of ``NotificationProvider`` does not invalidate active
+    notifiers.
+
+    Returns:
+        The scope's bus.
     """
-    scope_id = current_scope_id()
-    with _registry_lock:
-        existing = _buses.get(scope_id)
-        if existing is not None:
-            _bus_refcounts[scope_id] = _bus_refcounts.get(scope_id, 1) + 1
+    scope_id = _registry.resolve()
+    with _registry.scope_lock(scope_id):
+        bus = _registry.get(scope_id)
+        if bus is None:
+            bus = NotificationBus()
+            _registry.set(bus, scope_id=scope_id)
+            _refcounts[scope_id] = 1
+            logger.debug(f"Created NotificationBus for scope {scope_id}")
+        else:
+            _refcounts[scope_id] = _refcounts.get(scope_id, 1) + 1
             logger.debug(
                 f"Reusing NotificationBus for scope {scope_id} "
-                f"(refcount={_bus_refcounts[scope_id]})"
+                f"(refcount={_refcounts[scope_id]})"
             )
-            return existing
-        bus = NotificationBus()
-        _buses[scope_id] = bus
-        _bus_refcounts[scope_id] = 1
-    logger.debug(f"Created NotificationBus for scope {scope_id}")
-    return bus
+        return bus
 
 
 def cleanup_bus() -> None:
-    """Decrement refcount for the current scope's bus; remove when it reaches 0."""
-    scope_id = current_scope_id()
-    with _registry_lock:
-        count = _bus_refcounts.get(scope_id, 0)
-        if count <= 1:
-            _buses.pop(scope_id, None)
-            _bus_refcounts.pop(scope_id, None)
-            logger.debug(f"Cleaned up NotificationBus for scope {scope_id}")
-        else:
-            _bus_refcounts[scope_id] = count - 1
+    """Drop one reference to the current scope's bus; remove it at zero."""
+    scope_id = _registry.resolve()
+    with _registry.scope_lock(scope_id):
+        count = _refcounts.get(scope_id, 0)
+        if count > 1:
+            _refcounts[scope_id] = count - 1
             logger.debug(
-                f"Decremented NotificationBus refcount for scope {scope_id} "
-                f"(refcount={_bus_refcounts[scope_id]})"
+                f"Released NotificationBus for scope {scope_id} "
+                f"(refcount={_refcounts[scope_id]})"
             )
+            return
+        _refcounts.pop(scope_id, None)
+        _registry.pop(scope_id)
+        logger.debug(f"Cleaned up NotificationBus for scope {scope_id}")

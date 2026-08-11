@@ -6,12 +6,13 @@ from unittest.mock import patch
 
 import pytest
 
+from pysepal.solara import scope_registry
 from pysepal.solara.notifications.bus import (
     DEDUP_WINDOW_SECONDS,
     MAX_TOAST_QUEUE,
     NotificationBus,
-    _bus_refcounts,
-    _buses,
+    _refcounts,
+    _registry,
     cleanup_bus,
     create_bus,
     get_current_bus,
@@ -23,6 +24,7 @@ from pysepal.solara.notifications.state import (
     ToastType,
     TrackedTask,
 )
+from pysepal.solara.runtime_context import PROCESS_SCOPE
 
 
 @pytest.fixture
@@ -148,39 +150,45 @@ def test_concurrent_toast_adds():
 
 @pytest.fixture
 def clean_bus_registry():
-    _buses.clear()
-    _bus_refcounts.clear()
+    _registry.clear()
+    _refcounts.clear()
     yield
-    _buses.clear()
-    _bus_refcounts.clear()
+    _registry.clear()
+    _refcounts.clear()
 
 
-@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="kernel-1")
-def test_create_get_cleanup(mock_kid, clean_bus_registry):
+@patch.object(scope_registry, "current_scope_id", return_value="kernel-1")
+def test_create_get_cleanup(mock_scope, clean_bus_registry):
     bus = create_bus()
     assert get_current_bus() is bus
     cleanup_bus()
     assert get_current_bus() is None
 
 
-@patch("pysepal.solara.notifications.bus.current_scope_id")
-def test_different_kernels_isolated(mock_kid, clean_bus_registry):
-    mock_kid.return_value = "kernel-1"
+@patch.object(scope_registry, "current_scope_id")
+def test_different_kernels_isolated(mock_scope, clean_bus_registry):
+    mock_scope.return_value = "kernel-1"
     bus1 = create_bus()
-    mock_kid.return_value = "kernel-2"
+    mock_scope.return_value = "kernel-2"
     bus2 = create_bus()
     assert bus1 is not bus2
-    mock_kid.return_value = "kernel-1"
+    mock_scope.return_value = "kernel-1"
     assert get_current_bus() is bus1
 
 
-@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="kernel-1")
-def test_refcount_prevents_premature_removal(mock_kid, clean_bus_registry):
-    create_bus()
-    create_bus()  # refcount = 2
+@patch.object(scope_registry, "current_scope_id", return_value="kernel-1")
+def test_refcount_prevents_premature_removal(mock_scope, clean_bus_registry):
+    first = create_bus()
+    assert create_bus() is first  # refcount = 2
     cleanup_bus()  # refcount = 1
-    assert get_current_bus() is not None
+    assert get_current_bus() is first
     cleanup_bus()  # refcount = 0
+    assert get_current_bus() is None
+
+
+@patch.object(scope_registry, "current_scope_id", return_value="kernel-1")
+def test_cleanup_without_a_bus_is_a_no_op(mock_scope, clean_bus_registry):
+    cleanup_bus()
     assert get_current_bus() is None
 
 
@@ -188,9 +196,17 @@ def test_get_bus_returns_none_without_kernel_context(clean_bus_registry):
     assert get_current_bus() is None
 
 
-@patch(
-    "pysepal.solara.notifications.bus.current_scope_id",
-    side_effect=RuntimeError("No supported pysepal Solara runtime context is available"),
-)
-def test_get_current_bus_returns_none_for_unsupported_runtime(mock_kid, clean_bus_registry):
-    assert get_current_bus() is None
+def test_bus_is_available_in_a_script(clean_bus_registry):
+    """No per-connection runtime is the process scope, not an error."""
+    with patch.object(scope_registry, "current_scope_id", return_value=PROCESS_SCOPE):
+        created = create_bus()
+        assert get_current_bus() is created
+        cleanup_bus()
+        assert get_current_bus() is None
+
+
+def test_get_current_bus_does_not_swallow_programming_errors(clean_bus_registry):
+    """A bare `except Exception` hid real bugs behind a None return."""
+    with patch.object(scope_registry, "current_scope_id", side_effect=TypeError("boom")):
+        with pytest.raises(TypeError):
+            get_current_bus()
