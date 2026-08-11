@@ -7,6 +7,7 @@ pysepal
 
     `sepal-ui` has been renamed to `pysepal`. pysepal 4.0 removed the ``sepal_ui``
     compatibility package: ``import sepal_ui`` no longer works, use ``import pysepal``.
+    See ``docs/guides/migration-v4.md`` for the full 4.0 migration guide.
 
 --------------------------------------------------------------------------------
 
