@@ -1,16 +1,30 @@
 """Administrative components for session and model management in Solara applications."""
 
 import logging
+import os
 from typing import Any, Optional, Union
 
 import reacton.ipyvuetify as v
 import solara
 
-from pysepal.solara import ui_state
 from pysepal.solara.session_info import SessionInfo, SessionsOverview
 from pysepal.solara.utils import get_current_session_info, get_sessions_overview
 
 logger = logging.getLogger("sepalui.admin")
+
+
+def _admin_usernames() -> set:
+    """Return the usernames this build shows the admin panel to.
+
+    A **display gate, not an authorization boundary**: it decides whether a
+    debug panel renders, and nothing downstream may key a permission off it.
+    Real authorization is a 4.x concern.
+
+    Returns:
+        The configured usernames, lowercased.
+    """
+    raw = os.getenv("PYSEPAL_ADMIN_USERS", "admin")
+    return {name.strip().lower() for name in raw.split(",") if name.strip()}
 
 
 @solara.component
@@ -41,9 +55,9 @@ def AdminButton(
     dialog_open, set_dialog_open = solara.use_state(False)
 
     session_info: Optional[SessionInfo]
-    sessions_overview: Optional[SessionsOverview]
+    sessions_overview: SessionsOverview
     session_info, set_session_info = solara.use_state(None)
-    sessions_overview, set_sessions_overview = solara.use_state(None)
+    sessions_overview, set_sessions_overview = solara.use_state(SessionsOverview())
 
     models_data, set_models_data = solara.use_state([])
     active_tab, set_active_tab = solara.use_state(0)
@@ -51,11 +65,8 @@ def AdminButton(
     username = get_current_session_info().username
 
     def is_admin_user() -> bool:
-        """Check if the current user has admin privileges.
-
-        This checks if the username is 'admin'.
-        """
-        return bool(username) and username.lower() in ["admin", "dguerrero"]
+        """Whether the current user sees the admin panel (display gate only)."""
+        return bool(username) and username.lower() in _admin_usernames()
 
     def normalize_models() -> list[Any]:
         """Normalize the models input to always return a list."""
@@ -95,7 +106,7 @@ def AdminButton(
                                 {
                                     "index": i,
                                     "type": type(model).__name__,
-                                    "data": f"Error getting model data: {str(e)}",
+                                    "data": f"Error getting model data: {e!s}",
                                 }
                             )
 
@@ -103,7 +114,7 @@ def AdminButton(
 
             except Exception as e:
                 set_models_data(
-                    [{"index": 0, "type": "Error", "data": f"Error processing models: {str(e)}"}]
+                    [{"index": 0, "type": "Error", "data": f"Error processing models: {e!s}"}]
                 )
         else:
             set_models_data([])
@@ -248,7 +259,7 @@ def _render_session_content(
     username: str,
     is_admin: bool,
     session_info: Optional[SessionInfo],
-    sessions_overview: Optional[SessionsOverview],
+    sessions_overview: SessionsOverview,
 ):
     """Render the session information content."""
     solara.Markdown("## Current User Information")
@@ -274,8 +285,8 @@ def _render_session_content(
             solara.Text(
                 f"Drive Interface: {'✅ Available' if session_info.has_drive_interface else '❌ Not Available'}"
             )
-            has_theme_state = ui_state.has_scoped_state("theme_state", session_info.scope_id)
-            solara.Text(f"Theme State: {'✅ Available' if has_theme_state else '❌ Not Available'}")
+            solara.Text(f"Active Module: {session_info.active_module_name or 'N/A'}")
+            solara.Text(f"Modules: {', '.join(session_info.module_names) or 'N/A'}")
     else:
         solara.Text("No session information available.")
 
@@ -283,22 +294,19 @@ def _render_session_content(
 
     solara.Markdown("## Sessions Overview")
 
-    if sessions_overview is not None:
-        solara.Text(f"Total Active Sessions: {sessions_overview.total_sessions}")
-        solara.Text(f"Ready Sessions: {sessions_overview.ready_sessions}")
+    solara.Text(f"Total Active Sessions: {sessions_overview.total_sessions}")
+    solara.Text(f"Ready Sessions: {sessions_overview.ready_sessions}")
 
-        if sessions_overview.sessions:
-            solara.Markdown("### Session Details:")
-
-            for i, session in enumerate(sessions_overview.sessions, 1):
-                with solara.Card(f"Session {i}"):
-                    with solara.Column(gap="0.25rem"):
-                        solara.Text(f"Scope ID: {session.scope_id}")
-                        solara.Text(f"Username: {session.username or 'N/A'}")
-                        solara.Text(f"GEE Interface: {'✅' if session.has_gee_interface else '❌'}")
-                        solara.Text(f"Sepal Client: {'✅' if session.has_sepal_client else '❌'}")
-                        solara.Text(f"Session Ready: {'✅' if session.session_ready else '❌'}")
-        else:
-            solara.Text("No active sessions found.")
+    if sessions_overview.sessions:
+        solara.Markdown("### Session Details:")
+        for i, session in enumerate(sessions_overview.sessions, 1):
+            with solara.Card(f"Session {i}"):
+                with solara.Column(gap="0.25rem"):
+                    solara.Text(f"Scope ID: {session.scope_id}")
+                    solara.Text(f"Username: {session.username or 'N/A'}")
+                    solara.Text(f"GEE Interface: {'✅' if session.has_gee_interface else '❌'}")
+                    solara.Text(f"Sepal Client: {'✅' if session.has_sepal_client else '❌'}")
+                    solara.Text(f"Drive Interface: {'✅' if session.has_drive_interface else '❌'}")
+                    solara.Text(f"Session Ready: {'✅' if session.session_ready else '❌'}")
     else:
-        solara.Text("Sessions overview not available.")
+        solara.Text("No active sessions found.")
