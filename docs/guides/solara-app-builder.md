@@ -57,16 +57,17 @@ def Page():
 
 1. `setup_solara_server()` — module level, configures Solara (kernel timeout, assets)
 2. `setup_sessions()` — in `@solara.lab.on_kernel_start`, creates SessionManager
-3. `@with_sepal_sessions` — on `Page()`, waits for auth headers, creates per-user session
+3. `@with_sepal_sessions` — on `Page()`, builds the session per runtime topology
 4. `get_current_*()` — inside component, retrieves session-bound interfaces
 
 ### The `@with_sepal_sessions` decorator
 
 This decorator is **required** on the main `Page()` component. It:
 
-- Waits for SEPAL auth headers (`solara.lab.headers`)
+- Builds the session from this connection's SEPAL headers under a Solara
+  server, or from the shared process session everywhere else (SEPAL sandbox,
+  Voila, plain Jupyter, a script)
 - Creates a session with `GEEInterface`, `SepalClient`, `GDriveInterface` per user
-- Shows a loading screen while waiting
 - Handles auth errors gracefully
 
 ```python
@@ -494,9 +495,9 @@ Solara creates new kernel
     ↓
 @solara.lab.on_kernel_start → setup_sessions() → SessionManager initialized
     ↓
-Page() renders → @with_sepal_sessions waits for HTTP headers
+Page() renders → @with_sepal_sessions calls SessionManager.create_session()
     ↓
-Headers arrive → SessionManager.create_session():
+SessionManager.create_session():
     - Extracts username from SepalHeaders
     - Creates EESession with user's credentials
     - Creates GEEInterface(gee_session)
