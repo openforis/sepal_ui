@@ -15,7 +15,7 @@ request happens to carry headers. In order:
 | Condition                                  | Source           | Meaning                                             |
 | ------------------------------------------ | ---------------- | --------------------------------------------------- |
 | `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
-| `sepal-user` home (a SEPAL sandbox)        | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| `SEPAL=true` (a SEPAL sandbox)             | `PROCESS`        | app-manager app; the machine credentials are yours  |
 | running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
 | anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
 
@@ -128,14 +128,20 @@ Removed: `pysepal.conf`, `pysepal.config`, `pysepal.config_file`,
 `pysepal.frontend.styles.get_theme`, and `set_config`, `set_config_locale`,
 `set_config_theme`, `_write_config` from `pysepal.scripts.utils`.
 
-**Theme**: nothing is read at import and nothing is written on toggle. Use the
-scope-keyed state, which starts at `mode="auto"`:
+**Theme**: pysepal no longer reads the config file at import, and toggling writes
+nothing to disk. `ThemeState` is in-memory state keyed by the runtime scope,
+starting at `mode="auto"`:
 
 ```python
 from pysepal.solara import get_current_theme_state
 
 theme_state = get_current_theme_state()
 ```
+
+That is about the config file, not about persistence: `solara.lab.ThemeToggle`
+still keeps the user's choice in browser `localStorage` (`:solara:theme.variant`),
+so it survives a reload, per browser. The config file was process-global, which is
+why in a multi-user container one user's theme became everyone's.
 
 **Locale**: `Translator` no longer consults the config file. With no `target` it
 now resolves to English, deterministically:
