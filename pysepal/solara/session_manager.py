@@ -14,11 +14,11 @@ from typing import Any, Callable, Deque, Dict, Optional
 from eeclient.client import EESession
 from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.models import SepalHeaders
+from pysepal_api import SepalClient
 from solara.lab import headers
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.scripts.sepal_client import SepalClient
 from pysepal.solara.errors import (
     MissingSepalHeadersError,
     SepalSessionError,
@@ -287,7 +287,7 @@ class SessionManager:
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
         )
 
-    def _ensure_sepal_client(self, session: Dict[str, Any], module_name: str) -> "SepalClient":
+    def _ensure_sepal_client(self, session: Dict[str, Any], module_name: str) -> SepalClient:
         """Return the session's client for ``module_name``, creating it on miss.
 
         One session per scope holds one client per module name. Keying whole
@@ -318,7 +318,7 @@ class SessionManager:
 
     def get_sepal_client(
         self, module_name: Optional[str] = None, kernel_id: Optional[str] = None
-    ) -> Optional["SepalClient"]:
+    ) -> Optional[SepalClient]:
         """Get a SepalClient held by a scope's session.
 
         Args:
