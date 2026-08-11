@@ -47,7 +47,6 @@ logger = logging.getLogger("sepalui.session_manager")
 
 __all__ = [
     "SessionManager",
-    "can_create_sessions",
     "empty_session_info",
     "resolve_sepal_headers",
     "setup_sessions",
@@ -766,17 +765,6 @@ class SessionManager:
     def list_sessions(self) -> Dict[str, Dict[str, Any]]:
         """Get all active sessions."""
         return self._sessions.copy()
-
-
-def can_create_sessions() -> bool:
-    """Whether a SEPAL session can exist for the current runtime at all.
-
-    ``create_session`` needs solara's request headers. Voila, plain Jupyter and
-    plain scripts never have them, so a missing session there is expected rather
-    than a forgotten ``@with_sepal_sessions`` -- callers should degrade to their
-    headerless fallback instead of raising.
-    """
-    return headers.value is not None
 
 
 def setup_sessions() -> Callable:
