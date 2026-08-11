@@ -77,18 +77,7 @@ def test_session_dict_no_longer_carries_theme_state():
     info = manager.get_session_info("kernel-a")
 
     assert "theme_state" not in manager._registry.get("kernel-a")
-    assert info["has_theme_state"] is False
-
-
-def test_session_info_reports_theme_state_from_the_scope_store():
-    from pysepal.solara import ui_state
-    from pysepal.solara.theme import ThemeState
-
-    manager = SessionManager()
-    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
-    ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
-
-    assert manager.get_session_info("kernel-a")["has_theme_state"] is True
+    assert info.session_ready is True
 
 
 def test_setup_sessions_cleanup_clears_the_scope_ui_state():

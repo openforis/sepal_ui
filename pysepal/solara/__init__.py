@@ -25,6 +25,7 @@ from .runtime_context import (
     current_scope_id,
     resolve_scope_id,
 )
+from .session_info import SessionInfo, SessionsOverview
 from .session_manager import SessionManager, setup_sessions
 from .setup import setup_solara_server, setup_theme_colors
 from .theme import (
@@ -47,8 +48,10 @@ __all__ = [
     "NotificationProvider",
     "PROCESS_SCOPE",
     "SepalSessionError",
+    "SessionInfo",
     "SessionManager",
     "SessionScopeClosedError",
+    "SessionsOverview",
     "ThemeState",
     "UnsupportedSolaraRuntimeError",
     "clear_scoped_state",

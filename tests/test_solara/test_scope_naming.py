@@ -4,6 +4,7 @@ import inspect
 
 from pysepal.solara import runtime_context, session_manager, ui_state
 from pysepal.solara.notifications import bus
+from pysepal.solara.session_info import SessionInfo
 
 
 def test_runtime_context_exposes_both_resolvers():
@@ -26,9 +27,8 @@ def test_session_manager_speaks_scope_id():
 
 
 def test_session_info_payload_key_is_scope_id():
-    info = session_manager.empty_session_info("kernel-a")
-    assert "kernel_id" not in info
-    assert info["scope_id"] == "kernel-a"
+    assert SessionInfo(scope_id="kernel-a").scope_id == "kernel-a"
+    assert not hasattr(session_manager, "empty_session_info")
 
 
 def test_bus_has_no_private_resolver():

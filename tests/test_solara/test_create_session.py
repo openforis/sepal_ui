@@ -203,7 +203,7 @@ def test_changed_sepal_session_id_rebuilds_the_session():
     first.close.assert_called_once()
     for client in first_clients:
         client.close.assert_called_once()
-    assert manager.get_session_info("kernel-a")["username"] == "bob"
+    assert manager.get_session_info("kernel-a").username == "bob"
 
 
 def test_identity_rebuild_failure_does_not_leave_a_closed_session_reachable():
@@ -433,9 +433,9 @@ def test_session_info_lists_the_module_clients():
         manager.create_session(module_name="route_b")
         info = manager.get_session_info("kernel-a")
 
-    assert info["has_sepal_client"] is True
-    assert info["module_names"] == ["route_a", "route_b"]
-    assert info["active_module_name"] == "route_b"
+    assert info.has_sepal_client is True
+    assert info.module_names == ("route_a", "route_b")
+    assert info.active_module_name == "route_b"
 
 
 def test_cleanup_closes_every_module_client():

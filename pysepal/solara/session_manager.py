@@ -43,13 +43,13 @@ from pysepal.solara.runtime_context import (
     resolve_scope_id,
 )
 from pysepal.solara.scope_registry import ScopeRegistry
-from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
+from pysepal.solara.session_info import SessionInfo
+from pysepal.solara.ui_state import clear_scoped_state
 
 logger = logging.getLogger("sepalui.session_manager")
 
 __all__ = [
     "SessionManager",
-    "empty_session_info",
     "resolve_sepal_headers",
     "setup_sessions",
 ]
@@ -145,29 +145,6 @@ def _current_plan() -> SessionPlan:
     """
     has_headers = _carries_sepal_headers() if dev_auth_enabled(os.environ) else False
     return current_session_plan(has_sepal_headers=has_headers)
-
-
-def empty_session_info(scope_id: Optional[str]) -> dict:
-    """Return the canonical "no session exists here" payload.
-
-    Args:
-        scope_id: The scope the caller asked about, or None when no scope
-            could be resolved at all (script, pytest, unsupported kernel).
-
-    Returns:
-        A session-info dict with every capability flag off.
-    """
-    return {
-        "scope_id": scope_id,
-        "username": None,
-        "has_gee_interface": False,
-        "has_sepal_client": False,
-        "has_drive_interface": False,
-        "has_theme_state": scope_id is not None and has_scoped_state("theme_state", scope_id),
-        "active_module_name": None,
-        "module_names": [],
-        "session_ready": False,
-    }
 
 
 class SessionManager:
@@ -775,41 +752,47 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Error closing Drive interface for scope {scope_id}: {e}")
 
-    def get_session_info(self, scope_id: Optional[str] = None) -> dict:
-        """Get session information for a specific scope.
+    def get_session_info(self, scope_id: Optional[str] = None) -> SessionInfo:
+        """Return a scope's session status.
 
-        Never raises: a runtime with no resolvable scope reports a None
-        ``scope_id`` and a not-ready session, so UI can render anywhere.
+        Never raises: a runtime with no resolvable per-connection scope
+        reports the reserved process scope id *without reading it* -- an
+        unresolvable caller (a background export task, a callback on
+        ``GEEInterface``'s private loop) must not see the shared
+        process/dev-auth session's identity just because its own scope
+        didn't resolve. Same rule :meth:`get_sepal_client` already applies to
+        its ``scope_id`` parameter. A scope with no session reports a
+        not-ready :class:`~pysepal.solara.session_info.SessionInfo` carrying
+        only its scope id, so admin and debug UI render anywhere.
 
         Args:
-            scope_id: The scope to get info for. If None, uses the current one.
+            scope_id: The scope to report on. If None, uses the current one.
 
         Returns:
-            Dictionary with session information.
+            The scope's session status.
         """
         if scope_id is None:
             try:
                 scope_id = self.get_scope_id()
             except UnsupportedSolaraRuntimeError:
-                logger.debug("No resolvable runtime scope; reporting an empty session")
-                return empty_session_info(None)
+                return SessionInfo(scope_id=PROCESS_SCOPE)
 
-        current_session = self._registry.get(scope_id)
+        session = self._registry.get(scope_id)
+        if session is None:
+            return SessionInfo(scope_id=scope_id)
 
-        if current_session is None:
-            return empty_session_info(scope_id)
-
-        return {
-            "scope_id": scope_id,
-            "username": current_session.get("username"),
-            "has_gee_interface": current_session.get("gee_interface") is not None,
-            "has_sepal_client": bool(current_session.get("sepal_clients")),
-            "has_drive_interface": current_session.get("drive_interface") is not None,
-            "has_theme_state": has_scoped_state("theme_state", scope_id),
-            "active_module_name": current_session.get("active_module_name"),
-            "module_names": sorted(current_session.get("sepal_clients", {})),
-            "session_ready": current_session.get("gee_interface") is not None,
-        }
+        gee_interface = session.get("gee_interface")
+        clients = session.get("sepal_clients", {})
+        return SessionInfo(
+            scope_id=scope_id,
+            username=session.get("username"),
+            has_gee_interface=gee_interface is not None,
+            has_sepal_client=bool(clients),
+            has_drive_interface=session.get("drive_interface") is not None,
+            active_module_name=session.get("active_module_name"),
+            module_names=tuple(sorted(clients)),
+            session_ready=gee_interface is not None,
+        )
 
     def session_scope_ids(self) -> Tuple[str, ...]:
         """Return every scope currently holding a session.
