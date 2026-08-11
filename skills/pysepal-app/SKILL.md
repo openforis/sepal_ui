@@ -44,10 +44,12 @@ For GEE/container apps, the SEPAL user workspace is remote from the container
 process. Always pass `get_current_sepal_client()` into models, widgets, and
 scripts that handle user files, and use:
 
-- `sepal_client.list_files(...)` to browse user folders
-- `sepal_client.get_file(...)` to read user files
-- `sepal_client.set_file(...)` to write generated user files
-- `sepal_client.get_remote_dir(...)` to create user folders
+- `sepal_client.files.list(folder, extensions=...)` to browse user folders
+- `sepal_client.files.read_bytes(...)`, `.read_text(...)`, or `.read_json(...)`
+  to read user files
+- `sepal_client.files.write(path, content, overwrite=...)` to write generated
+  user files
+- `sepal_client.files.mkdir(path, parents=True)` to create user folders
 - `sepal_client.results_path` as the base for module-owned outputs under
   `module_results/<module_name>`
 
@@ -84,7 +86,8 @@ When a new pysepal Solara app produces GEE-backed layers users may want to take 
 - let the dialog publish toasts through the mounted `NotificationProvider`; do not add inline success/error widgets alongside it
 - do not build a second custom export UX unless the dialog genuinely cannot cover the requirements; if customization is needed, prefer `use_export_dialog(...)` + `ExportDialog(controller=...)` over re-implementing submission logic
 - use canonical file-format values (`"GEO_TIFF"`, `"GEO_JSON"`, `"SHP"`, `"CSV"`, `"KML"`, `"KMZ"`) at the pysepal to ee-client boundary
-- require `ee-client >= 2.5.2` in the app's pyproject for the table-to-asset fix
+- match pysepal's own `ee-client>=4.0.0,<5` floor in the app's pyproject rather
+  than pinning an older ee-client
 
 ## App Shell Guidance
 
