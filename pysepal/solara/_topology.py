@@ -88,9 +88,18 @@ def is_sepal_sandbox(env: Mapping[str, str]) -> bool:
 
     The two failure directions are not symmetric: a false positive here steers
     a multi-user container onto PROCESS and silently shares one identity across
-    every user, while a false negative only steers a real sandbox onto
-    PER_CONNECTION, which raises loudly on missing headers. A safety core must
-    fail toward loud.
+    every user, so this predicate must stay tight.
+
+    A false negative is milder, but it is not uniformly loud -- that depends on
+    the caller. Rule 2 of :func:`resolve_session_plan` steers a real sandbox
+    onto PER_CONNECTION, which raises on missing headers. The other reader,
+    :meth:`SessionManager._process_sepal_client`, instead returns no client and
+    degrades to ``export_hook``'s local-filesystem fallback: a sandbox whose app
+    process did not export ``SEPAL`` would write exports to container-local disk
+    rather than the user's SEPAL workspace, with nothing raised. Worth knowing
+    because ``/etc/environment`` is applied at login and is not inherited by a
+    container entrypoint; checked on a live sandbox, an app process does see the
+    variable.
 
     That asymmetry is why this reads the environment rather than the home
     directory name. Only the sandbox image sets ``SEPAL`` -- the
