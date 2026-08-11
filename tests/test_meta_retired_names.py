@@ -1,21 +1,17 @@
 """Names pysepal 4.0 retired. Re-introducing any of them is a regression.
 
 Module absence is asserted against *this* checkout rather than with a bare
-``ImportError``. A developer machine often has another pysepal on the path --
-an editable install of a sibling clone, say -- and a retired module resolving
-out of that one says nothing about what this tree ships. Anchoring on
-``REPO_ROOT`` keeps the guard answering the only question worth asking.
+``ImportError`` -- see ``tests._import_probe`` for why the interpreter at large
+is the wrong thing to ask.
 """
 
 import importlib
-import importlib.util
 from pathlib import Path
 
 import pytest
 
 import pysepal
-
-REPO_ROOT = Path(__file__).parents[1]
+from tests._import_probe import REPO_ROOT, shipped_locations
 
 RETIRED_MODULES = [
     "sepal_ui",
@@ -50,23 +46,6 @@ RETIRED_METHODS = [
 ]
 
 
-def _origin(module: str) -> Path | None:
-    """Return where ``module`` would be imported from, or None if nowhere.
-
-    Args:
-        module: Dotted module name to resolve without importing it.
-
-    Returns:
-        The resolved source path, or ``None`` when the name does not resolve
-        or resolves to something without a file (a namespace package).
-    """
-    try:
-        spec = importlib.util.find_spec(module)
-    except (ImportError, AttributeError, ValueError):
-        return None
-    return Path(spec.origin) if spec is not None and spec.origin else None
-
-
 def test_the_package_under_test_is_this_checkout():
     """Anchors every assertion below; without it they could all be vacuous."""
     assert Path(pysepal.__file__).is_relative_to(REPO_ROOT)
@@ -74,8 +53,8 @@ def test_the_package_under_test_is_this_checkout():
 
 @pytest.mark.parametrize("module", RETIRED_MODULES)
 def test_retired_modules_are_not_shipped(module):
-    origin = _origin(module)
-    assert origin is None or not origin.is_relative_to(REPO_ROOT), origin
+    shipped = shipped_locations(module)
+    assert shipped == [], shipped
 
 
 @pytest.mark.parametrize(("module", "name"), RETIRED_ATTRIBUTES)

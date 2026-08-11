@@ -1,4 +1,9 @@
-"""Locale no longer resolves through ~/.sepal-ui-config."""
+"""Locale no longer resolves through ~/.sepal-ui-config.
+
+Module absence is asserted against *this* checkout rather than with a bare
+``ImportError`` -- see ``tests._import_probe`` for why the interpreter at large
+is the wrong thing to ask.
+"""
 
 import json
 from configparser import ConfigParser
@@ -7,6 +12,7 @@ from pathlib import Path
 import pytest
 
 from pysepal.translator import Translator
+from tests._import_probe import shipped_locations
 
 
 @pytest.fixture
@@ -59,8 +65,8 @@ def test_translator_module_no_longer_imports_the_config():
 
 
 def test_module_l10n_entry_point_is_gone():
-    with pytest.raises(ModuleNotFoundError):
-        __import__("pysepal.bin.module_l10n")
+    shipped = shipped_locations("pysepal.bin.module_l10n")
+    assert shipped == [], shipped
 
 
 @pytest.mark.parametrize("template", ["map_app", "panel_app"])

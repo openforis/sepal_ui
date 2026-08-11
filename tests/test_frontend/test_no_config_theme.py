@@ -1,12 +1,17 @@
-"""The theme no longer round-trips through ~/.sepal-ui-config (issue #977)."""
+"""The theme no longer round-trips through ~/.sepal-ui-config (issue #977).
+
+Module absence is asserted against *this* checkout rather than with a bare
+``ImportError`` -- see ``tests._import_probe`` for why the interpreter at large
+is the wrong thing to ask.
+"""
 
 from pathlib import Path
 
 import ipyvuetify as v
-import pytest
 
 import pysepal
 from pysepal.frontend import styles
+from tests._import_probe import shipped_locations
 
 
 def test_get_theme_is_gone():
@@ -51,5 +56,5 @@ def test_theme_select_writes_nothing(tmp_path, monkeypatch):
 
 
 def test_module_theme_entry_point_is_gone():
-    with pytest.raises(ModuleNotFoundError):
-        __import__("pysepal.bin.module_theme")
+    shipped = shipped_locations("pysepal.bin.module_theme")
+    assert shipped == [], shipped

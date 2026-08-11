@@ -1,14 +1,19 @@
-"""pysepal must import in an environment it cannot write to."""
+"""pysepal must import in an environment it cannot write to.
+
+Module absence is asserted against *this* checkout rather than with a bare
+``ImportError`` -- see ``tests._import_probe`` for why the interpreter at large
+is the wrong thing to ask.
+"""
 
 import subprocess
 import sys
 
-import pytest
+from tests._import_probe import shipped_locations
 
 
 def test_conf_module_is_gone():
-    with pytest.raises(ModuleNotFoundError):
-        __import__("pysepal.conf")
+    shipped = shipped_locations("pysepal.conf")
+    assert shipped == [], shipped
 
 
 def test_config_is_not_public_api():
