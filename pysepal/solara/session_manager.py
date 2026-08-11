@@ -6,13 +6,11 @@ Solara applications.
 """
 
 import logging
-import os
 import threading
 from collections import deque
 from typing import Any, Callable, Deque, Dict, Optional
 
 from eeclient.client import EESession
-from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.models import SepalHeaders
 from pysepal_api import SepalClient
 from solara.lab import headers
@@ -34,7 +32,6 @@ __all__ = [
     "SessionManager",
     "can_create_sessions",
     "empty_session_info",
-    "reset_dev_headers_cache",
     "resolve_sepal_headers",
     "setup_sessions",
 ]
@@ -42,21 +39,9 @@ __all__ = [
 CLOSED_SCOPE_MEMORY = 256
 "How many cleaned-up scope ids to remember, to refuse late resurrection."
 
-_dev_headers: Optional[SepalHeaders] = None
-_dev_headers_lock = threading.Lock()
-
-
-def _dev_auth_enabled() -> bool:
-    """Whether the deprecated ``SOLARA_TEST`` local-development login is on."""
-    return os.getenv("SOLARA_TEST", "false").strip().lower() == "true"
-
 
 def resolve_sepal_headers(raw_headers: dict) -> SepalHeaders:
     """Validate a connection's raw headers into SEPAL headers.
-
-    Under ``SOLARA_TEST=true`` the headers come from a real SEPAL login
-    instead, cached for the process: ``get_sepal_headers_from_auth`` issues a
-    blocking HTTP POST and ``create_session`` runs on the render path.
 
     Args:
         raw_headers: The request headers Solara exposes for this connection.
@@ -64,23 +49,7 @@ def resolve_sepal_headers(raw_headers: dict) -> SepalHeaders:
     Returns:
         The validated SEPAL headers.
     """
-    global _dev_headers
-
-    if not _dev_auth_enabled():
-        return SepalHeaders.model_validate(raw_headers)
-
-    with _dev_headers_lock:
-        if _dev_headers is None:
-            _dev_headers = get_sepal_headers_from_auth()
-        return _dev_headers
-
-
-def reset_dev_headers_cache() -> None:
-    """Drop the cached development headers (tests, and dev-server reloads)."""
-    global _dev_headers
-
-    with _dev_headers_lock:
-        _dev_headers = None
+    return SepalHeaders.model_validate(raw_headers)
 
 
 def empty_session_info(scope_id: Optional[str]) -> dict:

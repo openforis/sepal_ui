@@ -7,6 +7,7 @@ else is internal.
 """
 
 from .decorators import with_sepal_sessions
+from .dev_auth import prime_dev_auth
 from .errors import (
     MissingSepalHeadersError,
     SepalSessionError,
@@ -61,6 +62,7 @@ __all__ = [
     "get_sessions_overview",
     "has_scoped_state",
     "notify",
+    "prime_dev_auth",
     "resolve_scope_id",
     "resolve_theme_state",
     "setup_sessions",

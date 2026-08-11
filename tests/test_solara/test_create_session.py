@@ -414,24 +414,3 @@ def test_get_current_sepal_client_accepts_an_explicit_module():
 
         assert utils.get_current_sepal_client("route_a") is manager.get_sepal_client("route_a")
         assert utils.get_current_sepal_client() is manager.get_sepal_client("route_b")
-
-
-def test_dev_login_happens_once_per_process(monkeypatch):
-    """get_sepal_headers_from_auth is a blocking POST on the render path."""
-    monkeypatch.setenv("SOLARA_TEST", "true")
-    logins = []
-    parsed = _parsed_headers()
-
-    def _login():
-        logins.append(1)
-        return parsed
-
-    monkeypatch.setattr(sm, "get_sepal_headers_from_auth", _login)
-
-    manager = SessionManager()
-    with _stack():
-        manager.create_session()
-        manager.cleanup_session("kernel-a")
-
-    assert sm.resolve_sepal_headers({"cookie": ["y"]}) is parsed
-    assert logins == [1]
