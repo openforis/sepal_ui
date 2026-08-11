@@ -24,23 +24,17 @@ def test_getters_fall_back_when_no_session_can_exist():
     missing ``@with_sepal_sessions`` therefore broke every non-Solara runtime:
     the headerless fallbacks were unreachable.
     """
-    from pysepal.solara import theme, utils
+    from pysepal.solara import utils
 
-    # Two patch targets on purpose: utils binds the predicate at import time,
-    # while theme must import it lazily (session_manager imports ThemeState from
-    # theme, so a module-level import there would be circular).
     with (
         patch.object(SessionManager, "is_initialized", return_value=True),
         patch.object(SessionManager, "get_session_component", return_value=None),
         patch.object(utils, "can_create_sessions", return_value=False),
-        patch("pysepal.solara.session_manager.can_create_sessions", return_value=False),
         patch.object(utils, "_get_fallback_gee_interface", return_value="fallback-gee"),
         patch.object(utils, "_get_fallback_drive_interface", return_value="fallback-drive"),
-        patch.object(theme, "_get_fallback_theme_state", return_value="fallback-theme"),
     ):
         assert utils.get_current_gee_interface() == "fallback-gee"
         assert utils.get_current_drive_interface() == "fallback-drive"
-        assert theme.get_current_theme_state() == "fallback-theme"
 
 
 def test_getters_still_raise_when_headers_exist_but_session_is_missing():
@@ -51,18 +45,18 @@ def test_getters_still_raise_when_headers_exist_but_session_is_missing():
     """
     import pytest
 
-    from pysepal.solara import theme, utils
+    from pysepal.solara import utils
 
     with (
         patch.object(SessionManager, "is_initialized", return_value=True),
         patch.object(SessionManager, "get_session_component", return_value=None),
         patch.object(utils, "can_create_sessions", return_value=True),
-        patch("pysepal.solara.session_manager.can_create_sessions", return_value=True),
     ):
+        # Theme deliberately absent here: it moved to the auth-free scope store
+        # (pysepal.solara.ui_state) and is covered by tests/test_solara/test_theme.py.
         for getter in (
             utils.get_current_gee_interface,
             utils.get_current_drive_interface,
-            theme.get_current_theme_state,
         ):
             with pytest.raises(RuntimeError, match="Session manager is active"):
                 getter()

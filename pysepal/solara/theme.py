@@ -7,7 +7,7 @@ from typing import Optional
 import solara
 from traitlets import Bool, Enum, HasTraits
 
-from pysepal.frontend.styles import get_theme
+from pysepal.solara.ui_state import PROCESS_SCOPE, get_scoped_state
 
 
 class ThemeState(HasTraits):
@@ -50,54 +50,35 @@ class ThemeState(HasTraits):
         return "dark" if value else "light"
 
 
-_fallback_theme_state: Optional[ThemeState] = None
-
-
-def _get_fallback_theme_state() -> ThemeState:
-    """Get or create a process-local fallback theme state."""
-    global _fallback_theme_state
-    if _fallback_theme_state is None:
-        fallback_mode = get_theme()
-        _fallback_theme_state = ThemeState(mode=fallback_mode, dark=fallback_mode == "dark")
-    return _fallback_theme_state
-
-
 def get_current_theme_state() -> ThemeState:
-    """Return the theme state for the current Solara kernel session."""
-    from .session_manager import SessionManager, can_create_sessions
+    """Return the theme state for the current runtime scope.
 
-    if SessionManager.is_initialized():
-        session_manager = SessionManager()
-        theme_state = session_manager.get_session_component("theme_state")
-        if theme_state is not None:
-            return theme_state
+    Theme is UI state, not session state: it is keyed by the runtime scope and
+    created on first access, so a Solara connection, a Voila page, plain Jupyter,
+    a script and pytest all get a real ``ThemeState``. There is no session lookup
+    and no credential in this path, and this function never raises.
 
-        if not can_create_sessions():
-            return _get_fallback_theme_state()
-
-        raise RuntimeError(
-            "Session manager is active but no theme state exists for the current kernel. "
-            "Ensure your Page component is decorated with @with_sepal_sessions."
-        )
-
-    return _get_fallback_theme_state()
+    A fresh state starts at ``mode="auto"``; it is no longer seeded from
+    ``~/.sepal-ui-config``, which is process-global and therefore leaked one
+    user's theme into every other session (issue #977).
+    """
+    return get_scoped_state("theme_state", ThemeState)
 
 
 def resolve_theme_state(theme_state: Optional[ThemeState] = None) -> ThemeState:
     """Return a usable ThemeState without ever raising.
 
-    Precedence: an explicit ``theme_state`` > the current session's theme state
-    > a process-local fallback. Unlike :func:`get_current_theme_state`, an active
-    session that is missing its theme component degrades to the fallback instead
-    of raising, so callers such as ``NotificationProvider`` cannot crash a
-    misconfigured app.
+    Precedence: an explicit ``theme_state`` > the current scope's theme state >
+    the process-wide scope. :func:`get_current_theme_state` is itself total now;
+    the guard stays because apps and tests do override that symbol, and
+    ``NotificationProvider`` must not be crashable through it.
     """
     if theme_state is not None:
         return theme_state
     try:
         return get_current_theme_state()
     except RuntimeError:
-        return _get_fallback_theme_state()
+        return get_scoped_state("theme_state", ThemeState, scope_id=PROCESS_SCOPE)
 
 
 def use_theme_dark(theme_state: Optional[ThemeState] = None) -> bool:
