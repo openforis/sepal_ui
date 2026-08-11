@@ -41,6 +41,15 @@ def test_resolve_scope_id_raises_typed_error_on_unparseable_connection_file():
             resolve_scope_id()
 
 
+def test_resolve_scope_id_raises_typed_error_when_solaras_lazy_imports_fail():
+    # solara.scope.get_kernel_id imports solara.server.kernel_context and IPython
+    # inside the call; pysepal declares neither, so a thinned dependency tree
+    # must degrade to "unsupported" rather than crash render.
+    with patch("solara.scope.get_kernel_id", side_effect=ImportError("No module named 'IPython'")):
+        with pytest.raises(UnsupportedSolaraRuntimeError, match="No supported"):
+            resolve_scope_id()
+
+
 def test_current_scope_id_falls_back_to_the_process_scope():
     """Scripts and pytest have no per-connection runtime; state still needs a key."""
     with patch("solara.scope.get_kernel_id", side_effect=RuntimeError("Not in a kernel")):

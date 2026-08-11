@@ -34,6 +34,14 @@ from typing import Mapping
 
 import solara
 
+if not hasattr(solara, "_using_solara_server"):
+    raise ImportError(
+        "solara._using_solara_server is missing. Rule 3 above reads it to tell "
+        "an app-launcher container from any other runtime; without it every "
+        "session creation fails at render time instead of here. Install a "
+        "solara that provides it (pysepal pins solara>=1.60,<2)."
+    )
+
 DEV_AUTH_ENV_VAR = "PYSEPAL_DEV_AUTH"
 "Environment variable arming the local-development login."
 

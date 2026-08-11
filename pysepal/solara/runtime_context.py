@@ -9,6 +9,16 @@ under two other names.
 
 import solara.scope
 
+if not hasattr(solara.scope, "get_kernel_id"):
+    raise ImportError(
+        "solara.scope.get_kernel_id is missing. pysepal resolves every "
+        "per-connection scope through it, and its absence is indistinguishable "
+        "from 'this runtime has no kernel': UI state, theme and the "
+        "notification bus would silently collapse onto one shared process "
+        "scope for every connection. Install a solara that provides it "
+        "(pysepal pins solara>=1.60,<2)."
+    )
+
 PROCESS_SCOPE = "process"
 "Scope id used when no per-connection runtime can be resolved."
 
@@ -28,7 +38,7 @@ def resolve_scope_id() -> str:
     only translate its failure modes into a typed error.
 
     Those failure modes are every way an unusual host can shape a kernel, and
-    all four are reachable -- the ipython fallback ends in
+    all five are reachable -- the ipython fallback ends in
     ``re.search(regex, kernel.config["IPKernelApp"]["connection_file"]).group(1)``:
 
     - ``RuntimeError`` -- no kernel at all;
@@ -36,7 +46,13 @@ def resolve_scope_id() -> str:
       ``re.search`` returns None;
     - ``TypeError`` -- no ``connection_file`` key, which a traitlets ``Config``
       auto-vivifies into a ``LazyConfigValue`` rather than raising;
-    - ``KeyError`` -- the same absence in a mapping that does not auto-vivify.
+    - ``KeyError`` -- the same absence in a mapping that does not auto-vivify;
+    - ``ImportError`` -- solara imports ``solara.server.kernel_context`` and
+      ``IPython`` inside the call, and pysepal declares neither.
+
+    An ``ImportError`` from the *symbol itself* being gone cannot reach here:
+    the module-level check above turns that into a startup failure, so a solara
+    API change never masquerades as a runtime that has no kernel.
 
     Deliberately not ``Exception``: this resolver is total about *runtime
     shape*, which is not a licence to hide bugs behind a fallback scope.
@@ -49,7 +65,7 @@ def resolve_scope_id() -> str:
     """
     try:
         return solara.scope.get_kernel_id(ipython_fallback=True)
-    except (RuntimeError, AttributeError, TypeError, KeyError) as exc:
+    except (RuntimeError, AttributeError, TypeError, KeyError, ImportError) as exc:
         raise UnsupportedSolaraRuntimeError(
             "No supported pysepal runtime context is available"
         ) from exc

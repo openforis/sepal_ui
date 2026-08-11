@@ -49,7 +49,7 @@ dependencies = [
     "natsort",
     "typing-extensions",
     "pydantic",  # SepalHeaders validation and the PYSEPAL_DEV_AUTH interlock
-    "solara",
+    "solara>=1.60,<2", # two private APIs are load-bearing: solara.scope.get_kernel_id and solara._using_solara_server
     "ee-client>=4.0.0,<5", # provider-agnostic auth: EESession.from_*() factories (issue-12)
     "pysepal-api>=0.3.0,<0.4", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes); 0.x: a minor is a breaking release, so cap it
     "colorlog",
