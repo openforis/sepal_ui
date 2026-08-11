@@ -62,7 +62,11 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
         return MagicMock()
 
     gee_factory = MagicMock(side_effect=_build_gee)
-    sepal_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
+    sepal_factory = MagicMock(
+        side_effect=lambda **kwargs: SimpleNamespace(
+            ensure_results_dir=MagicMock(), module_name=kwargs.get("module_name"), close=MagicMock()
+        )
+    )
     drive_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
 
     with (
@@ -74,6 +78,7 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
         patch.object(sm, "GEEInterface", gee_factory),
         patch.object(sm, "SepalClient", SimpleNamespace(create=sepal_factory)),
         patch.object(sm, "GDriveInterface", drive_factory),
+        patch.object(sm, "_RESULTS_DIR_EXECUTOR", SimpleNamespace(submit=lambda fn: fn())),
     ):
         yield SimpleNamespace(gee=gee_factory, sepal=sepal_factory, drive=drive_factory)
 
@@ -350,23 +355,39 @@ def test_cleanup_closes_a_drive_interface_that_has_close():
     drive.close.assert_called_once()
 
 
-def test_cleanup_tolerates_a_drive_interface_without_close(caplog):
-    """On ee-client 3.0.0 GDriveInterface has no close(); that must not raise -- or log.
+def test_cleanup_survives_a_drive_interface_that_fails_to_close():
+    """A failed drive close must not skip the tombstone.
 
-    A ``getattr(..., "close", None)`` skip and a ``close()`` call caught by the
-    surrounding ``except Exception`` would both leave ``list_sessions()`` empty,
-    so that assertion alone can't tell them apart. Asserting on the log record
-    is what actually proves the skip path ran instead of the catch path.
+    ``cleanup_session`` writes the tombstone after ``_close_session``, inside
+    the same scope lock; a close that escapes ``_close_session`` would skip it
+    and break the invariant ``test_closed_scope_cannot_be_resurrected`` protects.
     """
     manager = SessionManager()
     with _stack() as factories:
-        factories.drive.side_effect = lambda **kwargs: SimpleNamespace()
+        factories.drive.side_effect = lambda **kwargs: SimpleNamespace(
+            close=MagicMock(side_effect=RuntimeError("boom"))
+        )
         manager.create_session()
-        with caplog.at_level("ERROR", logger="sepalui.session_manager"):
-            manager.cleanup_session("kernel-a")
+        manager.get_drive_interface()
+        manager.cleanup_session("kernel-a")
 
     assert manager.list_sessions() == {}
-    assert "Error closing Drive interface" not in caplog.text
+    assert "kernel-a" in manager._closed_scopes
+
+
+def test_creating_a_client_schedules_its_results_directory():
+    """The per-connection path must schedule the directory too.
+
+    Not only the process/sandbox path -- this is the deployed app-launcher
+    container's own path.
+    """
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session(module_name="route_a")
+        client = manager.get_sepal_client("route_a")
+
+    assert factories.sepal.call_count == 1
+    client.ensure_results_dir.assert_called_once()
 
 
 def test_each_module_name_gets_its_own_client_on_one_session():

@@ -50,8 +50,8 @@ dependencies = [
     "typing-extensions",
     "pydantic",  # SepalHeaders validation and the PYSEPAL_DEV_AUTH interlock
     "solara",
-    "ee-client>=3.0.0", # provider-agnostic auth: EESession.from_*() factories (issue-12)
-    "pysepal-api>=0.2.0", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes)
+    "ee-client>=4.0.0,<5", # provider-agnostic auth: EESession.from_*() factories (issue-12)
+    "pysepal-api>=0.3.0,<0.4", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes); 0.x: a minor is a breaking release, so cap it
     "colorlog",
     "reactivex"
 ]

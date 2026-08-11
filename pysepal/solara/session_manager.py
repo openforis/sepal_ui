@@ -9,6 +9,7 @@ import logging
 import os
 import threading
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Deque, Dict, Optional
 
@@ -54,6 +55,15 @@ __all__ = [
 
 CLOSED_SCOPE_MEMORY = 256
 "How many cleaned-up scope ids to remember, to refuse late resurrection."
+
+_RESULTS_DIR_EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pysepal-results-dir")
+"""Off-render-path worker for module results directory creation.
+
+``SepalClient.create()`` is pure, so the ``createFolder`` POST that used to run
+inside it now runs here instead of on the render thread while a scope lock is
+held. Two workers: the call is idempotent and rare, and a stuck SEPAL API must
+not be able to starve anything.
+"""
 
 
 def resolve_sepal_headers(raw_headers: dict) -> SepalHeaders:
@@ -352,6 +362,7 @@ class SessionManager:
                 "sepal_clients": {},
                 "active_module_name": module_name,
                 "drive_interface": None,
+                "results_dirs_scheduled": set(),
             }
             try:
                 self._ensure_sepal_client(session, module_name)
@@ -387,6 +398,7 @@ class SessionManager:
                 session_id=session["sepal_session_id"], module_name=module_name
             )
             clients[module_name] = client
+            self._schedule_results_dir(session, module_name, client)
             logger.debug(f"Created SepalClient for module '{module_name}'")
 
         # Deliberately after creation succeeds: if SepalClient.create() raises above,
@@ -394,6 +406,47 @@ class SessionManager:
         # actually has a client, instead of one whose client failed to build.
         session["active_module_name"] = module_name
         return client
+
+    def _schedule_results_dir(
+        self, session: Dict[str, Any], module_name: str, client: SepalClient
+    ) -> None:
+        """Create this module's results directory off the render path, once.
+
+        The caller holds the scope lock, which is what makes the bookkeeping set
+        safe to touch. Failures are logged and swallowed: every writer in the
+        deployed apps creates its own target with ``parents=True``, so a missing
+        directory here costs nothing.
+
+        Args:
+            session: The session that owns the client.
+            module_name: The module whose directory to create.
+            client: The client to create it with.
+        """
+        scheduled = session.setdefault("results_dirs_scheduled", set())
+        if module_name in scheduled:
+            return
+
+        def _run() -> None:
+            try:
+                client.ensure_results_dir()
+            except Exception:
+                logger.warning(
+                    f"Could not create the results directory for '{module_name}'",
+                    exc_info=True,
+                )
+
+        try:
+            _RESULTS_DIR_EXECUTOR.submit(_run)
+        except Exception:
+            # A rejected submission (e.g. the executor is shutting down) must not
+            # escape onto the render path -- exactly what this method exists to
+            # prevent -- and must not mark the module done if it never ran.
+            logger.warning(
+                f"Could not schedule the results directory for '{module_name}'",
+                exc_info=True,
+            )
+            return
+        scheduled.add(module_name)
 
     def _ensure_process_session(
         self, plan: SessionPlan, module_name: Optional[str] = None
@@ -452,6 +505,7 @@ class SessionManager:
                 "sepal_clients": {},
                 "active_module_name": module_name or "default",
                 "drive_interface": None,
+                "results_dirs_scheduled": set(),
             }
             self._sessions[PROCESS_SCOPE] = session
             logger.debug(f"Created the process session ({plan.reason})")
@@ -501,7 +555,10 @@ class SessionManager:
             if sepal_headers is not None:
                 ee_session = EESession.from_sepal_headers(sepal_headers)
             else:
-                ee_session = EESession.from_default()
+                # The one place pysepal may read the machine's Earth Engine
+                # credentials. Topology has established they belong to a single
+                # user; a service-account key there would not, so refuse it.
+                ee_session = EESession.from_default(allow_service_account_file=False)
             session["gee_interface"] = GEEInterface(ee_session)
         return session["gee_interface"]
 
@@ -545,10 +602,9 @@ class SessionManager:
 
         Returns:
             The client, or None when this process has no SEPAL identity, or
-            ``SepalClient.create()`` fails for any reason -- missing
-            credentials, or the eager ``createFolder`` call it still makes
-            hitting a SEPAL API outage (``pysepal-api`` < the version F7
-            requires, which drops that eager call).
+            ``SepalClient.create()`` fails for any reason -- missing or
+            unreadable credentials. The results directory is created
+            separately, off the render path; see :meth:`_schedule_results_dir`.
         """
         if session["sepal_headers"] is None and not is_sepal_sandbox(Path.home().name):
             return None
@@ -558,18 +614,20 @@ class SessionManager:
         if client is None:
             try:
                 client = SepalClient.create(
-                    session_id=session["sepal_session_id"], module_name=module_name
+                    session_id=session["sepal_session_id"],
+                    module_name=module_name,
+                    auth_mode="auto" if session["sepal_headers"] else "sandbox_file",
                 )
             except PysepalError as exc:
-                # Any SEPAL API failure here -- no credentials, or the eager
-                # createFolder call above hitting a 5xx/connection error --
-                # must degrade the sandbox path to "no client", not crash a
-                # render: that is what the sandbox exists to preserve
+                # No credentials readable for the resolved auth_mode must degrade
+                # the sandbox path to "no client", not crash a render: that is
+                # what the sandbox exists to preserve
                 # (pysepal/solara/components/export_hook.py's local-filesystem
                 # fallback).
                 logger.debug(f"SEPAL API unavailable; no client for '{module_name}': {exc}")
                 return None
             clients[module_name] = client
+            self._schedule_results_dir(session, module_name, client)
         return client
 
     def get_gee_interface(self) -> GEEInterface:
@@ -718,11 +776,9 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Error closing SepalClient '{module_name}' for scope {scope_id}: {e}")
 
-        # GDriveInterface only grows close() in ee-client 4.0.0; skip it below that.
-        close_drive = getattr(session.get("drive_interface"), "close", None)
-        if close_drive is not None:
+        if session.get("drive_interface") is not None:
             try:
-                close_drive()
+                session["drive_interface"].close()
             except Exception as e:
                 logger.error(f"Error closing Drive interface for scope {scope_id}: {e}")
 

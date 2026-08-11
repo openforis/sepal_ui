@@ -41,7 +41,11 @@ def _process_stack(plan=_PROCESS, dev_headers=None, sandbox=True, gee_delay=0.0)
 
     gee_factory = MagicMock(side_effect=_build_gee)
     drive_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
-    sepal_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
+    sepal_factory = MagicMock(
+        side_effect=lambda **kwargs: SimpleNamespace(
+            ensure_results_dir=MagicMock(), module_name=kwargs.get("module_name")
+        )
+    )
 
     with (
         patch.object(sm, "_current_plan", return_value=plan),
@@ -55,6 +59,7 @@ def _process_stack(plan=_PROCESS, dev_headers=None, sandbox=True, gee_delay=0.0)
         patch.object(sm, "GDriveInterface", drive_factory),
         patch.object(sm, "SepalClient", SimpleNamespace(create=sepal_factory)),
         patch.object(sm, "prime_dev_auth", MagicMock(return_value=dev_headers)),
+        patch.object(sm, "_RESULTS_DIR_EXECUTOR", SimpleNamespace(submit=lambda fn: fn())),
     ):
         yield SimpleNamespace(
             from_default=from_default,
@@ -150,12 +155,11 @@ def test_a_sandbox_client_is_none_without_sepal_api_credentials():
 
 
 def test_a_sandbox_client_is_none_on_a_sepal_api_outage():
-    """SepalClient.create() still makes an eager network call (until F7).
+    """A PysepalError out of SepalClient.create() (e.g. an unreachable auth source).
 
-    A 5xx or connection failure there must degrade the sandbox path to "no
-    client" -- exactly like missing credentials -- not escape and turn an
-    export dialog render into an error banner instead of the local-filesystem
-    fallback it exists to preserve.
+    Must degrade the sandbox path to "no client" -- exactly like missing
+    credentials -- not escape and turn an export dialog render into an error
+    banner instead of the local-filesystem fallback it exists to preserve.
     """
     manager = SessionManager()
     with _process_stack() as factories:
@@ -179,6 +183,16 @@ def test_each_module_gets_its_own_process_client():
         "route_a",
         "route_b",
     ]
+
+
+def test_a_sandbox_client_authenticates_from_the_sandbox_file():
+    """No SEPAL headers on the process session means the sandbox key, not a session cookie."""
+    manager = SessionManager()
+    with _process_stack() as factories:
+        manager.create_session(module_name="route_a")
+        manager.get_sepal_client()
+
+    assert factories.sepal.call_args.kwargs["auth_mode"] == "sandbox_file"
 
 
 def test_revisiting_a_process_module_reuses_its_client():
@@ -219,6 +233,7 @@ def test_dev_auth_clients_carry_the_developer_session_id():
         manager.get_sepal_client()
 
     assert factories.sepal.call_args.kwargs["session_id"] == "sid-1"
+    assert factories.sepal.call_args.kwargs["auth_mode"] == "auto"
 
 
 def test_per_connection_accessors_raise_without_a_session():
