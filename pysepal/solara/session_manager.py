@@ -161,16 +161,32 @@ class SessionManager:
     _instance = None
     """Singleton instance of the SessionManager."""
 
+    _singleton_lock = threading.Lock()
+    """Serialises construction, from ``__new__`` through the ``__init__`` body.
+
+    ``type.__call__`` runs those as two separate check-then-act steps, and
+    ``_registry`` and ``_closed_scopes`` are *instance* attributes (test
+    isolation depends on that), so a lost race does not merely waste an object
+    -- it splits the state. The orphan's sessions are never cleaned up, its
+    ``GEEInterface`` keeps a private event-loop thread alive, and the
+    tombstones it writes are read by nobody, so a cleaned-up scope becomes
+    resurrectable. ``setup_sessions()`` runs on concurrent kernel-start
+    threads, so the window is real. Taken only here, and never while holding
+    any other pysepal lock.
+    """
+
     def __new__(cls):
         """Create or return the singleton instance of SessionManager."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+        with cls._singleton_lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+            return cls._instance
 
     def __init__(self):
         """Initialize the SessionManager singleton instance."""
-        if not hasattr(self, "_initialized"):
-            self._initialized = True
+        with self._singleton_lock:
+            if hasattr(self, "_initialized"):
+                return
             # The raising resolver, not the registry's lenient default: a call
             # that forgot its scope_id must fail loudly rather than read and
             # write a user's credentials in the shared process bucket.
@@ -182,6 +198,9 @@ class SessionManager:
             # their own lock -- taken inside the scope lock, see _reopen_scope.
             self._closed_scopes: Deque[str] = deque(maxlen=CLOSED_SCOPE_MEMORY)
             self._closed_lock = threading.Lock()
+            # Last: is_initialized() reads this attribute without the lock, so
+            # it must not vouch for state that does not exist yet.
+            self._initialized = True
 
     @classmethod
     def is_initialized(cls) -> bool:
