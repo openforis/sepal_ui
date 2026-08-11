@@ -159,8 +159,9 @@ class SepalColor(HasTraits, SimpleNamespace):
         # Get get current theme name
         self.theme_name = "dark" if self._dark_theme else "light"
 
-        # Save "new" theme in configuration file
-        su.set_config("theme", self.theme_name)
+        # Private writer on purpose: this also runs from `color = SepalColor()` at
+        # `import pysepal`, where set_config's deprecation warning is not actionable.
+        su._write_config("theme", self.theme_name)
 
         self.colors_dict = DARK_THEME if self._dark_theme else LIGHT_THEME
         SimpleNamespace.__init__(self, **self.colors_dict)

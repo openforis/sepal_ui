@@ -3,6 +3,9 @@
 import json
 import os
 import random
+import subprocess
+import sys
+import warnings
 from configparser import ConfigParser
 from pathlib import Path
 from unittest.mock import patch
@@ -267,6 +270,69 @@ def test_set_config_theme() -> None:
 
     # destroy the file again
     config_file.unlink()
+
+    return
+
+
+def test_set_config_theme_is_deprecated() -> None:
+    """The theme in ~/.sepal-ui-config is process-global; see issue #977."""
+    if config_file.is_file():
+        config_file.unlink()
+
+    with pytest.warns(DeprecationWarning, match="sepal-ui-config"):
+        su.set_config("theme", "light")
+
+    config_file.unlink()
+
+    return
+
+
+def test_set_config_locale_is_not_deprecated() -> None:
+    """Only the theme writer is deprecated; locale is untouched for now."""
+    if config_file.is_file():
+        config_file.unlink()
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        su.set_config("locale", "fr-FR")
+
+    assert not [w for w in caught if "sepal-ui-config" in str(w.message)]
+
+    config_file.unlink()
+
+    return
+
+
+def test_write_config_does_not_warn() -> None:
+    """The private writer is the import-time path; it must stay silent."""
+    if config_file.is_file():
+        config_file.unlink()
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        su._write_config("theme", "dark")
+
+    assert not [w for w in caught if "sepal-ui-config" in str(w.message)]
+
+    config = ConfigParser()
+    config.read(config_file)
+    assert config["sepal-ui"]["theme"] == "dark"
+
+    config_file.unlink()
+
+    return
+
+
+def test_importing_pysepal_does_not_warn_about_the_theme_config() -> None:
+    """SepalColor writes the theme at import time; that warning is unactionable."""
+    code = (
+        "import warnings; "
+        "warnings.filterwarnings('error', message='.*sepal-ui-config.*'); "
+        "import pysepal"
+    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+
+    assert result.returncode == 0, result.stderr
 
     return
 

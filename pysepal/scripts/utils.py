@@ -202,11 +202,16 @@ def next_string(string: str) -> str:
     return string
 
 
-def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
-    """Set a config variable.
+_THEME_CONFIG_DEPRECATION = (
+    "Writing 'theme' to ~/.sepal-ui-config is deprecated and will be removed in pysepal 4.0. "
+    "The file is process-global, so under a multi-user Solara server one user's theme leaks "
+    "into every other session. Use pysepal.solara.get_current_theme_state() instead "
+    "(issue #977)."
+)
 
-    Set the provided value to the given key for the given section in the sepal-ui config
-    file.
+
+def _write_config(key: str, value: str, section: str = "sepal-ui") -> None:
+    """Write a config variable to the sepal-ui config file without warning.
 
     Args:
         key: key configuration name
@@ -221,9 +226,31 @@ def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
     config.set("sepal-ui", key, value)
 
     # save back the file
-    config.write(config_file.open("w"))
+    with config_file.open("w") as f:
+        config.write(f)
 
     return
+
+
+def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
+    """Set a config variable.
+
+    Set the provided value to the given key for the given section in the sepal-ui config
+    file.
+
+    Args:
+        key: key configuration name
+        value: value to be referenced by the configuration key
+        section: configuration section, defaults to sepal-ui.
+
+    .. deprecated:: 3.9.0
+        Writing ``theme`` is deprecated; use
+        :func:`pysepal.solara.get_current_theme_state` instead (issue #977).
+    """
+    if key == "theme":
+        warnings.warn(_THEME_CONFIG_DEPRECATION, DeprecationWarning, stacklevel=2)
+
+    return _write_config(key, value, section)
 
 
 @deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
