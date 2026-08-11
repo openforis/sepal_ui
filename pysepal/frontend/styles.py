@@ -11,7 +11,6 @@ from ipywidgets import Widget
 from traitlets import Bool, HasTraits, Unicode, link
 
 import pysepal.scripts.utils as su
-from pysepal.conf import config
 
 ################################################################################
 # access the folders where style information is stored (layers, widgets)
@@ -133,19 +132,18 @@ v.theme.themes.dark = dark_theme_colors
 #
 
 
-def get_theme() -> str:
-    """Get theme name from the config file (default to dark).
-
-    Returns:
-        The theme to use
-    """
-    return config.get("sepal-ui", "theme", fallback="dark")
-
-
 class SepalColor(HasTraits, SimpleNamespace):
 
-    _dark_theme: Bool = Bool(True if get_theme() == "dark" else False).tag(sync=True)
-    "Whether to use dark theme or not. By changing this value, the theme value will be stored in the conf file. Is only intended to be accessed in development mode."
+    _dark_theme: Bool = Bool(True).tag(sync=True)
+    """Whether the dark theme is active.
+
+    A constant default on purpose: this is a class-body trait, evaluated at
+    import, and it used to be seeded from ``~/.sepal-ui-config`` -- a file
+    shared by every connection in a multi-user container. The value still
+    tracks ``ipyvuetify``'s live theme through the link below, but
+    ``pysepal.color`` remains a single process-global object: whoever toggles
+    last wins for every legacy ipyvuetify widget in the process.
+    """
 
     def __init__(self) -> None:
         """Custom simple name space to store and access to the pysepal colors and with a magic method to display theme."""
@@ -158,10 +156,6 @@ class SepalColor(HasTraits, SimpleNamespace):
         """Set the current hexadecimal color in the object."""
         # Get get current theme name
         self.theme_name = "dark" if self._dark_theme else "light"
-
-        # Private writer on purpose: this also runs from `color = SepalColor()` at
-        # `import pysepal`, where set_config's deprecation warning is not actionable.
-        su._write_config("theme", self.theme_name)
 
         self.colors_dict = DARK_THEME if self._dark_theme else LIGHT_THEME
         SimpleNamespace.__init__(self, **self.colors_dict)

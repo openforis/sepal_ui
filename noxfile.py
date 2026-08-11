@@ -74,7 +74,6 @@ def bin(session):
     session.run("module_deploy", "--help")
     session.run("module_factory", "--help")
     session.run("module_l10n", "--help")
-    session.run("module_theme", "--help")
     session.run("module_venv", "--help")
     session.run("activate_venv", "--help")
     session.run("sepal_ipyvuetify", "--help")

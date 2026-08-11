@@ -3,8 +3,6 @@
 import re
 from types import SimpleNamespace
 
-import pysepal.scripts.utils as su
-from pysepal.conf import config
 from pysepal.frontend.styles import SepalColor
 
 
@@ -12,27 +10,6 @@ def test_init() -> None:
     """Init a sepalcolor object."""
     sns = SepalColor()
     assert isinstance(sns, SimpleNamespace)
-
-    return
-
-
-def test_conf() -> None:
-    """Check configuration file theme after changing theme."""
-    # Specify light theme
-    su.set_config("theme", "light")
-    dark_theme = False
-
-    # Instantiate
-    color = SepalColor()
-
-    # Check that light theme is activated in the object
-    assert dark_theme == color._dark_theme
-
-    # change color theme color
-    color._dark_theme = True
-
-    # Be sure now dark theme is stored in conf
-    assert config.get("sepal-ui", "theme") == "dark"
 
     return
 

@@ -14,9 +14,6 @@ CLI
 .. autoprogram:: module_l10n:parser
    :prog: module_l10n
 
-.. autoprogram:: module_theme:parser
-   :prog: module_theme
-
 .. autoprogram:: module_venv:parser
    :prog: module_venv
 

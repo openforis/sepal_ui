@@ -59,19 +59,3 @@ def test_current_theme_state_never_raises_without_a_session(monkeypatch):
     """
     monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-a")
     assert isinstance(get_current_theme_state(), ThemeState)
-
-
-def test_current_theme_state_does_not_read_the_legacy_config(monkeypatch):
-    """theme.py must not consult ~/.sepal-ui-config (deprecated, issue #977)."""
-
-    def _boom():
-        raise AssertionError("get_theme() must not be called from the solara theme path")
-
-    monkeypatch.setattr(theme_mod, "get_theme", _boom, raising=False)
-    monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-a")
-    assert isinstance(get_current_theme_state(), ThemeState)
-
-
-def test_theme_module_no_longer_imports_get_theme():
-    """The legacy config reader is gone from the solara theme path entirely."""
-    assert not hasattr(theme_mod, "get_theme")

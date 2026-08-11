@@ -135,8 +135,8 @@ event loop), one `GDriveInterface` — and a `SepalClient` per `module_name`. Ea
 `get_current_theme_state()` is keyed by the runtime scope, not by the SEPAL session:
 it never raises and never touches credentials, so it works identically under
 `solara run`, Voila, plain Jupyter and pytest. A fresh state starts at `mode="auto"`.
-The legacy `~/.sepal-ui-config` theme file is deprecated (issue #977) — do not read
-or write it from app code.
+The legacy `~/.sepal-ui-config` theme file is removed in 4.0 — theme state is
+never read from or written to disk.
 
 ### Getting interfaces
 
