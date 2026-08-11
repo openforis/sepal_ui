@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pysepal.solara.runtime_context import UnsupportedSolaraRuntimeError
+from pysepal.solara.runtime_context import PROCESS_SCOPE, UnsupportedSolaraRuntimeError
 from pysepal.solara.session_manager import SessionManager
 
 
@@ -78,6 +78,25 @@ def test_session_dict_no_longer_carries_theme_state():
 
     assert "theme_state" not in manager._registry.get("kernel-a")
     assert info.session_ready is True
+
+
+def test_explicit_process_scope_does_not_expose_the_process_session():
+    manager = SessionManager()
+    manager._registry.set(
+        {
+            "username": "devauth-operator",
+            "sepal_clients": {"secret_module": object()},
+            "active_module_name": "secret_module",
+            "session_ready": True,
+        },
+        scope_id=PROCESS_SCOPE,
+    )
+
+    info = manager.get_session_info(scope_id=PROCESS_SCOPE)
+
+    assert info.username is None
+    assert info.module_names == ()
+    assert info.session_ready is False
 
 
 def test_setup_sessions_cleanup_clears_the_scope_ui_state():

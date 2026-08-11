@@ -9,8 +9,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pysepal_api.errors import NoCredentialsError, ServerError
 
+from pysepal.solara import dev_auth
 from pysepal.solara import session_manager as sm
-from pysepal.solara._topology import SessionPlan, SessionSource
+from pysepal.solara._topology import DEV_AUTH_ENV_VAR, SessionPlan, SessionSource
 from pysepal.solara.errors import SepalSessionError
 from pysepal.solara.runtime_context import PROCESS_SCOPE
 from pysepal.solara.session_manager import SessionManager
@@ -224,6 +225,40 @@ def test_dev_auth_builds_the_process_session_from_the_developer_login():
         assert factories.from_default.call_count == 0
         assert factories.drive.call_args.kwargs["sepal_headers"] is not None
         assert manager._registry.get(PROCESS_SCOPE)["username"] == "alice"
+
+
+def test_the_overview_shows_a_dev_auth_session_built_through_the_real_path(monkeypatch):
+    """The F9 guard tests hand-build the registry row; this one does not.
+
+    ``PYSEPAL_DEV_AUTH`` is armed via the environment, not by patching
+    ``_current_plan`` -- so topology resolution, ``_ensure_process_session``
+    and the session shell it builds are all real. Only the two I/O boundaries
+    a unit test may not cross are doubled: the login POST
+    (``get_sepal_headers_from_auth``) and the GEE constructor. The credential
+    filter (``-k "... or dev_auth or ..."``) is the standing regression check
+    for PROCESS/DEV_AUTH staying correct across this plan; this is the test
+    that actually exercises that path for :meth:`SessionManager.sessions_overview`.
+    """
+    monkeypatch.setenv(DEV_AUTH_ENV_VAR, "1")
+    monkeypatch.setattr(dev_auth, "get_sepal_headers_from_auth", lambda: _dev_headers("alice"))
+
+    manager = SessionManager()
+    with (
+        patch.object(
+            sm,
+            "EESession",
+            SimpleNamespace(from_sepal_headers=MagicMock(return_value=MagicMock())),
+        ),
+        patch.object(sm, "GEEInterface", MagicMock(return_value=MagicMock())),
+    ):
+        manager.get_gee_interface()
+
+    overview = manager.sessions_overview()
+
+    assert [s.scope_id for s in overview.sessions] == [PROCESS_SCOPE]
+    process_info = overview.sessions[0]
+    assert process_info.username == "alice"
+    assert process_info.session_ready is True
 
 
 def test_dev_auth_clients_carry_the_developer_session_id():

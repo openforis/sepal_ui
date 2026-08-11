@@ -6,13 +6,16 @@ process-wide identity by design. A connection carrying validated SEPAL headers
 never uses it for its own identity -- real headers demote the plan for that
 connection (see :func:`pysepal.solara._topology.resolve_session_plan`) -- but
 the shared session it builds is still reachable by scope id, since solara's
-kernel id is client-supplied. Not the demotion rule alone, but three explicit
+kernel id is client-supplied. Not the demotion rule alone, but four explicit
 reserved-scope guards keep another connection from reading or writing it:
 :meth:`pysepal.solara.session_manager.SessionManager._require_connection_session`
 (``get_gee_interface``/``get_drive_interface``), the equivalent check at the
-top of ``_create_connection_session``, and ``get_sepal_client``'s own inline
-check. ``get_session_info`` has no such guard yet -- tracked separately, not
-a promise this module makes.
+top of ``_create_connection_session``, ``get_sepal_client``'s own inline
+check, and ``get_session_info``'s: it refuses a caller-supplied
+``PROCESS_SCOPE`` the same way, while
+:meth:`~pysepal.solara.session_manager.SessionManager.sessions_overview`
+still enumerates it internally for admin/debug UI, since a scope pulled
+from the registry's own keys was never client-supplied.
 """
 
 import logging

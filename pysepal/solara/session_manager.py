@@ -43,7 +43,7 @@ from pysepal.solara.runtime_context import (
     resolve_scope_id,
 )
 from pysepal.solara.scope_registry import ScopeRegistry
-from pysepal.solara.session_info import SessionInfo
+from pysepal.solara.session_info import SessionInfo, SessionsOverview
 from pysepal.solara.ui_state import clear_scoped_state
 
 logger = logging.getLogger("sepalui.session_manager")
@@ -760,8 +760,10 @@ class SessionManager:
         unresolvable caller (a background export task, a callback on
         ``GEEInterface``'s private loop) must not see the shared
         process/dev-auth session's identity just because its own scope
-        didn't resolve. Same rule :meth:`get_sepal_client` already applies to
-        its ``scope_id`` parameter. A scope with no session reports a
+        didn't resolve. The same reserved scope passed explicitly is refused
+        the same way, so ``scope_id`` can't be used as a second door into
+        that session -- the rule :meth:`get_sepal_client` already applies to
+        its own ``scope_id`` parameter. A scope with no session reports a
         not-ready :class:`~pysepal.solara.session_info.SessionInfo` carrying
         only its scope id, so admin and debug UI render anywhere.
 
@@ -777,6 +779,30 @@ class SessionManager:
             except UnsupportedSolaraRuntimeError:
                 return SessionInfo(scope_id=PROCESS_SCOPE)
 
+        # Same reserved-scope collision as get_sepal_client: outside the resolution
+        # branch on purpose, so an explicit scope_id=PROCESS_SCOPE doesn't become a
+        # second door into the shared process/dev-auth session's identity.
+        if scope_id == PROCESS_SCOPE:
+            return SessionInfo(scope_id=PROCESS_SCOPE)
+
+        return self._session_info_for(scope_id)
+
+    def _session_info_for(self, scope_id: str) -> SessionInfo:
+        """Read one scope's session status straight from the registry.
+
+        No reserved-scope guard: callers must already know ``scope_id`` is
+        safe to read. :meth:`get_session_info` is the guarded, caller-facing
+        accessor and calls this after its check; :meth:`sessions_overview`
+        calls it directly for every id :meth:`session_scope_ids` enumerates --
+        those come from the registry's own keys, never from a caller, so the
+        guard that refuses a caller-supplied ``PROCESS_SCOPE`` does not apply.
+
+        Args:
+            scope_id: The scope to read.
+
+        Returns:
+            The scope's session status.
+        """
         session = self._registry.get(scope_id)
         if session is None:
             return SessionInfo(scope_id=scope_id)
@@ -799,9 +825,27 @@ class SessionManager:
 
         Returns:
             A snapshot tuple. The private session dicts are never handed out;
-            use :meth:`get_session_info` for a read-only view of one.
+            use :meth:`sessions_overview` to read them all -- :meth:`get_session_info`
+            refuses the reserved process scope, which this tuple can contain.
         """
         return self._registry.scope_ids()
+
+    def sessions_overview(self) -> SessionsOverview:
+        """Return every session the process holds, including the process one.
+
+        Reads each id from :meth:`session_scope_ids` through
+        :meth:`_session_info_for`, not the guarded :meth:`get_session_info`:
+        an enumerated scope id was never caller-supplied, so the reserved-scope
+        guard doesn't apply here. Under PROCESS/DEV_AUTH topology the process
+        session is the process's only session -- hiding it from this overview
+        would make it lie about how many sessions exist.
+
+        Returns:
+            Every scope's session status, unfiltered.
+        """
+        return SessionsOverview(
+            sessions=tuple(self._session_info_for(s) for s in self.session_scope_ids())
+        )
 
 
 def setup_sessions() -> Callable:

@@ -116,6 +116,38 @@ def test_overview_hands_out_no_mutable_session_dicts():
     assert overview.sessions[0].module_names == ("route_a",)
 
 
+def test_the_overview_still_shows_the_process_session_with_real_data():
+    """The overview enumerates the registry's own keys; it is not a caller-supplied scope.
+
+    ``get_session_info(PROCESS_SCOPE)`` refuses a *caller-supplied* reserved
+    scope (see the ``get_session_info`` docstring and
+    :meth:`SessionManager.get_sepal_client`'s equivalent guard) -- but under
+    PROCESS/DEV_AUTH topology the process session is the process's only
+    session, and ``session_scope_ids()`` legitimately includes
+    ``PROCESS_SCOPE`` once it exists (pinned by
+    ``test_process_session.py::test_the_process_session_is_keyed_at_the_process_scope``).
+    The overview must still show it with real data, not a blanked row.
+    """
+    manager = SessionManager()
+    manager._registry.set(
+        {
+            "username": "devauth-operator",
+            "gee_interface": object(),
+            "sepal_clients": {"secret_module": object()},
+            "active_module_name": "secret_module",
+        },
+        scope_id=PROCESS_SCOPE,
+    )
+
+    overview = utils.get_sessions_overview()
+
+    assert [s.scope_id for s in overview.sessions] == [PROCESS_SCOPE]
+    process_info = overview.sessions[0]
+    assert process_info.username == "devauth-operator"
+    assert process_info.session_ready is True
+    assert process_info.module_names == ("secret_module",)
+
+
 def test_scope_less_caller_does_not_see_the_process_session():
     """An unresolvable runtime must not read the shared process/dev-auth session.
 

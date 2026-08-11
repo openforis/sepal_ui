@@ -92,12 +92,11 @@ def get_current_session_info() -> SessionInfo:
 def get_sessions_overview() -> SessionsOverview:
     """Return every session the process holds.
 
-    Never raises; see :func:`get_current_session_info`.
+    Never raises. Delegates to :meth:`SessionManager.sessions_overview`
+    rather than resolving on its own -- same shape as
+    :func:`get_current_session_info`.
     """
     if not SessionManager.is_initialized():
         return SessionsOverview()
 
-    manager = SessionManager()
-    return SessionsOverview(
-        sessions=tuple(manager.get_session_info(s) for s in manager.session_scope_ids())
-    )
+    return SessionManager().sessions_overview()
