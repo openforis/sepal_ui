@@ -1,8 +1,9 @@
 """Errors raised while establishing a SEPAL session.
 
-One hierarchy, one module: ``session_manager`` imports and re-exports these
-names, so ``except MissingSepalHeadersError`` works whether the caller got the
-name from here or from ``session_manager``.
+Defined here, and only here. ``session_manager`` imports
+``MissingSepalHeadersError`` and ``SessionScopeClosedError`` in order to raise
+them, but its ``__all__`` does not advertise them -- import from
+``pysepal.solara.errors``.
 """
 
 

@@ -9,11 +9,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from pysepal.solara import session_manager as sm
-from pysepal.solara.session_manager import (
-    MissingSepalHeadersError,
-    SessionManager,
-    SessionScopeClosedError,
-)
+from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
+from pysepal.solara.session_manager import SessionManager
 
 _MISSING = object()
 

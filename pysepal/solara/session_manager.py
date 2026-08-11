@@ -19,11 +19,9 @@ from solara.lab import headers
 
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
-from pysepal.solara.errors import (
-    MissingSepalHeadersError,
-    SepalSessionError,
-    SessionScopeClosedError,
-)
+
+# Imported only to raise below; not re-exported in __all__ -- see pysepal.solara.errors.
+from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
 from pysepal.solara.runtime_context import (
     UnsupportedSolaraRuntimeError,
     get_current_runtime_id,
@@ -33,10 +31,7 @@ from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
 logger = logging.getLogger("sepalui.session_manager")
 
 __all__ = [
-    "MissingSepalHeadersError",
-    "SepalSessionError",
     "SessionManager",
-    "SessionScopeClosedError",
     "can_create_sessions",
     "empty_session_info",
     "reset_dev_headers_cache",
