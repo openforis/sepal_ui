@@ -7,7 +7,9 @@ Solara applications.
 
 import logging
 import os
-from typing import Any, Callable, Dict, Optional
+import threading
+from collections import deque
+from typing import Any, Callable, Deque, Dict, Optional
 
 from eeclient.client import EESession
 from eeclient.helpers import get_sepal_headers_from_auth
@@ -17,6 +19,11 @@ from solara.lab import headers
 from pysepal.scripts.drive_interface import GDriveInterface
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.scripts.sepal_client import SepalClient
+from pysepal.solara.errors import (
+    MissingSepalHeadersError,
+    SepalSessionError,
+    SessionScopeClosedError,
+)
 from pysepal.solara.runtime_context import (
     UnsupportedSolaraRuntimeError,
     get_current_runtime_id,
@@ -24,6 +31,61 @@ from pysepal.solara.runtime_context import (
 from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
 
 logger = logging.getLogger("sepalui.session_manager")
+
+__all__ = [
+    "MissingSepalHeadersError",
+    "SepalSessionError",
+    "SessionManager",
+    "SessionScopeClosedError",
+    "can_create_sessions",
+    "empty_session_info",
+    "reset_dev_headers_cache",
+    "resolve_sepal_headers",
+    "setup_sessions",
+]
+
+CLOSED_SCOPE_MEMORY = 256
+"How many cleaned-up scope ids to remember, to refuse late resurrection."
+
+_dev_headers: Optional[SepalHeaders] = None
+_dev_headers_lock = threading.Lock()
+
+
+def _dev_auth_enabled() -> bool:
+    """Whether the deprecated ``SOLARA_TEST`` local-development login is on."""
+    return os.getenv("SOLARA_TEST", "false").strip().lower() == "true"
+
+
+def resolve_sepal_headers(raw_headers: dict) -> SepalHeaders:
+    """Validate a connection's raw headers into SEPAL headers.
+
+    Under ``SOLARA_TEST=true`` the headers come from a real SEPAL login
+    instead, cached for the process: ``get_sepal_headers_from_auth`` issues a
+    blocking HTTP POST and ``create_session`` runs on the render path.
+
+    Args:
+        raw_headers: The request headers Solara exposes for this connection.
+
+    Returns:
+        The validated SEPAL headers.
+    """
+    global _dev_headers
+
+    if not _dev_auth_enabled():
+        return SepalHeaders.model_validate(raw_headers)
+
+    with _dev_headers_lock:
+        if _dev_headers is None:
+            _dev_headers = get_sepal_headers_from_auth()
+        return _dev_headers
+
+
+def reset_dev_headers_cache() -> None:
+    """Drop the cached development headers (tests, and dev-server reloads)."""
+    global _dev_headers
+
+    with _dev_headers_lock:
+        _dev_headers = None
 
 
 def empty_session_info(kernel_id: Optional[str]) -> dict:
@@ -74,6 +136,9 @@ class SessionManager:
         if not hasattr(self, "_initialized"):
             self._initialized = True
             self._sessions = {}
+            self._registry_lock = threading.Lock()
+            self._scope_locks: Dict[str, threading.Lock] = {}
+            self._closed_scopes: Deque[str] = deque(maxlen=CLOSED_SCOPE_MEMORY)
 
     @classmethod
     def is_initialized(cls) -> bool:
@@ -84,81 +149,179 @@ class SessionManager:
         """Get the current supported Solara/Voila runtime ID."""
         return get_current_runtime_id()
 
-    def create_session(self, module_name: str = "default") -> None:
-        """Create a new session with all the interfaces for the given kernel ID.
+    def _scope_lock(self, kernel_id: str) -> threading.Lock:
+        """Return the lock guarding one scope's session.
+
+        Per scope on purpose: session construction performs blocking network
+        calls, so a single global lock would serialise every user's first
+        render in a multi-user container.
+
+        Never popped from ``_scope_locks`` on cleanup: a thread that fetched
+        this lock but has not yet acquired it could otherwise end up holding
+        an orphaned lock while a new one is handed out for the same
+        ``kernel_id``, letting two threads into the critical section at once.
+        The leaked ``Lock`` objects are negligible next to the session leak
+        that not calling cleanup at all would already cause.
+        """
+        with self._registry_lock:
+            return self._scope_locks.setdefault(kernel_id, threading.Lock())
+
+    def reopen_scope(self, kernel_id: str) -> None:
+        """Forget a scope's tombstone because its kernel is genuinely restarting.
+
+        Solara's hot-reload restarts a kernel in place: it runs the on-close
+        callbacks (our ``cleanup_session``, which tombstones the scope) and
+        then re-runs ``on_kernel_start`` -- i.e. ``setup_sessions`` -- for the
+        *same* kernel id. Without this, the tombstone would permanently brick
+        that scope on the very first file save. Only ``setup_sessions`` calls
+        this, so a late callback on another thread can't trigger it.
 
         Args:
-            kernel_id: The kernel ID to create session for. If None, uses current kernel.
+            kernel_id: The scope whose kernel is (re)starting.
+        """
+        with self._registry_lock:
+            while kernel_id in self._closed_scopes:
+                self._closed_scopes.remove(kernel_id)
+
+    def create_session(self, module_name: str = "default") -> None:
+        """Create -- or reuse -- the session for the current runtime scope.
+
+        Runs on every render of a ``@with_sepal_sessions`` component, so the
+        common case is the raw-header fast path: the same connection hands back
+        the same headers object and nothing is parsed. Otherwise the headers are
+        validated and the session is idempotent per *identity* rather than per
+        scope -- a session whose username or SEPAL-SESSIONID no longer matches
+        is torn down and rebuilt, because a bare scope-id check would hand a
+        recycled scope the previous user's interfaces.
+
+        Args:
             module_name: The module name for the SepalClient.
 
         Raises:
+            MissingSepalHeadersError: The runtime carries no SEPAL headers.
+            SessionScopeClosedError: The scope was already cleaned up.
             EEClientError: For authentication-related errors.
-            Exception: For other validation or connection errors.
         """
         kernel_id = self.get_kernel_id()
 
-        # Skip if a session already exists for this kernel (idempotent)
-        if kernel_id in self._sessions:
-            logger.debug(f"Session already exists for kernel {kernel_id}, skipping creation")
-            return
-
         current_headers = headers.value
-
         if current_headers is None:
-            logger.warning(f"Headers not available yet for kernel {kernel_id}")
-            return
+            raise MissingSepalHeadersError(
+                f"No SEPAL authentication headers are available for scope {kernel_id}; "
+                "a SEPAL session cannot be created without them."
+            )
 
-        logger.debug(f"Creating session for kernel {kernel_id}")
+        with self._scope_lock(kernel_id):
+            with self._registry_lock:
+                if kernel_id in self._closed_scopes:
+                    raise SessionScopeClosedError(
+                        f"Scope {kernel_id} was cleaned up; refusing to resurrect its session."
+                    )
 
-        sepal_headers = (
-            get_sepal_headers_from_auth()
-            if os.getenv("SOLARA_TEST", "false").lower() == "true"
-            else SepalHeaders.model_validate(current_headers)
-        )
+            existing = self._sessions.get(kernel_id)
+            if existing is not None and existing.get("raw_headers") is current_headers:
+                logger.debug(f"Reusing session for scope {kernel_id}")
+                return
 
-        username = sepal_headers.sepal_user.username
+            sepal_headers = resolve_sepal_headers(current_headers)
+            username = sepal_headers.sepal_user.username
+            sepal_session_id = sepal_headers.cookies["SEPAL-SESSIONID"]
 
-        sepal_session_id = sepal_headers.cookies["SEPAL-SESSIONID"]
-        gee_session = EESession.from_sepal_headers(sepal_headers)
+            if existing is not None:
+                if (
+                    existing.get("username") == username
+                    and existing.get("sepal_session_id") == sepal_session_id
+                ):
+                    existing["raw_headers"] = current_headers
+                    logger.debug(f"Reusing session for scope {kernel_id}")
+                    return
 
-        gee_interface = GEEInterface(gee_session)
-        sepal_client = SepalClient.create(session_id=sepal_session_id, module_name=module_name)
-        drive_interface = GDriveInterface(sepal_headers=sepal_headers)
+                logger.warning(
+                    f"Identity changed on scope {kernel_id} "
+                    f"({existing.get('username')} -> {username}); rebuilding the session"
+                )
+                self._close_session(kernel_id, existing)
 
-        self._sessions[kernel_id] = {
-            "username": username,
-            "gee_interface": gee_interface,
-            "sepal_client": sepal_client,
-            "drive_interface": drive_interface,
-        }
+            logger.debug(f"Creating session for scope {kernel_id}")
+            gee_session = EESession.from_sepal_headers(sepal_headers)
+            gee_interface = GEEInterface(gee_session)
+            sepal_client: Optional[Any] = None
+            try:
+                sepal_client = SepalClient.create(
+                    session_id=sepal_session_id, module_name=module_name
+                )
+                drive_interface = GDriveInterface(sepal_headers=sepal_headers)
+            except BaseException:
+                # Close whatever was actually built before re-raising -- otherwise a
+                # flapping SEPAL API leaks one GEEInterface (and its event loop) per render.
+                self._close_session(
+                    kernel_id, {"gee_interface": gee_interface, "sepal_client": sepal_client}
+                )
+                raise
+
+            self._sessions[kernel_id] = {
+                "username": username,
+                "sepal_session_id": sepal_session_id,
+                "raw_headers": current_headers,
+                "gee_interface": gee_interface,
+                "sepal_client": sepal_client,
+                "drive_interface": drive_interface,
+            }
+
         logger.debug(
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
         )
 
     def cleanup_session(self, kernel_id: str) -> None:
-        """Clean up a session for the given kernel ID.
+        """Close and forget the session for a scope, then tombstone the scope.
+
+        The tombstone is permanent until ``reopen_scope`` lifts it -- which
+        only happens when ``setup_sessions`` runs again for this same
+        ``kernel_id``, i.e. a genuine kernel restart, not a reconnect.
 
         Args:
-            kernel_id: The kernel ID to clean up.
+            kernel_id: The scope to clean up.
         """
         logger.debug(f"Cleaning up session for kernel {kernel_id}")
 
-        if kernel_id in self._sessions:
-            session = self._sessions[kernel_id]
+        with self._scope_lock(kernel_id):
+            session = self._sessions.pop(kernel_id, None)
+            if session is not None:
+                self._close_session(kernel_id, session)
+            with self._registry_lock:
+                if kernel_id not in self._closed_scopes:
+                    self._closed_scopes.append(kernel_id)
+
+        logger.debug(f"Session cleaned up for kernel {kernel_id}")
+
+    def _close_session(self, kernel_id: str, session: Dict[str, Any]) -> None:
+        """Release a session's interfaces. Does not touch the registry.
+
+        Args:
+            kernel_id: The scope the session belonged to, for logging.
+            session: The session payload to close.
+        """
+        gee_interface = session.get("gee_interface")
+        if gee_interface is not None:
             try:
-                session["gee_interface"].close()
+                gee_interface.close()
             except Exception as e:
                 logger.error(f"Error closing GEE interface for kernel {kernel_id}: {e}")
 
-            sepal_client = session.get("sepal_client")
-            if sepal_client is not None:
-                try:
-                    sepal_client.close()
-                except Exception as e:
-                    logger.error(f"Error closing SepalClient for kernel {kernel_id}: {e}")
+        sepal_client = session.get("sepal_client")
+        if sepal_client is not None:
+            try:
+                sepal_client.close()
+            except Exception as e:
+                logger.error(f"Error closing SepalClient for kernel {kernel_id}: {e}")
 
-            del self._sessions[kernel_id]
-            logger.debug(f"Session cleaned up for kernel {kernel_id}")
+        # GDriveInterface only grows close() in ee-client 4.0.0; skip it below that.
+        close_drive = getattr(session.get("drive_interface"), "close", None)
+        if close_drive is not None:
+            try:
+                close_drive()
+            except Exception as e:
+                logger.error(f"Error closing Drive interface for kernel {kernel_id}: {e}")
 
     def get_session_component(
         self, component_name: str, kernel_id: Optional[str] = None
@@ -243,12 +406,16 @@ def setup_sessions() -> Callable:
 
     This function should be called with the @solara.lab.on_kernel_start decorator
     to automatically manage GEE, Drive, and Sepal sessions for your application.
+    Also lifts this kernel's tombstone, if any: solara's hot-reload restarts a
+    kernel in place, re-running ``on_kernel_start`` for the same kernel id right
+    after the close callbacks tombstoned it.
 
     Returns:
         Cleanup function to be called when kernel shuts down.
     """
     session_manager = SessionManager()
     kernel_id = session_manager.get_kernel_id()
+    session_manager.reopen_scope(kernel_id)
 
     logger.debug(f"Setting up sepal sessions for kernel {kernel_id}")
 

@@ -2,6 +2,7 @@
 
 import pytest
 
+from pysepal.solara import session_manager as _session_manager
 from pysepal.solara import ui_state
 from pysepal.solara.session_manager import SessionManager
 
@@ -26,3 +27,12 @@ def _reset_session_manager():
     yield
     SessionManager._instance = None
     SessionManager._sessions = {}
+
+
+@pytest.fixture(autouse=True)
+def _clean_dev_auth(monkeypatch):
+    """Never let a developer's SOLARA_TEST or a cached dev login reach a test."""
+    monkeypatch.delenv("SOLARA_TEST", raising=False)
+    _session_manager.reset_dev_headers_cache()
+    yield
+    _session_manager.reset_dev_headers_cache()
