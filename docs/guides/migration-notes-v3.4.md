@@ -150,7 +150,8 @@ black box, no action needed.
 ## 7. Theme: `theme_toggle=` → `theme_state=`
 
 Theme source of truth moved from per-widget `ThemeToggle` observers to a
-session-scoped `ThemeState`. Fixes theme freezes after Solara re-renders.
+`ThemeState` keyed by the runtime scope. Fixes theme freezes after Solara
+re-renders.
 
 **Old pattern:**
 
@@ -175,9 +176,10 @@ MapApp.element(..., theme_state=theme_state)
 
 **Key points:**
 
-- `get_current_theme_state()` returns the session-scoped `ThemeState`; no
+- `get_current_theme_state()` returns the scope-keyed `ThemeState`; no
   manual `ThemeToggle` or `theme.dark` observer needed. `MapApp` creates
-  its own toggle if none is supplied.
+  its own toggle if none is supplied. Theme is UI state, not SEPAL session
+  state — it is not seeded from `~/.sepal-ui-config` (deprecated, issue #977).
 - `SepalMap(theme_toggle=...)` still works but emits `DeprecationWarning`.
 - `ThemeState` exposes `.mode` (`"dark"` | `"light"` | `"auto"`) and `.dark`
   (resolved boolean). Use `use_theme_dark()` to reactively observe from a

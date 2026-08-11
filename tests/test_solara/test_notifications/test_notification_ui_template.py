@@ -89,9 +89,9 @@ def test_theme_is_driven_by_prop_not_dom_scan():
     """Theme flows in as the reactive ``is_dark`` prop, not a DOM scan.
 
     The widget used to scrape ``.v-application`` theme classes and watch the DOM
-    with a MutationObserver because it had no reliable theme signal. The session
-    ``ThemeState`` (via ``use_theme_dark``) is that signal, so the prop replaces
-    all of that machinery — none of it should remain.
+    with a MutationObserver because it had no reliable theme signal. The
+    scope-keyed ``ThemeState`` (via ``use_theme_dark``) is that signal, so the
+    prop replaces all of that machinery — none of it should remain.
     """
     content = _TEMPLATE_PATH.read_text()
 

@@ -175,7 +175,7 @@ class MapApp(v.VuetifyTemplate):
     def _coerce_theme_toggle(
         self, theme_toggle, theme_state: Optional[ThemeState]
     ) -> list["ThemeToggle"]:
-        """Normalize theme toggle input and bind it to the session theme state."""
+        """Normalize theme toggle input and bind it to the given theme state."""
         if isinstance(theme_toggle, list):
             widgets = list(theme_toggle)
         elif isinstance(theme_toggle, tuple):

@@ -136,7 +136,7 @@ panel visibility.
 | `right_panel=[RightPanel(config=..., content_data=...)]` | `right_panel_config=RightPanelConfig(...)` + `right_panel_content=[PanelSection(...)]` |
 | `right_panel_content=[{"title": ..., "content": [W]}]`   | `right_panel_content=[PanelSection(title=..., content=fn)]`                            |
 | Eager widget construction                                | `content=` is a Solara render function (lazy)                                          |
-| Manual `theme_toggle=ThemeToggle(...)` wiring            | Auto: pass `theme_state=` (or omit; falls back to session state)                       |
+| Manual `theme_toggle=ThemeToggle(...)` wiring            | Auto: pass `theme_state=` (or omit; falls back to `get_current_theme_state()`)         |
 | Manual `language_selector=LocaleSelect(translator=...)`  | Auto: pass `translator=` (or omit)                                                     |
 | `model=HasTraits()` auto-link                            | Use `solara.Reactive` props (`current_step=`, `right_panel_open=`)                     |
 

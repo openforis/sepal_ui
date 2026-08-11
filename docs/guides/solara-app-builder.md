@@ -116,11 +116,27 @@ read [Solara Export](./solara-export.md).
 
 Three interfaces are available per user session:
 
-| Interface         | Getter                          | Purpose                             |
-| ----------------- | ------------------------------- | ----------------------------------- |
-| `GEEInterface`    | `get_current_gee_interface()`   | Earth Engine API calls (async/sync) |
-| `SepalClient`     | `get_current_sepal_client()`    | SEPAL file/task operations          |
-| `GDriveInterface` | `get_current_drive_interface()` | Google Drive export/import          |
+| Interface         | Getter                                       | Purpose                                                                                               |
+| ----------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `GEEInterface`    | `get_current_gee_interface()`                | Earth Engine API calls (async/sync)                                                                   |
+| `SepalClient`     | `get_current_sepal_client(module_name=None)` | SEPAL file/task operations; one client per `module_name`, defaulting to the route currently rendering |
+| `GDriveInterface` | `get_current_drive_interface()`              | Google Drive export/import                                                                            |
+
+### One session, one client per module
+
+A kernel holds exactly one session — one `GEEInterface` (and therefore one private
+event loop), one `GDriveInterface` — and a `SepalClient` per `module_name`. Each
+`@with_sepal_sessions(module_name="…")` route gets its own results directory, and
+`get_current_sepal_client()` inside that route returns that route's client. Pass
+`module_name` explicitly to reach another route's client.
+
+### Theme is not session state
+
+`get_current_theme_state()` is keyed by the runtime scope, not by the SEPAL session:
+it never raises and never touches credentials, so it works identically under
+`solara run`, Voila, plain Jupyter and pytest. A fresh state starts at `mode="auto"`.
+The legacy `~/.sepal-ui-config` theme file is deprecated (issue #977) — do not read
+or write it from app code.
 
 ### Getting interfaces
 
@@ -332,7 +348,7 @@ from pysepal.solara import get_current_theme_state
 def Page():
     gee_interface = get_current_gee_interface()
 
-    # Session-scoped theme state (dark/light mode; auto follows system)
+    # Scope-keyed theme state (dark/light mode; auto follows system)
     theme_state = get_current_theme_state()
 
     # Create map with GEE support (memoized to avoid re-creation)

@@ -1,4 +1,4 @@
-"""Session-scoped theme state and Solara hooks."""
+"""Scope-keyed theme state and Solara hooks."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pysepal.solara.ui_state import PROCESS_SCOPE, get_scoped_state
 
 
 class ThemeState(HasTraits):
-    """Session-scoped theme preference and resolved dark/light state."""
+    """Theme preference and resolved dark/light state, keyed by runtime scope."""
 
     mode = Enum(values=["dark", "light", "auto"], default_value="auto")
     dark = Bool(False)
@@ -82,7 +82,7 @@ def resolve_theme_state(theme_state: Optional[ThemeState] = None) -> ThemeState:
 
 
 def use_theme_dark(theme_state: Optional[ThemeState] = None) -> bool:
-    """Reactively return the effective dark/light state for the current session."""
+    """Reactively return the effective dark/light state for the current scope."""
     theme_state = theme_state or get_current_theme_state()
     dark, set_dark = solara.use_state(bool(theme_state.dark))
 

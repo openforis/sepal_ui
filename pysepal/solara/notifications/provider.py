@@ -37,8 +37,9 @@ def NotificationProvider(theme_state: Optional[ThemeState] = None):
 
     Args:
         theme_state: Optional explicit theme state. Defaults to the current
-            session's (falling back to a process-local default), so the pill and
-            toasts follow the app's light/dark theme.
+            scope's theme state, falling back to a process-wide default if no
+            scope can be resolved, so the pill and toasts follow the app's
+            light/dark theme.
     """
     bus = solara.use_memo(_get_or_create_current_bus, [])
     resolved_theme = resolve_theme_state(theme_state)
