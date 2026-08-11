@@ -531,7 +531,7 @@ SessionManager.create_session():
     - Creates GEEInterface(gee_session)
     - Creates SepalClient.create(session_id=..., module_name=...)
     - Creates GDriveInterface(sepal_headers)
-    - Stores all in _sessions[scope_id]
+    - Stores all in the session registry, keyed by scope id
     ↓
 Page() re-renders → get_current_gee_interface() returns user's GEEInterface
     ↓

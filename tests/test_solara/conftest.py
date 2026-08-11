@@ -19,14 +19,15 @@ def _clean_ui_state():
 def _reset_session_manager():
     """Give every test a pristine SessionManager singleton.
 
+    Dropping the instance is enough: its session registry and its tombstone
+    deque are both per-instance, so neither can leak into the next test.
+
     Plain assignment on purpose: ``monkeypatch.setattr`` would restore the
     stale singleton at teardown and leak it into the rest of the suite.
     """
     SessionManager._instance = None
-    SessionManager._sessions = {}
     yield
     SessionManager._instance = None
-    SessionManager._sessions = {}
 
 
 @pytest.fixture(autouse=True)

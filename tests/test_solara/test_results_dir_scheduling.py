@@ -104,7 +104,7 @@ def test_a_failing_directory_creation_does_not_break_the_session():
         manager.create_session(module_name="route_a")
         assert manager.get_sepal_client() is client
 
-    assert manager._sessions[PROCESS_SCOPE]["sepal_clients"]["route_a"] is client
+    assert manager._registry.get(PROCESS_SCOPE)["sepal_clients"]["route_a"] is client
 
 
 def test_the_process_gee_interface_refuses_a_shared_service_account():

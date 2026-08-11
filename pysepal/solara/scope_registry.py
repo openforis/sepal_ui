@@ -142,19 +142,6 @@ class ScopeRegistry(Generic[T]):
                 logger.debug(f"Created {self._name} for scope {scope}")
             return self._values[scope]
 
-    def has(self, scope_id: Optional[str] = None) -> bool:
-        """Whether a scope holds a value, without creating one.
-
-        Args:
-            scope_id: Scope to inspect; defaults to the current one.
-
-        Returns:
-            True when a value exists.
-        """
-        scope = self.resolve(scope_id)
-        with self._registry_lock:
-            return scope in self._values
-
     def pop(self, scope_id: Optional[str] = None) -> Optional[T]:
         """Remove and return a scope's value.
 

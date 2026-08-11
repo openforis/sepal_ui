@@ -48,12 +48,6 @@ def test_pop_returns_and_removes(registry):
     assert registry.pop("s1") is None
 
 
-def test_has_never_creates(registry):
-    assert registry.has("s1") is False
-    registry.get_or_create(dict, scope_id="s1")
-    assert registry.has("s1") is True
-
-
 def test_scope_lock_is_stable_per_scope(registry):
     assert registry.scope_lock("s1") is registry.scope_lock("s1")
     assert registry.scope_lock("s1") is not registry.scope_lock("s2")

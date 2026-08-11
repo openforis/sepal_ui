@@ -2,6 +2,9 @@
 
 from unittest.mock import patch
 
+import pytest
+
+from pysepal.solara.runtime_context import UnsupportedSolaraRuntimeError
 from pysepal.solara.session_manager import SessionManager
 
 
@@ -13,6 +16,30 @@ def test_session_manager_scope_id_uses_shared_runtime_resolver():
         return_value="voila:kernel-1",
     ):
         assert manager.get_scope_id() == "voila:kernel-1"
+
+
+def test_the_session_registry_refuses_to_resolve_without_a_runtime():
+    """A credential store must have no fallback scope.
+
+    ``ScopeRegistry``'s default resolver answers ``PROCESS_SCOPE`` when no
+    per-connection runtime exists -- right for UI state, a cross-user leak
+    here: a call that forgot its ``scope_id`` would read and write one
+    connection's credentials in the bucket every other runtime shares. The
+    session registry is built with the raising resolver so that fails loudly.
+    """
+    manager = SessionManager()
+
+    with pytest.raises(UnsupportedSolaraRuntimeError):
+        manager._registry.resolve()
+
+
+def test_session_scope_ids_replaces_handing_out_the_session_dicts():
+    """``list_sessions`` handed callers the live payloads, credentials included."""
+    manager = SessionManager()
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
+
+    assert manager.session_scope_ids() == ("kernel-a",)
+    assert not hasattr(manager, "list_sessions")
 
 
 def test_per_connection_getters_raise_when_the_session_is_missing():
@@ -42,11 +69,11 @@ def test_per_connection_getters_raise_when_the_session_is_missing():
 def test_session_dict_no_longer_carries_theme_state():
     """Theme is UI state; it must not live behind an auth-gated session."""
     manager = SessionManager()
-    manager._sessions["kernel-a"] = {"username": "alice", "gee_interface": object()}
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
 
     info = manager.get_session_info("kernel-a")
 
-    assert "theme_state" not in manager._sessions["kernel-a"]
+    assert "theme_state" not in manager._registry.get("kernel-a")
     assert info["has_theme_state"] is False
 
 
@@ -55,7 +82,7 @@ def test_session_info_reports_theme_state_from_the_scope_store():
     from pysepal.solara.theme import ThemeState
 
     manager = SessionManager()
-    manager._sessions["kernel-a"] = {"username": "alice", "gee_interface": object()}
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
     ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
 
     assert manager.get_session_info("kernel-a")["has_theme_state"] is True

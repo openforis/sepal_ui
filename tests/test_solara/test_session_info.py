@@ -62,8 +62,8 @@ def test_sessions_overview_is_empty_without_a_manager():
 
 def test_sessions_overview_counts_ready_sessions():
     manager = SessionManager()
-    manager._sessions["kernel-a"] = {"username": "alice", "gee_interface": object()}
-    manager._sessions["kernel-b"] = {"username": "bob"}
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
+    manager._registry.set({"username": "bob"}, "kernel-b")
 
     overview = utils.get_sessions_overview()
 

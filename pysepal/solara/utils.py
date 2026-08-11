@@ -94,11 +94,11 @@ def get_sessions_overview() -> dict:
         return {"total_sessions": 0, "ready_sessions": 0, "sessions": []}
 
     session_manager = SessionManager()
-    all_sessions = session_manager.list_sessions()
-    active_sessions = [session_manager.get_session_info(k) for k in all_sessions]
+    scope_ids = session_manager.session_scope_ids()
+    active_sessions = [session_manager.get_session_info(scope_id) for scope_id in scope_ids]
 
     return {
-        "total_sessions": len(all_sessions),
+        "total_sessions": len(scope_ids),
         "ready_sessions": sum(1 for s in active_sessions if s["session_ready"]),
         "sessions": active_sessions,
     }

@@ -11,7 +11,7 @@ import threading
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Callable, Deque, Dict, Optional
+from typing import Any, Callable, Deque, Dict, Optional, Tuple
 
 from eeclient.client import EESession
 from eeclient.models import SepalHeaders
@@ -42,6 +42,7 @@ from pysepal.solara.runtime_context import (
     UnsupportedSolaraRuntimeError,
     resolve_scope_id,
 )
+from pysepal.solara.scope_registry import ScopeRegistry
 from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
 
 logger = logging.getLogger("sepalui.session_manager")
@@ -182,8 +183,6 @@ class SessionManager:
 
     _instance = None
     """Singleton instance of the SessionManager."""
-    _sessions: Dict[str, Dict[str, Any]] = {}
-    """Dictionary to hold sessions keyed by scope id."""
 
     def __new__(cls):
         """Create or return the singleton instance of SessionManager."""
@@ -195,10 +194,17 @@ class SessionManager:
         """Initialize the SessionManager singleton instance."""
         if not hasattr(self, "_initialized"):
             self._initialized = True
-            self._sessions = {}
-            self._registry_lock = threading.Lock()
-            self._scope_locks: Dict[str, threading.Lock] = {}
+            # The raising resolver, not the registry's lenient default: a call
+            # that forgot its scope_id must fail loudly rather than read and
+            # write a user's credentials in the shared process bucket.
+            self._registry: ScopeRegistry[Dict[str, Any]] = ScopeRegistry(
+                "session", resolver=resolve_scope_id
+            )
+            # Tombstones are this consumer's lifetime policy, and the registry's
+            # other two consumers disagree with it, so they stay here under
+            # their own lock -- taken inside the scope lock, see _reopen_scope.
             self._closed_scopes: Deque[str] = deque(maxlen=CLOSED_SCOPE_MEMORY)
+            self._closed_lock = threading.Lock()
 
     @classmethod
     def is_initialized(cls) -> bool:
@@ -208,23 +214,6 @@ class SessionManager:
     def get_scope_id(self) -> str:
         """Get the current supported Solara/Voila runtime ID."""
         return resolve_scope_id()
-
-    def _scope_lock(self, scope_id: str) -> threading.Lock:
-        """Return the lock guarding one scope's session.
-
-        Per scope on purpose: session construction performs blocking network
-        calls, so a single global lock would serialise every user's first
-        render in a multi-user container.
-
-        Never popped from ``_scope_locks`` on cleanup: a thread that fetched
-        this lock but has not yet acquired it could otherwise end up holding
-        an orphaned lock while a new one is handed out for the same
-        ``scope_id``, letting two threads into the critical section at once.
-        The leaked ``Lock`` objects are negligible next to the session leak
-        that not calling cleanup at all would already cause.
-        """
-        with self._registry_lock:
-            return self._scope_locks.setdefault(scope_id, threading.Lock())
 
     def _reopen_scope(self, scope_id: str) -> None:
         """Forget a scope's tombstone because its kernel is genuinely restarting.
@@ -247,8 +236,8 @@ class SessionManager:
         Args:
             scope_id: The scope whose kernel is (re)starting.
         """
-        with self._scope_lock(scope_id):
-            with self._registry_lock:
+        with self._registry.scope_lock(scope_id):
+            with self._closed_lock:
                 while scope_id in self._closed_scopes:
                     self._closed_scopes.remove(scope_id)
 
@@ -315,14 +304,14 @@ class SessionManager:
                 "a SEPAL session cannot be created without them."
             )
 
-        with self._scope_lock(scope_id):
-            with self._registry_lock:
+        with self._registry.scope_lock(scope_id):
+            with self._closed_lock:
                 if scope_id in self._closed_scopes:
                     raise SessionScopeClosedError(
                         f"Scope {scope_id} was cleaned up; refusing to resurrect its session."
                     )
 
-            existing = self._sessions.get(scope_id)
+            existing = self._registry.get(scope_id)
             if existing is not None and existing.get("raw_headers") is current_headers:
                 logger.debug(f"Reusing session for scope {scope_id}")
                 self._ensure_sepal_client(existing, module_name)
@@ -348,7 +337,7 @@ class SessionManager:
                 )
                 # Unlink before closing: GEEInterface() below is unguarded, and a
                 # scope must never expose a session whose interfaces are already closed.
-                self._sessions.pop(scope_id, None)
+                self._registry.pop(scope_id)
                 self._close_session(scope_id, existing)
 
             logger.debug(f"Creating session for scope {scope_id}")
@@ -373,7 +362,7 @@ class SessionManager:
                 self._close_session(scope_id, session)
                 raise
 
-            self._sessions[scope_id] = session
+            self._registry.set(session, scope_id)
 
         logger.debug(f"Sessions created for scope {scope_id} and gee_interface {id(gee_interface)}")
 
@@ -466,7 +455,7 @@ class SessionManager:
         Returns:
             The process session payload.
         """
-        with self._scope_lock(PROCESS_SCOPE):
+        with self._registry.scope_lock(PROCESS_SCOPE):
             return self._ensure_process_session_locked(plan, module_name)
 
     def _ensure_process_session_locked(
@@ -488,7 +477,7 @@ class SessionManager:
         Returns:
             The process session payload.
         """
-        session = self._sessions.get(PROCESS_SCOPE)
+        session = self._registry.get(PROCESS_SCOPE)
         if session is None:
             sepal_headers = (
                 _require_session_id(prime_dev_auth())
@@ -507,7 +496,7 @@ class SessionManager:
                 "drive_interface": None,
                 "results_dirs_scheduled": set(),
             }
-            self._sessions[PROCESS_SCOPE] = session
+            self._registry.set(session, PROCESS_SCOPE)
             logger.debug(f"Created the process session ({plan.reason})")
         elif module_name is not None:
             session["active_module_name"] = module_name
@@ -529,7 +518,7 @@ class SessionManager:
                 f"Scope id {scope_id!r} collides with the reserved process scope; "
                 "refusing to serve a per-connection runtime from the process session."
             )
-        session = self._sessions.get(scope_id)
+        session = self._registry.get(scope_id)
         if session is None:
             raise SepalSessionError(
                 f"No SEPAL session exists for scope {scope_id}. Decorate the Page "
@@ -645,7 +634,7 @@ class SessionManager:
         if plan.source is SessionSource.PER_CONNECTION:
             return self._require_connection_session()["gee_interface"]
 
-        with self._scope_lock(PROCESS_SCOPE):
+        with self._registry.scope_lock(PROCESS_SCOPE):
             session = self._ensure_process_session_locked(plan)
             return self._process_gee_interface(session)
 
@@ -662,7 +651,7 @@ class SessionManager:
         if plan.source is SessionSource.PER_CONNECTION:
             return self._require_connection_session()["drive_interface"]
 
-        with self._scope_lock(PROCESS_SCOPE):
+        with self._registry.scope_lock(PROCESS_SCOPE):
             session = self._ensure_process_session_locked(plan)
             return self._process_drive_interface(session)
 
@@ -674,8 +663,8 @@ class SessionManager:
         the explicit teardown for embedders and tests. No tombstone is written:
         the next accessor rebuilds.
         """
-        with self._scope_lock(PROCESS_SCOPE):
-            session = self._sessions.pop(PROCESS_SCOPE, None)
+        with self._registry.scope_lock(PROCESS_SCOPE):
+            session = self._registry.pop(PROCESS_SCOPE)
         if session is not None:
             self._close_session(PROCESS_SCOPE, session)
 
@@ -700,7 +689,7 @@ class SessionManager:
         if scope_id is None:
             plan = _current_plan()
             if plan.source is not SessionSource.PER_CONNECTION:
-                with self._scope_lock(PROCESS_SCOPE):
+                with self._registry.scope_lock(PROCESS_SCOPE):
                     process_session = self._ensure_process_session_locked(plan)
                     name = module_name or process_session["active_module_name"]
                     return self._process_sepal_client(process_session, name)
@@ -719,7 +708,7 @@ class SessionManager:
                 # process scope gets "no client", not the shared process/dev-auth session's.
                 return None
 
-        session = self._sessions.get(scope_id)
+        session = self._registry.get(scope_id)
         if session is None:
             return None
 
@@ -746,11 +735,11 @@ class SessionManager:
 
         logger.debug(f"Cleaning up session for scope {scope_id}")
 
-        with self._scope_lock(scope_id):
-            session = self._sessions.pop(scope_id, None)
+        with self._registry.scope_lock(scope_id):
+            session = self._registry.pop(scope_id)
             if session is not None:
                 self._close_session(scope_id, session)
-            with self._registry_lock:
+            with self._closed_lock:
                 if scope_id not in self._closed_scopes:
                     self._closed_scopes.append(scope_id)
 
@@ -801,7 +790,7 @@ class SessionManager:
                 logger.debug("No resolvable runtime scope; reporting an empty session")
                 return empty_session_info(None)
 
-        current_session = self._sessions.get(scope_id)
+        current_session = self._registry.get(scope_id)
 
         if current_session is None:
             return empty_session_info(scope_id)
@@ -818,9 +807,14 @@ class SessionManager:
             "session_ready": current_session.get("gee_interface") is not None,
         }
 
-    def list_sessions(self) -> Dict[str, Dict[str, Any]]:
-        """Get all active sessions."""
-        return self._sessions.copy()
+    def session_scope_ids(self) -> Tuple[str, ...]:
+        """Return every scope currently holding a session.
+
+        Returns:
+            A snapshot tuple. The private session dicts are never handed out;
+            use :meth:`get_session_info` for a read-only view of one.
+        """
+        return self._registry.scope_ids()
 
 
 def setup_sessions() -> Callable:

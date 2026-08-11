@@ -96,7 +96,7 @@ def test_typed_accessors_dispatch_on_topology():
             manager.get_gee_interface()
 
         manager.create_session(module_name="route_a")
-        session = manager._sessions["kernel-a"]
+        session = manager._registry.get("kernel-a")
         assert manager.get_gee_interface() is session["gee_interface"]
         assert manager.get_drive_interface() is session["drive_interface"]
         assert manager.get_sepal_client("route_a") is not None
@@ -116,7 +116,7 @@ def test_create_session_refuses_the_reserved_process_scope():
             with pytest.raises(SepalSessionError, match="reserved process scope"):
                 manager.create_session()
 
-    assert PROCESS_SCOPE not in manager._sessions
+    assert PROCESS_SCOPE not in manager.session_scope_ids()
 
 
 def test_missing_headers_raise_instead_of_returning_silently():
@@ -125,7 +125,7 @@ def test_missing_headers_raise_instead_of_returning_silently():
         with pytest.raises(MissingSepalHeadersError, match="kernel-a"):
             manager.create_session()
 
-    assert manager.list_sessions() == {}
+    assert manager.session_scope_ids() == ()
 
 
 def test_same_identity_reuses_the_session():
@@ -164,7 +164,7 @@ def test_reconnect_with_new_headers_object_reuses_the_session():
         manager.create_session()
 
         assert factories.gee.call_count == 1
-        assert manager.list_sessions()["kernel-a"]["raw_headers"] is sm.headers.value
+        assert manager._registry.get("kernel-a")["raw_headers"] is sm.headers.value
 
 
 def test_a_new_route_after_a_reconnect_still_gets_its_own_client():
@@ -219,7 +219,7 @@ def test_identity_rebuild_failure_does_not_leave_a_closed_session_reachable():
         with pytest.raises(RuntimeError):
             manager.create_session()
 
-    assert "kernel-a" not in manager._sessions
+    assert "kernel-a" not in manager.session_scope_ids()
     old_gee.close.assert_called_once()
 
 
@@ -340,7 +340,7 @@ def test_partial_session_build_closes_already_built_interfaces():
 
         gee_built.close.assert_called_once()
         sepal_built.close.assert_called_once()
-        assert manager.list_sessions() == {}
+        assert manager.session_scope_ids() == ()
 
 
 def test_cleanup_closes_a_drive_interface_that_has_close():
@@ -371,7 +371,7 @@ def test_cleanup_survives_a_drive_interface_that_fails_to_close():
         manager.get_drive_interface()
         manager.cleanup_session("kernel-a")
 
-    assert manager.list_sessions() == {}
+    assert manager.session_scope_ids() == ()
     assert "kernel-a" in manager._closed_scopes
 
 
@@ -479,10 +479,10 @@ def test_get_sepal_client_returns_none_for_the_reserved_process_scope():
     that key simply being unpopulated.
     """
     manager = SessionManager()
-    manager._sessions[PROCESS_SCOPE] = {
-        "active_module_name": "route_a",
-        "sepal_clients": {"route_a": MagicMock()},
-    }
+    manager._registry.set(
+        {"active_module_name": "route_a", "sepal_clients": {"route_a": MagicMock()}},
+        PROCESS_SCOPE,
+    )
     with _stack():
         with patch.object(sm, "resolve_scope_id", return_value=PROCESS_SCOPE):
             assert manager.get_sepal_client() is None
@@ -517,7 +517,7 @@ def test_invalid_connection_headers_raise_instead_of_degrading():
             with pytest.raises(MissingSepalHeadersError, match="SEPAL authentication headers"):
                 manager.create_session()
 
-    assert manager._sessions == {}
+    assert manager.session_scope_ids() == ()
 
 
 def test_a_process_runtime_creates_a_session_without_any_headers():
@@ -527,8 +527,8 @@ def test_a_process_runtime_creates_a_session_without_any_headers():
         with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
             manager.create_session(module_name="route_a")
 
-    assert sorted(manager._sessions) == [PROCESS_SCOPE]
-    assert manager._sessions[PROCESS_SCOPE]["active_module_name"] == "route_a"
+    assert sorted(manager.session_scope_ids()) == [PROCESS_SCOPE]
+    assert manager._registry.get(PROCESS_SCOPE)["active_module_name"] == "route_a"
 
 
 def test_the_process_session_builds_nothing_eagerly():
@@ -553,9 +553,9 @@ def test_repeat_process_renders_reuse_one_session():
     with _stack(raw_headers=None):
         with patch.object(sm, "_current_plan", return_value=_PROCESS_PLAN):
             manager.create_session(module_name="route_a")
-            first = manager._sessions[PROCESS_SCOPE]
+            first = manager._registry.get(PROCESS_SCOPE)
             manager.create_session(module_name="route_b")
-            second = manager._sessions[PROCESS_SCOPE]
+            second = manager._registry.get(PROCESS_SCOPE)
 
     assert first is second
     assert second["active_module_name"] == "route_b"
@@ -574,10 +574,10 @@ def test_cleanup_never_tombstones_the_process_scope():
             manager.create_session(module_name="route_a")
             manager.cleanup_session(PROCESS_SCOPE)
 
-            assert PROCESS_SCOPE in manager._sessions
+            assert PROCESS_SCOPE in manager.session_scope_ids()
             manager.create_session(module_name="route_b")
 
-    assert manager._sessions[PROCESS_SCOPE]["active_module_name"] == "route_b"
+    assert manager._registry.get(PROCESS_SCOPE)["active_module_name"] == "route_b"
 
 
 def test_a_new_module_failing_on_a_live_session_leaves_it_intact():
@@ -591,13 +591,13 @@ def test_a_new_module_failing_on_a_live_session_leaves_it_intact():
     manager = SessionManager()
     with _stack() as factories:
         manager.create_session(module_name="route_a")
-        good_client = manager._sessions["kernel-a"]["sepal_clients"]["route_a"]
+        good_client = manager._registry.get("kernel-a")["sepal_clients"]["route_a"]
 
         factories.sepal.side_effect = RuntimeError("SEPAL API is down")
         with pytest.raises(RuntimeError, match="SEPAL API is down"):
             manager.create_session(module_name="route_b")
 
-        session = manager._sessions["kernel-a"]
+        session = manager._registry.get("kernel-a")
         assert session["gee_interface"] is not None
         assert session["sepal_clients"] == {"route_a": good_client}
         assert session["active_module_name"] == "route_a"
@@ -627,7 +627,7 @@ def test_headers_without_a_sepal_sessionid_raise_instead_of_a_bare_keyerror():
             with pytest.raises(MissingSepalHeadersError, match="SEPAL-SESSIONID"):
                 manager.create_session()
 
-    assert manager._sessions == {}
+    assert manager.session_scope_ids() == ()
 
 
 def test_dev_auth_headers_without_a_sepal_sessionid_raise():
@@ -649,4 +649,4 @@ def test_dev_auth_headers_without_a_sepal_sessionid_raise():
                 with pytest.raises(MissingSepalHeadersError, match="SEPAL-SESSIONID"):
                     manager.create_session()
 
-    assert manager._sessions == {}
+    assert manager.session_scope_ids() == ()

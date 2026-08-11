@@ -112,7 +112,7 @@ def test_the_process_session_is_keyed_at_the_process_scope():
     with _process_stack():
         manager.get_gee_interface()
 
-    assert sorted(manager._sessions) == [PROCESS_SCOPE]
+    assert sorted(manager.session_scope_ids()) == [PROCESS_SCOPE]
 
 
 def test_asking_for_gee_does_not_build_drive_or_a_client():
@@ -223,7 +223,7 @@ def test_dev_auth_builds_the_process_session_from_the_developer_login():
         assert factories.from_sepal_headers.call_count == 1
         assert factories.from_default.call_count == 0
         assert factories.drive.call_args.kwargs["sepal_headers"] is not None
-        assert manager._sessions[PROCESS_SCOPE]["username"] == "alice"
+        assert manager._registry.get(PROCESS_SCOPE)["username"] == "alice"
 
 
 def test_dev_auth_clients_carry_the_developer_session_id():
@@ -275,7 +275,7 @@ def test_closing_the_process_session_releases_it_and_allows_a_rebuild():
         first = manager.get_gee_interface()
         manager.close_process_session()
 
-        assert PROCESS_SCOPE not in manager._sessions
+        assert PROCESS_SCOPE not in manager.session_scope_ids()
         second = manager.get_gee_interface()
 
     assert second is not first
@@ -290,7 +290,7 @@ def test_close_does_not_orphan_a_concurrent_build():
     ``close_process_session`` landing in the gap between them could pop the
     session dict while the accessor still held a reference to it, so the
     in-flight build wrote a live ``GEEInterface`` into a dict no longer
-    reachable from ``_sessions`` -- a leaked interface (private event loop)
+    reachable from the session registry -- a leaked interface (private event loop)
     that nothing would ever close. The fix serialises ensure-and-build under
     one lock acquisition, so close must now block until the build finishes.
     """
@@ -332,7 +332,7 @@ def test_close_does_not_orphan_a_concurrent_build():
         assert not close_thread.is_alive()
 
         assert result["interface"] is built_interface
-        assert PROCESS_SCOPE not in manager._sessions
+        assert PROCESS_SCOPE not in manager.session_scope_ids()
         built_interface.close.assert_called_once()
 
         rebuilt = manager.get_gee_interface()
@@ -353,14 +353,14 @@ def test_process_accessors_take_the_scope_lock_once(accessor):
     """
     manager = SessionManager()
     taken = []
-    real_scope_lock = SessionManager._scope_lock
+    real_scope_lock = manager._registry.scope_lock
 
-    def counting(self, scope_id):
+    def counting(scope_id):
         taken.append(scope_id)
-        return real_scope_lock(self, scope_id)
+        return real_scope_lock(scope_id)
 
     with _process_stack():
-        with patch.object(SessionManager, "_scope_lock", counting):
+        with patch.object(manager._registry, "scope_lock", counting):
             getattr(manager, accessor)()
 
     assert taken.count(PROCESS_SCOPE) == 1
@@ -384,5 +384,5 @@ def test_a_sandbox_served_app_gets_a_real_interface_not_the_misdirecting_error()
     with _process_stack() as factories:
         interface = utils.get_current_gee_interface()
 
-    assert interface is manager._sessions[PROCESS_SCOPE]["gee_interface"]
+    assert interface is manager._registry.get(PROCESS_SCOPE)["gee_interface"]
     assert factories.gee.call_count == 1

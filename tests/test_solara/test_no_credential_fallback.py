@@ -55,12 +55,15 @@ def test_a_per_connection_runtime_never_resolves_process_credentials(monkeypatch
 
 def test_a_per_connection_session_is_read_from_the_registry():
     manager = SessionManager()
-    manager._sessions["kernel-a"] = {
-        "gee_interface": "the-users-gee",
-        "drive_interface": "the-users-drive",
-        "sepal_clients": {"route_a": "the-users-client"},
-        "active_module_name": "route_a",
-    }
+    manager._registry.set(
+        {
+            "gee_interface": "the-users-gee",
+            "drive_interface": "the-users-drive",
+            "sepal_clients": {"route_a": "the-users-client"},
+            "active_module_name": "route_a",
+        },
+        "kernel-a",
+    )
 
     with (
         patch.object(sm, "_current_plan", return_value=_PER_CONNECTION),
