@@ -1,7 +1,10 @@
 """Tests for scope-keyed theme-state resolution."""
 
+import pytest
+
 import pysepal.solara.theme as theme_mod
 from pysepal.solara import scope_registry
+from pysepal.solara.runtime_context import UnsupportedSolaraRuntimeError
 from pysepal.solara.theme import (
     ThemeState,
     get_current_theme_state,
@@ -22,19 +25,15 @@ def test_resolve_uses_current_theme_state_when_available(monkeypatch):
     assert resolve_theme_state() is scoped_ts
 
 
-def test_resolve_falls_back_instead_of_raising(monkeypatch):
-    """A ``get_current_theme_state`` override that raises must NOT crash callers.
+def test_resolve_theme_state_does_not_swallow_errors(monkeypatch):
+    """A guard that only exists for monkeypatched symbols hides real failures."""
 
-    ``resolve_*`` degrades to a real fallback ThemeState so NotificationProvider
-    stays safe even if a caller-supplied override misbehaves.
-    """
+    def _boom():
+        raise UnsupportedSolaraRuntimeError("no runtime")
 
-    def _raise():
-        raise RuntimeError("theme state override failed")
-
-    monkeypatch.setattr(theme_mod, "get_current_theme_state", _raise)
-    result = resolve_theme_state()
-    assert isinstance(result, ThemeState)
+    monkeypatch.setattr(theme_mod, "get_current_theme_state", _boom)
+    with pytest.raises(UnsupportedSolaraRuntimeError):
+        resolve_theme_state()
 
 
 def test_current_theme_state_is_stable_per_scope(monkeypatch):

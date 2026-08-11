@@ -7,7 +7,7 @@ from typing import Optional
 import solara
 from traitlets import Bool, Enum, HasTraits
 
-from pysepal.solara.ui_state import PROCESS_SCOPE, get_scoped_state
+from pysepal.solara.ui_state import get_scoped_state
 
 
 class ThemeState(HasTraits):
@@ -66,19 +66,19 @@ def get_current_theme_state() -> ThemeState:
 
 
 def resolve_theme_state(theme_state: Optional[ThemeState] = None) -> ThemeState:
-    """Return a usable ThemeState without ever raising.
+    """Return a usable ThemeState.
 
-    Precedence: an explicit ``theme_state`` > the current scope's theme state >
-    the process-wide scope. :func:`get_current_theme_state` is itself total now;
-    the guard stays because apps and tests do override that symbol, and
-    ``NotificationProvider`` must not be crashable through it.
+    Precedence: an explicit ``theme_state``, else the current scope's, which
+    :func:`get_current_theme_state` creates on demand for every runtime
+    including scripts and pytest.
+
+    Args:
+        theme_state: An explicit state to use instead of the scope's.
+
+    Returns:
+        The theme state to render with.
     """
-    if theme_state is not None:
-        return theme_state
-    try:
-        return get_current_theme_state()
-    except RuntimeError:
-        return get_scoped_state("theme_state", ThemeState, scope_id=PROCESS_SCOPE)
+    return theme_state if theme_state is not None else get_current_theme_state()
 
 
 def use_theme_dark(theme_state: Optional[ThemeState] = None) -> bool:
