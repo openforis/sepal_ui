@@ -25,8 +25,21 @@ def resolve_scope_id() -> str:
     active IPython/ipykernel -- covering ``solara run``, Voila (including
     preheated kernels, which start before ``SERVER_SOFTWARE`` is set), and plain
     Jupyter Notebook/Lab. We deliberately do not reimplement that resolution; we
-    only translate its failure modes -- no kernel at all, or an ipykernel whose
-    connection filename it cannot parse -- into a typed error.
+    only translate its failure modes into a typed error.
+
+    Those failure modes are every way an unusual host can shape a kernel, and
+    all four are reachable -- the ipython fallback ends in
+    ``re.search(regex, kernel.config["IPKernelApp"]["connection_file"]).group(1)``:
+
+    - ``RuntimeError`` -- no kernel at all;
+    - ``AttributeError`` -- a connection filename the regex cannot parse, so
+      ``re.search`` returns None;
+    - ``TypeError`` -- no ``connection_file`` key, which a traitlets ``Config``
+      auto-vivifies into a ``LazyConfigValue`` rather than raising;
+    - ``KeyError`` -- the same absence in a mapping that does not auto-vivify.
+
+    Deliberately not ``Exception``: this resolver is total about *runtime
+    shape*, which is not a licence to hide bugs behind a fallback scope.
 
     Returns:
         The runtime's scope id.
@@ -36,7 +49,7 @@ def resolve_scope_id() -> str:
     """
     try:
         return solara.scope.get_kernel_id(ipython_fallback=True)
-    except (RuntimeError, AttributeError) as exc:
+    except (RuntimeError, AttributeError, TypeError, KeyError) as exc:
         raise UnsupportedSolaraRuntimeError(
             "No supported pysepal runtime context is available"
         ) from exc

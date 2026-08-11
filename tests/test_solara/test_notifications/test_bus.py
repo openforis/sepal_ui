@@ -206,7 +206,13 @@ def test_bus_is_available_in_a_script(clean_bus_registry):
 
 
 def test_get_current_bus_does_not_swallow_programming_errors(clean_bus_registry):
-    """A bare `except Exception` hid real bugs behind a None return."""
+    """A resolver exception must reach the caller, not become a None return.
+
+    ``TypeError`` is an honest choice here only because ``resolve_scope_id``
+    absorbs the *runtime* TypeError a kernel with no connection file produces
+    (see ``test_runtime_context``). What can still surface at this level is a
+    bug in our own resolution path, and a bug must not be hidden.
+    """
     with patch.object(scope_registry, "current_scope_id", side_effect=TypeError("boom")):
         with pytest.raises(TypeError):
             get_current_bus()

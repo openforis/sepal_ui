@@ -127,8 +127,11 @@ _refcounts: Dict[str, int] = {}
 def get_current_bus() -> Optional[NotificationBus]:
     """Return the current scope's NotificationBus, or None when none exists.
 
-    Total: a runtime with no per-connection kernel resolves to the process
-    scope rather than failing, so only a genuine bug can raise here.
+    No ``try``/``except`` on purpose. Every *runtime* shape this can meet --
+    including a kernel with no usable connection file -- is absorbed by
+    :func:`~pysepal.solara.runtime_context.resolve_scope_id` and resolves to
+    the process scope, so anything still raising here is a genuine bug and
+    must not be hidden behind a ``None`` return.
 
     Returns:
         The scope's bus, or None.
