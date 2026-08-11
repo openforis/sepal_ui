@@ -11,7 +11,6 @@ from ipywidgets import DOMWidget, jsdlink, link
 from ipywidgets.widgets.widget import widget_serialization
 from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode, observe
 
-from pysepal.scripts import utils as su
 from pysepal.solara.theme import ThemeState, get_current_theme_state
 from pysepal.translator import Translator
 
@@ -495,18 +494,8 @@ class LocaleSelect(v.VuetifyTemplate):
         self.observe(self._on_locale_select, "selected_locale")
 
     def _on_locale_select(self, change: dict) -> None:
-        """adapt the application to the newly selected language.
-
-        Display the new flag and country code on the widget btn
-        change the value in the config file
-        """
+        """adapt the application to the newly selected language."""
         if not change["new"]:
             return
-
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
-
-        # change the parameter file
-        su.set_config("locale", loc.code)
 
         return

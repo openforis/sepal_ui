@@ -111,7 +111,6 @@ doc = [
 [project.scripts]
 module_deploy = "pysepal.bin.module_deploy:main"
 module_factory = "pysepal.bin.module_factory:main"
-module_l10n = "pysepal.bin.module_l10n:main"
 module_venv = "pysepal.bin.module_venv:main"
 activate_venv = "pysepal.bin.activate_venv:main"
 sepal_ipyvuetify = "pysepal.bin.sepal_ipyvuetify:main"

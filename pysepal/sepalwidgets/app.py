@@ -153,8 +153,7 @@ class LocaleSelect(v.Menu, SepalWidget):
     def _on_locale_select(self, change: dict) -> None:
         """adapt the application to the newly selected language.
 
-        Display the new flag and country code on the widget btn
-        change the value in the config file
+        Display the new flag and country code on the widget btn.
         """
         if not change["new"]:
             return
@@ -164,9 +163,6 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         self.btn.children = [self.locale_icon, loc.code]
         # self.btn.color = "info"
-
-        # change the parameter file
-        su.set_config("locale", loc.code)
 
         return
 

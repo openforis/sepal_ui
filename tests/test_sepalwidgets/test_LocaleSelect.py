@@ -1,9 +1,6 @@
 """Test the LocalSelect widget."""
 
-from configparser import ConfigParser
-
 from pysepal import sepalwidgets as sw
-from pysepal.conf import config_file
 
 
 def test_init() -> None:
@@ -18,19 +15,7 @@ def test_init() -> None:
 
 
 def test_change_language() -> None:
-    """Check default language can be change from the widget."""
+    """Selecting a locale updates the button, and persists nothing."""
     locale_select = sw.LocaleSelect()
-
-    # remove any existing config file
-    if config_file.is_file():
-        config_file.unlink()
-
-    # change value
-    locale = "fr"
-    locale_select._on_locale_select({"new": locale})
-    config = ConfigParser()
-    config.read(config_file)
-    assert "sepal-ui" in config.sections()
-    assert config["sepal-ui"]["locale"] == locale
-
-    return
+    locale_select._on_locale_select({"new": "fr"})
+    assert locale_select.btn.children[-1] == "fr"
