@@ -10,7 +10,11 @@ import pytest
 
 from pysepal.solara import session_manager as sm
 from pysepal.solara._topology import SessionPlan, SessionSource
-from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
+from pysepal.solara.errors import (
+    MissingSepalHeadersError,
+    SepalSessionError,
+    SessionScopeClosedError,
+)
 from pysepal.solara.runtime_context import PROCESS_SCOPE
 from pysepal.solara.session_manager import SessionManager
 
@@ -74,23 +78,40 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
         yield SimpleNamespace(gee=gee_factory, sepal=sepal_factory, drive=drive_factory)
 
 
-def test_typed_accessors_replace_the_string_keyed_getter():
-    """No public accessor may take a session-dict key as a string."""
+def test_typed_accessors_dispatch_on_topology():
+    """No public accessor takes a session-dict key as a string.
+
+    And none of them falls back: PER_CONNECTION with no session is a bug,
+    not a default.
+    """
     manager = SessionManager()
     assert not hasattr(manager, "get_session_component")
     with _stack():
+        with pytest.raises(SepalSessionError, match="with_sepal_sessions"):
+            manager.get_gee_interface()
+
         manager.create_session(module_name="route_a")
-        assert manager.get_gee_interface() is manager._sessions["kernel-a"]["gee_interface"]
-        assert manager.get_drive_interface() is manager._sessions["kernel-a"]["drive_interface"]
+        session = manager._sessions["kernel-a"]
+        assert manager.get_gee_interface() is session["gee_interface"]
+        assert manager.get_drive_interface() is session["drive_interface"]
         assert manager.get_sepal_client("route_a") is not None
 
 
-def test_typed_accessors_return_none_without_a_session():
-    """Superseded in F4, which makes the per-connection miss raise instead."""
+def test_create_session_refuses_the_reserved_process_scope():
+    """Solara's kernel id is client-supplied; ``process`` is not allowlisted.
+
+    A connection landing on scope id ``PROCESS_SCOPE`` must not create or
+    reuse a per-connection session there -- that key belongs to the shared
+    process/dev-auth session, and this is the write-side half of the same
+    collision ``_require_connection_session`` refuses on the read side.
+    """
     manager = SessionManager()
     with _stack():
-        assert manager.get_gee_interface() is None
-        assert manager.get_drive_interface() is None
+        with patch.object(sm, "resolve_scope_id", return_value=PROCESS_SCOPE):
+            with pytest.raises(SepalSessionError, match="reserved process scope"):
+                manager.create_session()
+
+    assert PROCESS_SCOPE not in manager._sessions
 
 
 def test_missing_headers_raise_instead_of_returning_silently():
@@ -409,19 +430,41 @@ def test_cleanup_closes_every_module_client():
 
 
 def test_get_sepal_client_returns_none_without_a_resolvable_scope():
-    """A runtime with no resolvable scope must get None, not an exception.
+    """A per-connection runtime with no resolvable scope must get None, not an exception.
 
-    This is the documented get_current_sepal_client() behaviour change (PR
-    body): it never raises UnsupportedSolaraRuntimeError, unlike
+    Reachable off the render thread -- a background export task, a callback
+    on GEEInterface's private loop -- where no kernel context resolves. This
+    is get_current_sepal_client()'s documented "returns None" contract, unlike
     get_gee_interface()/get_drive_interface() (and therefore
     get_current_gee_interface()/get_current_drive_interface()), which must
     keep raising.
     """
     manager = SessionManager()
-    with patch.object(
-        SessionManager, "get_scope_id", side_effect=sm.UnsupportedSolaraRuntimeError("no scope")
-    ):
-        assert manager.get_sepal_client() is None
+    with _stack():
+        with patch.object(
+            SessionManager, "get_scope_id", side_effect=sm.UnsupportedSolaraRuntimeError("no scope")
+        ):
+            assert manager.get_sepal_client() is None
+
+
+def test_get_sepal_client_returns_none_for_the_reserved_process_scope():
+    """The no-argument path must not leak the shared process/dev-auth session's client.
+
+    ``get_sepal_client`` has its own scope resolution, separate from
+    ``_require_connection_session`` -- this pins the same reserved-scope
+    collision on that path. Unlike ``get_gee_interface``/``get_drive_interface``,
+    it never raises here either: it degrades to "no client". A session is
+    seeded at ``PROCESS_SCOPE`` so the assertion can't pass by coincidence of
+    that key simply being unpopulated.
+    """
+    manager = SessionManager()
+    manager._sessions[PROCESS_SCOPE] = {
+        "active_module_name": "route_a",
+        "sepal_clients": {"route_a": MagicMock()},
+    }
+    with _stack():
+        with patch.object(sm, "resolve_scope_id", return_value=PROCESS_SCOPE):
+            assert manager.get_sepal_client() is None
 
 
 def test_get_current_sepal_client_accepts_an_explicit_module():

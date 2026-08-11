@@ -2,9 +2,17 @@
 
 ``PYSEPAL_DEV_AUTH`` exists so a developer can run an app against a real SEPAL
 instance from a laptop, where no SEPAL proxy injects headers. It is a single
-process-wide identity by design and it is unreachable in a real container,
-where validated SEPAL headers take precedence over it (see
-:func:`pysepal.solara._topology.resolve_session_plan`).
+process-wide identity by design. A connection carrying validated SEPAL headers
+never uses it for its own identity -- real headers demote the plan for that
+connection (see :func:`pysepal.solara._topology.resolve_session_plan`) -- but
+the shared session it builds is still reachable by scope id, since solara's
+kernel id is client-supplied. Not the demotion rule alone, but three explicit
+reserved-scope guards keep another connection from reading or writing it:
+:meth:`pysepal.solara.session_manager.SessionManager._require_connection_session`
+(``get_gee_interface``/``get_drive_interface``), the equivalent check at the
+top of ``_create_connection_session``, and ``get_sepal_client``'s own inline
+check. ``get_session_info`` has no such guard yet -- tracked separately, not
+a promise this module makes.
 """
 
 import logging

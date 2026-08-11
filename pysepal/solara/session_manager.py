@@ -9,12 +9,14 @@ import logging
 import os
 import threading
 from collections import deque
+from pathlib import Path
 from typing import Any, Callable, Deque, Dict, Optional
 
 from eeclient.client import EESession
 from eeclient.models import SepalHeaders
 from pydantic import ValidationError
 from pysepal_api import SepalClient
+from pysepal_api.errors import PysepalError
 from solara.lab.utils.headers import headers
 
 from pysepal.scripts.drive_interface import GDriveInterface
@@ -24,11 +26,16 @@ from pysepal.solara._topology import (
     SessionSource,
     current_session_plan,
     dev_auth_enabled,
+    is_sepal_sandbox,
 )
 from pysepal.solara.dev_auth import prime_dev_auth
 
 # Imported only to raise below; not re-exported in __all__ -- see pysepal.solara.errors.
-from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
+from pysepal.solara.errors import (
+    MissingSepalHeadersError,
+    SepalSessionError,
+    SessionScopeClosedError,
+)
 from pysepal.solara.runtime_context import (
     PROCESS_SCOPE,
     UnsupportedSolaraRuntimeError,
@@ -278,10 +285,19 @@ class SessionManager:
 
         Raises:
             MissingSepalHeadersError: The connection carries no valid SEPAL headers.
+            SepalSessionError: The scope id collides with the reserved process scope.
             SessionScopeClosedError: The scope was already cleaned up.
             EEClientError: For authentication-related errors.
         """
         scope_id = self.get_scope_id()
+        if scope_id == PROCESS_SCOPE:
+            # solara's kernel id is client-supplied (the websocket's URL path segment,
+            # overridable via ?kernelid=) and not allowlisted -- a connection choosing
+            # this id would otherwise read and write the shared process/dev-auth session.
+            raise SepalSessionError(
+                f"Scope id {scope_id!r} collides with the reserved process scope; "
+                "refusing to create a per-connection session there."
+            )
 
         current_headers = headers.value
         if current_headers is None:
@@ -385,6 +401,27 @@ class SessionManager:
     ) -> Dict[str, Any]:
         """Return the process-wide session, creating its shell on first use.
 
+        Acquires the process scope lock itself; for a caller that also needs
+        to build a component under the same critical section (so a concurrent
+        ``close_process_session`` can't detach the session between the two),
+        use :meth:`_ensure_process_session_locked` instead.
+
+        Args:
+            plan: The resolved plan; its source selects the credential origin.
+            module_name: Becomes the session's active module. None leaves the
+                current one in place, for accessors that are not entering a route.
+
+        Returns:
+            The process session payload.
+        """
+        with self._scope_lock(PROCESS_SCOPE):
+            return self._ensure_process_session_locked(plan, module_name)
+
+    def _ensure_process_session_locked(
+        self, plan: SessionPlan, module_name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Same as :meth:`_ensure_process_session`, but the caller already holds the lock.
+
         Only the shell is built here. Components are built one at a time on
         first access, because the runtimes that land on this path do not
         necessarily hold every credential: a notebook outside a sandbox can
@@ -399,52 +436,230 @@ class SessionManager:
         Returns:
             The process session payload.
         """
-        with self._scope_lock(PROCESS_SCOPE):
-            session = self._sessions.get(PROCESS_SCOPE)
-            if session is None:
-                sepal_headers = (
-                    _require_session_id(prime_dev_auth())
-                    if plan.source is SessionSource.DEV_AUTH
-                    else None
+        session = self._sessions.get(PROCESS_SCOPE)
+        if session is None:
+            sepal_headers = (
+                _require_session_id(prime_dev_auth())
+                if plan.source is SessionSource.DEV_AUTH
+                else None
+            )
+            session = {
+                "source": plan.source,
+                "username": sepal_headers.sepal_user.username if sepal_headers else None,
+                "sepal_session_id": sepal_headers.session_id if sepal_headers else None,
+                "sepal_headers": sepal_headers,
+                "raw_headers": None,
+                "gee_interface": None,
+                "sepal_clients": {},
+                "active_module_name": module_name or "default",
+                "drive_interface": None,
+            }
+            self._sessions[PROCESS_SCOPE] = session
+            logger.debug(f"Created the process session ({plan.reason})")
+        elif module_name is not None:
+            session["active_module_name"] = module_name
+        return session
+
+    def _require_connection_session(self) -> Dict[str, Any]:
+        """Return this connection's session.
+
+        Returns:
+            The session payload for the current scope.
+
+        Raises:
+            SepalSessionError: No session exists for this connection, or its
+                scope id collides with the reserved process scope.
+        """
+        scope_id = self.get_scope_id()
+        if scope_id == PROCESS_SCOPE:
+            raise SepalSessionError(
+                f"Scope id {scope_id!r} collides with the reserved process scope; "
+                "refusing to serve a per-connection runtime from the process session."
+            )
+        session = self._sessions.get(scope_id)
+        if session is None:
+            raise SepalSessionError(
+                f"No SEPAL session exists for scope {scope_id}. Decorate the Page "
+                "component with @with_sepal_sessions."
+            )
+        return session
+
+    def _process_gee_interface(self, session: Dict[str, Any]) -> GEEInterface:
+        """Build, once, the process session's GEE interface.
+
+        The caller holds the process scope lock.
+
+        Args:
+            session: The process session payload.
+
+        Returns:
+            The interface: from the developer login when one is in use, and
+            otherwise from the machine's own Earth Engine credentials -- which
+            topology has already established belong to a single user.
+        """
+        if session["gee_interface"] is None:
+            sepal_headers = session["sepal_headers"]
+            if sepal_headers is not None:
+                ee_session = EESession.from_sepal_headers(sepal_headers)
+            else:
+                ee_session = EESession.from_default()
+            session["gee_interface"] = GEEInterface(ee_session)
+        return session["gee_interface"]
+
+    def _process_drive_interface(self, session: Dict[str, Any]) -> GDriveInterface:
+        """Build, once, the process session's Drive interface.
+
+        The caller holds the process scope lock.
+
+        Args:
+            session: The process session payload.
+
+        Returns:
+            The interface.
+        """
+        if session["drive_interface"] is None:
+            sepal_headers = session["sepal_headers"]
+            session["drive_interface"] = (
+                GDriveInterface(sepal_headers=sepal_headers)
+                if sepal_headers is not None
+                else GDriveInterface()
+            )
+        return session["drive_interface"]
+
+    def _process_sepal_client(
+        self, session: Dict[str, Any], module_name: str
+    ) -> Optional[SepalClient]:
+        """Build, once, a process-session SepalClient for ``module_name``.
+
+        The caller holds the process scope lock. A client is built only when
+        this process has a SEPAL identity of its own: a developer login, or a
+        SEPAL sandbox whose files belong to the one user who owns it. Elsewhere
+        -- a laptop notebook, a CI script -- there is no such identity, and
+        callers keep the local-filesystem behaviour they have today.
+
+        A failure is not cached: it costs an environment read to retry, and a
+        sandbox key can appear after the first attempt.
+
+        Args:
+            session: The process session payload.
+            module_name: The module whose client is required.
+
+        Returns:
+            The client, or None when this process has no SEPAL identity, or
+            ``SepalClient.create()`` fails for any reason -- missing
+            credentials, or the eager ``createFolder`` call it still makes
+            hitting a SEPAL API outage (``pysepal-api`` < the version F7
+            requires, which drops that eager call).
+        """
+        if session["sepal_headers"] is None and not is_sepal_sandbox(Path.home().name):
+            return None
+
+        clients = session["sepal_clients"]
+        client = clients.get(module_name)
+        if client is None:
+            try:
+                client = SepalClient.create(
+                    session_id=session["sepal_session_id"], module_name=module_name
                 )
-                session = {
-                    "source": plan.source,
-                    "username": sepal_headers.sepal_user.username if sepal_headers else None,
-                    "sepal_session_id": sepal_headers.session_id if sepal_headers else None,
-                    "sepal_headers": sepal_headers,
-                    "raw_headers": None,
-                    "gee_interface": None,
-                    "sepal_clients": {},
-                    "active_module_name": module_name or "default",
-                    "drive_interface": None,
-                }
-                self._sessions[PROCESS_SCOPE] = session
-                logger.debug(f"Created the process session ({plan.reason})")
-            elif module_name is not None:
-                session["active_module_name"] = module_name
-            return session
+            except PysepalError as exc:
+                # Any SEPAL API failure here -- no credentials, or the eager
+                # createFolder call above hitting a 5xx/connection error --
+                # must degrade the sandbox path to "no client", not crash a
+                # render: that is what the sandbox exists to preserve
+                # (pysepal/solara/components/export_hook.py's local-filesystem
+                # fallback).
+                logger.debug(f"SEPAL API unavailable; no client for '{module_name}': {exc}")
+                return None
+            clients[module_name] = client
+        return client
+
+    def get_gee_interface(self) -> GEEInterface:
+        """Return the GEE interface for the current runtime.
+
+        Returns:
+            An app-launcher connection reads the interface
+            ``@with_sepal_sessions`` built for it. Every other runtime gets the
+            process interface, built on first use.
+
+        Raises:
+            SepalSessionError: A per-connection runtime has no session yet.
+        """
+        plan = _current_plan()
+        if plan.source is SessionSource.PER_CONNECTION:
+            return self._require_connection_session()["gee_interface"]
+
+        with self._scope_lock(PROCESS_SCOPE):
+            session = self._ensure_process_session_locked(plan)
+            return self._process_gee_interface(session)
+
+    def get_drive_interface(self) -> GDriveInterface:
+        """Return the Drive interface for the current runtime.
+
+        Returns:
+            The interface, resolved exactly as :meth:`get_gee_interface`.
+
+        Raises:
+            SepalSessionError: A per-connection runtime has no session yet.
+        """
+        plan = _current_plan()
+        if plan.source is SessionSource.PER_CONNECTION:
+            return self._require_connection_session()["drive_interface"]
+
+        with self._scope_lock(PROCESS_SCOPE):
+            session = self._ensure_process_session_locked(plan)
+            return self._process_drive_interface(session)
+
+    def close_process_session(self) -> None:
+        """Close and release the process-wide session, if one exists.
+
+        The process session's lifetime is the process, so nothing closes it
+        automatically -- ``cleanup_session`` refuses the process scope. This is
+        the explicit teardown for embedders and tests. No tombstone is written:
+        the next accessor rebuilds.
+        """
+        with self._scope_lock(PROCESS_SCOPE):
+            session = self._sessions.pop(PROCESS_SCOPE, None)
+        if session is not None:
+            self._close_session(PROCESS_SCOPE, session)
 
     def get_sepal_client(
         self, module_name: Optional[str] = None, scope_id: Optional[str] = None
     ) -> Optional[SepalClient]:
-        """Get a SepalClient held by a scope's session.
+        """Get a SepalClient for the current runtime's session.
+
+        One session holds one client per module name; without ``module_name``
+        you get the client of the route currently rendering.
 
         Args:
             module_name: The module whose client to return. Defaults to the
                 module of the most recently entered ``@with_sepal_sessions``
-                component, i.e. the route being rendered.
-            scope_id: The scope to read from. If None, uses the current one.
+                component.
+            scope_id: Read this scope instead of resolving the current one.
 
         Returns:
-            The client, or None when no session or no such module client exists.
+            The client, or None when there is no session for the scope, no
+            client for that module, or no SEPAL identity in this process.
         """
         if scope_id is None:
+            plan = _current_plan()
+            if plan.source is not SessionSource.PER_CONNECTION:
+                with self._scope_lock(PROCESS_SCOPE):
+                    process_session = self._ensure_process_session_locked(plan)
+                    name = module_name or process_session["active_module_name"]
+                    return self._process_sepal_client(process_session, name)
             try:
                 scope_id = self.get_scope_id()
             except UnsupportedSolaraRuntimeError:
                 # Deliberately swallowed here but not in get_gee_interface/get_drive_interface:
-                # this is get_current_sepal_client()'s documented "returns None" contract (PR
-                # body), not a promise get_current_gee_interface()/_drive_interface() also make.
+                # this is get_current_sepal_client()'s documented "returns None" contract, not
+                # a promise get_current_gee_interface()/_drive_interface() also make. Reachable
+                # off the render thread -- a background export task, a callback on
+                # GEEInterface's private loop -- where no kernel context resolves.
+                return None
+            if scope_id == PROCESS_SCOPE:
+                # Same reserved-scope collision as _require_connection_session, but this
+                # accessor never raises: an untrusted per-connection lookup landing on the
+                # process scope gets "no client", not the shared process/dev-auth session's.
                 return None
 
         session = self._sessions.get(scope_id)
@@ -511,24 +726,6 @@ class SessionManager:
                 close_drive()
             except Exception as e:
                 logger.error(f"Error closing Drive interface for scope {scope_id}: {e}")
-
-    def get_gee_interface(self) -> Optional[GEEInterface]:
-        """Return the current scope's GEE interface.
-
-        Returns:
-            The interface, or None when the scope holds no session.
-        """
-        session = self._sessions.get(self.get_scope_id())
-        return None if session is None else session.get("gee_interface")
-
-    def get_drive_interface(self) -> Optional[GDriveInterface]:
-        """Return the current scope's Google Drive interface.
-
-        Returns:
-            The interface, or None when the scope holds no session.
-        """
-        session = self._sessions.get(self.get_scope_id())
-        return None if session is None else session.get("drive_interface")
 
     def get_session_info(self, scope_id: Optional[str] = None) -> dict:
         """Get session information for a specific scope.
