@@ -1,7 +1,7 @@
 """Custom Buttons.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create buttons.
-All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::

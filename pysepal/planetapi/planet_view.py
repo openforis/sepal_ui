@@ -52,7 +52,7 @@ class PlanetView(sw.Layout):
         Args:
             btn (sw.Btn, optional): Button to trigger the validation process in the associated model.
             alert (sw.Alert, v.Alert, optional): Alert component to display end-user action results.
-            planet_model (sepal_ui.planetlab.PlanetModel): backend model to manipulate interface actions.
+            planet_model (pysepal.planetapi.PlanetModel): backend model to manipulate interface actions.
         """
         self.class_ = "d-block flex-wrap"
 

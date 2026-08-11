@@ -1,1 +1,1 @@
-"""Test module for sepal_ui.logger."""
+"""Test module for pysepal.logger."""

@@ -592,7 +592,7 @@ class AoiModel(Model):
         """Converts current geopandas object into ipyleaflet GeoJSON.
 
         Args:
-            style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            style: the predefined style of the aoi. It's by default using a "success" ``pysepal.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``pysepal.color`` object to define any color to remain compatible with light and dark theme.
 
         Returns:
             The geojson layer of the aoi gdf, ready to use in a Map

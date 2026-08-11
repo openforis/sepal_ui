@@ -127,7 +127,7 @@ def test_reset(file_input: sw.FileInput, root_dir: Path, readme: Path):
         file_input: a instance of the widget
         readme: the path to the readme file
     """
-    # move into sepal_ui folders
+    # move into pysepal folders
     file_input.select_file(readme)
 
     # reset to default
@@ -147,7 +147,7 @@ def test_select_file(file_input: sw.FileInput, readme: Path) -> None:
         file_input: a widget instance
         readme: the path to the readme file
     """
-    # move into sepal_ui folders
+    # move into pysepal folders
     file_input.select_file(readme)
 
     # assert that the file has been selected

@@ -1,7 +1,7 @@
 """Custom Card widget to create Tiles in application.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create Tiles in the application panel framework.
-All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::

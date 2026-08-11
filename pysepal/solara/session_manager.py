@@ -155,7 +155,7 @@ class SessionManager:
     GEE interfaces, SepalClient and GDriveInterface.
 
     Note: Do not instantiate this class directly. Use the @with_sepal_sessions
-    decorator or the utility functions in sepal_ui.solara.utils instead.
+    decorator or the utility functions in pysepal.solara.utils instead.
     """
 
     _instance = None
