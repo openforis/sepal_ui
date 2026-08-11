@@ -19,6 +19,13 @@ request happens to carry headers. In order:
 | running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
 | anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
 
+A sandbox is now identified by the `SEPAL=true` environment variable that SEPAL
+exports, not by a `sepal-user` home directory. If you build an app container from
+`openforis/sandbox-base` you inherit that home but not that variable — which is
+the point: such a container is multi-user and must resolve `PER_CONNECTION`, and
+under the old check it did not. App containers were never meant to resolve
+`PROCESS`. If a deployment genuinely must, export `SEPAL=true` in it explicitly.
+
 **`PER_CONNECTION` never falls back.** Missing or invalid SEPAL headers there
 raise `MissingSepalHeadersError` where 3.x silently built a session from the
 machine's own Earth Engine credentials. That fallback had to go: SEPAL's
@@ -303,6 +310,8 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Set `PYSEPAL_ADMIN_USERS` in every deployment that had a non-`admin`
       admin user.
 - [ ] Confirm no multi-user deployment depends on a headerless fallback.
+- [ ] Confirm any deployment that must resolve `PROCESS` exports `SEPAL=true`; a
+      `sepal-user` home no longer selects it.
 - [ ] Raise the `ee-client`, `pysepal-api` and `solara` floors; leave solara
       pinned.
 - [ ] `grep -rn "sepal_ui"` and rename to `pysepal`, requirements included.
