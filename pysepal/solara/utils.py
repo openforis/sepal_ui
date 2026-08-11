@@ -58,7 +58,7 @@ def get_current_gee_interface() -> GEEInterface:
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
-        interface = session_manager.get_session_component("gee_interface")
+        interface = session_manager.get_gee_interface()
         if interface is not None:
             return interface
 
@@ -107,7 +107,7 @@ def get_current_drive_interface() -> GDriveInterface:
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
-        interface = session_manager.get_session_component("drive_interface")
+        interface = session_manager.get_drive_interface()
         if interface is not None:
             return interface
 

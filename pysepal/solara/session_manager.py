@@ -327,9 +327,9 @@ class SessionManager:
             try:
                 scope_id = self.get_scope_id()
             except UnsupportedSolaraRuntimeError:
-                # Deliberately swallowed here but not in get_session_component: this is
-                # get_current_sepal_client()'s documented "returns None" contract (PR body),
-                # not a promise get_current_gee_interface()/_drive_interface() also make.
+                # Deliberately swallowed here but not in get_gee_interface/get_drive_interface:
+                # this is get_current_sepal_client()'s documented "returns None" contract (PR
+                # body), not a promise get_current_gee_interface()/_drive_interface() also make.
                 return None
 
         session = self._sessions.get(scope_id)
@@ -389,36 +389,23 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Error closing Drive interface for scope {scope_id}: {e}")
 
-    def get_session_component(
-        self, component_name: str, scope_id: Optional[str] = None
-    ) -> Optional[Any]:
-        """Get a specific component from a session.
-
-        Args:
-            component_name: The name/key of the component to retrieve.
-            scope_id: The scope to read from. If None, uses the current one.
+    def get_gee_interface(self) -> Optional[GEEInterface]:
+        """Return the current scope's GEE interface.
 
         Returns:
-            The component instance or None if not found.
+            The interface, or None when the scope holds no session.
         """
-        if scope_id is None:
-            scope_id = self.get_scope_id()
+        session = self._sessions.get(self.get_scope_id())
+        return None if session is None else session.get("gee_interface")
 
-        if scope_id not in self._sessions:
-            return None
+    def get_drive_interface(self) -> Optional[GDriveInterface]:
+        """Return the current scope's Google Drive interface.
 
-        session = self._sessions[scope_id]
-        username = session.get("username", "unknown")
-
-        # debug log for session retrieval
-        logger.debug(
-            f"Retrieving component '{component_name}' for scope {scope_id}, user {username}"
-        )
-
-        if component_name == "sepal_client":
-            return self.get_sepal_client(scope_id=scope_id)
-
-        return session.get(component_name)
+        Returns:
+            The interface, or None when the scope holds no session.
+        """
+        session = self._sessions.get(self.get_scope_id())
+        return None if session is None else session.get("drive_interface")
 
     def get_session_info(self, scope_id: Optional[str] = None) -> dict:
         """Get session information for a specific scope.

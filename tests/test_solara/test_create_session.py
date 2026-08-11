@@ -54,6 +54,25 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
         yield SimpleNamespace(gee=gee_factory, sepal=sepal_factory, drive=drive_factory)
 
 
+def test_typed_accessors_replace_the_string_keyed_getter():
+    """No public accessor may take a session-dict key as a string."""
+    manager = SessionManager()
+    assert not hasattr(manager, "get_session_component")
+    with _stack():
+        manager.create_session(module_name="route_a")
+        assert manager.get_gee_interface() is manager._sessions["kernel-a"]["gee_interface"]
+        assert manager.get_drive_interface() is manager._sessions["kernel-a"]["drive_interface"]
+        assert manager.get_sepal_client("route_a") is not None
+
+
+def test_typed_accessors_return_none_without_a_session():
+    """Superseded in F4, which makes the per-connection miss raise instead."""
+    manager = SessionManager()
+    with _stack():
+        assert manager.get_gee_interface() is None
+        assert manager.get_drive_interface() is None
+
+
 def test_missing_headers_raise_instead_of_returning_silently():
     manager = SessionManager()
     with _stack(raw_headers=None):
@@ -123,14 +142,14 @@ def test_changed_sepal_session_id_rebuilds_the_session():
     with _stack(username="alice", session_id="sid-1") as first_factories:
         manager.create_session(module_name="route_a")
         manager.create_session(module_name="route_b")
-        first = manager.get_session_component("gee_interface")
+        first = manager.get_gee_interface()
         first_clients = [manager.get_sepal_client("route_a"), manager.get_sepal_client("route_b")]
 
         assert first_factories.gee.call_count == 1
 
     with _stack(username="bob", session_id="sid-2") as second_factories:
         manager.create_session()
-        second = manager.get_session_component("gee_interface")
+        second = manager.get_gee_interface()
 
         assert second_factories.gee.call_count == 1
 
@@ -146,7 +165,7 @@ def test_identity_rebuild_failure_does_not_leave_a_closed_session_reachable():
     manager = SessionManager()
     with _stack(username="alice", session_id="sid-1"):
         manager.create_session()
-        old_gee = manager.get_session_component("gee_interface")
+        old_gee = manager.get_gee_interface()
 
     with _stack(username="bob", session_id="sid-2") as factories:
         factories.gee.side_effect = RuntimeError("boom")
@@ -219,7 +238,7 @@ def test_reopen_scope_serializes_against_a_concurrent_cleanup():
     manager = SessionManager()
     with _stack() as factories:
         manager.create_session()
-        gee_interface = manager.get_session_component("gee_interface")
+        gee_interface = manager.get_gee_interface()
 
         close_started = threading.Event()
         release_close = threading.Event()
@@ -283,7 +302,7 @@ def test_cleanup_closes_a_drive_interface_that_has_close():
     manager = SessionManager()
     with _stack() as factories:
         manager.create_session()
-        drive = manager.get_session_component("drive_interface")
+        drive = manager.get_drive_interface()
         manager.cleanup_session("kernel-a")
 
     assert factories.drive.call_count == 1
@@ -331,7 +350,6 @@ def test_the_last_entered_module_is_the_active_one():
         manager.create_session(module_name="route_b")
 
         assert manager.get_sepal_client() is manager.get_sepal_client("route_b")
-        assert manager.get_session_component("sepal_client") is manager.get_sepal_client("route_b")
 
 
 def test_revisiting_a_module_reuses_its_client():
@@ -375,8 +393,9 @@ def test_get_sepal_client_returns_none_without_a_resolvable_scope():
 
     This is the documented get_current_sepal_client() behaviour change (PR
     body): it never raises UnsupportedSolaraRuntimeError, unlike
-    get_session_component (and therefore get_current_gee_interface() /
-    get_current_drive_interface()), which must keep raising.
+    get_gee_interface()/get_drive_interface() (and therefore
+    get_current_gee_interface()/get_current_drive_interface()), which must
+    keep raising.
     """
     manager = SessionManager()
     with patch.object(

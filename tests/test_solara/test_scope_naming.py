@@ -17,7 +17,6 @@ def test_session_manager_speaks_scope_id():
     assert not hasattr(session_manager.SessionManager, "get_kernel_id")
     for name in (
         "get_sepal_client",
-        "get_session_component",
         "get_session_info",
         "cleanup_session",
     ):

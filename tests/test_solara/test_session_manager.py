@@ -28,7 +28,8 @@ def test_getters_fall_back_when_no_session_can_exist():
 
     with (
         patch.object(SessionManager, "is_initialized", return_value=True),
-        patch.object(SessionManager, "get_session_component", return_value=None),
+        patch.object(SessionManager, "get_gee_interface", return_value=None),
+        patch.object(SessionManager, "get_drive_interface", return_value=None),
         patch.object(utils, "can_create_sessions", return_value=False),
         patch.object(utils, "_get_fallback_gee_interface", return_value="fallback-gee"),
         patch.object(utils, "_get_fallback_drive_interface", return_value="fallback-drive"),
@@ -49,7 +50,8 @@ def test_getters_still_raise_when_headers_exist_but_session_is_missing():
 
     with (
         patch.object(SessionManager, "is_initialized", return_value=True),
-        patch.object(SessionManager, "get_session_component", return_value=None),
+        patch.object(SessionManager, "get_gee_interface", return_value=None),
+        patch.object(SessionManager, "get_drive_interface", return_value=None),
         patch.object(utils, "can_create_sessions", return_value=True),
     ):
         # Theme deliberately absent here: it moved to the auth-free scope store
