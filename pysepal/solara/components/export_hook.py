@@ -236,7 +236,7 @@ def _tracker_step_count(request: ExportRequest) -> int:
 
 
 def _default_gee_folder(sepal_client: SepalClient | None) -> str:
-    if sepal_client is not None and getattr(sepal_client, "module_name", ""):
+    if sepal_client is not None and sepal_client.module_name:
         return str(sepal_client.module_name).strip("/")
     return "pysepal_exports"
 
