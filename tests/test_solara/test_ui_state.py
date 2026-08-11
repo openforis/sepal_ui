@@ -2,33 +2,35 @@
 
 from unittest.mock import patch
 
-from pysepal.solara import ui_state
+from pysepal.solara import scope_registry, ui_state
 
 
 def test_same_scope_reuses_the_same_instance():
-    with patch.object(ui_state, "current_scope_id", return_value="kernel-a"):
+    with patch.object(scope_registry, "current_scope_id", return_value="kernel-a"):
         first = ui_state.get_scoped_state("theme_state", dict)
         second = ui_state.get_scoped_state("theme_state", dict)
     assert first is second
 
 
 def test_different_scopes_get_different_instances():
-    with patch.object(ui_state, "current_scope_id", return_value="kernel-a"):
+    with patch.object(scope_registry, "current_scope_id", return_value="kernel-a"):
         a = ui_state.get_scoped_state("theme_state", dict)
-    with patch.object(ui_state, "current_scope_id", return_value="kernel-b"):
+    with patch.object(scope_registry, "current_scope_id", return_value="kernel-b"):
         b = ui_state.get_scoped_state("theme_state", dict)
     assert a is not b
 
 
 def test_explicit_scope_id_bypasses_the_resolver():
-    with patch.object(ui_state, "current_scope_id", side_effect=AssertionError("must not resolve")):
+    with patch.object(
+        scope_registry, "current_scope_id", side_effect=AssertionError("must not resolve")
+    ):
         state = ui_state.get_scoped_state("theme_state", dict, scope_id="kernel-a")
     assert state == {}
 
 
 def test_unresolvable_runtime_falls_back_to_the_process_scope():
     """Scripts and pytest have no runtime id; UI state must still be available."""
-    with patch.object(ui_state, "current_scope_id", return_value=ui_state.PROCESS_SCOPE):
+    with patch.object(scope_registry, "current_scope_id", return_value=ui_state.PROCESS_SCOPE):
         state = ui_state.get_scoped_state("theme_state", dict)
     assert state is ui_state.get_scoped_state("theme_state", dict, scope_id="process")
 

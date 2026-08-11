@@ -1,7 +1,7 @@
 """Tests for scope-keyed theme-state resolution."""
 
 import pysepal.solara.theme as theme_mod
-from pysepal.solara import ui_state
+from pysepal.solara import scope_registry
 from pysepal.solara.theme import (
     ThemeState,
     get_current_theme_state,
@@ -39,15 +39,15 @@ def test_resolve_falls_back_instead_of_raising(monkeypatch):
 
 def test_current_theme_state_is_stable_per_scope(monkeypatch):
     """Two reads in the same scope return the same ThemeState instance."""
-    monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-a")
+    monkeypatch.setattr(scope_registry, "current_scope_id", lambda: "kernel-a")
     assert get_current_theme_state() is get_current_theme_state()
 
 
 def test_current_theme_state_is_isolated_per_scope(monkeypatch):
     """Two connections must not share a theme; that was the process-global bug."""
-    monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-a")
+    monkeypatch.setattr(scope_registry, "current_scope_id", lambda: "kernel-a")
     first = get_current_theme_state()
-    monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-b")
+    monkeypatch.setattr(scope_registry, "current_scope_id", lambda: "kernel-b")
     assert get_current_theme_state() is not first
 
 
@@ -57,5 +57,5 @@ def test_current_theme_state_never_raises_without_a_session(monkeypatch):
     This used to raise "Session manager is active but no theme state exists".
     Theme is UI state; it has no business failing on an auth condition.
     """
-    monkeypatch.setattr(ui_state, "current_scope_id", lambda: "kernel-a")
+    monkeypatch.setattr(scope_registry, "current_scope_id", lambda: "kernel-a")
     assert isinstance(get_current_theme_state(), ThemeState)

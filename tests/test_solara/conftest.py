@@ -10,9 +10,9 @@ from pysepal.solara.session_manager import SessionManager
 @pytest.fixture(autouse=True)
 def _clean_ui_state():
     """Keep the process-wide UI-state registry from leaking across tests."""
-    ui_state._states.clear()
+    ui_state._registry.clear()
     yield
-    ui_state._states.clear()
+    ui_state._registry.clear()
 
 
 @pytest.fixture(autouse=True)

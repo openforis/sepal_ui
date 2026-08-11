@@ -1,21 +1,16 @@
 """Scope-keyed UI state for pysepal Solara and Voila apps.
 
-UI preferences (theme today, locale next) are per-connection state with no
-authentication in their resolution path: a Voila page, a plain notebook or a
-script must be able to hold a theme without a SEPAL session existing. This
-registry keys that state by
-:func:`pysepal.solara.runtime_context.current_scope_id` and falls back to
-a single process-wide scope when no runtime can be resolved, so every getter
-built on it is total.
+UI preferences (theme, locale) are per-connection state with no authentication
+in their resolution path: a Voila page, a plain notebook or a script must hold
+a theme without a SEPAL session existing. Keyed by
+:func:`pysepal.solara.runtime_context.current_scope_id`, which falls back to
+the process scope, so every getter built on this is total.
 """
 
-import logging
-import threading
 from typing import Any, Callable, Dict, Optional, TypeVar
 
 from pysepal.solara.runtime_context import PROCESS_SCOPE, current_scope_id
-
-logger = logging.getLogger("sepalui.solara.ui_state")
+from pysepal.solara.scope_registry import ScopeRegistry
 
 __all__ = [
     "PROCESS_SCOPE",
@@ -27,8 +22,7 @@ __all__ = [
 
 T = TypeVar("T")
 
-_states: Dict[str, Dict[str, Any]] = {}
-_lock = threading.Lock()
+_registry: ScopeRegistry[Dict[str, Any]] = ScopeRegistry("UI state")
 
 
 def get_scoped_state(name: str, factory: Callable[[], T], scope_id: Optional[str] = None) -> T:
@@ -37,18 +31,17 @@ def get_scoped_state(name: str, factory: Callable[[], T], scope_id: Optional[str
     Args:
         name: Key of the state within the scope, e.g. ``"theme_state"``.
         factory: Zero-argument callable building the state on first access.
-        scope_id: Scope to read from; defaults to :func:`current_scope_id`.
+        scope_id: Scope to read from; defaults to the current one.
 
     Returns:
         The stored state instance.
     """
-    scope = current_scope_id() if scope_id is None else scope_id
-    with _lock:
-        scope_states = _states.setdefault(scope, {})
-        if name not in scope_states:
-            scope_states[name] = factory()
-            logger.debug(f"Created UI state '{name}' for scope {scope}")
-        return scope_states[name]
+    scope = _registry.resolve(scope_id)
+    with _registry.scope_lock(scope):
+        states = _registry.get_or_create(dict, scope_id=scope)
+        if name not in states:
+            states[name] = factory()
+        return states[name]
 
 
 def has_scoped_state(name: str, scope_id: Optional[str] = None) -> bool:
@@ -56,24 +49,23 @@ def has_scoped_state(name: str, scope_id: Optional[str] = None) -> bool:
 
     Args:
         name: Key of the state within the scope.
-        scope_id: Scope to inspect; defaults to :func:`current_scope_id`.
+        scope_id: Scope to inspect; defaults to the current one.
 
     Returns:
         True when the state exists.
     """
-    scope = current_scope_id() if scope_id is None else scope_id
-    with _lock:
-        return name in _states.get(scope, {})
+    scope = _registry.resolve(scope_id)
+    with _registry.scope_lock(scope):
+        states = _registry.get(scope)
+        return states is not None and name in states
 
 
 def clear_scoped_state(scope_id: Optional[str] = None) -> None:
     """Drop every UI state held for a scope.
 
     Args:
-        scope_id: Scope to clear; defaults to :func:`current_scope_id`.
+        scope_id: Scope to clear; defaults to the current one.
     """
-    scope = current_scope_id() if scope_id is None else scope_id
-    with _lock:
-        removed = _states.pop(scope, None)
-    if removed is not None:
-        logger.debug(f"Cleared UI state for scope {scope}")
+    scope = _registry.resolve(scope_id)
+    with _registry.scope_lock(scope):
+        _registry.pop(scope)
