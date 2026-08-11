@@ -1,10 +1,11 @@
 """The theme no longer round-trips through ~/.sepal-ui-config (issue #977)."""
 
+from pathlib import Path
+
 import ipyvuetify as v
 import pytest
 
 import pysepal
-import pysepal.scripts.utils as su
 from pysepal.frontend import styles
 
 
@@ -21,18 +22,14 @@ def test_dark_theme_default_is_a_constant():
 def test_set_colors_writes_nothing(tmp_path, monkeypatch):
     """No write anywhere -- not just not at $HOME.
 
-    ``pysepal.conf`` binds ``config_file`` once at import time, so patching
-    ``$HOME`` can't retarget it: the writer resolves the name through
-    ``pysepal.scripts.utils`` (its own ``from pysepal.conf import
-    config_file``), so that is the name that must be patched to actually
-    observe a write.
+    ``pysepal.conf`` and its config-writer plumbing are gone (issue #977), so
+    there is no bound name left to patch -- patching ``$HOME`` is enough now.
     """
-    fake_config_file = tmp_path / ".sepal-ui-config"
-    monkeypatch.setattr(su, "config_file", fake_config_file)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     color = styles.SepalColor()
     color._dark_theme = False
     color.set_colors()
-    assert not fake_config_file.exists()
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_set_colors_still_tracks_the_live_vuetify_theme():
@@ -44,14 +41,13 @@ def test_set_colors_still_tracks_the_live_vuetify_theme():
 
 
 def test_theme_select_writes_nothing(tmp_path, monkeypatch):
-    """Same fix as ``test_set_colors_writes_nothing``: patch the bound name, not $HOME."""
+    """Same invariant as ``test_set_colors_writes_nothing``."""
     from pysepal import sepalwidgets as sw
 
-    fake_config_file = tmp_path / ".sepal-ui-config"
-    monkeypatch.setattr(su, "config_file", fake_config_file)
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
     select = sw.ThemeSelect()
     select.toggle_theme()
-    assert not fake_config_file.exists()
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_module_theme_entry_point_is_gone():
