@@ -4,7 +4,7 @@ UI preferences (theme today, locale next) are per-connection state with no
 authentication in their resolution path: a Voila page, a plain notebook or a
 script must be able to hold a theme without a SEPAL session existing. This
 registry keys that state by
-:func:`pysepal.solara.runtime_context.get_current_runtime_id` and falls back to
+:func:`pysepal.solara.runtime_context.current_scope_id` and falls back to
 a single process-wide scope when no runtime can be resolved, so every getter
 built on it is total.
 """
@@ -13,32 +13,22 @@ import logging
 import threading
 from typing import Any, Callable, Dict, Optional, TypeVar
 
-from pysepal.solara.runtime_context import (
-    UnsupportedSolaraRuntimeError,
-    get_current_runtime_id,
-)
+from pysepal.solara.runtime_context import PROCESS_SCOPE, current_scope_id
 
 logger = logging.getLogger("sepalui.solara.ui_state")
 
-PROCESS_SCOPE = "process"
-"Scope id used when no per-connection runtime can be resolved."
+__all__ = [
+    "PROCESS_SCOPE",
+    "clear_scoped_state",
+    "current_scope_id",
+    "get_scoped_state",
+    "has_scoped_state",
+]
 
 T = TypeVar("T")
 
 _states: Dict[str, Dict[str, Any]] = {}
 _lock = threading.Lock()
-
-
-def current_scope_id() -> str:
-    """Return the scope id for the current runtime.
-
-    Returns:
-        The runtime id, or :data:`PROCESS_SCOPE` when none can be resolved.
-    """
-    try:
-        return get_current_runtime_id()
-    except UnsupportedSolaraRuntimeError:
-        return PROCESS_SCOPE
 
 
 def get_scoped_state(name: str, factory: Callable[[], T], scope_id: Optional[str] = None) -> T:

@@ -47,14 +47,14 @@ def _get_fallback_drive_interface() -> GDriveInterface:
 
 
 def get_current_gee_interface() -> GEEInterface:
-    """Returns the GEE interface for the current kernel session.
+    """Returns the GEE interface for the current scope's session.
 
     If session manager is not initialized (e.g. running in a notebook),
     returns a shared fallback GEEInterface with an EESession without headers.
 
     Raises:
         RuntimeError: If session manager is initialized but no session exists
-            for the current kernel (indicates a missing @with_sepal_sessions decorator).
+            for the current scope (indicates a missing @with_sepal_sessions decorator).
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
@@ -67,7 +67,7 @@ def get_current_gee_interface() -> GEEInterface:
             return _get_fallback_gee_interface()
 
         raise RuntimeError(
-            "Session manager is active but no session exists for the current kernel. "
+            "Session manager is active but no session exists for the current scope. "
             "Ensure your Page component is decorated with @with_sepal_sessions."
         )
 
@@ -96,14 +96,14 @@ def get_current_sepal_client(module_name: Optional[str] = None) -> Optional[Sepa
 
 
 def get_current_drive_interface() -> GDriveInterface:
-    """Returns Drive interface for the current kernel session.
+    """Returns Drive interface for the current scope's session.
 
     If session manager is not initialized (e.g. running in a notebook),
     returns a shared fallback GDriveInterface without headers.
 
     Raises:
         RuntimeError: If session manager is initialized but no session exists
-            for the current kernel (indicates a missing @with_sepal_sessions decorator).
+            for the current scope (indicates a missing @with_sepal_sessions decorator).
     """
     if SessionManager.is_initialized():
         session_manager = SessionManager()
@@ -116,7 +116,7 @@ def get_current_drive_interface() -> GDriveInterface:
             return _get_fallback_drive_interface()
 
         raise RuntimeError(
-            "Session manager is active but no session exists for the current kernel. "
+            "Session manager is active but no session exists for the current scope. "
             "Ensure your Page component is decorated with @with_sepal_sessions."
         )
 

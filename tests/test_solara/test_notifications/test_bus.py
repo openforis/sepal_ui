@@ -143,7 +143,7 @@ def test_concurrent_toast_adds():
     assert len(bus.toasts.value) <= MAX_TOAST_QUEUE
 
 
-# Kernel registry ------------------------------------------------------------
+# Scope registry ------------------------------------------------------------
 
 
 @pytest.fixture
@@ -155,7 +155,7 @@ def clean_bus_registry():
     _bus_refcounts.clear()
 
 
-@patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
+@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="kernel-1")
 def test_create_get_cleanup(mock_kid, clean_bus_registry):
     bus = create_bus()
     assert get_current_bus() is bus
@@ -163,7 +163,7 @@ def test_create_get_cleanup(mock_kid, clean_bus_registry):
     assert get_current_bus() is None
 
 
-@patch("pysepal.solara.notifications.bus._get_kernel_id")
+@patch("pysepal.solara.notifications.bus.current_scope_id")
 def test_different_kernels_isolated(mock_kid, clean_bus_registry):
     mock_kid.return_value = "kernel-1"
     bus1 = create_bus()
@@ -174,7 +174,7 @@ def test_different_kernels_isolated(mock_kid, clean_bus_registry):
     assert get_current_bus() is bus1
 
 
-@patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="kernel-1")
+@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="kernel-1")
 def test_refcount_prevents_premature_removal(mock_kid, clean_bus_registry):
     create_bus()
     create_bus()  # refcount = 2
@@ -189,7 +189,7 @@ def test_get_bus_returns_none_without_kernel_context(clean_bus_registry):
 
 
 @patch(
-    "pysepal.solara.notifications.bus._get_kernel_id",
+    "pysepal.solara.notifications.bus.current_scope_id",
     side_effect=RuntimeError("No supported pysepal Solara runtime context is available"),
 )
 def test_get_current_bus_returns_none_for_unsupported_runtime(mock_kid, clean_bus_registry):

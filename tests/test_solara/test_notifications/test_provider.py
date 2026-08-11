@@ -32,7 +32,7 @@ def test_provider_helper_creates_bus_with_voila_runtime_id():
     _bus_refcounts.clear()
     try:
         with patch(
-            "pysepal.solara.notifications.bus.get_current_runtime_id",
+            "pysepal.solara.notifications.bus.current_scope_id",
             return_value="voila:provider-kernel",
         ):
             bus = _get_or_create_current_bus()

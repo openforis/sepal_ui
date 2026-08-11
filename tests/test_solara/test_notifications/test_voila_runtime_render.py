@@ -18,7 +18,7 @@ def test_notification_provider_constructs_in_voila_like_runtime():
     _bus_refcounts.clear()
     try:
         with patch(
-            "pysepal.solara.notifications.bus.get_current_runtime_id",
+            "pysepal.solara.notifications.bus.current_scope_id",
             return_value="voila:render-kernel",
         ):
             solara.render(_Page(), handle_error=False)

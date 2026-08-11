@@ -1,4 +1,4 @@
-"""Kernel-scoped notification bus: state management and registry."""
+"""Scope-keyed notification bus: state management and registry."""
 
 import logging
 import threading
@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 import solara
 
-from pysepal.solara.runtime_context import get_current_runtime_id
+from pysepal.solara.runtime_context import current_scope_id
 
 from .state import Toast, ToastType, TrackedTask
 
@@ -19,7 +19,7 @@ DEDUP_WINDOW_SECONDS = 2.0
 
 
 class NotificationBus:
-    """Owns notification state for a single kernel/session.
+    """Owns notification state for a single runtime scope.
 
     All mutations produce new list copies (never mutate in place).
     Thread-safe via internal lock.
@@ -114,64 +114,59 @@ class NotificationBus:
             self.tasks.value = [t for t in self.tasks.value if t.id != task_id]
 
 
-# --- Kernel-scoped bus registry (matches SessionManager pattern) ---
+# --- Scope-keyed bus registry (matches SessionManager pattern) ---
 
 _buses: Dict[str, NotificationBus] = {}
 _bus_refcounts: Dict[str, int] = {}
 _registry_lock = threading.Lock()
 
 
-def _get_kernel_id() -> str:
-    """Get current supported Solara/Voila runtime ID."""
-    return get_current_runtime_id()
-
-
 def get_current_bus() -> Optional[NotificationBus]:
-    """Get the NotificationBus for the current kernel, or None."""
+    """Get the NotificationBus for the current scope, or None."""
     try:
-        kernel_id = _get_kernel_id()
+        scope_id = current_scope_id()
     except Exception:
         return None
     with _registry_lock:
-        return _buses.get(kernel_id)
+        return _buses.get(scope_id)
 
 
 def create_bus() -> NotificationBus:
-    """Get or create a NotificationBus for the current kernel.
+    """Get or create a NotificationBus for the current scope.
 
-    If a bus already exists for this kernel, reuse it and increment
+    If a bus already exists for this scope, reuse it and increment
     the reference count. This prevents remounts or double-mounts
     from invalidating active notifiers.
     """
-    kernel_id = _get_kernel_id()
+    scope_id = current_scope_id()
     with _registry_lock:
-        existing = _buses.get(kernel_id)
+        existing = _buses.get(scope_id)
         if existing is not None:
-            _bus_refcounts[kernel_id] = _bus_refcounts.get(kernel_id, 1) + 1
+            _bus_refcounts[scope_id] = _bus_refcounts.get(scope_id, 1) + 1
             logger.debug(
-                f"Reusing NotificationBus for kernel {kernel_id} "
-                f"(refcount={_bus_refcounts[kernel_id]})"
+                f"Reusing NotificationBus for scope {scope_id} "
+                f"(refcount={_bus_refcounts[scope_id]})"
             )
             return existing
         bus = NotificationBus()
-        _buses[kernel_id] = bus
-        _bus_refcounts[kernel_id] = 1
-    logger.debug(f"Created NotificationBus for kernel {kernel_id}")
+        _buses[scope_id] = bus
+        _bus_refcounts[scope_id] = 1
+    logger.debug(f"Created NotificationBus for scope {scope_id}")
     return bus
 
 
 def cleanup_bus() -> None:
-    """Decrement refcount for the current kernel's bus; remove when it reaches 0."""
-    kernel_id = _get_kernel_id()
+    """Decrement refcount for the current scope's bus; remove when it reaches 0."""
+    scope_id = current_scope_id()
     with _registry_lock:
-        count = _bus_refcounts.get(kernel_id, 0)
+        count = _bus_refcounts.get(scope_id, 0)
         if count <= 1:
-            _buses.pop(kernel_id, None)
-            _bus_refcounts.pop(kernel_id, None)
-            logger.debug(f"Cleaned up NotificationBus for kernel {kernel_id}")
+            _buses.pop(scope_id, None)
+            _bus_refcounts.pop(scope_id, None)
+            logger.debug(f"Cleaned up NotificationBus for scope {scope_id}")
         else:
-            _bus_refcounts[kernel_id] = count - 1
+            _bus_refcounts[scope_id] = count - 1
             logger.debug(
-                f"Decremented NotificationBus refcount for kernel {kernel_id} "
-                f"(refcount={_bus_refcounts[kernel_id]})"
+                f"Decremented NotificationBus refcount for scope {scope_id} "
+                f"(refcount={_bus_refcounts[scope_id]})"
             )

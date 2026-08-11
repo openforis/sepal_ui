@@ -502,13 +502,13 @@ Headers arrive → SessionManager.create_session():
     - Creates GEEInterface(gee_session)
     - Creates SepalClient.create(session_id=..., module_name=...)
     - Creates GDriveInterface(sepal_headers)
-    - Stores all in _sessions[kernel_id]
+    - Stores all in _sessions[scope_id]
     ↓
 Page() re-renders → get_current_gee_interface() returns user's GEEInterface
     ↓
 Components use authenticated interfaces for GEE/SEPAL/Drive operations
     ↓
-Tab closes → kernel cleanup → SessionManager.cleanup_session(kernel_id)
+Tab closes → kernel cleanup → SessionManager.cleanup_session(scope_id)
 ```
 
 Each browser tab = separate kernel = isolated session with its own credentials.

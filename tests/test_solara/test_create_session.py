@@ -43,7 +43,7 @@ def _stack(username="alice", session_id="sid-1", raw_headers=_MISSING, gee_delay
     drive_factory = MagicMock(side_effect=lambda **kwargs: MagicMock())
 
     with (
-        patch.object(sm, "get_current_runtime_id", return_value="kernel-a"),
+        patch.object(sm, "resolve_scope_id", return_value="kernel-a"),
         patch.object(sm, "headers", SimpleNamespace(value=header_value)),
         patch.object(sm, "SepalHeaders", SimpleNamespace(model_validate=lambda _v: parsed)),
         patch.object(sm, "EESession", SimpleNamespace(from_sepal_headers=lambda _h: MagicMock())),
@@ -380,7 +380,7 @@ def test_get_sepal_client_returns_none_without_a_resolvable_scope():
     """
     manager = SessionManager()
     with patch.object(
-        SessionManager, "get_kernel_id", side_effect=sm.UnsupportedSolaraRuntimeError("no scope")
+        SessionManager, "get_scope_id", side_effect=sm.UnsupportedSolaraRuntimeError("no scope")
     ):
         assert manager.get_sepal_client() is None
 

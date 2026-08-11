@@ -24,7 +24,7 @@ from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.solara.errors import MissingSepalHeadersError, SessionScopeClosedError
 from pysepal.solara.runtime_context import (
     UnsupportedSolaraRuntimeError,
-    get_current_runtime_id,
+    resolve_scope_id,
 )
 from pysepal.solara.ui_state import clear_scoped_state, has_scoped_state
 
@@ -83,23 +83,23 @@ def reset_dev_headers_cache() -> None:
         _dev_headers = None
 
 
-def empty_session_info(kernel_id: Optional[str]) -> dict:
+def empty_session_info(scope_id: Optional[str]) -> dict:
     """Return the canonical "no session exists here" payload.
 
     Args:
-        kernel_id: The scope the caller asked about, or None when no scope
+        scope_id: The scope the caller asked about, or None when no scope
             could be resolved at all (script, pytest, unsupported kernel).
 
     Returns:
         A session-info dict with every capability flag off.
     """
     return {
-        "kernel_id": kernel_id,
+        "scope_id": scope_id,
         "username": None,
         "has_gee_interface": False,
         "has_sepal_client": False,
         "has_drive_interface": False,
-        "has_theme_state": kernel_id is not None and has_scoped_state("theme_state", kernel_id),
+        "has_theme_state": scope_id is not None and has_scoped_state("theme_state", scope_id),
         "active_module_name": None,
         "module_names": [],
         "session_ready": False,
@@ -120,7 +120,7 @@ class SessionManager:
     _instance = None
     """Singleton instance of the SessionManager."""
     _sessions: Dict[str, Dict[str, Any]] = {}
-    """Dictionary to hold sessions keyed by kernel ID."""
+    """Dictionary to hold sessions keyed by scope id."""
 
     def __new__(cls):
         """Create or return the singleton instance of SessionManager."""
@@ -142,11 +142,11 @@ class SessionManager:
         """Check if the SessionManager has been initialized."""
         return cls._instance is not None and hasattr(cls._instance, "_initialized")
 
-    def get_kernel_id(self) -> str:
+    def get_scope_id(self) -> str:
         """Get the current supported Solara/Voila runtime ID."""
-        return get_current_runtime_id()
+        return resolve_scope_id()
 
-    def _scope_lock(self, kernel_id: str) -> threading.Lock:
+    def _scope_lock(self, scope_id: str) -> threading.Lock:
         """Return the lock guarding one scope's session.
 
         Per scope on purpose: session construction performs blocking network
@@ -156,14 +156,14 @@ class SessionManager:
         Never popped from ``_scope_locks`` on cleanup: a thread that fetched
         this lock but has not yet acquired it could otherwise end up holding
         an orphaned lock while a new one is handed out for the same
-        ``kernel_id``, letting two threads into the critical section at once.
+        ``scope_id``, letting two threads into the critical section at once.
         The leaked ``Lock`` objects are negligible next to the session leak
         that not calling cleanup at all would already cause.
         """
         with self._registry_lock:
-            return self._scope_locks.setdefault(kernel_id, threading.Lock())
+            return self._scope_locks.setdefault(scope_id, threading.Lock())
 
-    def _reopen_scope(self, kernel_id: str) -> None:
+    def _reopen_scope(self, scope_id: str) -> None:
         """Forget a scope's tombstone because its kernel is genuinely restarting.
 
         Solara's hot-reload restarts a kernel in place: it runs the on-close
@@ -182,12 +182,12 @@ class SessionManager:
         the scope for good, exactly what this method exists to prevent.
 
         Args:
-            kernel_id: The scope whose kernel is (re)starting.
+            scope_id: The scope whose kernel is (re)starting.
         """
-        with self._scope_lock(kernel_id):
+        with self._scope_lock(scope_id):
             with self._registry_lock:
-                while kernel_id in self._closed_scopes:
-                    self._closed_scopes.remove(kernel_id)
+                while scope_id in self._closed_scopes:
+                    self._closed_scopes.remove(scope_id)
 
     def create_session(self, module_name: str = "default") -> None:
         """Create -- or reuse -- the session for the current runtime scope.
@@ -210,25 +210,25 @@ class SessionManager:
             SessionScopeClosedError: The scope was already cleaned up.
             EEClientError: For authentication-related errors.
         """
-        kernel_id = self.get_kernel_id()
+        scope_id = self.get_scope_id()
 
         current_headers = headers.value
         if current_headers is None:
             raise MissingSepalHeadersError(
-                f"No SEPAL authentication headers are available for scope {kernel_id}; "
+                f"No SEPAL authentication headers are available for scope {scope_id}; "
                 "a SEPAL session cannot be created without them."
             )
 
-        with self._scope_lock(kernel_id):
+        with self._scope_lock(scope_id):
             with self._registry_lock:
-                if kernel_id in self._closed_scopes:
+                if scope_id in self._closed_scopes:
                     raise SessionScopeClosedError(
-                        f"Scope {kernel_id} was cleaned up; refusing to resurrect its session."
+                        f"Scope {scope_id} was cleaned up; refusing to resurrect its session."
                     )
 
-            existing = self._sessions.get(kernel_id)
+            existing = self._sessions.get(scope_id)
             if existing is not None and existing.get("raw_headers") is current_headers:
-                logger.debug(f"Reusing session for scope {kernel_id}")
+                logger.debug(f"Reusing session for scope {scope_id}")
                 self._ensure_sepal_client(existing, module_name)
                 return
 
@@ -242,20 +242,20 @@ class SessionManager:
                     and existing.get("sepal_session_id") == sepal_session_id
                 ):
                     existing["raw_headers"] = current_headers
-                    logger.debug(f"Reusing session for scope {kernel_id}")
+                    logger.debug(f"Reusing session for scope {scope_id}")
                     self._ensure_sepal_client(existing, module_name)
                     return
 
                 logger.warning(
-                    f"Identity changed on scope {kernel_id} "
+                    f"Identity changed on scope {scope_id} "
                     f"({existing.get('username')} -> {username}); rebuilding the session"
                 )
                 # Unlink before closing: GEEInterface() below is unguarded, and a
                 # scope must never expose a session whose interfaces are already closed.
-                self._sessions.pop(kernel_id, None)
-                self._close_session(kernel_id, existing)
+                self._sessions.pop(scope_id, None)
+                self._close_session(scope_id, existing)
 
-            logger.debug(f"Creating session for scope {kernel_id}")
+            logger.debug(f"Creating session for scope {scope_id}")
             gee_session = EESession.from_sepal_headers(sepal_headers)
             gee_interface = GEEInterface(gee_session)
             session: Dict[str, Any] = {
@@ -273,14 +273,12 @@ class SessionManager:
             except BaseException:
                 # Close whatever was actually built before re-raising -- otherwise a
                 # flapping SEPAL API leaks one GEEInterface (and its event loop) per render.
-                self._close_session(kernel_id, session)
+                self._close_session(scope_id, session)
                 raise
 
-            self._sessions[kernel_id] = session
+            self._sessions[scope_id] = session
 
-        logger.debug(
-            f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
-        )
+        logger.debug(f"Sessions created for scope {scope_id} and gee_interface {id(gee_interface)}")
 
     def _ensure_sepal_client(self, session: Dict[str, Any], module_name: str) -> SepalClient:
         """Return the session's client for ``module_name``, creating it on miss.
@@ -312,7 +310,7 @@ class SessionManager:
         return client
 
     def get_sepal_client(
-        self, module_name: Optional[str] = None, kernel_id: Optional[str] = None
+        self, module_name: Optional[str] = None, scope_id: Optional[str] = None
     ) -> Optional[SepalClient]:
         """Get a SepalClient held by a scope's session.
 
@@ -320,54 +318,54 @@ class SessionManager:
             module_name: The module whose client to return. Defaults to the
                 module of the most recently entered ``@with_sepal_sessions``
                 component, i.e. the route being rendered.
-            kernel_id: The scope to read from. If None, uses the current one.
+            scope_id: The scope to read from. If None, uses the current one.
 
         Returns:
             The client, or None when no session or no such module client exists.
         """
-        if kernel_id is None:
+        if scope_id is None:
             try:
-                kernel_id = self.get_kernel_id()
+                scope_id = self.get_scope_id()
             except UnsupportedSolaraRuntimeError:
                 # Deliberately swallowed here but not in get_session_component: this is
                 # get_current_sepal_client()'s documented "returns None" contract (PR body),
                 # not a promise get_current_gee_interface()/_drive_interface() also make.
                 return None
 
-        session = self._sessions.get(kernel_id)
+        session = self._sessions.get(scope_id)
         if session is None:
             return None
 
         name = module_name or session.get("active_module_name")
         return session.get("sepal_clients", {}).get(name)
 
-    def cleanup_session(self, kernel_id: str) -> None:
+    def cleanup_session(self, scope_id: str) -> None:
         """Close and forget the session for a scope, then tombstone the scope.
 
         The tombstone is permanent until ``_reopen_scope`` lifts it -- which
         only happens when ``setup_sessions`` runs again for this same
-        ``kernel_id``, i.e. a genuine kernel restart, not a reconnect.
+        ``scope_id``, i.e. a genuine kernel restart, not a reconnect.
 
         Args:
-            kernel_id: The scope to clean up.
+            scope_id: The scope to clean up.
         """
-        logger.debug(f"Cleaning up session for kernel {kernel_id}")
+        logger.debug(f"Cleaning up session for scope {scope_id}")
 
-        with self._scope_lock(kernel_id):
-            session = self._sessions.pop(kernel_id, None)
+        with self._scope_lock(scope_id):
+            session = self._sessions.pop(scope_id, None)
             if session is not None:
-                self._close_session(kernel_id, session)
+                self._close_session(scope_id, session)
             with self._registry_lock:
-                if kernel_id not in self._closed_scopes:
-                    self._closed_scopes.append(kernel_id)
+                if scope_id not in self._closed_scopes:
+                    self._closed_scopes.append(scope_id)
 
-        logger.debug(f"Session cleaned up for kernel {kernel_id}")
+        logger.debug(f"Session cleaned up for scope {scope_id}")
 
-    def _close_session(self, kernel_id: str, session: Dict[str, Any]) -> None:
+    def _close_session(self, scope_id: str, session: Dict[str, Any]) -> None:
         """Release a session's interfaces. Does not touch the registry.
 
         Args:
-            kernel_id: The scope the session belonged to, for logging.
+            scope_id: The scope the session belonged to, for logging.
             session: The session payload to close.
         """
         gee_interface = session.get("gee_interface")
@@ -375,15 +373,13 @@ class SessionManager:
             try:
                 gee_interface.close()
             except Exception as e:
-                logger.error(f"Error closing GEE interface for kernel {kernel_id}: {e}")
+                logger.error(f"Error closing GEE interface for scope {scope_id}: {e}")
 
         for module_name, client in session.get("sepal_clients", {}).items():
             try:
                 client.close()
             except Exception as e:
-                logger.error(
-                    f"Error closing SepalClient '{module_name}' for kernel {kernel_id}: {e}"
-                )
+                logger.error(f"Error closing SepalClient '{module_name}' for scope {scope_id}: {e}")
 
         # GDriveInterface only grows close() in ee-client 4.0.0; skip it below that.
         close_drive = getattr(session.get("drive_interface"), "close", None)
@@ -391,70 +387,70 @@ class SessionManager:
             try:
                 close_drive()
             except Exception as e:
-                logger.error(f"Error closing Drive interface for kernel {kernel_id}: {e}")
+                logger.error(f"Error closing Drive interface for scope {scope_id}: {e}")
 
     def get_session_component(
-        self, component_name: str, kernel_id: Optional[str] = None
+        self, component_name: str, scope_id: Optional[str] = None
     ) -> Optional[Any]:
         """Get a specific component from a session.
 
         Args:
             component_name: The name/key of the component to retrieve.
-            kernel_id: The kernel ID to get component from. If None, uses current kernel.
+            scope_id: The scope to read from. If None, uses the current one.
 
         Returns:
             The component instance or None if not found.
         """
-        if kernel_id is None:
-            kernel_id = self.get_kernel_id()
+        if scope_id is None:
+            scope_id = self.get_scope_id()
 
-        if kernel_id not in self._sessions:
+        if scope_id not in self._sessions:
             return None
 
-        session = self._sessions[kernel_id]
+        session = self._sessions[scope_id]
         username = session.get("username", "unknown")
 
         # debug log for session retrieval
         logger.debug(
-            f"Retrieving component '{component_name}' for kernel {kernel_id}, user {username}"
+            f"Retrieving component '{component_name}' for scope {scope_id}, user {username}"
         )
 
         if component_name == "sepal_client":
-            return self.get_sepal_client(kernel_id=kernel_id)
+            return self.get_sepal_client(scope_id=scope_id)
 
         return session.get(component_name)
 
-    def get_session_info(self, kernel_id: Optional[str] = None) -> dict:
+    def get_session_info(self, scope_id: Optional[str] = None) -> dict:
         """Get session information for a specific scope.
 
         Never raises: a runtime with no resolvable scope reports a None
-        ``kernel_id`` and a not-ready session, so UI can render anywhere.
+        ``scope_id`` and a not-ready session, so UI can render anywhere.
 
         Args:
-            kernel_id: The scope to get info for. If None, uses the current one.
+            scope_id: The scope to get info for. If None, uses the current one.
 
         Returns:
             Dictionary with session information.
         """
-        if kernel_id is None:
+        if scope_id is None:
             try:
-                kernel_id = self.get_kernel_id()
+                scope_id = self.get_scope_id()
             except UnsupportedSolaraRuntimeError:
                 logger.debug("No resolvable runtime scope; reporting an empty session")
                 return empty_session_info(None)
 
-        current_session = self._sessions.get(kernel_id)
+        current_session = self._sessions.get(scope_id)
 
         if current_session is None:
-            return empty_session_info(kernel_id)
+            return empty_session_info(scope_id)
 
         return {
-            "kernel_id": kernel_id,
+            "scope_id": scope_id,
             "username": current_session.get("username"),
             "has_gee_interface": current_session.get("gee_interface") is not None,
             "has_sepal_client": bool(current_session.get("sepal_clients")),
             "has_drive_interface": current_session.get("drive_interface") is not None,
-            "has_theme_state": has_scoped_state("theme_state", kernel_id),
+            "has_theme_state": has_scoped_state("theme_state", scope_id),
             "active_module_name": current_session.get("active_module_name"),
             "module_names": sorted(current_session.get("sepal_clients", {})),
             "session_ready": current_session.get("gee_interface") is not None,
@@ -489,14 +485,14 @@ def setup_sessions() -> Callable:
         Cleanup function to be called when kernel shuts down.
     """
     session_manager = SessionManager()
-    kernel_id = session_manager.get_kernel_id()
-    session_manager._reopen_scope(kernel_id)
+    scope_id = session_manager.get_scope_id()
+    session_manager._reopen_scope(scope_id)
 
-    logger.debug(f"Setting up sepal sessions for kernel {kernel_id}")
+    logger.debug(f"Setting up sepal sessions for scope {scope_id}")
 
     # Return cleanup function
     def cleanup():
-        session_manager.cleanup_session(kernel_id)
-        clear_scoped_state(kernel_id)
+        session_manager.cleanup_session(scope_id)
+        clear_scoped_state(scope_id)
 
     return cleanup

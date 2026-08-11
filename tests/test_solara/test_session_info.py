@@ -19,7 +19,7 @@ def test_current_session_info_reports_not_ready_without_a_manager():
 
     assert info["session_ready"] is False
     assert info["username"] is None
-    assert info["kernel_id"] is None
+    assert info["scope_id"] is None
 
 
 def test_current_session_info_does_not_construct_the_manager():
@@ -35,11 +35,11 @@ def test_current_session_info_does_not_construct_the_manager():
 def test_current_session_info_survives_an_unresolvable_runtime():
     manager = SessionManager()
     err = UnsupportedSolaraRuntimeError("no runtime")
-    with patch.object(SessionManager, "get_kernel_id", side_effect=err):
+    with patch.object(SessionManager, "get_scope_id", side_effect=err):
         info = utils.get_current_session_info()
 
     assert info == {
-        "kernel_id": None,
+        "scope_id": None,
         "username": None,
         "has_gee_interface": False,
         "has_sepal_client": False,

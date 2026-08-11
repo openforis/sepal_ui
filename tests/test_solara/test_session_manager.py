@@ -5,14 +5,14 @@ from unittest.mock import patch
 from pysepal.solara.session_manager import SessionManager
 
 
-def test_session_manager_kernel_id_uses_shared_runtime_resolver():
+def test_session_manager_scope_id_uses_shared_runtime_resolver():
     manager = SessionManager()
 
     with patch(
-        "pysepal.solara.session_manager.get_current_runtime_id",
+        "pysepal.solara.session_manager.resolve_scope_id",
         return_value="voila:kernel-1",
     ):
-        assert manager.get_kernel_id() == "voila:kernel-1"
+        assert manager.get_scope_id() == "voila:kernel-1"
 
 
 def test_getters_fall_back_when_no_session_can_exist():
@@ -89,7 +89,7 @@ def test_setup_sessions_cleanup_clears_the_scope_ui_state():
     from pysepal.solara.session_manager import setup_sessions
     from pysepal.solara.theme import ThemeState
 
-    with patch("pysepal.solara.session_manager.get_current_runtime_id", return_value="kernel-a"):
+    with patch("pysepal.solara.session_manager.resolve_scope_id", return_value="kernel-a"):
         cleanup = setup_sessions()
         ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
         cleanup()

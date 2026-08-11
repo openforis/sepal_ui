@@ -16,7 +16,7 @@ def clean_buses():
     _buses.clear()
 
 
-@patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="k1")
+@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="k1")
 def test_notify_publishes_toast_and_defaults_to_info(mock_bus_kid, clean_buses):
     from pysepal.solara.notifications.bus import create_bus
     from pysepal.solara.notifications.globals import notify
@@ -38,7 +38,7 @@ def test_notify_without_provider_logs_warning(caplog, clean_buses):
     assert "NotificationProvider" in caplog.text
 
 
-@patch("pysepal.solara.notifications.bus._get_kernel_id", return_value="k1")
+@patch("pysepal.solara.notifications.bus.current_scope_id", return_value="k1")
 def test_track_task_context_manager(mock_bus_kid, clean_buses):
     from pysepal.solara.notifications.bus import create_bus
     from pysepal.solara.notifications.globals import track_task

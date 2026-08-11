@@ -3,7 +3,6 @@
 from unittest.mock import patch
 
 from pysepal.solara import ui_state
-from pysepal.solara.runtime_context import UnsupportedSolaraRuntimeError
 
 
 def test_same_scope_reuses_the_same_instance():
@@ -22,18 +21,14 @@ def test_different_scopes_get_different_instances():
 
 
 def test_explicit_scope_id_bypasses_the_resolver():
-    with patch.object(
-        ui_state, "get_current_runtime_id", side_effect=AssertionError("must not resolve")
-    ):
+    with patch.object(ui_state, "current_scope_id", side_effect=AssertionError("must not resolve")):
         state = ui_state.get_scoped_state("theme_state", dict, scope_id="kernel-a")
     assert state == {}
 
 
 def test_unresolvable_runtime_falls_back_to_the_process_scope():
     """Scripts and pytest have no runtime id; UI state must still be available."""
-    err = UnsupportedSolaraRuntimeError("no runtime")
-    with patch.object(ui_state, "get_current_runtime_id", side_effect=err):
-        assert ui_state.current_scope_id() == ui_state.PROCESS_SCOPE
+    with patch.object(ui_state, "current_scope_id", return_value=ui_state.PROCESS_SCOPE):
         state = ui_state.get_scoped_state("theme_state", dict)
     assert state is ui_state.get_scoped_state("theme_state", dict, scope_id="process")
 

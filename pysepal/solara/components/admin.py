@@ -255,7 +255,7 @@ def _render_session_content(
 
     if session_info:
         with solara.Column(gap="0.5rem"):
-            solara.Text(f"Kernel ID: {session_info.get('kernel_id', 'N/A')}")
+            solara.Text(f"Scope ID: {session_info.get('scope_id', 'N/A')}")
             solara.Text(f"Username: {session_info.get('username', 'N/A')}")
             solara.Text(f"Session Ready: {'✅' if session_info.get('session_ready') else '❌'}")
             solara.Text(
@@ -288,7 +288,7 @@ def _render_session_content(
             for i, session in enumerate(session_details, 1):
                 with solara.Card(f"Session {i}"):
                     with solara.Column(gap="0.25rem"):
-                        solara.Text(f"Kernel ID: {session.get('kernel_id', 'N/A')}")
+                        solara.Text(f"Scope ID: {session.get('scope_id', 'N/A')}")
                         solara.Text(f"Username: {session.get('username', 'N/A')}")
                         solara.Text(
                             f"GEE Interface: {'✅' if session.get('has_gee_interface') else '❌'}"
