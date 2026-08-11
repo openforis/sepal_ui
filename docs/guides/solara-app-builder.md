@@ -57,17 +57,45 @@ def Page():
 
 1. `setup_solara_server()` — module level, configures Solara (kernel timeout, assets)
 2. `setup_sessions()` — in `@solara.lab.on_kernel_start`, creates SessionManager
-3. `@with_sepal_sessions` — on `Page()`, builds the session per runtime topology
+3. `@with_sepal_sessions` — on `Page()`, establishes the session for this runtime
 4. `get_current_*()` — inside component, retrieves session-bound interfaces
+
+### Where credentials come from
+
+pysepal decides a session's credential source from **runtime topology** — what
+kind of process the app is in — and never by probing credentials or checking
+whether a request carries headers. In order:
+
+| Condition                                  | Source           | Meaning                                             |
+| ------------------------------------------ | ---------------- | --------------------------------------------------- |
+| `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
+| `sepal-user` home (a SEPAL sandbox)        | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
+| anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
+
+`PER_CONNECTION` never falls back. Missing or invalid SEPAL headers there raise
+`MissingSepalHeadersError`, because an app-launcher container mounts the
+_platform_ GEE service-account key at `~/.config/earthengine/credentials` — a
+fallback would silently hand every user that one identity.
+
+Real SEPAL headers always win over `PYSEPAL_DEV_AUTH`, so arming it in a
+deployed container changes nothing.
+
+`get_current_sepal_client()` returns `None` on a `PROCESS` runtime that has no
+SEPAL identity of its own — a laptop notebook or a CI script. In a SEPAL
+sandbox it returns a real client, so code that branches on
+`if sepal_client:` takes the SEPAL API path there and the local-filesystem path
+elsewhere.
 
 ### The `@with_sepal_sessions` decorator
 
 This decorator is **required** on the main `Page()` component. It:
 
-- Builds the session from this connection's SEPAL headers under a Solara
-  server, or from the shared process session everywhere else (SEPAL sandbox,
-  Voila, plain Jupyter, a script)
-- Creates a session with `GEEInterface`, `SepalClient`, `GDriveInterface` per user
+- Establishes the session for this runtime: per connection under a Solara
+  server, otherwise the process session
+- Provides `GEEInterface`, `SepalClient` and `GDriveInterface`
+- Raises on missing or invalid SEPAL headers in a per-connection runtime,
+  instead of waiting for headers that will never arrive
 - Handles auth errors gracefully
 
 ```python
@@ -75,7 +103,7 @@ This decorator is **required** on the main `Page()` component. It:
 @with_sepal_sessions(module_name="sdg_indicators/15.4.2")
 def Page():
     # This only renders after session is ready
-    gee_interface = get_current_gee_interface()  # Guaranteed to have sepal headers
+    gee_interface = get_current_gee_interface()  # Session already established above
 ```
 
 ## Notification Shell Pattern
@@ -394,7 +422,7 @@ buttons and chips inside them. Navigation drawer icons keep default size.
 ### `.env` file
 
 ```bash
-SOLARA_TEST=true                    # Use get_sepal_headers_from_auth() for local dev
+PYSEPAL_DEV_AUTH=1                  # One developer login for the process (local dev only)
 DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to local user-file I/O
 LOCAL_SEPAL_USER=admin              # Dev credentials
 LOCAL_SEPAL_PASSWORD=yourpassword
@@ -467,7 +495,7 @@ services:
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SEPAL_HOST: "${SEPAL_HOST}"
-      SOLARA_TEST: "${SOLARA_TEST:-false}"
+      PYSEPAL_DEV_AUTH: "${PYSEPAL_DEV_AUTH:-0}"
       LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER}"
       LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD}"
     ports:
@@ -495,7 +523,7 @@ Solara creates new kernel
     ↓
 @solara.lab.on_kernel_start → setup_sessions() → SessionManager initialized
     ↓
-Page() renders → @with_sepal_sessions calls SessionManager.create_session()
+Page() renders → @with_sepal_sessions establishes the session
     ↓
 SessionManager.create_session():
     - Extracts username from SepalHeaders
@@ -516,14 +544,14 @@ Each browser tab = separate kernel = isolated session with its own credentials.
 
 ## 9. Local Development vs SEPAL Deployment
 
-| Aspect               | Local Dev                                              | SEPAL Platform                                |
-| -------------------- | ------------------------------------------------------ | --------------------------------------------- |
-| Auth headers         | `get_sepal_headers_from_auth()` via `SOLARA_TEST=true` | Real HTTP headers from SEPAL proxy            |
-| User files           | `SepalClient` against `SEPAL_HOST`                     | `SepalClient` from session headers            |
-| Container filesystem | Code and static assets only                            | Code and static assets only                   |
-| GEE credentials      | `~/.config/earthengine/credentials`                    | SEPAL-provided per user                       |
-| URL                  | `http://localhost:8900`                                | `https://sepal.io/api/app-launcher/my_module` |
-| Run command          | `./run_solara.sh`                                      | `supervisord` in Docker                       |
+| Aspect               | Local Dev                                   | SEPAL Platform                                |
+| -------------------- | ------------------------------------------- | --------------------------------------------- |
+| Auth headers         | `prime_dev_auth()` via `PYSEPAL_DEV_AUTH=1` | Real HTTP headers from SEPAL proxy            |
+| User files           | `SepalClient` against `SEPAL_HOST`          | `SepalClient` from session headers            |
+| Container filesystem | Code and static assets only                 | Code and static assets only                   |
+| GEE credentials      | `~/.config/earthengine/credentials`         | SEPAL-provided per user                       |
+| URL                  | `http://localhost:8900`                     | `https://sepal.io/api/app-launcher/my_module` |
+| Run command          | `./run_solara.sh`                           | `supervisord` in Docker                       |
 
 ### Handling user files
 
