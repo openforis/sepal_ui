@@ -45,6 +45,8 @@ def test_current_session_info_survives_an_unresolvable_runtime():
         "has_sepal_client": False,
         "has_drive_interface": False,
         "has_theme_state": False,
+        "active_module_name": None,
+        "module_names": [],
         "session_ready": False,
     }
     assert manager is SessionManager()

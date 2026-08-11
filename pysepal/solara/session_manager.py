@@ -105,6 +105,8 @@ def empty_session_info(kernel_id: Optional[str]) -> dict:
         "has_sepal_client": False,
         "has_drive_interface": False,
         "has_theme_state": kernel_id is not None and has_scoped_state("theme_state", kernel_id),
+        "active_module_name": None,
+        "module_names": [],
         "session_ready": False,
     }
 
@@ -192,7 +194,9 @@ class SessionManager:
         validated and the session is idempotent per *identity* rather than per
         scope -- a session whose username or SEPAL-SESSIONID no longer matches
         is torn down and rebuilt, because a bare scope-id check would hand a
-        recycled scope the previous user's interfaces.
+        recycled scope the previous user's interfaces. On an already-live session,
+        a ``SepalClient.create()`` failure for a new ``module_name`` propagates
+        as-is and leaves the session -- and its other modules' clients -- intact.
 
         Args:
             module_name: The module name for the SepalClient.
@@ -221,6 +225,7 @@ class SessionManager:
             existing = self._sessions.get(kernel_id)
             if existing is not None and existing.get("raw_headers") is current_headers:
                 logger.debug(f"Reusing session for scope {kernel_id}")
+                self._ensure_sepal_client(existing, module_name)
                 return
 
             sepal_headers = resolve_sepal_headers(current_headers)
@@ -234,43 +239,100 @@ class SessionManager:
                 ):
                     existing["raw_headers"] = current_headers
                     logger.debug(f"Reusing session for scope {kernel_id}")
+                    self._ensure_sepal_client(existing, module_name)
                     return
 
                 logger.warning(
                     f"Identity changed on scope {kernel_id} "
                     f"({existing.get('username')} -> {username}); rebuilding the session"
                 )
+                # Unlink before closing: GEEInterface() below is unguarded, and a
+                # scope must never expose a session whose interfaces are already closed.
+                self._sessions.pop(kernel_id, None)
                 self._close_session(kernel_id, existing)
 
             logger.debug(f"Creating session for scope {kernel_id}")
             gee_session = EESession.from_sepal_headers(sepal_headers)
             gee_interface = GEEInterface(gee_session)
-            sepal_client: Optional[Any] = None
-            try:
-                sepal_client = SepalClient.create(
-                    session_id=sepal_session_id, module_name=module_name
-                )
-                drive_interface = GDriveInterface(sepal_headers=sepal_headers)
-            except BaseException:
-                # Close whatever was actually built before re-raising -- otherwise a
-                # flapping SEPAL API leaks one GEEInterface (and its event loop) per render.
-                self._close_session(
-                    kernel_id, {"gee_interface": gee_interface, "sepal_client": sepal_client}
-                )
-                raise
-
-            self._sessions[kernel_id] = {
+            session: Dict[str, Any] = {
                 "username": username,
                 "sepal_session_id": sepal_session_id,
                 "raw_headers": current_headers,
                 "gee_interface": gee_interface,
-                "sepal_client": sepal_client,
-                "drive_interface": drive_interface,
+                "sepal_clients": {},
+                "active_module_name": module_name,
+                "drive_interface": None,
             }
+            try:
+                self._ensure_sepal_client(session, module_name)
+                session["drive_interface"] = GDriveInterface(sepal_headers=sepal_headers)
+            except BaseException:
+                # Close whatever was actually built before re-raising -- otherwise a
+                # flapping SEPAL API leaks one GEEInterface (and its event loop) per render.
+                self._close_session(kernel_id, session)
+                raise
+
+            self._sessions[kernel_id] = session
 
         logger.debug(
             f"Sessions created for kernel {kernel_id} and gee_interface {id(gee_interface)}"
         )
+
+    def _ensure_sepal_client(self, session: Dict[str, Any], module_name: str) -> "SepalClient":
+        """Return the session's client for ``module_name``, creating it on miss.
+
+        One session per scope holds one client per module name. Keying whole
+        sessions by (scope, module) would multiply ``GEEInterface``, and each of
+        those owns a private event loop.
+
+        Args:
+            session: The session payload to read and mutate.
+            module_name: The module whose client is required.
+
+        Returns:
+            The client for ``module_name``, which also becomes the active one.
+        """
+        clients = session["sepal_clients"]
+        client = clients.get(module_name)
+        if client is None:
+            client = SepalClient.create(
+                session_id=session["sepal_session_id"], module_name=module_name
+            )
+            clients[module_name] = client
+            logger.debug(f"Created SepalClient for module '{module_name}'")
+
+        # Deliberately after creation succeeds: if SepalClient.create() raises above,
+        # this line never runs and the active module keeps pointing at a route that
+        # actually has a client, instead of one whose client failed to build.
+        session["active_module_name"] = module_name
+        return client
+
+    def get_sepal_client(
+        self, module_name: Optional[str] = None, kernel_id: Optional[str] = None
+    ) -> Optional["SepalClient"]:
+        """Get a SepalClient held by a scope's session.
+
+        Args:
+            module_name: The module whose client to return. Defaults to the
+                module of the most recently entered ``@with_sepal_sessions``
+                component, i.e. the route being rendered.
+            kernel_id: The scope to read from. If None, uses the current one.
+
+        Returns:
+            The client, or None when no session or no such module client exists.
+        """
+        if kernel_id is None:
+            try:
+                kernel_id = self.get_kernel_id()
+            except UnsupportedSolaraRuntimeError:
+                return None
+
+        session = self._sessions.get(kernel_id)
+        if session is None:
+            return None
+
+        name = module_name or session.get("active_module_name")
+        return session.get("sepal_clients", {}).get(name)
 
     def cleanup_session(self, kernel_id: str) -> None:
         """Close and forget the session for a scope, then tombstone the scope.
@@ -308,12 +370,13 @@ class SessionManager:
             except Exception as e:
                 logger.error(f"Error closing GEE interface for kernel {kernel_id}: {e}")
 
-        sepal_client = session.get("sepal_client")
-        if sepal_client is not None:
+        for module_name, client in session.get("sepal_clients", {}).items():
             try:
-                sepal_client.close()
+                client.close()
             except Exception as e:
-                logger.error(f"Error closing SepalClient for kernel {kernel_id}: {e}")
+                logger.error(
+                    f"Error closing SepalClient '{module_name}' for kernel {kernel_id}: {e}"
+                )
 
         # GDriveInterface only grows close() in ee-client 4.0.0; skip it below that.
         close_drive = getattr(session.get("drive_interface"), "close", None)
@@ -349,6 +412,9 @@ class SessionManager:
             f"Retrieving component '{component_name}' for kernel {kernel_id}, user {username}"
         )
 
+        if component_name == "sepal_client":
+            return self.get_sepal_client(kernel_id=kernel_id)
+
         return session.get(component_name)
 
     def get_session_info(self, kernel_id: Optional[str] = None) -> dict:
@@ -379,9 +445,11 @@ class SessionManager:
             "kernel_id": kernel_id,
             "username": current_session.get("username"),
             "has_gee_interface": current_session.get("gee_interface") is not None,
-            "has_sepal_client": current_session.get("sepal_client") is not None,
+            "has_sepal_client": bool(current_session.get("sepal_clients")),
             "has_drive_interface": current_session.get("drive_interface") is not None,
             "has_theme_state": has_scoped_state("theme_state", kernel_id),
+            "active_module_name": current_session.get("active_module_name"),
+            "module_names": sorted(current_session.get("sepal_clients", {})),
             "session_ready": current_session.get("gee_interface") is not None,
         }
 

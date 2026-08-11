@@ -105,12 +105,29 @@ def test_reconnect_with_new_headers_object_reuses_the_session():
         assert manager.list_sessions()["kernel-a"]["raw_headers"] is sm.headers.value
 
 
+def test_a_new_route_after_a_reconnect_still_gets_its_own_client():
+    """The identity-match branch, not the raw-header fast path."""
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session(module_name="route_a")
+        first = manager.get_sepal_client("route_a")
+
+        sm.headers.value = {"cookie": ["y"]}
+        manager.create_session(module_name="route_b")
+
+        assert factories.gee.call_count == 1
+        assert factories.sepal.call_count == 2
+        assert manager.get_sepal_client("route_b") is not first
+
+
 def test_changed_sepal_session_id_rebuilds_the_session():
     """A recycled scope must never inherit the previous identity's interfaces."""
     manager = SessionManager()
     with _stack(username="alice", session_id="sid-1") as first_factories:
-        manager.create_session()
+        manager.create_session(module_name="route_a")
+        manager.create_session(module_name="route_b")
         first = manager.get_session_component("gee_interface")
+        first_clients = [manager.get_sepal_client("route_a"), manager.get_sepal_client("route_b")]
 
         assert first_factories.gee.call_count == 1
 
@@ -122,7 +139,26 @@ def test_changed_sepal_session_id_rebuilds_the_session():
 
     assert second is not first
     first.close.assert_called_once()
+    for client in first_clients:
+        client.close.assert_called_once()
     assert manager.get_session_info("kernel-a")["username"] == "bob"
+
+
+def test_identity_rebuild_failure_does_not_leave_a_closed_session_reachable():
+    """A construction failure after the identity flip must not strand a closed session."""
+    manager = SessionManager()
+    with _stack(username="alice", session_id="sid-1"):
+        manager.create_session()
+        old_gee = manager.get_session_component("gee_interface")
+
+    with _stack(username="bob", session_id="sid-2") as factories:
+        factories.gee.side_effect = RuntimeError("boom")
+
+        with pytest.raises(RuntimeError):
+            manager.create_session()
+
+    assert "kernel-a" not in manager._sessions
+    old_gee.close.assert_called_once()
 
 
 def test_concurrent_first_renders_build_one_gee_interface():
@@ -226,6 +262,79 @@ def test_cleanup_tolerates_a_drive_interface_without_close(caplog):
 
     assert manager.list_sessions() == {}
     assert "Error closing Drive interface" not in caplog.text
+
+
+def test_each_module_name_gets_its_own_client_on_one_session():
+    """First-route-wins leak: 8 routes shared route 1's results directory."""
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session(module_name="route_a")
+        client_a = manager.get_sepal_client("route_a")
+        manager.create_session(module_name="route_b")
+        client_b = manager.get_sepal_client("route_b")
+
+        assert client_a is not client_b
+        assert factories.sepal.call_count == 2
+        # Load-bearing: one GEEInterface, therefore one private event loop.
+        assert factories.gee.call_count == 1
+
+
+def test_the_last_entered_module_is_the_active_one():
+    manager = SessionManager()
+    with _stack():
+        manager.create_session(module_name="route_a")
+        manager.create_session(module_name="route_b")
+
+        assert manager.get_sepal_client() is manager.get_sepal_client("route_b")
+        assert manager.get_session_component("sepal_client") is manager.get_sepal_client("route_b")
+
+
+def test_revisiting_a_module_reuses_its_client():
+    manager = SessionManager()
+    with _stack() as factories:
+        manager.create_session(module_name="route_a")
+        first = manager.get_sepal_client("route_a")
+        manager.create_session(module_name="route_b")
+        manager.create_session(module_name="route_a")
+
+        assert manager.get_sepal_client("route_a") is first
+        assert factories.sepal.call_count == 2
+
+
+def test_session_info_lists_the_module_clients():
+    manager = SessionManager()
+    with _stack():
+        manager.create_session(module_name="route_a")
+        manager.create_session(module_name="route_b")
+        info = manager.get_session_info("kernel-a")
+
+    assert info["has_sepal_client"] is True
+    assert info["module_names"] == ["route_a", "route_b"]
+    assert info["active_module_name"] == "route_b"
+
+
+def test_cleanup_closes_every_module_client():
+    manager = SessionManager()
+    with _stack():
+        manager.create_session(module_name="route_a")
+        manager.create_session(module_name="route_b")
+        clients = [manager.get_sepal_client("route_a"), manager.get_sepal_client("route_b")]
+        manager.cleanup_session("kernel-a")
+
+    for client in clients:
+        client.close.assert_called_once()
+
+
+def test_get_current_sepal_client_accepts_an_explicit_module():
+    from pysepal.solara import utils
+
+    manager = SessionManager()
+    with _stack():
+        manager.create_session(module_name="route_a")
+        manager.create_session(module_name="route_b")
+
+        assert utils.get_current_sepal_client("route_a") is manager.get_sepal_client("route_a")
+        assert utils.get_current_sepal_client() is manager.get_sepal_client("route_b")
 
 
 def test_dev_login_happens_once_per_process(monkeypatch):

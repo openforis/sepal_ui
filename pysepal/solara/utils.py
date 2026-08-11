@@ -75,18 +75,24 @@ def get_current_gee_interface() -> GEEInterface:
     return _get_fallback_gee_interface()
 
 
-def get_current_sepal_client() -> Optional[SepalClient]:
-    """Returns SepalClient for the current kernel session.
+def get_current_sepal_client(module_name: Optional[str] = None) -> Optional[SepalClient]:
+    """Returns a SepalClient for the current runtime scope's session.
 
-    If session manager is not initialized, returns None since SepalClient
-    requires session_id which is only available through session manager.
+    One session holds one client per module name; without ``module_name`` you
+    get the client of the route currently rendering (the ``module_name`` of the
+    innermost ``@with_sepal_sessions`` entered).
+
+    Args:
+        module_name: Return the client for this module instead of the active one.
+
+    Returns:
+        The client, or None when no session manager or session exists.
     """
-    if SessionManager.is_initialized():
-        session_manager = SessionManager()
-        return session_manager.get_session_component("sepal_client")
+    if not SessionManager.is_initialized():
+        logger.debug("Session manager not initialized, SepalClient not available")
+        return None
 
-    logger.debug("Session manager not initialized, SepalClient not available")
-    return None
+    return SessionManager().get_sepal_client(module_name=module_name)
 
 
 def get_current_drive_interface() -> GDriveInterface:
