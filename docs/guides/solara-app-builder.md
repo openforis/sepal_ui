@@ -69,7 +69,7 @@ whether a request carries headers. In order:
 | Condition                                  | Source           | Meaning                                             |
 | ------------------------------------------ | ---------------- | --------------------------------------------------- |
 | `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
-| `sepal-user` home (a SEPAL sandbox)        | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| `SEPAL=true` (a SEPAL sandbox)             | `PROCESS`        | app-manager app; the machine credentials are yours  |
 | running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
 | anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
 

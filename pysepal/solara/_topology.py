@@ -8,8 +8,9 @@ whether a request happens to carry headers. The rule, in order:
    headers: :attr:`SessionSource.DEV_AUTH`, one developer login for the whole
    process. Real headers demote this branch, so a stray environment variable can
    never displace a live user's identity.
-2. The process runs in a SEPAL sandbox -- a ``sepal-user`` home, i.e. an
-   app-manager app owned by exactly one user: :attr:`SessionSource.PROCESS`.
+2. The process runs in a SEPAL sandbox -- ``SEPAL=true`` in the environment,
+   i.e. an app-manager app owned by exactly one user:
+   :attr:`SessionSource.PROCESS`.
 3. The process runs under a Solara server -- an app-launcher multi-user
    container: :attr:`SessionSource.PER_CONNECTION`.
 4. Anything else -- Voila, plain Jupyter, a script, pytest:
@@ -40,7 +41,6 @@ freezes its members, and this is the enum most likely to gain a case.
 import os
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 from typing import Mapping
 
 import solara
@@ -55,6 +55,9 @@ if not hasattr(solara, "_using_solara_server"):
 
 DEV_AUTH_ENV_VAR = "PYSEPAL_DEV_AUTH"
 "Environment variable arming the local-development login."
+
+SEPAL_ENV_VAR = "SEPAL"
+"Environment variable the SEPAL sandbox image exports as ``true``."
 
 _TRUTHY = frozenset({"1", "true", "yes", "on"})
 
@@ -80,26 +83,42 @@ class SessionPlan:
     reason: str
 
 
-def is_sepal_sandbox(home_name: str) -> bool:
-    """Whether a home directory name identifies a SEPAL sandbox.
+def is_sepal_sandbox(env: Mapping[str, str]) -> bool:
+    """Whether this process runs in a SEPAL sandbox, which exports ``SEPAL=true``.
 
-    Exact match, not substring. The two failure directions are not
-    symmetric: a false positive here steers a multi-user container onto
-    PROCESS and silently shares one identity across every user, while a
-    false negative only steers a real sandbox onto PER_CONNECTION, which
-    raises loudly on missing headers. A safety core must fail toward loud.
-    Coupled to ``eeclient.providers._is_sepal_context()``, which still
-    matches by substring -- tighten one without the other and the two
-    predicates diverge silently.
+    The two failure directions are not symmetric: a false positive here steers
+    a multi-user container onto PROCESS and silently shares one identity across
+    every user, while a false negative only steers a real sandbox onto
+    PER_CONNECTION, which raises loudly on missing headers. A safety core must
+    fail toward loud.
+
+    That asymmetry is why this reads the environment rather than the home
+    directory name. Only the sandbox image sets ``SEPAL`` -- the
+    geospatial-toolkit build writes it into ``/etc/environment``, and its
+    ``sandbox-base`` parent does not -- so an app-launcher app container built
+    on ``sandbox-base`` inherits a ``sepal-user`` home but no ``SEPAL``. Under
+    the home-name predicate that container was a false positive.
+
+    Only the exact value ``true`` counts, matching
+    :func:`pysepal.scripts.scratch.on_sepal`, the other reader of this
+    variable. That is stricter than :func:`dev_auth_enabled` on purpose:
+    ``PYSEPAL_DEV_AUTH`` is typed by a developer, ``SEPAL`` is written by the
+    platform.
+
+    ``eeclient.providers._is_sepal_context()`` still matches ``"sepal-user"``
+    against the home directory name, and gates ``resolve_default_provider()``'s
+    fail-closed SEPAL-file-only branch. The two predicates now read different
+    signals and disagree in exactly the container above, where ee-client keeps
+    the old false positive; moving it onto ``SEPAL`` is a separate release.
 
     Args:
-        home_name: The final component of the home directory path.
+        env: The environment to read, normally ``os.environ``.
 
     Returns:
         True in a SEPAL sandbox, where the machine credentials belong to the
         one user who owns the sandbox.
     """
-    return home_name == "sepal-user"
+    return env.get(SEPAL_ENV_VAR, "").strip().lower() == "true"
 
 
 def dev_auth_enabled(env: Mapping[str, str]) -> bool:
@@ -117,7 +136,6 @@ def dev_auth_enabled(env: Mapping[str, str]) -> bool:
 def resolve_session_plan(
     *,
     env: Mapping[str, str],
-    home_name: str,
     using_solara_server: bool,
     has_sepal_headers: bool,
 ) -> SessionPlan:
@@ -127,8 +145,7 @@ def resolve_session_plan(
     sandbox, a real app-launcher container -- stay table-testable.
 
     Args:
-        env: The process environment.
-        home_name: ``Path.home().name`` for this process.
+        env: The process environment. Read by rules 1 and 2.
         using_solara_server: Whether a Solara server is running this process.
         has_sepal_headers: Whether the connection carries *validated* SEPAL
             headers. Read by rule 1 only, as the interlock that stops a
@@ -141,8 +158,8 @@ def resolve_session_plan(
     if dev_auth_enabled(env) and not has_sepal_headers:
         return SessionPlan(SessionSource.DEV_AUTH, f"{DEV_AUTH_ENV_VAR} is armed")
 
-    if is_sepal_sandbox(home_name):
-        return SessionPlan(SessionSource.PROCESS, f"SEPAL sandbox home ({home_name})")
+    if is_sepal_sandbox(env):
+        return SessionPlan(SessionSource.PROCESS, f"SEPAL sandbox ({SEPAL_ENV_VAR} is true)")
 
     if using_solara_server:
         return SessionPlan(SessionSource.PER_CONNECTION, "running under a Solara server")
@@ -163,7 +180,6 @@ def current_session_plan(*, has_sepal_headers: bool) -> SessionPlan:
     """
     return resolve_session_plan(
         env=os.environ,
-        home_name=Path.home().name,
         using_solara_server=solara._using_solara_server(),
         has_sepal_headers=has_sepal_headers,
     )

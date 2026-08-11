@@ -1,11 +1,13 @@
 """Tests for the runtime-topology rules deciding a session's credential source."""
 
 import sys
+from pathlib import Path
 
 import pytest
 
 from pysepal.solara._topology import (
     DEV_AUTH_ENV_VAR,
+    SEPAL_ENV_VAR,
     SessionSource,
     current_session_plan,
     dev_auth_enabled,
@@ -13,11 +15,13 @@ from pysepal.solara._topology import (
     resolve_session_plan,
 )
 
+SANDBOX = {SEPAL_ENV_VAR: "true"}
+"""The environment a SEPAL sandbox image exports."""
+
 
 def _plan(**overrides):
     kwargs = {
         "env": {},
-        "home_name": "developer",
         "using_solara_server": False,
         "has_sepal_headers": False,
     }
@@ -26,34 +30,33 @@ def _plan(**overrides):
 
 
 @pytest.mark.parametrize(
-    ("env", "home_name", "using_solara_server", "has_sepal_headers", "expected"),
+    ("env", "using_solara_server", "has_sepal_headers", "expected"),
     [
         # app-manager app: the sandbox's own credentials are the user's own
-        ({}, "sepal-user", False, False, SessionSource.PROCESS),
-        ({}, "sepal-user", True, False, SessionSource.PROCESS),
-        ({}, "sepal-user", True, True, SessionSource.PROCESS),
+        (SANDBOX, False, False, SessionSource.PROCESS),
+        (SANDBOX, True, False, SessionSource.PROCESS),
+        (SANDBOX, True, True, SessionSource.PROCESS),
         # app-launcher container: one identity per connection, never shared
-        ({}, "developer", True, False, SessionSource.PER_CONNECTION),
-        ({}, "developer", True, True, SessionSource.PER_CONNECTION),
+        ({}, True, False, SessionSource.PER_CONNECTION),
+        ({}, True, True, SessionSource.PER_CONNECTION),
         # voila, plain jupyter, a script, pytest
-        ({}, "developer", False, False, SessionSource.PROCESS),
+        ({}, False, False, SessionSource.PROCESS),
         # headers alone never select PER_CONNECTION -- only dev-auth reads them
-        ({}, "developer", False, True, SessionSource.PROCESS),
+        ({}, False, True, SessionSource.PROCESS),
         # dev auth arms a single process-wide login...
-        ({DEV_AUTH_ENV_VAR: "1"}, "developer", True, False, SessionSource.DEV_AUTH),
-        ({DEV_AUTH_ENV_VAR: "true"}, "developer", False, False, SessionSource.DEV_AUTH),
-        ({DEV_AUTH_ENV_VAR: "1"}, "sepal-user", False, False, SessionSource.DEV_AUTH),
+        ({DEV_AUTH_ENV_VAR: "1"}, True, False, SessionSource.DEV_AUTH),
+        ({DEV_AUTH_ENV_VAR: "true"}, False, False, SessionSource.DEV_AUTH),
+        ({DEV_AUTH_ENV_VAR: "1", **SANDBOX}, False, False, SessionSource.DEV_AUTH),
         # ...but real SEPAL headers always demote it
-        ({DEV_AUTH_ENV_VAR: "1"}, "developer", True, True, SessionSource.PER_CONNECTION),
+        ({DEV_AUTH_ENV_VAR: "1"}, True, True, SessionSource.PER_CONNECTION),
         # a disarmed value is not an arming value
-        ({DEV_AUTH_ENV_VAR: "false"}, "developer", True, False, SessionSource.PER_CONNECTION),
-        ({DEV_AUTH_ENV_VAR: ""}, "developer", True, False, SessionSource.PER_CONNECTION),
+        ({DEV_AUTH_ENV_VAR: "false"}, True, False, SessionSource.PER_CONNECTION),
+        ({DEV_AUTH_ENV_VAR: ""}, True, False, SessionSource.PER_CONNECTION),
     ],
 )
-def test_topology_table(env, home_name, using_solara_server, has_sepal_headers, expected):
+def test_topology_table(env, using_solara_server, has_sepal_headers, expected):
     plan = resolve_session_plan(
         env=env,
-        home_name=home_name,
         using_solara_server=using_solara_server,
         has_sepal_headers=has_sepal_headers,
     )
@@ -78,25 +81,41 @@ def test_a_multi_user_container_never_degrades_to_process_credentials():
 
 def test_the_sandbox_rule_wins_over_the_solara_server_rule():
     """An app-manager app runs solara inside the user's own sandbox."""
-    assert _plan(home_name="sepal-user", using_solara_server=True).source is SessionSource.PROCESS
+    assert _plan(env=SANDBOX, using_solara_server=True).source is SessionSource.PROCESS
+
+
+def test_a_sepal_user_home_alone_is_not_a_sandbox(monkeypatch):
+    """The regression this predicate exists for: app-launcher app containers.
+
+    app-launcher builds each app's image from that app's own Dockerfile, and an
+    app derived from ``openforis/sandbox-base`` inherits a ``sepal-user`` home
+    while ``SEPAL`` stays unset -- only the sandbox image exports it. Reading
+    the home name resolved such a container to PROCESS, silently sharing one
+    platform identity across every user of the app. Staging a real
+    ``sepal-user`` home keeps this red for any predicate that reads it again.
+    """
+    monkeypatch.setenv("HOME", "/home/sepal-user")
+    assert Path.home().name == "sepal-user"
+
+    assert is_sepal_sandbox({}) is False
+    assert _plan(using_solara_server=True).source is SessionSource.PER_CONNECTION
 
 
 @pytest.mark.parametrize(
-    ("env", "home_name", "using_solara_server", "has_sepal_headers", "reason_substring"),
+    ("env", "using_solara_server", "has_sepal_headers", "reason_substring"),
     [
-        ({DEV_AUTH_ENV_VAR: "1"}, "developer", False, False, DEV_AUTH_ENV_VAR),
-        ({}, "sepal-user", False, False, "sandbox"),
-        ({}, "developer", True, False, "Solara server"),
-        ({}, "developer", False, False, "no Solara server"),
+        ({DEV_AUTH_ENV_VAR: "1"}, False, False, DEV_AUTH_ENV_VAR),
+        (SANDBOX, False, False, "sandbox"),
+        ({}, True, False, "Solara server"),
+        ({}, False, False, "no Solara server"),
     ],
 )
 def test_the_reason_names_the_rule_that_fired(
-    env, home_name, using_solara_server, has_sepal_headers, reason_substring
+    env, using_solara_server, has_sepal_headers, reason_substring
 ):
     """A truthy ``reason`` isn't enough -- it must name the rule that actually fired."""
     plan = resolve_session_plan(
         env=env,
-        home_name=home_name,
         using_solara_server=using_solara_server,
         has_sepal_headers=has_sepal_headers,
     )
@@ -105,18 +124,32 @@ def test_the_reason_names_the_rule_that_fired(
 
 
 @pytest.mark.parametrize(
-    ("home_name", "expected"),
+    ("value", "expected"),
     [
-        ("sepal-user", True),
-        ("sepal-user-backup", False),
-        ("notsepal-user", False),
-        ("my-sepal-user-data", False),
-        ("developer", False),
+        ("true", True),
+        ("True", True),
+        ("TRUE", True),
+        (" true ", True),
         ("", False),
+        ("false", False),
+        ("1", False),
+        ("yes", False),
+        ("on", False),
     ],
 )
-def test_is_sepal_sandbox(home_name, expected):
-    assert is_sepal_sandbox(home_name) is expected
+def test_is_sepal_sandbox(value, expected):
+    """The platform writes ``SEPAL`` as exactly ``true``, so only that counts.
+
+    Deliberately stricter than ``PYSEPAL_DEV_AUTH`` below, which accepts
+    1/true/yes/on because a developer types it by hand: the two are not meant
+    to agree. This matches ``pysepal.scripts.scratch.on_sepal``, the other
+    reader of the same variable.
+    """
+    assert is_sepal_sandbox({SEPAL_ENV_VAR: value}) is expected
+
+
+def test_is_sepal_sandbox_is_false_when_the_variable_is_absent():
+    assert is_sepal_sandbox({}) is False
 
 
 @pytest.mark.parametrize(

@@ -10,7 +10,6 @@ import os
 import threading
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 from typing import Any, Callable, Deque, Dict, Optional, Tuple
 
 from eeclient.client import EESession
@@ -594,7 +593,7 @@ class SessionManager:
             unreadable credentials. The results directory is created
             separately, off the render path; see :meth:`_schedule_results_dir`.
         """
-        if session["sepal_headers"] is None and not is_sepal_sandbox(Path.home().name):
+        if session["sepal_headers"] is None and not is_sepal_sandbox(os.environ):
             return None
 
         clients = session["sepal_clients"]
