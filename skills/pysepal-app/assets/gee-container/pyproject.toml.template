@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pysepal",
     "solara",
-    "ee-client>=4.0.0,<5",
+    "ee-client>=3.1.0,<4",
 ]
 
 [project.optional-dependencies]

@@ -344,7 +344,7 @@ def test_partial_session_build_closes_already_built_interfaces():
 
 
 def test_cleanup_closes_a_drive_interface_that_has_close():
-    """ee-client 4.0.0 gives GDriveInterface a close(); cleanup must use it."""
+    """ee-client 3.1.0 gives GDriveInterface a close(); cleanup must use it."""
     manager = SessionManager()
     with _stack() as factories:
         manager.create_session()
