@@ -28,6 +28,26 @@ def test_no_meta_path_finder_is_installed():
     assert ours == []
 
 
+def test_the_probe_still_sees_a_finder_from_this_checkout():
+    """Positive control for the assertion above, which is a claim about absence.
+
+    ``defined_in_repo`` has to reject an in-tree virtualenv's dependencies, and
+    the way to get that wrong is to reject everything -- which would leave the
+    test above passing no matter what got installed at ``sys.meta_path[0]``.
+    """
+
+    class LocalFinder:
+        pass
+
+    sys.meta_path.insert(0, LocalFinder())
+    try:
+        ours = [type(finder).__name__ for finder in sys.meta_path if defined_in_repo(finder)]
+    finally:
+        sys.meta_path.remove(sys.meta_path[0])
+
+    assert ours == ["LocalFinder"]
+
+
 def test_the_package_directory_is_gone():
     assert not (REPO_ROOT / "sepal_ui").exists()
 
