@@ -126,7 +126,7 @@ def test_the_process_gee_interface_refuses_a_shared_service_account():
 
 
 def test_the_drive_interface_is_closed_without_a_version_sniff():
-    """ee-client 4.0 gives every credential holder close(); no getattr probe."""
+    """ee-client 3.1 gives every credential holder close(); no getattr probe."""
     import inspect
 
     source = inspect.getsource(SessionManager._close_session)

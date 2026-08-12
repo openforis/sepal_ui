@@ -62,13 +62,17 @@ debug panel renders, and nothing downstream may key a permission off it.
 ## 3. Version floors
 
 ```text
-ee-client>=4.0.0,<5
+ee-client>=3.1.0,<4
 pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
 ```
 
-`ee-client` 4.0.0 and `pysepal-api` 0.3.0 are not published yet, so pysepal 4.0
-cannot be installed until they are.
+`ee-client` 3.1.0 is published. The provider-agnostic auth pysepal 4.0 needs --
+the `EESession.from_*()` factories and `close()` on every credential holder --
+shipped as a minor, so this floor stays inside ee-client 3.x.
+
+`pysepal-api` 0.3.0 is not published yet, so pysepal 4.0 cannot be installed
+until it is.
 
 `solara` is now pinned because two of its private APIs are load-bearing:
 `solara.scope.get_kernel_id` (every per-connection scope id) and
