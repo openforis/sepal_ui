@@ -2,67 +2,111 @@
 
 from unittest.mock import patch
 
+import pytest
+
+from pysepal.solara.runtime_context import PROCESS_SCOPE, UnsupportedSolaraRuntimeError
 from pysepal.solara.session_manager import SessionManager
 
 
-def test_session_manager_kernel_id_uses_shared_runtime_resolver():
+def test_session_manager_scope_id_uses_shared_runtime_resolver():
     manager = SessionManager()
 
     with patch(
-        "pysepal.solara.session_manager.get_current_runtime_id",
+        "pysepal.solara.session_manager.resolve_scope_id",
         return_value="voila:kernel-1",
     ):
-        assert manager.get_kernel_id() == "voila:kernel-1"
+        assert manager.get_scope_id() == "voila:kernel-1"
 
 
-def test_getters_fall_back_when_no_session_can_exist():
-    """Voila and plain Jupyter have no SEPAL headers, so no session can exist.
+def test_the_session_registry_refuses_to_resolve_without_a_runtime():
+    """A credential store must have no fallback scope.
 
-    ``setup_sessions`` initialises the SessionManager on every kernel start,
-    including under Voila, but ``create_session`` bails out when
-    ``headers.value`` is None. Treating "initialised but sessionless" as a
-    missing ``@with_sepal_sessions`` therefore broke every non-Solara runtime:
-    the headerless fallbacks were unreachable.
+    ``ScopeRegistry``'s default resolver answers ``PROCESS_SCOPE`` when no
+    per-connection runtime exists -- right for UI state, a cross-user leak
+    here: a call that forgot its ``scope_id`` would read and write one
+    connection's credentials in the bucket every other runtime shares. The
+    session registry is built with the raising resolver so that fails loudly.
+
+    Pinned on the accessor rather than on ``resolve()`` beneath it: reading a
+    session is the operation that must not silently land on the shared scope.
     """
-    from pysepal.solara import theme, utils
+    manager = SessionManager()
 
-    # Two patch targets on purpose: utils binds the predicate at import time,
-    # while theme must import it lazily (session_manager imports ThemeState from
-    # theme, so a module-level import there would be circular).
-    with (
-        patch.object(SessionManager, "is_initialized", return_value=True),
-        patch.object(SessionManager, "get_session_component", return_value=None),
-        patch.object(utils, "can_create_sessions", return_value=False),
-        patch("pysepal.solara.session_manager.can_create_sessions", return_value=False),
-        patch.object(utils, "_get_fallback_gee_interface", return_value="fallback-gee"),
-        patch.object(utils, "_get_fallback_drive_interface", return_value="fallback-drive"),
-        patch.object(theme, "_get_fallback_theme_state", return_value="fallback-theme"),
-    ):
-        assert utils.get_current_gee_interface() == "fallback-gee"
-        assert utils.get_current_drive_interface() == "fallback-drive"
-        assert theme.get_current_theme_state() == "fallback-theme"
+    with pytest.raises(UnsupportedSolaraRuntimeError):
+        manager._registry.get()
 
 
-def test_getters_still_raise_when_headers_exist_but_session_is_missing():
-    """With headers present we ARE in a solara request, so a missing session is a bug.
+def test_session_scope_ids_replaces_handing_out_the_session_dicts():
+    """``list_sessions`` handed callers the live payloads, credentials included."""
+    manager = SessionManager()
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
 
-    That is the case the error message is for -- a Page without
-    ``@with_sepal_sessions`` -- and it must keep raising.
+    assert manager.session_scope_ids() == ("kernel-a",)
+    assert not hasattr(manager, "list_sessions")
+
+
+def test_per_connection_getters_raise_when_the_session_is_missing():
+    """A Solara-server route without @with_sepal_sessions is a bug, not a fallback.
+
+    The pre-v4 version of this test asked whether headers were present. Header
+    presence no longer decides anything: topology does, before any header is
+    read.
     """
     import pytest
 
-    from pysepal.solara import theme, utils
+    from pysepal.solara import session_manager as sm
+    from pysepal.solara import utils
+    from pysepal.solara._topology import SessionPlan, SessionSource
+    from pysepal.solara.errors import SepalSessionError
 
+    plan = SessionPlan(SessionSource.PER_CONNECTION, "test")
     with (
-        patch.object(SessionManager, "is_initialized", return_value=True),
-        patch.object(SessionManager, "get_session_component", return_value=None),
-        patch.object(utils, "can_create_sessions", return_value=True),
-        patch("pysepal.solara.session_manager.can_create_sessions", return_value=True),
+        patch.object(sm, "_current_plan", return_value=plan),
+        patch.object(SessionManager, "get_scope_id", return_value="kernel-a"),
     ):
-        for getter in (
-            utils.get_current_gee_interface,
-            utils.get_current_drive_interface,
-            theme.get_current_theme_state,
-        ):
-            with pytest.raises(RuntimeError, match="Session manager is active"):
+        for getter in (utils.get_current_gee_interface, utils.get_current_drive_interface):
+            with pytest.raises(SepalSessionError, match="with_sepal_sessions"):
                 getter()
+
+
+def test_session_dict_no_longer_carries_theme_state():
+    """Theme is UI state; it must not live behind an auth-gated session."""
+    manager = SessionManager()
+    manager._registry.set({"username": "alice", "gee_interface": object()}, "kernel-a")
+
+    info = manager.get_session_info("kernel-a")
+
+    assert "theme_state" not in manager._registry.get("kernel-a")
+    assert info.session_ready is True
+
+
+def test_explicit_process_scope_does_not_expose_the_process_session():
+    manager = SessionManager()
+    manager._registry.set(
+        {
+            "username": "devauth-operator",
+            "sepal_clients": {"secret_module": object()},
+            "active_module_name": "secret_module",
+            "session_ready": True,
+        },
+        scope_id=PROCESS_SCOPE,
+    )
+
+    info = manager.get_session_info(scope_id=PROCESS_SCOPE)
+
+    assert info.username is None
+    assert info.module_names == ()
+    assert info.session_ready is False
+
+
+def test_setup_sessions_cleanup_clears_the_scope_ui_state():
+    from pysepal.solara import ui_state
+    from pysepal.solara.session_manager import setup_sessions
+    from pysepal.solara.theme import ThemeState
+
+    with patch("pysepal.solara.session_manager.resolve_scope_id", return_value="kernel-a"):
+        cleanup = setup_sessions()
+        ui_state.get_scoped_state("theme_state", ThemeState, scope_id="kernel-a")
+        cleanup()
+
+    assert ui_state.has_scoped_state("theme_state", "kernel-a") is False

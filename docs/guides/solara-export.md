@@ -364,7 +364,7 @@ natively; SEPAL writes through `files.write(..., overwrite=True)`).
 ## File Formats: Use Canonical Enum Values
 
 ee-client's pydantic models validate file formats strictly. **Use the
-canonical REST-API enum strings**, not the human-friendly sepal_ui names:
+canonical REST-API enum strings**, not the human-friendly pysepal names:
 
 | What users see | What to store as `value` |
 | -------------- | ------------------------ |

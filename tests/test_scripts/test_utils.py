@@ -14,7 +14,6 @@ import pytest
 from shapely import geometry as sg
 
 from pysepal import sepalwidgets as sw
-from pysepal.conf import config_file
 from pysepal.frontend.styles import TYPES
 from pysepal.scripts import utils as su
 from pysepal.scripts.warning import SepalWarning
@@ -213,60 +212,6 @@ def test_next_string() -> None:
     assert su.next_string(input_string) == output_string
     assert su.next_string(input_string)[-1].isdigit()
     assert su.next_string("name_1") == "name_2"
-
-    return
-
-
-def test_set_config_locale() -> None:
-    """Check we can set local config file."""
-    # remove any config file that could exist
-    if config_file.is_file():
-        config_file.unlink()
-
-    # create a config_file with a set language
-    locale = "fr-FR"
-    su.set_config("locale", locale)
-
-    config = ConfigParser()
-    config.read(config_file)
-    assert "sepal-ui" in config.sections()
-    assert config["sepal-ui"]["locale"] == locale
-
-    # change an existing locale
-    locale = "es-CO"
-    su.set_config("locale", locale)
-    config.read(config_file)
-    assert config["sepal-ui"]["locale"] == locale
-
-    # destroy the file again
-    config_file.unlink()
-
-    return
-
-
-def test_set_config_theme() -> None:
-    """Check we can set the theme config variable."""
-    # remove any config file that could exist
-    if config_file.is_file():
-        config_file.unlink()
-
-    # create a config_file with a set language
-    theme = "dark"
-    su.set_config("theme", theme)
-
-    config = ConfigParser()
-    config.read(config_file)
-    assert "sepal-ui" in config.sections()
-    assert config["sepal-ui"]["theme"] == theme
-
-    # change an existing locale
-    theme = "light"
-    su.set_config("theme", theme)
-    config.read(config_file)
-    assert config["sepal-ui"]["theme"] == theme
-
-    # destroy the file again
-    config_file.unlink()
 
     return
 

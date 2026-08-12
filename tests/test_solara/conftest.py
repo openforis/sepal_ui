@@ -1,0 +1,39 @@
+"""Shared fixtures for the Solara test-suite."""
+
+import pytest
+
+from pysepal.solara import dev_auth as _dev_auth
+from pysepal.solara import ui_state
+from pysepal.solara.session_manager import SessionManager
+
+
+@pytest.fixture(autouse=True)
+def _clean_ui_state():
+    """Keep the process-wide UI-state registry from leaking across tests."""
+    ui_state._registry.clear()
+    yield
+    ui_state._registry.clear()
+
+
+@pytest.fixture(autouse=True)
+def _reset_session_manager():
+    """Give every test a pristine SessionManager singleton.
+
+    Dropping the instance is enough: its session registry and its tombstone
+    deque are both per-instance, so neither can leak into the next test.
+
+    Plain assignment on purpose: ``monkeypatch.setattr`` would restore the
+    stale singleton at teardown and leak it into the rest of the suite.
+    """
+    SessionManager._instance = None
+    yield
+    SessionManager._instance = None
+
+
+@pytest.fixture(autouse=True)
+def _clean_dev_auth(monkeypatch):
+    """Never let a developer's PYSEPAL_DEV_AUTH or a cached login reach a test."""
+    monkeypatch.delenv("PYSEPAL_DEV_AUTH", raising=False)
+    _dev_auth._reset_dev_auth_cache()
+    yield
+    _dev_auth._reset_dev_auth_cache()

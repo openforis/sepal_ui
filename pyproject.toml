@@ -48,9 +48,10 @@ dependencies = [
     "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
-    "solara", 
-    "ee-client>=3.0.0", # provider-agnostic auth: EESession.from_*() factories (issue-12)
-    "pysepal-api>=0.2.0", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes)
+    "pydantic",  # SepalHeaders validation and the PYSEPAL_DEV_AUTH interlock
+    "solara>=1.60,<2", # two private APIs are load-bearing: solara.scope.get_kernel_id and solara._using_solara_server
+    "ee-client>=4.0.0,<5", # provider-agnostic auth: EESession.from_*() factories (issue-12)
+    "pysepal-api>=0.3.0,<0.4", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes); 0.x: a minor is a breaking release, so cap it
     "colorlog",
     "reactivex"
 ]
@@ -111,8 +112,6 @@ doc = [
 [project.scripts]
 module_deploy = "pysepal.bin.module_deploy:main"
 module_factory = "pysepal.bin.module_factory:main"
-module_l10n = "pysepal.bin.module_l10n:main"
-module_theme = "pysepal.bin.module_theme:main"
 module_venv = "pysepal.bin.module_venv:main"
 activate_venv = "pysepal.bin.activate_venv:main"
 sepal_ipyvuetify = "pysepal.bin.sepal_ipyvuetify:main"
@@ -123,7 +122,7 @@ include-package-data = false
 license-files = ["LICENSE.txt"]
 
 [tool.setuptools.packages.find]
-include = ["pysepal*", "sepal_ui*"]
+include = ["pysepal*"]
 exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]

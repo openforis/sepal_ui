@@ -124,7 +124,7 @@ elements, so `@solara.component` tiles can be passed straight through.
 from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import get_current_theme_state
 
-# Session-scoped theme state — no manual ThemeToggle wiring needed
+# Scope-keyed theme state — no manual ThemeToggle wiring needed
 theme_state = get_current_theme_state()
 sepal_map = SepalMap(fullscreen=True, theme_state=theme_state, gee=True)
 

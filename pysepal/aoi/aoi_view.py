@@ -254,7 +254,7 @@ class AoiView(sw.Card):
             vector: the path to the default vector object
             admin: the administrative code of the default selection. Need to be GADM if :code:`ee==False` and GAUL 2015 if :code:`ee==True`.
             asset: the default asset. Can only work if :code:`ee==True`
-            map_style: the predefined style of the aoi. It's by default using a "success" ``sepal_ui.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``sepal_ui.color`` object to define any color to remain compatible with light and dark theme.
+            map_style: the predefined style of the aoi. It's by default using a "success" ``pysepal.color`` with 0.5 transparent fill color. It can be completely replace by a fully qualified `style dictionary <https://ipyleaflet.readthedocs.io/en/latest/layers/geo_json.html>`__. Use the ``pysepal.color`` object to define any color to remain compatible with light and dark theme.
             gee_session: the Earth Engine session to use (deprecated in favor of gee_interface)
             gee_interface: a shared GEEInterface instance. If provided, takes precedence over gee_session
 

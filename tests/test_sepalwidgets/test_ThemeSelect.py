@@ -1,12 +1,8 @@
 """Test the ThemeSelect widget."""
 
-from configparser import ConfigParser
-
 import pytest
 
 from pysepal import sepalwidgets as sw
-from pysepal.conf import config_file
-from pysepal.frontend.styles import get_theme
 
 
 def test_init(theme_select: sw.ThemeSelect) -> None:
@@ -22,37 +18,17 @@ def test_init(theme_select: sw.ThemeSelect) -> None:
 
 
 def test_change_theme(theme_select: sw.ThemeSelect) -> None:
-    """Check the preferred theme can be changed from the widget.
-
-    Args:
-        theme_select: a widget instance removing all existing config
-    """
-    # Get the current theme
-    themes = ["dark", "light"]
-    dark_theme = True if get_theme() == "dark" else False
-
-    # change value using toggle_theme method (fire_event doesn't work in test environment)
+    """The widget owns its own dark trait; nothing is persisted."""
+    before = theme_select.dark
     theme_select.toggle_theme()
-
-    config = ConfigParser()
-    config.read(config_file)
-    assert "sepal-ui" in config.sections()
-
-    # New theme has to be the opposite than the initial
-    assert config["sepal-ui"]["theme"] == themes[dark_theme]
-
-    return
+    assert theme_select.dark is not before
 
 
 @pytest.fixture(scope="function")
 def theme_select() -> sw.ThemeSelect:
-    """Create a simple theme_select and remove existing config.
+    """Create a simple theme_select.
 
     Returns:
         the object instance
     """
-    # remove any existing config file
-    if config_file.is_file():
-        config_file.unlink()
-
     return sw.ThemeSelect()

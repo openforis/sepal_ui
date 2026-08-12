@@ -1,7 +1,7 @@
 """Custom widgets relative to user application framework.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create the application framework.
-All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
@@ -153,8 +153,7 @@ class LocaleSelect(v.Menu, SepalWidget):
     def _on_locale_select(self, change: dict) -> None:
         """adapt the application to the newly selected language.
 
-        Display the new flag and country code on the widget btn
-        change the value in the config file
+        Display the new flag and country code on the widget btn.
         """
         if not change["new"]:
             return
@@ -164,9 +163,6 @@ class LocaleSelect(v.Menu, SepalWidget):
 
         self.btn.children = [self.locale_icon, loc.code]
         # self.btn.color = "info"
-
-        # change the parameter file
-        su.set_config("locale", loc.code)
 
         return
 
@@ -186,24 +182,19 @@ class ThemeSelect(v.VuetifyTemplate):
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
     def __init__(self):
-        """Initialize the ThemeSelect widget and set default theme configuration."""
+        """Initialize the ThemeSelect widget."""
         super().__init__()
-        theme = "dark" if self.dark else "light"
-        su.set_config("theme", theme)
 
     @observe("dark")
     def _on_dark_change(self, change):
-        """Observer for dark trait changes - saves to config file.
+        """Observer for dark trait changes.
 
         This is called when the Vue component syncs the dark value back to Python.
         """
         logger.info(f"🔍 OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
-        theme = "dark" if change["new"] else "light"
-        su.set_config("theme", theme)
-        logger.info(f"💾 Config file updated to: {theme}")
 
     def toggle_theme(self) -> None:
-        """Toggle between dark and light theme and save to config.
+        """Toggle between dark and light theme.
 
         This method can be used for testing or programmatic theme switching
         without relying on the Vue frontend.

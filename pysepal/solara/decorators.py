@@ -10,24 +10,27 @@ from typing import Any, Callable, Optional
 
 import solara
 from eeclient.exceptions import EEClientError
-from solara.lab import headers
 
+from pysepal.solara.errors import SepalSessionError
 from pysepal.solara.session_manager import SessionManager
 
 logger = logging.getLogger("sepalui.solara.decorators")
 
 
 def with_sepal_sessions(
-    show_loading: bool = True,
-    waiting_message: str = "Waiting for authentication headers...",
     module_name: str = "default",
     error_handler: Optional[Callable[[Exception], None]] = None,
 ):
-    """Decorator that ensures a GEE interface is available before running the Solara Page component.
+    """Decorator that establishes a SEPAL session before the Page renders.
+
+    The credential source follows runtime topology, never header probing. Under
+    an app-launcher Solara server the session is built from this connection's
+    SEPAL headers and missing or invalid ones are an error -- there is nothing
+    else to fall back to that would still be this user. In a SEPAL sandbox,
+    under Voila, in plain Jupyter or in a script the process session is used and
+    no headers are involved.
 
     Args:
-        show_loading: Whether to show loading messages when session is not ready.
-        waiting_message: Message to show when waiting for headers.
         module_name: The module name for the SepalClient.
         error_handler: Custom error handler function. If None, uses default error handling.
 
@@ -37,32 +40,32 @@ def with_sepal_sessions(
     Example:
         .. code-block:: python
 
+            @solara.component
             @with_sepal_sessions(module_name="my.module")
             def Page():
                 gee_interface = get_current_gee_interface()
                 sepal_client = get_current_sepal_client()
 
-                # Your component logic here
                 solara.Markdown("GEE interface is ready!")
     """
 
     def decorator(component_func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(component_func)
         def wrapper(*args, **kwargs):
-            # Check if headers are available first
-            current_headers = headers.value
-            if current_headers is None:
-                if show_loading:
-                    solara.Info(waiting_message)
-                return
-
-            # Try to create session and handle errors
             try:
                 session_manager = SessionManager()
                 session_manager.create_session(module_name=module_name)
 
-                # Session is ready, call the component
                 return component_func(*args, **kwargs)
+
+            except SepalSessionError as e:
+                logger.error(f"SEPAL session error in {component_func.__name__}: {e}")
+                if error_handler:
+                    error_handler(e)
+                else:
+                    with solara.Error():
+                        solara.Markdown(str(e))
+                return
 
             except EEClientError as e:
                 logger.error(f"GEE authentication error in {component_func.__name__}: {e}")

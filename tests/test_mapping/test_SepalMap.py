@@ -7,12 +7,12 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import ee
+import ipyvuetify as v
 import pytest
 from ipyleaflet import GeoJSON
 
 from pysepal import mapping as sm
 from pysepal.frontend import styles as ss
-from pysepal.frontend.styles import get_theme
 from pysepal.mapping.legend_control import LegendControl
 from pysepal.mapping.visualization import get_viz_params
 from pysepal.sepalwidgets.vue_app import ThemeToggle
@@ -36,7 +36,7 @@ def test_init() -> None:
     basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
 
     # Get current theme
-    dark_theme = True if get_theme() == "dark" else False
+    dark_theme = bool(v.theme.dark)
 
     # The basemap will change depending on the current theme.
     assert m.layers[0].name == basemaps[not dark_theme]
