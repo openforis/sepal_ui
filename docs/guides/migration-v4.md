@@ -67,12 +67,15 @@ pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
 ```
 
-`ee-client` 3.1.0 is published. The provider-agnostic auth pysepal 4.0 needs --
-the `EESession.from_*()` factories and `close()` on every credential holder --
-shipped as a minor, so this floor stays inside ee-client 3.x.
+Both floors are published. The provider-agnostic auth pysepal 4.0 needs from
+`ee-client` -- the `EESession.from_*()` factories and `close()` on every
+credential holder -- shipped as a minor, so that floor stays inside 3.x.
 
-`pysepal-api` 0.3.0 is not published yet, so pysepal 4.0 cannot be installed
-until it is.
+`pysepal-api` 0.3.0 is what moves the `createFolder` POST off the
+session-creation path: `SepalClient.create()` no longer touches the network, and
+`ensure_results_dir()` creates the directory instead. If your module wrote into
+`results_path` and relied on `create()` to have made it, create it yourself --
+no import breaks, so the failure appears at write time.
 
 `solara` is now pinned because two of its private APIs are load-bearing:
 `solara.scope.get_kernel_id` (every per-connection scope id) and
@@ -321,6 +324,8 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] `grep -rn "sepal_ui"` and rename to `pysepal`, requirements included.
 - [ ] Replace `pysepal.scripts.sepal_client` imports with `pysepal_api` and the
       four legacy verbs with `client.files.*`.
+- [ ] Create the results directory yourself before writing into `results_path`;
+      `SepalClient.create()` no longer does it, and nothing fails until the write.
 - [ ] Remove every `~/.sepal-ui-config` reader/writer; pass `target=` to
       `Translator` and use `get_current_theme_state()` for theme.
 - [ ] Drop `module_theme` / `module_l10n` from scripts and CI.
