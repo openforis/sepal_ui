@@ -514,6 +514,7 @@ Run discovery for the full current list — do not rely on this table.
 | `solara-migration.md`     | Converting ipyvuetify widget to Solara                              |
 | `ipyvuetify-widgets.md`   | Creating a new `v.VuetifyTemplate` widget                           |
 | `ipecharts.md`            | Creating charts/graphs (ipecharts is the standard for pysepal apps) |
+| `local-tile-servers.md`   | Serving localtileserver / vectortileserver tiles to the browser     |
 | `migration-notes-v3.4.md` | Auditing an existing app for stale patterns                         |
 
 ### Solara framework source

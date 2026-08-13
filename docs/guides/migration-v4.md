@@ -88,6 +88,7 @@ debug panel renders, and nothing downstream may key a permission off it.
 ee-client>=3.1.0,<4
 pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
+localtileserver>=1.0.0
 ```
 
 Both floors are published. The provider-agnostic auth pysepal 4.0 needs from
@@ -105,6 +106,16 @@ no import breaks, so the failure appears at write time.
 `solara._using_solara_server` (rule 3 of the table above). pysepal asserts both
 at import and raises `ImportError` if either is missing, rather than silently
 collapsing every connection onto one shared scope. Do not unpin solara.
+
+`localtileserver` 1.0 is the first version pysepal has required, so 3.8.1 apps
+meet it here. It brings a `jupyter-loopback` dependency and, with it, prefix
+autodetection: with no prefix configured it invents `localtileserver-proxy/{port}`
+on the grounds that it is running in a Jupyter kernel. 0.10.x handed the browser
+the loopback URL instead. On SEPAL nothing changes -- the platform sets
+`LOCALTILESERVER_CLIENT_PREFIX`, so autodetection never fires. Where nothing
+serves that route -- a plain `voila notebook.ipynb` -- every tile 404s, with no
+error and no traceback, just an empty map. Define `LOCALTILESERVER_CLIENT_PREFIX`
+**empty** to get the old URL back. See `local-tile-servers.md` for the rest.
 
 ## 4. `import sepal_ui` → `import pysepal`
 
