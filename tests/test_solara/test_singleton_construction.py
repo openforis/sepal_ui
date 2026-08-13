@@ -34,13 +34,33 @@ ROUNDS = 400
 
 @pytest.fixture
 def eager_thread_switches():
-    """Switch threads as often as CPython allows, to widen the race window."""
-    original = sys.getswitchinterval()
+    """Switch threads as often as CPython allows, to widen the race window.
+
+    The trace hook has to go with it. Under ``--cov`` on Python <= 3.11,
+    coverage measures threads by installing a C trace function through
+    ``threading.settrace``, so each of the 12800 threads below is born traced
+    and every line it runs is measured -- with the switch interval at its floor
+    this does not finish in any useful time, which is exactly how CI hung on
+    3.10 and 3.11 while 3.12 passed in seconds. 3.12 escapes because coverage
+    switches to :mod:`sys.monitoring` (PEP 669), which costs nothing per thread.
+
+    Only threads started inside the fixture are affected; the main thread keeps
+    its own tracing, and the code these threads exercise is covered by the rest
+    of this module either way.
+    """
+    original_interval = sys.getswitchinterval()
+    original_trace = threading.gettrace()
+    original_profile = threading.getprofile()
+
+    threading.settrace(None)
+    threading.setprofile(None)
     sys.setswitchinterval(1e-9)
     try:
         yield
     finally:
-        sys.setswitchinterval(original)
+        sys.setswitchinterval(original_interval)
+        threading.settrace(original_trace)
+        threading.setprofile(original_profile)
 
 
 def race_to_construct(threads: int) -> tuple[list[SessionManager], list[BaseException]]:
