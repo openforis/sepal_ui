@@ -60,7 +60,11 @@
 //
 // matchOffered is a transcription of pysepal.solara.locale.match_offered_locale
 // (the tested Python reference implementation) -- keep both in sync.
-const STORAGE_KEY = ":sepalUi:locale"; // plain string, not JSON
+//
+// The storage key is written out at each use rather than hoisted into a const:
+// ipyvue evaluates the object below, not this file as a module, so a binding
+// declared out here is undefined inside methods. Theming.vue inlines its key
+// for the same reason. tests/test_sepalwidgets/test_vue_templates.py guards it.
 
 export default {
   name: "LocaleSelect",
@@ -136,17 +140,21 @@ export default {
       return offered.find((code) => code.split("-")[0] === primary) || "";
     },
     storageGet() {
+      // Never swallow silently: these catches are for a blocked-storage
+      // SecurityError, and an empty one hid a ReferenceError that stopped
+      // every pick from persisting.
       try {
-        return localStorage.getItem(STORAGE_KEY) || "";
+        return localStorage.getItem(":sepalUi:locale") || "";
       } catch (e) {
-        return ""; // storage unavailable (e.g. blocked in iframe): degrade
+        console.warn("[pysepal] cannot read the stored locale:", e);
+        return "";
       }
     },
     storageSet(code) {
       try {
-        localStorage.setItem(STORAGE_KEY, code);
+        localStorage.setItem(":sepalUi:locale", code);
       } catch (e) {
-        // storage unavailable: the pick still applies for this session
+        console.warn("[pysepal] cannot persist the locale:", e);
       }
     },
     localeResolved() {
