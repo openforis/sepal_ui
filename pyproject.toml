@@ -199,7 +199,8 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,pysepal/message/**/*.json,pysepal/data/gaul_iso.json'
+# Translation catalogs are not English, so its dictionary does not apply.
+skip = 'CHANGELOG.md,pysepal/message/**/*.json,demo_apps/**/message/**/*.json,pysepal/data/gaul_iso.json'
 
 [tool.black]
 line-length = 100

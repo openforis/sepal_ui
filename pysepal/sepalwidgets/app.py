@@ -11,6 +11,7 @@ Example:
         sw.LocaleSelect()
 """
 
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +43,7 @@ from pysepal.sepalwidgets.alert import Banner
 from pysepal.sepalwidgets.sepalwidget import SepalWidget
 from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.sepalwidgets.widget import Markdown
+from pysepal.solara.locale import describe_offered_locales
 from pysepal.translator import Translator
 
 logger = logging.getLogger("sepalui.app")
@@ -91,7 +93,6 @@ class LocaleSelect(v.Menu, SepalWidget):
         # extract the language information from the translator
         # if not set default to english
         code = "en" if translator is None else translator._target
-        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
 
         self.locale_icon = v.Icon(class_="mr-2", children=["mdi-translate"])
 
@@ -120,7 +121,7 @@ class LocaleSelect(v.Menu, SepalWidget):
             v_model=False,
             close_on_content_click=True,
             v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
-            value=loc.code,
+            value=code,
         )
 
         # add js behaviour
@@ -139,14 +140,16 @@ class LocaleSelect(v.Menu, SepalWidget):
             the list of country widget to display in the app
         """
         country_list = []
-        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-        for r in filtered_countries.itertuples(index=False):
+        catalog = json.loads(self.COUNTRIES.to_json(orient="records"))
+        for record in describe_offered_locales(locales, catalog):
             children = [
-                v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
-                v.ListItemActionText(children=[r.code]),
+                v.ListItemContent(
+                    class_="mr-2", children=[v.ListItemTitle(children=[record["name"]])]
+                ),
+                v.ListItemActionText(children=[record["code"]]),
             ]
 
-            country_list.append(v.ListItem(value=r.code, children=children))
+            country_list.append(v.ListItem(value=record["code"], children=children))
 
         return country_list
 
@@ -158,10 +161,7 @@ class LocaleSelect(v.Menu, SepalWidget):
         if not change["new"]:
             return
 
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
-
-        self.btn.children = [self.locale_icon, loc.code]
+        self.btn.children = [self.locale_icon, change["new"]]
         # self.btn.color = "info"
 
         return
