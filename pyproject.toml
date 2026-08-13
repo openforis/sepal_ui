@@ -21,7 +21,7 @@ dependencies = [
     # building widgets
     "tomli",
     "ipykernel",
-    "ipyvuetify",
+    "ipyvuetify<3", # 3.0 drops widgets sepalwidgets subclasses (CalendarDaily), so an unpinned install cannot import pysepal
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
     # earthengine management
