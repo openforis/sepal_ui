@@ -8,6 +8,7 @@ scaffolding — `module_factory` copies `pysepal/templates/map_app` and
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`solara_map_app`](solara_map_app)       | What a real SEPAL module needs: AOI selection, async processing with progress notifications, layer management, a floating legend driven by the layers on the map, and Earth Engine / Drive / SEPAL exports. Authenticates against SEPAL. |
 | [`solara_raster_app`](solara_raster_app) | Local raster rendering through `SepalMap.add_raster`: a continuous colormap, exact per-class colors, and a raster big enough that preparing it has to happen off the event loop. No session, no credentials.                             |
+| [`solara_vector_app`](solara_vector_app) | Local vector tiling with `vectortileserver`: one PMTiles archive styled as a single symbol and by attribute value. Needs `tippecanoe` on PATH and the `demos` extra. No session, no credentials.                                         |
 
 ## Running them
 

@@ -42,6 +42,15 @@ DEMOS = [
         "No session and no credentials -- it draws generated stand-ins unless "
         "`PYSEPAL_DEMO_RASTER_DIR` points at real class maps.",
     ),
+    (
+        "solara_vector_app",
+        "vector-app",
+        "Vector App",
+        "Local vector tiling with `vectortileserver`: one PMTiles archive drawn "
+        "with a single symbol and with a color per attribute value. Needs "
+        "tippecanoe on PATH; it tiles a generated grid unless "
+        "`PYSEPAL_DEMO_VECTOR_DIR` points at a real `landcover.geojson`.",
+    ),
 ]
 
 
