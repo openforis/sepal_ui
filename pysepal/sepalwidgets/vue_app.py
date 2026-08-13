@@ -189,6 +189,7 @@ class MapApp(v.VuetifyTemplate):
             ],
         )
         self.observe(self._sync_map_theme_state, ["theme_toggle", "main_map"])
+        self.observe(self._sync_right_panel, ["right_panel_config", "right_panel_content"])
         self._sync_map_insets()
         self._sync_map_theme_state()
 
@@ -403,6 +404,22 @@ class MapApp(v.VuetifyTemplate):
         new_config = change["new"]
         if "width" in new_config:
             self.right_panel_width = new_config["width"]
+
+    def _sync_right_panel(self, *args):
+        """Mirror panel config and content onto the child widget that renders them.
+
+        ``RightPanel`` is built once in ``__init__`` from the values passed
+        then, and it -- not ``MapApp`` -- is what the panel renders from. Without
+        this the sibling observers only run child -> parent, so a re-render
+        updated these traits and the panel kept showing the strings it was born
+        with. It does not recurse: ``_on_right_panel_config_change`` writes
+        ``right_panel_width``, never ``right_panel_config``.
+        """
+        if not self.right_panel:
+            return
+        panel = self.right_panel[0]
+        panel.config = self.right_panel_config
+        panel.content_data = self.right_panel_content
 
 
 class ThemeToggle(v.VuetifyTemplate):

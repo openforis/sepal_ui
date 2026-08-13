@@ -84,6 +84,43 @@ def test_mapapp_offers_the_locales_it_is_given() -> None:
     assert offered == set(translator.available_locales())
 
 
+def test_mapapp_pushes_panel_updates_into_the_child_panel() -> None:
+    """The right panel renders from a child widget built once at construction.
+
+    Nothing propagated parent -> child, so a re-render updated
+    ``MapApp.right_panel_config`` while the panel kept rendering the strings it
+    was born with -- a translated app changed its title and nothing else.
+    """
+    app = MapApp(
+        right_panel_config={"title": "Tools", "width": 400},
+        right_panel_content=[{"title": "Select AOI", "icon": "mdi-map", "content": []}],
+    )
+    panel = app.right_panel[0]
+
+    app.right_panel_config = {"title": "Herramientas", "width": 400}
+    app.right_panel_content = [{"title": "Seleccionar AOI", "icon": "mdi-map", "content": []}]
+
+    assert panel.config["title"] == "Herramientas"
+    assert panel.content_data[0]["title"] == "Seleccionar AOI"
+
+
+def test_mapapp_panel_updates_survive_a_rerender() -> None:
+    """The same thing through reacton, which is how an app actually hits it."""
+    title = solara.reactive("Tools")
+
+    @solara.component
+    def Demo():
+        MapApp.element(right_panel_config={"title": title.value, "width": 400})
+
+    _, rc = reacton.render(Demo())
+    panel = rc.find(MapApp).widget.right_panel[0]
+
+    title.value = "Herramientas"
+
+    assert rc.find(MapApp).widget.right_panel[0].config["title"] == "Herramientas"
+    assert panel.config["title"] == "Herramientas"
+
+
 def test_mapapp_element_carries_the_locales_through_reacton() -> None:
     """MapApp takes codes, not a Translator, because reacton flattens one.
 
