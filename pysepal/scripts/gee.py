@@ -1,4 +1,38 @@
-"""All the heleper methods to interface Google Earthengine with sepal-ui."""
+"""All the helper methods to interface Google Earth Engine with pysepal.
+
+.. warning::
+
+   **Modules should not call the asset helpers here.** ``get_ee_project``
+   (``ee.data.getProjectConfig``), ``get_assets_async_concurrent`` and
+   ``is_asset`` (``ee.data.listAssets``) and ``delete_assets``
+   (``ee.data.getAsset``, ``ee.data.deleteAsset``) execute against the *global*
+   ``ee`` module, which answers as whatever identity ``ee.Initialize()`` was
+   given. In an app-launcher container that is the platform service account, so
+   these list, inspect and *delete* against the platform's asset tree rather
+   than the user's, with no error to show for it.
+
+   Use the session-bound interface instead. ``get_current_gee_interface()``
+   returns one built from the connection's own credentials, and
+   ``GEEInterface.get_assets``, ``get_assets_async``, ``get_asset`` and
+   ``get_folder`` are the equivalents. ``GEEInterface`` itself refuses to exist
+   without a session in a per-connection runtime, which is the guarantee these
+   module-level functions cannot offer.
+
+   ``get_assets_async_concurrent`` already takes an optional ``gee_interface``;
+   pass it. The others have no such parameter yet.
+
+   They remain for notebooks, scripts and the SEPAL sandbox, where the machine's
+   credentials are the one user's own and the global ``ee`` is the right answer.
+
+Splitting the two halves is worth stating plainly, because they are not the same
+problem. *Building* an Earth Engine graph -- ``ee.Image(...)``,
+``ee.FeatureCollection(...)`` -- is client-side and moves no user data, so it
+needs ``ee.Initialize()`` to have run but does not care whose credentials did it.
+*Executing* -- ``getInfo``, ``getMapId``, exports, asset listing -- is what
+spends a quota, reads private assets and writes to a Drive, and in a multi-user
+process it must go through the connection's own session. The functions above are
+the second kind wearing the clothes of the first.
+"""
 
 import asyncio
 import json
