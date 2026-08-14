@@ -177,10 +177,19 @@ SepalMap(gee=False)   # local rasters, vectors, basemaps, PMTiles
 With `gee=True` and no `gee_interface=`, `SepalMap.__init__` builds a
 session-less `GEEInterface` **and** calls `su.init_ee()`, which reads
 `~/.config/earthengine/credentials` directly and initialises the global `ee`
-module. In an app-launcher container that file is the platform service account,
-so the map runs on the platform identity instead of the user's. Pass
-`gee=False` when the map has no Earth Engine layers, and
-`gee_interface=get_current_gee_interface()` when it does — never the default.
+module. In an app-launcher container that file is the platform service account.
+
+Since 4.0 that combination **raises `SepalSessionError` in a per-connection
+runtime** rather than rendering the map on the platform identity. Elsewhere —
+a notebook, a script, a SEPAL sandbox — nothing changes: those runtimes own
+their machine credentials, and `SepalMap()` there is still the quickstart.
+
+So in a container app, always pass one or the other:
+
+```python
+SepalMap(gee=False)                                    # no Earth Engine layers
+SepalMap(gee_interface=get_current_gee_interface())    # Earth Engine layers
+```
 
 ## Notification Shell Pattern
 

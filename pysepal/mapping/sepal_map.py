@@ -24,6 +24,7 @@ from pysepal.mapping.visualization import (
 )
 from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.sepalwidgets.vue_app import ThemeToggle
+from pysepal.solara.errors import SepalSessionError
 from pysepal.solara.theme import ThemeState
 
 if any(var in os.environ for var in GDAL_ENV_VARS):
@@ -73,6 +74,43 @@ import logging
 log = logging.getLogger("sepalui.mapping")
 
 DEFAULT_MAP_WIDTH_PX = 1024
+
+
+def _refuse_ambient_gee_per_connection() -> None:
+    """Refuse the machine's Earth Engine credentials where they are not one user's.
+
+    ``SepalMap(gee=True)`` with neither ``gee_interface`` nor ``gee_session``
+    builds a session-less :class:`GEEInterface` and calls ``su.init_ee()``,
+    which reads ``~/.config/earthengine/credentials`` and initialises the global
+    ``ee``. That file is the *platform* service-account key in an app-launcher
+    container, so the map would render on the platform identity rather than on
+    the identity of the user looking at it -- the one fallback pysepal 4.0
+    exists to remove, reached through the map rather than through the session
+    layer (see :mod:`pysepal.solara._topology`).
+
+    Only ``PER_CONNECTION`` is refused. A notebook, a script or a SEPAL sandbox
+    owns its machine credentials, and reading them there is the whole point of
+    ``SepalMap()`` in a notebook, so those keep working untouched.
+
+    Raises:
+        SepalSessionError: This runtime serves one identity per connection.
+    """
+    # Local: pysepal.solara.components imports pysepal.mapping, so this module
+    # is mid-import when that package is first initialised from here.
+    from pysepal.solara._topology import SessionSource
+    from pysepal.solara.session_manager import _current_plan
+
+    if _current_plan().source is not SessionSource.PER_CONNECTION:
+        return
+
+    raise SepalSessionError(
+        "SepalMap(gee=True) was given no gee_interface, and this runtime serves "
+        "one identity per connection. Falling back to the machine's Earth Engine "
+        "credentials here would render the map with the container's platform "
+        "service account instead of this user's identity. Pass "
+        "gee_interface=get_current_gee_interface(), or gee=False if the map has "
+        "no Earth Engine layers."
+    )
 
 
 class SepalMap(ipl.Map):
@@ -185,6 +223,8 @@ class SepalMap(ipl.Map):
             if gee_interface:
                 self.gee_interface = gee_interface
             else:
+                if gee_session is None:
+                    _refuse_ambient_gee_per_connection()
                 self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 
