@@ -179,10 +179,13 @@ session-less `GEEInterface` **and** calls `su.init_ee()`, which reads
 `~/.config/earthengine/credentials` directly and initialises the global `ee`
 module. In an app-launcher container that file is the platform service account.
 
-Since 4.0 that combination **raises `SepalSessionError` in a per-connection
-runtime** rather than rendering the map on the platform identity. Elsewhere —
-a notebook, a script, a SEPAL sandbox — nothing changes: those runtimes own
-their machine credentials, and `SepalMap()` there is still the quickstart.
+Since 4.0 a session-less `GEEInterface` **raises `SepalSessionError` in a
+per-connection runtime**, and the map inherits that: `SepalMap()` with no
+`gee_interface` fails in a container instead of rendering on the platform
+identity. The same guard covers `AoiModel`, the `sepalwidgets` asset inputs and
+`process_admin`, which all have the same `gee_interface or GEEInterface()`
+fallback. Elsewhere — a notebook, a script, a SEPAL sandbox — nothing changes:
+those runtimes own their machine credentials.
 
 So in a container app, always pass one or the other:
 
