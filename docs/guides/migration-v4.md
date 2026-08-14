@@ -77,6 +77,12 @@ Nothing changes anywhere else. A notebook, a script, pytest or a SEPAL sandbox
 owns its machine credentials, so the global-`ee` path stays the correct one
 there and `SepalMap()` keeps working untouched.
 
+`GEEInterface(use_sepal_headers=True)` is **removed** with it. It logged in from
+`LOCAL_SEPAL_USER` / `LOCAL_SEPAL_PASSWORD` and returned a session, so it slipped
+past the guard above — one process-wide developer identity, in any runtime. It
+had no callers anywhere. `PYSEPAL_DEV_AUTH` is the supported way to run on a
+developer login, and it goes through topology.
+
 ### Running a GEE-only app on your laptop
 
 `PYSEPAL_DEV_AUTH` logs in to a real SEPAL instance, so it needs a host, an
