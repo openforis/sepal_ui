@@ -25,8 +25,8 @@ from pysepal.solara._topology import (
     SessionPlan,
     SessionSource,
     current_session_plan,
-    dev_auth_enabled,
     is_sepal_sandbox,
+    plan_reads_sepal_headers,
 )
 from pysepal.solara.dev_auth import prime_dev_auth
 
@@ -121,9 +121,10 @@ def _require_session_id(sepal_headers: SepalHeaders) -> SepalHeaders:
 def _carries_sepal_headers() -> bool:
     """Whether this connection's headers validate as SEPAL headers.
 
-    Read only by the ``PYSEPAL_DEV_AUTH`` interlock in
-    :func:`pysepal.solara._topology.resolve_session_plan`. The PROCESS versus
-    PER_CONNECTION decision never consults it.
+    Read only by the arming interlocks in
+    :func:`pysepal.solara._topology.resolve_session_plan` -- ``PYSEPAL_DEV_AUTH``
+    and ``PYSEPAL_LOCAL_EE``. The PROCESS versus PER_CONNECTION decision never
+    consults it.
     """
     raw_headers = headers.value
     if raw_headers is None:
@@ -138,11 +139,11 @@ def _carries_sepal_headers() -> bool:
 def _current_plan() -> SessionPlan:
     """Resolve this runtime's credential plan.
 
-    Validates the connection headers only when ``PYSEPAL_DEV_AUTH`` is armed:
-    that is the sole rule that reads them, and ``create_session`` runs on every
-    render, where its fast path depends on not parsing headers at all.
+    Validates the connection headers only when an arming flag that reads them is
+    set: ``create_session`` runs on every render, where its fast path depends on
+    not parsing headers at all.
     """
-    has_headers = _carries_sepal_headers() if dev_auth_enabled(os.environ) else False
+    has_headers = _carries_sepal_headers() if plan_reads_sepal_headers(os.environ) else False
     return current_session_plan(has_sepal_headers=has_headers)
 
 

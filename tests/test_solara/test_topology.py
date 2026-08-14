@@ -7,11 +7,14 @@ import pytest
 
 from pysepal.solara._topology import (
     DEV_AUTH_ENV_VAR,
+    LOCAL_EE_ENV_VAR,
     SEPAL_ENV_VAR,
     SessionSource,
     current_session_plan,
     dev_auth_enabled,
     is_sepal_sandbox,
+    local_ee_enabled,
+    plan_reads_sepal_headers,
     resolve_session_plan,
 )
 
@@ -52,6 +55,16 @@ def _plan(**overrides):
         # a disarmed value is not an arming value
         ({DEV_AUTH_ENV_VAR: "false"}, True, False, SessionSource.PER_CONNECTION),
         ({DEV_AUTH_ENV_VAR: ""}, True, False, SessionSource.PER_CONNECTION),
+        # local EE lets a GEE-only app run under `solara run` with no SEPAL login
+        ({LOCAL_EE_ENV_VAR: "1"}, True, False, SessionSource.PROCESS),
+        ({LOCAL_EE_ENV_VAR: "on"}, False, False, SessionSource.PROCESS),
+        # ...under the same interlock as dev auth: real headers demote it
+        ({LOCAL_EE_ENV_VAR: "1"}, True, True, SessionSource.PER_CONNECTION),
+        # a disarmed value leaves the container rule untouched
+        ({LOCAL_EE_ENV_VAR: "false"}, True, False, SessionSource.PER_CONNECTION),
+        ({LOCAL_EE_ENV_VAR: ""}, True, False, SessionSource.PER_CONNECTION),
+        # dev auth outranks it: a SEPAL login is the more specific request
+        ({DEV_AUTH_ENV_VAR: "1", LOCAL_EE_ENV_VAR: "1"}, True, False, SessionSource.DEV_AUTH),
     ],
 )
 def test_topology_table(env, using_solara_server, has_sepal_headers, expected):
@@ -106,6 +119,9 @@ def test_a_sepal_user_home_alone_is_not_a_sandbox(monkeypatch):
     [
         ({DEV_AUTH_ENV_VAR: "1"}, False, False, DEV_AUTH_ENV_VAR),
         (SANDBOX, False, False, "sandbox"),
+        ({LOCAL_EE_ENV_VAR: "1"}, True, False, LOCAL_EE_ENV_VAR),
+        # both give PROCESS, so only the reason can show which rule answered
+        ({LOCAL_EE_ENV_VAR: "1", **SANDBOX}, True, False, "sandbox"),
         ({}, True, False, "Solara server"),
         ({}, False, False, "no Solara server"),
     ],
@@ -172,6 +188,87 @@ def test_dev_auth_enabled(value, expected):
 
 def test_dev_auth_disabled_when_the_variable_is_absent():
     assert dev_auth_enabled({}) is False
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("1", True),
+        ("true", True),
+        ("TRUE", True),
+        ("yes", True),
+        ("on", True),
+        ("0", False),
+        ("false", False),
+        ("", False),
+        ("maybe", False),
+    ],
+)
+def test_local_ee_enabled(value, expected):
+    """Typed by a developer, so it accepts the same spellings as dev auth."""
+    assert local_ee_enabled({LOCAL_EE_ENV_VAR: value}) is expected
+
+
+def test_local_ee_disabled_when_the_variable_is_absent():
+    assert local_ee_enabled({}) is False
+
+
+@pytest.mark.parametrize(
+    ("env", "expected"),
+    [
+        ({}, False),
+        ({DEV_AUTH_ENV_VAR: "1"}, True),
+        ({LOCAL_EE_ENV_VAR: "1"}, True),
+        ({DEV_AUTH_ENV_VAR: "1", LOCAL_EE_ENV_VAR: "1"}, True),
+        ({DEV_AUTH_ENV_VAR: "false", LOCAL_EE_ENV_VAR: "false"}, False),
+        (SANDBOX, False),
+    ],
+)
+def test_plan_reads_sepal_headers_enumerates_every_arming_rule(env, expected):
+    """A rule that reads the headers without appearing here sees a hardcoded False.
+
+    This predicate is what makes callers pay to parse headers. Miss a rule and
+    its interlock does not stop working loudly -- it stops working silently.
+    """
+    assert plan_reads_sepal_headers(env) is expected
+
+
+def test_local_ee_does_not_reopen_the_headerless_fallback():
+    """R3 reaches the credentials R2 exists to keep away from a container.
+
+    The difference is that it is armed by hand and demoted by real headers, so
+    it can never be *reached* by a container degrading. Both halves are pinned
+    here: unarmed stays PER_CONNECTION, armed-with-headers stays PER_CONNECTION.
+    """
+    assert _plan(using_solara_server=True).source is SessionSource.PER_CONNECTION
+    assert (
+        _plan(env={LOCAL_EE_ENV_VAR: "1"}, using_solara_server=True, has_sepal_headers=True).source
+        is SessionSource.PER_CONNECTION
+    )
+
+
+def test_local_ee_still_validates_the_connection_headers(monkeypatch):
+    """The interlock is only real if something actually parses the headers.
+
+    ``_current_plan`` skips validation whenever no arming flag reads them. If
+    that gate ever narrows back to ``PYSEPAL_DEV_AUTH`` alone, rule 3 keeps
+    firing but ``has_sepal_headers`` arrives as a hardcoded False -- so a real
+    user in a container with a stray ``PYSEPAL_LOCAL_EE`` is handed the shared
+    process session instead of their own, and nothing else goes red.
+    """
+    import solara
+
+    from pysepal.solara import session_manager as sm
+
+    monkeypatch.delenv(DEV_AUTH_ENV_VAR, raising=False)
+    monkeypatch.setenv(LOCAL_EE_ENV_VAR, "1")
+    monkeypatch.setattr(solara, "_using_solara_server", lambda: True)
+
+    monkeypatch.setattr(sm, "_carries_sepal_headers", lambda: True)
+    assert sm._current_plan().source is SessionSource.PER_CONNECTION
+
+    monkeypatch.setattr(sm, "_carries_sepal_headers", lambda: False)
+    assert sm._current_plan().source is SessionSource.PROCESS
 
 
 def test_using_solara_server_stays_false_under_pytest_and_voila():

@@ -16,6 +16,7 @@ request happens to carry headers. In order:
 | ------------------------------------------ | ---------------- | --------------------------------------------------- |
 | `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
 | `SEPAL=true` (a SEPAL sandbox)             | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| `PYSEPAL_LOCAL_EE` armed, no SEPAL headers | `PROCESS`        | your own Earth Engine credentials, for local dev    |
 | running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
 | anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
 
@@ -41,6 +42,28 @@ user.
 
 Real SEPAL headers always beat `PYSEPAL_DEV_AUTH`, so arming it in a deployed
 container cannot displace a live user's identity.
+
+### Running a GEE-only app on your laptop
+
+`PYSEPAL_DEV_AUTH` logs in to a real SEPAL instance, so it needs a host, an
+account and a password. If your app only touches Earth Engine that is a lot of
+setup for nothing. Arm `PYSEPAL_LOCAL_EE` instead and `solara run` uses the
+credentials `earthengine authenticate` already wrote:
+
+```bash
+PYSEPAL_LOCAL_EE=1
+```
+
+You get a GEE interface built from `~/.config/earthengine/credentials` and **no
+`SepalClient`** — there is no SEPAL identity, so exports fall back to the local
+filesystem exactly as they do in a notebook. The file must hold a user OAuth
+credential; a service-account key is refused.
+
+This is the one switch that lets a `PROCESS` session resolve under a Solara
+server, so it carries the same interlock as `PYSEPAL_DEV_AUTH`: real SEPAL
+headers demote it, and it sits below the sandbox rule. Leaving it set in a
+deployed container cannot displace a live user, and cannot serve the platform
+service account either — `ee-client` refuses a service-account key at that path.
 
 ## 2. Admin access is now `PYSEPAL_ADMIN_USERS`
 
@@ -330,7 +353,8 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       `Translator` and use `get_current_theme_state()` for theme.
 - [ ] Drop `module_theme` / `module_l10n` from scripts and CI.
 - [ ] Rename `SOLARA_TEST` to `PYSEPAL_DEV_AUTH` in `.env`, compose files and
-      deployment manifests.
+      deployment manifests — or `PYSEPAL_LOCAL_EE=1` if the app only needs Earth
+      Engine locally.
 - [ ] Replace `list_sessions()`, `get_session_component()`, `get_kernel_id()`
       and `get_current_runtime_id()` with their typed equivalents.
 - [ ] Convert `get_session_info()` / `get_sessions_overview()` subscripting to
