@@ -100,7 +100,10 @@ elsewhere.
 
 ### The `@with_sepal_sessions` decorator
 
-This decorator is **required** on the main `Page()` component. It:
+This decorator is **required** on the main `Page()` component whenever the app
+needs `GEEInterface`, `SepalClient` or `GDriveInterface` — which is almost every
+app. An app that needs none of them omits it; see
+[Apps that don't use Earth Engine](#apps-that-dont-use-earth-engine) below. It:
 
 - Establishes the session for this runtime: per connection under a Solara
   server, otherwise the process session
@@ -116,6 +119,68 @@ def Page():
     # This only renders after session is ready
     gee_interface = get_current_gee_interface()  # Session already established above
 ```
+
+### Apps that don't use Earth Engine
+
+Two shapes, and only one of them needs a session at all.
+
+**The app needs nothing from SEPAL** — pure UI, local computation, or its own
+API. Drop `@with_sepal_sessions` and keep the rest of the entry point:
+
+```python
+import solara
+from pysepal.solara import setup_sessions, setup_solara_server, setup_theme_colors
+
+setup_solara_server(extra_asset_locations=[])
+
+
+@solara.lab.on_kernel_start
+def on_kernel_start():
+    return setup_sessions()
+
+
+@solara.component
+def Page():
+    setup_theme_colors()
+    # ...your app here...
+```
+
+Keep `setup_sessions()` even though there is no session to create. The cleanup
+function it returns is what clears this connection's scoped UI state — theme,
+locale — when the kernel shuts down. Without it that state accumulates one entry
+per connection for the life of the process.
+
+Everything that is not a credential still works: theme, locale, notifications
+and every `sepalwidgets` component. `get_current_theme_state()` never raises, by
+design. `get_current_sepal_client()` returns `None`, and
+`get_current_gee_interface()` raises `SepalSessionError` — do not call it.
+
+This shape runs under `solara run` with no SEPAL headers and no
+`PYSEPAL_LOCAL_EE`, because nothing ever asks for a credential.
+
+**The app needs SEPAL file storage but not Earth Engine.** Keep the decorator —
+`SepalClient` only exists inside a session. Know what it costs today:
+`_create_connection_session` builds `EESession`, `GEEInterface`, `SepalClient`
+and `GDriveInterface` unconditionally, so every connection gets an Earth Engine
+event-loop thread it never uses. Making that build lazy is planned for 4.1 and
+changes no API you write against.
+
+#### Maps without Earth Engine
+
+Pass `gee=False`. `SepalMap` defaults to `gee=True`, and in a non-GEE app that
+default does something you do not want:
+
+```python
+SepalMap(gee=False)   # local rasters, vectors, basemaps, PMTiles
+```
+
+With `gee=True` and no `gee_interface=`, `SepalMap.__init__` builds a
+session-less `GEEInterface` **and** calls `su.init_ee()`, which reads
+`~/.config/earthengine/credentials` directly and initialises the global `ee`
+module. In an app-launcher container that file is the platform service account,
+so the map runs on the platform identity instead of the user's. Pass
+`gee=False` when the map has no Earth Engine layers, and
+`gee_interface=get_current_gee_interface()` when it does — never the default.
 
 ## Notification Shell Pattern
 
