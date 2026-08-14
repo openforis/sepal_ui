@@ -85,6 +85,13 @@ is the local-development switch for an app that only needs Earth Engine: it runs
 `solara run` on your own `~/.config/earthengine/credentials` with no SEPAL login,
 and therefore with no `SepalClient`.
 
+The two are mutually exclusive and `PYSEPAL_DEV_AUTH` wins — it is rule 1,
+`PYSEPAL_LOCAL_EE` is rule 3, so arming both leaves the second inert. Reach for
+`PYSEPAL_DEV_AUTH` when the app needs the SEPAL side (file storage, exports to
+your workspace) and `PYSEPAL_LOCAL_EE` when it only talks to Earth Engine.
+`PYSEPAL_LOCAL_EE` changes nothing outside `solara run`: Voila, Jupyter and
+scripts already resolve `PROCESS` from the same credentials file.
+
 `get_current_sepal_client()` returns `None` on a `PROCESS` runtime that has no
 SEPAL identity of its own — a laptop notebook or a CI script. In a SEPAL
 sandbox it returns a real client, so code that branches on

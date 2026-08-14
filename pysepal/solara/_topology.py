@@ -61,7 +61,7 @@ import solara
 
 if not hasattr(solara, "_using_solara_server"):
     raise ImportError(
-        "solara._using_solara_server is missing. Rule 3 above reads it to tell "
+        "solara._using_solara_server is missing. Rule 4 above reads it to tell "
         "an app-launcher container from any other runtime; without it every "
         "session creation fails at render time instead of here. Install a "
         "solara that provides it (pysepal pins solara>=1.60,<2)."
