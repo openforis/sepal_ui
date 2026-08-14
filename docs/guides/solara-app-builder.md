@@ -70,6 +70,7 @@ whether a request carries headers. In order:
 | ------------------------------------------ | ---------------- | --------------------------------------------------- |
 | `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
 | `SEPAL=true` (a SEPAL sandbox)             | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| `PYSEPAL_LOCAL_EE` armed, no SEPAL headers | `PROCESS`        | your own Earth Engine credentials, for local dev    |
 | running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
 | anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
 
@@ -79,7 +80,10 @@ _platform_ GEE service-account key at `~/.config/earthengine/credentials` — a
 fallback would silently hand every user that one identity.
 
 Real SEPAL headers always win over `PYSEPAL_DEV_AUTH`, so arming it in a
-deployed container changes nothing.
+deployed container changes nothing. The same holds for `PYSEPAL_LOCAL_EE`, which
+is the local-development switch for an app that only needs Earth Engine: it runs
+`solara run` on your own `~/.config/earthengine/credentials` with no SEPAL login,
+and therefore with no `SepalClient`.
 
 `get_current_sepal_client()` returns `None` on a `PROCESS` runtime that has no
 SEPAL identity of its own — a laptop notebook or a CI script. In a SEPAL
@@ -427,6 +431,10 @@ DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to 
 LOCAL_SEPAL_USER=admin              # Dev credentials
 LOCAL_SEPAL_PASSWORD=yourpassword
 SEPAL_HOST=yourinstance.sepal.io    # SEPAL platform host
+
+# Alternative to the four lines above for a GEE-only app: no SEPAL login, no
+# SepalClient, Earth Engine from ~/.config/earthengine/credentials.
+# PYSEPAL_LOCAL_EE=1
 ```
 
 ### `run_solara.sh` (local dev)
@@ -496,6 +504,7 @@ services:
       FORWARDED_ALLOW_IPS: "*"
       SEPAL_HOST: "${SEPAL_HOST}"
       PYSEPAL_DEV_AUTH: "${PYSEPAL_DEV_AUTH:-0}"
+      PYSEPAL_LOCAL_EE: "${PYSEPAL_LOCAL_EE:-0}"
       LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER}"
       LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD}"
     ports:

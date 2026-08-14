@@ -196,6 +196,10 @@ Create a ``.env`` file in the ``pysepal`` root directory:
     LOCAL_SEPAL_PASSWORD=your_password
     SEPAL_HOST=sepal.io # or your custom SEPAL instance URL
 
+If the app only uses Earth Engine, arm ``PYSEPAL_LOCAL_EE=1`` instead of the
+four settings above. It runs on your own ``~/.config/earthengine/credentials``
+with no SEPAL login, and therefore without a ``SepalClient``.
+
 The repository also includes a ready-to-run Solara application template:
 
 .. code-block:: bash
@@ -451,6 +455,7 @@ Docker Configuration
           FORWARDED_ALLOW_IPS: "*"
           SOLARA_THEME_SHOW_BANNER: "False"
           PYSEPAL_DEV_AUTH: "${PYSEPAL_DEV_AUTH:-0}"
+          PYSEPAL_LOCAL_EE: "${PYSEPAL_LOCAL_EE:-0}"
           LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER:-}"
           LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD:-}"
         healthcheck:

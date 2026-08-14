@@ -11,9 +11,13 @@ whether a request happens to carry headers. The rule, in order:
 2. The process runs in a SEPAL sandbox -- ``SEPAL=true`` in the environment,
    i.e. an app-manager app owned by exactly one user:
    :attr:`SessionSource.PROCESS`.
-3. The process runs under a Solara server -- an app-launcher multi-user
+3. ``PYSEPAL_LOCAL_EE`` is armed and the connection carries no validated SEPAL
+   headers: :attr:`SessionSource.PROCESS`, from the machine's own Earth Engine
+   credentials. For a developer running a GEE-only app under ``solara run``
+   with no SEPAL instance to log in to.
+4. The process runs under a Solara server -- an app-launcher multi-user
    container: :attr:`SessionSource.PER_CONNECTION`.
-4. Anything else -- Voila, plain Jupyter, a script, pytest:
+5. Anything else -- Voila, plain Jupyter, a script, pytest:
    :attr:`SessionSource.PROCESS`.
 
 :attr:`SessionSource.PER_CONNECTION` never falls back. An app-launcher container
@@ -22,6 +26,16 @@ mounts the *platform* GEE service-account key at
 and that is exactly the path ``eeclient.providers.resolve_default_provider``
 reads -- so a headerless fallback in that runtime silently hands every user the
 platform service account.
+
+Rule 3 reaches the same credentials, and is not that fallback: it is armed by
+hand rather than reached by degradation, real headers demote it exactly as they
+demote rule 1, and the file it resolves is refused underneath us --
+``resolve_default_provider(allow_service_account_file=False)`` raises
+``ServiceAccountFileRefusedError`` on a service-account key, and in a
+``sepal-user`` home it takes the SEPAL-file-only branch where a service-account
+JSON fails ``GoogleTokens`` validation. The container this rule exists to
+protect therefore fails closed on all three counts. It is placed below rule 2 so
+that a real sandbox always answers with its own credentials.
 
 This rule governs the session layer, not the whole package.
 ``pysepal.scripts.gee.init_ee`` reads ``~/.config/earthengine/credentials``
@@ -55,6 +69,9 @@ if not hasattr(solara, "_using_solara_server"):
 
 DEV_AUTH_ENV_VAR = "PYSEPAL_DEV_AUTH"
 "Environment variable arming the local-development login."
+
+LOCAL_EE_ENV_VAR = "PYSEPAL_LOCAL_EE"
+"Environment variable arming the local Earth Engine credentials under a Solara server."
 
 SEPAL_ENV_VAR = "SEPAL"
 "Environment variable the SEPAL sandbox image exports as ``true``."
@@ -142,6 +159,36 @@ def dev_auth_enabled(env: Mapping[str, str]) -> bool:
     return env.get(DEV_AUTH_ENV_VAR, "").strip().lower() in _TRUTHY
 
 
+def local_ee_enabled(env: Mapping[str, str]) -> bool:
+    """Whether ``PYSEPAL_LOCAL_EE`` is armed.
+
+    Args:
+        env: The environment to read, normally ``os.environ``.
+
+    Returns:
+        True when the variable is ``1``, ``true``, ``yes`` or ``on``.
+    """
+    return env.get(LOCAL_EE_ENV_VAR, "").strip().lower() in _TRUTHY
+
+
+def plan_reads_sepal_headers(env: Mapping[str, str]) -> bool:
+    """Whether any rule will read ``has_sepal_headers`` in this environment.
+
+    Callers validate the connection headers only when this is True:
+    ``create_session`` runs on every render, and its fast path depends on not
+    parsing headers at all. Every rule that reads them is an arming flag with
+    the same interlock, so this is where that set is enumerated -- a rule that
+    starts reading them without appearing here would silently see False.
+
+    Args:
+        env: The environment to read, normally ``os.environ``.
+
+    Returns:
+        True when an arming flag that reads the headers is set.
+    """
+    return dev_auth_enabled(env) or local_ee_enabled(env)
+
+
 def resolve_session_plan(
     *,
     env: Mapping[str, str],
@@ -154,12 +201,13 @@ def resolve_session_plan(
     sandbox, a real app-launcher container -- stay table-testable.
 
     Args:
-        env: The process environment. Read by rules 1 and 2.
+        env: The process environment. Read by rules 1, 2 and 3.
         using_solara_server: Whether a Solara server is running this process.
         has_sepal_headers: Whether the connection carries *validated* SEPAL
-            headers. Read by rule 1 only, as the interlock that stops a
-            developer login from displacing a real user. It never selects
-            between PROCESS and PER_CONNECTION.
+            headers. Read by the arming rules 1 and 3 only, as the interlock
+            that stops a developer's own credentials from displacing a real
+            user. It never selects between PROCESS and PER_CONNECTION. See
+            :func:`plan_reads_sepal_headers`.
 
     Returns:
         The plan, carrying the rule that chose it.
@@ -169,6 +217,9 @@ def resolve_session_plan(
 
     if is_sepal_sandbox(env):
         return SessionPlan(SessionSource.PROCESS, f"SEPAL sandbox ({SEPAL_ENV_VAR} is true)")
+
+    if local_ee_enabled(env) and not has_sepal_headers:
+        return SessionPlan(SessionSource.PROCESS, f"{LOCAL_EE_ENV_VAR} is armed")
 
     if using_solara_server:
         return SessionPlan(SessionSource.PER_CONNECTION, "running under a Solara server")
@@ -181,8 +232,8 @@ def current_session_plan(*, has_sepal_headers: bool) -> SessionPlan:
 
     Args:
         has_sepal_headers: See :func:`resolve_session_plan`. Callers may pass
-            False without validating anything whenever :func:`dev_auth_enabled`
-            is False, because rule 1 is the only reader.
+            False without validating anything whenever
+            :func:`plan_reads_sepal_headers` is False.
 
     Returns:
         The plan for this runtime.
