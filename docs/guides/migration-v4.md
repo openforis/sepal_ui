@@ -65,6 +65,30 @@ headers demote it, and it sits below the sandbox rule. Leaving it set in a
 deployed container cannot displace a live user, and cannot serve the platform
 service account either — `ee-client` refuses a service-account key at that path.
 
+#### Which of the two switches
+
+They are **mutually exclusive, and `PYSEPAL_DEV_AUTH` wins**: it is rule 1, this
+is rule 3. Arming both leaves `PYSEPAL_LOCAL_EE` inert with no warning, so
+disarm `PYSEPAL_DEV_AUTH` to switch.
+
+|                     | `PYSEPAL_DEV_AUTH`                      | `PYSEPAL_LOCAL_EE`                      |
+| ------------------- | --------------------------------------- | --------------------------------------- |
+| Identity            | your SEPAL account, via a real login    | your `~/.config/earthengine` credential |
+| Also needs          | `SEPAL_HOST`, user, password            | nothing                                 |
+| Earth Engine        | yes                                     | yes                                     |
+| `SepalClient`       | yes                                     | **no** — exports go to local disk       |
+| Network at startup  | a blocking login POST                   | none                                    |
+| Runtimes it changes | every runtime; it adds a SEPAL identity | `solara run` only                       |
+
+That last row is the one people trip on. `PYSEPAL_LOCAL_EE` does nothing in
+Voila, Jupyter or a script — those already resolve `PROCESS` and already read
+the same credentials file. It exists for `solara run`, the one runtime that
+otherwise refuses to start without SEPAL headers.
+
+Use `PYSEPAL_DEV_AUTH` when you need the SEPAL side — file storage, exports to
+your workspace, anything reading `get_current_sepal_client()`. Use
+`PYSEPAL_LOCAL_EE` when the app only talks to Earth Engine.
+
 ## 2. Admin access is now `PYSEPAL_ADMIN_USERS`
 
 `AdminButton` used to render for a hardcoded `["admin", "dguerrero"]`. It now
@@ -102,7 +126,7 @@ no import breaks, so the failure appears at write time.
 
 `solara` is now pinned because two of its private APIs are load-bearing:
 `solara.scope.get_kernel_id` (every per-connection scope id) and
-`solara._using_solara_server` (rule 3 of the table above). pysepal asserts both
+`solara._using_solara_server` (rule 4 of the table above). pysepal asserts both
 at import and raises `ImportError` if either is missing, rather than silently
 collapsing every connection onto one shared scope. Do not unpin solara.
 
