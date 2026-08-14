@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "PySepal Map App"
+  },
+  "panel": {
+    "title": "Tools",
+    "description": "Select an area, process it, then inspect and export the results."
+  },
+  "section": {
+    "aoi": {
+      "title": "Select AOI"
+    },
+    "process": {
+      "title": "Process",
+      "description": "Derives two layers from the AOI and publishes a legend for each."
+    },
+    "layers": {
+      "title": "Layers",
+      "description": "Add a standalone demo layer or a PMTiles vector layer, or clear the map and its legends. Both show up in the layer control, top right."
+    },
+    "export": {
+      "title": "Export",
+      "description": "Send the AOI or a processed output to Earth Engine, Drive or SEPAL."
+    }
+  }
+}

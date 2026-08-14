@@ -157,9 +157,9 @@ use the `.files.*` API need no change.
 
 ## 6. `~/.sepal-ui-config` and its CLI tools are gone
 
-The file is deleted along with every reader and writer. Theme and locale no
-longer persist anywhere: they are per-runtime state now, because a machine-global
-file is shared by every connection in a multi-user container.
+The file is deleted along with every reader and writer. Theme and locale are
+per-runtime state now, resolved and persisted in the browser, because a
+machine-global file is shared by every connection in a multi-user container.
 
 Removed: `pysepal.conf`, `pysepal.config`, `pysepal.config_file`,
 `pysepal.frontend.styles.get_theme`, and `set_config`, `set_config_locale`,
@@ -190,6 +190,35 @@ ms = Translator(json_folder)
 # 4.0 — pass the target you want
 ms = Translator(json_folder, target=user_locale)
 ```
+
+Where `user_locale` comes from is the other half. `LocaleSelect` resolves it in
+the browser — `localStorage[":sepalUi:locale"]`, then `navigator.language`, then
+English, each candidate matched against the catalogs the app actually ships —
+and pushes the result into a scope-keyed `LocaleState`. Build the translator
+from that and a language change re-renders in place, with no reload:
+
+```python
+from pysepal.solara import use_locale
+
+@solara.component
+def Page():
+    locale = use_locale()
+    ms = solara.use_memo(lambda: Translator(json_folder, target=locale), [locale])
+
+    MapApp.element(app_title=ms.app.title, locales=ms.available_locales())
+```
+
+`MapApp` takes locale _codes_ rather than a `Translator` because `Translator`
+subclasses `dict`, which reacton flattens on the way to `.element()`. Outside a
+Solara render, `get_current_locale_state()` returns the same state directly.
+
+A 3.x locale saved in `~/.sepal-ui-config` is not migrated: the file is read
+nowhere in 4.0, so the first load falls to `navigator.language`.
+
+The picker now offers every catalog the app ships. Previously the offered list
+was intersected with `pysepal/data/locale.parquet`, which has `es-ES` but no
+bare `es` — so pysepal's own bundled `message/es/` and `message/ru-RU/` could
+never be selected. The parquet now supplies only display names and flags.
 
 **CLI**: the `module_theme` and `module_l10n` entry points are removed — both
 existed only to edit that file. The remaining console scripts are
@@ -349,8 +378,10 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       four legacy verbs with `client.files.*`.
 - [ ] Create the results directory yourself before writing into `results_path`;
       `SepalClient.create()` no longer does it, and nothing fails until the write.
-- [ ] Remove every `~/.sepal-ui-config` reader/writer; pass `target=` to
-      `Translator` and use `get_current_theme_state()` for theme.
+- [ ] Remove every `~/.sepal-ui-config` reader/writer; build the `Translator`
+      from `use_locale()` and use `get_current_theme_state()` for theme.
+- [ ] Replace any "refresh to apply the language" instruction in your UI;
+      switching is live, and picks no longer survive as a machine-global file.
 - [ ] Drop `module_theme` / `module_l10n` from scripts and CI.
 - [ ] Rename `SOLARA_TEST` to `PYSEPAL_DEV_AUTH` in `.env`, compose files and
       deployment manifests — or `PYSEPAL_LOCAL_EE=1` if the app only needs Earth

@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Application cartographique PySepal"
+  },
+  "panel": {
+    "title": "Outils",
+    "description": "Sélectionnez une zone, traitez-la, puis inspectez et exportez les résultats."
+  },
+  "section": {
+    "aoi": {
+      "title": "Sélectionner l'AOI"
+    },
+    "process": {
+      "title": "Traiter",
+      "description": "Dérive deux couches de l'AOI et publie une légende pour chacune."
+    },
+    "layers": {
+      "title": "Couches",
+      "description": "Ajoutez une couche de démonstration autonome ou une couche vectorielle PMTiles, ou effacez la carte et ses légendes. Les deux apparaissent dans le contrôle des couches, en haut à droite."
+    },
+    "export": {
+      "title": "Exporter",
+      "description": "Envoyez l'AOI ou un résultat traité vers Earth Engine, Drive ou SEPAL."
+    }
+  }
+}

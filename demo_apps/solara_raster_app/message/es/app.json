@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "Rásteres locales"
+  },
+  "panel": {
+    "title": "Rásteres",
+    "description": "Cada botón dibuja un ráster local por una vía distinta."
+  },
+  "section": {
+    "title": "Rásteres locales",
+    "description": "Dibujando {}. Una rampa continua estirada sobre códigos de clase dispersos los muestra casi negros; class_colors dibuja cada uno con su color exacto. Defina {} para usar productos reales."
+  },
+  "source": {
+    "synthetic": "sustitutos generados",
+    "real": "mapas de clases reales"
+  },
+  "buttons": {
+    "continuous": "rampa continua",
+    "classes": "colores por clase",
+    "large": "ráster grande",
+    "clear_rasters": "limpiar rásteres"
+  },
+  "layers": {
+    "continuous": "Clases (continuo)",
+    "exact": "Clases (exacto)",
+    "loss": "Año de pérdida"
+  },
+  "tasks": {
+    "continuous": "Mapa de color continuo",
+    "classes": "Colores por clase",
+    "large": "Ráster grande",
+    "preparing": "preparando COG...",
+    "preparing_overviews": "preparando COG con vistas generales..."
+  },
+  "toasts": {
+    "continuous": "Rampa continua añadida",
+    "classes": "{} clases añadidas",
+    "large": "Ráster grande añadido"
+  }
+}
