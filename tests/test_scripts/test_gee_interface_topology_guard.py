@@ -8,6 +8,7 @@ caller because ``gee_interface or GEEInterface()`` appears in seven places
 across four subpackages, and that list only grows.
 """
 
+import inspect
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -70,6 +71,23 @@ def test_a_single_identity_runtime_keeps_the_global_ee_path(plan):
 
     assert interface.session is None
     assert stubs.new_event_loop.call_count == 1
+
+
+def test_the_use_sepal_headers_door_is_gone():
+    """The one constructor path that built an identity this guard could not see.
+
+    ``GEEInterface(use_sepal_headers=True)`` logged in from
+    ``LOCAL_SEPAL_USER``/``LOCAL_SEPAL_PASSWORD`` and assigned the result to
+    ``session``, so ``session is None`` was already False by the time the guard
+    ran -- one process-wide developer identity, served in any runtime including
+    a multi-user container. It had no callers in pysepal, in the tests, or in
+    any downstream module, and 4.0 removes it; ``PYSEPAL_DEV_AUTH`` is the
+    supported way to run on a developer login, and it goes through topology.
+    """
+    assert "use_sepal_headers" not in inspect.signature(GEEInterface.__init__).parameters
+
+    with pytest.raises(TypeError, match="use_sepal_headers"):
+        GEEInterface(use_sepal_headers=True)
 
 
 def test_the_guard_is_inert_under_a_real_plain_runtime():

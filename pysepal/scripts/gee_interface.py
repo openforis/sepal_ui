@@ -11,7 +11,6 @@ from eeclient.client import EESession
 from eeclient.data import MapTileOptions
 from eeclient.export.image import ImageFileFormat
 from eeclient.export.table import TableFileFormat
-from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.tasks import Task
 
 from pysepal.logger import log
@@ -131,16 +130,18 @@ def _bbox_geometry(item: ee.ComputedObject) -> ee.Geometry:
 
 
 class GEEInterface:
-    def __init__(self, session: Optional[EESession] = None, use_sepal_headers=False):
+    def __init__(self, session: Optional[EESession] = None):
         """A unified interface for Earth Engine operations.
 
         If a session is provided at initialization, custom EESession-based calls are used.
         Otherwise, the default Earth Engine API methods are invoked.
-        """
-        if use_sepal_headers:
-            sepal_headers = get_sepal_headers_from_auth()
-            session = EESession.from_sepal_headers(sepal_headers)
 
+        Args:
+            session: The session every call is made on behalf of. Omitting it
+                routes the whole API through the global ``ee`` module, which is
+                only accepted where topology says the process serves one
+                identity -- see :func:`_refuse_ambient_session_per_connection`.
+        """
         # Before the loop thread below: a refused interface must not leak one.
         if session is None:
             _refuse_ambient_session_per_connection()
