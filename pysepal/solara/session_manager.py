@@ -819,28 +819,42 @@ class SessionManager:
         those come from the registry's own keys, never from a caller, so the
         guard that refuses a caller-supplied ``PROCESS_SCOPE`` does not apply.
 
+        Under the scope lock: the session dict is live, and ``_ensure_sepal_client``
+        mutates ``sepal_clients`` under that same lock on another connection's
+        render thread. ``sorted(clients)`` iterates it, so an unlocked read can
+        raise ``RuntimeError: dictionary changed size during iteration`` -- and
+        the milder outcome, a ``SessionInfo`` whose fields come from either side
+        of a concurrent write, is a lying admin panel rather than a crash.
+        Holding it for the whole build is what makes the snapshot coherent.
+
+        Cheap to hold: everything below is dict reads, and the writers that take
+        this lock no longer do network I/O inside it (``SepalClient.create()`` is
+        pure since pysepal-api 0.3.0, and the results directory is created off
+        the render path).
+
         Args:
             scope_id: The scope to read.
 
         Returns:
             The scope's session status.
         """
-        session = self._registry.get(scope_id)
-        if session is None:
-            return SessionInfo(scope_id=scope_id)
+        with self._registry.scope_lock(scope_id):
+            session = self._registry.get(scope_id)
+            if session is None:
+                return SessionInfo(scope_id=scope_id)
 
-        gee_interface = session.get("gee_interface")
-        clients = session.get("sepal_clients", {})
-        return SessionInfo(
-            scope_id=scope_id,
-            username=session.get("username"),
-            has_gee_interface=gee_interface is not None,
-            has_sepal_client=bool(clients),
-            has_drive_interface=session.get("drive_interface") is not None,
-            active_module_name=session.get("active_module_name"),
-            module_names=tuple(sorted(clients)),
-            session_ready=gee_interface is not None,
-        )
+            gee_interface = session.get("gee_interface")
+            clients = session.get("sepal_clients", {})
+            return SessionInfo(
+                scope_id=scope_id,
+                username=session.get("username"),
+                has_gee_interface=gee_interface is not None,
+                has_sepal_client=bool(clients),
+                has_drive_interface=session.get("drive_interface") is not None,
+                active_module_name=session.get("active_module_name"),
+                module_names=tuple(sorted(clients)),
+                session_ready=gee_interface is not None,
+            )
 
     def session_scope_ids(self) -> Tuple[str, ...]:
         """Return every scope currently holding a session.
