@@ -434,7 +434,6 @@ buttons and chips inside them. Navigation drawer icons keep default size.
 
 ```bash
 PYSEPAL_DEV_AUTH=1                  # One developer login for the process (local dev only)
-DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to local user-file I/O
 LOCAL_SEPAL_USER=admin              # Dev credentials
 LOCAL_SEPAL_PASSWORD=yourpassword
 SEPAL_HOST=yourinstance.sepal.io    # SEPAL platform host
