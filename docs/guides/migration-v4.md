@@ -375,6 +375,41 @@ where 3.x quietly returned an interface built from the machine's credentials —
 in an app-launcher container, the shared platform service account. A component
 that forgot the decorator fails loudly instead of serving the wrong identity.
 
+## 11. `MapApp`'s right panel follows its traits
+
+`right_panel_config` and `right_panel_content` are now reactive. Setting either
+one after construction updates what is on screen; in 3.x the assignment landed
+on the trait and nothing visible changed.
+
+`MapApp` does not render the panel itself. It copies both values into a child
+`RightPanel` widget in `__init__`, and `MapApp.vue` renders that child. The copy
+ran once, so the two drifted apart the moment anything reassigned the parent
+trait — which is what `MapApp.element(...)` does on every re-render, because
+reacton updates an existing widget rather than rebuilding it. `MapApp` now
+observes both traits and pushes them onto the child.
+
+This is what makes a panel that depends on state work at all:
+
+```python
+# 4.0 — the heading and description follow the reactive value
+MapApp.element(
+    right_panel_config={"title": ms.panel.title, "width": 400},
+    right_panel_content=[{"title": f"{len(layers)} layers", "content": [...]}],
+)
+```
+
+Nothing needs changing to adopt it. It matters if you worked around the old
+behaviour by rebuilding the whole `MapApp`, or by mutating the child panel
+through `app.right_panel[0]`. Both are now unnecessary, and the second is
+silently overwritten the next time the parent trait changes.
+
+**Catalog keys may not be named after `dict` methods.** `Translator` subclasses
+`Box` subclasses `dict`, so a key called `clear`, `items`, `keys`, `values`,
+`get`, `copy`, `update` or `pop` returns the bound method instead of your
+string, and reaches the UI as `<bound method Box.clear ...>` with no error.
+Rename the key. For the same reason `MapApp` takes `locales=` rather than a
+`Translator`: reacton flattens a `dict` subclass on the way to `.element()`.
+
 ## Audit checklist
 
 - [ ] Set `PYSEPAL_ADMIN_USERS` in every deployment that had a non-`admin`
@@ -402,6 +437,10 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Convert `get_session_info()` / `get_sessions_overview()` subscripting to
       attribute access.
 - [ ] Drop `show_loading` / `waiting_message` from `with_sepal_sessions` calls.
+- [ ] Drop any workaround that rebuilt `MapApp`, or reached into
+      `app.right_panel[0]`, to refresh the right panel; both traits are reactive.
+- [ ] Grep your message catalogs for keys named after `dict` methods
+      (`clear`, `items`, `keys`, `values`, `get`, `copy`, `update`, `pop`).
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.
