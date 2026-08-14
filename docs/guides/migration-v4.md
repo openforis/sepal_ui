@@ -43,6 +43,23 @@ user.
 Real SEPAL headers always beat `PYSEPAL_DEV_AUTH`, so arming it in a deployed
 container cannot displace a live user's identity.
 
+### `SepalMap` follows the same rule
+
+The map was the other way into the shared identity. `SepalMap(gee=True)` — the
+default — with no `gee_interface` builds a session-less `GEEInterface` and calls
+`su.init_ee()`, which reads the same `~/.config/earthengine/credentials` and
+initialises the global `ee`. In a container that is the platform service
+account, so the map rendered on the platform identity while the session layer
+was busy refusing exactly that.
+
+**That combination now raises `SepalSessionError` in a per-connection runtime.**
+Pass `gee_interface=get_current_gee_interface()` for Earth Engine layers, or
+`gee=False` for a map that has none.
+
+Nothing changes anywhere else. A notebook, a script or a SEPAL sandbox owns its
+machine credentials, so `SepalMap()` keeps working there untouched — the guard
+is scoped to the one runtime that serves many users.
+
 ### Running a GEE-only app on your laptop
 
 `PYSEPAL_DEV_AUTH` logs in to a real SEPAL instance, so it needs a host, an
@@ -384,6 +401,9 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Convert `get_session_info()` / `get_sessions_overview()` subscripting to
       attribute access.
 - [ ] Drop `show_loading` / `waiting_message` from `with_sepal_sessions` calls.
+- [ ] Give every `SepalMap(...)` in a container app either
+      `gee_interface=get_current_gee_interface()` or `gee=False`; the bare
+      `gee=True` default now raises there.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.

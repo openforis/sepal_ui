@@ -33,7 +33,7 @@ For repo-specific defaults and scaffold workflow:
 - New GEE flows use `solara.lab.use_task(..., prefer_threaded=False)`.
 - Retrieve session-bound interfaces inside components with `get_current_gee_interface()` and related getters.
 - An app needing neither GEE, `SepalClient` nor Drive omits `@with_sepal_sessions` and keeps `setup_sessions()`; see "Apps that don't use Earth Engine" in `docs/guides/solara-app-builder.md`.
-- Pass `SepalMap(gee=False)` when the map has no Earth Engine layers: the `gee=True` default calls `su.init_ee()`, which resolves the container's own credentials rather than the user's.
+- Always pass `SepalMap(gee=False)` or `SepalMap(gee_interface=get_current_gee_interface())` in a container app: the bare `gee=True` default calls `su.init_ee()` and now raises `SepalSessionError` in a per-connection runtime.
 - GEE/container apps use the session `SepalClient` for all runtime user-file reads, writes, listing, and directory creation.
 - Do not write user data to the container filesystem, and do not use `Path`, `os`, `shutil`, `glob`, or `open()` to walk/read/write user workspace files in Solara container apps.
 - Do not scaffold new traitlets `.observe()` architectures as the primary pattern for new apps.
