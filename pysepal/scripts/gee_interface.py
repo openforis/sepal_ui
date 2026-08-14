@@ -19,6 +19,51 @@ from pysepal.scripts import gee
 from pysepal.scripts.gee_task import GEETask, R, TaskState
 
 
+def _refuse_ambient_session_per_connection() -> None:
+    """Refuse a session-less interface where the process serves many identities.
+
+    Every method here is written ``if self.session: ... else: <global ee>``, so
+    an interface built with no session routes the whole API through the global
+    ``ee`` module. In an app-launcher container ``ee`` is initialised from
+    ``~/.config/earthengine/credentials``, which holds the *platform*
+    service-account key -- so that interface answers for the platform rather
+    than for the user whose connection asked.
+
+    This is the chokepoint rather than the callers on purpose. ``GEEInterface()``
+    with no session is reached from at least seven places across four
+    subpackages -- ``mapping.visualization`` (twice), ``solara.components.aoi.admin``,
+    ``scripts.gee`` (twice), ``aoi.AoiModel`` and ``sepalwidgets`` asset inputs --
+    each as a quiet ``gee_interface or GEEInterface()`` fallback. Guarding them
+    one at a time is a list that silently grows every time somebody adds an
+    eighth.
+
+    Only ``PER_CONNECTION`` is refused: a notebook, a script, pytest or a SEPAL
+    sandbox owns its machine credentials, and the global-``ee`` path is the
+    normal, correct one there.
+
+    Raises:
+        SepalSessionError: This runtime serves one identity per connection.
+    """
+    # Local: pysepal.solara.session_manager imports this module, so neither of
+    # these can be a module-level import.
+    from pysepal.solara._topology import SessionSource
+    from pysepal.solara.errors import SepalSessionError
+    from pysepal.solara.session_manager import _current_plan
+
+    if _current_plan().source is not SessionSource.PER_CONNECTION:
+        return
+
+    raise SepalSessionError(
+        "A GEEInterface built with no session routes every Earth Engine call "
+        "through the global ee module, and this runtime serves one identity per "
+        "connection -- so it would answer with the container's platform service "
+        "account instead of this user. Build it from the connection's session "
+        "with get_current_gee_interface(), pass it down to the component "
+        "explicitly, or turn Earth Engine off for the component that does not "
+        "need it (for example SepalMap(gee=False))."
+    )
+
+
 def _resolve_create_folder_paths(asset_root: str, folder_path: str) -> tuple[str, str]:
     """Normalize folder creation paths for both session and legacy EE clients.
 
@@ -95,6 +140,10 @@ class GEEInterface:
         if use_sepal_headers:
             sepal_headers = get_sepal_headers_from_auth()
             session = EESession.from_sepal_headers(sepal_headers)
+
+        # Before the loop thread below: a refused interface must not leak one.
+        if session is None:
+            _refuse_ambient_session_per_connection()
 
         self.session = session
         self._closed = False

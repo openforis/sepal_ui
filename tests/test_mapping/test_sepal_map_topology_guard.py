@@ -1,11 +1,12 @@
-"""``SepalMap(gee=True)`` must not reach the machine's credentials per connection.
+"""``SepalMap`` inherits the ``GEEInterface`` guard rather than carrying its own.
 
-The map is the second door into the shared platform identity that pysepal 4.0
-closes in the session layer: with no ``gee_interface`` it builds a session-less
-``GEEInterface`` and calls ``su.init_ee()``, which reads
-``~/.config/earthengine/credentials`` -- the *platform* service-account key in an
-app-launcher container. Refused only where a runtime serves one identity per
-connection; a notebook or sandbox owns those credentials and keeps them.
+The map was the most reachable way into the shared platform identity:
+``SepalMap(gee=True)`` is the default, and with no ``gee_interface`` it builds a
+session-less ``GEEInterface`` and calls ``su.init_ee()``. The refusal now lives
+in the ``GEEInterface`` constructor (see
+``tests/test_scripts/test_gee_interface_topology_guard.py``); these tests pin
+that the map actually inherits it, and that it does so *before* ``init_ee()``
+touches the global ``ee``.
 """
 
 from contextlib import contextmanager
@@ -22,60 +23,48 @@ from pysepal.solara.errors import SepalSessionError
 
 PER_CONNECTION = SessionPlan(SessionSource.PER_CONNECTION, "test")
 PROCESS = SessionPlan(SessionSource.PROCESS, "test")
-DEV_AUTH = SessionPlan(SessionSource.DEV_AUTH, "test")
 
 
 @contextmanager
 def _topology(plan):
-    """Stage a runtime with both Earth Engine side effects stubbed out.
+    """Stage a runtime with only ``init_ee`` stubbed.
 
-    ``GEEInterface`` starts an event-loop thread in its constructor and
-    ``init_ee`` calls ``ee.Initialize()``, so counting the calls is also how
-    these tests assert that neither happened.
+    ``GEEInterface`` is deliberately left real: it is the thing under test here,
+    and a mock would make every one of these tests pass whether the map inherits
+    the guard or not.
     """
     init_ee = MagicMock()
-    gee_interface = MagicMock(side_effect=lambda **kwargs: MagicMock())
 
     with (
         patch.object(session_manager_module, "_current_plan", return_value=plan),
         patch.object(sepal_map_module.su, "init_ee", init_ee),
-        patch.object(sepal_map_module, "GEEInterface", gee_interface),
     ):
-        yield SimpleNamespace(init_ee=init_ee, gee_interface=gee_interface)
+        yield SimpleNamespace(init_ee=init_ee)
 
 
-def test_a_per_connection_runtime_refuses_the_ambient_credentials():
-    """The whole point: the container must not render on the platform account."""
+def test_a_per_connection_runtime_refuses_the_default_map():
+    """`SepalMap()` in an app-launcher container must not render on the platform account."""
     with _topology(PER_CONNECTION) as stubs:
-        with pytest.raises(SepalSessionError, match="gee_interface"):
+        with pytest.raises(SepalSessionError, match="platform service account"):
             sm.SepalMap()
 
-    # Refused *before* either side effect: a raise that still started a thread
-    # and initialised the global ``ee`` would leak both on every render.
-    assert stubs.gee_interface.call_count == 0
+    # init_ee() is what initialises the global ee from the container's
+    # credentials file. Refusing after it had run would close the interface
+    # door while leaving the global one open.
     assert stubs.init_ee.call_count == 0
 
 
 def test_an_explicit_interface_is_always_allowed():
-    """The correct call in an app-launcher container, and the fix the error names."""
+    """The fix the error names, and what the map app template already does."""
     supplied = MagicMock()
 
-    with _topology(PER_CONNECTION) as stubs:
+    with _topology(PER_CONNECTION):
         map_ = sm.SepalMap(gee_interface=supplied)
 
     assert map_.gee_interface is supplied
-    assert stubs.gee_interface.call_count == 0
 
 
-def test_an_explicit_session_is_always_allowed():
-    """A caller-supplied session is a real identity; only the ambient one is refused."""
-    with _topology(PER_CONNECTION) as stubs:
-        sm.SepalMap(gee_session=MagicMock())
-
-    assert stubs.gee_interface.call_count == 1
-
-
-def test_gee_false_never_reaches_the_guard():
+def test_gee_false_builds_no_interface_at_all():
     with _topology(PER_CONNECTION) as stubs:
         map_ = sm.SepalMap(gee=False)
 
@@ -83,30 +72,11 @@ def test_gee_false_never_reaches_the_guard():
     assert stubs.init_ee.call_count == 0
 
 
-@pytest.mark.parametrize("plan", [PROCESS, DEV_AUTH], ids=["process", "dev_auth"])
-def test_a_single_identity_runtime_keeps_the_ambient_credentials(plan):
-    """Voila, Jupyter, a sandbox and a script own their machine credentials.
+def test_a_single_identity_runtime_keeps_the_default_map():
+    """`SepalMap()` in a notebook is the quickstart and the docstring example."""
+    with _topology(PROCESS) as stubs:
+        map_ = sm.SepalMap()
 
-    ``SepalMap()`` in a notebook is the documented quickstart and the example in
-    ``pysepal.mapping``'s own docstring; narrowing the guard beyond
-    PER_CONNECTION would break it for no safety gain.
-    """
-    with _topology(plan) as stubs:
-        sm.SepalMap()
-
-    assert stubs.gee_interface.call_count == 1
+    assert map_.gee_interface.session is None
     assert stubs.init_ee.call_count == 1
-
-
-def test_the_guard_is_inert_under_a_real_plain_runtime():
-    """No plan patched: pytest resolves PROCESS, so nothing about ``SepalMap()`` changes.
-
-    The compatibility half of this feature. Every other test here stages a
-    topology; this one pins that the guard stays out of the way when the real
-    resolver runs, which is what the 84 existing ``SepalMap()`` call sites rely on.
-    """
-    with (
-        patch.object(sepal_map_module.su, "init_ee", MagicMock()),
-        patch.object(sepal_map_module, "GEEInterface", MagicMock()),
-    ):
-        sm.SepalMap()
+    map_.gee_interface.close()

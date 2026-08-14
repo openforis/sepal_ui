@@ -234,12 +234,13 @@ async def process_admin(
     level = int(method[-1])  # Extract level from method name
 
     if gee:
-        # Initialize Earth Engine
-        su.init_ee()
-
-        # Use provided interface or create a new one
+        # Resolve the interface first: it refuses a session-less one in a
+        # per-connection runtime, and init_ee() would already have bound the
+        # global ee to the container's credentials by the time it raised.
         created_interface = gee_interface is None
         interface = gee_interface or GEEInterface()
+
+        su.init_ee()
 
         try:
             # Use pygaul.Items to get the feature collection (handles all the EE logic)

@@ -43,22 +43,39 @@ user.
 Real SEPAL headers always beat `PYSEPAL_DEV_AUTH`, so arming it in a deployed
 container cannot displace a live user's identity.
 
-### `SepalMap` follows the same rule
+### A session-less `GEEInterface` is refused too
 
-The map was the other way into the shared identity. `SepalMap(gee=True)` — the
-default — with no `gee_interface` builds a session-less `GEEInterface` and calls
-`su.init_ee()`, which reads the same `~/.config/earthengine/credentials` and
-initialises the global `ee`. In a container that is the platform service
-account, so the map rendered on the platform identity while the session layer
-was busy refusing exactly that.
+The session layer was not the only way into the shared identity. Every method on
+`GEEInterface` is written `if self.session: ... else: <global ee>`, and the
+global `ee` is initialised from that same
+`~/.config/earthengine/credentials` — the platform service-account key in a
+container. So an interface built with no session answered for the platform while
+the session layer was busy refusing exactly that.
 
-**That combination now raises `SepalSessionError` in a per-connection runtime.**
-Pass `gee_interface=get_current_gee_interface()` for Earth Engine layers, or
-`gee=False` for a map that has none.
+pysepal reached that path from seven places, each a quiet
+`gee_interface or GEEInterface()` fallback: `mapping.visualization` (twice),
+`solara.components.aoi.admin`, `scripts.gee` (twice), `AoiModel`, and the
+`sepalwidgets` asset inputs.
 
-Nothing changes anywhere else. A notebook, a script or a SEPAL sandbox owns its
-machine credentials, so `SepalMap()` keeps working there untouched — the guard
-is scoped to the one runtime that serves many users.
+**`GEEInterface()` with no session now raises `SepalSessionError` in a
+per-connection runtime.** The guard is in the constructor, so all seven are
+covered at once — including `SepalMap(gee=True)`, the most visible of them
+because `gee=True` is the default.
+
+In a container app, build the interface once from the connection and pass it
+down:
+
+```python
+gee_interface = get_current_gee_interface()
+
+SepalMap(gee_interface=gee_interface)      # or SepalMap(gee=False)
+AoiModel(gee_interface=gee_interface)
+process_admin(..., gee_interface=gee_interface)
+```
+
+Nothing changes anywhere else. A notebook, a script, pytest or a SEPAL sandbox
+owns its machine credentials, so the global-`ee` path stays the correct one
+there and `SepalMap()` keeps working untouched.
 
 ### Running a GEE-only app on your laptop
 
@@ -432,9 +449,10 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Convert `get_session_info()` / `get_sessions_overview()` subscripting to
       attribute access.
 - [ ] Drop `show_loading` / `waiting_message` from `with_sepal_sessions` calls.
-- [ ] Give every `SepalMap(...)` in a container app either
-      `gee_interface=get_current_gee_interface()` or `gee=False`; the bare
-      `gee=True` default now raises there.
+- [ ] Pass `gee_interface=get_current_gee_interface()` to every `SepalMap`,
+      `AoiModel`, asset input and `process_admin` in a container app — or
+      `gee=False` where Earth Engine isn't needed. A session-less
+      `GEEInterface()` now raises there.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.
