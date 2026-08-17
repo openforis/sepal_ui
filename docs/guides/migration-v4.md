@@ -45,13 +45,13 @@ container cannot displace a live user's identity.
 
 ### `GEEInterface` always goes through ee-client
 
-`GEEInterface` used to carry two implementations of itself: 13 of its 30 methods
+`GEEInterface` used to carry two implementations of itself: 12 of its 30 methods
 were written `if self.session: ... else: <global ee>`. The `else` half answered
 from `~/.config/earthengine/credentials`, which in a container is the platform
 service-account key — so an interface built with no session answered for the
 platform while the session layer was busy refusing exactly that.
 
-**Those 13 branches are gone.** Every call now goes through the session, and an
+**Those 12 branches are gone.** Every call now goes through the session, and an
 interface built without one resolves its own from the machine's credentials
 rather than falling back to the global `ee`. One credential path, not one per
 runtime.
@@ -71,10 +71,23 @@ remain, all covered by the constructor guard: `SepalMap`,
 `solara.components.aoi.admin`, `AoiModel`, and the `sepalwidgets` asset inputs
 (twice).
 
-Three export parameters are **removed**, having only ever been forwarded on the
+Four export parameters are **removed**, having only ever been forwarded on the
 deleted branch: `pyramid_policy` on `export_image_to_asset`, and `dimensions`,
 `skip_empty_tiles` and `format_options` on `export_image_to_drive`. None had a
 caller in pysepal or in any downstream module.
+
+**A task is now an ee-client model, not an `ee.batch.Task`.** `get_task` and
+`get_task_async` return `Optional[eeclient.tasks.Task]` — a pydantic model — and
+give you `None` for an unknown id. The deleted branch returned an `ee.batch.Task`
+and _raised_ on a miss, so a caller that never passed a session has two things to
+change: read the state as `task.metadata.state` rather than `task["state"]` or
+`task.status()["state"]`, and test for `None` instead of catching. `is_running`
+is genuinely a `bool` now; the deleted branch returned the task object itself,
+despite the annotation always having said otherwise.
+
+Worth doing carefully — pysepal shipped this exact bug against itself. Its own
+`is_running_async` read `task["state"]` on a model, and no test caught it,
+because every caller in the test suite took the deleted branch instead.
 
 **`GEEInterface()` with no session now raises `SepalSessionError` in a
 per-connection runtime.** The guard is in the constructor, so all five remaining
@@ -184,6 +197,7 @@ debug panel renders, and nothing downstream may key a permission off it.
 ee-client>=3.1.0,<4
 pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
+ipyvuetify<3
 ```
 
 Both floors are published. The provider-agnostic auth pysepal 4.0 needs from
@@ -195,6 +209,11 @@ session-creation path: `SepalClient.create()` no longer touches the network, and
 `ensure_results_dir()` creates the directory instead. If your module wrote into
 `results_path` and relied on `create()` to have made it, create it yourself --
 no import breaks, so the failure appears at write time.
+
+`ipyvuetify` is capped because 3.0 removes widgets that `sepalwidgets`
+subclasses at import time — `CalendarDaily` among them — so an unpinned resolve
+produced a pysepal that could not be imported at all. If your module pins
+`ipyvuetify>=3`, that pin and pysepal 4.0 cannot be installed together; drop it.
 
 `solara` is now pinned because two of its private APIs are load-bearing:
 `solara.scope.get_kernel_id` (every per-connection scope id) and
@@ -465,6 +484,8 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Drop `pyramid_policy`, `dimensions`, `skip_empty_tiles` and
       `format_options` from any `export_image_to_asset` / `export_image_to_drive`
       call.
+- [ ] Read a task's state as `task.metadata.state`, and handle `get_task`
+      returning `None` instead of raising on an unknown id.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.

@@ -1,7 +1,7 @@
 """The session paths the GEE lane never reaches, driven against a fake session.
 
-Collapsing ``GEEInterface`` onto its session in 4.0 made thirteen previously
-optional branches mandatory. The live GEE lane exercises nine of them; these
+Collapsing ``GEEInterface`` onto its session in 4.0 made twelve previously
+optional branches mandatory. The live GEE lane exercises eight of them; these
 four it does not touch, so their only coverage before this file was the fact
 that nobody had run them. That is exactly the state ``is_running_async`` was in
 when it shipped with ``task["state"]`` on a pydantic model -- a live-credential,
