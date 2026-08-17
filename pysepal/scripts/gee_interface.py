@@ -28,13 +28,13 @@ def _refuse_ambient_session_per_connection() -> None:
     service-account key -- so that interface answers for the platform rather
     than for the user whose connection asked.
 
-    This is the chokepoint rather than the callers on purpose. ``GEEInterface()``
-    with no session is reached from at least seven places across four
-    subpackages -- ``mapping.visualization`` (twice), ``solara.components.aoi.admin``,
-    ``scripts.gee`` (twice), ``aoi.AoiModel`` and ``sepalwidgets`` asset inputs --
-    each as a quiet ``gee_interface or GEEInterface()`` fallback. Guarding them
-    one at a time is a list that silently grows every time somebody adds an
-    eighth.
+    This is the chokepoint rather than the callers on purpose. An interface with
+    no session is reached from seven places across four subpackages --
+    ``mapping.visualization`` (twice), ``mapping.SepalMap``,
+    ``solara.components.aoi.admin``, ``aoi.AoiModel`` and the ``sepalwidgets``
+    asset inputs (twice) -- each a quiet ``gee_interface or GEEInterface()`` or a
+    ``gee_session`` that is allowed to be None. Guarding them one at a time is a
+    list that silently grows every time somebody adds an eighth.
 
     Only ``PER_CONNECTION`` is refused: a notebook, a script, pytest or a SEPAL
     sandbox owns its machine credentials, and the global-``ee`` path is the
