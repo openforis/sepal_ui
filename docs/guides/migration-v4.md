@@ -43,6 +43,91 @@ user.
 Real SEPAL headers always beat `PYSEPAL_DEV_AUTH`, so arming it in a deployed
 container cannot displace a live user's identity.
 
+### `GEEInterface` always goes through ee-client
+
+`GEEInterface` used to carry two implementations of itself: 12 of its 30 methods
+were written `if self.session: ... else: <global ee>`. The `else` half answered
+from `~/.config/earthengine/credentials`, which in a container is the platform
+service-account key — so an interface built with no session answered for the
+platform while the session layer was busy refusing exactly that.
+
+**Those 12 branches are gone.** Every call now goes through the session, and an
+interface built without one resolves its own from the machine's credentials
+rather than falling back to the global `ee`. One credential path, not one per
+runtime.
+
+Read that claim narrowly: it covers _pysepal's_ Earth Engine calls. Building a
+graph still needs the global `ee` — `ee.Image(...)` raises
+`EEException: client library not initialized` without `ee.Initialize()` — so
+`su.init_ee()` stays, and a module that calls `ee.Image(x).getInfo()` itself
+still bypasses all of this. The library can only guarantee its own calls.
+
+pysepal reached the old fallback from seven places, each a quiet
+`gee_interface or GEEInterface()` — or a `gee_session` allowed to be None. Two
+of them were `get_viz_params` / `get_viz_params_async`, where `gee_interface`
+is **now a required argument**: building one on a miss read the wrong identity
+_and_ leaked an event-loop thread per call, because it was never closed. Five
+remain, all covered by the constructor guard: `SepalMap`,
+`solara.components.aoi.admin`, `AoiModel`, and the `sepalwidgets` asset inputs
+(twice).
+
+Four export parameters are **removed**, having only ever been forwarded on the
+deleted branch: `pyramid_policy` on `export_image_to_asset`, and `dimensions`,
+`skip_empty_tiles` and `format_options` on `export_image_to_drive`. None had a
+caller in pysepal or in any downstream module.
+
+**A task is now an ee-client model, not an `ee.batch.Task`.** `get_task` and
+`get_task_async` return `Optional[eeclient.tasks.Task]` — a pydantic model — and
+give you `None` for an unknown id. The deleted branch returned an `ee.batch.Task`
+and _raised_ on a miss, so a caller that never passed a session has two things to
+change: read the state as `task.metadata.state` rather than `task["state"]` or
+`task.status()["state"]`, and test for `None` instead of catching. `is_running`
+is genuinely a `bool` now; the deleted branch returned the task object itself,
+despite the annotation always having said otherwise.
+
+Worth doing carefully — pysepal shipped this exact bug against itself. Its own
+`is_running_async` read `task["state"]` on a model, and no test caught it,
+because every caller in the test suite took the deleted branch instead.
+
+**`GEEInterface()` with no session now raises `SepalSessionError` in a
+per-connection runtime.** The guard is in the constructor, so all five remaining
+sites are covered at once — including `SepalMap(gee=True)`, the most visible of
+them because `gee=True` is the default.
+
+In a container app, build the interface once from the connection and pass it
+down:
+
+```python
+gee_interface = get_current_gee_interface()
+
+SepalMap(gee_interface=gee_interface)      # or SepalMap(gee=False)
+AoiModel(gee_interface=gee_interface)
+process_admin(..., gee_interface=gee_interface)
+```
+
+Nothing changes anywhere else. A notebook, a script, pytest or a SEPAL sandbox
+owns its machine credentials, so resolving them there is correct and
+`SepalMap()` keeps working untouched. Construction never reads the credential
+store — that happens on the first Earth Engine call — so building a map on a
+machine with no Earth Engine set up still works, and only using it fails.
+
+`GEEInterface(use_sepal_headers=True)` is **removed** with it. It logged in from
+`LOCAL_SEPAL_USER` / `LOCAL_SEPAL_PASSWORD` and returned a session, so it slipped
+past the guard above — one process-wide developer identity, in any runtime. It
+had no callers anywhere. `PYSEPAL_DEV_AUTH` is the supported way to run on a
+developer login, and it goes through topology.
+
+Three `pysepal.scripts.gee` functions deprecated in 3.2.0 are **removed**:
+`is_asset`, `get_assets_async_concurrent` and `list_assets_concurrent` (with its
+private `_list_assets_concurrent`). Use `GEEInterface.get_asset(..., not_exists_ok=True)` and `GEEInterface.get_assets_async()`.
+
+`get_assets`, `get_ee_project` and `delete_assets` stay, and still read the
+global `ee`, so a module must not call them. `GEEInterface` no longer reaches
+them; what keeps them alive is `delete_assets`, which backs the test teardown
+and the `clean_gee_assets` janitor and walks a folder through `get_assets`
+before deleting it. Those run as their own identity, in a runtime that owns its
+credentials.
+
 ### Running a GEE-only app on your laptop
 
 `PYSEPAL_DEV_AUTH` logs in to a real SEPAL instance, so it needs a host, an
@@ -64,6 +149,30 @@ server, so it carries the same interlock as `PYSEPAL_DEV_AUTH`: real SEPAL
 headers demote it, and it sits below the sandbox rule. Leaving it set in a
 deployed container cannot displace a live user, and cannot serve the platform
 service account either — `ee-client` refuses a service-account key at that path.
+
+#### Which of the two switches
+
+They are **mutually exclusive, and `PYSEPAL_DEV_AUTH` wins**: it is rule 1, this
+is rule 3. Arming both leaves `PYSEPAL_LOCAL_EE` inert with no warning, so
+disarm `PYSEPAL_DEV_AUTH` to switch.
+
+|                     | `PYSEPAL_DEV_AUTH`                      | `PYSEPAL_LOCAL_EE`                      |
+| ------------------- | --------------------------------------- | --------------------------------------- |
+| Identity            | your SEPAL account, via a real login    | your `~/.config/earthengine` credential |
+| Also needs          | `SEPAL_HOST`, user, password            | nothing                                 |
+| Earth Engine        | yes                                     | yes                                     |
+| `SepalClient`       | yes                                     | **no** — exports go to local disk       |
+| Network at startup  | a blocking login POST                   | none                                    |
+| Runtimes it changes | every runtime; it adds a SEPAL identity | `solara run` only                       |
+
+That last row is the one people trip on. `PYSEPAL_LOCAL_EE` does nothing in
+Voila, Jupyter or a script — those already resolve `PROCESS` and already read
+the same credentials file. It exists for `solara run`, the one runtime that
+otherwise refuses to start without SEPAL headers.
+
+Use `PYSEPAL_DEV_AUTH` when you need the SEPAL side — file storage, exports to
+your workspace, anything reading `get_current_sepal_client()`. Use
+`PYSEPAL_LOCAL_EE` when the app only talks to Earth Engine.
 
 ## 2. Admin access is now `PYSEPAL_ADMIN_USERS`
 
@@ -89,6 +198,7 @@ ee-client>=3.1.0,<4
 pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
 localtileserver>=1.0.0
+ipyvuetify<3
 ```
 
 Both floors are published. The provider-agnostic auth pysepal 4.0 needs from
@@ -101,9 +211,14 @@ session-creation path: `SepalClient.create()` no longer touches the network, and
 `results_path` and relied on `create()` to have made it, create it yourself --
 no import breaks, so the failure appears at write time.
 
+`ipyvuetify` is capped because 3.0 removes widgets that `sepalwidgets`
+subclasses at import time — `CalendarDaily` among them — so an unpinned resolve
+produced a pysepal that could not be imported at all. If your module pins
+`ipyvuetify>=3`, that pin and pysepal 4.0 cannot be installed together; drop it.
+
 `solara` is now pinned because two of its private APIs are load-bearing:
 `solara.scope.get_kernel_id` (every per-connection scope id) and
-`solara._using_solara_server` (rule 3 of the table above). pysepal asserts both
+`solara._using_solara_server` (rule 4 of the table above). pysepal asserts both
 at import and raises `ImportError` if either is missing, rather than silently
 collapsing every connection onto one shared scope. Do not unpin solara.
 
@@ -402,6 +517,17 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
 - [ ] Convert `get_session_info()` / `get_sessions_overview()` subscripting to
       attribute access.
 - [ ] Drop `show_loading` / `waiting_message` from `with_sepal_sessions` calls.
+- [ ] Pass `gee_interface=get_current_gee_interface()` to every `SepalMap`,
+      `AoiModel`, asset input and `process_admin` in a container app — or
+      `gee=False` where Earth Engine isn't needed. A session-less
+      `GEEInterface()` now raises there.
+- [ ] Pass `gee_interface` to `get_viz_params` / `get_viz_params_async`; it is
+      no longer optional.
+- [ ] Drop `pyramid_policy`, `dimensions`, `skip_empty_tiles` and
+      `format_options` from any `export_image_to_asset` / `export_image_to_drive`
+      call.
+- [ ] Read a task's state as `task.metadata.state`, and handle `get_task`
+      returning `None` instead of raising on an unknown id.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.

@@ -85,6 +85,13 @@ is the local-development switch for an app that only needs Earth Engine: it runs
 `solara run` on your own `~/.config/earthengine/credentials` with no SEPAL login,
 and therefore with no `SepalClient`.
 
+The two are mutually exclusive and `PYSEPAL_DEV_AUTH` wins — it is rule 1,
+`PYSEPAL_LOCAL_EE` is rule 3, so arming both leaves the second inert. Reach for
+`PYSEPAL_DEV_AUTH` when the app needs the SEPAL side (file storage, exports to
+your workspace) and `PYSEPAL_LOCAL_EE` when it only talks to Earth Engine.
+`PYSEPAL_LOCAL_EE` changes nothing outside `solara run`: Voila, Jupyter and
+scripts already resolve `PROCESS` from the same credentials file.
+
 `get_current_sepal_client()` returns `None` on a `PROCESS` runtime that has no
 SEPAL identity of its own — a laptop notebook or a CI script. In a SEPAL
 sandbox it returns a real client, so code that branches on
@@ -93,7 +100,10 @@ elsewhere.
 
 ### The `@with_sepal_sessions` decorator
 
-This decorator is **required** on the main `Page()` component. It:
+This decorator is **required** on the main `Page()` component whenever the app
+needs `GEEInterface`, `SepalClient` or `GDriveInterface` — which is almost every
+app. An app that needs none of them omits it; see
+[Apps that don't use Earth Engine](#apps-that-dont-use-earth-engine) below. It:
 
 - Establishes the session for this runtime: per connection under a Solara
   server, otherwise the process session
@@ -108,6 +118,80 @@ This decorator is **required** on the main `Page()` component. It:
 def Page():
     # This only renders after session is ready
     gee_interface = get_current_gee_interface()  # Session already established above
+```
+
+### Apps that don't use Earth Engine
+
+Two shapes, and only one of them needs a session at all.
+
+**The app needs nothing from SEPAL** — pure UI, local computation, or its own
+API. Drop `@with_sepal_sessions` and keep the rest of the entry point:
+
+```python
+import solara
+from pysepal.solara import setup_sessions, setup_solara_server, setup_theme_colors
+
+setup_solara_server(extra_asset_locations=[])
+
+
+@solara.lab.on_kernel_start
+def on_kernel_start():
+    return setup_sessions()
+
+
+@solara.component
+def Page():
+    setup_theme_colors()
+    # ...your app here...
+```
+
+Keep `setup_sessions()` even though there is no session to create. The cleanup
+function it returns is what clears this connection's scoped UI state — theme,
+locale — when the kernel shuts down. Without it that state accumulates one entry
+per connection for the life of the process.
+
+Everything that is not a credential still works: theme, locale, notifications
+and every `sepalwidgets` component. `get_current_theme_state()` never raises, by
+design. `get_current_sepal_client()` returns `None`, and
+`get_current_gee_interface()` raises `SepalSessionError` — do not call it.
+
+This shape runs under `solara run` with no SEPAL headers and no
+`PYSEPAL_LOCAL_EE`, because nothing ever asks for a credential.
+
+**The app needs SEPAL file storage but not Earth Engine.** Keep the decorator —
+`SepalClient` only exists inside a session. Know what it costs today:
+`_create_connection_session` builds `EESession`, `GEEInterface`, `SepalClient`
+and `GDriveInterface` unconditionally, so every connection gets an Earth Engine
+event-loop thread it never uses. Making that build lazy is planned for 4.1 and
+changes no API you write against.
+
+#### Maps without Earth Engine
+
+Pass `gee=False`. `SepalMap` defaults to `gee=True`, and in a non-GEE app that
+default does something you do not want:
+
+```python
+SepalMap(gee=False)   # local rasters, vectors, basemaps, PMTiles
+```
+
+With `gee=True` and no `gee_interface=`, `SepalMap.__init__` builds a
+session-less `GEEInterface` **and** calls `su.init_ee()`, which reads
+`~/.config/earthengine/credentials` directly and initialises the global `ee`
+module. In an app-launcher container that file is the platform service account.
+
+Since 4.0 a session-less `GEEInterface` **raises `SepalSessionError` in a
+per-connection runtime**, and the map inherits that: `SepalMap()` with no
+`gee_interface` fails in a container instead of rendering on the platform
+identity. The same guard covers `AoiModel`, the `sepalwidgets` asset inputs and
+`process_admin`, which all have the same `gee_interface or GEEInterface()`
+fallback. Elsewhere — a notebook, a script, a SEPAL sandbox — nothing changes:
+those runtimes own their machine credentials.
+
+So in a container app, always pass one or the other:
+
+```python
+SepalMap(gee=False)                                    # no Earth Engine layers
+SepalMap(gee_interface=get_current_gee_interface())    # Earth Engine layers
 ```
 
 ## Notification Shell Pattern
@@ -427,7 +511,6 @@ buttons and chips inside them. Navigation drawer icons keep default size.
 
 ```bash
 PYSEPAL_DEV_AUTH=1                  # One developer login for the process (local dev only)
-DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to local user-file I/O
 LOCAL_SEPAL_USER=admin              # Dev credentials
 LOCAL_SEPAL_PASSWORD=yourpassword
 SEPAL_HOST=yourinstance.sepal.io    # SEPAL platform host

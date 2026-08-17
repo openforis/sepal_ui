@@ -172,11 +172,14 @@ class AoiModel(Model):
         # the ee retated information
         self.gee = gee
         if gee:
-            su.init_ee()
+            # Resolve the interface first: it refuses a session-less one in a
+            # per-connection runtime, and init_ee() would already have bound the
+            # global ee to the container's credentials by the time it raised.
             if gee_interface:
                 self.gee_interface = gee_interface
             else:
                 self.gee_interface = GEEInterface(gee_session)
+            su.init_ee()
             self.folder = str(folder) if folder else self.gee_interface.get_folder()
 
         # set default values

@@ -1,7 +1,6 @@
 """Test the GEE methods."""
 
 import time
-import warnings
 from pathlib import Path
 
 import ee
@@ -90,41 +89,6 @@ def test_get_assets(gee_dir: Path) -> None:
 
     for expected_asset in expected_assets:
         assert expected_asset in ee_asset_ids
-
-    return
-
-
-@pytest.mark.gee
-@pytest.mark.skipif(not ee.data.is_initialized(), reason="GEE is not set")
-def test_is_asset(gee_dir: Path) -> None:
-    """Check if the asset exist and test deprecation warnings.
-
-    Args:
-        gee_dir: gee_dir: the directory where gee files are exported
-    """
-    # Test with legacy parameters (should show deprecation warning)
-    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
-        res = gee.is_asset(str(gee_dir / "image"), gee_dir)
-        assert res is True
-
-    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
-        res = gee.is_asset(str(gee_dir / "toto"), gee_dir)
-        assert res is False
-
-    # Test with new asset_id parameter (should still show deprecation warning)
-    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
-        res = gee.is_asset(asset_id=str(gee_dir / "image"))
-        assert res is True
-
-    with pytest.warns(DeprecationWarning, match="Use GEEInterface.get_asset"):
-        res = gee.is_asset(asset_id=str(gee_dir / "fake_asset"))
-        assert res is False
-
-    # Test error when no parameters provided
-    with pytest.raises(ValueError, match="Either 'asset_id' or 'asset_name' must be provided"):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            gee.is_asset()
 
     return
 

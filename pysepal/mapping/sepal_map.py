@@ -187,6 +187,8 @@ class SepalMap(ipl.Map):
             if gee_interface:
                 self.gee_interface = gee_interface
             else:
+                # Raises under PER_CONNECTION when gee_session is None; keep it
+                # ahead of init_ee() so a refused map initialises no global ee.
                 self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 
