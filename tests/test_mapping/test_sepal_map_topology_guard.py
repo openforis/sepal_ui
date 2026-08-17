@@ -77,6 +77,8 @@ def test_a_single_identity_runtime_keeps_the_default_map():
     with _topology(PROCESS) as stubs:
         map_ = sm.SepalMap()
 
-    assert map_.gee_interface.session is None
+    # Built, but no credential read yet: resolution waits for the first call.
+    assert map_.gee_interface is not None
+    assert map_.gee_interface._session is None
     assert stubs.init_ee.call_count == 1
     map_.gee_interface.close()

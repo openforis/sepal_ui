@@ -63,13 +63,16 @@ PREFIX = "visualization"
 
 async def get_viz_params_async(
     ee_object: ee.ComputedObject,
-    gee_interface: Optional[GEEInterface] = None,
+    gee_interface: GEEInterface,
 ) -> tuple:
     """Asynchronously retrieve and process visualization parameters for a given Earth Engine object.
 
     Args:
         ee_object: The Earth Engine object (Image, FeatureCollection, etc.) to process.
-        gee_interface: The GEE interface to use for fetching properties. If not provided, a new instance will be created.
+        gee_interface: The interface to read the object's properties through. Required
+            since 4.0: this used to build its own on a miss, which read the machine's
+            credentials rather than the caller's identity and leaked an event-loop
+            thread on every call, because the interface was never closed.
 
     Returns:
         A tuple containing the processed image, object, and visualization parameters.
@@ -80,10 +83,6 @@ async def get_viz_params_async(
     validate_ee_object(ee_object)
 
     props = {}
-
-    if gee_interface is None:
-        gee_interface = GEEInterface()
-
     raw_prop_list = await get_props_list_async(gee_interface, ee_object)
 
     return process_props(raw_prop_list, props)
@@ -91,13 +90,14 @@ async def get_viz_params_async(
 
 def get_viz_params(
     ee_object: ee.ComputedObject,
-    gee_interface: Optional[GEEInterface] = None,
+    gee_interface: GEEInterface,
 ) -> tuple:
     """Retrieve and process visualization parameters for a given Earth Engine object.
 
     Args:
         ee_object: The Earth Engine object (Image, FeatureCollection, etc.) to process.
-        gee_interface: The GEE interface to use for fetching properties. If not provided, a new instance will be created.
+        gee_interface: The interface to read the object's properties through.
+            Required since 4.0; see :func:`get_viz_params_async`.
 
     Returns:
         A tuple containing the processed image, object, and visualization parameters.
@@ -108,10 +108,6 @@ def get_viz_params(
     validate_ee_object(ee_object)
 
     props = {}
-
-    if gee_interface is None:
-        gee_interface = GEEInterface()
-
     raw_prop_list = get_props_list(gee_interface, ee_object)
     return process_props(raw_prop_list, props)
 
