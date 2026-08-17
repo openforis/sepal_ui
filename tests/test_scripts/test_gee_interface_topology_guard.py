@@ -15,9 +15,10 @@ Resolution itself is lazy; the guard is not. See
 import inspect
 from contextlib import contextmanager
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from eeclient.tasks import Task
 
 from pysepal.scripts import gee_interface as gee_interface_module
 from pysepal.scripts.gee_interface import GEEInterface
@@ -146,3 +147,48 @@ def test_the_guard_is_inert_under_a_real_plain_runtime():
     """
     interface = GEEInterface()
     interface.close()
+
+
+def _task(state: str) -> Task:
+    """A real ee-client ``Task``, not a stand-in.
+
+    The bug this guards against was reading ``task["state"]`` on a pydantic
+    model. A ``MagicMock`` would answer that subscript happily and the test
+    would pass against the broken code, so the real model is the whole point.
+    """
+    return Task.model_validate(
+        {
+            "name": "projects/p/operations/ABC123",
+            "metadata": {
+                "@type": "type.googleapis.com/google.earthengine.v1alpha.OperationMetadata",
+                "state": state,
+                "description": "my-export",
+                "priority": 100,
+                "createTime": "2026-08-17T10:00:00Z",
+                "type": "EXPORT_IMAGE",
+            },
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("state", "expected"),
+    [("RUNNING", True), ("READY", True), ("COMPLETED", False), ("FAILED", False), (None, False)],
+)
+def test_is_running_reads_the_task_state_off_the_model(state, expected):
+    """``is_running`` must read ``task.metadata.state``, not subscript the task.
+
+    This path was dead until 4.0 collapsed the interface onto its session: every
+    caller held a session-less interface and took the global-ee branch, so the
+    session branch shipped with ``task["state"]`` in it and only ever failed in
+    the GEE lane. Asserting it here keeps the check in the lane that runs on
+    every push.
+    """
+    session = MagicMock()
+    session.tasks.get_task_by_name_async = AsyncMock(return_value=_task(state) if state else None)
+
+    interface = GEEInterface(session=session)
+    try:
+        assert interface.is_running("my-export") is expected
+    finally:
+        interface.close()
