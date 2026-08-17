@@ -387,7 +387,11 @@ class GEEInterface:
     async def is_running_async(self, name: str) -> bool:
         """Asynchronously check if a task is running by its name."""
         task = await self.session.tasks.get_task_by_name_async(name)
-        return bool(task and task["state"] in ("RUNNING", "READY"))
+        # ee-client returns a pydantic ``Task``, whose state lives on its
+        # metadata. This read used to be ``task["state"]``, which no caller ever
+        # reached: every GEE-lane caller held a session-less interface and took
+        # the deleted global-ee branch instead.
+        return bool(task and task.metadata.state in ("RUNNING", "READY"))
 
     async def get_task_async(self, task_id: str) -> Optional[Task]:
         """Asynchronously get a task by its ID."""
