@@ -1,11 +1,15 @@
 """A session-less ``GEEInterface`` is refused where the process serves many users.
 
-Every method on the interface is written ``if self.session: ... else: <global
-ee>``, so no session means the whole API answers from
-``~/.config/earthengine/credentials`` -- the platform service-account key in an
-app-launcher container. The guard lives in the constructor rather than in each
-caller because ``gee_interface or GEEInterface()`` appears in seven places
-across four subpackages, and that list only grows.
+Since 4.0 every method goes through the session; there is no global-``ee``
+branch left. An interface built with no session resolves one from
+``~/.config/earthengine/credentials`` instead -- the platform service-account
+key in an app-launcher container -- so the refusal moved to the constructor,
+which is also the only place that knows the runtime topology. It lives there
+rather than in each caller because ``gee_interface or GEEInterface()`` appears
+in five places across four subpackages, and that list only grows.
+
+Resolution itself is lazy; the guard is not. See
+``test_construction_does_not_resolve_credentials`` for why.
 """
 
 import inspect
@@ -60,17 +64,59 @@ def test_a_session_bound_interface_is_always_allowed():
 
 
 @pytest.mark.parametrize("plan", [PROCESS, DEV_AUTH], ids=["process", "dev_auth"])
-def test_a_single_identity_runtime_keeps_the_global_ee_path(plan):
+def test_a_single_identity_runtime_resolves_the_machine_credentials(plan):
     """A notebook, a script, pytest and a sandbox own their machine credentials.
 
-    The global-``ee`` fallback is the normal path there, and narrowing the guard
-    past PER_CONNECTION would break every one of them for no safety gain.
+    Reading them is the normal path there, and narrowing the guard past
+    PER_CONNECTION would break every one of them for no safety gain.
     """
-    with _topology(plan) as stubs:
-        interface = GEEInterface()
+    resolved = MagicMock()
 
-    assert interface.session is None
+    with _topology(plan) as stubs:
+        with patch.object(gee_interface_module.EESession, "from_default", return_value=resolved):
+            interface = GEEInterface()
+            assert interface.session is resolved
+
     assert stubs.new_event_loop.call_count == 1
+
+
+def test_construction_does_not_resolve_credentials():
+    """Building an interface must not require Earth Engine to be set up.
+
+    Resolution is deferred to first use because eager resolution breaks three
+    real cases at once: ``SepalMap()`` in a notebook with no Earth Engine
+    configured, the 84 test sites that build a map and never call Earth Engine,
+    and the unit lane on fork PRs, where ``EARTHENGINE_TOKEN`` is empty by
+    design and ``from_default`` therefore raises ``CredentialsResolutionError``.
+    """
+    from_default = MagicMock()
+
+    with _topology(PROCESS):
+        with patch.object(gee_interface_module.EESession, "from_default", from_default):
+            interface = GEEInterface()
+            assert from_default.call_count == 0, "credentials resolved at construction"
+
+            interface.session
+            assert from_default.call_count == 1
+
+            interface.session
+            assert from_default.call_count == 1, "resolved more than once"
+
+
+def test_closing_an_unused_interface_never_resolves_credentials():
+    """``close()`` reads the raw slot, not the property.
+
+    Culling a kernel must not reach for a credential store to tear down an
+    interface that never used one -- on a machine with none, that would turn
+    cleanup into an exception.
+    """
+    from_default = MagicMock()
+
+    with _topology(PROCESS):
+        with patch.object(gee_interface_module.EESession, "from_default", from_default):
+            GEEInterface().close()
+
+    assert from_default.call_count == 0
 
 
 def test_the_use_sepal_headers_door_is_gone():
@@ -99,7 +145,4 @@ def test_the_guard_is_inert_under_a_real_plain_runtime():
     fixtures rely on.
     """
     interface = GEEInterface()
-    try:
-        assert interface.session is None
-    finally:
-        interface.close()
+    interface.close()

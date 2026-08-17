@@ -15,15 +15,13 @@
    ``GEEInterface.get_assets``, ``get_assets_async``, ``get_asset`` and
    ``get_folder`` are the equivalents.
 
-   These three are not dead code and cannot simply be deleted: they *are*
-   ``GEEInterface``'s implementation for a runtime that has no session.
-   ``GEEInterface.get_assets_async`` falls through to ``get_assets`` here, and
-   ``get_folder_async`` to ``get_ee_project``. What makes that safe is the
-   constructor guard -- a session-less ``GEEInterface`` cannot be built in a
-   per-connection runtime at all -- so the only callers that reach this code are
-   the notebooks, scripts and sandboxes where the machine's credentials are the
-   one user's own. ``delete_assets`` additionally backs the test-suite teardown
-   and the ``clean_gee_assets`` janitor, which run as their own identity.
+   ``GEEInterface`` no longer falls through to any of them -- since 4.0 every one
+   of its methods goes through the session. What keeps them alive is
+   ``delete_assets``, which backs the test-suite teardown and the
+   ``clean_gee_assets`` janitor and reaches ``get_assets`` (and through it
+   ``get_ee_project``) to walk a folder before deleting it. Those run as their
+   own identity, in a runtime that owns its credentials, which is the only
+   context any of this is correct in.
 
    They remain for notebooks, scripts and the SEPAL sandbox, where the machine's
    credentials are the one user's own and the global ``ee`` is the right answer.

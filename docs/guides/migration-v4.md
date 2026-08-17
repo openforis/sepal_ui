@@ -43,25 +43,43 @@ user.
 Real SEPAL headers always beat `PYSEPAL_DEV_AUTH`, so arming it in a deployed
 container cannot displace a live user's identity.
 
-### A session-less `GEEInterface` is refused too
+### `GEEInterface` always goes through ee-client
 
-The session layer was not the only way into the shared identity. Every method on
-`GEEInterface` is written `if self.session: ... else: <global ee>`, and the
-global `ee` is initialised from that same
-`~/.config/earthengine/credentials` — the platform service-account key in a
-container. So an interface built with no session answered for the platform while
-the session layer was busy refusing exactly that.
+`GEEInterface` used to carry two implementations of itself: 13 of its 30 methods
+were written `if self.session: ... else: <global ee>`. The `else` half answered
+from `~/.config/earthengine/credentials`, which in a container is the platform
+service-account key — so an interface built with no session answered for the
+platform while the session layer was busy refusing exactly that.
 
-pysepal reached that path from seven places, each a quiet
-`gee_interface or GEEInterface()` fallback — or a `gee_session` allowed to be
-None: `mapping.visualization` (twice), `SepalMap`,
+**Those 13 branches are gone.** Every call now goes through the session, and an
+interface built without one resolves its own from the machine's credentials
+rather than falling back to the global `ee`. One credential path, not one per
+runtime.
+
+Read that claim narrowly: it covers _pysepal's_ Earth Engine calls. Building a
+graph still needs the global `ee` — `ee.Image(...)` raises
+`EEException: client library not initialized` without `ee.Initialize()` — so
+`su.init_ee()` stays, and a module that calls `ee.Image(x).getInfo()` itself
+still bypasses all of this. The library can only guarantee its own calls.
+
+pysepal reached the old fallback from seven places, each a quiet
+`gee_interface or GEEInterface()` — or a `gee_session` allowed to be None. Two
+of them were `get_viz_params` / `get_viz_params_async`, where `gee_interface`
+is **now a required argument**: building one on a miss read the wrong identity
+_and_ leaked an event-loop thread per call, because it was never closed. Five
+remain, all covered by the constructor guard: `SepalMap`,
 `solara.components.aoi.admin`, `AoiModel`, and the `sepalwidgets` asset inputs
 (twice).
 
+Three export parameters are **removed**, having only ever been forwarded on the
+deleted branch: `pyramid_policy` on `export_image_to_asset`, and `dimensions`,
+`skip_empty_tiles` and `format_options` on `export_image_to_drive`. None had a
+caller in pysepal or in any downstream module.
+
 **`GEEInterface()` with no session now raises `SepalSessionError` in a
-per-connection runtime.** The guard is in the constructor, so all seven are
-covered at once — including `SepalMap(gee=True)`, the most visible of them
-because `gee=True` is the default.
+per-connection runtime.** The guard is in the constructor, so all five remaining
+sites are covered at once — including `SepalMap(gee=True)`, the most visible of
+them because `gee=True` is the default.
 
 In a container app, build the interface once from the connection and pass it
 down:
@@ -75,8 +93,10 @@ process_admin(..., gee_interface=gee_interface)
 ```
 
 Nothing changes anywhere else. A notebook, a script, pytest or a SEPAL sandbox
-owns its machine credentials, so the global-`ee` path stays the correct one
-there and `SepalMap()` keeps working untouched.
+owns its machine credentials, so resolving them there is correct and
+`SepalMap()` keeps working untouched. Construction never reads the credential
+store — that happens on the first Earth Engine call — so building a map on a
+machine with no Earth Engine set up still works, and only using it fails.
 
 `GEEInterface(use_sepal_headers=True)` is **removed** with it. It logged in from
 `LOCAL_SEPAL_USER` / `LOCAL_SEPAL_PASSWORD` and returned a session, so it slipped
@@ -88,11 +108,12 @@ Three `pysepal.scripts.gee` functions deprecated in 3.2.0 are **removed**:
 `is_asset`, `get_assets_async_concurrent` and `list_assets_concurrent` (with its
 private `_list_assets_concurrent`). Use `GEEInterface.get_asset(..., not_exists_ok=True)` and `GEEInterface.get_assets_async()`.
 
-`get_assets`, `get_ee_project` and `delete_assets` stay. They read the global
-`ee` and so must not be called from a module — but they are not dead code:
-they're what `GEEInterface` itself falls through to when it has no session, and
-`delete_assets` also backs the test teardown and the `clean_gee_assets` janitor.
-The constructor guard above is what keeps them out of a multi-user container.
+`get_assets`, `get_ee_project` and `delete_assets` stay, and still read the
+global `ee`, so a module must not call them. `GEEInterface` no longer reaches
+them; what keeps them alive is `delete_assets`, which backs the test teardown
+and the `clean_gee_assets` janitor and walks a folder through `get_assets`
+before deleting it. Those run as their own identity, in a runtime that owns its
+credentials.
 
 ### Running a GEE-only app on your laptop
 
@@ -470,6 +491,11 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       `AoiModel`, asset input and `process_admin` in a container app — or
       `gee=False` where Earth Engine isn't needed. A session-less
       `GEEInterface()` now raises there.
+- [ ] Pass `gee_interface` to `get_viz_params` / `get_viz_params_async`; it is
+      no longer optional.
+- [ ] Drop `pyramid_policy`, `dimensions`, `skip_empty_tiles` and
+      `format_options` from any `export_image_to_asset` / `export_image_to_drive`
+      call.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.
