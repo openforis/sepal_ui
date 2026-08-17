@@ -53,9 +53,10 @@ container. So an interface built with no session answered for the platform while
 the session layer was busy refusing exactly that.
 
 pysepal reached that path from seven places, each a quiet
-`gee_interface or GEEInterface()` fallback: `mapping.visualization` (twice),
-`solara.components.aoi.admin`, `scripts.gee` (twice), `AoiModel`, and the
-`sepalwidgets` asset inputs.
+`gee_interface or GEEInterface()` fallback — or a `gee_session` allowed to be
+None: `mapping.visualization` (twice), `SepalMap`,
+`solara.components.aoi.admin`, `AoiModel`, and the `sepalwidgets` asset inputs
+(twice).
 
 **`GEEInterface()` with no session now raises `SepalSessionError` in a
 per-connection runtime.** The guard is in the constructor, so all seven are
@@ -82,6 +83,16 @@ there and `SepalMap()` keeps working untouched.
 past the guard above — one process-wide developer identity, in any runtime. It
 had no callers anywhere. `PYSEPAL_DEV_AUTH` is the supported way to run on a
 developer login, and it goes through topology.
+
+Three `pysepal.scripts.gee` functions deprecated in 3.2.0 are **removed**:
+`is_asset`, `get_assets_async_concurrent` and `list_assets_concurrent` (with its
+private `_list_assets_concurrent`). Use `GEEInterface.get_asset(..., not_exists_ok=True)` and `GEEInterface.get_assets_async()`.
+
+`get_assets`, `get_ee_project` and `delete_assets` stay. They read the global
+`ee` and so must not be called from a module — but they are not dead code:
+they're what `GEEInterface` itself falls through to when it has no session, and
+`delete_assets` also backs the test teardown and the `clean_gee_assets` janitor.
+The constructor guard above is what keeps them out of a multi-user container.
 
 ### Running a GEE-only app on your laptop
 
