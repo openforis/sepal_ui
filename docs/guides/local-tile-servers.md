@@ -231,6 +231,17 @@ the session and authentication middleware when auth is enabled, the startup
 validation in `on_startup` (`ensure_apps_initialized`, `validate_state_settings`),
 and the state-worker drain in `on_shutdown`. Pass both, as above.
 
+Passing `middleware` also puts `GZipMiddleware` in front of _your_ routes, and
+Starlette's gzip never looks at the status code. A `206` big enough to compress
+comes back with `Content-Length` describing the compressed body beside a
+`Content-Range` describing the uncompressed slice, and every range PMTiles asks
+for is re-packed. Declaring an encoding makes the middleware pass the response
+through (measured on Starlette 0.52 and 1.3):
+
+```python
+return FileResponse(path, headers={"content-encoding": "identity"})
+```
+
 Mount Solara at `/` rather than a prefix when it owns the app root, and list your
 own routes before it so the catch-all does not swallow them.
 
