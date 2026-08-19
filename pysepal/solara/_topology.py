@@ -6,8 +6,13 @@ whether a request happens to carry headers. The rule, in order:
 
 1. ``PYSEPAL_DEV_AUTH`` is armed and the connection carries no validated SEPAL
    headers: :attr:`SessionSource.DEV_AUTH`, one developer login for the whole
-   process. Real headers demote this branch, so a stray environment variable can
-   never displace a live user's identity.
+   process. Validated headers demote this branch. "Validated" means
+   ``SepalHeaders.model_validate`` succeeds on the headers of the *current
+   kernel context*, which is narrower than "a real user is connected": a user
+   who has linked Google but selected no Earth Engine project fails it
+   (``GoogleTokens.project_id`` is required), and a call off the render thread
+   sees no headers at all. Both resolve to the developer login. Arm this
+   variable only in a process that serves one user.
 2. The process runs in a SEPAL sandbox -- ``SEPAL=true`` in the environment,
    i.e. an app-manager app owned by exactly one user:
    :attr:`SessionSource.PROCESS`.
@@ -28,8 +33,9 @@ reads -- so a headerless fallback in that runtime silently hands every user the
 platform service account.
 
 Rule 3 reaches the same credentials, and is not that fallback: it is armed by
-hand rather than reached by degradation, real headers demote it exactly as they
-demote rule 1, and the file it resolves is refused underneath us --
+hand rather than reached by degradation, validated headers demote it exactly as
+they demote rule 1 -- with the same limits -- and the file it resolves is
+refused underneath us --
 ``resolve_default_provider(allow_service_account_file=False)`` raises
 ``ServiceAccountFileRefusedError`` on a service-account key, and in a
 ``sepal-user`` home it takes the SEPAL-file-only branch where a service-account
@@ -205,8 +211,9 @@ def resolve_session_plan(
         using_solara_server: Whether a Solara server is running this process.
         has_sepal_headers: Whether the connection carries *validated* SEPAL
             headers. Read by the arming rules 1 and 3 only, as the interlock
-            that stops a developer's own credentials from displacing a real
-            user. It never selects between PROCESS and PER_CONNECTION. See
+            against a developer's own credentials displacing a real user --
+            rule 1 above states what that interlock does and does not catch.
+            It never selects between PROCESS and PER_CONNECTION. See
             :func:`plan_reads_sepal_headers`.
 
     Returns:
