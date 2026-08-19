@@ -118,6 +118,23 @@ Only borrow the raster variable when it is the generic `/proxy/{port}` form.
 `localtileserver`'s own autodetected value is namespaced to itself
 (`localtileserver-proxy/{port}`) and would not serve a vector tile port.
 
+Do the borrow in the app rather than the launcher when you do not control the
+launch environment, which under SEPAL you usually do not:
+
+```python
+# app.py, before anything imports vectortileserver
+_raster_prefix = os.environ.get("LOCALTILESERVER_CLIENT_PREFIX")
+if _raster_prefix and "/proxy/{port}" in _raster_prefix:
+    os.environ.setdefault("VECTORTILESERVER_CLIENT_PREFIX", _raster_prefix)
+```
+
+`setdefault` leaves an explicitly configured value alone. Test _for_
+`/proxy/{port}` rather than _against_ `localtileserver-proxy`: a denylist also
+borrows a raster-specific route such as Configuration 2's `/rasters/{port}`, and
+the PMTiles then 404 silently — the failure this guard exists to prevent. The
+empty value the next section asks for is falsy, so the plain-Voila case borrows
+nothing and both libraries keep the loopback URL, which is what works there.
+
 ### `localtileserver`: define the prefix empty — when nothing serves one
 
 This one **does** autodetect, and that is what breaks the unhosted case: inside
@@ -213,6 +230,17 @@ Solara's own snippet mounts under a `/solara/` prefix and passes neither
 the session and authentication middleware when auth is enabled, the startup
 validation in `on_startup` (`ensure_apps_initialized`, `validate_state_settings`),
 and the state-worker drain in `on_shutdown`. Pass both, as above.
+
+Passing `middleware` also puts `GZipMiddleware` in front of _your_ routes, and
+Starlette's gzip never looks at the status code. A `206` big enough to compress
+comes back with `Content-Length` describing the compressed body beside a
+`Content-Range` describing the uncompressed slice, and every range PMTiles asks
+for is re-packed. Declaring an encoding makes the middleware pass the response
+through (measured on Starlette 0.52 and 1.3):
+
+```python
+return FileResponse(path, headers={"content-encoding": "identity"})
+```
 
 Mount Solara at `/` rather than a prefix when it owns the app root, and list your
 own routes before it so the catch-all does not swallow them.

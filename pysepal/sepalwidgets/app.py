@@ -191,7 +191,7 @@ class ThemeSelect(v.VuetifyTemplate):
 
         This is called when the Vue component syncs the dark value back to Python.
         """
-        logger.info(f"🔍 OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
+        logger.info(f"OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
 
     def toggle_theme(self) -> None:
         """Toggle between dark and light theme.
