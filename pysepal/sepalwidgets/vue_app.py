@@ -289,7 +289,7 @@ class MapApp(v.VuetifyTemplate):
                 model_link = link((self, trait_name), (self._model, trait_name))
                 self._model_links.append(model_link)
             except Exception as e:
-                logger.warning(f"⚠ Could not link {trait_name}: {e}")
+                logger.warning(f"Could not link {trait_name}: {e}")
 
     def unlink_model(self):
         """Remove all model links and cleanup."""
