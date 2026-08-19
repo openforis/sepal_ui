@@ -47,6 +47,24 @@ def _container_path() -> str:
     return f"projects/{project_id}/assets/pysepal-tests"
 
 
+def delete_recursive(asset_id: str) -> None:
+    """Delete an asset, and everything under it when it is a folder.
+
+    Children go first: Earth Engine refuses to delete a folder that still has
+    contents. Replaces ``pysepal.scripts.gee.delete_assets``, removed in 4.0 --
+    which took a ``dry_run`` flag it compared with ``is True``, so any truthy
+    value that was not the singleton armed a real delete.
+
+    Args:
+        asset_id: the full asset name, e.g. ``projects/p/assets/folder``.
+    """
+    if ee.data.getAsset(asset_id)["type"] == "FOLDER":
+        for child in ee.data.listAssets({"parent": asset_id}).get("assets", []):
+            delete_recursive(child["name"])
+
+    ee.data.deleteAsset(asset_id)
+
+
 def _parse_update_time(raw: Any) -> Optional[dt.datetime]:
     """Parse a GEE updateTime (RFC3339 string or millis int) into a UTC datetime."""
     if raw is None:
@@ -121,12 +139,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("\nDry-run. Pass --yes to delete.")
         return 0
 
-    # Import here to avoid importing the whole pysepal package at module load
-    from pysepal.scripts import gee as gee_script
-
     for asset in stale:
         print(f"Deleting {asset['id']}...")
-        gee_script.delete_assets(asset["id"], dry_run=False)
+        delete_recursive(asset["id"])
 
     print(f"Deleted {len(stale)} folder(s).")
     return 0
