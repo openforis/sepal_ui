@@ -234,7 +234,7 @@ def test_plan_reads_sepal_headers_enumerates_every_arming_rule(env, expected):
 
 
 def test_local_ee_does_not_reopen_the_headerless_fallback():
-    """R3 reaches the credentials R2 exists to keep away from a container.
+    """``PYSEPAL_LOCAL_EE`` reaches the credentials R2 exists to keep away.
 
     The difference is that it is armed by hand and demoted by real headers, so
     it can never be *reached* by a container degrading. Both halves are pinned

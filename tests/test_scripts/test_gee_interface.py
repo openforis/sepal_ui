@@ -19,7 +19,9 @@ def test_initialization(gee_interface: GEEInterface) -> None:
     """
     assert gee_interface is not None
     assert isinstance(gee_interface, GEEInterface)
-    assert gee_interface.session is None
+    # Since 4.0 there is no session-less interface: an omitted session is
+    # resolved from the machine's credentials on first access.
+    assert gee_interface.session is not None
     assert gee_interface._closed is False
 
     return

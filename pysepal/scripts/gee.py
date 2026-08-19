@@ -1,10 +1,44 @@
-"""All the heleper methods to interface Google Earthengine with sepal-ui."""
+"""All the helper methods to interface Google Earth Engine with pysepal.
 
-import asyncio
+.. warning::
+
+   **Modules should not call the asset helpers here.** ``get_ee_project``
+   (``ee.data.getProjectConfig``), ``get_assets`` (``ee.data.listAssets``) and
+   ``delete_assets`` (``ee.data.getAsset``, ``ee.data.deleteAsset``) execute
+   against the *global* ``ee`` module, which answers as whatever identity
+   ``ee.Initialize()`` was given. In an app-launcher container that is the
+   platform service account, so they list, inspect and *delete* against the
+   platform's asset tree rather than the user's, with no error to show for it.
+
+   Use the session-bound interface instead: ``get_current_gee_interface()``
+   returns one built from the connection's own credentials, and
+   ``GEEInterface.get_assets``, ``get_assets_async``, ``get_asset`` and
+   ``get_folder`` are the equivalents.
+
+   ``GEEInterface`` no longer falls through to any of them -- since 4.0 every one
+   of its methods goes through the session. What keeps them alive is
+   ``delete_assets``, which backs the test-suite teardown and the
+   ``clean_gee_assets`` janitor and reaches ``get_assets`` (and through it
+   ``get_ee_project``) to walk a folder before deleting it. Those run as their
+   own identity, in a runtime that owns its credentials, which is the only
+   context any of this is correct in.
+
+   They remain for notebooks, scripts and the SEPAL sandbox, where the machine's
+   credentials are the one user's own and the global ``ee`` is the right answer.
+
+Splitting the two halves is worth stating plainly, because they are not the same
+problem. *Building* an Earth Engine graph -- ``ee.Image(...)``,
+``ee.FeatureCollection(...)`` -- is client-side and moves no user data, so it
+needs ``ee.Initialize()`` to have run but does not care whose credentials did it.
+*Executing* -- ``getInfo``, ``getMapId``, exports, asset listing -- is what
+spends a quota, reads private assets and writes to a Drive, and in a multi-user
+process it must go through the connection's own session. The functions above are
+the second kind wearing the clothes of the first.
+"""
+
 import json
 import os
 import time
-from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, List, Union
@@ -133,64 +167,6 @@ def is_running(task_descripsion: str) -> ee.batch.Task:
 
 
 @deprecated(
-    reason="This function is no longer required. Use GEEInterface.get_assets() instead for better performance and resource management.",
-    version="3.2.0",
-    category=DeprecationWarning,
-)
-async def _list_assets_concurrent(folders: list, semaphore: asyncio.Semaphore) -> list:
-    """List assets concurrently using ThreadPoolExecutor.
-
-    .. deprecated:: 3.2.0
-        This function is deprecated. Use GEEInterface.get_assets() instead.
-
-    Args:
-        folders: list of folders to list assets from
-
-    Returns:
-        list of assets for each folder
-    """
-    async with semaphore:
-        with ThreadPoolExecutor() as executor:
-            loop = asyncio.get_running_loop()
-            tasks = [
-                loop.run_in_executor(executor, ee.data.listAssets, {"parent": folder})
-                for folder in folders
-            ]
-            results = await asyncio.gather(*tasks)
-            return results
-
-
-# Deprecated alias - use GEEInterface.get_assets() instead
-list_assets_concurrent = _list_assets_concurrent
-
-
-@deprecated(
-    reason="Use GEEInterface.get_assets() instead for better performance and resource management.",
-    version="3.2.0",
-    category=DeprecationWarning,
-)
-async def get_assets_async_concurrent(folder: str, gee_interface=None) -> List[dict]:
-    """Get all the assets from the parameter folder. every nested asset will be displayed.
-
-    .. deprecated:: 3.2.0
-        This function is deprecated. Use GEEInterface.get_assets() instead.
-
-    Args:
-        folder: the initial GEE folder
-
-    Returns:
-        the asset list. each asset is a dict with 3 keys: 'type', 'name' and 'id'
-
-    """
-    if not gee_interface:
-        from pysepal.scripts.gee_interface import GEEInterface
-
-        gee_interface = GEEInterface()
-
-    return await gee_interface.get_assets_async(folder)
-
-
-@deprecated(
     reason="Use GEEInterface.get_assets() instead for better performance and resource management.",
     version="3.2.0",
     category=DeprecationWarning,
@@ -243,55 +219,6 @@ def _get_assets_sync(folder: Union[str, Path] = "") -> List[dict]:
 
 # Deprecated alias - use GEEInterface.get_assets() instead
 get_assets = _get_assets
-
-
-@deprecated(
-    reason="Use GEEInterface.get_asset() with not_exists_ok=True instead. "
-    "The 'asset_name' and 'folder' parameters are deprecated. Use 'asset_id' directly.",
-    version="3.2.0",
-    category=DeprecationWarning,
-)
-@need_ee
-def is_asset(asset_name: str = None, folder: Union[str, Path] = "", asset_id: str = None) -> bool:
-    """Check if the asset already exist in the user asset folder.
-
-    Args:
-        asset_name: [DEPRECATED] the name of the asset (use asset_id instead)
-        folder: [DEPRECATED] the folder of the assets (use full asset_id instead)
-        asset_id: the complete asset ID (e.g., 'projects/your-project/assets/folder/asset_name')
-
-    Returns:
-        true if asset exists, false otherwise
-    """
-    # Handle backward compatibility
-    if asset_id is None:
-        if asset_name is None:
-            raise ValueError("Either 'asset_id' or 'asset_name' must be provided")
-
-        # Check if asset_name already contains the full path
-        if asset_name.startswith("projects/"):
-            asset_id = asset_name
-        else:
-            # Construct asset_id from legacy parameters
-            folder = str(folder) if folder else ""
-            if folder and not folder.startswith("projects/"):
-                # If folder doesn't start with 'projects/', assume it's a relative path
-                folder = f"projects/{get_ee_project()}/assets/{folder}"
-            elif not folder:
-                # If no folder provided, use default
-                folder = f"projects/{get_ee_project()}/assets/"
-
-            # Ensure folder ends with '/' for proper concatenation
-            if not folder.endswith("/"):
-                folder += "/"
-            asset_id = folder + asset_name
-
-    # Use GEEInterface to check if asset exists
-    from pysepal.scripts.gee_interface import GEEInterface
-
-    with GEEInterface() as gee_interface:
-        result = gee_interface.get_asset(asset_id, not_exists_ok=True)
-        return result is not None
 
 
 @need_ee
