@@ -265,7 +265,7 @@ def _render_session_content(
     solara.Markdown("## Current User Information")
     solara.FileBrowser()
     solara.Text(f"Current User: {username}")
-    solara.Text(f"Admin Access: {'✅ Yes' if is_admin else '❌ No'}")
+    solara.Text(f"Admin Access: {'Yes' if is_admin else 'No'}")
 
     solara.Markdown("---")
 
@@ -275,15 +275,15 @@ def _render_session_content(
         with solara.Column(gap="0.5rem"):
             solara.Text(f"Scope ID: {session_info.scope_id}")
             solara.Text(f"Username: {session_info.username or 'N/A'}")
-            solara.Text(f"Session Ready: {'✅' if session_info.session_ready else '❌'}")
+            solara.Text(f"Session Ready: {'Yes' if session_info.session_ready else 'No'}")
             solara.Text(
-                f"GEE Interface: {'✅ Available' if session_info.has_gee_interface else '❌ Not Available'}"
+                f"GEE Interface: {'Available' if session_info.has_gee_interface else 'Not Available'}"
             )
             solara.Text(
-                f"Sepal Client: {'✅ Available' if session_info.has_sepal_client else '❌ Not Available'}"
+                f"Sepal Client: {'Available' if session_info.has_sepal_client else 'Not Available'}"
             )
             solara.Text(
-                f"Drive Interface: {'✅ Available' if session_info.has_drive_interface else '❌ Not Available'}"
+                f"Drive Interface: {'Available' if session_info.has_drive_interface else 'Not Available'}"
             )
             solara.Text(f"Active Module: {session_info.active_module_name or 'N/A'}")
             solara.Text(f"Modules: {', '.join(session_info.module_names) or 'N/A'}")
@@ -304,9 +304,11 @@ def _render_session_content(
                 with solara.Column(gap="0.25rem"):
                     solara.Text(f"Scope ID: {session.scope_id}")
                     solara.Text(f"Username: {session.username or 'N/A'}")
-                    solara.Text(f"GEE Interface: {'✅' if session.has_gee_interface else '❌'}")
-                    solara.Text(f"Sepal Client: {'✅' if session.has_sepal_client else '❌'}")
-                    solara.Text(f"Drive Interface: {'✅' if session.has_drive_interface else '❌'}")
-                    solara.Text(f"Session Ready: {'✅' if session.session_ready else '❌'}")
+                    solara.Text(f"GEE Interface: {'Yes' if session.has_gee_interface else 'No'}")
+                    solara.Text(f"Sepal Client: {'Yes' if session.has_sepal_client else 'No'}")
+                    solara.Text(
+                        f"Drive Interface: {'Yes' if session.has_drive_interface else 'No'}"
+                    )
+                    solara.Text(f"Session Ready: {'Yes' if session.session_ready else 'No'}")
     else:
         solara.Text("No active sessions found.")

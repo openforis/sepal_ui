@@ -117,16 +117,30 @@ past the guard above — one process-wide developer identity, in any runtime. It
 had no callers anywhere. `PYSEPAL_DEV_AUTH` is the supported way to run on a
 developer login, and it goes through topology.
 
-Three `pysepal.scripts.gee` functions deprecated in 3.2.0 are **removed**:
-`is_asset`, `get_assets_async_concurrent` and `list_assets_concurrent` (with its
-private `_list_assets_concurrent`). Use `GEEInterface.get_asset(..., not_exists_ok=True)` and `GEEInterface.get_assets_async()`.
+**`pysepal.scripts.gee` keeps only `init_ee` and `need_ee`.** Everything else in
+that module is **removed**. It ran against the global `ee`, which in an
+app-launcher container is the platform service account, so it answered for the
+wrong identity and raised nothing to say so.
 
-`get_assets`, `get_ee_project` and `delete_assets` stay, and still read the
-global `ee`, so a module must not call them. `GEEInterface` no longer reaches
-them; what keeps them alive is `delete_assets`, which backs the test teardown
-and the `clean_gee_assets` janitor and walks a folder through `get_assets`
-before deleting it. Those run as their own identity, in a runtime that owns its
-credentials.
+| removed                                                             | replacement                                                                                         |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `get_task`                                                          | `GEEInterface.get_task` — returns `None` on a miss, where this raised                               |
+| `is_running`                                                        | `GEEInterface.is_running` — a real `bool`, where this returned the task                             |
+| `is_task`                                                           | `interface.session.tasks.get_task_by_name_async(name)`                                              |
+| `wait_for_completion`                                               | poll `GEEInterface.get_task(...).metadata.state` yourself                                           |
+| `get_assets`, `_get_assets`                                         | `GEEInterface.get_assets` / `get_assets_async`                                                      |
+| `get_ee_project`                                                    | `GEEInterface.get_folder()`, or `interface.session.project_id`                                      |
+| `delete_assets`                                                     | none. It had no caller outside this repo's own test teardown, and it is the one that deleted.       |
+| `is_asset`, `get_assets_async_concurrent`, `list_assets_concurrent` | `GEEInterface.get_asset(..., not_exists_ok=True)` and `get_assets_async()` — deprecated since 3.2.0 |
+
+Two of them were already broken, so port rather than transcribe.
+`wait_for_completion` left its loop on `COMPLETED` alone and waited forever on a
+cancelled task. `delete_assets` gated on `if dry_run is True`, and `1 is True` is
+`False` — every truthy value that was not the singleton armed a real recursive
+delete.
+
+`get_assets` also took the project root when called with no argument. Its
+replacement does not: pass `interface.get_folder()` explicitly.
 
 ### Running a GEE-only app on your laptop
 
@@ -517,6 +531,8 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       call.
 - [ ] Read a task's state as `task.metadata.state`, and handle `get_task`
       returning `None` instead of raising on an unknown id.
+- [ ] Replace every `pysepal.scripts.gee` call except `init_ee` and `need_ee`.
+      The table above names the replacement for each.
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.
