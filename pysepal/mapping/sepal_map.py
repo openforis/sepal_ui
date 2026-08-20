@@ -74,6 +74,8 @@ log = logging.getLogger("sepalui.mapping")
 
 DEFAULT_MAP_WIDTH_PX = 1024
 
+CLIENT_PREFIX_ENV_VAR = "LOCALTILESERVER_CLIENT_PREFIX"
+
 
 class SepalMap(ipl.Map):
     # ##########################################################################
@@ -420,7 +422,7 @@ class SepalMap(ipl.Map):
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
 
-        If used on a cloud platform (or distant jupyter), this method won't know where the entry point of the client is set and will thus fail to display the image. Please follow instructions from https://localtileserver.banesullivan.com/installation/remote-jupyter.html and set up the ``LOCALTILESERVER_CLIENT_PREFIX`` environment variable.
+        The raster is served by a ``localtileserver`` instance bound to ``127.0.0.1`` inside the kernel, so the browser cannot reach it without help. ``LOCALTILESERVER_CLIENT_PREFIX`` names the route that reaches it: SEPAL sets it for its sandboxes, and under solara-server you mount one yourself. Set, it wins and is used as given. **Unset**, localtileserver autodetects a ``jupyter-server-proxy`` prefix and assumes something serves it -- true in JupyterLab, false under a plain ``voila notebook.ipynb``, where every tile then 404s. **Define it empty** in that case to fall back to the loopback URL. See ``docs/guides/local-tile-servers.md``.
 
         Args:
             image: The image file path.
@@ -570,7 +572,11 @@ class SepalMap(ipl.Map):
         from localtileserver import TileClient, get_leaflet_tile_layer
 
         image = Path(image)
-        client = TileClient(served)
+        # Pass the variable through rather than letting localtileserver read it:
+        # unset gives None and it autodetects a jupyter-server-proxy prefix, which
+        # Voila does not serve. Defined-but-empty reaches TileClient as "", the one
+        # value that suppresses both the env read and the autodetect.
+        client = TileClient(served, client_prefix=os.environ.get(CLIENT_PREFIX_ENV_VAR))
 
         # check inputs
         if layer_name in [layer.name for layer in self.layers]:

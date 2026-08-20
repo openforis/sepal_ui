@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "Rasters locaux"
+  },
+  "panel": {
+    "title": "Rasters",
+    "description": "Chaque bouton affiche un raster local par un chemin différent."
+  },
+  "section": {
+    "title": "Rasters locaux",
+    "description": "Affichage de {}. Une rampe continue étirée sur des codes de classe épars les rend presque noirs ; class_colors dessine chacun avec sa couleur exacte. Définissez {} pour utiliser de vrais produits."
+  },
+  "source": {
+    "synthetic": "substituts générés",
+    "real": "vraies cartes de classes"
+  },
+  "buttons": {
+    "continuous": "rampe continue",
+    "classes": "couleurs par classe",
+    "large": "raster volumineux",
+    "clear_rasters": "effacer les rasters"
+  },
+  "layers": {
+    "continuous": "Classes (continu)",
+    "exact": "Classes (exact)",
+    "loss": "Année de perte"
+  },
+  "tasks": {
+    "continuous": "Palette continue",
+    "classes": "Couleurs par classe",
+    "large": "Raster volumineux",
+    "preparing": "préparation du COG...",
+    "preparing_overviews": "préparation du COG avec aperçus..."
+  },
+  "toasts": {
+    "continuous": "Rampe continue ajoutée",
+    "classes": "{} classes ajoutées",
+    "large": "Raster volumineux ajouté"
+  }
+}

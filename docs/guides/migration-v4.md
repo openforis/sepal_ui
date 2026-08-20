@@ -211,6 +211,7 @@ debug panel renders, and nothing downstream may key a permission off it.
 ee-client>=3.1.0,<4
 pysepal-api>=0.3.0,<0.4
 solara>=1.60,<2
+localtileserver>=1.0.0
 ipyvuetify<3
 ```
 
@@ -234,6 +235,16 @@ produced a pysepal that could not be imported at all. If your module pins
 `solara._using_solara_server` (rule 4 of the table above). pysepal asserts both
 at import and raises `ImportError` if either is missing, rather than silently
 collapsing every connection onto one shared scope. Do not unpin solara.
+
+`localtileserver` 1.0 is the first version pysepal has required, so 3.8.1 apps
+meet it here. It brings a `jupyter-loopback` dependency and, with it, prefix
+autodetection: with no prefix configured it invents `localtileserver-proxy/{port}`
+on the grounds that it is running in a Jupyter kernel. 0.10.x handed the browser
+the loopback URL instead. On SEPAL nothing changes -- the platform sets
+`LOCALTILESERVER_CLIENT_PREFIX`, so autodetection never fires. Where nothing
+serves that route -- a plain `voila notebook.ipynb` -- every tile 404s, with no
+error and no traceback, just an empty map. Define `LOCALTILESERVER_CLIENT_PREFIX`
+**empty** to get the old URL back. See `local-tile-servers.md` for the rest.
 
 ## 4. `import sepal_ui` → `import pysepal`
 
@@ -286,9 +297,9 @@ use the `.files.*` API need no change.
 
 ## 6. `~/.sepal-ui-config` and its CLI tools are gone
 
-The file is deleted along with every reader and writer. Theme and locale no
-longer persist anywhere: they are per-runtime state now, because a machine-global
-file is shared by every connection in a multi-user container.
+The file is deleted along with every reader and writer. Theme and locale are
+per-runtime state now, resolved and persisted in the browser, because a
+machine-global file is shared by every connection in a multi-user container.
 
 Removed: `pysepal.conf`, `pysepal.config`, `pysepal.config_file`,
 `pysepal.frontend.styles.get_theme`, and `set_config`, `set_config_locale`,
@@ -319,6 +330,35 @@ ms = Translator(json_folder)
 # 4.0 — pass the target you want
 ms = Translator(json_folder, target=user_locale)
 ```
+
+Where `user_locale` comes from is the other half. `LocaleSelect` resolves it in
+the browser — `localStorage[":sepalUi:locale"]`, then `navigator.language`, then
+English, each candidate matched against the catalogs the app actually ships —
+and pushes the result into a scope-keyed `LocaleState`. Build the translator
+from that and a language change re-renders in place, with no reload:
+
+```python
+from pysepal.solara import use_locale
+
+@solara.component
+def Page():
+    locale = use_locale()
+    ms = solara.use_memo(lambda: Translator(json_folder, target=locale), [locale])
+
+    MapApp.element(app_title=ms.app.title, locales=ms.available_locales())
+```
+
+`MapApp` takes locale _codes_ rather than a `Translator` because `Translator`
+subclasses `dict`, which reacton flattens on the way to `.element()`. Outside a
+Solara render, `get_current_locale_state()` returns the same state directly.
+
+A 3.x locale saved in `~/.sepal-ui-config` is not migrated: the file is read
+nowhere in 4.0, so the first load falls to `navigator.language`.
+
+The picker now offers every catalog the app ships. Previously the offered list
+was intersected with `pysepal/data/locale.parquet`, which has `es-ES` but no
+bare `es` — so pysepal's own bundled `message/es/` and `message/ru-RU/` could
+never be selected. The parquet now supplies only display names and flags.
 
 **CLI**: the `module_theme` and `module_l10n` entry points are removed — both
 existed only to edit that file. The remaining console scripts are
@@ -464,6 +504,41 @@ where 3.x quietly returned an interface built from the machine's credentials —
 in an app-launcher container, the shared platform service account. A component
 that forgot the decorator fails loudly instead of serving the wrong identity.
 
+## 11. `MapApp`'s right panel follows its traits
+
+`right_panel_config` and `right_panel_content` are now reactive. Setting either
+one after construction updates what is on screen; in 3.x the assignment landed
+on the trait and nothing visible changed.
+
+`MapApp` does not render the panel itself. It copies both values into a child
+`RightPanel` widget in `__init__`, and `MapApp.vue` renders that child. The copy
+ran once, so the two drifted apart the moment anything reassigned the parent
+trait — which is what `MapApp.element(...)` does on every re-render, because
+reacton updates an existing widget rather than rebuilding it. `MapApp` now
+observes both traits and pushes them onto the child.
+
+This is what makes a panel that depends on state work at all:
+
+```python
+# 4.0 — the heading and description follow the reactive value
+MapApp.element(
+    right_panel_config={"title": ms.panel.title, "width": 400},
+    right_panel_content=[{"title": f"{len(layers)} layers", "content": [...]}],
+)
+```
+
+Nothing needs changing to adopt it. It matters if you worked around the old
+behaviour by rebuilding the whole `MapApp`, or by mutating the child panel
+through `app.right_panel[0]`. Both are now unnecessary, and the second is
+silently overwritten the next time the parent trait changes.
+
+**Catalog keys may not be named after `dict` methods.** `Translator` subclasses
+`Box` subclasses `dict`, so a key called `clear`, `items`, `keys`, `values`,
+`get`, `copy`, `update` or `pop` returns the bound method instead of your
+string, and reaches the UI as `<bound method Box.clear ...>` with no error.
+Rename the key. For the same reason `MapApp` takes `locales=` rather than a
+`Translator`: reacton flattens a `dict` subclass on the way to `.element()`.
+
 ## Audit checklist
 
 - [ ] Set `PYSEPAL_ADMIN_USERS` in every deployment that had a non-`admin`
@@ -478,8 +553,10 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       four legacy verbs with `client.files.*`.
 - [ ] Create the results directory yourself before writing into `results_path`;
       `SepalClient.create()` no longer does it, and nothing fails until the write.
-- [ ] Remove every `~/.sepal-ui-config` reader/writer; pass `target=` to
-      `Translator` and use `get_current_theme_state()` for theme.
+- [ ] Remove every `~/.sepal-ui-config` reader/writer; build the `Translator`
+      from `use_locale()` and use `get_current_theme_state()` for theme.
+- [ ] Replace any "refresh to apply the language" instruction in your UI;
+      switching is live, and picks no longer survive as a machine-global file.
 - [ ] Drop `module_theme` / `module_l10n` from scripts and CI.
 - [ ] Rename `SOLARA_TEST` to `PYSEPAL_DEV_AUTH` in `.env`, compose files and
       deployment manifests — or `PYSEPAL_LOCAL_EE=1` if the app only needs Earth
@@ -502,6 +579,10 @@ that forgot the decorator fails loudly instead of serving the wrong identity.
       returning `None` instead of raising on an unknown id.
 - [ ] Replace every `pysepal.scripts.gee` call except `init_ee` and `need_ee`.
       The table above names the replacement for each.
+- [ ] Drop any workaround that rebuilt `MapApp`, or reached into
+      `app.right_panel[0]`, to refresh the right panel; both traits are reactive.
+- [ ] Grep your message catalogs for keys named after `dict` methods
+      (`clear`, `items`, `keys`, `values`, `get`, `copy`, `update`, `pop`).
 
 For the full picture of how an app is wired in 4.0, see
 `docs/guides/solara-app-builder.md`.

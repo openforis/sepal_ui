@@ -72,6 +72,11 @@ Homepage = "https://github.com/openforis/pysepal"
 Download = "https://github.com/openforis/pysepal/archive/v_${metadata:version}.tar.gz"
 
 [project.optional-dependencies]
+# demo_apps/ only -- nothing here ships in the wheel. vectortileserver also
+# needs the tippecanoe binary, which pip cannot provide: conda-forge has it.
+demos = [
+    "vectortileserver>=0.2.1",
+]
 dev = [
     "pre-commit>=2.18.0",
     "commitizen",
@@ -199,7 +204,8 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,pysepal/message/**/*.json,pysepal/data/gaul_iso.json'
+# Translation catalogs are not English, so its dictionary does not apply.
+skip = 'CHANGELOG.md,pysepal/message/**/*.json,demo_apps/**/message/**/*.json,pysepal/data/gaul_iso.json'
 
 [tool.black]
 line-length = 100
