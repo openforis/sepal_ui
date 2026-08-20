@@ -25,7 +25,8 @@ swap ``legend_data`` as the selection changes::
         event_set_selected=selected.set,
     )
 
-See ``pysepal/templates/solara/solara_map_app/app.py`` for a working example.
+See ``demo_apps/solara_map_app/component/widget/legend.py`` for a
+working example.
 """
 
 from dataclasses import dataclass, field

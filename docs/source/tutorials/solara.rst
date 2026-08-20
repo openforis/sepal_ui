@@ -191,12 +191,16 @@ Create a ``.env`` file in the ``pysepal`` root directory:
 .. code-block:: properties
 
     # Development settings
-    SOLARA_TEST=true
+    PYSEPAL_DEV_AUTH=1
     LOCAL_SEPAL_USER=your_username
     LOCAL_SEPAL_PASSWORD=your_password
     SEPAL_HOST=sepal.io # or your custom SEPAL instance URL
 
-The repository also includes a ready-to-run Solara application template:
+If the app only uses Earth Engine, arm ``PYSEPAL_LOCAL_EE=1`` instead of the
+four settings above. It runs on your own ``~/.config/earthengine/credentials``
+with no SEPAL login, and therefore without a ``SepalClient``.
+
+The repository also includes ready-to-run Solara demo apps under ``demo_apps/``:
 
 .. code-block:: bash
 
@@ -209,8 +213,11 @@ The repository also includes a ready-to-run Solara application template:
     # Make the run script executable
     chmod +x run_solara.sh
 
-    # Test the map application template
-    ./run_solara.sh pysepal/templates/solara/solara_map_app/app.py --port 8901
+    # Test the map application demo
+    ./run_solara.sh demo_apps/solara_map_app/app.py --port 8901
+
+    # ...or open the gallery, which routes to every demo
+    ./run_solara.sh demo_apps/gallery.py --port 8901
 
 The ``run_solara.sh`` script automatically:
 
@@ -292,7 +299,7 @@ Complete Map Application Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The full worked example lives at
-``pysepal/templates/solara/solara_map_app/app.py``. It wires an ``AoiView``,
+``demo_apps/solara_map_app/app.py``. It wires an ``AoiView``,
 async processing with progress notifications, layer management, a floating map
 legend and the export dialog into one ``MapApp`` shell — read it alongside this
 section rather than copying the skeleton below.
@@ -450,7 +457,8 @@ Docker Configuration
           SEPAL_HOST: "${SEPAL_HOST}"
           FORWARDED_ALLOW_IPS: "*"
           SOLARA_THEME_SHOW_BANNER: "False"
-          SOLARA_TEST: "${SOLARA_TEST:-false}"
+          PYSEPAL_DEV_AUTH: "${PYSEPAL_DEV_AUTH:-0}"
+          PYSEPAL_LOCAL_EE: "${PYSEPAL_LOCAL_EE:-0}"
           LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER:-}"
           LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD:-}"
         healthcheck:

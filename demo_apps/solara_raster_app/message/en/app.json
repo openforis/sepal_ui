@@ -1,0 +1,40 @@
+{
+  "app": {
+    "title": "Local rasters"
+  },
+  "panel": {
+    "title": "Rasters",
+    "description": "Each button renders a local raster through a different path."
+  },
+  "section": {
+    "title": "Local rasters",
+    "description": "Drawing {}. A continuous ramp stretched across sparse class codes renders them near-black; class_colors draws each one exactly. Set {} to use real products."
+  },
+  "source": {
+    "synthetic": "generated stand-ins",
+    "real": "real class maps"
+  },
+  "buttons": {
+    "continuous": "continuous ramp",
+    "classes": "class colors",
+    "large": "large raster",
+    "clear_rasters": "clear rasters"
+  },
+  "layers": {
+    "continuous": "Classes (continuous)",
+    "exact": "Classes (exact)",
+    "loss": "Loss year"
+  },
+  "tasks": {
+    "continuous": "Continuous colormap",
+    "classes": "Class colors",
+    "large": "Large raster",
+    "preparing": "preparing COG...",
+    "preparing_overviews": "preparing COG with overviews..."
+  },
+  "toasts": {
+    "continuous": "Continuous ramp added",
+    "classes": "{} classes added",
+    "large": "Large raster added"
+  }
+}

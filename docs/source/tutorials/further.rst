@@ -48,5 +48,5 @@ which will be displayed in your app as in the next figure:
 
 .. note::
 
-    More information on the :code:`add_banner` method can be found `here <../modules/sepal_ui.sepalwidgets.html?highlight=app#sepal_ui.sepalwidgets.app.App.add_banner>`__.
+    More information on the :code:`add_banner` method can be found `here <../modules/pysepal.sepalwidgets.html?highlight=app#pysepal.sepalwidgets.app.App.add_banner>`__.
 

@@ -9,6 +9,14 @@ from pysepal.mapping.bounds import (
     viewport_pixels_from_map,
 )
 from pysepal.mapping.fullscreen_control import FullScreenControl
+from pysepal.mapping.gdal_env import GDAL_ENV_VARS, prune_foreign_gdal_env
+from pysepal.mapping.raster_style import (
+    _class_color_kwargs,
+    _continuous_color_kwargs,
+    _densify_class_codes,
+    _needs_dense_codes,
+)
+from pysepal.mapping.tiling import _optimize_for_tiles, default_cache_dir
 from pysepal.mapping.visualization import (
     get_viz_params,
     get_viz_params_async,
@@ -18,17 +26,16 @@ from pysepal.scripts.gee_interface import GEEInterface
 from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.solara.theme import ThemeState
 
-if "GDAL_DATA" in list(os.environ.keys()):
-    del os.environ["GDAL_DATA"]
-if "PROJ_LIB" in list(os.environ.keys()):
-    del os.environ["PROJ_LIB"]
+if any(var in os.environ for var in GDAL_ENV_VARS):
+    prune_foreign_gdal_env()
 
+import asyncio
 import json
 import math
 import random
 import string
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Sequence, Union, cast
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union
 
 import ee
 import ipyleaflet as ipl
@@ -66,6 +73,8 @@ import logging
 log = logging.getLogger("sepalui.mapping")
 
 DEFAULT_MAP_WIDTH_PX = 1024
+
+CLIENT_PREFIX_ENV_VAR = "LOCALTILESERVER_CLIENT_PREFIX"
 
 
 class SepalMap(ipl.Map):
@@ -121,7 +130,7 @@ class SepalMap(ipl.Map):
         """Custom Map object design to build application.
 
         The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the pysepal layout.
         Numerous methods have been added in the class to help you deal with your workflow implementation.
         It can natively display raster from .tif files and files and ee objects using methods
         that have the same signature as the GEE JavaScripts console.
@@ -178,6 +187,8 @@ class SepalMap(ipl.Map):
             if gee_interface:
                 self.gee_interface = gee_interface
             else:
+                # Raises under PER_CONNECTION when gee_session is None; keep it
+                # ahead of init_ee() so a refused map initialises no global ee.
                 self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 
@@ -402,10 +413,16 @@ class SepalMap(ipl.Map):
         opacity: float = 1.0,
         fit_bounds: bool = True,
         key: str = "",
+        class_colors: Optional[dict] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        nodata: Optional[float] = None,
+        optimize: bool = True,
+        warp_to_3857: bool = False,
     ) -> ipl.TileLayer:
         """Adds a local raster dataset to the map.
 
-        If used on a cloud platform (or distant jupyter), this method won't know where the entry point of the client is set and will thus fail to display the image. Please follow instructions from https://localtileserver.banesullivan.com/installation/remote-jupyter.html and set up the ``LOCALTILESERVER_CLIENT_PREFIX`` environment variable.
+        The raster is served by a ``localtileserver`` instance bound to ``127.0.0.1`` inside the kernel, so the browser cannot reach it without help. ``LOCALTILESERVER_CLIENT_PREFIX`` names the route that reaches it: SEPAL sets it for its sandboxes, and under solara-server you mount one yourself. Set, it wins and is used as given. **Unset**, localtileserver autodetects a ``jupyter-server-proxy`` prefix and assumes something serves it -- true in JupyterLab, false under a plain ``voila notebook.ipynb``, where every tile then 404s. **Define it empty** in that case to fall back to the loopback URL. See ``docs/guides/local-tile-servers.md``.
 
         Args:
             image: The image file path.
@@ -415,78 +432,194 @@ class SepalMap(ipl.Map):
             opacity: the opacity of the layer, default 1.0.
             key: the unequivocal key of the layer. by default use a normalized str of the layer name
             fit_bounds: Whether or not we should fit the map to the image bounds. Default to True.
+            class_colors: mapping of class code to ``'#rgb'`` or ``'#rrggbb'``, for a categorical raster. When set, each class is drawn in its exact color and anything absent is transparent, instead of stretching ``colormap`` across the value range. Code 0 is colored like any other; codes outside ``0-255`` are served from a renumbered copy, since a tile palette only holds 256 entries. Up to 255 classes.
+            vmin: value mapped to the first color. Defaults to the file's own minimum, i.e. an auto-stretch. Pin both ends to reproduce a fixed palette (a QGIS ramp, a shared legend) rather than one that shifts per file. Ignored when ``class_colors`` is set.
+            vmax: value mapped to the last color. See ``vmin``.
+            nodata: value to render transparent. Defaults to the file's declared nodata, which some products tag incorrectly.
+            optimize: prepare a tiled COG with overviews before serving. On by default because rio-tiler otherwise reads full-resolution pixels for every tile. Turn it off for a large raster you do not want copied into the tile cache, or one that already has ``.ovr`` sidecars.
+            warp_to_3857: reproject to Web Mercator while preparing, so tiles are cut in the CRS they are served in instead of being warped per request. Needs ``optimize=True``. Off by default because it doubles the preparation work for a raster that is already close to 3857.
 
         Returns:
             the local tile layer embedding the raster member (to be used with other tools of sepal-ui)
-        """
-        import matplotlib.pyplot as plt
-        import rioxarray
-        from localtileserver import TileClient, get_leaflet_tile_layer
-        from matplotlib import colors as mpc
 
-        # force cast to Path and then start the client
+        Note:
+            The first add of a large raster rewrites every one of its pixels and
+            blocks until it finishes. In a Solara app use :meth:`add_raster_async`
+            instead, which does that part in a worker thread.
+        """
+        served, class_colors = self._prepare_raster(image, class_colors, optimize, warp_to_3857)
+        return self._attach_raster(
+            image,
+            served,
+            bands=bands,
+            layer_name=layer_name,
+            colormap=colormap,
+            opacity=opacity,
+            fit_bounds=fit_bounds,
+            key=key,
+            class_colors=class_colors,
+            vmin=vmin,
+            vmax=vmax,
+            nodata=nodata,
+        )
+
+    async def add_raster_async(
+        self,
+        image: Union[str, Path],
+        bands: Optional[Union[list, int]] = None,
+        layer_name: str = "Layer_" + su.random_string(),
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
+        opacity: float = 1.0,
+        fit_bounds: bool = True,
+        key: str = "",
+        class_colors: Optional[dict] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        nodata: Optional[float] = None,
+        optimize: bool = True,
+        warp_to_3857: bool = False,
+    ) -> ipl.TileLayer:
+        """Add a local raster without blocking the event loop.
+
+        Same arguments and return as :meth:`add_raster`. Preparing a raster
+        rewrites every one of its pixels into a tiled COG; that runs in a worker
+        thread here, leaving only the layer attach on the loop.
+        """
+        served, class_colors = await asyncio.to_thread(
+            self._prepare_raster, image, class_colors, optimize, warp_to_3857
+        )
+        return self._attach_raster(
+            image,
+            served,
+            bands=bands,
+            layer_name=layer_name,
+            colormap=colormap,
+            opacity=opacity,
+            fit_bounds=fit_bounds,
+            key=key,
+            class_colors=class_colors,
+            vmin=vmin,
+            vmax=vmax,
+            nodata=nodata,
+        )
+
+    def _prepare_raster(
+        self,
+        image: Union[str, Path],
+        class_colors: Optional[dict],
+        optimize: bool,
+        warp_to_3857: bool = False,
+    ) -> tuple:
+        """Produce the serve-ready raster path, doing all of the expensive work.
+
+        Touches only the filesystem, so it is safe to run off the UI thread --
+        which is what :meth:`add_raster_async` does. Returns the path to serve
+        and the ``class_colors`` restated in whatever codes that path uses.
+        """
         image = Path(image)
 
         if not image.is_file():
             raise Exception(ms.mapping.no_image)
 
-        client = TileClient(image)
+        source = image
+        if class_colors and _needs_dense_codes(class_colors):
+            cache_dir = default_cache_dir()
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            source, class_colors = _densify_class_codes(image, class_colors, cache_dir)
+
+        if warp_to_3857 and not optimize:
+            # reprojecting means writing a new raster, which is the very thing
+            # optimize=False asks us not to do
+            log.warning("warp_to_3857 needs optimize=True; %s is served in its own CRS.", image)
+
+        # rio-tiler reads full-resolution pixels for every tile when the source
+        # has no overviews, so serve a prepared COG. Fast no-op when the raster
+        # is already tiled with overviews. class_colors settles the overview
+        # resampling either way -- without it the raster is being drawn as a ramp,
+        # so averaged overviews are right even for the integer dtypes
+        # prepare_for_tiles would otherwise guess were classes (an int16 DEM).
+        served = (
+            _optimize_for_tiles(
+                source,
+                categorical=bool(class_colors),
+                warp_to_3857=warp_to_3857,
+            )
+            if optimize
+            else str(source)
+        )
+        return served, class_colors
+
+    def _attach_raster(
+        self,
+        image: Union[str, Path],
+        served: str,
+        bands: Optional[Union[list, int]] = None,
+        layer_name: str = "",
+        colormap: Union[str, "mpc.Colormap"] = "inferno",
+        opacity: float = 1.0,
+        fit_bounds: bool = True,
+        key: str = "",
+        class_colors: Optional[dict] = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
+        nodata: Optional[float] = None,
+    ) -> ipl.TileLayer:
+        """Serve a prepared raster and put it on the map.
+
+        The half of ``add_raster`` that mutates the map, so it belongs on the
+        thread that owns the widgets.
+        """
+        from localtileserver import TileClient, get_leaflet_tile_layer
+
+        image = Path(image)
+        # Pass the variable through rather than letting localtileserver read it:
+        # unset gives None and it autodetects a jupyter-server-proxy prefix, which
+        # Voila does not serve. Defined-but-empty reaches TileClient as "", the one
+        # value that suppresses both the env read and the autodetect.
+        client = TileClient(served, client_prefix=os.environ.get(CLIENT_PREFIX_ENV_VAR))
 
         # check inputs
         if layer_name in [layer.name for layer in self.layers]:
             layer_name = layer_name + su.random_string()
 
-        # set the colors as independent colors
-        if isinstance(colormap, str):
-            cmap = plt.get_cmap(name=colormap)
-        color_list = [mpc.rgb2hex(cmap(i)) for i in range(cmap.N)]
-
-        da = rioxarray.open_rasterio(image, masked=True)
-        # print
-        print(da)
-        da = da.chunk({"x": 1000, "y": 1000})
-
-        multi_band = False
-        if len(da.band) > 1 and not isinstance(bands, int):
-            multi_band = True
-            bands = bands if bands else [3, 2, 1]
-        elif len(da.band) == 1:
-            bands = 1
-
-        if multi_band:
-            cast(list, bands)
-            style = {
-                "bands": [
-                    {"band": bands[0], "palette": "#f00"},
-                    {"band": bands[1], "palette": "#0f0"},
-                    {"band": bands[2], "palette": "#00f"},
-                ]
-            }
-        else:
-            style = {
-                "bands": [
-                    {"band": bands, "palette": color_list},
-                ]
-            }
+        color_kwargs = _class_color_kwargs(class_colors) if class_colors else None
+        if class_colors and color_kwargs is None:
+            log.warning(
+                "localtileserver register_colormap unavailable; %s falls back to "
+                "the continuous colormap and its classes may render dark.",
+                image,
+            )
+        if color_kwargs is None:
+            color_kwargs = _continuous_color_kwargs(image, bands, colormap)
+            color_kwargs |= {"vmin": vmin, "vmax": vmax}
+        elif vmin is not None or vmax is not None:
+            # the categorical path pins its own range; a caller's would rescale
+            # the class codes into ramp positions and blank the raster
+            log.warning("vmin/vmax are ignored when class_colors is set.")
 
         # create the layer
         layer = get_leaflet_tile_layer(
             client,
-            style=style,
             name=layer_name,
             opacity=opacity,
             max_zoom=20,
             max_native_zoom=20,
+            nodata=nodata,
+            **color_kwargs,
         )
         self.add_layer(layer, key=key)
 
         # add the da to the layer as an extra member for the v_inspector
         layer.raster = str(image)
 
-        # zoom on the layer if requested
+        # zoom on the layer if requested. Not client.default_zoom: that frames the
+        # raster in a single 256px tile, leaving it about an eighth of the
+        # viewport wide. zoom_bounds is what add_ee_layer autocenters with -- it
+        # sizes to the canvas, allows for whatever panels MapApp has laid over it,
+        # and stops at the tightest zoom that still shows the whole raster.
         if fit_bounds is True:
-            self.center = client.center()
-            self.zoom = client.default_zoom
+            (south, west), (north, east) = layer.bounds
+            self.zoom_bounds((west, south, east, north))
 
         return layer
 

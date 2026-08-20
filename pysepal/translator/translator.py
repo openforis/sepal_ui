@@ -1,15 +1,12 @@
 """The translator object allow developer to support translation for their application."""
 
 import json
-from configparser import ConfigParser
 from pathlib import Path
 from typing import List, Tuple, Union
 
 import pandas as pd
 from box import Box
 from deprecated.sphinx import deprecated, versionadded
-
-from pysepal.conf import config_file
 
 
 class Translator(Box):
@@ -45,7 +42,7 @@ class Translator(Box):
 
         Args:
             json_folder: The folder where the dictionaries are stored
-            target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary). Default to either the language specified in the parameter file or the default one.
+            target: The language code (IETF BCP 47) of the target lang (it should be the same as the target dictionary); when empty, English is used.
             default: The language code (IETF BCP 47) of the source lang. default to "en" (it should be the same as the source dictionary)
         """
         # the name of the 5 variables that cannot be used as init keys
@@ -99,7 +96,7 @@ class Translator(Box):
 
         Args:
             folder: the folder where the languages dictionaries are stored
-            target: the target lang in IETF BCP 47. If not specified, the value in the sepal-ui config file will be used
+            target: the target lang in IETF BCP 47; when empty, English is used
 
         Returns:
             the targeted language code, the closest lang in IETF BCP 47
@@ -107,15 +104,11 @@ class Translator(Box):
         # init lang
         lang = ""
 
-        # if target is not set try to find one in the config file
-        # exit with none if the config file is not yet existing
+        # No target: English, deterministically. This used to read
+        # ~/.sepal-ui-config, so a machine-global file decided the language of
+        # every connection in a multi-user container.
         if target == "":
-            if config_file.is_file():
-                config = ConfigParser()
-                config.read(config_file)
-                target = config.get("sepal-ui", "locale", fallback="en")
-            else:
-                return ("", "en")
+            return ("", "en")
 
         # first scenario the target is available
         if (folder / target).is_dir():

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pysepal"
-version = "3.8.1"
+version = "4.0.0rc0"
 description = "UI toolkit for building ipyvuetify and Solara dashboards, with first-class SEPAL integration"
 keywords = ["UI", "Python", "widget", "sepal"]
 classifiers = [
@@ -21,7 +21,7 @@ dependencies = [
     # building widgets
     "tomli",
     "ipykernel",
-    "ipyvuetify",
+    "ipyvuetify<3", # 3.0 drops widgets sepalwidgets subclasses (CalendarDaily), so an unpinned install cannot import pysepal
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
     # earthengine management
@@ -30,6 +30,7 @@ dependencies = [
     "colorama",
     "pipreqs",
     # read local data
+    "rasterio", # read raster metadata and prepare COGs for the tile server
     "rioxarray",
     "dask",  # used by rioxarray in the inspector
     "geopandas>=0.14.0",
@@ -37,7 +38,7 @@ dependencies = [
     "jupyter-server-proxy", # required for localtileserver
     "planet>=2.0,<3.0",
     "pyarrow",
-    "localtileserver>=0.10.1", # first version with rio-tiler v7 support
+    "localtileserver>=1.0.0", # first version with the colormap registry add_raster needs
     "pygaul>=0.4.2", # GAUL 2024 with iso3_code and gaul0_code columns
     "pygadm>=0.5.0", # use the class implementation
     # miscellaneous
@@ -47,9 +48,10 @@ dependencies = [
     "anyascii",  # to decode international names with non latin characters
     "natsort",
     "typing-extensions",
-    "solara", 
-    "ee-client>=3.0.0", # provider-agnostic auth: EESession.from_*() factories (issue-12)
-    "pysepal-api>=0.2.0", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes)
+    "pydantic",  # SepalHeaders validation and the PYSEPAL_DEV_AUTH interlock
+    "solara>=1.60,<2", # two private APIs are load-bearing: solara.scope.get_kernel_id and solara._using_solara_server
+    "ee-client>=3.1.0,<4", # provider-agnostic auth: EESession.from_*() factories (issue-12)
+    "pysepal-api>=0.3.0,<0.4", # UI-free SEPAL HTTP client (SepalClient: files/tasks/recipes); 0.x: a minor is a breaking release, so cap it
     "colorlog",
     "reactivex"
 ]
@@ -70,6 +72,11 @@ Homepage = "https://github.com/openforis/pysepal"
 Download = "https://github.com/openforis/pysepal/archive/v_${metadata:version}.tar.gz"
 
 [project.optional-dependencies]
+# demo_apps/ only -- nothing here ships in the wheel. vectortileserver also
+# needs the tippecanoe binary, which pip cannot provide: conda-forge has it.
+demos = [
+    "vectortileserver>=0.2.1",
+]
 dev = [
     "pre-commit>=2.18.0",
     "commitizen",
@@ -110,8 +117,6 @@ doc = [
 [project.scripts]
 module_deploy = "pysepal.bin.module_deploy:main"
 module_factory = "pysepal.bin.module_factory:main"
-module_l10n = "pysepal.bin.module_l10n:main"
-module_theme = "pysepal.bin.module_theme:main"
 module_venv = "pysepal.bin.module_venv:main"
 activate_venv = "pysepal.bin.activate_venv:main"
 sepal_ipyvuetify = "pysepal.bin.sepal_ipyvuetify:main"
@@ -122,7 +127,7 @@ include-package-data = false
 license-files = ["LICENSE.txt"]
 
 [tool.setuptools.packages.find]
-include = ["pysepal*", "sepal_ui*"]
+include = ["pysepal*"]
 exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
@@ -142,7 +147,7 @@ changelog_file = "CHANGELOG.md"
 changelog_incremental = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = false
-version = "3.8.1"
+version = "4.0.0rc0"
 version_files = [
     "pyproject.toml:version",
     "pysepal/__init__.py:__version__"
@@ -199,7 +204,8 @@ ignore-path-errors = ["docs/source/index.rst;D000"]
 using = "PEP631:test;dev;doc"
 
 [tool.codespell]
-skip = 'CHANGELOG.md,pysepal/message/**/*.json,pysepal/data/gaul_iso.json'
+# Translation catalogs are not English, so its dictionary does not apply.
+skip = 'CHANGELOG.md,pysepal/message/**/*.json,demo_apps/**/message/**/*.json,pysepal/data/gaul_iso.json'
 
 [tool.black]
 line-length = 100

@@ -3,6 +3,7 @@
 import atexit
 import json
 import os
+import time
 import uuid
 from itertools import product
 from pathlib import Path, PurePosixPath
@@ -16,37 +17,37 @@ import pandas as pd
 import pytest
 from shapely import geometry as sg
 
-import pysepal.sepalwidgets as sw
-from pysepal.scripts import gee
 from pysepal.scripts import utils as su
 from pysepal.scripts.gee_interface import GEEInterface
+from tests._janitor import delete_recursive
 
 su.init_ee()
 
-# -- a component to fake the display in Ipython --------------------------------
+_TERMINAL_FAILURES = ("FAILED", "CANCELLED", "CANCEL_REQUESTED")
 
 
-@pytest.fixture(scope="session")
-def _alert() -> sw.Alert:
-    """An alert that can be used everywhere to display information.
+def _wait_for_task(task: ee.batch.Task, timeout: float = 900) -> None:
+    """Block until an export task completes, and raise if it does not.
 
-    Returns:
-        an alert object
-    """
-    return sw.Alert()
-
-
-@pytest.fixture(scope="function")
-def alert(_alert: sw.Alert) -> sw.Alert:
-    """An alert that can be used everywhere to display information.
+    Replaces ``pysepal.scripts.gee.wait_for_completion``, removed in 4.0. That
+    one looked the task up by description in the global account's task list and
+    exited the loop on ``COMPLETED`` alone, so a cancelled task span forever.
+    This holds the handle the export already returned.
 
     Args:
-        _alert: the shared alert component
-
-    Returns:
-        an alert object
+        task: a started ``ee.batch.Task``.
+        timeout: seconds to wait before giving up.
     """
-    return _alert.reset()
+    deadline = time.monotonic() + timeout
+    while True:
+        state = task.status()["state"]
+        if state == "COMPLETED":
+            return
+        if state in _TERMINAL_FAILURES:
+            raise RuntimeError(f"export task {task.id} ended as {state}")
+        if time.monotonic() > deadline:
+            raise TimeoutError(f"export task {task.id} still {state} after {timeout}s")
+        time.sleep(5)
 
 
 # -- SEPAL related parameters --------------------------------------------------
@@ -142,7 +143,7 @@ def gee_dir(_hash: str) -> Optional[Path]:
     def _atexit_cleanup() -> None:
         try:
             if ee.data.is_initialized():
-                gee.delete_assets(str(gee_dir), dry_run=False)
+                delete_recursive(str(gee_dir))
         except Exception:
             # atexit swallows raised exceptions anyway; silence explicitly
             pass
@@ -174,34 +175,36 @@ def gee_dir(_hash: str) -> Optional[Path]:
 
     # exports — should take less than 2 minutes unless there are concurrent tasks
     fc = "feature_collection"
-    ee.batch.Export.table.toAsset(
+    fc_task = ee.batch.Export.table.toAsset(
         collection=ee_gdf, description=f"{fc}_{_hash}", assetId=str(gee_dir / fc)
-    ).start()
+    )
+    fc_task.start()
 
     subfolder_fc = "subfolder_feature_collection"
-    ee.batch.Export.table.toAsset(
+    subfolder_fc_task = ee.batch.Export.table.toAsset(
         collection=ee_gdf,
         description=f"{subfolder_fc}_{_hash}",
         assetId=str(subfolder / subfolder_fc),
-    ).start()
+    )
+    subfolder_fc_task.start()
 
     rand_image = "image"
-    ee.batch.Export.image.toAsset(
+    image_task = ee.batch.Export.image.toAsset(
         image=image,
         description=f"{rand_image}_{_hash}",
         assetId=str(gee_dir / rand_image),
         region=ee_buffer,
-    ).start()
+    )
+    image_task.start()
 
     # wait for completion of the exportation tasks before leaving this method
-    gee.wait_for_completion(f"{fc}_{_hash}")
-    gee.wait_for_completion(f"{subfolder_fc}_{_hash}")
-    gee.wait_for_completion(f"{rand_image}_{_hash}")
+    for task in (fc_task, subfolder_fc_task, image_task):
+        _wait_for_task(task)
 
     yield gee_dir
 
     # L1: primary teardown on normal session exit
-    gee.delete_assets(str(gee_dir), dry_run=False)
+    delete_recursive(str(gee_dir))
 
 
 @pytest.fixture(scope="session")
@@ -358,6 +361,52 @@ def byte(tmp_path_factory: pytest.TempPathFactory) -> Path:
     urlretrieve(link, file)
 
     return file
+
+
+@pytest.fixture(scope="session")
+def int16_classes(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A two-class int16 raster, the shape most land cover products come in.
+
+    Returns:
+        the path to a raster of class 1 (left half) and class 2 (right half)
+    """
+    import numpy as np
+    import rasterio as rio
+    from rasterio.transform import from_origin
+
+    file = tmp_path_factory.mktemp("temp") / "classes.tif"
+    data = np.ones((64, 64), dtype="int16")
+    data[:, 32:] = 2
+    with rio.open(
+        file,
+        "w",
+        driver="GTiff",
+        height=64,
+        width=64,
+        count=1,
+        dtype="int16",
+        crs="EPSG:4326",
+        transform=from_origin(0, 0, 0.01, 0.01),
+    ) as ds:
+        ds.write(data, 1)
+
+    return file
+
+
+@pytest.fixture(scope="session")
+def _tile_cache_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Where prepared rasters are cached for the duration of the run."""
+    return tmp_path_factory.mktemp("tile-cache")
+
+
+@pytest.fixture(autouse=True)
+def _tile_cache(_tile_cache_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep prepared rasters out of the developer's real ``~/.cache``.
+
+    The raster fixtures land on a new tmp path every session, so a shared cache
+    would gain an entry per run and never drop one.
+    """
+    monkeypatch.setenv("PYSEPAL_TILE_CACHE", str(_tile_cache_dir))
 
 
 # -- Planet credentials --------------------------------------------------------

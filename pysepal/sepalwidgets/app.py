@@ -1,7 +1,7 @@
 """Custom widgets relative to user application framework.
 
 Gather the customized ``ipyvuetifyWidgets`` used to create the application framework.
-All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
@@ -11,6 +11,7 @@ Example:
         sw.LocaleSelect()
 """
 
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +43,7 @@ from pysepal.sepalwidgets.alert import Banner
 from pysepal.sepalwidgets.sepalwidget import SepalWidget
 from pysepal.sepalwidgets.vue_app import ThemeToggle
 from pysepal.sepalwidgets.widget import Markdown
+from pysepal.solara.locale import describe_offered_locales
 from pysepal.translator import Translator
 
 logger = logging.getLogger("sepalui.app")
@@ -91,7 +93,6 @@ class LocaleSelect(v.Menu, SepalWidget):
         # extract the language information from the translator
         # if not set default to english
         code = "en" if translator is None else translator._target
-        loc = self.COUNTRIES[self.COUNTRIES.code == code].squeeze()
 
         self.locale_icon = v.Icon(class_="mr-2", children=["mdi-translate"])
 
@@ -120,7 +121,7 @@ class LocaleSelect(v.Menu, SepalWidget):
             v_model=False,
             close_on_content_click=True,
             v_slots=[{"name": "activator", "variable": "x", "children": self.btn}],
-            value=loc.code,
+            value=code,
         )
 
         # add js behaviour
@@ -139,34 +140,29 @@ class LocaleSelect(v.Menu, SepalWidget):
             the list of country widget to display in the app
         """
         country_list = []
-        filtered_countries = self.COUNTRIES[self.COUNTRIES.code.isin(locales)]
-        for r in filtered_countries.itertuples(index=False):
+        catalog = json.loads(self.COUNTRIES.to_json(orient="records"))
+        for record in describe_offered_locales(locales, catalog):
             children = [
-                v.ListItemContent(class_="mr-2", children=[v.ListItemTitle(children=[r.name])]),
-                v.ListItemActionText(children=[r.code]),
+                v.ListItemContent(
+                    class_="mr-2", children=[v.ListItemTitle(children=[record["name"]])]
+                ),
+                v.ListItemActionText(children=[record["code"]]),
             ]
 
-            country_list.append(v.ListItem(value=r.code, children=children))
+            country_list.append(v.ListItem(value=record["code"], children=children))
 
         return country_list
 
     def _on_locale_select(self, change: dict) -> None:
         """adapt the application to the newly selected language.
 
-        Display the new flag and country code on the widget btn
-        change the value in the config file
+        Display the new flag and country code on the widget btn.
         """
         if not change["new"]:
             return
 
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
-
-        self.btn.children = [self.locale_icon, loc.code]
+        self.btn.children = [self.locale_icon, change["new"]]
         # self.btn.color = "info"
-
-        # change the parameter file
-        su.set_config("locale", loc.code)
 
         return
 
@@ -186,24 +182,19 @@ class ThemeSelect(v.VuetifyTemplate):
     auto_icon = Unicode("mdi-auto-fix").tag(sync=True)
 
     def __init__(self):
-        """Initialize the ThemeSelect widget and set default theme configuration."""
+        """Initialize the ThemeSelect widget."""
         super().__init__()
-        theme = "dark" if self.dark else "light"
-        su.set_config("theme", theme)
 
     @observe("dark")
     def _on_dark_change(self, change):
-        """Observer for dark trait changes - saves to config file.
+        """Observer for dark trait changes.
 
         This is called when the Vue component syncs the dark value back to Python.
         """
-        logger.info(f"🔍 OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
-        theme = "dark" if change["new"] else "light"
-        su.set_config("theme", theme)
-        logger.info(f"💾 Config file updated to: {theme}")
+        logger.info(f"OBSERVER TRIGGERED: dark changed from {change['old']} to {change['new']}")
 
     def toggle_theme(self) -> None:
-        """Toggle between dark and light theme and save to config.
+        """Toggle between dark and light theme.
 
         This method can be used for testing or programmatic theme switching
         without relying on the Vue frontend.

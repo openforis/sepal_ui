@@ -3,7 +3,7 @@
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 import ipyvuetify as v
 import pandas as pd
@@ -11,7 +11,11 @@ from ipywidgets import DOMWidget, jsdlink, link
 from ipywidgets.widgets.widget import widget_serialization
 from traitlets import Bool, Dict, HasTraits, Instance, Int, List, Unicode, observe
 
-from pysepal.scripts import utils as su
+from pysepal.solara.locale import (
+    LocaleState,
+    describe_offered_locales,
+    resolve_locale_state,
+)
 from pysepal.solara.theme import ThemeState, get_current_theme_state
 from pysepal.translator import Translator
 
@@ -97,6 +101,8 @@ class MapApp(v.VuetifyTemplate):
         self,
         theme_toggle: "ThemeToggle" = None,
         theme_state: Optional[ThemeState] = None,
+        locale_state: Optional[LocaleState] = None,
+        locales: Optional[Iterable[str]] = None,
         initial_step: Optional[int] = None,
         model: Optional[HasTraits] = None,
         **kwargs,
@@ -107,6 +113,16 @@ class MapApp(v.VuetifyTemplate):
         ----------
         theme_toggle : ThemeToggle, optional
             Theme toggle widget
+        theme_state : ThemeState, optional
+            Shared theme state; defaults to the current scope's.
+        locale_state : LocaleState, optional
+            Shared locale state; defaults to the current scope's.
+        locales : iterable of str, optional
+            Locale codes the default ``LocaleSelect`` offers, normally
+            ``translator.available_locales()``. Codes rather than a
+            ``Translator`` because ``Translator`` subclasses ``dict``, and
+            reacton passes a plain dict through to ``MapApp.element``.
+            Ignored when a ``language_selector`` is supplied.
         initial_step : int, optional
             Initial step to display
         model : HasTraits, optional
@@ -115,6 +131,8 @@ class MapApp(v.VuetifyTemplate):
             Additional parameters
         """
         self._theme_state = theme_state or get_current_theme_state()
+        self._locale_state = resolve_locale_state(locale_state)
+        self._locales = locales
         self._model = model
         self._model_links = []  # Store links for cleanup
         kwargs["theme_toggle"] = self._coerce_theme_toggle(theme_toggle, self._theme_state)
@@ -138,7 +156,9 @@ class MapApp(v.VuetifyTemplate):
             kwargs["right_panel_open"] = right_panel.is_open
             kwargs["right_panel_width"] = right_panel.config.get("width", 300)
 
-        kwargs["language_selector"] = kwargs.get("language_selector", [LocaleSelect()])
+        kwargs["language_selector"] = self._coerce_locale_select(
+            kwargs.get("language_selector"), self._locale_state
+        )
 
         # Handle initial step configuration
         if initial_step is not None:
@@ -169,13 +189,14 @@ class MapApp(v.VuetifyTemplate):
             ],
         )
         self.observe(self._sync_map_theme_state, ["theme_toggle", "main_map"])
+        self.observe(self._sync_right_panel, ["right_panel_config", "right_panel_content"])
         self._sync_map_insets()
         self._sync_map_theme_state()
 
     def _coerce_theme_toggle(
         self, theme_toggle, theme_state: Optional[ThemeState]
     ) -> list["ThemeToggle"]:
-        """Normalize theme toggle input and bind it to the session theme state."""
+        """Normalize theme toggle input and bind it to the given theme state."""
         if isinstance(theme_toggle, list):
             widgets = list(theme_toggle)
         elif isinstance(theme_toggle, tuple):
@@ -192,6 +213,25 @@ class MapApp(v.VuetifyTemplate):
             return widgets
 
         return [ThemeToggle(theme_state=theme_state)]
+
+    def _coerce_locale_select(
+        self, language_selector, locale_state: Optional[LocaleState]
+    ) -> list["LocaleSelect"]:
+        """Normalize language selector input and bind it to the given locale state."""
+        if isinstance(language_selector, (list, tuple)):
+            widgets = list(language_selector)
+        elif language_selector is None:
+            widgets = []
+        else:
+            widgets = [language_selector]
+
+        if widgets:
+            widget = widgets[0]
+            if hasattr(widget, "bind_locale_state"):
+                widget.bind_locale_state(locale_state)
+            return widgets
+
+        return [LocaleSelect(locales=self._locales, locale_state=locale_state)]
 
     # Mirror of MapApp.vue: viewports below this width dock the right
     # panel as a bottom sheet sized at NARROW_PANEL_HEIGHT_VH of the
@@ -290,7 +330,7 @@ class MapApp(v.VuetifyTemplate):
                 model_link = link((self, trait_name), (self._model, trait_name))
                 self._model_links.append(model_link)
             except Exception as e:
-                logger.warning(f"⚠ Could not link {trait_name}: {e}")
+                logger.warning(f"Could not link {trait_name}: {e}")
 
     def unlink_model(self):
         """Remove all model links and cleanup."""
@@ -364,6 +404,22 @@ class MapApp(v.VuetifyTemplate):
         new_config = change["new"]
         if "width" in new_config:
             self.right_panel_width = new_config["width"]
+
+    def _sync_right_panel(self, *args):
+        """Mirror panel config and content onto the child widget that renders them.
+
+        ``RightPanel`` is built once in ``__init__`` from the values passed
+        then, and it -- not ``MapApp`` -- is what the panel renders from. Without
+        this the sibling observers only run child -> parent, so a re-render
+        updated these traits and the panel kept showing the strings it was born
+        with. It does not recurse: ``_on_right_panel_config_change`` writes
+        ``right_panel_width``, never ``right_panel_config``.
+        """
+        if not self.right_panel:
+            return
+        panel = self.right_panel[0]
+        panel.config = self.right_panel_config
+        panel.content_data = self.right_panel_content
 
 
 class ThemeToggle(v.VuetifyTemplate):
@@ -481,32 +537,72 @@ class LocaleSelect(v.VuetifyTemplate):
     selected_locale = Unicode("en").tag(sync=True)
     value = Unicode().tag(sync=True)
 
-    def __init__(self, translator: Optional[Translator] = None, **kwargs):
-        """Instantiate the LocaleSelect class."""
+    def __init__(
+        self,
+        translator: Optional[Translator] = None,
+        locales: Optional[Iterable[str]] = None,
+        locale_state: Optional[LocaleState] = None,
+        **kwargs,
+    ):
+        """Instantiate the LocaleSelect class.
+
+        The effective locale is resolved in the browser (localStorage ->
+        ``navigator.language`` -> "en") and pushed back through
+        ``selected_locale``; this class only mirrors the resolved value into
+        the bound :class:`~pysepal.solara.locale.LocaleState`.
+
+        Args:
+            translator: Translator whose catalogs become the offered languages.
+            locales: Offered locale codes, taking precedence over ``translator``.
+            locale_state: Shared state to mirror the resolved locale into.
+            kwargs: any argument for a VuetifyTemplate object.
+        """
+        self._locale_state: Optional[LocaleState] = None
         super().__init__(**kwargs)
 
-        available_locales = ["en"] if translator is None else translator.available_locales()
-        available_locales = self.COUNTRIES[self.COUNTRIES.code.isin(available_locales)]
-        self.available_locales = json.loads(available_locales.to_json(orient="records"))
+        if locales is not None:
+            offered = list(locales)
+        else:
+            offered = ["en"] if translator is None else translator.available_locales()
+        self.available_locales = describe_offered_locales(
+            offered, json.loads(self.COUNTRIES.to_json(orient="records"))
+        )
 
         # TODO: consider removing this, I'm not sure if an app is using the value
         jsdlink((self, "selected_locale"), (self, "value"))
 
         self.observe(self._on_locale_select, "selected_locale")
 
-    def _on_locale_select(self, change: dict) -> None:
-        """adapt the application to the newly selected language.
+        if locale_state is not None:
+            self.bind_locale_state(locale_state)
 
-        Display the new flag and country code on the widget btn
-        change the value in the config file
-        """
-        if not change["new"]:
+    def bind_locale_state(self, locale_state: Optional[LocaleState]) -> None:
+        """Bind the widget to a shared locale state."""
+        if locale_state is self._locale_state:
             return
 
-        # get the line in the locale dataframe
-        loc = self.COUNTRIES[self.COUNTRIES.code == change["new"]].squeeze()
+        if self._locale_state is not None:
+            self._locale_state.unobserve(self._on_locale_state_change, "locale")
 
-        # change the parameter file
-        su.set_config("locale", loc.code)
+        self._locale_state = locale_state
+        if self._locale_state is None:
+            return
 
-        return
+        self.selected_locale = self._locale_state.locale
+        self._locale_state.observe(self._on_locale_state_change, "locale")
+
+    def get_locale_state(self) -> Optional[LocaleState]:
+        """Return the currently bound locale state."""
+        return self._locale_state
+
+    def _on_locale_select(self, change: dict) -> None:
+        """Mirror the browser-resolved locale into the shared locale state."""
+        if not change["new"]:
+            return
+        if self._locale_state is not None:
+            self._locale_state.set_locale(change["new"])
+
+    def _on_locale_state_change(self, change: dict) -> None:
+        """Mirror external locale state changes back into the widget."""
+        if change["new"] and change["new"] != self.selected_locale:
+            self.selected_locale = change["new"]

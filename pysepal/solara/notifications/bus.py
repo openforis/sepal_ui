@@ -1,4 +1,4 @@
-"""Kernel-scoped notification bus: state management and registry."""
+"""Scope-keyed notification bus: state management and registry."""
 
 import logging
 import threading
@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 import solara
 
-from pysepal.solara.runtime_context import get_current_runtime_id
+from pysepal.solara.scope_registry import ScopeRegistry
 
 from .state import Toast, ToastType, TrackedTask
 
@@ -19,7 +19,7 @@ DEDUP_WINDOW_SECONDS = 2.0
 
 
 class NotificationBus:
-    """Owns notification state for a single kernel/session.
+    """Owns notification state for a single runtime scope.
 
     All mutations produce new list copies (never mutate in place).
     Thread-safe via internal lock.
@@ -114,64 +114,70 @@ class NotificationBus:
             self.tasks.value = [t for t in self.tasks.value if t.id != task_id]
 
 
-# --- Kernel-scoped bus registry (matches SessionManager pattern) ---
+# --- Scope-keyed bus registry ---
 
-_buses: Dict[str, NotificationBus] = {}
-_bus_refcounts: Dict[str, int] = {}
-_registry_lock = threading.Lock()
+_registry: ScopeRegistry[NotificationBus] = ScopeRegistry("NotificationBus")
 
-
-def _get_kernel_id() -> str:
-    """Get current supported Solara/Voila runtime ID."""
-    return get_current_runtime_id()
+# Refcounting is this module's lifetime policy, not the registry's -- other
+# consumers of ScopeRegistry drop a scope on its first release. Every read and
+# write below happens under that scope's ``scope_lock``.
+_refcounts: Dict[str, int] = {}
 
 
 def get_current_bus() -> Optional[NotificationBus]:
-    """Get the NotificationBus for the current kernel, or None."""
-    try:
-        kernel_id = _get_kernel_id()
-    except Exception:
-        return None
-    with _registry_lock:
-        return _buses.get(kernel_id)
+    """Return the current scope's NotificationBus, or None when none exists.
+
+    No ``try``/``except`` on purpose. Every *runtime* shape this can meet --
+    including a kernel with no usable connection file -- is absorbed by
+    :func:`~pysepal.solara.runtime_context.resolve_scope_id` and resolves to
+    the process scope, so anything still raising here is a genuine bug and
+    must not be hidden behind a ``None`` return.
+
+    Returns:
+        The scope's bus, or None.
+    """
+    return _registry.get()
 
 
 def create_bus() -> NotificationBus:
-    """Get or create a NotificationBus for the current kernel.
+    """Get or create the current scope's NotificationBus.
 
-    If a bus already exists for this kernel, reuse it and increment
-    the reference count. This prevents remounts or double-mounts
-    from invalidating active notifiers.
+    Reuses an existing bus and takes a second reference, so a remount or a
+    double-mount of ``NotificationProvider`` does not invalidate active
+    notifiers.
+
+    Returns:
+        The scope's bus.
     """
-    kernel_id = _get_kernel_id()
-    with _registry_lock:
-        existing = _buses.get(kernel_id)
-        if existing is not None:
-            _bus_refcounts[kernel_id] = _bus_refcounts.get(kernel_id, 1) + 1
+    scope_id = _registry.resolve()
+    with _registry.scope_lock(scope_id):
+        bus = _registry.get(scope_id)
+        if bus is None:
+            bus = NotificationBus()
+            _registry.set(bus, scope_id=scope_id)
+            _refcounts[scope_id] = 1
+            logger.debug(f"Created NotificationBus for scope {scope_id}")
+        else:
+            _refcounts[scope_id] = _refcounts.get(scope_id, 1) + 1
             logger.debug(
-                f"Reusing NotificationBus for kernel {kernel_id} "
-                f"(refcount={_bus_refcounts[kernel_id]})"
+                f"Reusing NotificationBus for scope {scope_id} "
+                f"(refcount={_refcounts[scope_id]})"
             )
-            return existing
-        bus = NotificationBus()
-        _buses[kernel_id] = bus
-        _bus_refcounts[kernel_id] = 1
-    logger.debug(f"Created NotificationBus for kernel {kernel_id}")
-    return bus
+        return bus
 
 
 def cleanup_bus() -> None:
-    """Decrement refcount for the current kernel's bus; remove when it reaches 0."""
-    kernel_id = _get_kernel_id()
-    with _registry_lock:
-        count = _bus_refcounts.get(kernel_id, 0)
-        if count <= 1:
-            _buses.pop(kernel_id, None)
-            _bus_refcounts.pop(kernel_id, None)
-            logger.debug(f"Cleaned up NotificationBus for kernel {kernel_id}")
-        else:
-            _bus_refcounts[kernel_id] = count - 1
+    """Drop one reference to the current scope's bus; remove it at zero."""
+    scope_id = _registry.resolve()
+    with _registry.scope_lock(scope_id):
+        count = _refcounts.get(scope_id, 0)
+        if count > 1:
+            _refcounts[scope_id] = count - 1
             logger.debug(
-                f"Decremented NotificationBus refcount for kernel {kernel_id} "
-                f"(refcount={_bus_refcounts[kernel_id]})"
+                f"Released NotificationBus for scope {scope_id} "
+                f"(refcount={_refcounts[scope_id]})"
             )
+            return
+        _refcounts.pop(scope_id, None)
+        _registry.pop(scope_id)
+        logger.debug(f"Cleaned up NotificationBus for scope {scope_id}")

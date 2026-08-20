@@ -124,7 +124,7 @@ elements, so `@solara.component` tiles can be passed straight through.
 from pysepal.sepalwidgets.vue_app import MapApp
 from pysepal.solara import get_current_theme_state
 
-# Session-scoped theme state — no manual ThemeToggle wiring needed
+# Scope-keyed theme state — no manual ThemeToggle wiring needed
 theme_state = get_current_theme_state()
 sepal_map = SepalMap(fullscreen=True, theme_state=theme_state, gee=True)
 
@@ -163,11 +163,14 @@ anything in `docs/guides/solara-mapapp-component.md`.
 One worked example lives in the pysepal repo — read it before building a
 new app to see the patterns in action:
 
-- `pysepal/templates/solara/solara_map_app/app.py` — MapApp shell with `AoiView`
+- `demo_apps/solara_map_app/` — MapApp shell with `AoiView`
   in the right panel, `NotificationProvider` task tracking, `ExportLauncher`
   sources, and a `LegendComponent` whose layer selector is driven by the layers
-  on the map. `MapAppDemo` holds the UI so `Page` (Solara, session-authenticated)
-  and `ui.ipynb` (Voila) can share it.
+  on the map. `app.py` holds the shell: `MapAppDemo` owns the UI so `Page`
+  (Solara, session-authenticated) and `ui.ipynb` (Voila) can share it. The rest
+  lives under `component/` — `parameter/` (layer ids, vis params), `model/`
+  (dataclasses in reactives), `scripts/` (Earth Engine work, no UI), `tile/`
+  (right-panel sections), `widget/` (map, layer lifecycle, floating legend).
 
 ### eager=True for dialogs in jupyter-widget contexts
 
@@ -285,8 +288,9 @@ with track_task("Exporting", total_steps=2) as task:
 - The `@catch_errors` decorator is NOT modified. It continues to work
   with legacy Alert widgets only. The notification system is independent.
 
-**Reference template:**
-`pysepal/templates/solara/solara_map_app/app.py`
+**Reference demo:**
+`demo_apps/solara_map_app/` — provider in `app.py`,
+`use_notifications` in `component/tile/process.py`
 
 ### Export System (ExportLauncher)
 
@@ -369,8 +373,9 @@ into a selected+open state before the walk — see
 `tests/test_solara/test_export_component.py::_render` and
 `_render_preselected_dialog`.
 
-**Reference template:**
-`pysepal/templates/solara/solara_map_app/app.py`
+**Reference demo:**
+`demo_apps/solara_map_app/component/scripts/exports.py` (sources)
+and `component/tile/export.py` (launcher)
 
 **Full guide:** `docs/guides/solara-export.md`
 
@@ -509,6 +514,7 @@ Run discovery for the full current list — do not rely on this table.
 | `solara-migration.md`     | Converting ipyvuetify widget to Solara                              |
 | `ipyvuetify-widgets.md`   | Creating a new `v.VuetifyTemplate` widget                           |
 | `ipecharts.md`            | Creating charts/graphs (ipecharts is the standard for pysepal apps) |
+| `local-tile-servers.md`   | Serving localtileserver / vectortileserver tiles to the browser     |
 | `migration-notes-v3.4.md` | Auditing an existing app for stale patterns                         |
 
 ### Solara framework source

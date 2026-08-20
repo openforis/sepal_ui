@@ -1,3 +1,545 @@
+## v4.0.0rc0 (2026-08-20)
+
+### Feat
+
+- **scripts**: add --click and --resize to browser_probe (#1020)
+- **demos**: add a vector tile demo app
+- browser-owned locale resolution for pysepal 4.0 (#1028)
+- **sepalwidgets**: bind the selectors to the shared locale state
+- **sepalwidgets**: resolve the locale in the browser
+- **solara**: add scope-keyed locale state
+- **solara**: run on local Earth Engine credentials under PYSEPAL_LOCAL_EE
+- **solara**: render the admin panel from the typed session payloads
+- **solara**: return read-only SessionInfo and SessionsOverview payloads
+- **solara**: consume ee-client 4 and pysepal-api 0.3
+- **solara**: drop the header gate from with_sepal_sessions
+- **solara**: remove the headerless interface fallbacks
+- **solara**: build one lazily-populated session per process
+- **solara**: dispatch create_session on runtime topology
+- **solara**: replace SOLARA_TEST with PYSEPAL_DEV_AUTH
+- **solara**: resolve a session's credential source from runtime topology
+- **solara**: publish one public surface for pysepal.solara
+- delete the ~/.sepal-ui-config file and its readers
+- **translator**: resolve locale without ~/.sepal-ui-config
+- **frontend**: stop persisting the theme in ~/.sepal-ui-config
+- **scripts**: deprecate writing the theme to ~/.sepal-ui-config
+- **solara**: add a scope-keyed UI-state registry
+- **mapping**: add add_raster_async and a warp_to_3857 option
+- **mapping**: prepare rasters as cached COGs before serving tiles
+
+### Fix
+
+- **scripts**: read a task's state off the ee-client model, not by subscript
+- **solara**: build SessionInfo under the scope lock
+- refuse a session-less GEEInterface in a per-connection runtime
+- **mapping**: refuse ambient Earth Engine credentials per connection
+- **mapping**: opt out of localtileserver 1.0's prefix autodetection
+- **sepalwidgets**: push panel updates into the child RightPanel
+- **sepalwidgets**: stop the locale pick vanishing instead of persisting
+- **solara**: detect a SEPAL sandbox from the SEPAL env var
+- **solara**: serialise SessionManager construction against a split registry
+- **solara**: pin solara and fail loudly when its private APIs move
+- **solara**: refuse an explicit process scope in get_session_info
+- **solara**: close the last two doors into the shared process session
+- **solara**: make resolve_scope_id total against a broken kernel
+- **solara**: serialize reopen_scope against cleanup_session
+- **solara**: give each module_name its own SepalClient in one session
+- **solara**: harden create_session against races and identity reuse
+- **solara**: make session info helpers total instead of raising
+- **mapping**: zoom add_raster to the raster, not to a tile
+- **mapping**: require localtileserver 1.0 and key caches on their inputs
+- **mapping**: cache prepared rasters on scratch, not in the user's home
+- **mapping**: draw local rasters in the colours the caller asked for
+- **mapping**: only prune foreign GDAL_DATA/PROJ_LIB, keep own-prefix paths (#1016)
+- **mapping**: prune PROJ_DATA and compare prefixes as paths
+- **mapping**: only prune foreign GDAL_DATA/PROJ_LIB, keep own-prefix paths
+
+### Refactor
+
+- **scripts**: remove the global-ee asset and task helpers
+- drop emojis from UI text and log messages
+- route every GEEInterface call through its session
+- **scripts**: remove the gee asset helpers deprecated in 3.2.0
+- drop the unused GEEInterface(use_sepal_headers=...) login
+- **demos**: read the theme through get_current_theme_state
+- **solara**: stop falling back to the process scope for theme state
+- **solara**: put SessionManager on the shared ScopeRegistry
+- **solara**: put the notification bus on the shared ScopeRegistry
+- **solara**: put UI state on the shared ScopeRegistry
+- **solara**: replace get_session_component with typed accessors
+- **solara**: name the runtime scope scope_id everywhere
+- **solara**: define the session errors in one module only
+- remove the deprecated SepalClient compat shim
+- drop the sepal_ui compatibility package
+- **solara**: drop admin.py's duplicate session info helpers
+- **solara**: drop theme state from SessionManager sessions
+- **solara**: key theme state by runtime scope instead of the session
+- **demos**: extract the solara demos into a checkout-only demo_apps/
+- **mapping**: drop version directives and tighten the lazy imports
+- **templates**: split solara_map_app app.py into component packages (#1022)
+- **templates**: split solara_map_app app.py into component packages
+
+
+- cap ipyvuetify below 3.0
+- floor ee-client at 3.1.0 rather than an unreleased 4.0.0
+
+## v3.8.1 (2026-07-30)
+
+### Fix
+
+- keep scratch files off NFS on SEPAL (#1021)
+- keep scratch files off NFS on SEPAL
+
+## v3.8.0 (2026-07-30)
+
+### Feat
+
+- **mapping**: PMTiles layers in LayersControl, and fix modal layering + the GEE event loop (#1018)
+- **legend**: collapse the legend while the logger is open
+- **mapping**: show and toggle PMTiles layers in LayersControl
+- **legend**: optional detail text and layer selector for LegendComponent (#1015)
+
+### Fix
+
+- **solara**: fall back to headerless state when no session can exist
+- **templates**: pass the session interfaces into the export panel
+- **css**: renumber app layers below vuetify's modal baseline
+- **templates**: schedule the map_app layer button on solara's loop
+- **AssetSelect**: guard None from get_assets_async (#1013)
+- **FileInput**: select_file must store string paths, not PosixPath (#1009)
+- **gee**: init_ee no-ops when credentials are unavailable (#1012)
+
+## v3.7.0 (2026-07-15)
+
+### Feat
+
+- **export**: add band selection to export dialog (#1001)
+- **export**: add band/property selection to the export dialog
+- add Voila AOI notebook entrypoint (#1006)
+- support Voila runtime contexts (#1004)
+- adopt pysepal-api 0.2.0 and ee-client 3.0.0 (agnostic auth) (#1003)
+
+### Fix
+
+- **voila**: align notification/markdown theme parity with Solara (#1007)
+- **voila**: align notification/markdown theme parity with Solara
+- **templates**: use EESession.from_default for the default session
+- **gee**: close the EESession HTTP client on GEEInterface.close() (#1000)
+- **aoi**: avoid 2M-edge dissolve in AOI bounds computation (#998)
+
+### Refactor
+
+- **notifications**: drive theme from ThemeState prop, drop DOM scan
+- **css**: extract shared base.css, keep per-runtime overrides
+- **legend**: use a persistent toggle bar to open and close
+
+### Perf
+
+- **mapping**: lazy-import the raster stack (add_raster only) (#999)
+
+## v3.6.2 (2026-06-22)
+
+### Fix
+
+- **sepalwidgets**: read VectorField property names server-side to avoid pulling geometry (#997)
+
+## v3.6.1 (2026-05-16)
+
+## v3.6.0 (2026-05-15)
+
+### Feat
+
+- **solara/export**: Asset ID field + required/root/conflict checks (#989)
+- **solara**: carry SEPAL visualization onto exported images (#986)
+- **solara**: carry SEPAL visualization onto exported images
+
+## v3.5.0 (2026-05-07)
+
+### Feat
+
+- **MapApp**: responsive bottom panel + fixes (#982)
+- **MapApp,SepalMap**: reserve bottom-panel height in narrow mode
+- **MapApp**: responsive bottom-panel layout for narrow viewports
+
+### Fix
+
+- **MapApp,SepalMap**: center on Y-axis with bottom inset, flip toggle tab geometry on narrow
+- **Legend**: remove position transition so it tracks viewport instantly
+- **MapApp**: keep narrow-mode right-panel rules in scoped style
+- **MapApp,Legend**: move cross-component CSS out of scoped, dedupe panel height
+- **aoi,assets**: fall back to GEE root when folder is None instead of literal "None"
+- **Legend**: lift above bottom panel and hide during step dialogs
+- **TaskButton**: bind disabled prop to v-btn
+
+## v3.4.1 (2026-04-24)
+
+### Feat
+
+- **mapapp,rightpanel**: polish sidebar, right panel, and map shadows
+
+### Fix
+
+- **packaging**: ship all .vue templates in the wheel
+
+## v3.4.0 (2026-04-24)
+
+### Feat
+
+- **solara**: add reusable export component for EE / Drive / SEPAL
+- **aoi**: route input-component errors through the notification system
+- **aoi**: wire up SHAPE/POINTS/ASSET methods and extract AdminLevelSelector
+- **legend**: center legend location
+- **notifications**: cancel toast type, themed styling, provider refactor
+- **notifications**: add centralized notification system
+- wire LegendComponent to Legend.vue via component_vue
+- add Legend.vue template with gradient bar and discrete chips
+- add LegendData dataclasses for reusable legend component
+- add all-methods AOI demo template
+- add input selector Solara components
+- add AOI processors for shape, points, and asset methods
+- add TaskButtonComponent for async task cancellation
+- reintroduce geoman drawing tool as default
+- update external URLs and references for openforis/pysepal (Phase 3) (#978)
+- update external URLs and references for openforis/pysepal (Phase 3)
+
+### Fix
+
+- **mapapp**: default drawer to mini when not pinned on mount
+- **theme**: correct theme_toggle deprecation version to 3.4.0
+- **aoi**: reuse cleanup path for external clear
+- **aoi**: close internal gee interface in admin flow
+- **solara**: wire legend props and collapse callback
+- **mapping**: derive map viewport from bounds/window for correct fit_bounds
+- **aoi**: improved inline fallback when no NotificationProvider
+- **MapApp**: layout desync with right panel and broken pin button
+- prevent event loop mismatch and reuse session GEEInterface in AoiView
+- widen AoiResult.feature_collection to ee.ComputedObject
+- check for bounded geometries
+- typo in async loop cancellation
+- resolve session lifecycle bugs in Solara session management (#980)
+- address PR review feedback
+- resolve session lifecycle bugs in Solara session management
+- use PurePosixPath for GEE asset IDs (#979)
+- use PurePosixPath for GEE asset IDs to avoid backslashes on Windows
+
+### Refactor
+
+- **mapping**: drop legacy deprecations and tighten comments
+- **templates**: migrate solara_map_app to theme_state
+- **theme**: session-scoped ThemeState for Solara apps
+- moved fileInput solara component to solara components folder
+
+## v3.3.0 (2026-03-04)
+
+### Feat
+
+- rename package from sepal_ui to pysepal (Phase 2) (#975)
+- update module_deploy for pysepal with dual-read config
+- add sepal_ui backward-compatibility import shim
+
+### Refactor
+
+- fix remaining 'from sepal_ui import X' patterns missed by initial rename
+- update module_factory welcome message to pysepal
+- update notebook imports from sepal_ui to pysepal
+- update template Python imports from sepal_ui to pysepal
+- rename all test imports from sepal_ui to pysepal
+- rename all internal imports from sepal_ui to pysepal
+- update pysepal/__init__.py imports and remove old deprecation warning
+- rename sepal_ui/ directory to pysepal/
+
+## v3.2.0 (2026-02-16)
+
+### Fix
+
+- prepare sepal-ui deprecation notice for pysepal migration (#967)
+- docstring rst
+
+## v3.1.1 (2026-02-12)
+
+### Fix
+
+- **solara.aoi_view**: remove unused map_ param
+
+## v3.1.0 (2026-02-11)
+
+### Feat
+
+- resolve copilot comments
+
+### Refactor
+
+- **aoi**: centralize FAO GAUL constants to eliminate duplication
+
+## v3.0.1 (2026-01-31)
+
+### Feat
+
+- support AOI admin WFS fetch in AoiResult
+- add init to module
+- create Admin Select solara component
+- autocenter on async operation
+- use ee method to determine the credentials
+
+### Fix
+
+- **deps**: update pygaul and localtileserver for compatibility (#970)
+- **docs**: update expected warning format for Python 3.12
+- **aoi**: address review comments
+- **deps**: update pygaul and localtileserver for compatibility
+- fix gaul file lcoation
+- typo
+
+## v2.22.1 (2024-11-22)
+
+### Fix
+
+- revert to legacy draw control due to errors (#958)
+
+## v2.22.0 (2024-11-21)
+
+### Feat
+
+- request assets in a separate thread (#954)
+
+## v2.21.0 (2024-10-25)
+
+### Feat
+
+- add geoman drawing control (#951)
+
+## v2.20.3 (2024-10-20)
+
+### Fix
+
+- https://github.com/openforis/sepal_ui/issues/893 (#948)
+
+## v2.20.2 (2024-10-20)
+
+### Fix
+
+- merge
+- closes #938 (#947)
+- closes #938
+
+## v2.20.1 (2024-09-20)
+
+### Fix
+
+- set chunk dict. closes #940 (#941)
+- remove changelog. closes #917
+
+### Refactor
+
+- Change Translation menu icon (#939)
+- remove changelog (#935)
+- remove changelog from doctree
+
+## v2.20.0 (2024-08-26)
+
+### Feat
+
+- draft async get assets (#934)
+- limit the number of async tasks based on memory and earthengine rate limits
+- fallback to sync call in case async fails
+- draft async get assets
+
+### Fix
+
+- **planet.ver**: unpin planet version (#937)
+- **planet.ver**: unpin planet version. see: https://github.com/openforis/sepal_ui/issues/920
+
+### Refactor
+
+- remove changelog
+
+## v2.18.1 (2024-08-20)
+
+### Refactor
+
+- store initial assets in class variable (#932)
+- store initial assets in class variable
+
+## v2.18.0 (2024-08-06)
+
+### Feat
+
+- ignore act_unit test
+- merge
+- create entry point script to rename entry point ui notebooks
+- Make a lazy loading of gee gdf..close #919. (#922)
+- Make a lazy loading of gee gdf..close #919.
+- make theme change interactive (#913)
+- change badge alert hardc-ded color
+- change badge alert hardc-ded color
+- link sepal.color with v.theme
+- make theme change interactive
+- adapt to voila-sepal-ui template. #909 (#910)
+- add fullscreen control as additional parameter to sepalmap
+- link sepal.color with v.theme
+- make theme change interactive
+- adapt to voila-sepal-ui template. #909
+- use earthengine OF fork when running test in sepal
+- update gdal sepal version, mimic sepal venv creation
+- update auth process
+- **AssetSelect**: add info when there are not asset
+- update gee auth process with project
+
+### Fix
+
+- pin planet version until #920 is fully fixed
+- full_screen_menu
+- set z-index on menus for fullscreen maps
+- set menu z-index for fullscreen
+- remove legacy brackets
+
+### Refactor
+
+- remove kaban project ftm
+- install gdal as binary if we are in github actions by checking the path
+- use the name of the folder as venv name, not the stem
+- evaluate gdf in get_ipygeojson since this function is agnostic regarding gee-mode
+- **aoi_model**: - set gdf when vector or geojson is set in method. - don't evaluate gdf in conditions to avoid request when using gee.
+- add preffix param
+- only do one call to gee
+- round total bounds
+- merge new theme
+- remove hard-coded styles
+- appbar icon
+- merge main
+- extend the length of the black lines to 100 chars (#916)
+- extend the length of the black lines to 100 chars
+- update gee auth process (#915)
+- restore previous secrets
+- customize default colors + remvoe unnecessary space
+- merge gee_aut
+- update gee auth process
+- readabilitty
+- **map_fullscreen**: simplify fullscreen method for maps
+- remove hard-coded styles
+- customize default colors + remvoe unnecessary space
+- remove http_transport method on ee initialization. see #914
+- **init_ee**: only initialize ee if there's no an authentication data already
+- ony initialize ee when there's no a previous authentication
+- expose errors on ee initialization
+- update init_ee method to use project_id
+- set new gee project folder structure
+
+## v2.17.0 (2023-11-30)
+
+### Feat
+
+- Planet enhance (#896)
+- mkdir on temp_path_factory obj
+- **planet**: save credentials and authenticate from file
+- update pip and install numpy beofre gdal
+- add dummy changelog and version to panel_app template
+- define arguments to changelog functions
+- define arguments to changelog functions
+- use local repository data to show changelog
+- define methods to process and retrieve the changelog from remote repo
+- set the view of the version manager for apps
+- use cache on InputFile widget to improve loading times
+-  use localtileserver as native deps (#835)
+- add localtileserver in the deps
+
+### Fix
+
+- drop the changelog only rely on Github as we are building everything based on PRs
+- merge from main
+- fix rendered cells issue
+- display a message at the top of the notebook while loading
+- use Python 3.11 (#899)
+- use Python 3.11
+- **planet_model**: Fix #895. - Request quads and mosaics using authenticated session
+- fix gdal isntlalation
+- use the latest earthengine fork api from sepal
+- typo
+- **css**: revert render_cells css attributes that caused #893
+- **decorator**: make debug mode true always
+- fix js code issues on fontawesome removing code (#889)
+- fix js code issues on fontawesome removing code
+- use catch_error in loading_button (#879)
+- use catch_error in loading_button
+- stop overriding the default behavior of the footer (#880)
+- missing install command
+- run github tests with nox sessions
+- stop overriding the default behavior of the ooter
+- externalyse geometries management (#868)
+- display a message at the top of the notebook while loading (#871)
+- display a message at the top of the notebook while loading
+- only test existence of mosaics (#872)
+- only test existence of momsaics
+- use sphinx<7 for the moment (#869)
+- use sphinx<7 for the moment
+- use pygaul/pygadm in admin selects
+- display meaningfull message if the folder list is empty (#867)
+- display meaningfull message if the folder list is empty
+- don't change folder when new folder is parent of root.  (#863)
+- don't change folder when new folder is parent of root. closes #862
+- python 3.11 is more specific when dealing with glob specs
+- add `self` to `catch_error` decorator (#856)
+- check if the alert and btn exist in the parent object
+- return alert to info state when reset
+- add self to catch_error decorator
+- typo variable name
+- update planet mosaic list in tests (#853)
+- update planet mosaic list in tests
+- change default branch on docs. closes #846 (#847)
+- change default branch on docs. closes #846
+- closes #838. remove inline js comments (#840)
+- closes #838. remove inline js comments
+- add method to delete a folder and all its content (#793)
+- make the function dry run by default
+- [] is a mutable object
+- split files by nesting level
+- add method to delete a folder and all its content
+- add key to any layer created with sepal-ui (#796)
+- set max default zoom to 24
+- directly use localtileserver
+- add key to any layer created with sepal-ui
+
+### Refactor
+
+- **decorator**: remove legacy debug param from decorator
+- **decorator**: raise a warn if debug param is set on loading_button and catch_error decorators
+- **VersionCard**: use color.main on version card
+- use the pytest fixture for tmp directory (#890)
+- reset to empty strings instead of None
+- fix doc error
+- **readme**: revert to empty
+- drop the tmp_dir
+- use the pytest fixture for tmp directory
+- remove gdal
+- update module_venv bin to align with sepal
+- **version_card**: use tomli instead of toml
+- use tomli instead of toml (#888)
+- use tomli instead of toml
+- fix typing parameters
+- use pyproject.toml to get module version
+- update nox documentation session
+- deprecation warning, index shoul always rely on iloc
+- AdmNames
+- use the class implementation
+- cleaning
+- use pygaul and pygadm to manage admin names
+- test should go inside the with statement
+- use the Optional typing
+- only use typing_extentions for Self type
+- improve compactness (#841)
+- 0 bytes files are now behaving as the others
+- improve compactness
+- use double quote for the run command (#857)
+- use double quote for the run command
+- use nested method in get_assets
+- typo
+- make asset_list a private parameter
+- delete legacy test file
+- remove legacy test file
+- typo
+- typo
+- set a default zoom for rasters and map
+
 ## v_2.16.4 (2023-05-25)
 
 ### Fix

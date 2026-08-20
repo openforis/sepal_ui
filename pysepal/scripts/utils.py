@@ -16,10 +16,8 @@ import requests
 import tomli
 from anyascii import anyascii
 from deprecated.sphinx import deprecated, versionadded
-from matplotlib import colors as c
 
 import pysepal
-from pysepal.conf import config, config_file
 from pysepal.message import ms
 from pysepal.scripts import decorator as sd
 from pysepal.scripts.gee import init_ee  # noqa: F401 - backward compatibility
@@ -119,7 +117,7 @@ def get_file_size(filename: Pathlike) -> str:
     file_size = Path(filename).stat().st_size
 
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(file_size, 1024))) if file_size > 0 else 0
+    i = math.floor(math.log(file_size, 1024)) if file_size > 0 else 0
     s = file_size / (1024**i)
 
     return "{:.1f} {}".format(s, size_name[i])
@@ -152,6 +150,10 @@ def to_colors(in_color: Union[str, Sequence], out_type: str = "hex") -> Union[st
     Returns:
         The color in the specified format. default to black.
     """
+    # imported lazily: importing matplotlib at module load time makes it create
+    # ~/.config/matplotlib on first `import pysepal`, even on a read-only $HOME
+    from matplotlib import colors as c
+
     # list of the color function used for the translation
     c_func = {"hex": c.to_hex}
     transform = c_func[out_type]
@@ -200,50 +202,6 @@ def next_string(string: str) -> str:
         string += "_1"
 
     return string
-
-
-def set_config(key: str, value: str, section: str = "sepal-ui") -> None:
-    """Set a config variable.
-
-    Set the provided value to the given key for the given section in the sepal-ui config
-    file.
-
-    Args:
-        key: key configuration name
-        value: value to be referenced by the configuration key
-        section: configuration section, defaults to sepal-ui.
-    """
-    # set the section if needed
-    if "sepal-ui" not in config.sections():
-        config.add_section(section)
-
-    # set the value
-    config.set("sepal-ui", key, value)
-
-    # save back the file
-    config.write(config_file.open("w"))
-
-    return
-
-
-@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
-def set_config_locale(locale: str) -> None:
-    """Set the provided local in the sepal-ui config file.
-
-    Args:
-        locale: a locale name in IETF BCP 47 (no verifications are performed)
-    """
-    return set_config("locale", locale)
-
-
-@deprecated(version="2.9.1", reason="This function will be removed in favor of set_config()")
-def set_config_theme(theme: str) -> None:
-    """Set the provided theme in the sepal-ui config file.
-
-    Args:
-        theme: a theme name (currently supporting "dark" and "light")
-    """
-    return set_config("theme", theme)
 
 
 @versionadded(version="2.7.1")

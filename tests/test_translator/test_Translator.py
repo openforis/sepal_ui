@@ -1,22 +1,19 @@
 """Test the Translator object."""
 
 import json
-from configparser import ConfigParser
 from pathlib import Path
 
 import pytest
 
-from pysepal.conf import config_file
 from pysepal.message import ms
 from pysepal.translator import Translator
 
 
-def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
+def test_init(translation_folder: Path) -> None:
     """Check the Translator can be inited.
 
     Args:
         translation_folder: the folder where the language keys are stored
-        tmp_config_file: create the config file for the preferred language
     """
     # assert that the test key exist in fr
     translator = Translator(translation_folder, "fr")
@@ -34,18 +31,11 @@ def test_init(translation_folder: Path, tmp_config_file: Path) -> None:
     translator = Translator(translation_folder, "it")
     assert translator.test_key == "Test key"
 
-    # assert that if nothing is set it will use the confi_file (fr-FR)
-    translator = Translator(translation_folder)
-    assert translator.test_key == "Clef de test"
-
     # check the internal variables once to make sure that they are not removed/changed
+    translator = Translator(translation_folder, "fr")
     assert translator._folder == str(translation_folder)
     assert translator._default == "en"
-    assert translator._targeted == "fr-FR"
-    assert translator._target == "fr-FR"
     assert translator._match is True
-
-    # Check that is failing when using
 
     return
 
@@ -152,7 +142,7 @@ def test_key_use() -> None:
     """Check that are used at least once."""
     # check key usage method
     # don't test if all keys are translated, crowdin will monitor it
-    lib_folder = Path(__file__).parents[1] / "sepal_ui"
+    lib_folder = Path(__file__).parents[2] / "pysepal"
 
     assert "test_key" in ms.key_use(lib_folder, "ms")
 
@@ -178,24 +168,3 @@ def translation_folder(tmp_path_factory: pytest.TempPathFactory) -> Path:
         (folder / "locale.json").write_text(json.dumps(d, indent=2))
 
     return message_dir
-
-
-@pytest.fixture(scope="module")
-def tmp_config_file() -> int:
-    """Erase any existing config file and replace it with one specifically design for thesting the translation."""
-    # erase anything that exists
-    if config_file.is_file():
-        config_file.unlink()
-
-    # create a new file
-    config = ConfigParser()
-    config.add_section("sepal-ui")
-    config.set("sepal-ui", "locale", "fr-FR")
-    config.write(config_file.open("w"))
-
-    yield 1
-
-    # flush it
-    config_file.unlink()
-
-    return

@@ -26,6 +26,11 @@
  *   node scripts/browser_probe.mjs --url http://127.0.0.1:8910/ \
  *        --eval "({ title: document.title })"
  *
+ *   # dismiss a dialog by clicking the scrim, then check it actually closed
+ *   node scripts/browser_probe.mjs --url http://127.0.0.1:8900/ \
+ *        --wait '.v-dialog--active' --click 12,-12 --settle-after 1500 \
+ *        --eval "({ open: !!document.querySelector('.v-dialog--active') })"
+ *
  * Options
  * -------
  *   --url <url>          (required) page to load
@@ -35,6 +40,14 @@
  *                        + body text length.
  *   --wait <selector>    poll until this selector exists (else --timeout)
  *   --settle <ms>        extra wait after ready, for layout/theme (default 2000)
+ *   --click <x,y|sel>    issue a REAL (trusted) click before --eval, either at
+ *                        viewport coordinates or at the centre of a selector.
+ *                        Negative coordinates count back from the right/bottom
+ *                        edge, so `12,-12` is 12px in from the bottom-left.
+ *   --resize <WxH>       resize the viewport before --eval (e.g. 1000x700)
+ *   --settle-after <ms>  wait after --click/--resize (default 1200). Widget
+ *                        round-trips go through the python kernel, so a UI
+ *                        change can take far longer than a repaint.
  *   --timeout <ms>       readiness budget (default 30000)
  *   --force-theme <t>    set localStorage ':solara:theme.variant' to "dark" or
  *                        "light" and reload (Solara only — Voila ignores it)
@@ -51,6 +64,13 @@
  *     own shell. This tool tracks the spawned PID and kills only that.
  *   - Inside a restricted sandbox Chrome may be signal-killed on launch; run it
  *     from a normal shell, or disable the sandbox for the launching command.
+ *   - A click dispatched from JS (`el.click()`, `new MouseEvent(...)`) is NOT
+ *     trusted, and vuetify's click-outside directive drops untrusted events on
+ *     purpose. Use --click, which goes through CDP `Input.dispatchMouseEvent`,
+ *     or you will "prove" that dismissing a dialog is broken when it is not.
+ *   - The headless viewport is NOT the --window-size: derive click coordinates
+ *     from `window.innerWidth/innerHeight` (which --click does) rather than
+ *     hardcoding, or you will click outside the page and hit <html>.
  *   - ipyvue injects Vue `<style scoped>` as GLOBAL css (no data-v attribute),
  *     so computed styles can be affected by ancestor classes you don't expect
  *     (e.g. JupyterLab sets `theme-light` on <body>). Probing computed styles
@@ -77,6 +97,9 @@ const SETTLE = parseInt(argVal("--settle", "2000"), 10);
 const TIMEOUT = parseInt(argVal("--timeout", "30000"), 10);
 const FORCE_THEME = argVal("--force-theme");
 const KEEP_OPEN = process.argv.includes("--keep-open");
+const CLICK = argVal("--click");
+const RESIZE = argVal("--resize");
+const SETTLE_AFTER = parseInt(argVal("--settle-after", "1200"), 10);
 let EVAL = argVal("--eval");
 if (EVAL && EVAL.startsWith("@")) EVAL = readFileSync(EVAL.slice(1), "utf8");
 if (!EVAL)
@@ -261,6 +284,61 @@ async function main() {
     await send(ws, "Page.reload", {}, sessionId);
     await waitReady();
     await sleep(SETTLE);
+  }
+
+  if (RESIZE) {
+    const m = /^(\d+)x(\d+)$/.exec(RESIZE);
+    if (!m) throw new Error(`--resize expects WxH, got "${RESIZE}"`);
+    await send(
+      ws,
+      "Emulation.setDeviceMetricsOverride",
+      {
+        width: parseInt(m[1], 10),
+        height: parseInt(m[2], 10),
+        deviceScaleFactor: 1,
+        mobile: false,
+      },
+      sessionId
+    );
+    await sleep(SETTLE_AFTER);
+  }
+
+  if (CLICK) {
+    // Resolve to viewport coordinates in the page, so the caller never has to
+    // guess the headless viewport size.
+    const point = await evaluate(
+      ws,
+      sessionId,
+      `(() => {
+        const spec = ${JSON.stringify(CLICK)};
+        const coords = /^(-?\\d+),(-?\\d+)$/.exec(spec);
+        if (coords) {
+          const x = +coords[1], y = +coords[2];
+          return { x: x < 0 ? window.innerWidth + x : x,
+                   y: y < 0 ? window.innerHeight + y : y };
+        }
+        const el = document.querySelector(spec);
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+      })()`
+    );
+    if (!point) throw new Error(`--click found no element for "${CLICK}"`);
+
+    for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) {
+      await send(
+        ws,
+        "Input.dispatchMouseEvent",
+        {
+          type,
+          x: point.x,
+          y: point.y,
+          ...(type === "mouseMoved" ? {} : { button: "left", clickCount: 1 }),
+        },
+        sessionId
+      );
+    }
+    await sleep(SETTLE_AFTER);
   }
 
   const value = await evaluate(ws, sessionId, EVAL);

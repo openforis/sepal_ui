@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Aplicación de mapa PySepal"
+  },
+  "panel": {
+    "title": "Herramientas",
+    "description": "Seleccione un área, procésela y luego inspeccione y exporte los resultados."
+  },
+  "section": {
+    "aoi": {
+      "title": "Seleccionar AOI"
+    },
+    "process": {
+      "title": "Procesar",
+      "description": "Deriva dos capas del AOI y publica una leyenda para cada una."
+    },
+    "layers": {
+      "title": "Capas",
+      "description": "Añada una capa de demostración independiente o una capa vectorial PMTiles, o limpie el mapa y sus leyendas. Ambas aparecen en el control de capas, arriba a la derecha."
+    },
+    "export": {
+      "title": "Exportar",
+      "description": "Envíe el AOI o un resultado procesado a Earth Engine, Drive o SEPAL."
+    }
+  }
+}

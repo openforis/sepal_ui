@@ -557,7 +557,7 @@ option = Option(tooltip=tooltip, series=[...])
 from pysepal.solara import get_current_theme_state
 
 class EChartsWidget(EChartsWidget):
-    """Extended widget bound to the session ThemeState."""
+    """Extended widget bound to the scope-keyed ThemeState."""
 
     def __init__(self, theme_state=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
