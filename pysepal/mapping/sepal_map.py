@@ -128,7 +128,7 @@ class SepalMap(ipl.Map):
         """Custom Map object design to build application.
 
         The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the pysepal layout.
         Numerous methods have been added in the class to help you deal with your workflow implementation.
         It can natively display raster from .tif files and files and ee objects using methods
         that have the same signature as the GEE JavaScripts console.
@@ -185,6 +185,8 @@ class SepalMap(ipl.Map):
             if gee_interface:
                 self.gee_interface = gee_interface
             else:
+                # Raises under PER_CONNECTION when gee_session is None; keep it
+                # ahead of init_ee() so a refused map initialises no global ee.
                 self.gee_interface = GEEInterface(session=gee_session)
             su.init_ee()
 

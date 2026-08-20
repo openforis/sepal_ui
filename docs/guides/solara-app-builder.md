@@ -57,16 +57,59 @@ def Page():
 
 1. `setup_solara_server()` — module level, configures Solara (kernel timeout, assets)
 2. `setup_sessions()` — in `@solara.lab.on_kernel_start`, creates SessionManager
-3. `@with_sepal_sessions` — on `Page()`, waits for auth headers, creates per-user session
+3. `@with_sepal_sessions` — on `Page()`, establishes the session for this runtime
 4. `get_current_*()` — inside component, retrieves session-bound interfaces
+
+### Where credentials come from
+
+pysepal decides a session's credential source from **runtime topology** — what
+kind of process the app is in — and never by probing credentials or checking
+whether a request carries headers. In order:
+
+| Condition                                  | Source           | Meaning                                             |
+| ------------------------------------------ | ---------------- | --------------------------------------------------- |
+| `PYSEPAL_DEV_AUTH` armed, no SEPAL headers | `DEV_AUTH`       | one developer login for the whole process           |
+| `SEPAL=true` (a SEPAL sandbox)             | `PROCESS`        | app-manager app; the machine credentials are yours  |
+| `PYSEPAL_LOCAL_EE` armed, no SEPAL headers | `PROCESS`        | your own Earth Engine credentials, for local dev    |
+| running under a Solara server              | `PER_CONNECTION` | app-launcher container; one identity per connection |
+| anything else (Voila, Jupyter, a script)   | `PROCESS`        | machine credentials                                 |
+
+`PER_CONNECTION` never falls back. Missing or invalid SEPAL headers there raise
+`MissingSepalHeadersError`, because an app-launcher container mounts the
+_platform_ GEE service-account key at `~/.config/earthengine/credentials` — a
+fallback would silently hand every user that one identity.
+
+Real SEPAL headers always win over `PYSEPAL_DEV_AUTH`, so arming it in a
+deployed container changes nothing. The same holds for `PYSEPAL_LOCAL_EE`, which
+is the local-development switch for an app that only needs Earth Engine: it runs
+`solara run` on your own `~/.config/earthengine/credentials` with no SEPAL login,
+and therefore with no `SepalClient`.
+
+The two are mutually exclusive and `PYSEPAL_DEV_AUTH` wins — it is rule 1,
+`PYSEPAL_LOCAL_EE` is rule 3, so arming both leaves the second inert. Reach for
+`PYSEPAL_DEV_AUTH` when the app needs the SEPAL side (file storage, exports to
+your workspace) and `PYSEPAL_LOCAL_EE` when it only talks to Earth Engine.
+`PYSEPAL_LOCAL_EE` changes nothing outside `solara run`: Voila, Jupyter and
+scripts already resolve `PROCESS` from the same credentials file.
+
+`get_current_sepal_client()` returns `None` on a `PROCESS` runtime that has no
+SEPAL identity of its own — a laptop notebook or a CI script. In a SEPAL
+sandbox it returns a real client, so code that branches on
+`if sepal_client:` takes the SEPAL API path there and the local-filesystem path
+elsewhere.
 
 ### The `@with_sepal_sessions` decorator
 
-This decorator is **required** on the main `Page()` component. It:
+This decorator is **required** on the main `Page()` component whenever the app
+needs `GEEInterface`, `SepalClient` or `GDriveInterface` — which is almost every
+app. An app that needs none of them omits it; see
+[Apps that don't use Earth Engine](#apps-that-dont-use-earth-engine) below. It:
 
-- Waits for SEPAL auth headers (`solara.lab.headers`)
-- Creates a session with `GEEInterface`, `SepalClient`, `GDriveInterface` per user
-- Shows a loading screen while waiting
+- Establishes the session for this runtime: per connection under a Solara
+  server, otherwise the process session
+- Provides `GEEInterface`, `SepalClient` and `GDriveInterface`
+- Raises on missing or invalid SEPAL headers in a per-connection runtime,
+  instead of waiting for headers that will never arrive
 - Handles auth errors gracefully
 
 ```python
@@ -74,7 +117,81 @@ This decorator is **required** on the main `Page()` component. It:
 @with_sepal_sessions(module_name="sdg_indicators/15.4.2")
 def Page():
     # This only renders after session is ready
-    gee_interface = get_current_gee_interface()  # Guaranteed to have sepal headers
+    gee_interface = get_current_gee_interface()  # Session already established above
+```
+
+### Apps that don't use Earth Engine
+
+Two shapes, and only one of them needs a session at all.
+
+**The app needs nothing from SEPAL** — pure UI, local computation, or its own
+API. Drop `@with_sepal_sessions` and keep the rest of the entry point:
+
+```python
+import solara
+from pysepal.solara import setup_sessions, setup_solara_server, setup_theme_colors
+
+setup_solara_server(extra_asset_locations=[])
+
+
+@solara.lab.on_kernel_start
+def on_kernel_start():
+    return setup_sessions()
+
+
+@solara.component
+def Page():
+    setup_theme_colors()
+    # ...your app here...
+```
+
+Keep `setup_sessions()` even though there is no session to create. The cleanup
+function it returns is what clears this connection's scoped UI state — theme,
+locale — when the kernel shuts down. Without it that state accumulates one entry
+per connection for the life of the process.
+
+Everything that is not a credential still works: theme, locale, notifications
+and every `sepalwidgets` component. `get_current_theme_state()` never raises, by
+design. `get_current_sepal_client()` returns `None`, and
+`get_current_gee_interface()` raises `SepalSessionError` — do not call it.
+
+This shape runs under `solara run` with no SEPAL headers and no
+`PYSEPAL_LOCAL_EE`, because nothing ever asks for a credential.
+
+**The app needs SEPAL file storage but not Earth Engine.** Keep the decorator —
+`SepalClient` only exists inside a session. Know what it costs today:
+`_create_connection_session` builds `EESession`, `GEEInterface`, `SepalClient`
+and `GDriveInterface` unconditionally, so every connection gets an Earth Engine
+event-loop thread it never uses. Making that build lazy is planned for 4.1 and
+changes no API you write against.
+
+#### Maps without Earth Engine
+
+Pass `gee=False`. `SepalMap` defaults to `gee=True`, and in a non-GEE app that
+default does something you do not want:
+
+```python
+SepalMap(gee=False)   # local rasters, vectors, basemaps, PMTiles
+```
+
+With `gee=True` and no `gee_interface=`, `SepalMap.__init__` builds a
+session-less `GEEInterface` **and** calls `su.init_ee()`, which reads
+`~/.config/earthengine/credentials` directly and initialises the global `ee`
+module. In an app-launcher container that file is the platform service account.
+
+Since 4.0 a session-less `GEEInterface` **raises `SepalSessionError` in a
+per-connection runtime**, and the map inherits that: `SepalMap()` with no
+`gee_interface` fails in a container instead of rendering on the platform
+identity. The same guard covers `AoiModel`, the `sepalwidgets` asset inputs and
+`process_admin`, which all have the same `gee_interface or GEEInterface()`
+fallback. Elsewhere — a notebook, a script, a SEPAL sandbox — nothing changes:
+those runtimes own their machine credentials.
+
+So in a container app, always pass one or the other:
+
+```python
+SepalMap(gee=False)                                    # no Earth Engine layers
+SepalMap(gee_interface=get_current_gee_interface())    # Earth Engine layers
 ```
 
 ## Notification Shell Pattern
@@ -116,11 +233,27 @@ read [Solara Export](./solara-export.md).
 
 Three interfaces are available per user session:
 
-| Interface         | Getter                          | Purpose                             |
-| ----------------- | ------------------------------- | ----------------------------------- |
-| `GEEInterface`    | `get_current_gee_interface()`   | Earth Engine API calls (async/sync) |
-| `SepalClient`     | `get_current_sepal_client()`    | SEPAL file/task operations          |
-| `GDriveInterface` | `get_current_drive_interface()` | Google Drive export/import          |
+| Interface         | Getter                                       | Purpose                                                                                               |
+| ----------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `GEEInterface`    | `get_current_gee_interface()`                | Earth Engine API calls (async/sync)                                                                   |
+| `SepalClient`     | `get_current_sepal_client(module_name=None)` | SEPAL file/task operations; one client per `module_name`, defaulting to the route currently rendering |
+| `GDriveInterface` | `get_current_drive_interface()`              | Google Drive export/import                                                                            |
+
+### One session, one client per module
+
+A kernel holds exactly one session — one `GEEInterface` (and therefore one private
+event loop), one `GDriveInterface` — and a `SepalClient` per `module_name`. Each
+`@with_sepal_sessions(module_name="…")` route gets its own results directory, and
+`get_current_sepal_client()` inside that route returns that route's client. Pass
+`module_name` explicitly to reach another route's client.
+
+### Theme is not session state
+
+`get_current_theme_state()` is keyed by the runtime scope, not by the SEPAL session:
+it never raises and never touches credentials, so it works identically under
+`solara run`, Voila, plain Jupyter and pytest. A fresh state starts at `mode="auto"`.
+The legacy `~/.sepal-ui-config` theme file is removed in 4.0 — theme state is
+never read from or written to disk.
 
 ### Getting interfaces
 
@@ -332,7 +465,7 @@ from pysepal.solara import get_current_theme_state
 def Page():
     gee_interface = get_current_gee_interface()
 
-    # Session-scoped theme state (dark/light mode; auto follows system)
+    # Scope-keyed theme state (dark/light mode; auto follows system)
     theme_state = get_current_theme_state()
 
     # Create map with GEE support (memoized to avoid re-creation)
@@ -377,11 +510,14 @@ buttons and chips inside them. Navigation drawer icons keep default size.
 ### `.env` file
 
 ```bash
-SOLARA_TEST=true                    # Use get_sepal_headers_from_auth() for local dev
-DEPLOY_ENV=sepal_solara             # Marks SEPAL Solara mode; do not branch to local user-file I/O
+PYSEPAL_DEV_AUTH=1                  # One developer login for the process (local dev only)
 LOCAL_SEPAL_USER=admin              # Dev credentials
 LOCAL_SEPAL_PASSWORD=yourpassword
 SEPAL_HOST=yourinstance.sepal.io    # SEPAL platform host
+
+# Alternative to the four lines above for a GEE-only app: no SEPAL login, no
+# SepalClient, Earth Engine from ~/.config/earthengine/credentials.
+# PYSEPAL_LOCAL_EE=1
 ```
 
 ### `run_solara.sh` (local dev)
@@ -450,7 +586,8 @@ services:
     environment:
       FORWARDED_ALLOW_IPS: "*"
       SEPAL_HOST: "${SEPAL_HOST}"
-      SOLARA_TEST: "${SOLARA_TEST:-false}"
+      PYSEPAL_DEV_AUTH: "${PYSEPAL_DEV_AUTH:-0}"
+      PYSEPAL_LOCAL_EE: "${PYSEPAL_LOCAL_EE:-0}"
       LOCAL_SEPAL_USER: "${LOCAL_SEPAL_USER}"
       LOCAL_SEPAL_PASSWORD: "${LOCAL_SEPAL_PASSWORD}"
     ports:
@@ -478,35 +615,35 @@ Solara creates new kernel
     ↓
 @solara.lab.on_kernel_start → setup_sessions() → SessionManager initialized
     ↓
-Page() renders → @with_sepal_sessions waits for HTTP headers
+Page() renders → @with_sepal_sessions establishes the session
     ↓
-Headers arrive → SessionManager.create_session():
+SessionManager.create_session():
     - Extracts username from SepalHeaders
     - Creates EESession with user's credentials
     - Creates GEEInterface(gee_session)
     - Creates SepalClient.create(session_id=..., module_name=...)
     - Creates GDriveInterface(sepal_headers)
-    - Stores all in _sessions[kernel_id]
+    - Stores all in the session registry, keyed by scope id
     ↓
 Page() re-renders → get_current_gee_interface() returns user's GEEInterface
     ↓
 Components use authenticated interfaces for GEE/SEPAL/Drive operations
     ↓
-Tab closes → kernel cleanup → SessionManager.cleanup_session(kernel_id)
+Tab closes → kernel cleanup → SessionManager.cleanup_session(scope_id)
 ```
 
 Each browser tab = separate kernel = isolated session with its own credentials.
 
 ## 9. Local Development vs SEPAL Deployment
 
-| Aspect               | Local Dev                                              | SEPAL Platform                                |
-| -------------------- | ------------------------------------------------------ | --------------------------------------------- |
-| Auth headers         | `get_sepal_headers_from_auth()` via `SOLARA_TEST=true` | Real HTTP headers from SEPAL proxy            |
-| User files           | `SepalClient` against `SEPAL_HOST`                     | `SepalClient` from session headers            |
-| Container filesystem | Code and static assets only                            | Code and static assets only                   |
-| GEE credentials      | `~/.config/earthengine/credentials`                    | SEPAL-provided per user                       |
-| URL                  | `http://localhost:8900`                                | `https://sepal.io/api/app-launcher/my_module` |
-| Run command          | `./run_solara.sh`                                      | `supervisord` in Docker                       |
+| Aspect               | Local Dev                                   | SEPAL Platform                                |
+| -------------------- | ------------------------------------------- | --------------------------------------------- |
+| Auth headers         | `prime_dev_auth()` via `PYSEPAL_DEV_AUTH=1` | Real HTTP headers from SEPAL proxy            |
+| User files           | `SepalClient` against `SEPAL_HOST`          | `SepalClient` from session headers            |
+| Container filesystem | Code and static assets only                 | Code and static assets only                   |
+| GEE credentials      | `~/.config/earthengine/credentials`         | SEPAL-provided per user                       |
+| URL                  | `http://localhost:8900`                     | `https://sepal.io/api/app-launcher/my_module` |
+| Run command          | `./run_solara.sh`                           | `supervisord` in Docker                       |
 
 ### Handling user files
 

@@ -9,7 +9,7 @@
 
 For new Solara apps, the default pysepal setup is:
 
-1. `@with_sepal_sessions` waits for SEPAL headers.
+1. `@with_sepal_sessions` establishes the session for this runtime.
 2. `SessionManager` creates `EESession(sepal_headers=...)`.
 3. `SessionManager` wraps that session in `GEEInterface`.
 4. Components retrieve that same session-backed interface with

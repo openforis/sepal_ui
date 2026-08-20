@@ -1,6 +1,6 @@
 """Custom widgets that are nor input nor UI interface.
 
-Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+Gather the customized ``ipyvuetifyWidgets``. All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::

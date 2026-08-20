@@ -7,5 +7,5 @@ from pathlib import Path
 
 from pysepal.translator import Translator
 
-# create a translator object
-cm = Translator(Path(__file__).parent)
+# Explicit target on purpose: an untargeted Translator resolves to English.
+cm = Translator(Path(__file__).parent, target="en")

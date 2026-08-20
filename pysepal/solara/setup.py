@@ -1,7 +1,7 @@
-"""Setup utilities for Solara applications using sepal_ui.
+"""Setup utilities for Solara applications using pysepal.
 
 This module provides utilities to configure common Solara server settings
-that are typically needed across all sepal_ui-based applications.
+that are typically needed across all pysepal-based applications.
 """
 
 import logging
@@ -58,22 +58,22 @@ def setup_theme_colors():
 def setup_solara_server(
     extra_asset_locations: Optional[List[Union[str, Path]]] = None,
 ) -> None:
-    """Configure common Solara server settings for sepal_ui applications.
+    """Configure common Solara server settings for pysepal applications.
 
     This function sets up standard configurations that are commonly needed
-    across sepal_ui-based Solara applications, avoiding the need to duplicate
+    across pysepal-based Solara applications, avoiding the need to duplicate
     these settings in every application.
 
     Always includes:
     - FontAwesome 6.7.2
-    - sepal_ui common assets (CSS, JS)
+    - pysepal common assets (CSS, JS)
     - No kernel timeout ("0s") (helps to kill sessions once the page is closed)
 
     If extra asset locations are provided, this function will merge all CSS and JS
     files into combined files to ensure they are all properly served by Solara.
 
     Args:
-        extra_asset_locations: Additional asset locations to serve beyond sepal_ui's common assets
+        extra_asset_locations: Additional asset locations to serve beyond pysepal's common assets
 
     """
     logger.debug("Setting up Solara server configuration for sepal_ui application")
@@ -81,7 +81,7 @@ def setup_solara_server(
     solara.server.settings.assets.fontawesome_path = DEFAULT_FONT_AWESOME
     solara.server.settings.kernel.cull_timeout = DEFAULT_CULL_TIMEOUT
 
-    # Get sepal_ui common assets
+    # Get pysepal common assets
     sepal_common_assets = Path(__file__).parent / "common" / "assets"
     if not sepal_common_assets.exists():
         logger.warning(f"sepal_ui common assets directory not found: {sepal_common_assets}")

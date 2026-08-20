@@ -3,10 +3,7 @@
 ``pysepal`` provides ipyvuetify and Solara components for building geospatial dashboards — mapping (ipyleaflet), AOI selection, GEE session helpers, notifications, exports, i18n, and theme state — usable in any Jupyter / Solara context and tightly integrated with the SEPAL platform.
 """
 
-from pysepal.conf import config as config
-from pysepal.conf import config_file as config_file
 from pysepal.frontend.styles import SepalColor
-from pysepal.frontend.styles import get_theme as get_theme
 
 __author__ = """Pierrick Rambaud"""
 __email__ = "pierrick.rambaud49@gmail.com"

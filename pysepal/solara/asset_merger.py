@@ -20,14 +20,14 @@ def merge_asset_files(
     temp_dir: Path,
     base_css_files: Sequence[Path] = (),
 ) -> None:
-    """Merge CSS and JS files from sepal_ui and extra locations into combined files.
+    """Merge CSS and JS files from pysepal and extra locations into combined files.
 
     Args:
-        sepal_assets_dir: Path to sepal_ui common assets
+        sepal_assets_dir: Path to pysepal common assets
         extra_locations: List of extra asset directory paths
         temp_dir: Temporary directory to create merged files in
         base_css_files: Shared base stylesheets merged in FIRST, ahead of the
-            sepal_ui common CSS, so per-runtime override sheets win on equal
+            pysepal common CSS, so per-runtime override sheets win on equal
             specificity.
     """
     # Merge CSS files
@@ -46,7 +46,7 @@ def merge_asset_files(
         else:
             logger.warning(f"Shared base CSS not found: {base_path}")
 
-    # Start with sepal_ui common assets
+    # Start with pysepal common assets
     sepal_css = sepal_assets_dir / "custom.css"
     sepal_js = sepal_assets_dir / "custom.js"
 
@@ -98,7 +98,7 @@ def merge_asset_files(
         merged_js.write_text("\n".join(js_content))
         logger.debug(f"Created merged JS file: {merged_js}")
 
-    # Copy any other files from sepal_ui common assets
+    # Copy any other files from pysepal common assets
     if sepal_assets_dir.exists():
         for file_path in sepal_assets_dir.iterdir():
             if file_path.suffix not in [".css", ".js"]:  # Skip CSS/JS as they're merged
@@ -115,7 +115,7 @@ def create_merged_assets_directory(
     """Create a temporary directory with merged assets from all locations.
 
     Args:
-        sepal_assets_dir: Path to sepal_ui common assets
+        sepal_assets_dir: Path to pysepal common assets
         extra_locations: List of extra asset directory paths
         base_css_files: Shared base stylesheets merged in ahead of everything.
 

@@ -11,12 +11,59 @@ from eeclient.client import EESession
 from eeclient.data import MapTileOptions
 from eeclient.export.image import ImageFileFormat
 from eeclient.export.table import TableFileFormat
-from eeclient.helpers import get_sepal_headers_from_auth
 from eeclient.tasks import Task
 
 from pysepal.logger import log
-from pysepal.scripts import gee
 from pysepal.scripts.gee_task import GEETask, R, TaskState
+
+
+def _refuse_ambient_session_per_connection() -> None:
+    """Refuse to resolve machine credentials where the process serves many users.
+
+    Called only when no session was supplied, immediately before
+    :meth:`EESession.from_default` resolves one from the machine. That reads
+    ``~/.config/earthengine/credentials``, which in an app-launcher container is
+    the *platform* service-account key -- so the interface would answer for the
+    platform rather than for the user whose connection asked.
+
+    ``from_default(allow_service_account_file=False)`` refuses that key on its
+    own, and in a ``sepal-user`` home it takes a SEPAL-file-only branch that a
+    service-account JSON fails to validate. This guard is the topology-level
+    decision in front of both: the source of a session is chosen by what kind of
+    process this is, never by what the credential store happens to contain.
+
+    This is the chokepoint rather than the callers on purpose. An interface with
+    no session is reached from five places across four subpackages --
+    ``mapping.SepalMap``, ``solara.components.aoi.admin``, ``aoi.AoiModel`` and
+    the ``sepalwidgets`` asset inputs (twice) -- each a quiet
+    ``gee_interface or GEEInterface()`` or a ``gee_session`` that is allowed to
+    be None. Guarding them one at a time is a list that silently grows every
+    time somebody adds a sixth.
+
+    Only ``PER_CONNECTION`` is refused: a notebook, a script, pytest or a SEPAL
+    sandbox owns its machine credentials, and resolving them there is correct.
+
+    Raises:
+        SepalSessionError: This runtime serves one identity per connection.
+    """
+    # Local: pysepal.solara.session_manager imports this module, so neither of
+    # these can be a module-level import.
+    from pysepal.solara._topology import SessionSource
+    from pysepal.solara.errors import SepalSessionError
+    from pysepal.solara.session_manager import _current_plan
+
+    if _current_plan().source is not SessionSource.PER_CONNECTION:
+        return
+
+    raise SepalSessionError(
+        "A GEEInterface built with no session resolves the machine's own Earth "
+        "Engine credentials, and this runtime serves one identity per connection "
+        "-- so it would answer with the container's platform service account "
+        "instead of this user. Build it from the connection's session with "
+        "get_current_gee_interface(), pass it down to the component explicitly, "
+        "or turn Earth Engine off for the component that does not need it (for "
+        "example SepalMap(gee=False))."
+    )
 
 
 def _resolve_create_folder_paths(asset_root: str, folder_path: str) -> tuple[str, str]:
@@ -86,23 +133,54 @@ def _bbox_geometry(item: ee.ComputedObject) -> ee.Geometry:
 
 
 class GEEInterface:
-    def __init__(self, session: Optional[EESession] = None, use_sepal_headers=False):
+    def __init__(self, session: Optional[EESession] = None):
         """A unified interface for Earth Engine operations.
 
         If a session is provided at initialization, custom EESession-based calls are used.
         Otherwise, the default Earth Engine API methods are invoked.
-        """
-        if use_sepal_headers:
-            sepal_headers = get_sepal_headers_from_auth()
-            session = EESession.from_sepal_headers(sepal_headers)
 
-        self.session = session
+        Args:
+            session: The session every call is made on behalf of. Omitting it
+                resolves one from the machine's own credentials, which is only
+                accepted where topology says the process serves a single
+                identity -- see :func:`_refuse_ambient_session_per_connection`.
+        """
+        # Before the loop thread below: a refused interface must not leak one.
+        # Topology is decided here, eagerly; the credentials themselves are not.
+        if session is None:
+            _refuse_ambient_session_per_connection()
+
+        self._session = session
+        self._session_lock = threading.Lock()
         self._closed = False
 
         self._async_loop = asyncio.new_event_loop()
         self._async_loop.set_debug(True)  # Enable debug mode for the event loop
         self._async_thread = threading.Thread(target=self._async_loop.run_forever, daemon=True)
         self._async_thread.start()
+
+    @property
+    def session(self) -> EESession:
+        """The session every call is made on behalf of, resolved on first use.
+
+        Deliberately not resolved in ``__init__``. Resolution reads the machine's
+        credential store, and constructing an interface must not require Earth
+        Engine to be set up at all: ``SepalMap()`` is the documented notebook
+        quickstart, 84 test sites build one without ever calling Earth Engine,
+        and the unit lane runs on fork PRs where ``EARTHENGINE_TOKEN`` is empty.
+        Resolving eagerly turns all three into ``CredentialsResolutionError`` at
+        construction. Whether the machine's credentials may be read *at all* is a
+        topology question, and that one is still answered eagerly, in ``__init__``.
+
+        Returns:
+            The session. Built from the machine's own credentials on first
+            access when the caller supplied none.
+        """
+        if self._session is None:
+            with self._session_lock:
+                if self._session is None:
+                    self._session = EESession.from_default(allow_service_account_file=False)
+        return self._session
 
     def create_task(
         self,
@@ -195,11 +273,9 @@ class GEEInterface:
     ) -> Dict:
         """Asynchronously get_info for an Earth Engine object."""
         try:
-            if self.session:
-                return await self.session.operations.get_info_async(
-                    ee_object, tag, serialized_object=serialized_object
-                )
-            return await asyncio.to_thread(ee_object.getInfo)
+            return await self.session.operations.get_info_async(
+                ee_object, tag, serialized_object=serialized_object
+            )
         except Exception as e:
             log.error(f"Failed to get info for EE object: {type(e).__name__}: {e}")
             raise
@@ -241,11 +317,9 @@ class GEEInterface:
     ) -> Dict:
         """Asynchronously get map ID for an Earth Engine image."""
         try:
-            if self.session:
-                return await self.session.operations.get_map_id_async(
-                    ee_image, vis_params, bands, format
-                )
-            return await asyncio.to_thread(ee_image.getMapId, vis_params)
+            return await self.session.operations.get_map_id_async(
+                ee_image, vis_params, bands, format
+            )
         except Exception as e:
             log.error(f"Failed to get map ID for EE image: {type(e).__name__}: {e}")
             raise
@@ -253,17 +327,7 @@ class GEEInterface:
     async def get_asset_async(self, asset_id: str, not_exists_ok: bool = False) -> Dict:
         """Asynchronously get an asset by its ID."""
         try:
-            if self.session:
-                return await self.session.operations.get_asset_async(asset_id, not_exists_ok)
-
-            if not_exists_ok:
-                try:
-                    return await asyncio.to_thread(ee.data.getAsset, asset_id)
-                except Exception:
-                    log.error(f"Asset not found: {asset_id}")
-                    return None
-
-            return await asyncio.to_thread(ee.data.getAsset, asset_id)
+            return await self.session.operations.get_asset_async(asset_id, not_exists_ok)
         except Exception as e:
             log.error(f"Failed to get asset {asset_id}: {type(e).__name__}: {e}")
             if not_exists_ok:
@@ -272,16 +336,11 @@ class GEEInterface:
 
     async def get_assets_async(self, folder: str = "") -> List[Dict]:
         """Asynchronously get assets in a specified folder."""
-        if self.session:
-            return await self.session.operations.get_assets_async(folder)
-
-        return await asyncio.to_thread(gee.get_assets, folder)
+        return await self.session.operations.get_assets_async(folder)
 
     async def get_folder_async(self) -> str:
         """Asynchronously get the assets folder path."""
-        if self.session:
-            return await self.session.get_assets_folder()
-        return f"projects/{gee.get_ee_project()}/assets/"
+        return await self.session.get_assets_folder()
 
     async def export_table_to_asset_async(
         self,
@@ -293,26 +352,14 @@ class GEEInterface:
         priority: Optional[int] = None,
     ) -> str:
         """Asynchronously export a FeatureCollection to an asset."""
-        if self.session:
-            return await self.session.export.table_to_asset_async(
-                collection=collection,
-                asset_id=asset_id,
-                description=description,
-                selectors=selectors,
-                max_vertices=max_vertices,
-                priority=priority,
-            )
-        else:
-            task = ee.batch.Export.table.toAsset(
-                collection=collection,
-                assetId=asset_id,
-                description=description,
-                selectors=selectors,
-                maxVertices=max_vertices,
-                priority=priority,
-            )
-            task.start()
-            return task
+        return await self.session.export.table_to_asset_async(
+            collection=collection,
+            asset_id=asset_id,
+            description=description,
+            selectors=selectors,
+            max_vertices=max_vertices,
+            priority=priority,
+        )
 
     async def export_table_to_drive_async(
         self,
@@ -326,55 +373,38 @@ class GEEInterface:
         priority: Optional[int] = None,
     ):
         """Asynchronously export a FeatureCollection to Google Drive."""
-        if self.session:
-            return await self.session.export.table_to_drive_async(
-                collection=collection,
-                filename_prefix=filename_prefix,
-                file_format=file_format,
-                folder=folder,
-                description=description,
-                selectors=selectors,
-                max_vertices=max_vertices,
-                priority=priority,
-            )
-        else:
-            task = ee.batch.Export.table.toDrive(
-                collection=collection,
-                description=description,
-                fileNamePrefix=filename_prefix,
-                fileFormat=file_format,
-                folder=folder,
-                selectors=selectors,
-                maxVertices=max_vertices,
-                priority=priority,
-            )
-            task.start()
-            return task
+        return await self.session.export.table_to_drive_async(
+            collection=collection,
+            filename_prefix=filename_prefix,
+            file_format=file_format,
+            folder=folder,
+            description=description,
+            selectors=selectors,
+            max_vertices=max_vertices,
+            priority=priority,
+        )
 
     async def is_running_async(self, name: str) -> bool:
         """Asynchronously check if a task is running by its name."""
-        if self.session:
-            task = await self.session.tasks.get_task_by_name_async(name)
-            return bool(task and task["state"] in ("RUNNING", "READY"))
-        return await asyncio.to_thread(gee.is_running, name)
+        task = await self.session.tasks.get_task_by_name_async(name)
+        # ee-client returns a pydantic ``Task``, whose state lives on its
+        # metadata. This read used to be ``task["state"]``, which no caller ever
+        # reached: every GEE-lane caller held a session-less interface and took
+        # the deleted global-ee branch instead.
+        return bool(task and task.metadata.state in ("RUNNING", "READY"))
 
     async def get_task_async(self, task_id: str) -> Optional[Task]:
         """Asynchronously get a task by its ID."""
-        if self.session:
-            return await self.session.tasks.get_task_async(task_id)
-        return await asyncio.to_thread(gee.get_task, task_id)
+        return await self.session.tasks.get_task_async(task_id)
 
     async def create_folder_async(self, folder_path: str) -> Dict:
         """Asynchronously create a folder in Earth Engine assets."""
         asset_root = await self.get_folder_async()
         relative_path, absolute_path = _resolve_create_folder_paths(asset_root, folder_path)
 
-        if self.session:
-            if not relative_path:
-                return {"id": absolute_path}
-            return await self.session.operations.create_folder_async(relative_path)
-        else:
-            return await asyncio.to_thread(ee.data.createAsset, {"type": "FOLDER"}, absolute_path)
+        if not relative_path:
+            return {"id": absolute_path}
+        return await self.session.operations.create_folder_async(relative_path)
 
     async def export_image_to_asset_async(
         self,
@@ -390,55 +420,22 @@ class GEEInterface:
         scale: Optional[float] = None,
         crs: Optional[str] = None,
         crs_transform: Optional[dict] = None,
-        pyramid_policy: Optional[str] = None,
     ) -> str:
         """Asynchronously export an image to an asset."""
-        if self.session:
-            return await self.session.export.image_to_asset_async(
-                image=image,
-                asset_id=asset_id,
-                description=description,
-                max_pixels=max_pixels,
-                grid=grid,
-                request_id=request_id,
-                workload_tag=workload_tag,
-                priority=priority,
-                region=region,
-                scale=scale,
-                crs=crs,
-                crs_transform=crs_transform,
-            )
-        else:
-            # Build kwargs dict with only non-None values
-            kwargs = {
-                "image": image,
-                "assetId": asset_id,
-                "description": description,
-            }
-            if max_pixels is not None:
-                kwargs["maxPixels"] = max_pixels
-            if grid is not None:
-                kwargs["grid"] = grid
-            if request_id is not None:
-                kwargs["requestId"] = request_id
-            if workload_tag is not None:
-                kwargs["workloadTag"] = workload_tag
-            if priority is not None:
-                kwargs["priority"] = priority
-            if region is not None:
-                kwargs["region"] = region
-            if scale is not None:
-                kwargs["scale"] = scale
-            if crs is not None:
-                kwargs["crs"] = crs
-            if crs_transform is not None:
-                kwargs["crsTransform"] = crs_transform
-            if pyramid_policy is not None:
-                kwargs["pyramidPolicy"] = pyramid_policy
-
-            task = ee.batch.Export.image.toAsset(**kwargs)
-            task.start()
-            return task
+        return await self.session.export.image_to_asset_async(
+            image=image,
+            asset_id=asset_id,
+            description=description,
+            max_pixels=max_pixels,
+            grid=grid,
+            request_id=request_id,
+            workload_tag=workload_tag,
+            priority=priority,
+            region=region,
+            scale=scale,
+            crs=crs,
+            crs_transform=crs_transform,
+        )
 
     async def export_image_to_drive_async(
         self,
@@ -446,51 +443,28 @@ class GEEInterface:
         description: str = "myExportImageTask",
         folder: Optional[str] = None,
         filename_prefix: Optional[str] = None,
-        dimensions: Optional[str] = None,
         region: Optional[ee.Geometry] = None,
         scale: Optional[float] = None,
         crs: Optional[str] = None,
         crs_transform: Optional[List[float]] = None,
         max_pixels: Optional[int] = None,
-        skip_empty_tiles: Optional[bool] = None,
         file_format: Optional[str] = ImageFileFormat.GEO_TIFF,
-        format_options: Optional[Dict] = None,
         priority: Optional[int] = None,
     ) -> str:
         """Asynchronously export an image to Google Drive."""
-        if self.session:
-            return await self.session.export.image_to_drive_async(
-                image=image,
-                filename_prefix=filename_prefix,
-                folder=folder,
-                file_format=file_format,
-                description=description,
-                max_pixels=max_pixels,
-                region=region,
-                scale=scale,
-                crs=crs,
-                crs_transform=crs_transform,
-                priority=priority,
-            )
-        else:
-            task = ee.batch.Export.image.toDrive(
-                image=image,
-                description=description,
-                folder=folder,
-                fileNamePrefix=filename_prefix,
-                dimensions=dimensions,
-                region=region,
-                scale=scale,
-                crs=crs,
-                crsTransform=crs_transform,
-                maxPixels=max_pixels,
-                skipEmptyTiles=skip_empty_tiles,
-                fileFormat=file_format,
-                formatOptions=format_options,
-                priority=priority,
-            )
-            task.start()
-            return task
+        return await self.session.export.image_to_drive_async(
+            image=image,
+            filename_prefix=filename_prefix,
+            folder=folder,
+            file_format=file_format,
+            description=description,
+            max_pixels=max_pixels,
+            region=region,
+            scale=scale,
+            crs=crs,
+            crs_transform=crs_transform,
+            priority=priority,
+        )
 
     # From here on, methods are blocking versions that run the async methods synchronously
 
@@ -617,7 +591,6 @@ class GEEInterface:
         crs: Optional[str] = None,
         crs_transform: Optional[List[float]] = None,
         max_pixels: Optional[int] = None,
-        pyramid_policy: Optional[str] = None,
         priority: Optional[int] = None,
     ) -> str:
         """Export an image to an asset, blocking until done."""
@@ -631,7 +604,6 @@ class GEEInterface:
                 crs=crs,
                 crs_transform=crs_transform,
                 max_pixels=max_pixels,
-                pyramid_policy=pyramid_policy,
                 priority=priority,
             )
         )
@@ -642,15 +614,12 @@ class GEEInterface:
         description: str = "myExportImageTask",
         folder: Optional[str] = None,
         filename_prefix: Optional[str] = None,
-        dimensions: Optional[str] = None,
         region: Optional[ee.Geometry] = None,
         scale: Optional[float] = None,
         crs: Optional[str] = None,
         crs_transform: Optional[List[float]] = None,
         max_pixels: Optional[int] = None,
-        skip_empty_tiles: Optional[bool] = None,
         file_format: Optional[str] = ImageFileFormat.GEO_TIFF,
-        format_options: Optional[Dict] = None,
         priority: Optional[int] = None,
     ) -> str:
         """Export an image to Google Drive, blocking until done."""
@@ -660,15 +629,12 @@ class GEEInterface:
                 description=description,
                 folder=folder,
                 filename_prefix=filename_prefix,
-                dimensions=dimensions,
                 region=region,
                 scale=scale,
                 crs=crs,
                 crs_transform=crs_transform,
                 max_pixels=max_pixels,
-                skip_empty_tiles=skip_empty_tiles,
                 file_format=file_format,
-                format_options=format_options,
                 priority=priority,
             )
         )
@@ -687,12 +653,12 @@ class GEEInterface:
             # state) must be released deterministically on kernel cull, not
             # whenever the garbage collector gets to it.
             if (
-                getattr(self, "session", None) is not None
-                and hasattr(self.session, "aclose")
+                getattr(self, "_session", None) is not None
+                and hasattr(self._session, "aclose")
                 and hasattr(self, "_async_loop")
                 and self._async_loop.is_running()
             ):
-                future = asyncio.run_coroutine_threadsafe(self.session.aclose(), self._async_loop)
+                future = asyncio.run_coroutine_threadsafe(self._session.aclose(), self._async_loop)
                 try:
                     future.result(timeout=5.0)
                 except Exception as e:

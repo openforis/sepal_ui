@@ -1,7 +1,7 @@
 """Custom widgets relative to user outputs.
 
 Gather the customized ``ipyvuetifyWidgets`` used to communicate with the end user.
-All the content of this modules is included in the parent ``sepal_ui.sepalwidgets`` package. So it can be imported directly from there.
+All the content of this modules is included in the parent ``pysepal.sepalwidgets`` package. So it can be imported directly from there.
 
 Example:
     .. jupyter-execute::
