@@ -56,6 +56,34 @@ node scripts/browser_probe.mjs --url http://127.0.0.1:8910/ --wait '.pill-wrappe
 diff <(jq -S . /tmp/solara.json) <(jq -S . /tmp/voila.json)
 ```
 
+## Interacting before you measure
+
+Some questions are only answerable by _doing_ something first — does clicking
+outside dismiss this dialog, does the scrim resize cleanly. `--click` and
+`--resize` run before `--eval`, so the expression measures the result:
+
+```bash
+# does clicking outside dismiss the dialog?
+node scripts/browser_probe.mjs --url http://127.0.0.1:8900/ \
+  --wait '.v-dialog--active' --click 12,-12 --settle-after 1500 \
+  --eval "({ open: !!document.querySelector('.v-dialog--active') })"
+
+# does the scrim track a viewport resize, or animate to it?
+node scripts/browser_probe.mjs --url http://127.0.0.1:8900/ \
+  --wait '.v-overlay' --resize 1000x700 --settle-after 50 \
+  --eval "(() => { const r = document.querySelector('.v-overlay__scrim').getBoundingClientRect();
+                   return { w: Math.round(r.width), vw: window.innerWidth }; })()"
+```
+
+**Use `--click` rather than clicking from `--eval`.** A click dispatched from JS
+(`el.click()`, `new MouseEvent(...)`) is untrusted, and vuetify's click-outside
+directive drops untrusted events on purpose (`if ('isTrusted' in e && !e.isTrusted) return false`). Driving it from `--eval` will tell you that
+dismissing a dialog is broken when it works perfectly.
+
+`--settle-after` defaults to 1200ms because widget round-trips go through the
+python kernel — far slower than a repaint. If a result looks negative, raise it
+before concluding anything.
+
 ## Writing a probe
 
 A probe is **one JavaScript expression** evaluated in the page. Read the DOM and
@@ -83,16 +111,19 @@ Pass it inline with `--eval "(...)"` or from a file with `--eval @path/to/probe.
 
 ## Options
 
-| Flag                        | Meaning                                                                                |
-| --------------------------- | -------------------------------------------------------------------------------------- |
-| `--url <url>`               | **required** — page to load                                                            |
-| `--eval <expr\|@file>`      | expression to evaluate (or `@file`); must return JSON-serializable data                |
-| `--wait <selector>`         | poll until this selector exists (else `--timeout`)                                     |
-| `--settle <ms>`             | extra wait after ready, for layout/theme (default 2000)                                |
-| `--timeout <ms>`            | readiness budget (default 30000)                                                       |
-| `--force-theme dark\|light` | set `:solara:theme.variant` in localStorage and reload (Solara only; Voila ignores it) |
-| `--chrome <path>`           | Chrome binary (default: autodetect)                                                    |
-| `--keep-open`               | leave Chrome running (to debug the probe itself)                                       |
+| Flag                        | Meaning                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--url <url>`               | **required** — page to load                                                                                                                             |
+| `--eval <expr\|@file>`      | expression to evaluate (or `@file`); must return JSON-serializable data                                                                                 |
+| `--wait <selector>`         | poll until this selector exists (else `--timeout`)                                                                                                      |
+| `--settle <ms>`             | extra wait after ready, for layout/theme (default 2000)                                                                                                 |
+| `--click <x,y\|selector>`   | issue a **real (trusted)** click before `--eval` — coordinates, or the centre of a selector. Negative coordinates count back from the right/bottom edge |
+| `--resize <WxH>`            | resize the viewport before `--eval` (e.g. `1000x700`)                                                                                                   |
+| `--settle-after <ms>`       | wait after `--click`/`--resize` (default 1200)                                                                                                          |
+| `--timeout <ms>`            | readiness budget (default 30000)                                                                                                                        |
+| `--force-theme dark\|light` | set `:solara:theme.variant` in localStorage and reload (Solara only; Voila ignores it)                                                                  |
+| `--chrome <path>`           | Chrome binary (default: autodetect)                                                                                                                     |
+| `--keep-open`               | leave Chrome running (to debug the probe itself)                                                                                                        |
 
 ## Worked example: the Solara/Voila theme-parity hunt
 
@@ -124,6 +155,14 @@ Each conclusion came from a computed-style read, not a guess.
   affected by ancestor classes from the host page (Jupyter sets `theme-light`
   on `<body>`). Probe computed styles to catch this; prefer child combinators or
   namespaced classes in `.vue` theme rules.
+- **The viewport is not `--window-size`.** Headless Chrome may report a much
+  smaller `window.innerHeight` than the window you asked for. Derive click
+  coordinates from `window.innerWidth/innerHeight` — which `--click` does for
+  you — instead of hardcoding, or you will click past the page and hit `<html>`.
+- **Bind dialogs with a real two-way model.** A fixture built with a constant
+  (ipyvuetify `Dialog(v_model=True)` with no handler) reopens the instant
+  vuetify closes it, so it can never _appear_ to dismiss. Use a reactive plus
+  `on_v_model` or you will measure your own fixture.
 - **Theme defaults differ.** Solara defaults dark via a `localStorage` flag that
   applies on the _next_ load; a first headless load may render light. Use
   `--force-theme dark` (Solara) or drive the app's own theme toggle.
