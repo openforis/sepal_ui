@@ -21,14 +21,34 @@ def with_sepal_sessions(
     module_name: str = "default",
     error_handler: Optional[Callable[[Exception], None]] = None,
 ):
-    """Decorator that establishes a SEPAL session before the Page renders.
+    """Decorator that establishes this runtime's session before the Page renders.
 
-    The credential source follows runtime topology, never header probing. Under
-    an app-launcher Solara server the session is built from this connection's
-    SEPAL headers and missing or invalid ones are an error -- there is nothing
-    else to fall back to that would still be this user. In a SEPAL sandbox,
-    under Voila, in plain Jupyter or in a script the process session is used and
-    no headers are involved.
+    **Required under an app-launcher Solara server, optional everywhere else.**
+    There the session is per connection, built from that connection's SEPAL
+    headers, and those are readable only on a thread carrying that connection's
+    kernel context -- the render thread and any thread started from it, but not
+    a thread-pool worker. Nothing can build one lazily, so
+    ``get_current_gee_interface()`` raises ``SepalSessionError`` on a connection
+    whose Page never ran the decorator. It is keyed by connection rather than by
+    route: in a multipage app an undecorated route reuses the session a
+    decorated one established.
+
+    In a SEPAL sandbox, under Voila, in plain Jupyter, in a script, or wherever
+    ``PYSEPAL_DEV_AUTH`` is armed, the session belongs to the process and the
+    first ``get_current_*`` call builds it. Two reasons to write the decorator
+    there anyway:
+
+    - It sets the default ``module_name``. An accessor may still pass one per
+      call, but only the decorator makes the choice stick for the bare calls
+      afterwards; without it they get ``"default"``.
+    - It wraps the whole render -- the session build *and* the component body --
+      so any exception becomes a ``solara.Error`` in the page, or reaches
+      ``error_handler``. That breadth has a cost: a body that raises after
+      calling hooks is swallowed here, and reacton then reports a misleading
+      "Previously render had N effects" hook-count error next to the alert.
+
+    The credential source follows runtime topology, never header probing; see
+    :mod:`pysepal.solara._topology` for the rules and their limits.
 
     Args:
         module_name: The module name for the SepalClient.
