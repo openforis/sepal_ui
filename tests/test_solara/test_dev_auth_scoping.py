@@ -15,7 +15,6 @@ from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-
 from pysepal.solara import session_manager as sm
 from pysepal.solara._topology import SessionPlan, SessionSource
 
