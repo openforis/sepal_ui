@@ -1,5 +1,6 @@
 """Module to load basemaps from different providers."""
 
+import os
 from typing import Optional
 
 from box import Box
@@ -7,7 +8,36 @@ from ipyleaflet import TileLayer
 from xyzservices import TileProvider
 from xyzservices import providers as xyz
 
+# CARTO started watermarking its raster tiles when they are requested without an API
+# key, so the background defaults point at a keyless provider. A deployment overrides
+# them through the environment with full XYZ URL templates, which keeps any API key out
+# of the published package.
+SEPAL_LIGHT_URL: str = os.getenv(
+    "SEPAL_BASEMAP_LIGHT",
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+)
+"URL template of the light background basemap."
+
+SEPAL_DARK_URL: str = os.getenv(
+    "SEPAL_BASEMAP_DARK",
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+)
+"URL template of the dark background basemap."
+
+SEPAL_ATTRIBUTION: str = os.getenv("SEPAL_BASEMAP_ATTRIBUTION", "Esri")
+"Attribution of the background basemaps. Must match the provider the URLs point at."
+
 xyz_tiles: dict = {
+    "SEPAL_LIGHT": {
+        "url": SEPAL_LIGHT_URL,
+        "attribution": SEPAL_ATTRIBUTION,
+        "name": "SEPAL Light",
+    },
+    "SEPAL_DARK": {
+        "url": SEPAL_DARK_URL,
+        "attribution": SEPAL_ATTRIBUTION,
+        "name": "SEPAL Dark",
+    },
     "OpenStreetMap": {
         "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         "attribution": "OpenStreetMap",

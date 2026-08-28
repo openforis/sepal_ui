@@ -36,7 +36,7 @@ from typing_extensions import Self
 from sepal_ui import color as scolors
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
-from sepal_ui.mapping.basemaps import basemap_tiles
+from sepal_ui.mapping.basemaps import SEPAL_DARK_URL, SEPAL_LIGHT_URL, basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.inspector_control import InspectorControl
 from sepal_ui.mapping.layer import EELayer
@@ -84,7 +84,7 @@ class SepalMap(ipl.Map):
         """Custom Map object design to build application.
 
         The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        The map will fall back to the SEPAL dark background basemap that well fits with the rest of the sepal_ui layout.
         Numerous methods have been added in the class to help you deal with your workflow implementation.
         It can natively display raster from .tif files and files and ee objects using methods
         that have the same signature as the GEE JavaScripts console.
@@ -116,7 +116,7 @@ class SepalMap(ipl.Map):
 
         # add the basemaps
         self.clear()
-        default_basemap = "CartoDB.DarkMatter" if v.theme.dark is True else "CartoDB.Positron"
+        default_basemap = "SEPAL_DARK" if v.theme.dark is True else "SEPAL_LIGHT"
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
@@ -154,12 +154,9 @@ class SepalMap(ipl.Map):
 
     def _on_theme_change(self, _) -> None:
         """Change the url of the basemaps."""
-        light = "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-        dark = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
-
         for layer in self.layers:
-            if layer.base and layer.url in [light, dark]:
-                layer.url = dark if v.theme.dark is True else light
+            if layer.base and layer.url in [SEPAL_LIGHT_URL, SEPAL_DARK_URL]:
+                layer.url = SEPAL_DARK_URL if v.theme.dark is True else SEPAL_LIGHT_URL
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
