@@ -36,7 +36,7 @@ from typing_extensions import Self
 from sepal_ui import color as scolors
 from sepal_ui import sepalwidgets as sw
 from sepal_ui.frontend import styles as ss
-from sepal_ui.mapping.basemaps import SEPAL_DARK_URL, SEPAL_LIGHT_URL, basemap_tiles
+from sepal_ui.mapping.basemaps import DARK_BASEMAP_URL, LIGHT_BASEMAP_URL, basemap_tiles
 from sepal_ui.mapping.draw_control import DrawControl
 from sepal_ui.mapping.inspector_control import InspectorControl
 from sepal_ui.mapping.layer import EELayer
@@ -155,8 +155,8 @@ class SepalMap(ipl.Map):
     def _on_theme_change(self, _) -> None:
         """Change the url of the basemaps."""
         for layer in self.layers:
-            if layer.base and layer.url in [SEPAL_LIGHT_URL, SEPAL_DARK_URL]:
-                layer.url = SEPAL_DARK_URL if v.theme.dark is True else SEPAL_LIGHT_URL
+            if layer.base and layer.url in [LIGHT_BASEMAP_URL, DARK_BASEMAP_URL]:
+                layer.url = DARK_BASEMAP_URL if v.theme.dark is True else LIGHT_BASEMAP_URL
 
     @deprecated(version="2.8.0", reason="the local_layer stored list has been dropped")
     def _remove_local_raster(self, local_layer: str) -> Self:
