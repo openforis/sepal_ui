@@ -25,7 +25,7 @@ def test_init() -> None:
     assert len(vector_rows) == 0
     assert len(layer_rows) == 0
     assert len(base_rows) == 1
-    assert "CartoDB" in base_rows[0].children[0].children[0]
+    assert "SEPAL" in base_rows[0].children[0].children[0]
 
     return
 
@@ -69,7 +69,7 @@ def test_add_basemaps() -> None:
 
     assert len(layer_rows) == 0
     assert len(base_rows) == 2
-    assert "CartoDB" in base_rows[0].children[0].children[0]
+    assert "SEPAL" in base_rows[0].children[0].children[0]
     assert "Google Satellite" in base_rows[1].children[0].children[0]
 
     return
