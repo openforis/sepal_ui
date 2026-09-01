@@ -9,9 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
       - name: Install dependencies
         run: pip install setuptools wheel twine build
@@ -23,12 +25,3 @@ jobs:
         run: |
           python -m build
           twine upload dist/* --verbose
-
-      - name: merge in release
-        uses: devmasx/merge-branch@master
-        with:
-          type: now
-          message: ":rocket: ${{  github.ref_name }}"
-          from_branch: main
-          target_branch: release
-          github_token: ${{ github.token }}
