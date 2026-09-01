@@ -1,5 +1,6 @@
 """Module to load basemaps from different providers."""
 
+import os
 from typing import Optional
 
 from box import Box
@@ -7,7 +8,45 @@ from ipyleaflet import TileLayer
 from xyzservices import TileProvider
 from xyzservices import providers as xyz
 
+# CARTO watermarks its raster tiles when they are requested without an API key. The
+# key is a deployment secret, so it arrives through the environment and never ships in
+# the package; without it the backgrounds fall back to a keyless provider.
+CARTODB_BASEMAP_KEY: str = os.getenv("CARTODB_BASEMAP_KEY", "")
+"API key for the CARTO backgrounds. Unset means the keyless Esri fallback."
+
+ESRI_LIGHT: str = "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+ESRI_DARK: str = "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+
+BASEMAP_LIGHT: str = (
+    f"https://basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}.png?key={CARTODB_BASEMAP_KEY}"
+    if CARTODB_BASEMAP_KEY
+    else ESRI_LIGHT
+)
+"URL template of the light background basemap."
+
+BASEMAP_DARK: str = (
+    f"https://basemaps.cartocdn.com/dark_all/{{z}}/{{x}}/{{y}}.png?key={CARTODB_BASEMAP_KEY}"
+    if CARTODB_BASEMAP_KEY
+    else ESRI_DARK
+)
+"URL template of the dark background basemap."
+
+# Tied to the key so the credit can never drift from the provider actually serving the
+# tiles; CARTO's free tier is granted in exchange for it staying visible.
+BASEMAP_ATTRIBUTION: str = "CARTO, OpenStreetMap" if CARTODB_BASEMAP_KEY else "Esri"
+"Attribution of the background basemaps."
+
 xyz_tiles: dict = {
+    "SEPAL_LIGHT": {
+        "url": BASEMAP_LIGHT,
+        "attribution": BASEMAP_ATTRIBUTION,
+        "name": "SEPAL Light",
+    },
+    "SEPAL_DARK": {
+        "url": BASEMAP_DARK,
+        "attribution": BASEMAP_ATTRIBUTION,
+        "name": "SEPAL Dark",
+    },
     "OpenStreetMap": {
         "url": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         "attribution": "OpenStreetMap",
