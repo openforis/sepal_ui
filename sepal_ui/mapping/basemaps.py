@@ -12,29 +12,29 @@ from xyzservices import providers as xyz
 # key, so the background defaults point at a keyless provider. A deployment overrides
 # them through the environment with full XYZ URL templates, which keeps any API key out
 # of the published package.
-LIGHT_BASEMAP_URL: str = os.getenv(
-    "LIGHT_BASEMAP_URL",
+BASEMAP_LIGHT: str = os.getenv(
+    "PYSEPAL_BASEMAP_LIGHT",
     "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
 )
 "URL template of the light background basemap."
 
-DARK_BASEMAP_URL: str = os.getenv(
-    "DARK_BASEMAP_URL",
+BASEMAP_DARK: str = os.getenv(
+    "PYSEPAL_BASEMAP_DARK",
     "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
 )
 "URL template of the dark background basemap."
 
-BASEMAP_ATTRIBUTION: str = os.getenv("BASEMAP_ATTRIBUTION", "Esri")
+BASEMAP_ATTRIBUTION: str = os.getenv("PYSEPAL_BASEMAP_ATTRIBUTION", "Esri")
 "Attribution of the background basemaps. Must match the provider the URLs point at."
 
 xyz_tiles: dict = {
     "SEPAL_LIGHT": {
-        "url": LIGHT_BASEMAP_URL,
+        "url": BASEMAP_LIGHT,
         "attribution": BASEMAP_ATTRIBUTION,
         "name": "SEPAL Light",
     },
     "SEPAL_DARK": {
-        "url": DARK_BASEMAP_URL,
+        "url": BASEMAP_DARK,
         "attribution": BASEMAP_ATTRIBUTION,
         "name": "SEPAL Dark",
     },
