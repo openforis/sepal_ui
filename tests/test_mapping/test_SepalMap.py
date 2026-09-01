@@ -33,16 +33,17 @@ def test_init() -> None:
     assert m.zoom == 2
     assert len(m.layers) == 2
 
-    basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
+    default_basemaps = ["SEPAL Dark", "SEPAL Light"]
 
     # Get current theme
     dark_theme = True if get_theme() == "dark" else False
 
     # The basemap will change depending on the current theme.
-    assert m.layers[0].name == basemaps[not dark_theme]
+    assert m.layers[0].name == default_basemaps[not dark_theme]
 
     # check that the map start with several basemaps
 
+    basemaps = ["CartoDB.DarkMatter", "CartoDB.Positron"]
     m = sm.SepalMap(basemaps)
     assert len(m.layers) == 3
     layers_name = [layer.name for layer in m.layers]
@@ -75,15 +76,15 @@ def test_theme_toggle_is_deprecated_but_still_follows_bound_theme_state() -> Non
     with pytest.deprecated_call(match="theme_toggle"):
         m = sm.SepalMap(theme_toggle=first_toggle, gee=False)
 
-    assert m.layers[0].name == "CartoDB.Positron"
+    assert m.layers[0].name == "SEPAL Light"
 
     second_toggle = ThemeToggle(theme_state=theme_state)
     second_toggle.dark = True
 
-    assert m.layers[0].name == "CartoDB.DarkMatter"
+    assert m.layers[0].name == "SEPAL Dark"
 
     first_toggle.dark = False
-    assert m.layers[0].name == "CartoDB.Positron"
+    assert m.layers[0].name == "SEPAL Light"
 
     return
 
@@ -518,7 +519,7 @@ def test_find_layer(ee_map_with_layers: sm.SepalMap) -> None:
 
     # search including the basemap
     res = m.find_layer(0, base=True)
-    assert "Carto" in res.name
+    assert "SEPAL" in res.name
     assert res.base is True
 
     # search something that is not a key

@@ -121,7 +121,7 @@ class SepalMap(ipl.Map):
         """Custom Map object design to build application.
 
         The SepalMap class inherits from ipyleaflet.Map. It can thus be initialized with all its parameter.
-        The map will fall back to CartoDB.DarkMatter map that well fits with the rest of the sepal_ui layout.
+        The map will fall back to the SEPAL dark background that well fits with the rest of the sepal_ui layout.
         Numerous methods have been added in the class to help you deal with your workflow implementation.
         It can natively display raster from .tif files and files and ee objects using methods
         that have the same signature as the GEE JavaScripts console.
@@ -184,13 +184,11 @@ class SepalMap(ipl.Map):
         # add the basemaps
         self.clear()
         theme_source = self._resolve_theme_source(theme_state, theme_toggle)
-        default_basemap = (
-            "CartoDB.DarkMatter" if self._theme_is_dark(theme_source) else "CartoDB.Positron"
-        )
+        default_basemap = "SEPAL_DARK" if self._theme_is_dark(theme_source) else "SEPAL_LIGHT"
         basemaps = basemaps or [default_basemap]
         [self.add_basemap(basemap) for basemap in set(basemaps)]
 
-        self._apply_theme_class(default_basemap == "CartoDB.DarkMatter")
+        self._apply_theme_class(default_basemap == "SEPAL_DARK")
 
         # set the visibility of all the basemaps to False but the first one
         [setattr(lyr, "visible", False) for lyr in self.layers]
@@ -226,8 +224,8 @@ class SepalMap(ipl.Map):
     def _on_theme_change(self, change) -> None:
         """Change the basemap layer."""
         # This is the way to make it work in solara do not ask me why
-        light = eval(str(basemap_tiles["CartoDB.Positron"]))
-        dark = eval(str(basemap_tiles["CartoDB.DarkMatter"]))
+        light = eval(str(basemap_tiles["SEPAL_LIGHT"]))
+        dark = eval(str(basemap_tiles["SEPAL_DARK"]))
 
         layer_names = [layer.name for layer in self.layers]
         self._apply_theme_class(change["new"])

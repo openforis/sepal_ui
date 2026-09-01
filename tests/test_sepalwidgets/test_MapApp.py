@@ -13,17 +13,17 @@ def test_mapapp_creates_toggle_bound_to_shared_theme_state() -> None:
     app = MapApp(main_map=[sepal_map], theme_state=theme_state)
     toggle = app.theme_toggle[0]
 
-    assert sepal_map.layers[0].name == "CartoDB.Positron"
+    assert sepal_map.layers[0].name == "SEPAL Light"
 
     toggle.dark = True
-    assert sepal_map.layers[0].name == "CartoDB.DarkMatter"
+    assert sepal_map.layers[0].name == "SEPAL Dark"
 
     toggle.dark = None
     toggle.resolved_dark = False
-    assert sepal_map.layers[0].name == "CartoDB.Positron"
+    assert sepal_map.layers[0].name == "SEPAL Light"
 
     toggle.resolved_dark = True
-    assert sepal_map.layers[0].name == "CartoDB.DarkMatter"
+    assert sepal_map.layers[0].name == "SEPAL Dark"
 
     return
 
