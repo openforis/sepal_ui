@@ -14,12 +14,8 @@ from xyzservices import providers as xyz
 CARTODB_BASEMAP_KEY: str = os.getenv("CARTODB_BASEMAP_KEY", "")
 "API key for the CARTO backgrounds. Unset means the keyless Esri fallback."
 
-ESRI_LIGHT: str = (
-    "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-)
-ESRI_DARK: str = (
-    "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-)
+ESRI_LIGHT: str = "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+ESRI_DARK: str = "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
 
 BASEMAP_LIGHT: str = (
     f"https://basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}.png?key={CARTODB_BASEMAP_KEY}"
