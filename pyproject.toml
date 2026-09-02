@@ -21,7 +21,10 @@ dependencies = [
     # building widgets
     "tomli",
     "ipykernel",
-    "ipyvuetify<3", # 3.0 drops widgets sepalwidgets subclasses (CalendarDaily), so an unpinned install cannot import pysepal
+    # 3.0 drops widgets sepalwidgets subclasses (CalendarDaily); below 1.8 there is
+    # no _version.semver, which pysepal imports at startup. A cap alone lets a
+    # crowded solve fall through to 0.1.x.
+    "ipyvuetify>=1.8,<3",
     "markdown",
     "ipyleaflet>=0.14.0",  # to have access to data member in edition
     # earthengine management
