@@ -49,6 +49,15 @@ def test_init() -> None:
     layers_name = [layer.name for layer in m.layers]
     assert all(b in layers_name for b in basemaps)
 
+    # the caller's order has to survive, as only the first one is left visible
+    assert layers_name[: len(basemaps)] == basemaps
+    assert m.layers[0].visible
+    assert not m.layers[1].visible
+
+    # duplicates are dropped without disturbing that order
+    m = sm.SepalMap(["CartoDB.Positron", "CartoDB.DarkMatter", "CartoDB.Positron"])
+    assert [layer.name for layer in m.layers][:2] == ["CartoDB.Positron", "CartoDB.DarkMatter"]
+
     # check that the map start with a DC
     m = sm.SepalMap(dc=True)
     assert m._id != id1
