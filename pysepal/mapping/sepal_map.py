@@ -197,7 +197,9 @@ class SepalMap(ipl.Map):
         theme_source = self._resolve_theme_source(theme_state, theme_toggle)
         default_basemap = "SEPAL_DARK" if self._theme_is_dark(theme_source) else "SEPAL_LIGHT"
         basemaps = basemaps or [default_basemap]
-        [self.add_basemap(basemap) for basemap in set(basemaps)]
+        # dict.fromkeys, not set: a set has no order, so the basemap left visible
+        # below would otherwise vary with the hash seed, i.e. at every restart.
+        [self.add_basemap(basemap) for basemap in dict.fromkeys(basemaps)]
 
         self._apply_theme_class(default_basemap == "SEPAL_DARK")
 
