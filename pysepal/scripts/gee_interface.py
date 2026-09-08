@@ -9,7 +9,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 import ee
 from eeclient.client import EESession
 from eeclient.data import MapTileOptions
-from eeclient.export.image import ImageFileFormat
+from eeclient.export.image import ImageFileFormat, PyramidingPolicy
 from eeclient.export.table import TableFileFormat
 from eeclient.tasks import Task
 
@@ -420,6 +420,8 @@ class GEEInterface:
         scale: Optional[float] = None,
         crs: Optional[str] = None,
         crs_transform: Optional[dict] = None,
+        pyramiding_policy: Optional[PyramidingPolicy] = None,
+        pyramiding_policy_overrides: Optional[Dict[str, PyramidingPolicy]] = None,
     ) -> str:
         """Asynchronously export an image to an asset."""
         return await self.session.export.image_to_asset_async(
@@ -435,6 +437,8 @@ class GEEInterface:
             scale=scale,
             crs=crs,
             crs_transform=crs_transform,
+            pyramiding_policy=pyramiding_policy,
+            pyramiding_policy_overrides=pyramiding_policy_overrides,
         )
 
     async def export_image_to_drive_async(
@@ -592,6 +596,8 @@ class GEEInterface:
         crs_transform: Optional[List[float]] = None,
         max_pixels: Optional[int] = None,
         priority: Optional[int] = None,
+        pyramiding_policy: Optional[PyramidingPolicy] = None,
+        pyramiding_policy_overrides: Optional[Dict[str, PyramidingPolicy]] = None,
     ) -> str:
         """Export an image to an asset, blocking until done."""
         return self._run_async_blocking(
@@ -605,6 +611,8 @@ class GEEInterface:
                 crs_transform=crs_transform,
                 max_pixels=max_pixels,
                 priority=priority,
+                pyramiding_policy=pyramiding_policy,
+                pyramiding_policy_overrides=pyramiding_policy_overrides,
             )
         )
 

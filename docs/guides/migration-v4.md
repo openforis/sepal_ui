@@ -76,6 +76,15 @@ deleted branch: `pyramid_policy` on `export_image_to_asset`, and `dimensions`,
 `skip_empty_tiles` and `format_options` on `export_image_to_drive`. None had a
 caller in pysepal or in any downstream module.
 
+`pyramid_policy` has a successor. It was never a working parameter under either
+name: the session branch accepted it and dropped it, and the deleted branch sent
+it as `pyramidPolicy`, which Earth Engine rejects outright with
+`EEException: Unknown configuration options`. `export_image_to_asset` now takes
+`pyramiding_policy` and `pyramiding_policy_overrides`, spelled the way the REST
+API spells them and forwarded through ee-client. Reach for them on any
+categorical image: the server default is `MEAN`, which averages class codes in
+every overview level and renders the asset wrong below native zoom.
+
 **A task is now an ee-client model, not an `ee.batch.Task`.** `get_task` and
 `get_task_async` return `Optional[eeclient.tasks.Task]` — a pydantic model — and
 give you `None` for an unknown id. The deleted branch returned an `ee.batch.Task`
@@ -572,9 +581,10 @@ Rename the key. For the same reason `MapApp` takes `locales=` rather than a
       `GEEInterface()` now raises there.
 - [ ] Pass `gee_interface` to `get_viz_params` / `get_viz_params_async`; it is
       no longer optional.
-- [ ] Drop `pyramid_policy`, `dimensions`, `skip_empty_tiles` and
-      `format_options` from any `export_image_to_asset` / `export_image_to_drive`
-      call.
+- [ ] Drop `dimensions`, `skip_empty_tiles` and `format_options` from any
+      `export_image_to_drive` call, and rename `pyramid_policy` to
+      `pyramiding_policy` on `export_image_to_asset` — it never reached Earth
+      Engine under the old name.
 - [ ] Read a task's state as `task.metadata.state`, and handle `get_task`
       returning `None` instead of raising on an unknown id.
 - [ ] Replace every `pysepal.scripts.gee` call except `init_ee` and `need_ee`.
