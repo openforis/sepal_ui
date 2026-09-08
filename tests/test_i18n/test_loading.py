@@ -244,18 +244,20 @@ def test_overlay_ignores_a_malformed_target_leaf(build_catalog):
     assert composite["hello"] == "Hi {name}"
 
 
-def test_overlay_lets_a_parseable_target_replace_a_malformed_english_leaf(build_catalog):
-    """A malformed English template imposes no constraint, so a working target still wins.
+def test_load_locale_refuses_a_malformed_english_leaf(build_catalog):
+    """Only English is validated when a catalogue binds, and this is a hard error."""
+    folder = build_catalog({"en": {"a": {"hello": "Hi {name"}}})
+    with pytest.raises(CatalogError, match=r"str\.format can render"):
+        load_locale(folder, "en")
 
-    French users get "Salut {nom}"; English's own render still crashes loudly
-    on "Hi {name" -- that half of the old ruling is unchanged, only which side
-    a *good* translation is held hostage to.
-    """
+
+def test_a_malformed_target_leaf_is_kept_and_loses_to_english(build_catalog):
+    """The same mistake in French is reported by check(), never raised."""
     folder = build_catalog(
-        {"en": {"a": {"hello": "Hi {name"}}, "fr": {"a": {"hello": "Salut {nom}"}}}
+        {"en": {"a": {"hello": "Hi {name}"}}, "fr": {"a": {"hello": "Salut {nom"}}}
     )
     composite = overlay(load_locale(folder, "en"), load_locale(folder, "fr"))
-    assert composite["hello"] == "Salut {nom}"
+    assert composite["hello"] == "Hi {name}"
 
 
 def test_the_composite_is_immutable(build_catalog):
