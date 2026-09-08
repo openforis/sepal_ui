@@ -333,3 +333,26 @@ def test_select_plural_category_pins_the_boundary(count, expected):
     import pysepal.i18n.binding as binding
 
     assert binding.select_plural_category(count) == expected
+
+
+def test_a_translation_whose_spec_needs_another_value_falls_back_to_english(build_catalog):
+    """A name-only comparison passed this and then raised on a user's screen.
+
+    ``{name:{width}}`` needs ``width`` as well, and ``{name!z}`` is a conversion
+    ``str.format`` refuses. Both used to reach ``_resolve`` and raise
+    ``MessageFormatError`` in French alone, which is the failure the overlay
+    exists to prevent.
+    """
+    folder = build_catalog(
+        {
+            "en": {"a": {"hello": "Hello {name}", "bye": "Bye {name}"}},
+            "fr": {"a": {"hello": "Bonjour {name:{width}}", "bye": "Salut {name!z}"}},
+        }
+    )
+    messages = catalog(folder)
+
+    assert messages._resolve("fr", "hello", name="Ana") == "Hello Ana"
+    assert messages._resolve("fr", "bye", name="Ana") == "Bye Ana"
+
+    reported = {(problem.code, problem.key) for problem in messages.check()}
+    assert reported == {("placeholder_mismatch", "hello"), ("malformed_template", "bye")}
