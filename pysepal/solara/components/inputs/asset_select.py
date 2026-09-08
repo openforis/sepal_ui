@@ -240,7 +240,7 @@ def AssetSelectComponent(
             dense=True,
             loading=loading_assets.value or loading_columns.value,
             placeholder=ms.widgets.asset_select.placeholder,
-            prepend_icon="mdi-sync",
+            prepend_inner_icon="mdi-sync",
             error=bool(validation_msg.value),
             error_messages=validation_msg.value or None,
         ):
